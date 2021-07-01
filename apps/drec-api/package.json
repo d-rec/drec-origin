@@ -8,18 +8,26 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "yarn build:ts",
+    "build:ts": "tsc -b tsconfig.json",
+    "build:containers": "make build",
+    "clean": "shx rm -rf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "prettier": "prettier --write --config-precedence file-override './src/**/*'",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint-fix": "eslint \"src/**/*{.ts,.tsx}\" \"test/**/*{.ts,.tsx}\" --fix --no-error-on-unmatched-pattern",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "bin": {
+    "drec-backend": "./bin/drec-api"
   },
   "dependencies": {
     "@nestjs/common": "^7.0.0",
