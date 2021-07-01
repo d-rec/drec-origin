@@ -45,6 +45,16 @@
       "safeForSimultaneousRushProcesses": true
     },
     {
+      "commandKind": "global",
+      "name": "drop",
+      "summary": "Drops all databases",
+      "shellCommand": "cd apps/drec-api && rushx drop",
+
+      "autoinstallerName": "rush-tools",
+
+      "safeForSimultaneousRushProcesses": true
+  },
+    {
       "commandKind": "bulk",
       "name": "test:e2e",
       "summary": "Run all test:e2e in packages",
@@ -53,6 +63,15 @@
       "ignoreMissingScript": true,
       "allowWarningsInSuccessfulBuild": true
     },
+    {
+      "commandKind": "bulk",
+      "name": "test:mocha",
+      "summary": "Run all test:mocha in packages",
+      "safeForSimultaneousRushProcesses": false,
+      "enableParallelism": false,
+      "ignoreMissingScript": true,
+      "allowWarningsInSuccessfulBuild": true
+  },
     {
       "commandKind": "bulk",
       "name": "deploy:heroku",
