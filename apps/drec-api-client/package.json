@@ -1,0 +1,49 @@
+{
+    "private": true,
+    "name": "@energyweb/origin-drec-api-client",
+    "version": "0.0.1",
+    "description": "",
+    "main": "dist/js/src/index.js",
+    "scripts": {
+        "build": "yarn build:ts",
+        "build:ts": "tsc -b tsconfig.json && yarn build:client",
+        "build:client": "yarn client:generate:schema && yarn client:generate && yarn client:post-generation && yarn client:clean",
+        "clean": "shx rm -rf dist dist-shakeable",
+        "client:generate": "openapi-generator generate -g typescript-axios -i src/schema.yaml -o src --api-name-suffix Client --remove-operation-id-prefix",
+        "client:generate:schema": "ts-node src/generateSchema.ts",
+        "client:post-generation": "ts-node src/postGeneration.ts",
+        "client:clean": "find src/ -type f  ! -name \"*.ts\"  -delete"
+    },
+    "homepage": "https://github.com/energywebfoundation/sbe-origin/tree/master/apps/sbe-api-client#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/energywebfoundation/sbe-origin.git"
+    },
+    "bugs": {
+        "url": "https://github.com/energywebfoundation/sbe-origin/issues"
+    },
+    "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
+    "license": "GPL-3.0-or-later",
+    "files": [
+        "dist/js"
+    ],
+    "dependencies": {
+        "axios": "0.21.1"
+    },
+    "devDependencies": {
+        "@energyweb/origin-drec-api": "0.0.1",
+        "@nestjs/swagger": "4.7.15",
+        "@nestjs/testing": "7.6.5",
+        "@nestjs/typeorm": "7.1.5",
+        "@openapitools/openapi-generator-cli": "1.0.18-4.3.1",
+        "@types/node": "14.14.11",
+        "json-to-pretty-yaml": "1.2.2",
+        "prettier": "2.1.2",
+        "ts-node": "9.1.0",
+        "typescript": "4.1.3"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org"
+    }
+}
