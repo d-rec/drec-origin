@@ -14,13 +14,13 @@
         "client:post-generation": "ts-node src/postGeneration.ts",
         "client:clean": "find src/ -type f  ! -name \"*.ts\"  -delete"
     },
-    "homepage": "https://github.com/energywebfoundation/sbe-origin/tree/master/apps/sbe-api-client#readme",
+    "homepage": "https://github.com/energywebfoundation/drec-origin/tree/master/apps/drec-api-client#readme",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/energywebfoundation/sbe-origin.git"
+        "url": "git+https://github.com/energywebfoundation/drec-origin"
     },
     "bugs": {
-        "url": "https://github.com/energywebfoundation/sbe-origin/issues"
+        "url": "https://github.com/energywebfoundation/drec-origin/issues"
     },
     "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
     "license": "GPL-3.0-or-later",
