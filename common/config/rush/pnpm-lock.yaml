@@ -25,6 +25,7 @@ specifiers:
   reflect-metadata: ^0.1.13
   rimraf: ^3.0.2
   rxjs: ^6.5.4
+  shx: 0.3.3
   supertest: ^4.0.2
   ts-jest: 25.2.1
   ts-loader: ^6.2.1
@@ -55,6 +56,7 @@ dependencies:
   reflect-metadata: 0.1.13
   rimraf: 3.0.2
   rxjs: 6.6.7
+  shx: 0.3.3
   supertest: 4.0.2
   ts-jest: 25.2.1_jest@25.5.4
   ts-loader: 6.2.2
@@ -5461,6 +5463,15 @@ packages:
     dev: false
     optional: true
 
+  /shx/0.3.3:
+    resolution: {integrity: sha512-nZJ3HFWVoTSyyB+evEKjJ1STiixGztlqwKLTUNV5KqMWtGey9fTd4KU1gdZ1X9BV6215pswQ/Jew9NsuS/fNDA==}
+    engines: {node: '>=6'}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.5
+      shelljs: 0.8.4
+    dev: false
+
   /side-channel/1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
     dependencies:
@@ -6568,7 +6579,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-dSX8oRwyz6m4ZyGxjeSVelWkKApHobBQzIR8lwMkogNdjUP0Q13MwzUqEUagFFsym5B71BITYZWb9f0YTJ+n5w==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-g+fzWzeHYMXbdjAOoTVA1ixlbo1TKyWCIg450uGUaVtfRGSWz75DZySxTgljI7xFUHfKCwD2SdSGbREOMHDwcA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -6592,6 +6603,7 @@ packages:
       reflect-metadata: 0.1.13
       rimraf: 3.0.2
       rxjs: 6.6.7
+      shx: 0.3.3
       supertest: 4.0.2
       ts-jest: 25.2.1_jest@25.5.4
       ts-loader: 6.2.2_typescript@3.9.10
