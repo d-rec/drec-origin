@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "target": "es2015",
+        "sourceMap": true,
+        "outDir": "./dist/js",
+        "baseUrl": "./",
+        "incremental": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "composite": true,
+        "types": ["node", "mocha"]
+    },
+    "include": ["src/index.ts", "src/client/*", "src/response-type.ts"],
+    "exclude": ["node_modules", "dist"]
+}

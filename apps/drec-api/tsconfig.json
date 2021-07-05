@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES2020",
+    "sourceMap": true,
+    "outDir": "./dist/js",
+    "baseUrl": "./",
+    "incremental": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node"],
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*", "test/**/*", "migrations/*", "ormconfig*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
