@@ -5,6 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import fs from 'fs';
 import path from 'path';
 
+import { AuthModule } from './auth/auth.module';
+import { User } from './pods/user/user.entity';
+import { UserModule } from './pods/user/user.module';
+import { Organization } from './pods/organization/organization.entity';
+import { OrganizationModule } from './pods/organization/organization.module';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -22,6 +28,8 @@ const getEnvFilePath = () => {
   }
 };
 
+export const entities = [User, Organization];
+
 const OriginAppTypeOrmModule = () => {
   return process.env.DATABASE_URL
     ? TypeOrmModule.forRoot({
@@ -30,6 +38,7 @@ const OriginAppTypeOrmModule = () => {
         ssl: {
           rejectUnauthorized: false,
         },
+        entities,
         logging: ['info'],
       })
     : TypeOrmModule.forRoot({
@@ -39,6 +48,7 @@ const OriginAppTypeOrmModule = () => {
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASSWORD ?? 'postgres',
         database: process.env.DB_DATABASE ?? 'origin',
+        entities,
         logging: ['info'],
       });
 };
@@ -51,6 +61,9 @@ const OriginAppTypeOrmModule = () => {
     }),
     OriginAppTypeOrmModule(),
     ScheduleModule.forRoot(),
+    AuthModule,
+    UserModule,
+    OrganizationModule,
   ],
 })
 export class DrecModule {}
