@@ -2,27 +2,40 @@
   {
     "code": "D001",
     "name": "Device Owner",
-    "address": "TOKYO PORTCITY TAKESHIBA Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "address": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr",
     "primaryContact": "Jane Williams",
     "telephone": "81-3-6889-2713",
     "email": "owner@mailinator.com",
     "regNumber": "123456789",
     "vatNumber": "123456789",
-    "regAddress": "TOKYO PORTCITY TAKESHIBA Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "regAddress": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr",
     "country": "DE",
     "role": "DeviceOwner"
   },
   {
     "code": "B001",
     "name": "Buyer",
-    "address": "Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "address": "no sea takimata sanctus est Lorem ipsum dolor sit amet",
     "primaryContact": "John Smith",
     "telephone": "11111",
     "email": "buyer@mailinator.com",
     "regNumber": "123456789",
     "vatNumber": "123456789",
-    "regAddress": "Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "regAddress": "no sea takimata sanctus est Lorem ipsum dolor sit amet",
     "country": "DE",
     "role": "Buyer"
+  },
+  {
+    "code": "A001",
+    "name": "Admin",
+    "address": "Stet clita kasd gubergren",
+    "primaryContact": "Jane Doe",
+    "telephone": "11111",
+    "email": "admin@mailinator.com",
+    "regNumber": "123456789",
+    "vatNumber": "123456789",
+    "regAddress": "Stet clita kasd gubergren",
+    "country": "DE",
+    "role": "Admin"
   }
 ]

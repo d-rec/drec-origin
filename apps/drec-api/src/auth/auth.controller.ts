@@ -31,6 +31,6 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
-    return this.authService.login(req.body as Omit<IUser, 'password'>);
+    return this.authService.login(req.user as Omit<IUser, 'password'>);
   }
 }
