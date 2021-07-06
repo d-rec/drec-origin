@@ -47,6 +47,7 @@ export async function startAPI(logger?: LoggerService) {
     .setTitle('DREC Origin API')
     .setDescription('Swagger documentation for DREC Origin API')
     .setVersion('0.1')
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'api-key' }, 'drec')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',

@@ -1,0 +1,28 @@
+[
+  {
+    "code": "D001",
+    "name": "Device Owner",
+    "address": "TOKYO PORTCITY TAKESHIBA Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "primaryContact": "Jane Williams",
+    "telephone": "81-3-6889-2713",
+    "email": "owner@mailinator.com",
+    "regNumber": "123456789",
+    "vatNumber": "123456789",
+    "regAddress": "TOKYO PORTCITY TAKESHIBA Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "country": "DE",
+    "role": "Device Owner"
+  },
+  {
+    "code": "B001",
+    "name": "Buyer",
+    "address": "Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "primaryContact": "John Smith",
+    "telephone": "11111",
+    "email": "buyer@mailinator.com",
+    "regNumber": "123456789",
+    "vatNumber": "123456789",
+    "regAddress": "Office Tower, 1-7-1 Kaigan, Minato-ku, Tokyo",
+    "country": "DE",
+    "role": "Buyer"
+  }
+]
