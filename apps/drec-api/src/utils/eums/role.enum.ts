@@ -1,4 +1,4 @@
 export enum Role {
-  DeviceOwner = 'Device Owner',
+  DeviceOwner = 'DeviceOwner',
   Buyer = 'Buyer',
 }
