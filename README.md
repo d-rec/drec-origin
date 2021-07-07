@@ -35,7 +35,7 @@ docker run --name origin-postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 
 Create Postgres DB table
 
 ```
-psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin_drec"
+psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 ```
 
 Create InfluxDB to store smart meter readings
