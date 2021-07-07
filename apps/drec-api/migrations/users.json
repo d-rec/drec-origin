@@ -1,0 +1,23 @@
+[
+  {
+    "id": 2,
+    "username": "JaneWilliams",
+    "email": "owner@mailinator.com",
+    "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
+    "organizationId": "D001"
+  },
+  {
+    "id": 3,
+    "username": "JohnSmith",
+    "email": "buyer@mailinator.com",
+    "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
+    "organizationId": "B001"
+  },
+  {
+    "id": 4,
+    "username": "JaneDoe",
+    "email": "admin@mailinator.com",
+    "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
+    "organizationId": "A001"
+  }
+]
