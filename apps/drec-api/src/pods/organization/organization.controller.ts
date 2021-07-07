@@ -13,7 +13,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsDrecOrUserGuard } from '../../auth/is-drec-or-user.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 import { OrganizationDTO } from './organization.dto';
@@ -32,7 +31,6 @@ export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
   @Get('/me')
-  @UseGuards(IsDrecOrUserGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -45,7 +43,6 @@ export class OrganizationController {
   }
 
   @Get('/users')
-  @UseGuards(IsDrecOrUserGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -58,7 +55,6 @@ export class OrganizationController {
   }
 
   @Get('/:code')
-  @UseGuards(IsDrecOrUserGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
