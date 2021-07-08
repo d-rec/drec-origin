@@ -32,6 +32,7 @@ const getEnvFilePath = () => {
   }
 };
 
+const [CertificateModule, , BlockchainPropertiesModule] = IssuerModules;
 const [Certificate, , BlockchainProperties] = IssuerEntities;
 
 export const entities = [User, Organization, Certificate, BlockchainProperties];
@@ -70,6 +71,8 @@ const OriginAppTypeOrmModule = () => {
     AuthModule,
     UserModule,
     OrganizationModule,
+    CertificateModule,
+    BlockchainPropertiesModule,
   ],
 })
 export class DrecModule {}
