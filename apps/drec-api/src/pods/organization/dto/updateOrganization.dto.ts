@@ -1,64 +1,67 @@
 import {
   IsEnum,
-  IsEthereumAddress,
   IsISO31661Alpha2,
   IsString,
+  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IOrganization } from '../organization.entity';
+import { Role } from '../../../utils/eums/role.enum';
 
-import { IOrganization } from './organization.entity';
-import { Role } from '../../utils/eums/role.enum';
-import { Expose } from 'class-transformer';
-
-export class OrganizationDTO implements IOrganization {
+export class UpdateOrganizationDTO
+  implements Omit<IOrganization, 'blockchainAccountAddress'>
+{
   @ApiProperty({ type: String })
   @IsString()
-  @Expose()
   code: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   name: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   address: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   primaryContact: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   telephone: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   email: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   regNumber: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   vatNumber: string;
 
   @ApiProperty({ type: String })
   @IsString()
+  @IsOptional()
   regAddress: string;
 
   @ApiProperty({ type: String })
   @IsISO31661Alpha2()
+  @IsOptional()
   country: string;
-
-  @ApiProperty({ type: String })
-  @IsEthereumAddress()
-  @Expose()
-  blockchainAccountAddress: string;
 
   @ApiProperty({ enum: Role, enumName: 'Role' })
   @IsEnum(Role)
-  @Expose()
+  @IsOptional()
   role: Role;
 }

@@ -8,13 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
-import { NewOrganizationDTO } from './newOrganization.dto';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 import { Wallet } from 'ethers';
 import { Contracts } from '@energyweb/issuer';
 import { IOrganization, Organization } from './organization.entity';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
-import { UpdateOrganizationDTO } from './updateOrganization.dto';
+import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
 
 @Injectable()
 export class OrganizationService {

@@ -11,6 +11,10 @@ import { seed } from './seed';
 import { expect } from 'chai';
 import { Role } from '..//src/utils/eums/role.enum';
 import { before, after } from 'mocha';
+import {
+  NewOrganizationDTO,
+  UpdateOrganizationDTO,
+} from '../src/pods/organization/dto';
 
 describe('Organization tests', () => {
   let app: INestApplication;
@@ -43,7 +47,7 @@ describe('Organization tests', () => {
     await databaseService.cleanUp();
   });
 
-  it('should receive forbidden when recieving 403', async () => {
+  it('should receive forbidden when requestiong all organizations without appropiate role', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
       password: 'test',
@@ -94,12 +98,122 @@ describe('Organization tests', () => {
     expect(users[0].organizationId).to.equal('B0012');
   });
 
+  it('should update an organization', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    const partialOrg = {
+      code: 'D0012',
+      name: 'Device Owner - Update',
+      regAddress: 'Update',
+    };
+    await loginConsumer(loggedUser);
+    const { body: updatedOrg } = await updateOrganization(
+      '',
+      HttpStatus.OK,
+      partialOrg,
+    );
+    expect(updatedOrg.name).to.equal('Device Owner - Update');
+    expect(updatedOrg.regAddress).to.equal('Update');
+  });
+
+  it('should return forbbidden when updating an organization', async () => {
+    const loggedUser = {
+      email: 'buyer2@mailinator.com',
+      password: 'test',
+    };
+    const partialOrg = {
+      code: 'D0012',
+      name: 'Device Owner - Update',
+      regAddress: 'Update',
+    };
+    await loginConsumer(loggedUser);
+    await updateOrganization('', HttpStatus.FORBIDDEN, partialOrg);
+  });
+
+  it('should create an organization', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    const org: NewOrganizationDTO = {
+      code: 'D0013',
+      name: 'New Owner',
+      address: 'New address',
+      primaryContact: 'New user',
+      telephone: '81-3-6889-2713',
+      email: 'owner3@mailinator.com',
+      regNumber: '12345672189',
+      vatNumber: '12345672189',
+      regAddress: 'New address',
+      country: 'DE',
+      role: Role.DeviceOwner,
+    };
+    await loginConsumer(loggedUser);
+    const { body: newOrg } = await postOrganization(
+      '',
+      HttpStatus.CREATED,
+      org,
+    );
+    // expect(newOrg.code).to.equal('D0013');
+    // expect(newOrg.name).to.equal('New Owner');
+  });
+
+  it('should return forbbidden when creating an organization', async () => {
+    const loggedUser = {
+      email: 'buyer2@mailinator.com',
+      password: 'test',
+    };
+    const partialOrg: UpdateOrganizationDTO = {
+      code: 'D0013',
+      name: 'New Owner',
+      address: 'New address',
+      primaryContact: 'New user',
+      telephone: '81-3-6889-2713',
+      email: 'owner3@mailinator.com',
+      regNumber: '12345672189',
+      vatNumber: '12345672189',
+      regAddress: 'New address',
+      country: 'DE',
+      role: Role.DeviceOwner,
+    };
+    await loginConsumer(loggedUser);
+    await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
+  });
+
   const requestOrganization = async (
     url: string,
     status: HttpStatus,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/organization/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const updateOrganization = async (
+    url: string,
+    status: HttpStatus,
+    body: Partial<UpdateOrganizationDTO>,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .patch(`/organization/${url}`)
+      .send({
+        ...body,
+      })
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const postOrganization = async (
+    url: string,
+    status: HttpStatus,
+    body: NewOrganizationDTO,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/organization/${url}`)
+      .send({
+        ...body,
+      })
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

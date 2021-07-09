@@ -1,7 +1,7 @@
 import { IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IOrganization } from './organization.entity';
-import { Role } from '../../utils/eums/role.enum';
+import { IOrganization } from '../organization.entity';
+import { Role } from '../../../utils/eums/role.enum';
 
 export class NewOrganizationDTO
   implements Omit<IOrganization, 'blockchainAccountAddress'>

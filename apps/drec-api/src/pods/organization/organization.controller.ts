@@ -19,7 +19,11 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-import { OrganizationDTO } from './organization.dto';
+import {
+  OrganizationDTO,
+  NewOrganizationDTO,
+  UpdateOrganizationDTO,
+} from './dto';
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
@@ -27,8 +31,6 @@ import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
 import { RolesGuard } from '../../auth/roles-guard';
 import { Role } from '../../utils/eums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
-import { NewOrganizationDTO } from './newOrganization.dto';
-import { UpdateOrganizationDTO } from './updateOrganization.dto';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
