@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
@@ -138,8 +143,11 @@ export class OrganizationService {
     currentOrg.regAddress = regAddress || currentOrg.regAddress;
     currentOrg.country = country || currentOrg.country;
     currentOrg.role = role || currentOrg.role;
-
-    await currentOrg.save();
-    return currentOrg;
+    try {
+      return await this.repository.save(currentOrg);
+    } catch (error) {
+      this.logger.error(`Error: ${JSON.stringify(error)}`);
+      throw new InternalServerErrorException();
+    }
   }
 }
