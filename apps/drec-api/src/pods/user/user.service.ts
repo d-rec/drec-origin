@@ -15,7 +15,7 @@ export class UserService {
     @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  public async create(data: CreateUserDTO): Promise<UserDTO> {
+  public async seed(data: CreateUserDTO): Promise<UserDTO> {
     const isExistingUser = await this.hasUser({ email: data.email });
 
     if (isExistingUser) {

@@ -4,10 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import fs from 'fs';
 import path from 'path';
-import {
-  modules as IssuerModules,
-  entities as IssuerEntities,
-} from '@energyweb/issuer-api';
+import { entities as IssuerEntities } from '@energyweb/issuer-api';
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
@@ -32,7 +29,6 @@ const getEnvFilePath = () => {
   }
 };
 
-const [CertificateModule, , BlockchainPropertiesModule] = IssuerModules;
 const [Certificate, , BlockchainProperties] = IssuerEntities;
 
 export const entities = [User, Organization, Certificate, BlockchainProperties];
@@ -71,8 +67,6 @@ const OriginAppTypeOrmModule = () => {
     AuthModule,
     UserModule,
     OrganizationModule,
-    CertificateModule,
-    BlockchainPropertiesModule,
   ],
 })
 export class DrecModule {}

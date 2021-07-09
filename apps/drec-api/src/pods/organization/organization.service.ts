@@ -60,6 +60,24 @@ export class OrganizationService {
     return await this.userService.getAll({ where: { organizationId: code } });
   }
 
+  async seed(organizationToRegister: IOrganization): Promise<Organization> {
+    this.logger.debug(
+      `Requested organization registration ${JSON.stringify(
+        organizationToRegister,
+      )}`,
+    );
+
+    const organizationToCreate = new Organization(organizationToRegister);
+
+    const stored = await this.repository.save(organizationToCreate);
+
+    this.logger.debug(
+      `Successfully registered a new organization with id ${organizationToRegister.code}`,
+    );
+
+    return stored;
+  }
+
   public async create(
     organizationToRegister: NewOrganizationDTO,
   ): Promise<Organization> {
@@ -103,7 +121,7 @@ export class OrganizationService {
     const blockchainProperties = await this.blockchainPropertiesService.get();
 
     const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-      blockchainProperties.registry,
+      blockchainProperties?.registry,
       new Wallet(blockchainAccount.privateKey, provider),
     );
 
