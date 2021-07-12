@@ -1,7 +1,7 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { plainToClass, Expose } from 'class-transformer';
 
-import { OrganizationDTO } from '../../pods/organization/organization.dto';
+import { OrganizationDTO } from '../../pods/organization/dto';
 import { UserDTO } from '../../pods/user/dto/user.dto';
 
 @Expose()

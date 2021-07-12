@@ -2,6 +2,9 @@ import { NullOrUndefinedResultInterceptor } from '@energyweb/origin-backend-util
 import {
   Controller,
   Get,
+  Post,
+  Patch,
+  Body,
   HttpStatus,
   Param,
   UseGuards,
@@ -11,15 +14,23 @@ import {
   ApiBearerAuth,
   ApiResponse,
   ApiSecurity,
+  ApiNotFoundResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-import { OrganizationDTO } from './organization.dto';
+import {
+  OrganizationDTO,
+  NewOrganizationDTO,
+  UpdateOrganizationDTO,
+} from './dto';
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
+import { RolesGuard } from '../../auth/roles-guard';
+import { Role } from '../../utils/eums/role.enum';
+import { Roles } from '../user/decorators/roles.decorator';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -29,6 +40,17 @@ import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
+
+  @Get()
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: 'Returns all Organizations',
+  })
+  async getAll(): Promise<OrganizationDTO[]> {
+    return this.organizationService.getAll();
+  }
 
   @Get('/me')
   @ApiResponse({
@@ -64,5 +86,36 @@ export class OrganizationController {
     @Param('code') organizationCode: string,
   ): Promise<OrganizationDTO | null> {
     return this.organizationService.findOne(organizationCode);
+  }
+
+  @Post()
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OrganizationDTO,
+    description: 'Returns a new created Organization',
+  })
+  public async create(@Body() organizationToRegister: NewOrganizationDTO) {
+    return await this.organizationService.create(organizationToRegister);
+  }
+
+  @Patch('/:code')
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UpdateOrganizationDTO,
+    description: 'Returns an udated Organization',
+  })
+  @ApiNotFoundResponse({ description: `No organization found` })
+  public async update(
+    @Param('code') organizationCode: string,
+    @Body() organizationToUpdate: UpdateOrganizationDTO,
+  ) {
+    return await this.organizationService.update(
+      organizationCode,
+      organizationToUpdate,
+    );
   }
 }
