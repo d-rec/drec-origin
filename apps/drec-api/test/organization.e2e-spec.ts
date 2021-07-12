@@ -132,34 +132,6 @@ describe('Organization tests', () => {
     await updateOrganization('', HttpStatus.FORBIDDEN, partialOrg);
   });
 
-  it('should create an organization', async () => {
-    const loggedUser = {
-      email: 'admin2@mailinator.com',
-      password: 'test',
-    };
-    const org: NewOrganizationDTO = {
-      code: 'D0013',
-      name: 'New Owner',
-      address: 'New address',
-      primaryContact: 'New user',
-      telephone: '81-3-6889-2713',
-      email: 'owner3@mailinator.com',
-      regNumber: '12345672189',
-      vatNumber: '12345672189',
-      regAddress: 'New address',
-      country: 'DE',
-      role: Role.DeviceOwner,
-    };
-    await loginConsumer(loggedUser);
-    const { body: newOrg } = await postOrganization(
-      '',
-      HttpStatus.CREATED,
-      org,
-    );
-    // expect(newOrg.code).to.equal('D0013');
-    // expect(newOrg.name).to.equal('New Owner');
-  });
-
   it('should return forbbidden when creating an organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
