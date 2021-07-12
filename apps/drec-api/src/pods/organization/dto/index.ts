@@ -1,3 +1,3 @@
-export * from './newOrganization.dto';
+export * from './new-organization.dto';
 export * from './organization.dto';
-export * from './updateOrganization.dto';
+export * from './update-organization.dto';

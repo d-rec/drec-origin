@@ -11,6 +11,8 @@ import { User } from './pods/user/user.entity';
 import { UserModule } from './pods/user/user.module';
 import { Organization } from './pods/organization/organization.entity';
 import { OrganizationModule } from './pods/organization/organization.module';
+import { Device } from './pods/device/device.entity';
+import { DeviceModule } from './pods/device/device.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -31,7 +33,13 @@ const getEnvFilePath = () => {
 
 const [Certificate, , BlockchainProperties] = IssuerEntities;
 
-export const entities = [User, Organization, Certificate, BlockchainProperties];
+export const entities = [
+  User,
+  Organization,
+  Device,
+  Certificate,
+  BlockchainProperties,
+];
 
 const OriginAppTypeOrmModule = () => {
   return process.env.DATABASE_URL
@@ -67,6 +75,7 @@ const OriginAppTypeOrmModule = () => {
     AuthModule,
     UserModule,
     OrganizationModule,
+    DeviceModule,
   ],
 })
 export class DrecModule {}
