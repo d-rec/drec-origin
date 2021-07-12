@@ -72,5 +72,3 @@ jobs:
             - run: node common/scripts/install-run-rush.js test:mocha --verbose
 
             - run: node common/scripts/install-run-rush.js test:e2e --verbose
-
-            - run: node common/scripts/install-run-rush.js test:ui
