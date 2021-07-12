@@ -103,14 +103,14 @@ describe('Organization tests', () => {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
+    const orgCode = 'D0012';
     const partialOrg = {
-      code: 'D0012',
       name: 'Device Owner - Update',
       regAddress: 'Update',
     };
     await loginConsumer(loggedUser);
     const { body: updatedOrg } = await updateOrganization(
-      '',
+      orgCode,
       HttpStatus.OK,
       partialOrg,
     );
@@ -123,13 +123,14 @@ describe('Organization tests', () => {
       email: 'buyer2@mailinator.com',
       password: 'test',
     };
+    const orgCode = 'D0012';
     const partialOrg = {
       code: 'D0012',
       name: 'Device Owner - Update',
       regAddress: 'Update',
     };
     await loginConsumer(loggedUser);
-    await updateOrganization('', HttpStatus.FORBIDDEN, partialOrg);
+    await updateOrganization(orgCode, HttpStatus.FORBIDDEN, partialOrg);
   });
 
   it('should return forbbidden when creating an organization', async () => {
@@ -137,7 +138,7 @@ describe('Organization tests', () => {
       email: 'buyer2@mailinator.com',
       password: 'test',
     };
-    const partialOrg: UpdateOrganizationDTO = {
+    const partialOrg: NewOrganizationDTO = {
       code: 'D0013',
       name: 'New Owner',
       address: 'New address',

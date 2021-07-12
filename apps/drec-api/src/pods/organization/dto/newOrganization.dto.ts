@@ -1,4 +1,4 @@
-import { IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
+import { IsEnum, IsISO31661Alpha2, IsString, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IOrganization } from '../organization.entity';
 import { Role } from '../../../utils/eums/role.enum';
@@ -27,7 +27,7 @@ export class NewOrganizationDTO
   telephone: string;
 
   @ApiProperty({ type: String })
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty({ type: String })

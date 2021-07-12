@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
@@ -14,6 +9,7 @@ import { Contracts } from '@energyweb/issuer';
 import { IOrganization, Organization } from './organization.entity';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
+import { defaults } from 'lodash';
 
 @Injectable()
 export class OrganizationService {
@@ -120,7 +116,7 @@ export class OrganizationService {
     const blockchainProperties = await this.blockchainPropertiesService.get();
 
     const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-      blockchainProperties?.registry,
+      blockchainProperties!.registry,
       new Wallet(blockchainAccount.privateKey, provider),
     );
 
@@ -130,41 +126,16 @@ export class OrganizationService {
   }
 
   async update(
+    organizationCode: string,
     updateOrganizationDTO: UpdateOrganizationDTO,
   ): Promise<Organization> {
-    const currentOrg = await this.findOne(updateOrganizationDTO?.code);
+    let currentOrg = await this.findOne(organizationCode);
     if (!currentOrg) {
       throw new NotFoundException(
-        `No organization found with code ${updateOrganizationDTO?.code}`,
+        `No organization found with code ${organizationCode}`,
       );
     }
-    const {
-      name,
-      address,
-      primaryContact,
-      telephone,
-      email,
-      regNumber,
-      vatNumber,
-      regAddress,
-      country,
-      role,
-    } = updateOrganizationDTO;
-    currentOrg.name = name || currentOrg.name;
-    currentOrg.address = address || currentOrg.address;
-    currentOrg.primaryContact = primaryContact || currentOrg.primaryContact;
-    currentOrg.telephone = telephone || currentOrg.telephone;
-    currentOrg.email = email || currentOrg.email;
-    currentOrg.regNumber = regNumber || currentOrg.regNumber;
-    currentOrg.vatNumber = vatNumber || currentOrg.vatNumber;
-    currentOrg.regAddress = regAddress || currentOrg.regAddress;
-    currentOrg.country = country || currentOrg.country;
-    currentOrg.role = role || currentOrg.role;
-    try {
-      return await this.repository.save(currentOrg);
-    } catch (error) {
-      this.logger.error(`Error: ${JSON.stringify(error)}`);
-      throw new InternalServerErrorException();
-    }
+    currentOrg = defaults(updateOrganizationDTO, currentOrg);
+    return await this.repository.save(currentOrg);
   }
 }

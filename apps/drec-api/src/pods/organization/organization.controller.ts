@@ -100,7 +100,7 @@ export class OrganizationController {
     return await this.organizationService.create(organizationToRegister);
   }
 
-  @Patch()
+  @Patch('/:code')
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
@@ -109,7 +109,13 @@ export class OrganizationController {
     description: 'Returns an udated Organization',
   })
   @ApiNotFoundResponse({ description: `No organization found` })
-  public async update(@Body() organizationToUpdate: UpdateOrganizationDTO) {
-    return await this.organizationService.update(organizationToUpdate);
+  public async update(
+    @Param('code') organizationCode: string,
+    @Body() organizationToUpdate: UpdateOrganizationDTO,
+  ) {
+    return await this.organizationService.update(
+      organizationCode,
+      organizationToUpdate,
+    );
   }
 }
