@@ -25,6 +25,8 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/eums';
 import { RolesGuard } from '../../auth/roles-guard';
 import { UpdateOrganizationDTO } from '../organization/dto';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -57,8 +59,14 @@ export class DeviceController {
     type: NewDeviceDTO,
     description: 'Returns a new created Device id',
   })
-  public async create(@Body() deviceToRegister: NewDeviceDTO) {
-    return await this.deviceService.register(deviceToRegister);
+  public async create(
+    @UserDecorator() user: OrganizationUserDTO,
+    @Body() deviceToRegister: NewDeviceDTO,
+  ) {
+    return await this.deviceService.register(
+      user.organization.code,
+      deviceToRegister,
+    );
   }
 
   @Patch('/:id')
@@ -71,9 +79,14 @@ export class DeviceController {
   })
   @ApiNotFoundResponse({ description: `No device found` })
   public async update(
+    @UserDecorator() user: OrganizationUserDTO,
     @Param('id') id: number,
     @Body() organizationToUpdate: UpdateDeviceDTO,
   ) {
-    return await this.deviceService.update(id, organizationToUpdate);
+    return await this.deviceService.update(
+      user.organization.code,
+      id,
+      organizationToUpdate,
+    );
   }
 }

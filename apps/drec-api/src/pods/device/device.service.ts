@@ -6,6 +6,7 @@ import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
 import { UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
+import { Role } from '../../utils/eums';
 
 @Injectable()
 export class DeviceService {
@@ -36,13 +37,32 @@ export class DeviceService {
     return storedDevice.id;
   }
 
-  public async register(newDevice: NewDeviceDTO): Promise<Device> {
-    const device = new Device(newDevice);
+  public async register(
+    orgCode: string,
+    newDevice: NewDeviceDTO,
+  ): Promise<Device> {
+    const device = new Device({
+      ...newDevice,
+      registrant_organisation_code: orgCode,
+    });
+
     return await this.repository.save(device);
   }
 
-  async update(id: number, updateDeviceDTO: UpdateDeviceDTO): Promise<Device> {
-    let currentDevice = await this.findOne(id);
+  async update(
+    orgCode: string,
+    id: number,
+    updateDeviceDTO: UpdateDeviceDTO,
+  ): Promise<Device> {
+    const rule =
+      orgCode === Role.DeviceOwner
+        ? {
+            where: {
+              registrant_organisation_code: orgCode,
+            },
+          }
+        : null;
+    let currentDevice = await this.findOne(id, rule);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${id}`);
     }

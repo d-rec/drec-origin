@@ -22,6 +22,10 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
+  registrant_organisation_code: string;
+
+  @ApiProperty()
+  @IsString()
   project_name: string;
 
   @ApiProperty()

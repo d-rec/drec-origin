@@ -9,7 +9,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
 import { Installation, OffTaker, Sector } from '../../../utils/eums';
 
-export class NewDeviceDTO implements Omit<IDevice, 'id' | 'status'> {
+export class NewDeviceDTO
+  implements Omit<IDevice, 'id' | 'status' | 'registrant_organisation_code'>
+{
   @ApiProperty()
   @IsString()
   project_name: string;
