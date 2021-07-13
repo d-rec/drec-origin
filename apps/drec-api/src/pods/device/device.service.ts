@@ -5,6 +5,7 @@ import { Device, IDevice } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
 import { UpdateDeviceDTO } from './dto';
+import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 @Injectable()
 export class DeviceService {
@@ -27,12 +28,17 @@ export class DeviceService {
     return (await this.repository.findOne(id, options)) ?? null;
   }
 
-  public async register(newDevice: NewDeviceDTO): Promise<Device['id']> {
+  public async seed(newDevice: NewDeviceDTO): Promise<Device['id']> {
     const storedDevice = await this.repository.save({
       ...newDevice,
     });
 
     return storedDevice.id;
+  }
+
+  public async register(newDevice: NewDeviceDTO): Promise<Device> {
+    const device = new Device(newDevice);
+    return await this.repository.save(device);
   }
 
   async update(id: number, updateDeviceDTO: UpdateDeviceDTO): Promise<Device> {
@@ -41,6 +47,7 @@ export class DeviceService {
       throw new NotFoundException(`No device found with id ${id}`);
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
+    currentDevice.status = DeviceStatus.Submitted;
     return await this.repository.save(currentDevice);
   }
 }

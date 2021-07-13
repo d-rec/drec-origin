@@ -51,7 +51,7 @@ export class DeviceController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
@@ -63,7 +63,7 @@ export class DeviceController {
 
   @Patch('/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateOrganizationDTO,

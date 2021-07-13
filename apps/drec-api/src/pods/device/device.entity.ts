@@ -1,11 +1,12 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Installation, OffTaker, Sector } from '../../utils/eums';
 import { IsEnum, IsBoolean, IsString, IsNotEmpty } from 'class-validator';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export interface IDevice {
   id: number;
+  status: DeviceStatus;
   project_name: string;
   address: string;
   latitude: string;
@@ -28,7 +29,12 @@ export interface IDevice {
 
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
-  @PrimaryColumn()
+  constructor(device?: Partial<Device>) {
+    super();
+    Object.assign(this, device);
+  }
+
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: false, default: DeviceStatus.Active })

@@ -9,11 +9,16 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
 import { Installation, OffTaker, Sector } from '../../../utils/eums';
+import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
   id: number;
+
+  @ApiProperty()
+  @IsString()
+  status: DeviceStatus;
 
   @ApiProperty()
   @IsString()
@@ -81,4 +86,14 @@ export class DeviceDTO implements IDevice {
   @IsString()
   @IsOptional()
   impact_story: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  data: string;
+
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  images: string[];
 }

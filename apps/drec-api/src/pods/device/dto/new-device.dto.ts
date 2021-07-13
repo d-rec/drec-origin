@@ -9,7 +9,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
 import { Installation, OffTaker, Sector } from '../../../utils/eums';
 
-export class NewDeviceDTO implements Omit<IDevice, 'id'> {
+export class NewDeviceDTO implements Omit<IDevice, 'id' | 'status'> {
   @ApiProperty()
   @IsString()
   project_name: string;
@@ -76,4 +76,14 @@ export class NewDeviceDTO implements Omit<IDevice, 'id'> {
   @IsString()
   @IsOptional()
   impact_story: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  data: string;
+
+  @ApiProperty()
+  @IsArray()
+  @IsOptional()
+  images: string[];
 }
