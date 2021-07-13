@@ -1,5 +1,6 @@
 import {
   IsString,
+  IsNumber,
   IsEnum,
   IsBoolean,
   IsArray,
@@ -11,8 +12,8 @@ import { Installation, OffTaker, Sector } from '../../../utils/eums';
 
 export class DeviceDTO implements IDevice {
   @ApiProperty()
-  @IsString()
-  id: string;
+  @IsNumber()
+  id: number;
 
   @ApiProperty()
   @IsString()

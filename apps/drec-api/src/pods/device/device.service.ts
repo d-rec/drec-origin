@@ -16,12 +16,12 @@ export class DeviceService {
     return this.repository.find(options);
   }
 
-  public async findByIds(ids: string[]): Promise<IDevice[]> {
+  public async findByIds(ids: number[]): Promise<IDevice[]> {
     return await this.repository.findByIds(ids);
   }
 
   async findOne(
-    id: string,
+    id: number,
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
     return (await this.repository.findOne(id, options)) ?? null;
@@ -35,7 +35,7 @@ export class DeviceService {
     return storedDevice.id;
   }
 
-  async update(id: string, updateDeviceDTO: UpdateDeviceDTO): Promise<Device> {
+  async update(id: number, updateDeviceDTO: UpdateDeviceDTO): Promise<Device> {
     let currentDevice = await this.findOne(id);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${id}`);

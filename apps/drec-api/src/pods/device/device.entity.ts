@@ -1,10 +1,11 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Installation, OffTaker, Sector } from '../../utils/eums';
-import { IsEnum, IsBoolean, IsString, IsArray } from 'class-validator';
+import { IsEnum, IsBoolean, IsString, IsNotEmpty } from 'class-validator';
+import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export interface IDevice {
-  id: string;
+  id: number;
   project_name: string;
   address: string;
   latitude: string;
@@ -28,7 +29,12 @@ export interface IDevice {
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   @PrimaryColumn()
-  id: string;
+  id: number;
+
+  @Column({ nullable: false, default: DeviceStatus.Active })
+  @IsNotEmpty()
+  @IsEnum(DeviceStatus)
+  status: DeviceStatus;
 
   @Column()
   @IsString()
@@ -82,7 +88,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   standard_compliance: string;
 
-  @Column('text', { nullable: true, array: true })
+  @Column('int', { nullable: true, array: true })
   generators_ids: number[];
 
   @Column({ nullable: true })
@@ -96,6 +102,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   data: string;
 
-  @Column('text', { nullable: true, array: true, default: [] })
+  @Column('text', { nullable: true, array: true })
   images: string[];
 }

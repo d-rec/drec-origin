@@ -45,7 +45,7 @@ export class DeviceController {
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
   })
-  async get(@Param('id') id: string): Promise<DeviceDTO | null> {
+  async get(@Param('id') id: number): Promise<DeviceDTO | null> {
     return this.deviceService.findOne(id);
   }
 
@@ -61,7 +61,7 @@ export class DeviceController {
     return await this.deviceService.register(deviceToRegister);
   }
 
-  @Patch('/:code')
+  @Patch('/:id')
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
@@ -71,7 +71,7 @@ export class DeviceController {
   })
   @ApiNotFoundResponse({ description: `No device found` })
   public async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() organizationToUpdate: UpdateDeviceDTO,
   ) {
     return await this.deviceService.update(id, organizationToUpdate);
