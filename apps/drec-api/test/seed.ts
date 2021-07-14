@@ -75,6 +75,7 @@ export const testUsers: CreateUserDTO[] = [
 const testDevices: Omit<DeviceDTO, 'status'>[] = [
   {
     id: 2,
+    drecID: 'DREC02',
     registrant_organisation_code: 'D0012',
     project_name: 'Device 1',
     address: 'Somewhere far away',
@@ -97,6 +98,7 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
   },
   {
     id: 3,
+    drecID: 'DREC03',
     registrant_organisation_code: 'D0012',
     project_name: 'Device 2',
     address: 'Somewhere far away',
@@ -119,6 +121,7 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
   },
   {
     id: 4,
+    drecID: 'DREC04',
     registrant_organisation_code: 'D0012',
     project_name: 'Device 3',
     address: 'Somewhere far away',
