@@ -1,4 +1,3 @@
-import { LoggedInUser } from '@energyweb/origin-backend-core';
 import { Logger, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
