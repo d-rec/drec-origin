@@ -3,7 +3,12 @@ import { UserService } from '../src/pods/user/user.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/eums/role.enum';
 import { DeviceDTO } from '../src/pods/device/dto';
-import { Installation, OffTaker, Sector } from '../src/utils/eums';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../src/utils/eums';
 import { DeviceService } from '../src/pods/device/device.service';
 
 export const testOrgs = [
@@ -84,12 +89,13 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     fuel_code: 'ES100',
     device_type_code: 'TC110',
     installation_configuration: Installation.StandAlone,
-    capacity: '1500',
+    capacity: 1500,
     commissioning_date: '2012-07-01',
     grid_interconnection: true,
     off_taker: OffTaker.Commercial,
     sector: Sector.Agriculture,
-    standard_compliance: '',
+    standard_compliance: StandardCompliance.REC,
+    yield: 1000,
     generators_ids: [],
     labels: '',
     impact_story: '',
@@ -107,12 +113,13 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     fuel_code: 'ES100',
     device_type_code: 'TC110',
     installation_configuration: Installation.StandAlone,
-    capacity: '1600',
+    capacity: 1600,
     commissioning_date: '2012-07-01',
     grid_interconnection: true,
     off_taker: OffTaker.Commercial,
     sector: Sector.Agriculture,
-    standard_compliance: '',
+    standard_compliance: StandardCompliance.IREC,
+    yield: 1000,
     generators_ids: [],
     labels: '',
     impact_story: '',
@@ -130,12 +137,13 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     fuel_code: 'ES100',
     device_type_code: 'TC110',
     installation_configuration: Installation.StandAlone,
-    capacity: '1750',
+    capacity: 1750,
     commissioning_date: '2012-07-01',
     grid_interconnection: true,
     off_taker: OffTaker.Commercial,
     sector: Sector.Agriculture,
-    standard_compliance: '',
+    standard_compliance: StandardCompliance.IREC,
+    yield: 1000,
     generators_ids: [],
     labels: '',
     impact_story: '',

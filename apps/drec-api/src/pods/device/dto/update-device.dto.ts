@@ -3,11 +3,17 @@ import {
   IsEnum,
   IsBoolean,
   IsArray,
+  IsNumber,
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
-import { Installation, OffTaker, Sector } from '../../../utils/eums';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../../../utils/eums';
 
 export class UpdateDeviceDTO
   implements
@@ -49,9 +55,9 @@ export class UpdateDeviceDTO
   installation_configuration: Installation;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  capacity: string;
+  capacity: number;
 
   @ApiProperty()
   @IsString()
@@ -74,9 +80,14 @@ export class UpdateDeviceDTO
   sector: Sector;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(StandardCompliance)
   @IsOptional()
-  standard_compliance: string;
+  standard_compliance: StandardCompliance;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  yield: number;
 
   @ApiProperty()
   @IsArray()

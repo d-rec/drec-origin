@@ -1,6 +1,6 @@
 export enum OffTaker {
   School = 'School',
-  HealthFacility = 'HealtFacility',
+  HealthFacility = 'HealthFacility',
   Residential = 'Residential',
   Commercial = 'Commercial',
   Industrial = 'Industrial',

@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { Device, IDevice } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
-import { UpdateDeviceDTO } from './dto';
+import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { Role } from '../../utils/eums';
+import { FindConditions, FindManyOptions, In } from 'typeorm';
 
 @Injectable()
 export class DeviceService {
@@ -14,8 +15,9 @@ export class DeviceService {
     @InjectRepository(Device) private readonly repository: Repository<Device>,
   ) {}
 
-  public async find(options?: FindManyOptions<Device>): Promise<Device[]> {
-    return this.repository.find(options);
+  public async find(filterDto: FilterDTO): Promise<Device[]> {
+    const query = this.getFilteredQuery(filterDto);
+    return this.repository.find(query);
   }
 
   public async findByIds(ids: number[]): Promise<IDevice[]> {
@@ -69,5 +71,32 @@ export class DeviceService {
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
     return await this.repository.save(currentDevice);
+  }
+
+  private getFilteredQuery(filterDto: FilterDTO): FindManyOptions<Device> {
+    const {
+      fuel_code,
+      device_type_code,
+      installation_configuration,
+      capacity,
+      startDate,
+      endDate,
+      grid_interconnection,
+      off_taker,
+      sector,
+      labels,
+      standard_compliance,
+    } = filterDto;
+    let where: FindConditions<Device> = {};
+    if (fuel_code) {
+      where.fuel_code = fuel_code;
+    }
+    if (device_type_code) {
+      where.device_type_code = device_type_code;
+    }
+    const query: FindManyOptions<Device> = {
+      where,
+    };
+    return query;
   }
 }

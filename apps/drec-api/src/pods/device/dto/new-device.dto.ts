@@ -3,11 +3,17 @@ import {
   IsEnum,
   IsBoolean,
   IsArray,
+  IsNumber,
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
-import { Installation, OffTaker, Sector } from '../../../utils/eums';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../../../utils/eums';
 
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'registrant_organisation_code'>
@@ -45,8 +51,8 @@ export class NewDeviceDTO
   installation_configuration: Installation;
 
   @ApiProperty()
-  @IsString()
-  capacity: string;
+  @IsNumber()
+  capacity: number;
 
   @ApiProperty()
   @IsString()
@@ -65,8 +71,13 @@ export class NewDeviceDTO
   sector: Sector;
 
   @ApiProperty()
-  @IsString()
-  standard_compliance: string;
+  @IsEnum(StandardCompliance)
+  standard_compliance: StandardCompliance;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  yield: number;
 
   @ApiProperty()
   @IsArray()
