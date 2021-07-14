@@ -6,7 +6,7 @@ import {
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { Device } from '../device/device.entity';
 import { BASE_READ_SERVICE } from './const';
 import { EventBus } from '@nestjs/cqrs';
@@ -55,10 +55,10 @@ export class ReadsService {
     await this.store(id, measurements);
 
     for (const measurement of measurements.reads) {
-      const startTime = moment(measurement.timestamp)
-        .subtract(30, 'minute')
-        .toDate();
-      const endTime = moment(measurement.timestamp).toDate();
+      const startTime = DateTime.fromJSDate(measurement.timestamp)
+        .minus({ minutes: 30 })
+        .toJSDate();
+      const endTime = DateTime.fromJSDate(measurement.timestamp).toJSDate();
 
       this.eventBus.publish(
         new GenerationReadingStoredEvent({
