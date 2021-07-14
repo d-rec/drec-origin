@@ -106,7 +106,7 @@ export class OrganizationController {
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateOrganizationDTO,
-    description: 'Returns an udated Organization',
+    description: 'Returns an updated Organization',
   })
   @ApiNotFoundResponse({ description: `No organization found` })
   public async update(

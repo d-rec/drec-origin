@@ -2,6 +2,9 @@ import { OrganizationService } from '../src/pods/organization';
 import { UserService } from '../src/pods/user/user.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/eums/role.enum';
+import { DeviceDTO } from '../src/pods/device/dto';
+import { Installation, OffTaker, Sector } from '../src/utils/eums';
+import { DeviceService } from '../src/pods/device/device.service';
 
 export const testOrgs = [
   {
@@ -69,12 +72,86 @@ export const testUsers: CreateUserDTO[] = [
   },
 ];
 
+const testDevices: Omit<DeviceDTO, 'status'>[] = [
+  {
+    id: 2,
+    registrant_organisation_code: 'D0012',
+    project_name: 'Device 1',
+    address: 'Somewhere far away',
+    latitude: '34.921213',
+    longitude: '135.717309',
+    fuel_code: 'ES100',
+    device_type_code: 'TC110',
+    installation_configuration: Installation.StandAlone,
+    capacity: '1500',
+    commissioning_date: '2012-07-01',
+    grid_interconnection: true,
+    off_taker: OffTaker.Commercial,
+    sector: Sector.Agriculture,
+    standard_compliance: '',
+    generators_ids: [],
+    labels: '',
+    impact_story: '',
+    data: '',
+    images: [],
+  },
+  {
+    id: 3,
+    registrant_organisation_code: 'D0012',
+    project_name: 'Device 2',
+    address: 'Somewhere far away',
+    latitude: '34.921213',
+    longitude: '135.717309',
+    fuel_code: 'ES100',
+    device_type_code: 'TC110',
+    installation_configuration: Installation.StandAlone,
+    capacity: '1600',
+    commissioning_date: '2012-07-01',
+    grid_interconnection: true,
+    off_taker: OffTaker.Commercial,
+    sector: Sector.Agriculture,
+    standard_compliance: '',
+    generators_ids: [],
+    labels: '',
+    impact_story: '',
+    data: '',
+    images: [],
+  },
+  {
+    id: 4,
+    registrant_organisation_code: 'D0012',
+    project_name: 'Device 3',
+    address: 'Somewhere far away',
+    latitude: '34.921213',
+    longitude: '135.717309',
+    fuel_code: 'ES100',
+    device_type_code: 'TC110',
+    installation_configuration: Installation.StandAlone,
+    capacity: '1750',
+    commissioning_date: '2012-07-01',
+    grid_interconnection: true,
+    off_taker: OffTaker.Commercial,
+    sector: Sector.Agriculture,
+    standard_compliance: '',
+    generators_ids: [],
+    labels: '',
+    impact_story: '',
+    data: '',
+    images: [],
+  },
+];
+
 export type Services = {
   userService: UserService;
   organizationService: OrganizationService;
+  deviceService: DeviceService;
 };
 
-export const seed = async ({ userService, organizationService }: Services) => {
+export const seed = async ({
+  userService,
+  organizationService,
+  deviceService,
+}: Services) => {
   const [user1, user2, user3] = testUsers;
 
   await userService.seed(user1);
@@ -86,4 +163,10 @@ export const seed = async ({ userService, organizationService }: Services) => {
   await organizationService.seed(org1);
   await organizationService.seed(org2);
   await organizationService.seed(org3);
+
+  const [device1, device2, device3] = testDevices;
+
+  await deviceService.seed(device1);
+  await deviceService.seed(device2);
+  await deviceService.seed(device3);
 };

@@ -9,25 +9,34 @@ import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
+import { DeviceService } from '../src/pods/device/device.service';
 
 describe('Users tests', () => {
   let app: INestApplication;
   let organizationService: OrganizationService;
   let userService: UserService;
+  let deviceService: DeviceService;
   let databaseService: DatabaseService;
   let configService: ConfigService;
 
   let currentAccessToken: string;
 
   beforeEach(async () => {
-    ({ app, organizationService, userService, databaseService, configService } =
-      await bootstrapTestInstance());
+    ({
+      app,
+      organizationService,
+      userService,
+      deviceService,
+      databaseService,
+      configService,
+    } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
 
     await app.init();
     await seed({
       userService,
       organizationService,
+      deviceService,
     });
   });
 
