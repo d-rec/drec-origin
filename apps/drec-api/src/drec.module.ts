@@ -13,6 +13,7 @@ import { Organization } from './pods/organization/organization.entity';
 import { OrganizationModule } from './pods/organization/organization.module';
 import { Device } from './pods/device/device.entity';
 import { DeviceModule } from './pods/device/device.module';
+import { File, FileModule } from './pods/file';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -37,6 +38,7 @@ export const entities = [
   User,
   Organization,
   Device,
+  File,
   Certificate,
   BlockchainProperties,
 ];
@@ -76,6 +78,7 @@ const OriginAppTypeOrmModule = () => {
     UserModule,
     OrganizationModule,
     DeviceModule,
+    FileModule,
   ],
 })
 export class DrecModule {}
