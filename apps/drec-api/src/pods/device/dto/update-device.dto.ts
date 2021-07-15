@@ -10,7 +10,8 @@ import { IDevice } from '../device.entity';
 import { Installation, OffTaker, Sector } from '../../../utils/eums';
 
 export class UpdateDeviceDTO
-  implements Omit<IDevice, 'id' | 'status' | 'registrant_organisation_code'>
+  implements
+    Omit<IDevice, 'id' | 'drecID' | 'status' | 'registrant_organisation_code'>
 {
   @ApiProperty()
   @IsString()

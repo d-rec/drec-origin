@@ -14,6 +14,10 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @IsString()
+  drecID: string;
+
+  @ApiProperty()
+  @IsString()
   project_name: string;
 
   @ApiProperty()

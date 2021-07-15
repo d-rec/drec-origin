@@ -6,6 +6,7 @@ import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export interface IDevice {
   id: number;
+  drecID: string;
   status: DeviceStatus;
   registrant_organisation_code: string;
   project_name: string;
@@ -37,6 +38,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ unique: true })
+  @IsString()
+  drecID: string;
 
   @Column({ nullable: false, default: DeviceStatus.Active })
   @IsNotEmpty()

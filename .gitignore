@@ -1,3 +1,6 @@
+# DB
+/influxdb-local
+
 # Logs
 *.log
 npm-debug.log*

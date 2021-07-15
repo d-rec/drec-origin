@@ -18,6 +18,10 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
+  drecID: string;
+
+  @ApiProperty()
+  @IsString()
   status: DeviceStatus;
 
   @ApiProperty()
