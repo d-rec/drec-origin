@@ -40,6 +40,7 @@ export class UpdateDeviceDTO
   longitude: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   country_code: string;
 

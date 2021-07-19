@@ -5,8 +5,8 @@ export enum Sector {
   Telecom = 'Telecom ',
   Residential = 'Residential',
   Mining = 'Mining',
-  Education = 'Education ',
-  Health = 'Health  ',
+  Education = 'Education',
+  Health = 'Health',
   Textiles = 'Textiles  ',
   Financial = 'Financial ',
 }

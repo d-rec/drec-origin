@@ -61,5 +61,7 @@ export class FilterDTO {
   })
   standard_compliance: StandardCompliance;
 
-  // Region?
+  @IsOptional()
+  @ApiPropertyOptional({ type: String, description: 'Country' })
+  country: string;
 }

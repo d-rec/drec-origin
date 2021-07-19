@@ -86,6 +86,7 @@ export class DeviceService {
       sector: filter.sector,
       labels: filter.labels,
       standard_compliance: filter.standard_compliance,
+      country_code: filter.country && this.getCodeFromCountry(filter.country),
       commissioning_date:
         filter.start_date &&
         filter.end_date &&
@@ -95,5 +96,12 @@ export class DeviceService {
       where,
     };
     return query;
+  }
+
+  private getCodeFromCountry(countryName: string) {
+    if (!countryName) {
+      return;
+    }
+    return Countries.filter((country) => country.name === countryName)[0].code;
   }
 }
