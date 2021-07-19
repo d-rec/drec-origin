@@ -7,7 +7,7 @@ import { defaults } from 'lodash';
 import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { Role } from '../../utils/eums';
-import { FindConditions, FindManyOptions, In } from 'typeorm';
+import { FindConditions, FindManyOptions, ILike, Between } from 'typeorm';
 
 @Injectable()
 export class DeviceService {
@@ -93,6 +93,30 @@ export class DeviceService {
     }
     if (device_type_code) {
       where.device_type_code = device_type_code;
+    }
+    if (installation_configuration) {
+      where.installation_configuration = installation_configuration;
+    }
+    if (capacity) {
+      where.capacity = capacity;
+    }
+    if (grid_interconnection) {
+      where.grid_interconnection = grid_interconnection;
+    }
+    if (off_taker) {
+      where.off_taker = off_taker;
+    }
+    if (sector) {
+      where.sector = sector;
+    }
+    if (labels) {
+      where.labels = ILike(`%${labels}%`);
+    }
+    if (standard_compliance) {
+      where.standard_compliance = standard_compliance;
+    }
+    if (startDate && endDate) {
+      where.commissioning_date = Between(startDate, endDate);
     }
     const query: FindManyOptions<Device> = {
       where,
