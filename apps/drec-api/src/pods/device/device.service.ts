@@ -8,7 +8,7 @@ import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { Role } from '../../utils/eums';
 import { FindConditions, FindManyOptions, ILike, Between } from 'typeorm';
-import * as cleanDeep from 'clean-deep';
+import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
 
 @Injectable()
@@ -76,7 +76,7 @@ export class DeviceService {
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
-    const where: FindConditions<Device> = cleanDeep.default({
+    const where: FindConditions<Device> = cleanDeep({
       fuel_code: filter.fuel_code,
       device_type_code: filter.device_type_code,
       installation_configuration: filter.installation_configuration,
