@@ -32,11 +32,11 @@ export class FilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({ description: 'Start date Commissioning Date filter' })
-  startDate: string;
+  start_date: string;
 
   @IsOptional()
   @ApiPropertyOptional({ description: 'End date Commissioning Date filter' })
-  endDate: string;
+  end_date: string;
 
   @IsOptional()
   @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })

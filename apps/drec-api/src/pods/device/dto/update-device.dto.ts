@@ -41,6 +41,15 @@ export class UpdateDeviceDTO
 
   @ApiProperty()
   @IsString()
+  country_code: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  zip_code: number;
+
+  @ApiProperty()
+  @IsString()
   @IsOptional()
   fuel_code: string;
 
@@ -87,7 +96,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  yield: number;
+  yield_value: number;
 
   @ApiProperty()
   @IsArray()

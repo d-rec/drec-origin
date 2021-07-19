@@ -24,6 +24,8 @@ export interface IDevice {
   address: string;
   latitude: string;
   longitude: string;
+  country_code: string;
+  zip_code?: number;
   fuel_code: string;
   device_type_code: string;
   installation_configuration: Installation;
@@ -33,7 +35,7 @@ export interface IDevice {
   off_taker: OffTaker;
   sector: Sector;
   standard_compliance: StandardCompliance;
-  yield: number;
+  yield_value: number;
   generators_ids?: number[];
   labels?: string;
   impact_story?: string;
@@ -82,6 +84,14 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
+  country_code: string;
+
+  @Column({ nullable: true })
+  @IsNumber()
+  zip_code: number;
+
+  @Column()
+  @IsString()
   fuel_code: string;
 
   @Column()
@@ -118,7 +128,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ default: 1000 })
   @IsNumber()
-  yield: number;
+  yield_value: number;
 
   @Column('int', { nullable: true, array: true })
   generators_ids: number[];

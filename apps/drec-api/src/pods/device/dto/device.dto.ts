@@ -51,6 +51,15 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
+  country_code: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  zip_code: number;
+
+  @ApiProperty()
+  @IsString()
   fuel_code: string;
 
   @ApiProperty()
@@ -87,7 +96,7 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsNumber()
-  yield: number;
+  yield_value: number;
 
   @ApiProperty()
   @IsArray()

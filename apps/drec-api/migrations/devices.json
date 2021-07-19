@@ -7,6 +7,7 @@
     "address": "Street 1, Bucharest",
     "latitude": "34.921213",
     "longitude": "135.717309",
+    "country_code": "DE",
     "fuel_code": "ES200",
     "device_type_code": "T020001",
     "installation_configuration": "StandAlone",
@@ -16,7 +17,7 @@
     "off_taker": "School",
     "sector": "Education",
     "standard_compliance": "I-REC",
-    "yield": 1000,
+    "yield_value": 1000,
     "labels": "Women-owned businesses",
     "impact_story": "Wind: Onshore"
   },
@@ -28,6 +29,7 @@
     "address": "Street 2, Berlin",
     "latitude": "26.111213",
     "longitude": "155.611309",
+    "country_code": "DE",
     "fuel_code": "ES100",
     "device_type_code": "TC110",
     "installation_configuration": "StandAlone",
@@ -37,7 +39,7 @@
     "off_taker": "HealthFacility",
     "sector": "Health",
     "standard_compliance": "REC",
-    "yield": 1000,
+    "yield_value": 1000,
     "labels": "Women-owned businesses",
     "impact_story": "PV Ground mounted"
   },
@@ -49,6 +51,7 @@
     "address": "Street 3, Oslo",
     "latitude": "31.271213",
     "longitude": "126.747329",
+    "country_code": "DE",
     "fuel_code": "ES300",
     "device_type_code": "TC120",
     "installation_configuration": "Microgrid",
@@ -58,7 +61,7 @@
     "off_taker": "Industrial",
     "sector": "Agriculture",
     "standard_compliance": "GO",
-    "yield": 1000,
+    "yield_value": 1000,
     "labels": "Women-owned businesses",
     "impact_story": "PV Roof Mounted (single installation)"
   },
@@ -70,6 +73,7 @@
     "address": "Street 4, Warsaw",
     "latitude": "19.245714",
     "longitude": "112.245309",
+    "country_code": "DE",
     "fuel_code": "ES410",
     "device_type_code": "TC310",
     "installation_configuration": "Microgrid",
@@ -79,7 +83,7 @@
     "off_taker": "Commercial",
     "sector": "Manufacturing",
     "standard_compliance": "TIGR",
-    "yield": 1100,
+    "yield_value": 1100,
     "labels": "Women-owned businesses",
     "impact_story": "Run of river"
   }

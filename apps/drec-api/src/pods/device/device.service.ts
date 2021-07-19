@@ -8,6 +8,8 @@ import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { Role } from '../../utils/eums';
 import { FindConditions, FindManyOptions, ILike, Between } from 'typeorm';
+import * as cleanDeep from 'clean-deep';
+import { Countries } from '@energyweb/utils-general';
 
 @Injectable()
 export class DeviceService {
@@ -73,51 +75,22 @@ export class DeviceService {
     return await this.repository.save(currentDevice);
   }
 
-  private getFilteredQuery(filterDto: FilterDTO): FindManyOptions<Device> {
-    const {
-      fuel_code,
-      device_type_code,
-      installation_configuration,
-      capacity,
-      startDate,
-      endDate,
-      grid_interconnection,
-      off_taker,
-      sector,
-      labels,
-      standard_compliance,
-    } = filterDto;
-    let where: FindConditions<Device> = {};
-    if (fuel_code) {
-      where.fuel_code = fuel_code;
-    }
-    if (device_type_code) {
-      where.device_type_code = device_type_code;
-    }
-    if (installation_configuration) {
-      where.installation_configuration = installation_configuration;
-    }
-    if (capacity) {
-      where.capacity = capacity;
-    }
-    if (grid_interconnection) {
-      where.grid_interconnection = grid_interconnection;
-    }
-    if (off_taker) {
-      where.off_taker = off_taker;
-    }
-    if (sector) {
-      where.sector = sector;
-    }
-    if (labels) {
-      where.labels = ILike(`%${labels}%`);
-    }
-    if (standard_compliance) {
-      where.standard_compliance = standard_compliance;
-    }
-    if (startDate && endDate) {
-      where.commissioning_date = Between(startDate, endDate);
-    }
+  private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
+    const where: FindConditions<Device> = cleanDeep.default({
+      fuel_code: filter.fuel_code,
+      device_type_code: filter.device_type_code,
+      installation_configuration: filter.installation_configuration,
+      capacity: filter.capacity,
+      grid_interconnection: filter.grid_interconnection,
+      off_taker: filter.off_taker,
+      sector: filter.sector,
+      labels: filter.labels,
+      standard_compliance: filter.standard_compliance,
+      commissioning_date:
+        filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date),
+    });
     const query: FindManyOptions<Device> = {
       where,
     };

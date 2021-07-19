@@ -45,6 +45,7 @@ specifiers:
   chai: 4.2.0
   class-transformer: 0.3.1
   class-validator: 0.13.1
+  clean-deep: ^3.4.0
   concurrently: 5.3.0
   dotenv: 8.2.0
   eslint: 7.15.0
@@ -59,7 +60,6 @@ specifiers:
   lodash: 4.17.21
   luxon: 1.27.0
   mocha: 8.2.1
-  moment: 2.29.1
   multer: 1.4.2
   orval: 5.0.0-alpha.9
   passport: 0.4.1
@@ -128,6 +128,7 @@ dependencies:
   chai: 4.2.0
   class-transformer: 0.3.1
   class-validator: 0.13.1
+  clean-deep: 3.4.0
   concurrently: 5.3.0
   dotenv: 8.2.0
   eslint: 7.15.0
@@ -142,7 +143,6 @@ dependencies:
   lodash: 4.17.21
   luxon: 1.27.0
   mocha: 8.2.1
-  moment: 2.29.1
   multer: 1.4.2
   orval: 5.0.0-alpha.9
   passport: 0.4.1
@@ -3979,6 +3979,15 @@ packages:
       validator: 13.6.0
     dev: false
 
+  /clean-deep/3.4.0:
+    resolution: {integrity: sha512-Lo78NV5ItJL/jl+B5w0BycAisaieJGXK1qYi/9m4SjR8zbqmrUtO7Yhro40wEShGmmxs/aJLI/A+jNhdkXK8mw==}
+    engines: {node: '>=4'}
+    dependencies:
+      lodash.isempty: 4.4.0
+      lodash.isplainobject: 4.0.6
+      lodash.transform: 4.6.0
+    dev: false
+
   /cli-boxes/2.2.1:
     resolution: {integrity: sha512-y4coMcylgSCdVinjiDBuR8PCC2bLjyGTwEmPb9NHR/QaNU6EUOXcTY/s6VjGMD6ENSEaeQYHCY0GNGS5jfMwPw==}
     engines: {node: '>=6'}
@@ -7338,6 +7347,10 @@ packages:
     resolution: {integrity: sha1-bC4XHbKiV82WgC/UOwGyDV9YcPY=}
     dev: false
 
+  /lodash.isempty/4.4.0:
+    resolution: {integrity: sha1-b4bL7di+TsmHvpqvM8loTbGzHn4=}
+    dev: false
+
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha1-QVxEePK8wwEgwizhDtMib30+GOA=}
     dev: false
@@ -7372,6 +7385,10 @@ packages:
 
   /lodash.toarray/4.4.0:
     resolution: {integrity: sha1-JMS/zWsvuji/0FlNsRedjptlZWE=}
+    dev: false
+
+  /lodash.transform/4.6.0:
+    resolution: {integrity: sha1-EjBkIvYzJK7YSD0/ODMrX2cFR6A=}
     dev: false
 
   /lodash.uniq/4.5.0:
@@ -11010,7 +11027,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-VjsXmbmKkn82teebmRkZ1IOl58aRIoyhSpqZ8vqjhwasJOSoBrYH6AHbxDRjiK6G097Cc1p6MkwsIVO5AtjTmw==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-FrKXqnV2aKDJU4MW9d8lcPZeCmB0x5Em4rVwqG19fQ/71WwHqrQlXuD1kZ9KA6HsDjEHMXgS+hFuunH487b6qQ==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -11056,6 +11073,7 @@ packages:
       chai: 4.2.0
       class-transformer: 0.3.1
       class-validator: 0.13.1
+      clean-deep: 3.4.0
       concurrently: 5.3.0
       dotenv: 8.2.0
       eslint: 7.15.0
