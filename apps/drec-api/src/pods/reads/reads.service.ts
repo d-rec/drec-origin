@@ -1,6 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   MeasurementDTO,
+  ReadDTO,
+  FilterDTO,
   ReadsService as BaseReadService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
@@ -12,6 +14,7 @@ import { BASE_READ_SERVICE } from './const';
 import { EventBus } from '@nestjs/cqrs';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { BigNumber } from 'ethers';
+import { DeviceDTO } from '../device/dto';
 
 @Injectable()
 export class ReadsService {
@@ -33,8 +36,17 @@ export class ReadsService {
     this.logger.debug(JSON.stringify(measurements));
 
     const device = await this.deviceService.findOne(+id);
+
+    const filteredMeasurements = await this.filterMeasurements(
+      id,
+      measurements,
+      device,
+    );
+
+    console.log('Filtered measurements: ', filteredMeasurements);
+
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    await this.storeGenerationReading(id, roundedMeasurements, device);
+    // await this.storeGenerationReading(id, roundedMeasurements, device);
   }
 
   private async storeGenerationReading(
@@ -99,5 +111,78 @@ export class ReadsService {
       })),
       unit: Unit.Wh,
     };
+  }
+
+  // This will be changed - just for testing
+  private async getFinalRead(meterId: string): Promise<ReadDTO> {
+    const filer: FilterDTO = {
+      limit: 10000,
+      offset: 0,
+      start: '2020-01-01T00:00:00Z',
+      end: '2020-01-02T00:00:00Z',
+    };
+    const final = await this.baseReadsService.find(meterId, filer);
+    return final[0];
+  }
+
+  private validateEnergy(
+    read: ReadDTO,
+    final: ReadDTO,
+    device: DeviceDTO,
+  ): boolean {
+    const degradation = 0.5; // [%/year]
+    const yieldValue = device.yield_value || 1000; // [kWh/kW]
+    const capacity = device.capacity; // Kw
+
+    const commissioningDate = DateTime.fromISO(device.commissioning_date);
+    const today = new Date();
+    const currentDate = DateTime.fromISO(today.toISOString());
+    const deviceAge = Math.round(
+      currentDate.diff(commissioningDate, ['years']).toObject().years,
+    ); // years
+
+    const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+    const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+    const meteredTimePeriod = Math.round(
+      currentRead.diff(lastRead, ['hours']).toObject().hours,
+    ); // years
+    console.log('currentRead: ', read.timestamp);
+    console.log('lastRead: ', final.timestamp);
+    console.log('meteredTimePeriod: ', meteredTimePeriod);
+    const margin = 0.2;
+
+    const maxEnergy = this.computeMaxEnergy(
+      capacity,
+      meteredTimePeriod,
+      deviceAge,
+      degradation,
+      yieldValue,
+    );
+    return read.value + margin * read.value < maxEnergy;
+  }
+
+  private async filterMeasurements(
+    id: string,
+    measurements: MeasurementDTO,
+    device: DeviceDTO,
+  ): Promise<MeasurementDTO> {
+    const final = await this.getFinalRead(id);
+    return {
+      reads: measurements.reads.filter((read: ReadDTO) =>
+        this.validateEnergy(read, final, device),
+      ),
+      unit: Unit.Wh,
+    };
+  }
+
+  private computeMaxEnergy(
+    capacity: number,
+    meteredTimePeriod: number,
+    deviceAge: number,
+    degradation: number,
+    yieldValue: number,
+  ) {
+    // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+    return capacity * meteredTimePeriod * deviceAge * degradation * yieldValue;
   }
 }
