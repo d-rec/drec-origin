@@ -2,7 +2,7 @@
   {
     "id": 2,
     "drecID": "DREC02",
-    "registrant_organisation_code": "D0012",
+    "registrant_organisation_code": "D001",
     "project_name": "Project Device 1",
     "address": "Street 1, Bucharest",
     "latitude": "34.921213",
@@ -24,7 +24,7 @@
   {
     "id": 3,
     "drecID": "DREC03",
-    "registrant_organisation_code": "D0012",
+    "registrant_organisation_code": "D002",
     "project_name": "Project Device 2",
     "address": "Street 2, Berlin",
     "latitude": "26.111213",
@@ -46,7 +46,7 @@
   {
     "id": 4,
     "drecID": "DREC04",
-    "registrant_organisation_code": "D0012",
+    "registrant_organisation_code": "D001",
     "project_name": "Project Device 3",
     "address": "Street 3, Oslo",
     "latitude": "31.271213",
@@ -68,7 +68,7 @@
   {
     "id": 5,
     "drecID": "DREC05",
-    "registrant_organisation_code": "D0012",
+    "registrant_organisation_code": "D002",
     "project_name": "Project Device 4",
     "address": "Street 4, Warsaw",
     "latitude": "19.245714",
