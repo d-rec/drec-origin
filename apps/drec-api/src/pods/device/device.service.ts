@@ -94,6 +94,9 @@ export class DeviceService {
     });
     const query: FindManyOptions<Device> = {
       where,
+      order: {
+        registrant_organisation_code: 'ASC',
+      },
     };
     return query;
   }

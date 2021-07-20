@@ -19,5 +19,12 @@
     "email": "admin@mailinator.com",
     "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
     "organizationId": "A001"
+  },
+  {
+    "id": 5,
+    "username": "JonSnow",
+    "email": "jonsnow@mailinator.com",
+    "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
+    "organizationId": "D002"
   }
 ]
