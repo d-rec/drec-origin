@@ -12,9 +12,11 @@ import { getProviderWithFallback } from '@energyweb/utils-general';
 
 import { IUser } from '../src/pods/user/user.entity';
 import { IOrganization } from '../src/pods/organization/organization.entity';
+import { IDevice } from '../src/pods/device';
 
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
+import DevicesJSON from './devices.json';
 
 require('dotenv').config({ path: '../../../.env' });
 
@@ -29,6 +31,7 @@ export class Seed9999999999999 implements MigrationInterface {
 
     await this.seedUsers(queryRunner);
     await this.seedOrganizations(queryRunner, registry);
+    await this.seedDevices(queryRunner);
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {}
@@ -85,6 +88,23 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
 
+  private async seedDevices(queryRunner: QueryRunner) {
+    const devicesTable = await queryRunner.getTable('public.device');
+
+    if (!devicesTable) {
+      console.log('device table does not exist.');
+      return;
+    }
+
+    await Promise.all(
+      (DevicesJSON as IDevice[]).map((device) =>
+        queryRunner.query(
+          `INSERT INTO public.device (id, "drecID", registrant_organisation_code, project_name, address, latitude, longitude, fuel_code, device_type_code, installation_configuration, capacity, commissioning_date, grid_interconnection, off_taker, sector, standard_compliance, yield_value, labels, impact_story, country_code) VALUES ('${device.id}', '${device.drecID}', '${device.registrant_organisation_code}', '${device.project_name}', '${device.address}', '${device.latitude}', '${device.longitude}', '${device.fuel_code}', '${device.device_type_code}', '${device.installation_configuration}', '${device.capacity}', '${device.commissioning_date}', '${device.grid_interconnection}', '${device.off_taker}', '${device.sector}', '${device.standard_compliance}', '${device.yield_value}', '${device.labels}', '${device.impact_story}', '${device.country_code}')`,
+        ),
+      ),
+    );
+  }
+
   private async seedBlockchain(
     queryRunner: QueryRunner,
   ): Promise<IContractsLookup> {
@@ -92,15 +112,17 @@ export class Seed9999999999999 implements MigrationInterface {
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
-    await queryRunner.query(
-      `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback", "platformOperatorPrivateKey") VALUES (${
-        provider.network.chainId
-      }, '${contractsLookup.registry}', '${
-        contractsLookup.issuer
-      }', '${primaryRpc}', '${fallbackRpc ?? ''}', '${
-        issuerAccount.privateKey
-      }')`,
-    );
+    if (provider && contractsLookup) {
+      await queryRunner.query(
+        `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback", "platformOperatorPrivateKey") VALUES (${
+          provider.network.chainId
+        }, '${contractsLookup.registry}', '${
+          contractsLookup.issuer
+        }', '${primaryRpc}', '${fallbackRpc ?? ''}', '${
+          issuerAccount.privateKey
+        }')`,
+      );
+    }
 
     return contractsLookup;
   }

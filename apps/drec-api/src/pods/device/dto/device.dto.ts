@@ -8,7 +8,12 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IDevice } from '../device.entity';
-import { Installation, OffTaker, Sector } from '../../../utils/eums';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../../../utils/eums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export class DeviceDTO implements IDevice {
@@ -46,6 +51,15 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
+  country_code: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  zip_code: number;
+
+  @ApiProperty()
+  @IsString()
   fuel_code: string;
 
   @ApiProperty()
@@ -57,8 +71,8 @@ export class DeviceDTO implements IDevice {
   installation_configuration: Installation;
 
   @ApiProperty()
-  @IsString()
-  capacity: string;
+  @IsNumber()
+  capacity: number;
 
   @ApiProperty()
   @IsString()
@@ -77,8 +91,12 @@ export class DeviceDTO implements IDevice {
   sector: Sector;
 
   @ApiProperty()
-  @IsString()
-  standard_compliance: string;
+  @IsEnum(StandardCompliance)
+  standard_compliance: StandardCompliance;
+
+  @ApiProperty()
+  @IsNumber()
+  yield_value: number;
 
   @ApiProperty()
   @IsArray()

@@ -1,7 +1,18 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Installation, OffTaker, Sector } from '../../utils/eums';
-import { IsEnum, IsBoolean, IsString, IsNotEmpty } from 'class-validator';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../../utils/eums';
+import {
+  IsEnum,
+  IsBoolean,
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+} from 'class-validator';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 export interface IDevice {
@@ -13,15 +24,18 @@ export interface IDevice {
   address: string;
   latitude: string;
   longitude: string;
+  country_code: string;
+  zip_code?: number;
   fuel_code: string;
   device_type_code: string;
   installation_configuration: Installation;
-  capacity: string;
+  capacity: number;
   commissioning_date: string;
   grid_interconnection: boolean;
   off_taker: OffTaker;
   sector: Sector;
-  standard_compliance: string;
+  standard_compliance: StandardCompliance;
+  yield_value: number;
   generators_ids?: number[];
   labels?: string;
   impact_story?: string;
@@ -70,6 +84,14 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
+  country_code: string;
+
+  @Column({ nullable: true })
+  @IsNumber()
+  zip_code: number;
+
+  @Column()
+  @IsString()
   fuel_code: string;
 
   @Column()
@@ -81,8 +103,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   installation_configuration: Installation;
 
   @Column()
-  @IsString()
-  capacity: string;
+  @IsNumber()
+  capacity: number;
 
   @Column()
   @IsString()
@@ -101,8 +123,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   sector: Sector;
 
   @Column()
-  @IsString()
-  standard_compliance: string;
+  @IsEnum(StandardCompliance)
+  standard_compliance: StandardCompliance;
+
+  @Column({ default: 1000 })
+  @IsNumber()
+  yield_value: number;
 
   @Column('int', { nullable: true, array: true })
   generators_ids: number[];

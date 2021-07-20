@@ -7,6 +7,8 @@ import {
   Param,
   Body,
   UseGuards,
+  ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,7 +22,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { DeviceDTO } from './dto/device.dto';
 import { DeviceService } from './device.service';
-import { NewDeviceDTO, UpdateDeviceDTO } from './dto';
+import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/eums';
 import { RolesGuard } from '../../auth/roles-guard';
@@ -38,8 +40,10 @@ export class DeviceController {
 
   @Get()
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
-  async getAll(): Promise<DeviceDTO[]> {
-    return this.deviceService.find();
+  async getAll(
+    @Query(ValidationPipe) filterDto: FilterDTO,
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.find(filterDto);
   }
 
   @Get('/:id')

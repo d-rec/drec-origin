@@ -12,7 +12,12 @@ import { expect } from 'chai';
 import { before, after } from 'mocha';
 import { NewDeviceDTO, UpdateDeviceDTO } from '../src/pods/device/dto';
 import { DeviceService } from '../src/pods/device/device.service';
-import { Installation, OffTaker, Sector } from '../src/utils/eums';
+import {
+  Installation,
+  OffTaker,
+  Sector,
+  StandardCompliance,
+} from '../src/utils/eums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 describe('Device tests', () => {
@@ -104,15 +109,18 @@ describe('Device tests', () => {
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
+      country_code: 'DE',
+      zip_code: 111111,
       fuel_code: 'ES100',
       device_type_code: 'TC110',
       installation_configuration: Installation.StandAlone,
-      capacity: '1340',
+      capacity: 1340,
       commissioning_date: '2012-07-01',
       grid_interconnection: true,
       off_taker: OffTaker.Commercial,
       sector: Sector.Agriculture,
-      standard_compliance: '',
+      standard_compliance: StandardCompliance.IREC,
+      yield_value: 1000,
       generators_ids: [],
       labels: '',
       impact_story: '',
@@ -156,12 +164,15 @@ describe('Device tests', () => {
       fuel_code: 'ES100',
       device_type_code: 'TC110',
       installation_configuration: Installation.StandAlone,
-      capacity: '1340',
+      capacity: 1340,
+      country_code: 'DE',
+      zip_code: 111111,
       commissioning_date: '2012-07-01',
       grid_interconnection: true,
       off_taker: OffTaker.Commercial,
       sector: Sector.Agriculture,
-      standard_compliance: '',
+      standard_compliance: StandardCompliance.IREC,
+      yield_value: 1000,
       generators_ids: [],
       labels: '',
       impact_story: '',
