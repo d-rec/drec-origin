@@ -37,6 +37,10 @@ export class ReadsService {
 
     const device = await this.deviceService.findOne(+id);
 
+    if (!device) {
+      throw new NotFoundException(`No device found with id ${id}`);
+    }
+
     const filteredMeasurements = await this.filterMeasurements(
       id,
       measurements,
@@ -45,8 +49,9 @@ export class ReadsService {
 
     console.log('Filtered measurements: ', filteredMeasurements);
 
-    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    // await this.storeGenerationReading(id, roundedMeasurements, device);
+    const roundedMeasurements =
+      this.roundMeasurementsToUnit(filteredMeasurements);
+    await this.storeGenerationReading(id, roundedMeasurements, device);
   }
 
   private async storeGenerationReading(
@@ -113,6 +118,23 @@ export class ReadsService {
     };
   }
 
+  private async filterMeasurements(
+    id: string,
+    measurements: MeasurementDTO,
+    device: DeviceDTO,
+  ): Promise<MeasurementDTO> {
+    const final = await this.getFinalRead(id);
+    if (!final || !device) {
+      return measurements;
+    }
+    return {
+      reads: measurements.reads.filter((read: ReadDTO) =>
+        this.validateEnergy(read, final, device),
+      ),
+      unit: Unit.Wh,
+    };
+  }
+
   // This will be changed - just for testing
   private async getFinalRead(meterId: string): Promise<ReadDTO> {
     const filer: FilterDTO = {
@@ -146,9 +168,7 @@ export class ReadsService {
     const meteredTimePeriod = Math.round(
       currentRead.diff(lastRead, ['hours']).toObject().hours,
     ); // years
-    console.log('currentRead: ', read.timestamp);
-    console.log('lastRead: ', final.timestamp);
-    console.log('meteredTimePeriod: ', meteredTimePeriod);
+
     const margin = 0.2;
 
     const maxEnergy = this.computeMaxEnergy(
@@ -158,21 +178,8 @@ export class ReadsService {
       degradation,
       yieldValue,
     );
+    console.log('Validation: ', read.value + margin * read.value < maxEnergy);
     return read.value + margin * read.value < maxEnergy;
-  }
-
-  private async filterMeasurements(
-    id: string,
-    measurements: MeasurementDTO,
-    device: DeviceDTO,
-  ): Promise<MeasurementDTO> {
-    const final = await this.getFinalRead(id);
-    return {
-      reads: measurements.reads.filter((read: ReadDTO) =>
-        this.validateEnergy(read, final, device),
-      ),
-      unit: Unit.Wh,
-    };
   }
 
   private computeMaxEnergy(
@@ -181,7 +188,7 @@ export class ReadsService {
     deviceAge: number,
     degradation: number,
     yieldValue: number,
-  ) {
+  ): number {
     // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
     return capacity * meteredTimePeriod * deviceAge * degradation * yieldValue;
   }
