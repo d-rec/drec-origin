@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   MeasurementDTO,
   ReadDTO,
-  FilterDTO,
   ReadsService as BaseReadService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
@@ -45,7 +44,7 @@ export class ReadsService {
 
     const filteredMeasurements = await this.filterMeasurements(
       id,
-      measurements,
+      roundedMeasurements,
       device,
     );
 
@@ -133,9 +132,13 @@ export class ReadsService {
     };
   }
 
-  // This will be changed - just for testing
   private async getLatestRead(meterId: string): Promise<ReadDTO> {
-    return await this.baseReadsService.findLatestRead(meterId);
+    try {
+      return await this.baseReadsService.findLatestRead(meterId);
+    } catch (e) {
+      this.logger.warn(e.message);
+      return;
+    }
   }
 
   private validateEnergy(
@@ -158,20 +161,17 @@ export class ReadsService {
 
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yield_value || 1000; // [kWh/kW]
-    const capacity = device.capacity; // Kw
+    const capacity = device.capacity; // W
 
     const commissioningDate = DateTime.fromISO(device.commissioning_date);
     const currentDate = DateTime.fromISO(new Date().toISOString());
     const deviceAge = Math.round(
       currentDate.diff(commissioningDate, ['years']).toObject()?.years,
     ); // years
-
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
-    const meteredTimePeriod = Math.round(
-      currentRead.diff(lastRead, ['hours']).toObject()?.hours,
-    ); // years
-
+    const meteredTimePeriod =
+      Math.round(currentRead.diff(lastRead, ['hours']).toObject()?.hours) || 1; // hours
     const margin = 0.2; // Margin for comparing read value with computed max energy
 
     const maxEnergy = computeMaxEnergy(
@@ -181,8 +181,14 @@ export class ReadsService {
       degradation,
       yieldValue,
     );
-
-    const readValue = Math.round(read.value * 10 ** 3); // Convert from W to kW
-    return readValue + margin * readValue < maxEnergy;
+    this.logger.debug(
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+    );
+    this.logger.debug(
+      `${
+        read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'
+      }, MaxEnergy: ${maxEnergy}`,
+    );
+    return Math.round(read.value + margin * read.value) < maxEnergy;
   }
 }

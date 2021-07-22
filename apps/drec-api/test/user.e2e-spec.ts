@@ -54,7 +54,7 @@ describe('Users tests', () => {
       email: 'owner2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: user } = await requestUsers('me', HttpStatus.OK);
     expect(user.username).to.equal('JaneWilliams');
     expect(user.email).to.equal('owner2@mailinator.com');
@@ -67,7 +67,7 @@ describe('Users tests', () => {
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
-  const loginConsumer = async (loggedUser: {
+  const loginUser = async (loggedUser: {
     email: string;
     password: string;
   }): Promise<any> => {
