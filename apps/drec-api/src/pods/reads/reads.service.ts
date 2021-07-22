@@ -170,6 +170,7 @@ export class ReadsService {
     ); // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+
     const meteredTimePeriod =
       Math.round(currentRead.diff(lastRead, ['hours']).toObject()?.hours) || 1; // hours
     const margin = 0.2; // Margin for comparing read value with computed max energy

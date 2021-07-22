@@ -70,11 +70,22 @@ describe('Reads tests', () => {
 
     measurement1.unit = Unit.Wh;
     measurement2.unit = Unit.Wh;
-    measurement1.reads = [{ timestamp: new Date(), value: 120000 }];
+    const date = new Date();
+    date.setHours(date.getHours() - 4);
+
+    const date1 = new Date();
+    date1.setHours(date1.getHours() - 3);
+
+    const date2 = new Date();
+    date2.setHours(date2.getHours() - 2);
+
+    const date3 = new Date();
+    date3.setHours(date3.getHours() - 1);
+    measurement1.reads = [{ timestamp: date, value: 120000 }];
     measurement2.reads = [
-      { timestamp: new Date(), value: 15000 },
-      { timestamp: new Date(), value: 16000 },
-      { timestamp: new Date(), value: 9999999999 },
+      { timestamp: date2, value: 15000 },
+      { timestamp: date2, value: 16000 },
+      { timestamp: date3, value: 9999999999 },
     ];
 
     await requestDeviceMultipleCodeReads(
@@ -89,6 +100,8 @@ describe('Reads tests', () => {
     );
     const { body: retrievedReads } = await requestValidatedReadings(
       devices[1]?.id,
+      date,
+      new Date(),
     );
     expect(retrievedReads).to.be.instanceOf(Array);
     expect(retrievedReads).to.have.length(3);
@@ -110,12 +123,14 @@ describe('Reads tests', () => {
     expect(body[0].value).to.be.eql(expected);
   };
 
-  const requestValidatedReadings = async (meterId: string): Promise<any> =>
+  const requestValidatedReadings = async (
+    meterId: string,
+    startDate,
+    endDate,
+  ): Promise<any> =>
     await request(app.getHttpServer())
       .get(
-        `/meter-reads/${meterId}?limit=100&offset=0&start=${new Date(
-          0,
-        ).toISOString()}&end=${new Date().toISOString()}`,
+        `/meter-reads/${meterId}?limit=100&offset=0&start=${startDate.toISOString()}&end=${endDate.toISOString()}`,
       )
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(HttpStatus.OK);
