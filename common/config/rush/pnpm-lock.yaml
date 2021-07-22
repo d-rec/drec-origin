@@ -1,7 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@energyweb/energy-api-influxdb': 0.7.1
+  '@energyweb/energy-api-influxdb': 0.8.0
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0
@@ -45,7 +45,7 @@ specifiers:
   chai: 4.2.0
   class-transformer: 0.3.1
   class-validator: 0.13.1
-  clean-deep: ^3.4.0
+  clean-deep: 3.4.0
   concurrently: 5.3.0
   dotenv: 8.2.0
   eslint: 7.15.0
@@ -84,7 +84,7 @@ specifiers:
   wait-on: 5.2.1
 
 dependencies:
-  '@energyweb/energy-api-influxdb': 0.7.1_6405b212efd18473393a71e5822074cf
+  '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6
@@ -608,8 +608,8 @@ packages:
       kuler: 2.0.0
     dev: false
 
-  /@energyweb/energy-api-influxdb/0.7.1_6405b212efd18473393a71e5822074cf:
-    resolution: {integrity: sha512-je7GzKpykMquNXtkUnEHSIfa1+lAKTkr1DfaMN81iSIwJaGylzHE5mkQbm7IX25MPN+NyviP3QALawYe2XoPEg==}
+  /@energyweb/energy-api-influxdb/0.8.0_6405b212efd18473393a71e5822074cf:
+    resolution: {integrity: sha512-HsnqjHeNY3rrP6yOgGMsJj8llXXAMncLld6d/CukJZF2UBlFObZtKT5gdctcsnAQzycNeX6mtAquzGqnB3U5AQ==}
     dependencies:
       '@influxdata/influxdb-client': 1.9.0
       '@nestjs/common': 7.6.12_989b90aa2e92e0af49cad765bf76261d
@@ -11035,12 +11035,12 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-LLcGawas07ShMyAUMCEBGv8Eh6mNQjejdEZePfH2roqXZpK+NaOd56eXxyuDjc2hBcgBg1zgtji7+n+tWYKovg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-eww8m5kx1OyD/lOEJ6BxM3y7bt3tvCo/GjXOj8CufRr3+11DedtGOXTeiqsCaZ+4iB6kf5piYmjrHQWxQQ0EgQ==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
-      '@energyweb/energy-api-influxdb': 0.7.1_6405b212efd18473393a71e5822074cf
+      '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
       '@energyweb/issuer': 3.2.1-alpha.1626693085.0
       '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
       '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6

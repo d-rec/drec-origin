@@ -41,17 +41,15 @@ export class ReadsService {
       throw new NotFoundException(`No device found with id ${id}`);
     }
 
+    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
+
     const filteredMeasurements = await this.filterMeasurements(
       id,
       measurements,
       device,
     );
 
-    console.log('Filtered measurements: ', filteredMeasurements);
-
-    const roundedMeasurements =
-      this.roundMeasurementsToUnit(filteredMeasurements);
-    await this.storeGenerationReading(id, roundedMeasurements, device);
+    await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
   private async storeGenerationReading(
@@ -120,31 +118,24 @@ export class ReadsService {
 
   private async filterMeasurements(
     id: string,
-    measurements: MeasurementDTO,
+    measurement: MeasurementDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    const final = await this.getFinalRead(id);
+    const final = await this.getLatestRead(id);
     if (!final || !device) {
-      return measurements;
+      return measurement;
     }
     return {
-      reads: measurements.reads.filter((read: ReadDTO) =>
+      reads: measurement.reads.filter((read: ReadDTO) =>
         this.validateEnergy(read, final, device),
       ),
-      unit: Unit.Wh,
+      unit: measurement.unit,
     };
   }
 
   // This will be changed - just for testing
-  private async getFinalRead(meterId: string): Promise<ReadDTO> {
-    const filer: FilterDTO = {
-      limit: 10000,
-      offset: 0,
-      start: '2020-01-01T00:00:00Z',
-      end: '2020-01-02T00:00:00Z',
-    };
-    const final = await this.baseReadsService.find(meterId, filer);
-    return final[0];
+  private async getLatestRead(meterId: string): Promise<ReadDTO> {
+    return await this.baseReadsService.findLatestRead(meterId);
   }
 
   private validateEnergy(
@@ -152,44 +143,46 @@ export class ReadsService {
     final: ReadDTO,
     device: DeviceDTO,
   ): boolean {
+    const computeMaxEnergy = (
+      capacity: number,
+      meteredTimePeriod: number,
+      deviceAge: number,
+      degradation: number,
+      yieldValue: number,
+    ) => {
+      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      return (
+        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+      );
+    };
+
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yield_value || 1000; // [kWh/kW]
     const capacity = device.capacity; // Kw
 
     const commissioningDate = DateTime.fromISO(device.commissioning_date);
-    const today = new Date();
-    const currentDate = DateTime.fromISO(today.toISOString());
+    const currentDate = DateTime.fromISO(new Date().toISOString());
     const deviceAge = Math.round(
-      currentDate.diff(commissioningDate, ['years']).toObject().years,
+      currentDate.diff(commissioningDate, ['years']).toObject()?.years,
     ); // years
 
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
     const meteredTimePeriod = Math.round(
-      currentRead.diff(lastRead, ['hours']).toObject().hours,
+      currentRead.diff(lastRead, ['hours']).toObject()?.hours,
     ); // years
 
-    const margin = 0.2;
+    const margin = 0.2; // Margin for comparing read value with computed max energy
 
-    const maxEnergy = this.computeMaxEnergy(
+    const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
       deviceAge,
       degradation,
       yieldValue,
     );
-    console.log('Validation: ', read.value + margin * read.value < maxEnergy);
-    return read.value + margin * read.value < maxEnergy;
-  }
 
-  private computeMaxEnergy(
-    capacity: number,
-    meteredTimePeriod: number,
-    deviceAge: number,
-    degradation: number,
-    yieldValue: number,
-  ): number {
-    // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
-    return capacity * meteredTimePeriod * deviceAge * degradation * yieldValue;
+    const readValue = Math.round(read.value * 10 ** 3); // Convert from W to kW
+    return readValue + margin * readValue < maxEnergy;
   }
 }
