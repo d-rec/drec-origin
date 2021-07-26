@@ -164,15 +164,26 @@ export class ReadsService {
     const capacity = device.capacity; // W
 
     const commissioningDate = DateTime.fromISO(device.commissioning_date);
-    const currentDate = DateTime.fromISO(new Date().toISOString());
-    const deviceAge = Math.round(
-      currentDate.diff(commissioningDate, ['years']).toObject()?.years,
-    ); // years
+    const currentDate = DateTime.now();
+    const deviceAge = currentDate
+      .diff(commissioningDate, ['years'])
+      .toObject()?.years; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+    this.logger.debug(`Current Date: ${DateTime.now()}`);
+    this.logger.debug(`Current read: ${read.timestamp}`);
+    this.logger.debug(`Last read: ${final.timestamp}`);
 
-    const meteredTimePeriod =
-      Math.round(currentRead.diff(lastRead, ['hours']).toObject()?.hours) || 1; // hours
+    // this.logger.debug(
+    //   `meter to miliseconds: ${JSON.stringify(currentRead.diff(lastRead).toObject())} ${
+    //     currentRead.diff(lastRead).toObject()?.milliseconds / 3600000
+    //   }`,
+    // );
+
+    const meteredTimePeriod = Math.abs(
+      currentRead.diff(lastRead, ['hours']).toObject()?.hours,
+    ); // hours
+
     const margin = 0.2; // Margin for comparing read value with computed max energy
 
     const maxEnergy = computeMaxEnergy(

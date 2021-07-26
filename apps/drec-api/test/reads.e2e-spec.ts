@@ -33,6 +33,7 @@ describe('Reads tests', () => {
     await databaseService.truncate('user', 'organization');
 
     await app.init();
+    // clean influxdb
     await seed({
       userService,
       organizationService,
@@ -70,20 +71,19 @@ describe('Reads tests', () => {
 
     measurement1.unit = Unit.Wh;
     measurement2.unit = Unit.Wh;
-    const date = new Date();
-    date.setHours(date.getHours() - 4);
+    const startDate = new Date();
+    startDate.setHours(startDate.getHours() - 10);
 
     const date1 = new Date();
-    date1.setHours(date1.getHours() - 3);
+    date1.setHours(date1.getHours() - 7);
 
     const date2 = new Date();
-    date2.setHours(date2.getHours() - 2);
+    date2.setHours(date2.getHours() - 1.4);
 
     const date3 = new Date();
     date3.setHours(date3.getHours() - 1);
-    measurement1.reads = [{ timestamp: date, value: 120000 }];
+    measurement1.reads = [{ timestamp: date1, value: 120000 }];
     measurement2.reads = [
-      { timestamp: date2, value: 15000 },
       { timestamp: date2, value: 16000 },
       { timestamp: date3, value: 9999999999 },
     ];
@@ -100,11 +100,11 @@ describe('Reads tests', () => {
     );
     const { body: retrievedReads } = await requestValidatedReadings(
       devices[1]?.id,
-      date,
+      startDate,
       new Date(),
     );
     expect(retrievedReads).to.be.instanceOf(Array);
-    expect(retrievedReads).to.have.length(3);
+    expect(retrievedReads).to.have.length(2);
   });
 
   const expectReading = async (
