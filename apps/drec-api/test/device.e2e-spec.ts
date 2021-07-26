@@ -10,7 +10,11 @@ import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
-import { NewDeviceDTO, UpdateDeviceDTO } from '../src/pods/device/dto';
+import {
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from '../src/pods/device/dto';
 import { DeviceService } from '../src/pods/device/device.service';
 import {
   Installation,
@@ -63,7 +67,7 @@ describe('Device tests', () => {
       email: 'owner2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     expect(devices).to.be.instanceOf(Array);
     expect(devices).to.have.length(3);
@@ -74,7 +78,7 @@ describe('Device tests', () => {
       email: 'owner2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const { body: device } = await requestDevice(devices[0].id, HttpStatus.OK);
     expect(device.status).to.equal(DeviceStatus.Active);
@@ -88,7 +92,7 @@ describe('Device tests', () => {
     const partialDevice = {
       project_name: 'Device 2 - Update',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const { body: updatedDevice } = await updateDevice(
       devices[0].id,
@@ -127,7 +131,7 @@ describe('Device tests', () => {
       data: '',
       images: [],
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: updatedDevice } = await postDevice(
       '',
       HttpStatus.CREATED,
@@ -146,7 +150,7 @@ describe('Device tests', () => {
       project_name: 'Device 2 - Update',
     };
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     await updateDevice(devices[0].id, HttpStatus.FORBIDDEN, partialDevice);
   });
 
@@ -179,13 +183,18 @@ describe('Device tests', () => {
       data: '',
       images: [],
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     await postDevice('', HttpStatus.FORBIDDEN, partialDevice);
   });
 
-  const requestDevice = async (url: string, status: HttpStatus): Promise<any> =>
+  const requestDevice = async (
+    url: string,
+    status: HttpStatus,
+    filterDTO?: Partial<FilterDTO>,
+  ): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/device/${url}`)
+      .query(filterDTO)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
@@ -215,7 +224,7 @@ describe('Device tests', () => {
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
-  const loginConsumer = async (loggedUser: {
+  const loginUser = async (loggedUser: {
     email: string;
     password: string;
   }): Promise<any> => {

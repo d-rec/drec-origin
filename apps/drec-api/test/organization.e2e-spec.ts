@@ -61,7 +61,7 @@ describe('Organization tests', () => {
       email: 'buyer2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     await requestOrganization('', HttpStatus.FORBIDDEN);
   });
 
@@ -70,7 +70,7 @@ describe('Organization tests', () => {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: organizations } = await requestOrganization(
       '',
       HttpStatus.OK,
@@ -84,7 +84,7 @@ describe('Organization tests', () => {
       email: 'buyer2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: organization } = await requestOrganization(
       'me',
       HttpStatus.OK,
@@ -100,7 +100,7 @@ describe('Organization tests', () => {
       email: 'buyer2@mailinator.com',
       password: 'test',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: users } = await requestOrganization('users', HttpStatus.OK);
     expect(users).to.be.instanceOf(Array);
     expect(users).to.have.length(1);
@@ -117,7 +117,7 @@ describe('Organization tests', () => {
       name: 'Device Owner - Update',
       regAddress: 'Update',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     const { body: updatedOrg } = await updateOrganization(
       orgCode,
       HttpStatus.OK,
@@ -138,7 +138,7 @@ describe('Organization tests', () => {
       name: 'Device Owner - Update',
       regAddress: 'Update',
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     await updateOrganization(orgCode, HttpStatus.FORBIDDEN, partialOrg);
   });
 
@@ -160,7 +160,7 @@ describe('Organization tests', () => {
       country: 'DE',
       role: Role.DeviceOwner,
     };
-    await loginConsumer(loggedUser);
+    await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
   });
 
@@ -199,7 +199,7 @@ describe('Organization tests', () => {
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
-  const loginConsumer = async (loggedUser: {
+  const loginUser = async (loggedUser: {
     email: string;
     password: string;
   }): Promise<any> => {
