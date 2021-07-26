@@ -69,8 +69,8 @@ describe('Reads tests', () => {
     const measurement1 = new MeasurementDTO();
     const measurement2 = new MeasurementDTO();
 
-    measurement1.unit = Unit.Wh;
-    measurement2.unit = Unit.Wh;
+    measurement1.unit = Unit.kWh;
+    measurement2.unit = Unit.kWh;
     const startDate = new Date();
     startDate.setHours(startDate.getHours() - 10);
 
