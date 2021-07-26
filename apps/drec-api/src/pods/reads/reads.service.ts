@@ -174,12 +174,6 @@ export class ReadsService {
     this.logger.debug(`Current read: ${read.timestamp}`);
     this.logger.debug(`Last read: ${final.timestamp}`);
 
-    // this.logger.debug(
-    //   `meter to miliseconds: ${JSON.stringify(currentRead.diff(lastRead).toObject())} ${
-    //     currentRead.diff(lastRead).toObject()?.milliseconds / 3600000
-    //   }`,
-    // );
-
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours,
     ); // hours

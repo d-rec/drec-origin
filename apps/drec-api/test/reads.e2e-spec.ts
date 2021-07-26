@@ -104,7 +104,10 @@ describe('Reads tests', () => {
       new Date(),
     );
     expect(retrievedReads).to.be.instanceOf(Array);
-    expect(retrievedReads).to.have.length(2);
+    const filteredRead = retrievedReads.find(
+      (read: ReadDTO) => read.value === measurement2.reads[1].value,
+    );
+    expect(filteredRead).to.eq(undefined);
   });
 
   const expectReading = async (
