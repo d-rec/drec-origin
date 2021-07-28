@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  NotAcceptableException,
+  Logger,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Device, IDevice } from './device.entity';
@@ -7,12 +13,14 @@ import { defaults } from 'lodash';
 import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { Role } from '../../utils/eums';
-import { FindConditions, FindManyOptions, ILike, Between } from 'typeorm';
+import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
 
 @Injectable()
 export class DeviceService {
+  private readonly logger = new Logger(DeviceService.name);
+
   constructor(
     @InjectRepository(Device) private readonly repository: Repository<Device>,
   ) {}
@@ -20,6 +28,10 @@ export class DeviceService {
   public async find(filterDto: FilterDTO): Promise<Device[]> {
     const query = this.getFilteredQuery(filterDto);
     return this.repository.find(query);
+  }
+
+  public async findForGroup(groupId: number): Promise<Device[]> {
+    return this.repository.find({ groupId });
   }
 
   public async findByIds(ids: number[]): Promise<IDevice[]> {
@@ -106,5 +118,71 @@ export class DeviceService {
       return;
     }
     return Countries.filter((country) => country.name === countryName)[0].code;
+  }
+
+  public async addToGroup(
+    currentDevice: Device,
+    groupId: number,
+    organizationOwnerCode?: string,
+  ): Promise<Device> {
+    // const currentDevice = await this.findOne(deviceId);
+    // if (!currentDevice) {
+    //   throw new NotFoundException(`No device found with id ${deviceId}`);
+    // }
+    const deviceExists = await this.getDeviceForGroup(
+      currentDevice.id,
+      groupId,
+    );
+    if (deviceExists) {
+      const message = `Device already added to this group`;
+      this.logger.error(message);
+      throw new ConflictException({
+        success: false,
+        message,
+      });
+    }
+    if (currentDevice.groupId) {
+      const message = `Device already belongs to a group`;
+      this.logger.error(message);
+      throw new ConflictException({
+        success: false,
+        message,
+      });
+    }
+    if (
+      organizationOwnerCode &&
+      currentDevice.registrant_organisation_code !== organizationOwnerCode
+    ) {
+      throw new NotAcceptableException(`Device belongs to a different owner`);
+    }
+    currentDevice.groupId = groupId;
+    return await this.repository.save(currentDevice);
+  }
+
+  public async removeFromGroup(
+    deviceId: number,
+    groupId: number,
+  ): Promise<Device> {
+    const currentDevice = await this.getDeviceForGroup(deviceId, groupId);
+    if (!currentDevice) {
+      throw new NotFoundException(
+        `No device found with id ${deviceId} and groupId: ${groupId}`,
+      );
+    }
+    currentDevice.groupId = null;
+    return await this.repository.save(currentDevice);
+  }
+
+  private async getDeviceForGroup(
+    deviceId: number,
+    groupId: number,
+  ): Promise<Device | null> {
+    const device = await this.repository.findOne({
+      where: {
+        id: deviceId,
+        groupId,
+      },
+    });
+    return device;
   }
 }

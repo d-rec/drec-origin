@@ -15,6 +15,8 @@ import { Device } from './pods/device/device.entity';
 import { DeviceModule } from './pods/device/device.module';
 import { File, FileModule } from './pods/file';
 import { ReadsModule } from './pods/reads/reads.module';
+import { DeviceGroup } from './pods/device-group/device-group.entity';
+import { DeviceGroupModule } from './pods/device-group/device-group.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -39,6 +41,7 @@ export const entities = [
   User,
   Organization,
   Device,
+  DeviceGroup,
   File,
   Certificate,
   BlockchainProperties,
@@ -79,6 +82,7 @@ const OriginAppTypeOrmModule = () => {
     UserModule,
     OrganizationModule,
     DeviceModule,
+    DeviceGroupModule,
     FileModule,
     ReadsModule,
   ],
