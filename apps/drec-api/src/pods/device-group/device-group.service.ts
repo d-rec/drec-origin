@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, FindConditions } from 'typeorm';
 import { DeviceService } from '../device/device.service';
-import { NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
+import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 
@@ -25,16 +25,8 @@ export class DeviceGroupService {
     return this.repository.find();
   }
 
-  async findById(
-    id: number,
-    options: FindOneOptions<DeviceGroup> = {},
-  ): Promise<DeviceGroup> {
-    const deviceGroup = await this.repository.findOne(id, {
-      ...options,
-    });
-    if (!deviceGroup) {
-      throw new NotFoundException(`No device group found with id ${id}`);
-    }
+  async findById(id: number): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id);
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     return deviceGroup;
   }
@@ -68,12 +60,38 @@ export class DeviceGroupService {
     return group;
   }
 
+  async addDevices(id: number, data: DeviceIdsDTO): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id);
+
+    const ownerCode = ((await this.deviceService.findForGroup(id)[0]) as Device)
+      ?.registrant_organisation_code;
+    const devices = await this.deviceService.findByIds(data.deviceIds);
+
+    await Promise.all(
+      devices.map(async (device: Device) => {
+        await this.deviceService.addToGroup(device, id, ownerCode);
+      }),
+    );
+    deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
+    return deviceGroup;
+  }
+
+  async removeDevices(id: number, data: DeviceIdsDTO): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id);
+
+    await Promise.all(
+      data.deviceIds.map(async (deviceId: number) => {
+        await this.deviceService.removeFromGroup(deviceId, id);
+      }),
+    );
+    deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
+    return deviceGroup;
+  }
+
   async update(id: number, data: UpdateDeviceGroupDTO): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
-    const deviceGroup = await this.repository.findOne(id);
-    if (!deviceGroup) {
-      throw new NotFoundException(`No device group found with id ${id}`);
-    }
+    const deviceGroup = await this.findDeviceGroupById(id);
+
     deviceGroup.name = data.name;
     const updatedGroup = await this.repository.save(deviceGroup);
     updatedGroup.devices = await this.deviceService.findForGroup(
@@ -83,10 +101,8 @@ export class DeviceGroupService {
   }
 
   async remove(id: number): Promise<void> {
-    const deviceGroup = await this.repository.findOne(id);
-    if (!deviceGroup) {
-      throw new NotFoundException(`No device group found with id ${id}`);
-    }
+    const deviceGroup = await this.findDeviceGroupById(id);
+
     const devices = await this.deviceService.findForGroup(deviceGroup.id);
     await Promise.all(
       devices.map(async (device: Device) => {
@@ -114,5 +130,13 @@ export class DeviceGroupService {
         message,
       });
     }
+  }
+
+  private async findDeviceGroupById(id: number): Promise<DeviceGroup> {
+    const deviceGroup = await this.repository.findOne(id);
+    if (!deviceGroup) {
+      throw new NotFoundException(`No device group found with id ${id}`);
+    }
+    return deviceGroup;
   }
 }

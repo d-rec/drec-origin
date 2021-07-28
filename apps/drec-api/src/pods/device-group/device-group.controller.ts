@@ -20,7 +20,12 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 
 import { DeviceGroupService } from './device-group.service';
-import { DeviceGroupDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
+import {
+  DeviceGroupDTO,
+  DeviceIdsDTO,
+  NewDeviceGroupDTO,
+  UpdateDeviceGroupDTO,
+} from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/eums';
 import { RolesGuard } from '../../auth/roles-guard';
@@ -72,6 +77,36 @@ export class DeviceGroupController {
       user.organization.code,
       deviceGroupToRegister,
     );
+  }
+
+  @Post('/add/:id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.Buyer, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: 'Returns a new created Device group',
+  })
+  public async addDevices(
+    @Param('id') id: number,
+    @Body() deviceIds: DeviceIdsDTO,
+  ) {
+    return await this.deviceGroupService.addDevices(id, deviceIds);
+  }
+
+  @Post('/remove/:id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.Buyer, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: 'Returns a new created Device group',
+  })
+  public async removeDevices(
+    @Param('id') id: number,
+    @Body() deviceIds: DeviceIdsDTO,
+  ) {
+    return await this.deviceGroupService.removeDevices(id, deviceIds);
   }
 
   @Patch('/:id')

@@ -125,10 +125,6 @@ export class DeviceService {
     groupId: number,
     organizationOwnerCode?: string,
   ): Promise<Device> {
-    // const currentDevice = await this.findOne(deviceId);
-    // if (!currentDevice) {
-    //   throw new NotFoundException(`No device found with id ${deviceId}`);
-    // }
     const deviceExists = await this.getDeviceForGroup(
       currentDevice.id,
       groupId,
