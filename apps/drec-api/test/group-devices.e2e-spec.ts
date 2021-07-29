@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import { before, after } from 'mocha';
 import { DeviceService } from '../src/pods/device/device.service';
 import {
+  DeviceIdsDTO,
   NewDeviceGroupDTO,
   UpdateDeviceGroupDTO,
 } from '../src/pods/device-group/dto';
@@ -123,6 +124,72 @@ describe('Device Group tests', () => {
     await deleteDeviceGroup(deviceGroups[0].id, HttpStatus.OK);
   });
 
+  it('should add devices to a device group', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const firstBatch = devices.filter(
+      (device: Device) =>
+        device.registrant_organisation_code === testOrgs[0].code,
+    );
+    const newDeviceGroup: NewDeviceGroupDTO = {
+      name: 'test-device-group-2',
+      deviceIds: [firstBatch[0].id],
+    };
+    await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
+    const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
+    const { body: deviceGroup } = await requestDeviceGroup(
+      deviceGroups[0].id,
+      HttpStatus.OK,
+    );
+    const deviceIds: DeviceIdsDTO = {
+      deviceIds: [firstBatch[1].id],
+    };
+    const { body: updateDeviceGroup } = await addRemoveDevices(
+      `add/${deviceGroup.id}`,
+      HttpStatus.CREATED,
+      deviceIds,
+    );
+    expect(updateDeviceGroup.devices).to.be.instanceOf(Array);
+    expect(updateDeviceGroup.devices).to.have.length(2);
+  });
+
+  it('should remove devices from a device group', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const firstBatch = devices.filter(
+      (device: Device) =>
+        device.registrant_organisation_code === testOrgs[3].code,
+    );
+    const newDeviceGroup: NewDeviceGroupDTO = {
+      name: 'test-device-group-3',
+      deviceIds: [firstBatch[0].id],
+    };
+    await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
+    const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
+    const { body: deviceGroup } = await requestDeviceGroup(
+      deviceGroups[0].id,
+      HttpStatus.OK,
+    );
+    const deviceIds: DeviceIdsDTO = {
+      deviceIds: [firstBatch[0].id],
+    };
+    const { body: updateDeviceGroup } = await addRemoveDevices(
+      `remove/${deviceGroup.id}`,
+      HttpStatus.CREATED,
+      deviceIds,
+    );
+    expect(updateDeviceGroup.devices).to.be.instanceOf(Array);
+    expect(updateDeviceGroup.devices).to.have.length(0);
+  });
+
   const createDeviceGroup = async (): Promise<any> => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
@@ -173,6 +240,19 @@ describe('Device Group tests', () => {
     url: string,
     status: HttpStatus,
     body: NewDeviceGroupDTO,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/device-group/${url}`)
+      .send({
+        ...body,
+      })
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const addRemoveDevices = async (
+    url: string,
+    status: HttpStatus,
+    body: DeviceIdsDTO,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .post(`/device-group/${url}`)

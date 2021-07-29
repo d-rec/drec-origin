@@ -67,6 +67,10 @@ export class DeviceGroupService {
       ?.registrant_organisation_code;
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
+    if (!data?.deviceIds?.length) {
+      return;
+    }
+
     await Promise.all(
       devices.map(async (device: Device) => {
         await this.deviceService.addToGroup(device, id, ownerCode);
@@ -79,11 +83,16 @@ export class DeviceGroupService {
   async removeDevices(id: number, data: DeviceIdsDTO): Promise<DeviceGroup> {
     const deviceGroup = await this.findDeviceGroupById(id);
 
+    if (!data?.deviceIds?.length) {
+      return;
+    }
+
     await Promise.all(
       data.deviceIds.map(async (deviceId: number) => {
         await this.deviceService.removeFromGroup(deviceId, id);
       }),
     );
+
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     return deviceGroup;
   }
