@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, FindConditions } from 'typeorm';
+import { Repository, FindConditions } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
 import { DeviceGroup } from './device-group.entity';

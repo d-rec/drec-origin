@@ -30,7 +30,7 @@ describe('Reads tests', () => {
       deviceService,
       configService,
     } = await bootstrapTestInstance());
-    await databaseService.truncate('user', 'organization');
+    await databaseService.truncate('user', 'device', 'organization');
 
     await app.init();
     // clean influxdb

@@ -130,7 +130,7 @@ export class DeviceService {
       groupId,
     );
     if (deviceExists) {
-      const message = `Device already added to this group`;
+      const message = `Device with id: ${currentDevice.id} already added to this group`;
       this.logger.error(message);
       throw new ConflictException({
         success: false,
@@ -138,7 +138,7 @@ export class DeviceService {
       });
     }
     if (currentDevice.groupId) {
-      const message = `Device already belongs to a group`;
+      const message = `Device with id: ${currentDevice.id} already belongs to a group`;
       this.logger.error(message);
       throw new ConflictException({
         success: false,
@@ -149,7 +149,9 @@ export class DeviceService {
       organizationOwnerCode &&
       currentDevice.registrant_organisation_code !== organizationOwnerCode
     ) {
-      throw new NotAcceptableException(`Device belongs to a different owner`);
+      throw new NotAcceptableException(
+        `Device with id: ${currentDevice.id} belongs to a different owner`,
+      );
     }
     currentDevice.groupId = groupId;
     return await this.repository.save(currentDevice);

@@ -42,7 +42,8 @@ describe('Device tests', () => {
       databaseService,
       configService,
     } = await bootstrapTestInstance());
-    await databaseService.truncate('user', 'device');
+    await databaseService.truncate('user', 'device', 'organization');
+
     await app.init();
   });
 
@@ -70,7 +71,7 @@ describe('Device tests', () => {
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     expect(devices).to.be.instanceOf(Array);
-    expect(devices).to.have.length(3);
+    expect(devices).to.have.length(4);
   });
 
   it('should retrieve device by id', async () => {
