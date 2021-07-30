@@ -16,10 +16,10 @@ env:
     INFLUXDB_URL: http://localhost:8086
     INFLUXDB_TOKEN: admin:admin
     INFLUXDB_BUCKET: energy/autogen
-    HEROKU_STABLE_APP_API: drec-origin-api
-    HEROKU_STABLE_APP_UI: drec-origin-ui
+    HEROKU_STABLE_APP_API: ${{secrets.HEROKU_STABLE_APP_API}}
+    HEROKU_STABLE_APP_UI: ${{secrets.HEROKU_STABLE_APP_UI}}
     HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
-    REACT_APP_BACKEND_URL: https://drec-origin-api.herokuapp.com
+    REACT_APP_BACKEND_URL: https://${{secrets.HEROKU_STABLE_APP_API}}.herokuapp.com
     MNEMONIC: stone eyebrow bronze glide upon subject camera cushion rice outside swing casual
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
