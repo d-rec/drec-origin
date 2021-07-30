@@ -92,7 +92,7 @@ describe('Device Group tests', () => {
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
-      deviceIds: [firstBatch[0], secondBatch[0]],
+      deviceIds: [firstBatch[0].id, secondBatch[0].id],
     };
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
@@ -201,7 +201,7 @@ describe('Device Group tests', () => {
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group',
-      deviceIds: [firstBatch[0]],
+      deviceIds: [firstBatch[0].id],
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };

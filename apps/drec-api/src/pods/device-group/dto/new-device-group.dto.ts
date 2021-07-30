@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsInt, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class NewDeviceGroupDTO {
@@ -6,7 +6,8 @@ export class NewDeviceGroupDTO {
   @IsString()
   name: string;
 
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ type: [Number] })
+  @IsInt({ each: true })
+  @Min(1, { each: true })
   deviceIds: number[];
 }
