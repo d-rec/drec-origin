@@ -188,6 +188,43 @@ describe('Device Group tests', () => {
     expect(updateDeviceGroup.devices).to.have.length(0);
   });
 
+  it('non-owner should not be able to remove device from group', async () => {
+    const loggedUser = {
+      email: 'buyer2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const firstBatch = devices.filter(
+      (device: Device) =>
+        device.registrant_organisation_code === testOrgs[3].code,
+    );
+    const newDeviceGroup: NewDeviceGroupDTO = {
+      name: 'test-device-group-3',
+      deviceIds: [firstBatch[0].id],
+    };
+    await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
+
+    const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
+    const { body: deviceGroup } = await requestDeviceGroup(
+      deviceGroups[0].id,
+      HttpStatus.OK,
+    );
+    const deviceIds: DeviceIdsDTO = {
+      deviceIds: [firstBatch[0].id],
+    };
+    const newLoggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(newLoggedUser);
+    await addRemoveDevices(
+      `remove/${deviceGroup.id}`,
+      HttpStatus.NOT_FOUND,
+      deviceIds,
+    );
+  });
+
   const createDeviceGroup = async (): Promise<any> => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
