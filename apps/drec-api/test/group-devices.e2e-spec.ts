@@ -16,7 +16,6 @@ import {
   NewDeviceGroupDTO,
   UpdateDeviceGroupDTO,
 } from '../src/pods/device-group/dto';
-import { DeviceGroupService } from '../src/pods/device-group/device-group.service';
 import { Device } from '../src/pods/device';
 
 describe('Device Group tests', () => {
@@ -24,7 +23,6 @@ describe('Device Group tests', () => {
   let organizationService: OrganizationService;
   let userService: UserService;
   let deviceService: DeviceService;
-  let deviceGroupService: DeviceGroupService;
   let databaseService: DatabaseService;
   let configService: ConfigService;
   let currentAccessToken: string;
@@ -79,7 +77,7 @@ describe('Device Group tests', () => {
 
   it('should return Not Acceptable when creating a group with device from different owner', async () => {
     const loggedUser = {
-      email: 'admin2@mailinator.com',
+      email: 'buyer2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -126,7 +124,7 @@ describe('Device Group tests', () => {
 
   it('should add devices to a device group', async () => {
     const loggedUser = {
-      email: 'admin2@mailinator.com',
+      email: 'buyer2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -159,7 +157,7 @@ describe('Device Group tests', () => {
 
   it('should remove devices from a device group', async () => {
     const loggedUser = {
-      email: 'admin2@mailinator.com',
+      email: 'buyer2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -192,7 +190,7 @@ describe('Device Group tests', () => {
 
   const createDeviceGroup = async (): Promise<any> => {
     const loggedUser = {
-      email: 'admin2@mailinator.com',
+      email: 'buyer2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);

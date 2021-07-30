@@ -54,11 +54,12 @@ export class DeviceGroupController {
     type: DeviceGroupDTO,
     description: 'Returns a Device group',
   })
-  @ApiNotFoundResponse({
-    description: `The device with the id doesn't exist`,
-  })
-  async get(@Param('id') id: number): Promise<DeviceGroupDTO | null> {
-    return this.deviceGroupService.findById(id);
+  @ApiNotFoundResponse({ description: `No device group found` })
+  async get(
+    @Param('id') id: number,
+    @UserDecorator() user: OrganizationUserDTO,
+  ): Promise<DeviceGroupDTO | null> {
+    return this.deviceGroupService.findById(id, user.organization.code);
   }
 
   @Post()
@@ -89,9 +90,14 @@ export class DeviceGroupController {
   })
   public async addDevices(
     @Param('id') id: number,
+    @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceIds: DeviceIdsDTO,
   ) {
-    return await this.deviceGroupService.addDevices(id, deviceIds);
+    return await this.deviceGroupService.addDevices(
+      id,
+      user.organization.code,
+      deviceIds,
+    );
   }
 
   @Post('/remove/:id')
@@ -104,9 +110,14 @@ export class DeviceGroupController {
   })
   public async removeDevices(
     @Param('id') id: number,
+    @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceIds: DeviceIdsDTO,
   ) {
-    return await this.deviceGroupService.removeDevices(id, deviceIds);
+    return await this.deviceGroupService.removeDevices(
+      id,
+      user.organization.code,
+      deviceIds,
+    );
   }
 
   @Patch('/:id')
@@ -117,12 +128,17 @@ export class DeviceGroupController {
     type: UpdateDeviceGroupDTO,
     description: 'Returns an updated Device Group',
   })
-  @ApiNotFoundResponse({ description: `No device found` })
+  @ApiNotFoundResponse({ description: `No device group found` })
   public async update(
     @Param('id') id: number,
+    @UserDecorator() user: OrganizationUserDTO,
     @Body() groupToUpdate: UpdateDeviceGroupDTO,
   ) {
-    return await this.deviceGroupService.update(id, groupToUpdate);
+    return await this.deviceGroupService.update(
+      id,
+      user.organization.code,
+      groupToUpdate,
+    );
   }
 
   @Delete('/:id')
@@ -132,7 +148,11 @@ export class DeviceGroupController {
     status: HttpStatus.OK,
     description: 'Remove device group',
   })
-  public async remove(@Param('id') id: number): Promise<void> {
-    return await this.deviceGroupService.remove(id);
+  @ApiNotFoundResponse({ description: `No device group found` })
+  public async remove(
+    @Param('id') id: number,
+    @UserDecorator() user: OrganizationUserDTO,
+  ): Promise<void> {
+    return await this.deviceGroupService.remove(id, user.organization.code);
   }
 }

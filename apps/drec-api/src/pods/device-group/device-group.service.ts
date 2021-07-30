@@ -25,8 +25,8 @@ export class DeviceGroupService {
     return this.repository.find();
   }
 
-  async findById(id: number): Promise<DeviceGroup> {
-    const deviceGroup = await this.findDeviceGroupById(id);
+  async findById(id: number, organizationId: string): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     return deviceGroup;
   }
@@ -60,8 +60,12 @@ export class DeviceGroupService {
     return group;
   }
 
-  async addDevices(id: number, data: DeviceIdsDTO): Promise<DeviceGroup> {
-    const deviceGroup = await this.findDeviceGroupById(id);
+  async addDevices(
+    id: number,
+    organizationId: string,
+    data: DeviceIdsDTO,
+  ): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     const ownerCode = ((await this.deviceService.findForGroup(id)[0]) as Device)
       ?.registrant_organisation_code;
@@ -80,8 +84,12 @@ export class DeviceGroupService {
     return deviceGroup;
   }
 
-  async removeDevices(id: number, data: DeviceIdsDTO): Promise<DeviceGroup> {
-    const deviceGroup = await this.findDeviceGroupById(id);
+  async removeDevices(
+    id: number,
+    organizationId: string,
+    data: DeviceIdsDTO,
+  ): Promise<DeviceGroup> {
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     if (!data?.deviceIds?.length) {
       return;
@@ -97,9 +105,13 @@ export class DeviceGroupService {
     return deviceGroup;
   }
 
-  async update(id: number, data: UpdateDeviceGroupDTO): Promise<DeviceGroup> {
+  async update(
+    id: number,
+    organizationId: string,
+    data: UpdateDeviceGroupDTO,
+  ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
-    const deviceGroup = await this.findDeviceGroupById(id);
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     deviceGroup.name = data.name;
     const updatedGroup = await this.repository.save(deviceGroup);
@@ -109,8 +121,8 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
-  async remove(id: number): Promise<void> {
-    const deviceGroup = await this.findDeviceGroupById(id);
+  async remove(id: number, organizationId: string): Promise<void> {
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     const devices = await this.deviceService.findForGroup(deviceGroup.id);
     await Promise.all(
@@ -141,10 +153,18 @@ export class DeviceGroupService {
     }
   }
 
-  private async findDeviceGroupById(id: number): Promise<DeviceGroup> {
-    const deviceGroup = await this.repository.findOne(id);
+  private async findDeviceGroupById(
+    id: number,
+    organizationId,
+  ): Promise<DeviceGroup> {
+    const deviceGroup = await this.repository.findOne({
+      id,
+      organizationId,
+    });
     if (!deviceGroup) {
-      throw new NotFoundException(`No device group found with id ${id}`);
+      throw new NotFoundException(
+        `No device group found with id ${id} and organization ${organizationId}`,
+      );
     }
     return deviceGroup;
   }
