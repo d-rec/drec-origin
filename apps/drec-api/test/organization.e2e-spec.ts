@@ -76,7 +76,7 @@ describe('Organization tests', () => {
       HttpStatus.OK,
     );
     expect(organizations).to.be.instanceOf(Array);
-    expect(organizations).to.have.length(3);
+    expect(organizations).to.have.length(4);
   });
 
   it('should retrieve user`s organization', async () => {

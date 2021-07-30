@@ -54,6 +54,20 @@ export const testOrgs = [
     blockchainAccountAddress: 'blockchainAccountAddress333',
     role: Role.Admin,
   },
+  {
+    code: 'D0013',
+    name: 'Device Owner 2',
+    address: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
+    primaryContact: 'Maria Robbins',
+    telephone: '81-3-6889-2713',
+    email: 'owner3@mailinator.com',
+    regNumber: '123456789',
+    vatNumber: '123456789',
+    regAddress: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
+    country: 'DE',
+    blockchainAccountAddress: 'blockchainAccountAddress444',
+    role: Role.DeviceOwner,
+  },
 ];
 
 export const testUsers: CreateUserDTO[] = [
@@ -74,6 +88,12 @@ export const testUsers: CreateUserDTO[] = [
     email: 'admin2@mailinator.com',
     password: 'test',
     organizationId: 'A0012',
+  },
+  {
+    username: 'MariaRobbins',
+    email: 'owner3@mailinator.com',
+    password: 'test',
+    organizationId: 'D0013',
   },
 ];
 
@@ -156,6 +176,32 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     data: '',
     images: [],
   },
+  {
+    id: 5,
+    drecID: 'DREC05',
+    registrant_organisation_code: 'D0013',
+    project_name: 'Device 5',
+    address: 'Somewhere far away',
+    latitude: '34.921213',
+    longitude: '135.717309',
+    country_code: 'DE',
+    zip_code: 111111,
+    fuel_code: 'ES100',
+    device_type_code: 'TC110',
+    installation_configuration: Installation.StandAlone,
+    capacity: 1750,
+    commissioning_date: '2012-07-01',
+    grid_interconnection: true,
+    off_taker: OffTaker.Commercial,
+    sector: Sector.Agriculture,
+    standard_compliance: StandardCompliance.IREC,
+    yield_value: 1000,
+    generators_ids: [],
+    labels: '',
+    impact_story: '',
+    data: '',
+    images: [],
+  },
 ];
 
 export type Services = {
@@ -169,21 +215,24 @@ export const seed = async ({
   organizationService,
   deviceService,
 }: Services) => {
-  const [user1, user2, user3] = testUsers;
+  const [user1, user2, user3, user4] = testUsers;
 
   await userService.seed(user1);
   await userService.seed(user2);
   await userService.seed(user3);
+  await userService.seed(user4);
 
-  const [org1, org2, org3] = testOrgs;
+  const [org1, org2, org3, org4] = testOrgs;
 
   await organizationService.seed(org1);
   await organizationService.seed(org2);
   await organizationService.seed(org3);
+  await organizationService.seed(org4);
 
-  const [device1, device2, device3] = testDevices;
+  const [device1, device2, device3, device4] = testDevices;
 
   await deviceService.seed(device1);
   await deviceService.seed(device2);
   await deviceService.seed(device3);
+  await deviceService.seed(device4);
 };
