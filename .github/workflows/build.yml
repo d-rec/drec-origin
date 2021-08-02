@@ -16,6 +16,10 @@ env:
     INFLUXDB_URL: http://localhost:8086
     INFLUXDB_TOKEN: admin:admin
     INFLUXDB_BUCKET: energy/autogen
+    HEROKU_STABLE_APP_API: ${{secrets.HEROKU_STABLE_APP_API}}
+    HEROKU_STABLE_APP_UI: ${{secrets.HEROKU_STABLE_APP_UI}}
+    HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+    REACT_APP_BACKEND_URL: https://${{secrets.HEROKU_STABLE_APP_API}}.herokuapp.com
     MNEMONIC: stone eyebrow bronze glide upon subject camera cushion rice outside swing casual
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -72,3 +76,7 @@ jobs:
             - run: node common/scripts/install-run-rush.js test:mocha --verbose
 
             - run: node common/scripts/install-run-rush.js test:e2e --verbose
+
+            - name: Deployment to Heroku
+              if: ${{ github.ref == 'refs/heads/master' }}
+              run: node common/scripts/install-run-rush.js deploy:heroku
