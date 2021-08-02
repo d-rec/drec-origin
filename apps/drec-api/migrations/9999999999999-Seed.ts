@@ -75,6 +75,8 @@ export class Seed9999999999999 implements MigrationInterface {
         process.env.MNEMONIC!,
         `m/44'/60'/0'/0/${index + 1}`,
       );
+      console.log('blockchainAccount: ', blockchainAccount);
+
       const registryWithSigner = Contracts.factories.RegistryFactory.connect(
         registryAddress,
         new Wallet(blockchainAccount.privateKey, provider),
@@ -111,7 +113,7 @@ export class Seed9999999999999 implements MigrationInterface {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
-
+    console.log('ISSUER ACCOUNT 2: ', issuerAccount);
     if (provider && contractsLookup) {
       await queryRunner.query(
         `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback", "platformOperatorPrivateKey") VALUES (${
@@ -134,8 +136,10 @@ export class Seed9999999999999 implements MigrationInterface {
     const adminPK = deployer.privateKey.startsWith('0x')
       ? deployer.privateKey
       : `0x${deployer.privateKey}`;
-
+    console.log('ADMIN PK: ', adminPK);
+    console.log('provider: ', provider);
     const registry = await IssuerContracts.migrateRegistry(provider, adminPK);
+    console.log('registry: ', registry);
     const issuer = await IssuerContracts.migrateIssuer(
       provider,
       adminPK,

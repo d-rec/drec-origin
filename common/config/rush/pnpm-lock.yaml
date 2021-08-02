@@ -8,6 +8,12 @@ specifiers:
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0
   '@energyweb/utils-general': 11.0.3-alpha.1626693085.0
+  '@ethersproject/abi': 5.3.1
+  '@ethersproject/abstract-provider': 5.3.0
+  '@ethersproject/abstract-signer': 5.3.0
+  '@ethersproject/contracts': 5.3.0
+  '@ethersproject/providers': 5.3.1
+  '@ethersproject/wallet': 5.3.0
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13
   '@nestjs/config': 0.6.3
@@ -91,6 +97,12 @@ dependencies:
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0_a5df9406a476462f1b7ccd7e962bcb31
   '@energyweb/utils-general': 11.0.3-alpha.1626693085.0
+  '@ethersproject/abi': 5.3.1
+  '@ethersproject/abstract-provider': 5.3.0
+  '@ethersproject/abstract-signer': 5.3.0
+  '@ethersproject/contracts': 5.3.0
+  '@ethersproject/providers': 5.3.1
+  '@ethersproject/wallet': 5.3.0
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
   '@nestjs/config': 0.6.3_d7cd252d64d37aa44636795684f471c1
