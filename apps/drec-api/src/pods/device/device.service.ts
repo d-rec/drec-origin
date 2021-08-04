@@ -30,6 +30,12 @@ export class DeviceService {
     return this.repository.find(query);
   }
 
+  public async findMultiple(
+    options?: FindOneOptions<Device>,
+  ): Promise<Device[]> {
+    return this.repository.find(options);
+  }
+
   public async findForGroup(groupId: number): Promise<Device[]> {
     return this.repository.find({ groupId });
   }
