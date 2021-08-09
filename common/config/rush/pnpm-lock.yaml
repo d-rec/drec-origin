@@ -4,7 +4,7 @@ specifiers:
   '@energyweb/energy-api-influxdb': 0.8.0
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0
-  '@energyweb/origin-247-certificate': 0.0.2-alpha.1626694095.0
+  '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0
@@ -32,6 +32,7 @@ specifiers:
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
   '@types/chai': 4.2.18
+  '@types/cron': ~1.7.3
   '@types/express': 4.17.9
   '@types/jest': 26.0.19
   '@types/lodash': 4.14.168
@@ -94,7 +95,7 @@ dependencies:
   '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
-  '@energyweb/origin-247-certificate': 0.0.2-alpha.1626694095.0_406db8bae24ea7b0be6fbb95818b6f81
+  '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0_a5df9406a476462f1b7ccd7e962bcb31
@@ -122,6 +123,7 @@ dependencies:
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
   '@types/chai': 4.2.18
+  '@types/cron': 1.7.3
   '@types/express': 4.17.9
   '@types/jest': 26.0.19
   '@types/lodash': 4.14.168
@@ -708,8 +710,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-247-certificate/0.0.2-alpha.1626694095.0_406db8bae24ea7b0be6fbb95818b6f81:
-    resolution: {integrity: sha512-UCWhHFPb6ffx7LHyzUVau+2zTFQzSEZvNF2+zg3gMsVmNATHBFfXMEvc38/rbIvrZGvO4f+G8KInzIppX9OE7g==}
+  /@energyweb/origin-247-certificate/0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81:
+    resolution: {integrity: sha512-LyhyccOsStnKhdjeL7wifnGDBIViYs2XsJncWmmPUYzM+lauyEObagjUw2rPEUnif8gOlHpmljWabSNE+JHCdg==}
     peerDependencies:
       '@energyweb/issuer': 3.2.1-alpha.1626693085.0
       '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0
@@ -11223,7 +11225,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-p6JtNz16A86wv8ksht+piqpIuxCGgno5yLze/iko6Gdo9OK+5UxO9uXCRuIuJAJu4jVZRX10hJGXl6T6uT5aAA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-pQlK1uaSRIIM8tfmQSfAzLy2dECpJC0WMJyfW+oyOyMdMNrHnjzbis/sbr3LprSywCASOwE9eU5UUPWowryraw==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -11231,7 +11233,7 @@ packages:
       '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
       '@energyweb/issuer': 3.2.1-alpha.1626693085.0
       '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
-      '@energyweb/origin-247-certificate': 0.0.2-alpha.1626694095.0_406db8bae24ea7b0be6fbb95818b6f81
+      '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81
       '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6
       '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
       '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0_a5df9406a476462f1b7ccd7e962bcb31
