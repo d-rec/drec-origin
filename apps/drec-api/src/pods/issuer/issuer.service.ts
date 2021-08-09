@@ -10,7 +10,6 @@ import { DateTime } from 'luxon';
 import {
   FilterDTO,
   ReadsService as BaseReadsService,
-  ReadDTO,
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
 import { DeviceGroup, IDeviceGroup } from '../device-group/device-group.entity';
@@ -18,6 +17,7 @@ import { Device, IDevice } from '../device/device.entity';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization';
 import { DeviceGroupService } from '../device-group/device-group.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class IssuerService {
@@ -31,18 +31,24 @@ export class IssuerService {
     private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
+    private readonly configService: ConfigService,
   ) {}
 
-  // @Cron(CronExpression.EVERY_10_MINUTES)
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  // @Cron('0 47 16 * * *') // Every day at 23:30 - Server Time
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 47 16 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
-    this.logger.debug('Called every 10 minutes');
+    const deviceGroupRule1 =
+      this.configService.get<string>('DEVICE_GROUP_RULE_1') ||
+      'registrant_organisation_code';
+    const deviceGroupRule2 =
+      this.configService.get<string>('DEVICE_GROUP_RULE_2') || 'country_code';
+    this.logger.debug('Called every day at 23:30 Server time');
 
     const startDate = DateTime.now().minus({ days: 1 }).toUTC();
     const endDate = DateTime.now().minus({ minute: 1 }).toUTC();
 
-    this.logger.warn(`Start date ${startDate} - End date ${endDate}`);
+    this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
+
     const groups = await this.groupService.getAll();
     await Promise.all(
       groups.map(async (group: DeviceGroup) => {
@@ -59,16 +65,16 @@ export class IssuerService {
     if (devicesWithoutGroups.length) {
       const ownerGroupedDevices = this.groupBy(
         devicesWithoutGroups,
-        'registrant_organisation_code',
+        deviceGroupRule1,
       );
       // const categorizedGroups: IDeviceGroup[] = [];
       await Promise.all(
         ownerGroupedDevices?.map(async (ownerBasedGroup: Device[], i) => {
-          this.groupBy(ownerBasedGroup, 'country_code')?.map(
+          this.groupBy(ownerBasedGroup, deviceGroupRule2)?.map(
             async (countryBasedGroup: Device[], j) => {
               const categorizedGroup: IDeviceGroup = {
                 id: 0,
-                name: `${ownerBasedGroup[i].registrant_organisation_code}_${countryBasedGroup[j].country_code}`,
+                name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
                 organizationId: ownerBasedGroup[i].registrant_organisation_code,
                 devices: countryBasedGroup,
               };
@@ -134,8 +140,8 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    return;
-    // return await this.issueCertificate(issuance);
+    // return;
+    return await this.issueCertificate(issuance);
   }
 
   private async getDeviceFullReads(
