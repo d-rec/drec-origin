@@ -1,7 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganizationModule } from '../pods/organization/organization.module';
 import { UserModule } from '../pods/user/user.module';
 import { AuthController } from './auth.controller';
@@ -15,9 +15,14 @@ import { LocalStrategy } from './local.strategy';
     UserModule,
     OrganizationModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'thisisnotsecret',
-      signOptions: { expiresIn: '7 days' },
+    JwtModule.registerAsync({
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRY_TIME'),
+        },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
