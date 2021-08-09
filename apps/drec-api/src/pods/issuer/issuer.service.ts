@@ -34,8 +34,8 @@ export class IssuerService {
     private readonly configService: ConfigService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS) // Use this for Debug purposes
-  // @Cron('0 47 16 * * *') // Every day at 23:30 - Server Time
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 47 16 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
     const deviceGroupRule1 =
       this.configService.get<string>('DEVICE_GROUP_RULE_1') ||
