@@ -128,8 +128,8 @@ describe('Reads tests', () => {
 
   const requestValidatedReadings = async (
     meterId: string,
-    startDate,
-    endDate,
+    startDate: Date,
+    endDate: Date,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .get(

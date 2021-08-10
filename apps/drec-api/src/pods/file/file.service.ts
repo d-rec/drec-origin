@@ -57,7 +57,10 @@ export class FileService {
     return storedFile;
   }
 
-  public async get(id: string, user: OrganizationUserDTO): Promise<File> {
+  public async get(
+    id: string,
+    user: OrganizationUserDTO,
+  ): Promise<File | undefined> {
     this.logger.debug(`User ${JSON.stringify(user)} requested file ${id}`);
 
     if (user.organization.role === Role.Admin) {

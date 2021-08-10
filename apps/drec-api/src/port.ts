@@ -1,4 +1,4 @@
-export function extractPort(url: string): number {
+export function extractPort(url: string): number | null {
   if (url) {
     const backendUrlSplit: string[] = url.split(':');
     const extractedPort: number = parseInt(
@@ -14,8 +14,8 @@ export function extractPort(url: string): number {
 
 export function getPort(): number {
   return (
-    parseInt(process.env.PORT, 10) ||
-    parseInt(process.env.BACKEND_PORT, 10) ||
+    parseInt(process.env.PORT!, 10) ||
+    parseInt(process.env.BACKEND_PORT!, 10) ||
     3030
   );
 }

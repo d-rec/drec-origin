@@ -33,8 +33,8 @@ import { Role } from '../../utils/eums';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
 
-const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES, 10) || 20;
-const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE, 10) || 10485760;
+const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
+const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 
 @ApiTags('file')
 @ApiBearerAuth('access-token')

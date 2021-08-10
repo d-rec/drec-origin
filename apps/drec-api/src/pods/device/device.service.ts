@@ -30,6 +30,12 @@ export class DeviceService {
     return this.repository.find(query);
   }
 
+  public async findMultiple(
+    options?: FindOneOptions<Device>,
+  ): Promise<Device[]> {
+    return this.repository.find(options);
+  }
+
   public async findForGroup(groupId: number): Promise<Device[]> {
     return this.repository.find({ groupId });
   }
@@ -77,7 +83,7 @@ export class DeviceService {
               registrant_organisation_code: orgCode,
             },
           }
-        : null;
+        : undefined;
     let currentDevice = await this.findOne(id, rule);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${id}`);
@@ -168,19 +174,19 @@ export class DeviceService {
       );
     }
     currentDevice.groupId = null;
+
     return await this.repository.save(currentDevice);
   }
 
   private async getDeviceForGroup(
     deviceId: number,
     groupId: number,
-  ): Promise<Device | null> {
-    const device = await this.repository.findOne({
+  ): Promise<Device | undefined> {
+    return this.repository.findOne({
       where: {
         id: deviceId,
         groupId,
       },
     });
-    return device;
   }
 }

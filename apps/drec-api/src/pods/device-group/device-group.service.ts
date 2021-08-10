@@ -64,11 +64,12 @@ export class DeviceGroupService {
     id: number,
     organizationId: string,
     data: DeviceIdsDTO,
-  ): Promise<DeviceGroup> {
+  ): Promise<DeviceGroup | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
-    const ownerCode = ((await this.deviceService.findForGroup(id)[0]) as Device)
-      ?.registrant_organisation_code;
+    const ownerCode = (
+      (await this.deviceService.findForGroup(id)) as Device[]
+    )[0]?.registrant_organisation_code;
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     if (!data?.deviceIds?.length) {
@@ -88,7 +89,7 @@ export class DeviceGroupService {
     id: number,
     organizationId: string,
     data: DeviceIdsDTO,
-  ): Promise<DeviceGroup> {
+  ): Promise<DeviceGroup | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     if (!data?.deviceIds?.length) {
@@ -155,7 +156,7 @@ export class DeviceGroupService {
 
   private async findDeviceGroupById(
     id: number,
-    organizationId,
+    organizationId: string,
   ): Promise<DeviceGroup> {
     const deviceGroup = await this.repository.findOne({
       id,

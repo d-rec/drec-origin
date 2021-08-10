@@ -41,7 +41,7 @@ export interface IDevice {
   impact_story?: string;
   data?: string;
   images?: string[];
-  groupId?: number;
+  groupId?: number | null;
 }
 
 @Entity()
@@ -148,7 +148,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column('simple-array', { nullable: true, default: [] })
   images: string[];
 
-  @Column({ nullable: true })
-  @IsString()
-  groupId: number;
+  @Column({ type: 'int', nullable: true })
+  groupId: number | null;
 }

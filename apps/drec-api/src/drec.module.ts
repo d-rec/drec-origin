@@ -17,6 +17,7 @@ import { File, FileModule } from './pods/file';
 import { ReadsModule } from './pods/reads/reads.module';
 import { DeviceGroup } from './pods/device-group/device-group.entity';
 import { DeviceGroupModule } from './pods/device-group/device-group.module';
+import { IssuerModule } from './pods/issuer/issuer.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -85,6 +86,7 @@ const OriginAppTypeOrmModule = () => {
     DeviceGroupModule,
     FileModule,
     ReadsModule,
+    IssuerModule,
   ],
 })
 export class DrecModule {}

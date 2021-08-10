@@ -69,7 +69,7 @@ describe('Device tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     expect(devices).to.be.instanceOf(Array);
     expect(devices).to.have.length(4);
   });
@@ -80,8 +80,12 @@ describe('Device tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const { body: device } = await requestDevice(devices[0].id, HttpStatus.OK);
+    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
+    const { body: device } = await requestDevice(
+      devices[0].id,
+      HttpStatus.OK,
+      {},
+    );
     expect(device.status).to.equal(DeviceStatus.Active);
   });
 
@@ -94,7 +98,7 @@ describe('Device tests', () => {
       project_name: 'Device 2 - Update',
     };
     await loginUser(loggedUser);
-    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     const { body: updatedDevice } = await updateDevice(
       devices[0].id,
       HttpStatus.OK,
@@ -150,7 +154,7 @@ describe('Device tests', () => {
     const partialDevice = {
       project_name: 'Device 2 - Update',
     };
-    const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     await loginUser(loggedUser);
     await updateDevice(devices[0].id, HttpStatus.FORBIDDEN, partialDevice);
   });
@@ -191,7 +195,7 @@ describe('Device tests', () => {
   const requestDevice = async (
     url: string,
     status: HttpStatus,
-    filterDTO?: Partial<FilterDTO>,
+    filterDTO: Partial<FilterDTO>,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/device/${url}`)

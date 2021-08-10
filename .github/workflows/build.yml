@@ -38,6 +38,10 @@ jobs:
                 # Provide the password for postgres
                 env:
                     POSTGRES_PASSWORD: postgres
+                    JWT_SECRET: thisisnotsecret
+                    JWT_EXPIRY_TIME: '7 days'
+                    DEVICE_GROUP_RULE_1: 'registrant_organisation_code'
+                    DEVICE_GROUP_RULE_2: 'country_code'
                 # Set health checks to wait until postgres has started
                 options: >-
                     --health-cmd pg_isready
