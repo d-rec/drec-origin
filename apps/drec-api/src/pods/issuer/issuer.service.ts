@@ -87,8 +87,9 @@ export class IssuerService {
           async (countryBasedGroup: IDevice[], j) => {
             const categorizedGroup: IDeviceGroup = {
               id: 0,
-              name: `Default Group ${ownerBasedGroup[i].registrant_organisation_code}_${ownerBasedGroup[j][deviceGroupRule2]}`,
-              organizationId: ownerBasedGroup[i].registrant_organisation_code,
+              name: `Default Group ${ownerBasedGroup[i]
+                ?.registrant_organisation_code!}_${i}-${j}`,
+              organizationId: ownerBasedGroup[i]?.registrant_organisation_code!,
               devices: countryBasedGroup,
             };
             return await this.issueCertificateForGroup(
