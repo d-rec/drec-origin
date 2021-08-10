@@ -5,7 +5,7 @@ import {
   CERTIFICATE_SERVICE_TOKEN,
   IIssueCommandParams,
 } from '@energyweb/origin-247-certificate';
-import { CertificateSourceType, ICertificateMetadata } from '../../utils/types';
+import { ICertificateMetadata } from '../../utils/types';
 import { DateTime } from 'luxon';
 import {
   FilterDTO,
@@ -18,6 +18,7 @@ import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
+import { values, groupBy } from 'lodash';
 
 @Injectable()
 export class IssuerService {
@@ -34,8 +35,8 @@ export class IssuerService {
     private readonly configService: ConfigService,
   ) {}
 
-  // @Cron(CronExpression.EVERY_10_SECONDS)
-  @Cron('0 47 16 * * *') // Every day at 23:30 - Server Time
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
     const deviceGroupRule1 =
       this.configService.get<string>('DEVICE_GROUP_RULE_1') ||
@@ -62,32 +63,32 @@ export class IssuerService {
       },
     });
 
-    if (devicesWithoutGroups.length) {
-      const ownerGroupedDevices = this.groupBy(
-        devicesWithoutGroups,
-        deviceGroupRule1,
-      );
-
-      await Promise.all(
-        ownerGroupedDevices?.map(async (ownerBasedGroup: Device[], i) => {
-          this.groupBy(ownerBasedGroup, deviceGroupRule2)?.map(
-            async (countryBasedGroup: Device[], j) => {
-              const categorizedGroup: IDeviceGroup = {
-                id: 0,
-                name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
-                organizationId: ownerBasedGroup[i].registrant_organisation_code,
-                devices: countryBasedGroup,
-              };
-              return await this.issueCertificateForGroup(
-                categorizedGroup,
-                startDate,
-                endDate,
-              );
-            },
-          );
-        }),
-      );
+    if (!devicesWithoutGroups.length) {
+      return;
     }
+    const ownerGroupedDevices = values(
+      groupBy(devicesWithoutGroups, deviceGroupRule1),
+    );
+
+    await Promise.all(
+      ownerGroupedDevices.flatMap(async (ownerBasedGroup: Device[], i) => {
+        values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
+          async (countryBasedGroup: Device[], j) => {
+            const categorizedGroup: IDeviceGroup = {
+              id: 0,
+              name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
+              organizationId: ownerBasedGroup[i].registrant_organisation_code,
+              devices: countryBasedGroup,
+            };
+            return await this.issueCertificateForGroup(
+              categorizedGroup,
+              startDate,
+              endDate,
+            );
+          },
+        );
+      }),
+    );
   }
 
   private async issueCertificateForGroup(
@@ -120,7 +121,6 @@ export class IssuerService {
     );
     // Convert from W to kW
     const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
-    console.log('totalReadValue: ', totalReadValue);
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id.toString(), // groupID
       energyValue: totalReadValueKw.toString(),
@@ -129,7 +129,6 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
-        type: CertificateSourceType.Generator,
         deviceIds: group.devices.map((device: Device) => device.id),
         id: group.id.toString(),
       },
@@ -137,7 +136,6 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    // return;
     return await this.issueCertificate(issuance);
   }
 
@@ -162,11 +160,5 @@ export class IssuerService {
     const issuedCertificate = await this.certificateService.issue(reading);
     this.logger.log(`Issued a certificate with ID ${issuedCertificate.id}`);
     return;
-  }
-
-  private groupBy(arr: IDevice[], prop: string): Array<any> {
-    const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
-    arr.forEach((obj) => map.get(obj[prop]).push(obj));
-    return Array.from(map.values());
   }
 }
