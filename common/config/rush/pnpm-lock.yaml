@@ -4,7 +4,7 @@ specifiers:
   '@energyweb/energy-api-influxdb': 0.8.0
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0
-  '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0
+  '@energyweb/origin-247-certificate': 0.0.2-alpha.1626162149.0
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0
@@ -23,7 +23,7 @@ specifiers:
   '@nestjs/jwt': 7.2.0
   '@nestjs/passport': 7.1.5
   '@nestjs/platform-express': 7.6.13
-  '@nestjs/schedule': ~1.0.1
+  '@nestjs/schedule': 1.0.1
   '@nestjs/swagger': 4.7.15
   '@nestjs/testing': 7.6.5
   '@nestjs/typeorm': 7.1.5
@@ -32,7 +32,7 @@ specifiers:
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
   '@types/chai': 4.2.18
-  '@types/cron': ~1.7.3
+  '@types/cron': 1.7.3
   '@types/express': 4.17.9
   '@types/jest': 26.0.19
   '@types/lodash': 4.14.168
@@ -95,7 +95,7 @@ dependencies:
   '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
   '@energyweb/issuer': 3.2.1-alpha.1626693085.0
   '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
-  '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81
+  '@energyweb/origin-247-certificate': 0.0.2-alpha.1626162149.0_406db8bae24ea7b0be6fbb95818b6f81
   '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6
   '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0_a5df9406a476462f1b7ccd7e962bcb31
@@ -710,11 +710,11 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-247-certificate/0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81:
-    resolution: {integrity: sha512-LyhyccOsStnKhdjeL7wifnGDBIViYs2XsJncWmmPUYzM+lauyEObagjUw2rPEUnif8gOlHpmljWabSNE+JHCdg==}
+  /@energyweb/origin-247-certificate/0.0.2-alpha.1626162149.0_406db8bae24ea7b0be6fbb95818b6f81:
+    resolution: {integrity: sha512-ZFFtIlbxI12XN9sKGP84EO0SGKVpMsFH0BfIqxT4H6phqEFmBOUqf6L5TB14pj071WhMl15MTGEsQqJdXwWMqQ==}
     peerDependencies:
-      '@energyweb/issuer': 3.2.1-alpha.1626693085.0
-      '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0
+      '@energyweb/issuer': 3.2.1-alpha.1625651017.0
+      '@energyweb/issuer-api': 0.2.1-alpha.1625651017.0
     dependencies:
       '@energyweb/issuer': 3.2.1-alpha.1626693085.0
       '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
@@ -724,7 +724,7 @@ packages:
       '@nestjs/cqrs': 7.0.1_b3355eaaab723e52e70bfca874d5ccb9
       '@nestjs/typeorm': 7.1.5_770ecc3e0a72b32465b4dc73ad110208
       bull: 3.22.9
-      ethers: 5.3.1
+      ethers: 5.4.1
       passport: 0.4.1
       pg: 8.6.0
       typeorm: 0.2.34
@@ -901,6 +901,20 @@ packages:
       '@ethersproject/strings': 5.4.0
     dev: false
 
+  /@ethersproject/abi/5.4.0:
+    resolution: {integrity: sha512-9gU2H+/yK1j2eVMdzm6xvHSnMxk8waIHQGYCZg5uvAyH0rsAzxkModzBSpbAkAuhKFEovC2S9hM4nPuLym8IZw==}
+    dependencies:
+      '@ethersproject/address': 5.4.0
+      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/constants': 5.4.0
+      '@ethersproject/hash': 5.4.0
+      '@ethersproject/keccak256': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/properties': 5.4.0
+      '@ethersproject/strings': 5.4.0
+    dev: false
+
   /@ethersproject/abstract-provider/5.3.0:
     resolution: {integrity: sha512-1+MLhGP1GwxBDBNwMWVmhCsvKwh4gK7oIfOrmlmePNeskg1NhIrYssraJBieaFNHUYfKEd/1DjiVZMw8Qu5Cxw==}
     dependencies:
@@ -929,6 +943,16 @@ packages:
     resolution: {integrity: sha512-w8IFwOYqiPrtvosPuArZ3+QPR2nmdVTRrVY8uJYL3NNfMmQfTy3V3l2wbzX47UUlNbPJY+gKvzJAyvK1onZxJg==}
     dependencies:
       '@ethersproject/abstract-provider': 5.3.0
+      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/properties': 5.4.0
+    dev: false
+
+  /@ethersproject/abstract-signer/5.4.0:
+    resolution: {integrity: sha512-AieQAzt05HJZS2bMofpuxMEp81AHufA5D6M4ScKwtolj041nrfIbIi8ciNW7+F59VYxXq+V4c3d568Q6l2m8ew==}
+    dependencies:
+      '@ethersproject/abstract-provider': 5.4.0
       '@ethersproject/bignumber': 5.4.1
       '@ethersproject/bytes': 5.4.0
       '@ethersproject/logger': 5.4.0
@@ -999,6 +1023,14 @@ packages:
       bn.js: 4.12.0
     dev: false
 
+  /@ethersproject/bignumber/5.4.0:
+    resolution: {integrity: sha512-OXUu9f9hO3vGRIPxU40cignXZVaYyfx6j9NNMjebKdnaCL3anCLSSy8/b8d03vY6dh7duCC0kW72GEC4tZer2w==}
+    dependencies:
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      bn.js: 4.12.0
+    dev: false
+
   /@ethersproject/bignumber/5.4.1:
     resolution: {integrity: sha512-fJhdxqoQNuDOk6epfM7yD6J8Pol4NUCy1vkaGAkuujZm0+lNow//MKu1hLhRiYV4BsOHyBv5/lsTjF+7hWwhJg==}
     dependencies:
@@ -1037,6 +1069,21 @@ packages:
       '@ethersproject/abi': 5.3.1
       '@ethersproject/abstract-provider': 5.3.0
       '@ethersproject/abstract-signer': 5.3.0
+      '@ethersproject/address': 5.4.0
+      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/constants': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/properties': 5.4.0
+      '@ethersproject/transactions': 5.4.0
+    dev: false
+
+  /@ethersproject/contracts/5.4.0:
+    resolution: {integrity: sha512-hkO3L3IhS1Z3ZtHtaAG/T87nQ7KiPV+/qnvutag35I0IkiQ8G3ZpCQ9NNOpSCzn4pWSW4CfzmtE02FcqnLI+hw==}
+    dependencies:
+      '@ethersproject/abi': 5.4.0
+      '@ethersproject/abstract-provider': 5.4.0
+      '@ethersproject/abstract-signer': 5.4.1
       '@ethersproject/address': 5.4.0
       '@ethersproject/bignumber': 5.4.1
       '@ethersproject/bytes': 5.4.0
@@ -1229,6 +1276,33 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@ethersproject/providers/5.4.1:
+    resolution: {integrity: sha512-p06eiFKz8nu/5Ju0kIX024gzEQIgE5pvvGrBCngpyVjpuLtUIWT3097Agw4mTn9/dEA0FMcfByzFqacBMSgCVg==}
+    dependencies:
+      '@ethersproject/abstract-provider': 5.4.0
+      '@ethersproject/abstract-signer': 5.4.1
+      '@ethersproject/address': 5.4.0
+      '@ethersproject/basex': 5.4.0
+      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/constants': 5.4.0
+      '@ethersproject/hash': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/networks': 5.4.1
+      '@ethersproject/properties': 5.4.0
+      '@ethersproject/random': 5.4.0
+      '@ethersproject/rlp': 5.4.0
+      '@ethersproject/sha2': 5.4.0
+      '@ethersproject/strings': 5.4.0
+      '@ethersproject/transactions': 5.4.0
+      '@ethersproject/web': 5.4.0
+      bech32: 1.1.4
+      ws: 7.4.6
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /@ethersproject/random/5.3.0:
     resolution: {integrity: sha512-A5SL/4inutSwt3Fh2OD0x2gz+x6GHmuUnIPkR7zAiTidMD2N8F6tZdMF1hlQKWVCcVMWhEQg8mWijhEzm6BBYw==}
     dependencies:
@@ -1380,6 +1454,26 @@ packages:
     dependencies:
       '@ethersproject/abstract-provider': 5.3.0
       '@ethersproject/abstract-signer': 5.3.0
+      '@ethersproject/address': 5.4.0
+      '@ethersproject/bignumber': 5.4.1
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/hash': 5.4.0
+      '@ethersproject/hdnode': 5.4.0
+      '@ethersproject/json-wallets': 5.4.0
+      '@ethersproject/keccak256': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/properties': 5.4.0
+      '@ethersproject/random': 5.4.0
+      '@ethersproject/signing-key': 5.4.0
+      '@ethersproject/transactions': 5.4.0
+      '@ethersproject/wordlists': 5.4.0
+    dev: false
+
+  /@ethersproject/wallet/5.4.0:
+    resolution: {integrity: sha512-wU29majLjM6AjCjpat21mPPviG+EpK7wY1+jzKD0fg3ui5fgedf2zEu1RDgpfIMsfn8fJHJuzM4zXZ2+hSHaSQ==}
+    dependencies:
+      '@ethersproject/abstract-provider': 5.4.0
+      '@ethersproject/abstract-signer': 5.4.1
       '@ethersproject/address': 5.4.0
       '@ethersproject/bignumber': 5.4.1
       '@ethersproject/bytes': 5.4.0
@@ -5205,6 +5299,44 @@ packages:
       '@ethersproject/wallet': 5.3.0
       '@ethersproject/web': 5.3.0
       '@ethersproject/wordlists': 5.3.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /ethers/5.4.1:
+    resolution: {integrity: sha512-SrcddMdCgP1hukDvCPd87Aipbf4NWjQvdfAbZ65XSZGbfyuYPtIrUJPDH5B1SBRsdlfiEgX3eoz28DdBDzMNFg==}
+    dependencies:
+      '@ethersproject/abi': 5.4.0
+      '@ethersproject/abstract-provider': 5.4.0
+      '@ethersproject/abstract-signer': 5.4.0
+      '@ethersproject/address': 5.4.0
+      '@ethersproject/base64': 5.4.0
+      '@ethersproject/basex': 5.4.0
+      '@ethersproject/bignumber': 5.4.0
+      '@ethersproject/bytes': 5.4.0
+      '@ethersproject/constants': 5.4.0
+      '@ethersproject/contracts': 5.4.0
+      '@ethersproject/hash': 5.4.0
+      '@ethersproject/hdnode': 5.4.0
+      '@ethersproject/json-wallets': 5.4.0
+      '@ethersproject/keccak256': 5.4.0
+      '@ethersproject/logger': 5.4.0
+      '@ethersproject/networks': 5.4.1
+      '@ethersproject/pbkdf2': 5.4.0
+      '@ethersproject/properties': 5.4.0
+      '@ethersproject/providers': 5.4.1
+      '@ethersproject/random': 5.4.0
+      '@ethersproject/rlp': 5.4.0
+      '@ethersproject/sha2': 5.4.0
+      '@ethersproject/signing-key': 5.4.0
+      '@ethersproject/solidity': 5.4.0
+      '@ethersproject/strings': 5.4.0
+      '@ethersproject/transactions': 5.4.0
+      '@ethersproject/units': 5.4.0
+      '@ethersproject/wallet': 5.4.0
+      '@ethersproject/web': 5.4.0
+      '@ethersproject/wordlists': 5.4.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -11225,7 +11357,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-pQlK1uaSRIIM8tfmQSfAzLy2dECpJC0WMJyfW+oyOyMdMNrHnjzbis/sbr3LprSywCASOwE9eU5UUPWowryraw==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-RC5doEd1I8ZeDdpPv+BumpgJBPwkn+8GkD8/VT7cIH2emcmS0JKliATcM9VNEfcYICNIHPBYRmCXo0QViOFjjQ==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -11233,7 +11365,7 @@ packages:
       '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
       '@energyweb/issuer': 3.2.1-alpha.1626693085.0
       '@energyweb/issuer-api': 0.2.1-alpha.1626693085.0_9dc07df28397b513ab1abcfa79e8c88c
-      '@energyweb/origin-247-certificate': 0.0.2-alpha.1627398444.0_406db8bae24ea7b0be6fbb95818b6f81
+      '@energyweb/origin-247-certificate': 0.0.2-alpha.1626162149.0_406db8bae24ea7b0be6fbb95818b6f81
       '@energyweb/origin-backend': 10.0.2-alpha.1626693085.0_swagger-ui-express@4.1.6
       '@energyweb/origin-backend-core': 8.0.2-alpha.1626693085.0
       '@energyweb/origin-backend-utils': 1.5.2-alpha.1626693085.0_a5df9406a476462f1b7ccd7e962bcb31
