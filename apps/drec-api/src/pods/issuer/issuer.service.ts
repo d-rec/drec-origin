@@ -130,7 +130,7 @@ export class IssuerService {
       userId: org.blockchainAccountAddress,
       metadata: {
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        id: group.id.toString(),
+        groupId: group.id.toString(),
       },
     };
     this.logger.log(
