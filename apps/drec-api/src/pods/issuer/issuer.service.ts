@@ -75,7 +75,7 @@ export class IssuerService {
         values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
           async (countryBasedGroup: IDevice[], j) => {
             const categorizedGroup: IDeviceGroup = {
-              id: 0,
+              id: null,
               name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
               organizationId: ownerBasedGroup[i].registrant_organisation_code,
               devices: countryBasedGroup,
