@@ -12,7 +12,7 @@ import {
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
-import { DeviceGroup, IDeviceGroup } from '../device-group/device-group.entity';
+import { IDeviceGroup } from '../device-group/device-group.entity';
 import { Device, IDevice } from '../device/device.entity';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization';
@@ -35,8 +35,8 @@ export class IssuerService {
     private readonly configService: ConfigService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  // @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
     const deviceGroupRule1 =
       this.configService.get<string>('DEVICE_GROUP_RULE_1') ||
@@ -52,7 +52,7 @@ export class IssuerService {
 
     const groups = await this.groupService.getAll();
     await Promise.all(
-      groups.map(async (group: DeviceGroup) => {
+      groups.map(async (group: IDeviceGroup) => {
         group.devices = await this.deviceService.findForGroup(group.id);
         return await this.issueCertificateForGroup(group, startDate, endDate);
       }),
@@ -73,7 +73,7 @@ export class IssuerService {
     await Promise.all(
       ownerGroupedDevices.flatMap(async (ownerBasedGroup: Device[], i) => {
         values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
-          async (countryBasedGroup: Device[], j) => {
+          async (countryBasedGroup: IDevice[], j) => {
             const categorizedGroup: IDeviceGroup = {
               id: 0,
               name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
@@ -111,7 +111,7 @@ export class IssuerService {
     }
     const groupReads: number[] = [];
     await Promise.all(
-      group.devices.map(async (device: Device) =>
+      group.devices.map(async (device: IDevice) =>
         groupReads.push(await this.getDeviceFullReads(device.id, readsFilter)),
       ),
     );
@@ -129,7 +129,7 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
-        deviceIds: group.devices.map((device: Device) => device.id),
+        deviceIds: group.devices.map((device: IDevice) => device.id),
         id: group.id.toString(),
       },
     };
