@@ -132,7 +132,7 @@ export class ReadsService {
     };
   }
 
-  private async getLatestRead(meterId: string): Promise<ReadDTO> {
+  private async getLatestRead(meterId: string): Promise<ReadDTO | void> {
     try {
       return await this.baseReadsService.findLatestRead(meterId);
     } catch (e) {
@@ -165,9 +165,8 @@ export class ReadsService {
 
     const commissioningDate = DateTime.fromISO(device.commissioning_date);
     const currentDate = DateTime.now();
-    const deviceAge = currentDate
-      .diff(commissioningDate, ['years'])
-      .toObject()?.years; // years
+    const deviceAge =
+      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
     this.logger.debug(`Current Date: ${DateTime.now()}`);
@@ -175,7 +174,7 @@ export class ReadsService {
     this.logger.debug(`Last read: ${final.timestamp}`);
 
     const meteredTimePeriod = Math.abs(
-      currentRead.diff(lastRead, ['hours']).toObject()?.hours,
+      currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
     const margin = 0.2; // Margin for comparing read value with computed max energy

@@ -83,7 +83,7 @@ export class DeviceService {
               registrant_organisation_code: orgCode,
             },
           }
-        : null;
+        : undefined;
     let currentDevice = await this.findOne(id, rule);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${id}`);
@@ -173,20 +173,19 @@ export class DeviceService {
         `No device found with id ${deviceId} and groupId: ${groupId}`,
       );
     }
-    currentDevice.groupId = null;
+    currentDevice.groupId = undefined;
     return await this.repository.save(currentDevice);
   }
 
   private async getDeviceForGroup(
     deviceId: number,
     groupId: number,
-  ): Promise<Device | null> {
-    const device = await this.repository.findOne({
+  ): Promise<Device | undefined> {
+    return this.repository.findOne({
       where: {
         id: deviceId,
         groupId,
       },
     });
-    return device;
   }
 }

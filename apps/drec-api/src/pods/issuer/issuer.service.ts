@@ -20,6 +20,16 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
 import { values, groupBy } from 'lodash';
 
+export type DeviceKey =
+  | 'id'
+  | 'drecID'
+  | 'status'
+  | 'registrant_organisation_code'
+  | 'project_name'
+  | 'country_code'
+  | 'fuel_code'
+  | 'device_type_code';
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -38,11 +48,12 @@ export class IssuerService {
   // @Cron(CronExpression.EVERY_10_SECONDS)
   @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
-    const deviceGroupRule1 =
-      this.configService.get<string>('DEVICE_GROUP_RULE_1') ||
-      'registrant_organisation_code';
-    const deviceGroupRule2 =
-      this.configService.get<string>('DEVICE_GROUP_RULE_2') || 'country_code';
+    const deviceGroupRule1: DeviceKey =
+      this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_1') ||
+      ('registrant_organisation_code' as DeviceKey);
+    const deviceGroupRule2: DeviceKey =
+      this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_2') ||
+      ('country_code' as DeviceKey);
     this.logger.debug('Called every day at 23:30 Server time');
 
     const startDate = DateTime.now().minus({ days: 1 }).toUTC();
@@ -71,12 +82,12 @@ export class IssuerService {
     );
 
     await Promise.all(
-      ownerGroupedDevices.flatMap(async (ownerBasedGroup: Device[], i) => {
+      ownerGroupedDevices.flatMap(async (ownerBasedGroup: IDevice[], i) => {
         values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
           async (countryBasedGroup: IDevice[], j) => {
             const categorizedGroup: IDeviceGroup = {
-              id: null,
-              name: `${ownerBasedGroup[i][deviceGroupRule1]}_${countryBasedGroup[j][deviceGroupRule2]}`,
+              id: 0,
+              name: `Default Group ${ownerBasedGroup[i].registrant_organisation_code}_${ownerBasedGroup[j][deviceGroupRule2]}`,
               organizationId: ownerBasedGroup[i].registrant_organisation_code,
               devices: countryBasedGroup,
             };
@@ -103,6 +114,9 @@ export class IssuerService {
       end: endDate.toString(),
     };
 
+    if (!group?.devices?.length) {
+      return;
+    }
     const org = await this.organizationService.findOne(group.organizationId);
     if (!org) {
       throw new NotFoundException(
@@ -119,8 +133,14 @@ export class IssuerService {
       (accumulator, currentValue) => accumulator + currentValue,
       0,
     );
+
+    if (!totalReadValue) {
+      return;
+    }
+
     // Convert from W to kW
     const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
+    console.log('Total read value: ', totalReadValueKw);
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // groupID
       energyValue: totalReadValueKw.toString(),
@@ -130,7 +150,7 @@ export class IssuerService {
       userId: org.blockchainAccountAddress,
       metadata: {
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        groupId: group.id?.toString(),
+        groupId: group.id?.toString() || null,
       },
     };
     this.logger.log(

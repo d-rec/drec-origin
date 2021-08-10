@@ -150,5 +150,5 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   @IsString()
-  groupId: number;
+  groupId?: number;
 }
