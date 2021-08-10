@@ -13,7 +13,7 @@ import {
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
 import { IDeviceGroup } from '../device-group/device-group.entity';
-import { Device, IDevice } from '../device/device.entity';
+import { IDevice } from '../device/device.entity';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization';
 import { DeviceGroupService } from '../device-group/device-group.service';
@@ -140,7 +140,7 @@ export class IssuerService {
 
     // Convert from W to kW
     const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
-    console.log('Total read value: ', totalReadValueKw);
+
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // groupID
       energyValue: totalReadValueKw.toString(),

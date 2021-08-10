@@ -173,7 +173,8 @@ export class DeviceService {
         `No device found with id ${deviceId} and groupId: ${groupId}`,
       );
     }
-    currentDevice.groupId = undefined;
+    currentDevice.groupId = null;
+
     return await this.repository.save(currentDevice);
   }
 
