@@ -122,7 +122,7 @@ export class IssuerService {
     // Convert from W to kW
     const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
-      deviceId: group.id.toString(), // groupID
+      deviceId: group.id?.toString(), // groupID
       energyValue: totalReadValueKw.toString(),
       fromTime: new Date(startDate.toString()),
       toTime: new Date(endDate.toString()),
@@ -130,7 +130,7 @@ export class IssuerService {
       userId: org.blockchainAccountAddress,
       metadata: {
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        groupId: group.id.toString(),
+        groupId: group.id?.toString(),
       },
     };
     this.logger.log(
