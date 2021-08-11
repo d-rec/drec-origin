@@ -5,6 +5,8 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
     "target": "ES2020",
     "sourceMap": true,
     "outDir": "./dist/js",
@@ -14,7 +16,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["jest", "node"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "preserveWatchOutput": true
   },
   "include": ["src/**/*", "test/**/*", "migrations/*", "ormconfig*.ts"],
   "exclude": ["node_modules", "dist"]

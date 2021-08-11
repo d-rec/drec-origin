@@ -85,12 +85,12 @@ export class DeviceController {
   public async update(
     @UserDecorator() user: OrganizationUserDTO,
     @Param('id') id: number,
-    @Body() organizationToUpdate: UpdateDeviceDTO,
+    @Body() deviceToUpdate: UpdateDeviceDTO,
   ) {
     return await this.deviceService.update(
       user.organization.code,
       id,
-      organizationToUpdate,
+      deviceToUpdate,
     );
   }
 }

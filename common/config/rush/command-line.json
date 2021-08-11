@@ -40,7 +40,7 @@
       "commandKind": "global",
       "name": "start:dev",
       "summary": "Runs API in dev mode",
-      "shellCommand": "concurrently -n ganache,backend \"(cd apps/drec-api && rushx run:ganache)\" \"(cd apps/drec-api && rushx start:dev)\"",
+      "shellCommand": "concurrently -n ganache,backend \"(cd apps/drec-api && rushx run:ganache)\" \"(cd apps/drec-api && rushx start:dev)\" \"(cd apps/drec-ui && rushx start:dev)\"",
       "autoinstallerName": "rush-tools",
       "safeForSimultaneousRushProcesses": true
     },
@@ -80,7 +80,21 @@
       "enableParallelism": false,
       "ignoreMissingScript": true,
       "allowWarningsInSuccessfulBuild": true
-    }
+    },
+    {
+      "commandKind": "global",
+      "name": "storybook",
+      "summary": "Launch storybook UI for local development",
+      "shellCommand": "cd apps/drec-ui && rushx storybook",
+      "safeForSimultaneousRushProcesses": true
+    },
+    {
+      "commandKind": "global",
+      "name": "test:ui",
+      "summary": "Run unit tests in UI package",
+      "shellCommand": "cd apps/drec-ui && rushx test:ui",
+      "safeForSimultaneousRushProcesses": true
+    },
     // {
     //   /**
     //    * (Required) Determines the type of custom command.

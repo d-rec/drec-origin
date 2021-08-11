@@ -1,0 +1,105 @@
+{
+    "name": "@energyweb/origin-drec-ui",
+    "version": "0.0.1",
+    "description": "",
+    "private": true,
+    "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "start:dev": "react-scripts start",
+        "build": "yarn config-env && react-scripts build",
+        "test": "react-scripts test",
+        "test:ui": "react-scripts test --watchAll=false",
+        "clean": "rm -rf node_modules && rm -rf build && rm -rf .env.local",
+        "eject": "react-scripts eject",
+        "storybook": "start-storybook -p 6006 -s public",
+        "build-storybook": "build-storybook -s public",
+        "config-env": "bash env.sh",
+        "deploy:heroku": "make -B build deploy-heroku"
+    },
+    "dependencies": {
+        "@emotion/react": "11.1.5",
+        "@emotion/styled": "11.3.0",
+        "@energyweb/origin-drec-api-client": "0.0.1",
+        "@hookform/resolvers": "^2.2.0",
+        "@material-ui/core": "5.0.0-alpha.32",
+        "@material-ui/icons": "5.0.0-alpha.29",
+        "@material-ui/lab": "5.0.0-alpha.31",
+        "@svgr/webpack": "5.5.0",
+        "babel-loader": "8.1.0",
+        "dayjs": "^1.10.4",
+        "ethers": "5.3.1",
+        "history": "^5.0.0-beta.9",
+        "lodash": "4.17.21",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-hook-form": "^7.0.4",
+        "react-query": "3.15.1",
+        "react-router": "^6.0.0-beta.0",
+        "react-router-dom": "^6.0.0-beta.0",
+        "react-scripts": "4.0.3",
+        "web-vitals": "^1.0.1",
+        "yup": "^0.32.9",
+        "axios": "0.21.1",
+        "mobx": "^6.1.8",
+        "mobx-react-lite": "^3.2.0",
+        "@energyweb/utils-general": "11.0.3-alpha.1626693085.0",
+        "react-toastify": "7.0.4"
+    },
+    "devDependencies": {
+        "@storybook/addon-actions": "^6.2.9",
+        "@storybook/addon-essentials": "^6.2.9",
+        "@storybook/addon-links": "^6.2.9",
+        "@storybook/node-logger": "^6.2.9",
+        "@storybook/preset-create-react-app": "^3.1.7",
+        "@storybook/react": "^6.2.9",
+        "typescript": "4.1.3",
+        "@testing-library/jest-dom": "^4.2.4",
+        "@testing-library/react": "^11.1.0",
+        "@testing-library/user-event": "^12.1.10",
+        "@types/jest": "26.0.19",
+        "@types/lodash": "4.14.168",
+        "@types/node": "14.14.11",
+        "@types/react": "^17.0.0",
+        "@types/react-dom": "^17.0.0",
+        "@types/react-router-dom": "^5.1.7",
+        "@types/testing-library__jest-dom": "5.9.5",
+        "@types/yup": "^0.29.11",
+        "webpack": "4.44.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/energywebfoundation/drec-origin"
+    },
+    "bugs": {
+        "url": "https://github.com/energywebfoundation/drec-origin/issues"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ],
+        "overrides": [
+            {
+                "files": [
+                    "**/*.stories.*"
+                ],
+                "rules": {
+                    "import/no-anonymous-default-export": "off"
+                }
+            }
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}

@@ -75,6 +75,7 @@ export class Seed9999999999999 implements MigrationInterface {
         process.env.MNEMONIC!,
         `m/44'/60'/0'/0/${index + 1}`,
       );
+
       const registryWithSigner = Contracts.factories.RegistryFactory.connect(
         registryAddress,
         new Wallet(blockchainAccount.privateKey, provider),
@@ -134,7 +135,6 @@ export class Seed9999999999999 implements MigrationInterface {
     const adminPK = deployer.privateKey.startsWith('0x')
       ? deployer.privateKey
       : `0x${deployer.privateKey}`;
-
     const registry = await IssuerContracts.migrateRegistry(provider, adminPK);
     const issuer = await IssuerContracts.migrateIssuer(
       provider,

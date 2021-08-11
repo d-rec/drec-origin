@@ -35,6 +35,18 @@ export class BaseReadServiceForCi implements PublicPart<ReadsService> {
     return [];
   }
 
+  public async findLatestRead(): Promise<ReadDTO> {
+    const readDTO: ReadDTO = {
+      timestamp: new Date(),
+      value: 0,
+    };
+    return readDTO;
+  }
+
+  public findLatestReadByMeterQuery(meterId: string): string {
+    return '';
+  }
+
   public async onModuleInit(): Promise<void> {}
 
   public async store(

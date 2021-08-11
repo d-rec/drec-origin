@@ -16,6 +16,10 @@ env:
     INFLUXDB_URL: http://localhost:8086
     INFLUXDB_TOKEN: admin:admin
     INFLUXDB_BUCKET: energy/autogen
+    HEROKU_STABLE_APP_API: ${{secrets.HEROKU_STABLE_APP_API}}
+    HEROKU_STABLE_APP_UI: ${{secrets.HEROKU_STABLE_APP_UI}}
+    HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+    REACT_APP_BACKEND_URL: https://${{secrets.HEROKU_STABLE_APP_API}}.herokuapp.com
     MNEMONIC: stone eyebrow bronze glide upon subject camera cushion rice outside swing casual
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -34,6 +38,10 @@ jobs:
                 # Provide the password for postgres
                 env:
                     POSTGRES_PASSWORD: postgres
+                    JWT_SECRET: thisisnotsecret
+                    JWT_EXPIRY_TIME: '7 days'
+                    DEVICE_GROUP_RULE_1: 'registrant_organisation_code'
+                    DEVICE_GROUP_RULE_2: 'country_code'
                 # Set health checks to wait until postgres has started
                 options: >-
                     --health-cmd pg_isready
@@ -72,3 +80,9 @@ jobs:
             - run: node common/scripts/install-run-rush.js test:mocha --verbose
 
             - run: node common/scripts/install-run-rush.js test:e2e --verbose
+
+            - run: node common/scripts/install-run-rush.js test:ui
+
+            - name: Deployment to Heroku
+              if: ${{ github.ref == 'refs/heads/master' }}
+              run: node common/scripts/install-run-rush.js deploy:heroku
