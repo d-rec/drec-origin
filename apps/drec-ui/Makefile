@@ -2,13 +2,9 @@ PROJECT				= drec-ui
 
 NAME   				= energyweb/${PROJECT}
 LATEST 				= ${NAME}:latest
-PACK_NAME		  = energyweb-${PROJECT}-latest.tar
 
 build:
 	@docker build --no-cache -t ${LATEST} .
-
-pack:
-	@docker save ${LATEST} > ${PACK_NAME}
 
 deploy-heroku:
 ifdef HEROKU_API_KEY
