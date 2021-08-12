@@ -367,6 +367,10 @@
         {
             "packageName": "@energyweb/origin-drec-api-client",
             "projectFolder": "apps/drec-api-client"
+        },
+        {
+            "packageName": "@energyweb/origin-drec-ui",
+            "projectFolder": "apps/drec-ui"
         }
         // {
         //   /**
