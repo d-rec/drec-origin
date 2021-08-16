@@ -4,10 +4,8 @@ import { PageWrapper } from '../../../core';
 
 export const MainLayout: FC = () => {
     return (
-        <>
-            <PageWrapper>
-                <Outlet />
-            </PageWrapper>
-        </>
+        <PageWrapper>
+            <Outlet />
+        </PageWrapper>
     );
 };

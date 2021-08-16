@@ -4,7 +4,7 @@ export const useLoginRegisterOrgModalLogic = (
 ) => {
     return {
         title: 'Thank you for registering as a user on the marketplace!',
-        text: 'To unlock all the functionalities of the marketplace, like trading I-RECs, users also need to register an organization.',
+        text: 'To unlock all the functionalities of the marketplace, like trading D-RECs, users also need to register an organization.',
         buttons: [
             {
                 label: 'Not now',

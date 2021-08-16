@@ -33,11 +33,6 @@ export const useUserLogin = (openRegisterOrgModal: () => void) => {
                     const user = await userControllerMe();
                     queryClient.setQueryData(userQueryKey, user);
 
-                    // if (!user?.organizationId) {
-                    //     openRegisterOrgModal();
-                    //     return;
-                    // }
-
                     navigate('/');
                 },
                 onError: () => {
@@ -60,12 +55,10 @@ export const useUser = (options?: UseQueryOptions<AxiosResponse<UserDTO>, Error>
         const token = getAuthenticationToken();
         if (token) {
             removeAuthenticationToken();
-            queryClient.removeQueries(userQueryKey);
             navigate('/');
-            queryClient.resetQueries();
+            queryClient.clear();
         }
     };
-    console.log('tokenExists: ', Boolean(getAuthenticationToken()));
     const tokenExists = Boolean(getAuthenticationToken());
 
     const {

@@ -1,5 +1,4 @@
 import { useUserLogin } from '../../api';
-import { useNavigate } from 'react-router';
 import { UserModalsActionsEnum, useUserModalsDispatch } from '../../context';
 import { UnpackNestedValue } from 'react-hook-form';
 import { GenericFormProps } from '../../core';
@@ -17,7 +16,6 @@ export const INITIAL_FORM_VALUES: TUserLoginFormValues = {
 };
 
 export const useLogInPageEffects = () => {
-    const navigate = useNavigate();
     const dispatchModals = useUserModalsDispatch();
     const useUserLogInFormConfig = (
         formSubmitHandler: (values: UnpackNestedValue<TUserLoginFormValues>) => void
@@ -58,13 +56,5 @@ export const useLogInPageEffects = () => {
     const submitHandler = useUserLogin(openRegisterOrgModal);
     const formConfig = useUserLogInFormConfig(submitHandler);
 
-    const navigateToResetPassword = () => {
-        navigate('/auth/reset-password');
-    };
-
-    const navigateToRegister = () => {
-        navigate('/auth/register');
-    };
-
-    return { formProps: formConfig, navigateToResetPassword, navigateToRegister };
+    return { formProps: formConfig };
 };
