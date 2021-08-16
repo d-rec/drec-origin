@@ -1,6 +1,4 @@
-export enum LocalStorageKeys {
-    AuthenticationToken = 'AUTHENTICATION_TOKEN'
-}
+export const AUTHENTICATION_TOKEN = 'AUTHENTICATION_TOKEN';
 
 export enum Unit {
     kW = 'kW',
