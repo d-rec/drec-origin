@@ -1,6 +1,6 @@
 import { LightenColor } from '../utils/colors';
 
-const $primaryColor = '#894ec5';
+const $primaryColor = '#fec30b';
 const $primaryColorDark = LightenColor($primaryColor, -10);
 const $primaryColorDim = '#362c45';
 
