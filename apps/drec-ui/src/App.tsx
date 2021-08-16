@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { DashboardPage } from 'pages';
 import { useAxiosInterceptors } from 'api';
 import { useUser } from 'api';

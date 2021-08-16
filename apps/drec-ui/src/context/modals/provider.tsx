@@ -5,7 +5,7 @@ import { IUserModalsStore, TUserModalsAction } from './types';
 const UserModalsStore = createContext<IUserModalsStore>(null);
 const UserModalsDispatch = createContext<React.Dispatch<TUserModalsAction>>(null);
 
-export const UserModalsProvider = ({ children }: any) => {
+export const UserModalsProvider: React.FC = ({ children }) => {
     const [state, dispatch] = useReducer(userModalsReducer, userModalsInitialState);
 
     return (
