@@ -13,8 +13,8 @@ const $bodyBackgroundColor = '#2d2d2d';
 const $mainBackgroundColor = '#272727';
 const $fieldIconColor = LightenColor('#ffffff', -30);
 
-const $fontFamilyPrimary = 'Rajdhani';
-const $fontFamilySecondary = 'Rajdhani';
+const $fontFamilyPrimary = 'Montserrat';
+const $fontFamilySecondary = 'Montserrat';
 
 const $fontSize = 12;
 
