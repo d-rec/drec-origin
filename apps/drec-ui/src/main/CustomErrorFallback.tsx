@@ -10,13 +10,19 @@ export const CustomErrorFallback: FC<CustomErrorFallbackProps> = ({ error }) => 
     const title = 'Something went wrong:';
     const reloadButton = 'Reload page';
     const returnHomeButton = 'Return to Home page';
+    const handleReload = () => {};
+    const handleReturn = () => {};
 
     return (
         <ErrorFallback title={title} error={error}>
             <Box mt={2} display="flex" justifyContent="center">
-                <Button variant="contained">{reloadButton}</Button>
+                <Button variant="contained" onClick={handleReload}>
+                    {reloadButton}
+                </Button>
                 <Box ml={2}>
-                    <Button variant="contained">{returnHomeButton}</Button>
+                    <Button variant="contained" onClick={handleReturn}>
+                        {returnHomeButton}
+                    </Button>
                 </Box>
             </Box>
         </ErrorFallback>
