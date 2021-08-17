@@ -1,32 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { ErrorBoundary } from 'react-error-boundary';
 import { DrecThemeProvider } from './theme';
-import { App } from './App';
+import { CustomErrorFallback, DrecQueryClientProvider } from './main';
+import { AppContainer } from './AppContainer';
 
 import './index.css';
-
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: false,
-            refetchOnWindowFocus: false,
-            onError: (error) => {
-                console.log(error);
-            }
-        }
-    }
-});
 
 ReactDOM.render(
     <React.StrictMode>
         <DrecThemeProvider>
-            <BrowserRouter>
-                <QueryClientProvider client={queryClient}>
-                    <App />
-                </QueryClientProvider>
-            </BrowserRouter>
+            <ErrorBoundary FallbackComponent={CustomErrorFallback}>
+                <BrowserRouter>
+                    <DrecQueryClientProvider>
+                        <AppContainer />
+                    </DrecQueryClientProvider>
+                </BrowserRouter>
+            </ErrorBoundary>
         </DrecThemeProvider>
     </React.StrictMode>,
     document.getElementById('root')
