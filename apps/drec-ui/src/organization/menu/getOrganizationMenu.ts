@@ -1,4 +1,4 @@
-import { TMenuSection, TModuleMenuItem } from '../../../core';
+import { TMenuSection, TModuleMenuItem } from '../../core';
 
 type TGetOrganizationMenuArgs = {
     isOpen: boolean;

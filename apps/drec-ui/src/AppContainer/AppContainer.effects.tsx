@@ -1,15 +1,11 @@
-import {
-    getAccountMenu,
-    getAdminMenu,
-    getOrganizationMenu,
-    getDeviceMenu,
-    useTopbarButtonList,
-    isRole
-} from '../shared';
-
+import { useTopbarButtonList } from '../shared';
+import { isRole } from '../utils';
 import { Role } from '@energyweb/origin-drec-api-client';
 import { useUser, useAxiosInterceptors, useOrganization } from '../api';
-import { useActiveMenuTab } from '../context';
+import { useActiveMenuTab } from '../shared';
+import { getOrganizationMenu } from '../organization';
+import { getDeviceMenu } from '../device';
+import { getAccountMenu, getAdminMenu } from '../user';
 
 export const useAppContainerEffects = () => {
     useAxiosInterceptors();

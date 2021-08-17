@@ -1,4 +1,4 @@
-import { TMenuSection } from '../../../core';
+import { TMenuSection } from '../../core';
 
 interface IAccountMenuFnArgs {
     isOpen: boolean;

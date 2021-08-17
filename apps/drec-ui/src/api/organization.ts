@@ -1,23 +1,16 @@
 import {
-    OrganizationDTO,
     useOrganizationControllerGetAll,
     useOrganizationControllerGetOrganizationUsersByCode,
     useOrganizationControllerGetOrganizationByCode
 } from '@energyweb/origin-drec-api-client';
-import { keyBy } from 'lodash';
 
 export const useAllOrganizations = () => {
-    const { data, isLoading: organizationsLoading } = useOrganizationControllerGetAll();
-
-    const organizations = data as OrganizationDTO[];
-    const organizationById = keyBy(organizations, 'code');
-    const hasOrganizations = organizations.length > 0;
+    const { data: organizations, isLoading: organizationsLoading } =
+        useOrganizationControllerGetAll();
 
     return {
         organizations,
-        organizationsLoading,
-        organizationById,
-        hasOrganizations
+        organizationsLoading
     };
 };
 
