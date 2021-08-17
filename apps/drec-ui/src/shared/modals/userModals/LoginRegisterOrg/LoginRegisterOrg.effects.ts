@@ -1,7 +1,11 @@
-import { GenericModalProps } from '../../../core';
-import { useLoginRegisterOrgModalLogic } from '../../logic';
+import { GenericModalProps } from '../../../../core';
+import { useLoginRegisterOrgModalLogic } from '../../../logic';
 import { useNavigate } from 'react-router';
-import { UserModalsActionsEnum, useUserModalsDispatch, useUserModalsStore } from '../../../context';
+import {
+    UserModalsActionsEnum,
+    useUserModalsDispatch,
+    useUserModalsStore
+} from '../../../../context';
 
 export const useLoginRegisterOrgEffects = () => {
     const { loginRegisterOrg: open } = useUserModalsStore();

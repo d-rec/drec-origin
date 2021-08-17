@@ -1,4 +1,4 @@
-import { GenericModal } from '../../../core';
+import { GenericModal } from '../../../../core';
 import { DraftsOutlined } from '@material-ui/icons';
 import React from 'react';
 import { useLoginRegisterOrgEffects } from './LoginRegisterOrg.effects';

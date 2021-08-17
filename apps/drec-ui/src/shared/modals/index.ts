@@ -1,1 +1,1 @@
-export * from './UserModalsCenter';
+export * from './userModals';

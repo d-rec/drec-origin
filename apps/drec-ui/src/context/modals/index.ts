@@ -1,2 +1,1 @@
-export * from './provider';
-export { UserModalsActionsEnum } from './reducer';
+export * from './userModals';
