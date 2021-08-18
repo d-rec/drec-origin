@@ -1,5 +1,5 @@
 import { useUserLogin } from '../../api';
-import { UserModalsActionsEnum, useUserModalsDispatch } from '../../context';
+import { UserModalsActionsEnum, useUserModalsDispatch } from '../../user';
 import { UnpackNestedValue } from 'react-hook-form';
 import { GenericFormProps } from '../../core';
 

@@ -7,7 +7,7 @@ export const useStyles = makeStyles((theme) => ({
         top: '50%',
         right: '5%',
         transform: 'translateY(-50%)',
-        opacity: 0.9,
+        opacity: 1,
         maxWidth: '450px',
         [theme.breakpoints.down('md')]: {
             padding: 15,

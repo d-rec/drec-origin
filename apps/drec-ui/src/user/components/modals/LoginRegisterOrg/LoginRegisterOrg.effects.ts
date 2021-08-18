@@ -1,5 +1,5 @@
-import { GenericModalProps } from '../../../core';
-import { useLoginRegisterOrgModalLogic } from '../../logic';
+import { GenericModalProps } from '../../../../core';
+import { useLoginRegisterOrgModalLogic } from '../../../../shared';
 import { useNavigate } from 'react-router';
 import { UserModalsActionsEnum, useUserModalsDispatch, useUserModalsStore } from '../../../context';
 

@@ -1,4 +1,4 @@
-import { AUTHENTICATION_TOKEN } from '../utils';
+import { AUTHENTICATION_TOKEN } from '../../utils';
 import {
     TGetAuthenticationToken,
     TRemoveAutheticationToken,
