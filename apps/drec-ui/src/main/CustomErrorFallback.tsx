@@ -10,8 +10,12 @@ export const CustomErrorFallback: FC<CustomErrorFallbackProps> = ({ error }) => 
     const title = 'Something went wrong:';
     const reloadButton = 'Reload page';
     const returnHomeButton = 'Return to Home page';
-    const handleReload = () => {};
-    const handleReturn = () => {};
+    const handleReload = () => {
+        window.location.reload();
+    };
+    const handleReturn = () => {
+        window.location.replace('/');
+    };
 
     return (
         <ErrorFallback title={title} error={error}>
