@@ -16,18 +16,18 @@ export class UserService {
   ) {}
 
   public async seed(data: CreateUserDTO): Promise<UserDTO> {
-    const isExistingUser = await this.hasUser({ email: data.email });
+    await this.checkForExistingUser(data.email);
 
-    if (isExistingUser) {
-      const message = `User with email ${data.email} already exists`;
+    return this.repository.save({
+      username: data.username,
+      email: data.email,
+      password: this.hashPassword(data.password),
+      organizationId: data.organizationId,
+    });
+  }
 
-      this.logger.error(message);
-      throw new ConflictException({
-        success: false,
-        message,
-      });
-    }
-
+  public async create(data: CreateUserDTO): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
     return this.repository.save({
       username: data.username,
       email: data.email,
@@ -77,5 +77,18 @@ export class UserService {
 
   private async hasUser(conditions: FindConditions<User>) {
     return Boolean(await this.findOne(conditions));
+  }
+
+  private async checkForExistingUser(email: string): Promise<void> {
+    const isExistingUser = await this.hasUser({ email: email });
+    if (isExistingUser) {
+      const message = `User with email ${email} already exists`;
+
+      this.logger.error(message);
+      throw new ConflictException({
+        success: false,
+        message,
+      });
+    }
   }
 }

@@ -10,6 +10,9 @@ import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
+import { NewOrganizationDTO } from '../src/pods/organization/dto';
+import { Role } from '../src/utils/eums';
+import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 
 describe('Users tests', () => {
   let app: INestApplication;
@@ -61,9 +64,73 @@ describe('Users tests', () => {
     expect(user.organizationId).to.equal('D0012');
   });
 
+  it('should create a new user', async () => {
+    const organization = await getNewOrganization();
+    const partialUser: CreateUserDTO = {
+      username: 'testUsername2021',
+      email: 'testNew2021@mailinator.com',
+      password: 'test',
+      organizationId: organization.code,
+    };
+    await postUser('', HttpStatus.CREATED, partialUser);
+  });
+
+  const getNewOrganization = async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    const partialOrg: NewOrganizationDTO = {
+      code: 'D0013',
+      name: 'New Owner',
+      address: 'New address',
+      primaryContact: 'New user',
+      telephone: '81-3-6889-2713',
+      email: 'owner3@mailinator.com',
+      regNumber: '12345672189',
+      vatNumber: '12345672189',
+      regAddress: 'New address',
+      country: 'DE',
+      role: Role.Admin,
+    };
+    await loginUser(loggedUser);
+    const { body: organization } = await postOrganization(
+      '',
+      HttpStatus.CREATED,
+      partialOrg,
+    );
+    return organization;
+  };
+
   const requestUsers = async (url: string, status: HttpStatus): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/user/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const postOrganization = async (
+    url: string,
+    status: HttpStatus,
+    body: NewOrganizationDTO,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/organization/${url}`)
+      .send({
+        ...body,
+      })
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const postUser = async (
+    url: string,
+    status: HttpStatus,
+    body: CreateUserDTO,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/user/${url}`)
+      .send({
+        ...body,
+      })
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
