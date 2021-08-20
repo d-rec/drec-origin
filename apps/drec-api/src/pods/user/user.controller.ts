@@ -11,12 +11,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
-import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/eums';
 import { RolesGuard } from '../../auth/roles-guard';
 import { UserDecorator } from './decorators/user.decorator';
-import { NewUserDTO } from './dto/new-user.dto';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
@@ -46,7 +42,7 @@ export class UserController {
     type: CreateUserDTO,
     description: 'Returns a new created user',
   })
-  public async create(@Body() newUser: CreateUserDTO) {
+  public async create(@Body() newUser: CreateUserDTO): Promise<UserDTO | null> {
     return await this.userService.create(newUser);
   }
 }

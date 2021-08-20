@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 import { Wallet } from 'ethers';
-import { Contracts } from '@energyweb/issuer';
-import { IOrganization, Organization } from './organization.entity';
+import { Organization } from './organization.entity';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
 import { defaults } from 'lodash';
+import { Contracts } from '@energyweb/issuer';
+import { IFullOrganization, IUser } from '../../models';
 
 @Injectable()
 export class OrganizationService {
@@ -23,7 +24,7 @@ export class OrganizationService {
   ) {}
 
   async findOne(
-    id: string | number,
+    id: number,
     options: FindOneOptions<Organization> = {},
   ): Promise<Organization | null> {
     return (
@@ -39,7 +40,7 @@ export class OrganizationService {
     });
   }
 
-  public async findByIds(ids: string[]): Promise<IOrganization[]> {
+  public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
     return this.repository.findByIds(ids);
   }
 
@@ -51,11 +52,11 @@ export class OrganizationService {
     await this.repository.delete(organizationId);
   }
 
-  public async findOrganizationUsers(code: string): Promise<User[] | []> {
-    return await this.userService.getAll({ where: { organizationId: code } });
+  public async findOrganizationUsers(id: number): Promise<IUser[]> {
+    return await this.userService.getAll({ where: { organizationId: id } });
   }
 
-  async seed(organizationToRegister: IOrganization): Promise<Organization> {
+  async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
     this.logger.debug(
       `Requested organization registration ${JSON.stringify(
         organizationToRegister,
@@ -67,7 +68,7 @@ export class OrganizationService {
     const stored = await this.repository.save(organizationToCreate);
 
     this.logger.debug(
-      `Successfully registered a new organization with id ${organizationToRegister.code}`,
+      `Successfully registered a new organization with id ${organizationToRegister.name}`,
     );
 
     return stored;
@@ -94,7 +95,7 @@ export class OrganizationService {
     const stored = await this.repository.save(organizationToCreate);
 
     this.logger.debug(
-      `Successfully registered a new organization with id ${organizationToRegister.code}`,
+      `Successfully registered a new organization with id ${organizationToRegister.name}`,
     );
 
     return stored;
@@ -126,13 +127,13 @@ export class OrganizationService {
   }
 
   async update(
-    organizationCode: string,
+    organizationId: number,
     updateOrganizationDTO: UpdateOrganizationDTO,
   ): Promise<Organization> {
-    let currentOrg = await this.findOne(organizationCode);
+    let currentOrg = await this.findOne(organizationId);
     if (!currentOrg) {
       throw new NotFoundException(
-        `No organization found with code ${organizationCode}`,
+        `No organization found with id ${organizationId}`,
       );
     }
     currentOrg = defaults(updateOrganizationDTO, currentOrg);

@@ -6,11 +6,11 @@ import {
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IOrganization } from '../organization.entity';
-import { Role } from '../../../utils/eums/role.enum';
+import { IFullOrganization } from '../../../models';
+import { OrganizationStatus } from '../../../utils/eums';
 
 export class UpdateOrganizationDTO
-  implements Omit<IOrganization, 'code' | 'blockchainAccountAddress'>
+  implements Omit<IFullOrganization, 'id' | 'blockchainAccountAddress'>
 {
   @ApiProperty({ type: String })
   @IsString()
@@ -24,41 +24,58 @@ export class UpdateOrganizationDTO
 
   @ApiProperty({ type: String })
   @IsString()
-  @IsOptional()
-  primaryContact: string;
+  zipCode: string;
 
   @ApiProperty({ type: String })
   @IsString()
-  @IsOptional()
-  telephone: string;
-
-  @ApiProperty({ type: String })
-  @IsEmail()
-  @IsOptional()
-  email: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsOptional()
-  regNumber: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsOptional()
-  vatNumber: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsOptional()
-  regAddress: string;
+  city: string;
 
   @ApiProperty({ type: String })
   @IsISO31661Alpha2()
-  @IsOptional()
   country: string;
 
-  @ApiProperty({ enum: Role, enumName: 'Role' })
-  @IsEnum(Role)
-  @IsOptional()
-  role: Role;
+  @ApiProperty({ type: String })
+  @IsString()
+  businessType: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  tradeRegistryCompanyNumber: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  vatNumber: string;
+
+  @ApiProperty({ enum: OrganizationStatus, enumName: 'OrganizationStatus' })
+  @IsEnum(OrganizationStatus)
+  @IsString()
+  status: OrganizationStatus;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  signatoryFullName: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  signatoryAddress: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  signatoryZipCode: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  signatoryCity: string;
+
+  @ApiProperty({ type: String })
+  @IsISO31661Alpha2()
+  signatoryCountry: string;
+
+  @ApiProperty({ type: String })
+  @IsEmail()
+  signatoryEmail: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  signatoryPhoneNumber: string;
 }

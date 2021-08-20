@@ -42,7 +42,7 @@ export class FileService {
           data: file.buffer,
           contentType: file.mimetype,
           userId: user.id.toString(),
-          organizationId: user.organization.code?.toString(),
+          organizationId: user.organization.id?.toString(),
           isPublic,
         });
         await entityManager.insert<File>(File, fileToStore);
@@ -63,14 +63,14 @@ export class FileService {
   ): Promise<File | undefined> {
     this.logger.debug(`User ${JSON.stringify(user)} requested file ${id}`);
 
-    if (user.organization.role === Role.Admin) {
+    if (user.role === Role.Admin) {
       return this.repository.findOne(id);
     }
 
     return this.repository.findOne(id, {
       where: {
         userId: user.id.toString(),
-        organizationId: user.organization.code?.toString(),
+        organizationId: user.organization.id?.toString(),
       },
     });
   }

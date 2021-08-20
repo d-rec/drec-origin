@@ -10,18 +10,18 @@ import {
 export class FilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Fuel Code' })
-  fuel_code: string;
+  fuelCode: string;
 
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Device Type Code' })
-  device_type_code: string;
+  deviceTypeCode: string;
 
   @IsOptional()
   @ApiPropertyOptional({
     type: Installation,
     description: 'Installation configuration',
   })
-  installation_configuration: Installation;
+  installationConfiguration: Installation;
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -40,11 +40,11 @@ export class FilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })
-  grid_interconnection: boolean;
+  gridInterconnection: boolean;
 
   @IsOptional()
   @ApiPropertyOptional({ type: OffTaker, description: 'Off-taker' })
-  off_taker: OffTaker;
+  offTaker: OffTaker;
 
   @IsOptional()
   @ApiPropertyOptional({ type: Sector, description: 'Off-takers sectors' })
@@ -59,7 +59,7 @@ export class FilterDTO {
     type: StandardCompliance,
     description: 'Standard Compliance',
   })
-  standard_compliance: StandardCompliance;
+  standardCompliance: StandardCompliance;
 
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Country' })

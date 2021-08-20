@@ -59,7 +59,7 @@ export class DeviceGroupController {
     @Param('id') id: number,
     @UserDecorator() user: OrganizationUserDTO,
   ): Promise<DeviceGroupDTO | null> {
-    return this.deviceGroupService.findById(id, user.organization.code);
+    return this.deviceGroupService.findById(id, user.organizationId);
   }
 
   @Post()
@@ -73,9 +73,9 @@ export class DeviceGroupController {
   public async create(
     @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceGroupToRegister: NewDeviceGroupDTO,
-  ) {
+  ): Promise<DeviceGroupDTO | null> {
     return await this.deviceGroupService.create(
-      user.organization.code,
+      user.organizationId,
       deviceGroupToRegister,
     );
   }
@@ -92,10 +92,10 @@ export class DeviceGroupController {
     @Param('id') id: number,
     @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceIds: DeviceIdsDTO,
-  ) {
+  ): Promise<DeviceGroupDTO | void> {
     return await this.deviceGroupService.addDevices(
       id,
-      user.organization.code,
+      user.organizationId,
       deviceIds,
     );
   }
@@ -112,10 +112,10 @@ export class DeviceGroupController {
     @Param('id') id: number,
     @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceIds: DeviceIdsDTO,
-  ) {
+  ): Promise<DeviceGroupDTO | void> {
     return await this.deviceGroupService.removeDevices(
       id,
-      user.organization.code,
+      user.organizationId,
       deviceIds,
     );
   }
@@ -133,10 +133,10 @@ export class DeviceGroupController {
     @Param('id') id: number,
     @UserDecorator() user: OrganizationUserDTO,
     @Body() groupToUpdate: UpdateDeviceGroupDTO,
-  ) {
+  ): Promise<DeviceGroupDTO> {
     return await this.deviceGroupService.update(
       id,
-      user.organization.code,
+      user.organizationId,
       groupToUpdate,
     );
   }
@@ -153,6 +153,6 @@ export class DeviceGroupController {
     @Param('id') id: number,
     @UserDecorator() user: OrganizationUserDTO,
   ): Promise<void> {
-    return await this.deviceGroupService.remove(id, user.organization.code);
+    return await this.deviceGroupService.remove(id, user.organizationId);
   }
 }

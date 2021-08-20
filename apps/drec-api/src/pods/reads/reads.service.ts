@@ -57,12 +57,12 @@ export class ReadsService {
     device: Device,
   ): Promise<void> {
     const organization = await this.organizationService.findOne(
-      device.registrant_organisation_code,
+      device.organizationId,
     );
 
     if (!organization) {
       throw new NotFoundException(
-        `No organization found with device organization code ${device.registrant_organisation_code}`,
+        `No organization found with device organization code ${device.organizationId}`,
       );
     }
 
@@ -80,7 +80,7 @@ export class ReadsService {
           energyValue: BigNumber.from(measurement.value),
           fromTime: startTime,
           toTime: endTime,
-          organizationId: organization.code,
+          organizationId: organization.id.toString(),
         }),
       );
     }
@@ -160,10 +160,10 @@ export class ReadsService {
     };
 
     const degradation = 0.5; // [%/year]
-    const yieldValue = device.yield_value || 1000; // [kWh/kW]
+    const yieldValue = device.yieldValue || 1000; // [kWh/kW]
     const capacity = device.capacity; // W
 
-    const commissioningDate = DateTime.fromISO(device.commissioning_date);
+    const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     const deviceAge =
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years

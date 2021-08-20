@@ -11,7 +11,7 @@ import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
 import { NewOrganizationDTO } from '../src/pods/organization/dto';
-import { Role } from '../src/utils/eums';
+import { OrganizationStatus, Role, UserStatus } from '../src/utils/eums';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 
 describe('Users tests', () => {
@@ -31,6 +31,7 @@ describe('Users tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
@@ -67,10 +68,16 @@ describe('Users tests', () => {
   it('should create a new user', async () => {
     const organization = await getNewOrganization();
     const partialUser: CreateUserDTO = {
-      username: 'testUsername2021',
+      title: 'Mr',
+      firstName: 'test',
+      lastName: 'user2021',
       email: 'testNew2021@mailinator.com',
+      telephone: 'telephone',
       password: 'test',
-      organizationId: organization.code,
+      notifications: true,
+      status: UserStatus.Active,
+      role: Role.Admin,
+      organizationId: organization.id,
     };
     await postUser('', HttpStatus.CREATED, partialUser);
   });
@@ -81,17 +88,22 @@ describe('Users tests', () => {
       password: 'test',
     };
     const partialOrg: NewOrganizationDTO = {
-      code: 'D0013',
       name: 'New Owner',
-      address: 'New address',
-      primaryContact: 'New user',
-      telephone: '81-3-6889-2713',
-      email: 'owner3@mailinator.com',
-      regNumber: '12345672189',
-      vatNumber: '12345672189',
-      regAddress: 'New address',
+      address: 'Stet clita kasd gubergren',
+      zipCode: 'Zip code',
+      city: 'City',
       country: 'DE',
-      role: Role.Admin,
+      businessType: 'Issuer',
+      tradeRegistryCompanyNumber: '987654321',
+      vatNumber: 'DE1000',
+      status: OrganizationStatus.Active,
+      signatoryFullName: 'Jane Doe',
+      signatoryAddress: 'Address',
+      signatoryZipCode: 'Zip Code',
+      signatoryCity: 'City',
+      signatoryCountry: 'DE',
+      signatoryEmail: 'owner3@mailinator.com',
+      signatoryPhoneNumber: 'Phone number',
     };
     await loginUser(loggedUser);
     const { body: organization } = await postOrganization(

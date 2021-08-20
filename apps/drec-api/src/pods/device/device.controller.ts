@@ -66,9 +66,9 @@ export class DeviceController {
   public async create(
     @UserDecorator() user: OrganizationUserDTO,
     @Body() deviceToRegister: NewDeviceDTO,
-  ) {
+  ): Promise<DeviceDTO> {
     return await this.deviceService.register(
-      user.organization.code,
+      user.organizationId,
       deviceToRegister,
     );
   }
@@ -86,9 +86,10 @@ export class DeviceController {
     @UserDecorator() user: OrganizationUserDTO,
     @Param('id') id: number,
     @Body() deviceToUpdate: UpdateDeviceDTO,
-  ) {
+  ): Promise<DeviceDTO> {
     return await this.deviceService.update(
-      user.organization.code,
+      user.organizationId,
+      user.role,
       id,
       deviceToUpdate,
     );

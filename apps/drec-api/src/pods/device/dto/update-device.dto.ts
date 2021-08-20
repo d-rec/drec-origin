@@ -7,22 +7,21 @@ import {
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IDevice } from '../device.entity';
 import {
   Installation,
   OffTaker,
   Sector,
   StandardCompliance,
 } from '../../../utils/eums';
+import { IDevice } from '../../../models';
 
 export class UpdateDeviceDTO
-  implements
-    Omit<IDevice, 'id' | 'drecID' | 'status' | 'registrant_organisation_code'>
+  implements Omit<IDevice, 'id' | 'drecID' | 'status' | 'organizationId'>
 {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  project_name: string;
+  projectName: string;
 
   @ApiProperty()
   @IsString()
@@ -42,27 +41,27 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
-  country_code: string;
+  countryCode: string;
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  zip_code: number;
+  zipCode: number;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  fuel_code: string;
+  fuelCode: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  device_type_code: string;
+  deviceTypeCode: string;
 
   @ApiProperty()
   @IsEnum(Installation)
   @IsOptional()
-  installation_configuration: Installation;
+  installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
@@ -72,17 +71,17 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  commissioning_date: string;
+  commissioningDate: string;
 
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
-  grid_interconnection: boolean;
+  gridInterconnection: boolean;
 
   @ApiProperty()
   @IsEnum(OffTaker)
   @IsOptional()
-  off_taker: OffTaker;
+  offTaker: OffTaker;
 
   @ApiProperty()
   @IsEnum(Sector)
@@ -92,17 +91,17 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(StandardCompliance)
   @IsOptional()
-  standard_compliance: StandardCompliance;
+  standardCompliance: StandardCompliance;
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  yield_value: number;
+  yieldValue: number;
 
   @ApiProperty()
   @IsArray()
   @IsOptional()
-  generators_ids: number[];
+  generatorsIds: number[];
 
   @ApiProperty()
   @IsString()
@@ -112,7 +111,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  impact_story: string;
+  impactStory: string;
 
   @ApiProperty()
   @IsString()

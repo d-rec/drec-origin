@@ -59,9 +59,9 @@ export class OrganizationController {
     description: 'Gets user`s organization',
   })
   async getOrganizationByCode(
-    @UserDecorator() { organization: { code } }: OrganizationUserDTO,
+    @UserDecorator() { organization: { id } }: OrganizationUserDTO,
   ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(code);
+    return this.organizationService.findOne(id);
   }
 
   @Get('/users')
@@ -71,21 +71,21 @@ export class OrganizationController {
     description: 'Gets organization`s users',
   })
   async getOrganizationUsersByCode(
-    @UserDecorator() { organization: { code } }: OrganizationUserDTO,
+    @UserDecorator() user: OrganizationUserDTO,
   ): Promise<UserDTO[]> {
-    return this.organizationService.findOrganizationUsers(code);
+    return this.organizationService.findOrganizationUsers(user.organizationId);
   }
 
-  @Get('/:code')
+  @Get('/:id')
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
     description: 'Gets an organization',
   })
   async get(
-    @Param('code') organizationCode: string,
+    @Param('id') organizationId: number,
   ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(organizationCode);
+    return this.organizationService.findOne(organizationId);
   }
 
   @Post()
@@ -96,11 +96,13 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Returns a new created Organization',
   })
-  public async create(@Body() organizationToRegister: NewOrganizationDTO) {
+  public async create(
+    @Body() organizationToRegister: NewOrganizationDTO,
+  ): Promise<OrganizationDTO> {
     return await this.organizationService.create(organizationToRegister);
   }
 
-  @Patch('/:code')
+  @Patch('/:id')
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
@@ -110,11 +112,11 @@ export class OrganizationController {
   })
   @ApiNotFoundResponse({ description: `No organization found` })
   public async update(
-    @Param('code') organizationCode: string,
+    @Param('id') organizationId: number,
     @Body() organizationToUpdate: UpdateOrganizationDTO,
-  ) {
+  ): Promise<OrganizationDTO> {
     return await this.organizationService.update(
-      organizationCode,
+      organizationId,
       organizationToUpdate,
     );
   }

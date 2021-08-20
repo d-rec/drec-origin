@@ -7,7 +7,6 @@ import {
   IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IDevice } from '../device.entity';
 import {
   Installation,
   OffTaker,
@@ -15,6 +14,7 @@ import {
   StandardCompliance,
 } from '../../../utils/eums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
+import { IDevice } from '../../../models';
 
 export class DeviceDTO implements IDevice {
   @ApiProperty()
@@ -30,12 +30,12 @@ export class DeviceDTO implements IDevice {
   status: DeviceStatus;
 
   @ApiProperty()
-  @IsString()
-  registrant_organisation_code: string;
+  @IsNumber()
+  organizationId: number;
 
   @ApiProperty()
   @IsString()
-  project_name: string;
+  projectName: string;
 
   @ApiProperty()
   @IsString()
@@ -51,24 +51,24 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
-  country_code: string;
+  countryCode: string;
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  zip_code: number;
+  zipCode: number;
 
   @ApiProperty()
   @IsString()
-  fuel_code: string;
+  fuelCode: string;
 
   @ApiProperty()
   @IsString()
-  device_type_code: string;
+  deviceTypeCode: string;
 
   @ApiProperty()
   @IsEnum(Installation)
-  installation_configuration: Installation;
+  installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
@@ -76,15 +76,15 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
-  commissioning_date: string;
+  commissioningDate: string;
 
   @ApiProperty()
   @IsBoolean()
-  grid_interconnection: boolean;
+  gridInterconnection: boolean;
 
   @ApiProperty()
   @IsEnum(OffTaker)
-  off_taker: OffTaker;
+  offTaker: OffTaker;
 
   @ApiProperty()
   @IsEnum(Sector)
@@ -92,16 +92,16 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsEnum(StandardCompliance)
-  standard_compliance: StandardCompliance;
+  standardCompliance: StandardCompliance;
 
   @ApiProperty()
   @IsNumber()
-  yield_value: number;
+  yieldValue: number;
 
   @ApiProperty()
   @IsArray()
   @IsOptional()
-  generators_ids: number[];
+  generatorsIds: number[];
 
   @ApiProperty()
   @IsString()
@@ -111,7 +111,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  impact_story: string;
+  impactStory: string;
 
   @ApiProperty()
   @IsString()

@@ -8,6 +8,7 @@ import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 import { Contracts } from '@energyweb/issuer';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
 
 import { entities, DrecModule } from '../src/drec.module';

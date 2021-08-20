@@ -1,13 +1,11 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { plainToClass, Expose } from 'class-transformer';
 
 import { OrganizationDTO } from '../../pods/organization/dto';
 import { UserDTO } from '../../pods/user/dto/user.dto';
 
 @Expose()
-export class OrganizationUserDTO extends OmitType(UserDTO, [
-  'organizationId',
-] as const) {
+export class OrganizationUserDTO extends UserDTO {
   @ApiProperty({ type: OrganizationDTO })
   organization: OrganizationDTO;
 

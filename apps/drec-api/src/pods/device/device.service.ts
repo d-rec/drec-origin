@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { Device, IDevice } from './device.entity';
+import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
 import { FilterDTO, UpdateDeviceDTO } from './dto';
@@ -16,6 +16,7 @@ import { Role } from '../../utils/eums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
+import { IDevice } from '../../models';
 
 @Injectable()
 export class DeviceService {
@@ -60,27 +61,28 @@ export class DeviceService {
   }
 
   public async register(
-    orgCode: string,
+    orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     const device = new Device({
       ...newDevice,
-      registrant_organisation_code: orgCode,
+      organizationId: orgCode,
     });
 
     return await this.repository.save(device);
   }
 
   async update(
-    orgCode: string,
+    organizationId: number,
+    role: Role,
     id: number,
     updateDeviceDTO: UpdateDeviceDTO,
   ): Promise<Device> {
     const rule =
-      orgCode === Role.DeviceOwner
+      role === Role.DeviceOwner
         ? {
             where: {
-              registrant_organisation_code: orgCode,
+              organizationId,
             },
           }
         : undefined;
@@ -95,17 +97,17 @@ export class DeviceService {
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
-      fuel_code: filter.fuel_code,
-      device_type_code: filter.device_type_code,
-      installation_configuration: filter.installation_configuration,
+      fuelCode: filter.fuelCode,
+      deviceTypeCode: filter.deviceTypeCode,
+      installationConfiguration: filter.installationConfiguration,
       capacity: filter.capacity,
-      grid_interconnection: filter.grid_interconnection,
-      off_taker: filter.off_taker,
+      gridInterconnection: filter.gridInterconnection,
+      offTaker: filter.offTaker,
       sector: filter.sector,
       labels: filter.labels,
-      standard_compliance: filter.standard_compliance,
-      country_code: filter.country && this.getCodeFromCountry(filter.country),
-      commissioning_date:
+      standardCompliance: filter.standardCompliance,
+      countryCode: filter.country && this.getCodeFromCountry(filter.country),
+      commissioningDate:
         filter.start_date &&
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
@@ -113,7 +115,7 @@ export class DeviceService {
     const query: FindManyOptions<Device> = {
       where,
       order: {
-        registrant_organisation_code: 'ASC',
+        organizationId: 'ASC',
       },
     };
     return query;
@@ -129,7 +131,7 @@ export class DeviceService {
   public async addToGroup(
     currentDevice: Device,
     groupId: number,
-    organizationOwnerCode?: string,
+    organizationOwnerCode?: number,
   ): Promise<Device> {
     const deviceExists = await this.getDeviceForGroup(
       currentDevice.id,
@@ -153,7 +155,7 @@ export class DeviceService {
     }
     if (
       organizationOwnerCode &&
-      currentDevice.registrant_organisation_code !== organizationOwnerCode
+      currentDevice.organizationId !== organizationOwnerCode
     ) {
       throw new NotAcceptableException(
         `Device with id: ${currentDevice.id} belongs to a different owner`,

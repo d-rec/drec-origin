@@ -12,23 +12,22 @@ import {
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
-import { IDeviceGroup } from '../device-group/device-group.entity';
-import { IDevice } from '../device/device.entity';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
 import { values, groupBy } from 'lodash';
+import { IDevice, IDeviceGroup } from '../../models';
 
 export type DeviceKey =
   | 'id'
   | 'drecID'
   | 'status'
-  | 'registrant_organisation_code'
-  | 'project_name'
-  | 'country_code'
-  | 'fuel_code'
-  | 'device_type_code';
+  | 'organizationId'
+  | 'projectName'
+  | 'countryCode'
+  | 'fuelCode'
+  | 'deviceTypeCode';
 
 @Injectable()
 export class IssuerService {
@@ -50,10 +49,10 @@ export class IssuerService {
   async handleCron(): Promise<void> {
     const deviceGroupRule1: DeviceKey =
       this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_1') ||
-      ('registrant_organisation_code' as DeviceKey);
+      ('organizationId' as DeviceKey);
     const deviceGroupRule2: DeviceKey =
       this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_2') ||
-      ('country_code' as DeviceKey);
+      ('countryCode' as DeviceKey);
     this.logger.debug('Called every day at 23:30 Server time');
 
     const startDate = DateTime.now().minus({ days: 1 }).toUTC();
@@ -87,9 +86,8 @@ export class IssuerService {
           async (countryBasedGroup: IDevice[], j) => {
             const categorizedGroup: IDeviceGroup = {
               id: 0,
-              name: `Default Group ${ownerBasedGroup[i]
-                ?.registrant_organisation_code!}_${i}-${j}`,
-              organizationId: ownerBasedGroup[i]?.registrant_organisation_code!,
+              name: `Default Group ${ownerBasedGroup[i]?.organizationId}_${i}-${j}`,
+              organizationId: ownerBasedGroup[i]?.organizationId,
               devices: countryBasedGroup,
             };
             return await this.issueCertificateForGroup(

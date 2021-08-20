@@ -28,6 +28,7 @@ describe('Authentication tests', () => {
     await app.close();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   beforeEach(async () => {});
 
   afterEach(async () => {

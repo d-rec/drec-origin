@@ -16,6 +16,7 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
+import { OrganizationStatus } from '../src/utils/eums';
 
 describe('Organization tests', () => {
   let app: INestApplication;
@@ -33,6 +34,7 @@ describe('Organization tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
@@ -148,17 +150,22 @@ describe('Organization tests', () => {
       password: 'test',
     };
     const partialOrg: NewOrganizationDTO = {
-      code: 'D0013',
       name: 'New Owner',
-      address: 'New address',
-      primaryContact: 'New user',
-      telephone: '81-3-6889-2713',
-      email: 'owner3@mailinator.com',
-      regNumber: '12345672189',
-      vatNumber: '12345672189',
-      regAddress: 'New address',
+      address: 'Stet clita kasd gubergren',
+      zipCode: 'Zip code',
+      city: 'City',
       country: 'DE',
-      role: Role.DeviceOwner,
+      businessType: 'Issuer',
+      tradeRegistryCompanyNumber: '987654321',
+      vatNumber: 'DE1000',
+      status: OrganizationStatus.Active,
+      signatoryFullName: 'New user',
+      signatoryAddress: 'Address',
+      signatoryZipCode: 'Zip Code',
+      signatoryCity: 'City',
+      signatoryCountry: 'DE',
+      signatoryEmail: 'owner3@mailinator.com',
+      signatoryPhoneNumber: 'Phone number',
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);

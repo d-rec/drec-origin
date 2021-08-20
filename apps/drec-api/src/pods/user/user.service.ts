@@ -2,10 +2,12 @@ import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import { FindConditions, Repository, FindManyOptions } from 'typeorm';
+import { IUser } from '../../models';
 import { CreateUserDTO } from './dto/create-user.dto';
 
 import { UserDTO } from './dto/user.dto';
-import { IUser, User } from './user.entity';
+import { User } from './user.entity';
+import { UserStatus } from '../../utils/eums';
 
 @Injectable()
 export class UserService {
@@ -19,9 +21,15 @@ export class UserService {
     await this.checkForExistingUser(data.email);
 
     return this.repository.save({
-      username: data.username,
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
+      telephone: data.telephone,
       password: this.hashPassword(data.password),
+      notifications: true,
+      role: data.role,
+      status: UserStatus.Active,
       organizationId: data.organizationId,
     });
   }
@@ -29,18 +37,24 @@ export class UserService {
   public async create(data: CreateUserDTO): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     return this.repository.save({
-      username: data.username,
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
+      telephone: data.telephone,
       password: this.hashPassword(data.password),
+      notifications: true,
+      role: data.role,
+      status: UserStatus.Pending,
       organizationId: data.organizationId,
     });
   }
 
-  public async getAll(options?: FindManyOptions<UserDTO>) {
+  public async getAll(options?: FindManyOptions<UserDTO>): Promise<IUser[]> {
     return this.repository.find(options);
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<IUser | null> {
     return this.findOne({ id });
   }
 
@@ -48,7 +62,7 @@ export class UserService {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
 
     return this.findOne({ email: lowerCaseEmail });

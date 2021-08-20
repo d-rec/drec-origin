@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -10,17 +11,17 @@ import {
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
-import { IUser } from '../src/pods/user/user.entity';
-import { IOrganization } from '../src/pods/organization/organization.entity';
-import { IDevice } from '../src/pods/device';
+import { IFullUser, IFullOrganization, IDevice } from '../src/models';
 
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
 import DevicesJSON from './devices.json';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
 
 const issuerAccount = Wallet.fromMnemonic(
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   process.env.MNEMONIC!,
   `m/44'/60'/0'/0/${0}`,
 ); // Index 0 account
@@ -29,8 +30,8 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    await this.seedUsers(queryRunner);
     await this.seedOrganizations(queryRunner, registry);
+    await this.seedUsers(queryRunner);
     await this.seedDevices(queryRunner);
   }
 
@@ -45,9 +46,33 @@ export class Seed9999999999999 implements MigrationInterface {
     }
 
     await Promise.all(
-      (UsersJSON as IUser[]).map((user) =>
+      (UsersJSON as unknown as IFullUser[]).map((user) =>
         queryRunner.query(
-          `INSERT INTO public.user (id, "username", "email", password, "organizationId") VALUES (${user.id}, '${user.username}', '${user.email}', '${user.password}', '${user.organizationId}')`,
+          `INSERT INTO public.user (
+            id, 
+            "title", 
+            "firstName", 
+            "lastName", 
+            "telephone", 
+            "email", 
+            password, 
+            "notifications", 
+            "status", 
+            "role", 
+            "organizationId"
+            ) VALUES (
+              ${user.id}, 
+              '${user.title}', 
+              '${user.firstName}', 
+              '${user.lastName}', 
+              '${user.telephone}', 
+              '${user.email}', 
+              '${user.password}', 
+              '${user.notifications}', 
+              '${user.status}', 
+              '${user.role}', 
+              '${user.organizationId}'
+            )`,
         ),
       ),
     );
@@ -67,7 +92,7 @@ export class Seed9999999999999 implements MigrationInterface {
     }
 
     for (const [index, organization] of (
-      OrganizationsJSON as IOrganization[]
+      OrganizationsJSON as IFullOrganization[]
     ).entries()) {
       const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
       const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
@@ -84,7 +109,45 @@ export class Seed9999999999999 implements MigrationInterface {
       await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 
       await queryRunner.query(
-        `INSERT INTO public.organization (code, name, address, "primaryContact", telephone, email, "regNumber", "vatNumber", "regAddress", "country", "blockchainAccountAddress", "role") VALUES ('${organization.code}', '${organization.name}', '${organization.address}', '${organization.primaryContact}', '${organization.telephone}', '${organization.email}', '${organization.regNumber}', '${organization.vatNumber}', '${organization.regAddress}', '${organization.country}', '${blockchainAccount.address}', '${organization.role}')`,
+        `INSERT INTO public.organization (
+          id,
+          "name",
+          "address",
+          "zipCode",
+          "city",
+          "country",
+          "businessType",
+          "tradeRegistryCompanyNumber",
+          "vatNumber",
+          status,
+          "blockchainAccountAddress",
+          "signatoryFullName",
+          "signatoryAddress",
+          "signatoryCity",
+          "signatoryZipCode",
+          "signatoryCountry",
+          "signatoryEmail",
+          "signatoryPhoneNumber"
+        ) VALUES (
+          '${organization.id}', 
+          '${organization.name}', 
+          '${organization.address}', 
+          '${organization.zipCode}', 
+          '${organization.city}', 
+          '${organization.country}', 
+          '${organization.businessType}', 
+          '${organization.tradeRegistryCompanyNumber}', 
+          '${organization.vatNumber}', 
+          '${organization.status}', 
+          '${blockchainAccount.address}', 
+          '${organization.signatoryFullName}', 
+          '${organization.signatoryAddress}', 
+          '${organization.signatoryCity}', 
+          '${organization.signatoryZipCode}', 
+          '${organization.signatoryCountry}', 
+          '${organization.signatoryEmail}', 
+          '${organization.signatoryPhoneNumber}'
+        )`,
       );
     }
   }
@@ -100,7 +163,49 @@ export class Seed9999999999999 implements MigrationInterface {
     await Promise.all(
       (DevicesJSON as IDevice[]).map((device) =>
         queryRunner.query(
-          `INSERT INTO public.device (id, "drecID", registrant_organisation_code, project_name, address, latitude, longitude, fuel_code, device_type_code, installation_configuration, capacity, commissioning_date, grid_interconnection, off_taker, sector, standard_compliance, yield_value, labels, impact_story, country_code) VALUES ('${device.id}', '${device.drecID}', '${device.registrant_organisation_code}', '${device.project_name}', '${device.address}', '${device.latitude}', '${device.longitude}', '${device.fuel_code}', '${device.device_type_code}', '${device.installation_configuration}', '${device.capacity}', '${device.commissioning_date}', '${device.grid_interconnection}', '${device.off_taker}', '${device.sector}', '${device.standard_compliance}', '${device.yield_value}', '${device.labels}', '${device.impact_story}', '${device.country_code}')`,
+          `INSERT INTO public.device (
+            id, 
+            "drecID", 
+            "organizationId", 
+            "projectName", 
+            address, 
+            latitude, 
+            longitude, 
+            "fuelCode", 
+            "deviceTypeCode", 
+            "installationConfiguration", 
+            capacity, 
+            "commissioningDate", 
+            "gridInterconnection", 
+            "offTaker", 
+            sector, 
+            "standardCompliance", 
+            "yieldValue", 
+            labels, 
+            "impactStory", 
+            "countryCode"
+          ) VALUES (
+              '${device.id}', 
+              '${device.drecID}', 
+              '${device.organizationId}', 
+              '${device.projectName}', 
+              '${device.address}', 
+              '${device.latitude}', 
+              '${device.longitude}', 
+              '${device.fuelCode}', 
+              '${device.deviceTypeCode}', 
+              '${device.installationConfiguration}', 
+              '${device.capacity}', 
+              '${device.commissioningDate}', 
+              '${device.gridInterconnection}', 
+              '${device.offTaker}', 
+              '${device.sector}', 
+              '${device.standardCompliance}', 
+              '${device.yieldValue}', 
+              '${device.labels}', 
+              '${device.impactStory}', 
+              '${device.countryCode}'
+            )`,
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import {
+  DeviceStatus,
   Installation,
   OffTaker,
   Sector,
@@ -13,36 +14,7 @@ import {
   IsNotEmpty,
   IsNumber,
 } from 'class-validator';
-import { DeviceStatus } from '@energyweb/origin-backend-core';
-
-export interface IDevice {
-  id: number;
-  drecID: string;
-  status: DeviceStatus;
-  registrant_organisation_code: string;
-  project_name: string;
-  address: string;
-  latitude: string;
-  longitude: string;
-  country_code: string;
-  zip_code?: number;
-  fuel_code: string;
-  device_type_code: string;
-  installation_configuration: Installation;
-  capacity: number;
-  commissioning_date: string;
-  grid_interconnection: boolean;
-  off_taker: OffTaker;
-  sector: Sector;
-  standard_compliance: StandardCompliance;
-  yield_value: number;
-  generators_ids?: number[];
-  labels?: string;
-  impact_story?: string;
-  data?: string;
-  images?: string[];
-  groupId?: number | null;
-}
+import { IDevice } from '../../models';
 
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
@@ -64,12 +36,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   status: DeviceStatus;
 
   @Column()
-  @IsString()
-  registrant_organisation_code: string;
+  organizationId: number;
 
   @Column()
   @IsString()
-  project_name: string;
+  projectName: string;
 
   @Column()
   @IsString()
@@ -85,23 +56,23 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
-  country_code: string;
+  countryCode: string;
 
   @Column({ nullable: true })
   @IsNumber()
-  zip_code: number;
+  zipCode: number;
 
   @Column()
   @IsString()
-  fuel_code: string;
+  fuelCode: string;
 
   @Column()
   @IsString()
-  device_type_code: string;
+  deviceTypeCode: string;
 
   @Column()
   @IsEnum(Installation)
-  installation_configuration: Installation;
+  installationConfiguration: Installation;
 
   @Column()
   @IsNumber()
@@ -109,15 +80,15 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
-  commissioning_date: string;
+  commissioningDate: string;
 
   @Column()
   @IsBoolean()
-  grid_interconnection: boolean;
+  gridInterconnection: boolean;
 
   @Column()
   @IsEnum(OffTaker)
-  off_taker: OffTaker;
+  offTaker: OffTaker;
 
   @Column()
   @IsEnum(Sector)
@@ -125,14 +96,14 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsEnum(StandardCompliance)
-  standard_compliance: StandardCompliance;
+  standardCompliance: StandardCompliance;
 
   @Column({ default: 1000 })
   @IsNumber()
-  yield_value: number;
+  yieldValue: number;
 
   @Column('int', { nullable: true, array: true })
-  generators_ids: number[];
+  generatorsIds: number[];
 
   @Column({ nullable: true })
   @IsString()
@@ -140,7 +111,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   @IsString()
-  impact_story: string;
+  impactStory: string;
 
   @Column({ nullable: true })
   data: string;

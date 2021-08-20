@@ -9,7 +9,7 @@ import * as PortUtils from './port';
 
 export { DrecModule };
 
-export async function startAPI(logger?: LoggerService) {
+export async function startAPI(logger?: LoggerService): Promise<any> {
   const PORT = PortUtils.getPort();
   const getVersion = () => {
     let info;
