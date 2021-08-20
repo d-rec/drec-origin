@@ -56,7 +56,7 @@ export class ReadsService {
     measurements: MeasurementDTO,
     device: Device,
   ): Promise<void> {
-    const organization = await this.organizationService.findOne(
+    const organization = await this.organizationService.findById(
       device.organizationId,
     );
 

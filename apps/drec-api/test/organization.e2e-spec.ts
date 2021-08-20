@@ -9,7 +9,6 @@ import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
-import { Role } from '..//src/utils/eums/role.enum';
 import { before, after } from 'mocha';
 import {
   NewOrganizationDTO,
@@ -91,10 +90,7 @@ describe('Organization tests', () => {
       'me',
       HttpStatus.OK,
     );
-    expect(organization.code).to.equal('B0012');
     expect(organization.name).to.equal('Buyer');
-    expect(organization.country).to.equal('DE');
-    expect(organization.role).to.equal(Role.Buyer);
   });
 
   it('should retrieve all users from an organizations', async () => {
@@ -106,7 +102,6 @@ describe('Organization tests', () => {
     const { body: users } = await requestOrganization('users', HttpStatus.OK);
     expect(users).to.be.instanceOf(Array);
     expect(users).to.have.length(1);
-    expect(users[0].organizationId).to.equal('B0012');
   });
 
   it('should update an organization', async () => {
@@ -114,19 +109,17 @@ describe('Organization tests', () => {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
-    const orgCode = 'D0012';
     const partialOrg = {
       name: 'Device Owner - Update',
-      regAddress: 'Update',
     };
+    const orgs = await organizationService.getAll();
     await loginUser(loggedUser);
     const { body: updatedOrg } = await updateOrganization(
-      orgCode,
+      orgs[0]?.id.toString(),
       HttpStatus.OK,
       partialOrg,
     );
     expect(updatedOrg.name).to.equal('Device Owner - Update');
-    expect(updatedOrg.regAddress).to.equal('Update');
   });
 
   it('should return forbbidden when updating an organization', async () => {
@@ -181,7 +174,7 @@ describe('Organization tests', () => {
       .expect(status);
 
   const updateOrganization = async (
-    url: string,
+    url: string | null,
     status: HttpStatus,
     body: Partial<UpdateOrganizationDTO>,
   ): Promise<any> =>

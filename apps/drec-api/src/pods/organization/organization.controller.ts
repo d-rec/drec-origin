@@ -61,7 +61,7 @@ export class OrganizationController {
   async getOrganizationByCode(
     @UserDecorator() { organization: { id } }: OrganizationUserDTO,
   ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(id);
+    return this.organizationService.findById(id);
   }
 
   @Get('/users')
@@ -85,7 +85,7 @@ export class OrganizationController {
   async get(
     @Param('id') organizationId: number,
   ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(organizationId);
+    return this.organizationService.findById(organizationId);
   }
 
   @Post()

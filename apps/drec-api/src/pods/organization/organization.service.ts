@@ -23,12 +23,15 @@ export class OrganizationService {
     private blockchainPropertiesService: BlockchainPropertiesService,
   ) {}
 
+  async findById(id: number): Promise<Organization | null> {
+    return (await this.repository.findOne(id)) ?? null;
+  }
+
   async findOne(
-    id: number,
     options: FindOneOptions<Organization> = {},
   ): Promise<Organization | null> {
     return (
-      (await this.repository.findOne(id, {
+      (await this.repository.findOne({
         ...options,
       })) ?? null
     );
@@ -68,7 +71,7 @@ export class OrganizationService {
     const stored = await this.repository.save(organizationToCreate);
 
     this.logger.debug(
-      `Successfully registered a new organization with id ${organizationToRegister.name}`,
+      `Successfully registered a new organization with id ${organizationToCreate.id}`,
     );
 
     return stored;
@@ -130,7 +133,7 @@ export class OrganizationService {
     organizationId: number,
     updateOrganizationDTO: UpdateOrganizationDTO,
   ): Promise<Organization> {
-    let currentOrg = await this.findOne(organizationId);
+    let currentOrg = await this.findById(organizationId);
     if (!currentOrg) {
       throw new NotFoundException(
         `No organization found with id ${organizationId}`,

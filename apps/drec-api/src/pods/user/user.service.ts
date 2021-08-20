@@ -28,7 +28,6 @@ export class UserService {
       telephone: data.telephone,
       password: this.hashPassword(data.password),
       role: data.role,
-      // status: UserStatus.Active,
       organizationId: data.organizationId,
     });
   }
@@ -43,7 +42,6 @@ export class UserService {
       telephone: data.telephone,
       password: this.hashPassword(data.password),
       role: data.role,
-      // status: UserStatus.Pending,
       organizationId: data.organizationId,
     });
   }

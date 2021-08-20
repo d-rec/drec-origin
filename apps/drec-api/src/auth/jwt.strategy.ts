@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.userService.findByEmail(payload.email);
 
     if (user) {
-      const organization = await this.organizationService.findOne(
+      const organization = await this.organizationService.findById(
         user.organizationId,
       );
 

@@ -116,7 +116,7 @@ export class IssuerService {
     if (!group?.devices?.length) {
       return;
     }
-    const org = await this.organizationService.findOne(group.organizationId);
+    const org = await this.organizationService.findById(group.organizationId);
     if (!org) {
       throw new NotFoundException(
         `No organization found with code ${group.organizationId}`,

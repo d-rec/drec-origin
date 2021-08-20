@@ -9,7 +9,6 @@ import {
   OrganizationStatus,
   Sector,
   StandardCompliance,
-  UserStatus,
 } from '../src/utils/eums';
 import { DeviceService } from '../src/pods/device/device.service';
 import { OrganizationDTO } from '../src/pods/organization/dto';
@@ -97,7 +96,7 @@ export const testOrgs: OrganizationDTO[] = [
   },
 ];
 
-export const testUsers: CreateUserDTO[] = [
+export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
   {
     title: 'Mrs',
     firstName: 'Jane',
@@ -106,7 +105,6 @@ export const testUsers: CreateUserDTO[] = [
     telephone: 'telephone',
     password: 'test',
     role: Role.DeviceOwner,
-    organizationId: 10,
   },
   {
     title: 'Mr',
@@ -116,7 +114,6 @@ export const testUsers: CreateUserDTO[] = [
     telephone: 'telephone',
     password: 'test',
     role: Role.Buyer,
-    organizationId: 11,
   },
   {
     title: 'Mr',
@@ -126,7 +123,6 @@ export const testUsers: CreateUserDTO[] = [
     telephone: 'telephone',
     password: 'test',
     role: Role.Admin,
-    organizationId: 12,
   },
   {
     title: 'Mrs',
@@ -136,15 +132,12 @@ export const testUsers: CreateUserDTO[] = [
     telephone: 'telephone',
     password: 'test',
     role: Role.DeviceOwner,
-    organizationId: 13,
   },
 ];
 
-const testDevices: Omit<DeviceDTO, 'status'>[] = [
+const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
   {
-    id: 2,
     drecID: 'DREC02',
-    organizationId: 10,
     projectName: 'Device 1',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -168,9 +161,7 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     images: [],
   },
   {
-    id: 3,
     drecID: 'DREC03',
-    organizationId: 13,
     projectName: 'Device 2',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -194,9 +185,7 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     images: [],
   },
   {
-    id: 4,
     drecID: 'DREC04',
-    organizationId: 10,
     projectName: 'Device 3',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -220,9 +209,7 @@ const testDevices: Omit<DeviceDTO, 'status'>[] = [
     images: [],
   },
   {
-    id: 5,
     drecID: 'DREC05',
-    organizationId: 13,
     projectName: 'Device 5',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -258,24 +245,23 @@ export const seed = async ({
   organizationService,
   deviceService,
 }: Services): Promise<void> => {
-  const [user1, user2, user3, user4] = testUsers;
-
-  await userService.seed(user1);
-  await userService.seed(user2);
-  await userService.seed(user3);
-  await userService.seed(user4);
-
   const [org1, org2, org3, org4] = testOrgs;
 
-  await organizationService.seed(org1);
-  await organizationService.seed(org2);
-  await organizationService.seed(org3);
-  await organizationService.seed(org4);
+  const createdOrg1 = await organizationService.seed(org1);
+  const createdOrg2 = await organizationService.seed(org2);
+  const createdOrg3 = await organizationService.seed(org3);
+  const createdOrg4 = await organizationService.seed(org4);
+
+  const [user1, user2, user3, user4] = testUsers;
+
+  await userService.seed({ ...user1, organizationId: createdOrg1.id });
+  await userService.seed({ ...user2, organizationId: createdOrg2.id });
+  await userService.seed({ ...user3, organizationId: createdOrg3.id });
+  await userService.seed({ ...user4, organizationId: createdOrg4.id });
 
   const [device1, device2, device3, device4] = testDevices;
-
-  await deviceService.seed(device1);
-  await deviceService.seed(device2);
-  await deviceService.seed(device3);
-  await deviceService.seed(device4);
+  await deviceService.seed(createdOrg1.id, device1);
+  await deviceService.seed(createdOrg1.id, device3);
+  await deviceService.seed(createdOrg4.id, device2);
+  await deviceService.seed(createdOrg4.id, device4);
 };

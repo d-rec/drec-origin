@@ -52,9 +52,13 @@ export class DeviceService {
     return (await this.repository.findOne(id, options)) ?? null;
   }
 
-  public async seed(newDevice: NewDeviceDTO): Promise<Device['id']> {
+  public async seed(
+    orgCode: number,
+    newDevice: NewDeviceDTO,
+  ): Promise<Device['id']> {
     const storedDevice = await this.repository.save({
       ...newDevice,
+      organizationId: orgCode,
     });
 
     return storedDevice.id;

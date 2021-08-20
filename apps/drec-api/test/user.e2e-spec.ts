@@ -11,7 +11,7 @@ import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
 import { NewOrganizationDTO } from '../src/pods/organization/dto';
-import { OrganizationStatus, Role, UserStatus } from '../src/utils/eums';
+import { OrganizationStatus, Role } from '../src/utils/eums';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 
 describe('Users tests', () => {
@@ -60,9 +60,9 @@ describe('Users tests', () => {
     };
     await loginUser(loggedUser);
     const { body: user } = await requestUsers('me', HttpStatus.OK);
-    expect(user.username).to.equal('JaneWilliams');
+    expect(user.firstName).to.equal('Jane');
+    expect(user.lastName).to.equal('Williams');
     expect(user.email).to.equal('owner2@mailinator.com');
-    expect(user.organizationId).to.equal('D0012');
   });
 
   it('should create a new user', async () => {

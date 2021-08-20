@@ -61,7 +61,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsEnum(Role)
   role: Role;
 
-  @ApiProperty({ type: Number })
+  @ApiProperty({ type: Number, nullable: true })
   @Column()
   organizationId: number;
 }
