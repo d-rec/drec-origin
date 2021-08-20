@@ -36,3 +36,6 @@ export interface IFullUser extends IUser {
   password: string;
 }
 export declare type UpdateUserResponseReturnType = IUser;
+
+export const isRole = (orgRole: Role, ...roles: Role[]): boolean =>
+  roles.some((role) => role === orgRole);

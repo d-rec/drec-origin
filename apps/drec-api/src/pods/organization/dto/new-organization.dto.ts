@@ -1,10 +1,10 @@
-import { IsEnum, IsISO31661Alpha2, IsString, IsEmail } from 'class-validator';
+import { IsISO31661Alpha2, IsString, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
-import { OrganizationStatus } from '../../../utils/enums';
 
 export class NewOrganizationDTO
-  implements Omit<IFullOrganization, 'id' | 'blockchainAccountAddress'>
+  implements
+    Omit<IFullOrganization, 'id' | 'blockchainAccountAddress' | 'status'>
 {
   @ApiProperty({ type: String })
   @IsString()
@@ -37,11 +37,6 @@ export class NewOrganizationDTO
   @ApiProperty({ type: String })
   @IsString()
   vatNumber: string;
-
-  @ApiProperty({ enum: OrganizationStatus, enumName: 'OrganizationStatus' })
-  @IsEnum(OrganizationStatus)
-  @IsString()
-  status: OrganizationStatus;
 
   @ApiProperty({ type: String })
   @IsString()

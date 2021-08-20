@@ -7,8 +7,12 @@ import {
   Body,
   HttpStatus,
   Param,
+  Delete,
   UseGuards,
   UseInterceptors,
+  ForbiddenException,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -30,7 +34,9 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
-import { ILoggedInUser } from '../../models';
+import { ILoggedInUser, isRole, ResponseSuccess } from '../../models';
+import { ActiveUserGuard } from '../../guards';
+import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -89,8 +95,10 @@ export class OrganizationController {
     description: `The organization with the id doesn't exist`,
   })
   async get(
-    @Param('id') organizationId: number,
+    @Param('id', new ParseIntPipe()) organizationId: number,
+    @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
+    this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
     return this.organizationService.findOne(organizationId);
   }
 
@@ -102,10 +110,14 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Returns a new created Organization',
   })
-  public async create(
+  public async register(
     @Body() organizationToRegister: NewOrganizationDTO,
+    @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<OrganizationDTO> {
-    return await this.organizationService.create(organizationToRegister);
+    return await this.organizationService.create(
+      organizationToRegister,
+      loggedUser,
+    );
   }
 
   @Patch('/:id')
@@ -125,5 +137,42 @@ export class OrganizationController {
       organizationId,
       organizationToUpdate,
     );
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an organization',
+  })
+  async delete(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+  ): Promise<SuccessResponseDTO> {
+    const organization = await this.organizationService.findOne(organizationId);
+
+    if (!organization) {
+      throw new NotFoundException('Does not exist');
+    }
+
+    await this.organizationService.remove(organizationId);
+
+    return ResponseSuccess();
+  }
+
+  private ensureOrganizationMemberOrAdmin(
+    user: ILoggedInUser,
+    organizationId: number,
+  ) {
+    const isOrganizationMember = user.organizationId === organizationId;
+    const hasAdminRole = isRole(user.role, Role.Admin);
+
+    if (hasAdminRole) {
+      return;
+    }
+    if (!isOrganizationMember) {
+      throw new ForbiddenException('Not a member of the organization.');
+    }
   }
 }

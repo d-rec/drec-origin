@@ -151,7 +151,6 @@ describe('Organization tests', () => {
       businessType: 'Issuer',
       tradeRegistryCompanyNumber: '987654321',
       vatNumber: 'DE1000',
-      status: OrganizationStatus.Active,
       signatoryFullName: 'New user',
       signatoryAddress: 'Address',
       signatoryZipCode: 'Zip Code',
