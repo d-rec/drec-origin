@@ -1,7 +1,7 @@
 import { OrganizationService } from '../src/pods/organization';
 import { UserService } from '../src/pods/user/user.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
-import { Role } from '../src/utils/eums/role.enum';
+import { Role } from '../src/utils/enums/role.enum';
 import { DeviceDTO } from '../src/pods/device/dto';
 import {
   Installation,
@@ -9,7 +9,7 @@ import {
   OrganizationStatus,
   Sector,
   StandardCompliance,
-} from '../src/utils/eums';
+} from '../src/utils/enums';
 import { DeviceService } from '../src/pods/device/device.service';
 import { OrganizationDTO } from '../src/pods/organization/dto';
 
@@ -254,10 +254,10 @@ export const seed = async ({
 
   const [user1, user2, user3, user4] = testUsers;
 
-  await userService.seed({ ...user1, organizationId: createdOrg1.id });
-  await userService.seed({ ...user2, organizationId: createdOrg2.id });
-  await userService.seed({ ...user3, organizationId: createdOrg3.id });
-  await userService.seed({ ...user4, organizationId: createdOrg4.id });
+  await userService.seed(user1, createdOrg1.id);
+  await userService.seed(user2, createdOrg2.id);
+  await userService.seed(user3, createdOrg3.id);
+  await userService.seed(user4, createdOrg4.id);
 
   const [device1, device2, device3, device4] = testDevices;
   await deviceService.seed(createdOrg1.id, device1);

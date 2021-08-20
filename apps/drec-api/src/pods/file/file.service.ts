@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
-import { Role } from '../../utils/eums';
+import { ILoggedInUser } from '../../models';
+import { Role } from '../../utils/enums';
 
 import { File } from './file.entity';
 
@@ -23,7 +23,7 @@ export class FileService {
   ) {}
 
   public async store(
-    user: OrganizationUserDTO,
+    user: ILoggedInUser,
     files: FileUpload[],
     isPublic = false,
   ): Promise<string[]> {
@@ -42,7 +42,7 @@ export class FileService {
           data: file.buffer,
           contentType: file.mimetype,
           userId: user.id.toString(),
-          organizationId: user.organization.id?.toString(),
+          organizationId: user.organizationId?.toString(),
           isPublic,
         });
         await entityManager.insert<File>(File, fileToStore);
@@ -57,10 +57,7 @@ export class FileService {
     return storedFile;
   }
 
-  public async get(
-    id: string,
-    user: OrganizationUserDTO,
-  ): Promise<File | undefined> {
+  public async get(id: string, user: ILoggedInUser): Promise<File | undefined> {
     this.logger.debug(`User ${JSON.stringify(user)} requested file ${id}`);
 
     if (user.role === Role.Admin) {
@@ -70,7 +67,7 @@ export class FileService {
     return this.repository.findOne(id, {
       where: {
         userId: user.id.toString(),
-        organizationId: user.organization.id?.toString(),
+        organizationId: user.organizationId?.toString(),
       },
     });
   }

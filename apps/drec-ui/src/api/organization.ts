@@ -1,7 +1,7 @@
 import {
     useOrganizationControllerGetAll,
     useOrganizationControllerGetOrganizationUsersByCode,
-    useOrganizationControllerGetOrganizationByCode
+    useOrganizationControllerGetOrganizationById
 } from '@energyweb/origin-drec-api-client';
 
 export const useAllOrganizations = () => {
@@ -25,7 +25,7 @@ export const useOrganizationUsers = () => {
 
 export const useOrganization = () => {
     const { data: organization, isLoading: organizationLoading } =
-        useOrganizationControllerGetOrganizationByCode();
+        useOrganizationControllerGetOrganizationById();
     return {
         organization,
         organizationLoading

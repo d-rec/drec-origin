@@ -12,7 +12,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../../../utils/eums';
+} from '../../../utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { IDevice } from '../../../models';
 

@@ -1,9 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
-import { OrganizationStatus } from '../../utils/eums';
+import { OrganizationStatus } from '../../utils/enums';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'organization' })
 export class Organization
@@ -100,4 +101,11 @@ export class Organization
   @Column({ default: OrganizationStatus.Submitted })
   @IsEnum(OrganizationStatus)
   status: OrganizationStatus;
+
+  @ApiProperty({ type: () => [User] })
+  @OneToMany(() => User, (user) => user.organization, {
+    cascade: true,
+    eager: true,
+  })
+  users: User[];
 }

@@ -21,7 +21,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../src/utils/eums';
+} from '../src/utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 describe('Device tests', () => {
@@ -40,6 +40,7 @@ describe('Device tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'device', 'organization');

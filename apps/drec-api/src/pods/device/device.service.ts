@@ -12,7 +12,7 @@ import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
 import { FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { Role } from '../../utils/eums';
+import { Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
@@ -68,12 +68,10 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
-    const device = new Device({
+    return await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
     });
-
-    return await this.repository.save(device);
   }
 
   async update(

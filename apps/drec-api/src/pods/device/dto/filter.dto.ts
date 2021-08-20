@@ -5,7 +5,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../../../utils/eums';
+} from '../../../utils/enums';
 
 export class FilterDTO {
   @IsOptional()

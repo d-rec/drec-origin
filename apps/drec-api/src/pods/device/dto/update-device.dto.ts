@@ -12,7 +12,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../../../utils/eums';
+} from '../../../utils/enums';
 import { IDevice } from '../../../models';
 
 export class UpdateDeviceDTO

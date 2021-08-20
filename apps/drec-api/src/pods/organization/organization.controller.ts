@@ -27,10 +27,10 @@ import {
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
-import { RolesGuard } from '../../auth/roles-guard';
-import { Role } from '../../utils/eums/role.enum';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
+import { ILoggedInUser } from '../../models';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -49,7 +49,7 @@ export class OrganizationController {
     description: 'Returns all Organizations',
   })
   async getAll(): Promise<OrganizationDTO[]> {
-    return this.organizationService.getAll();
+    return await this.organizationService.getAll();
   }
 
   @Get('/me')
@@ -58,10 +58,10 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets user`s organization',
   })
-  async getOrganizationByCode(
-    @UserDecorator() { organization: { id } }: OrganizationUserDTO,
-  ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findById(id);
+  async getOrganizationById(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<OrganizationDTO | undefined> {
+    return await this.organizationService.findOne(organizationId);
   }
 
   @Get('/users')
@@ -70,10 +70,13 @@ export class OrganizationController {
     type: [UserDTO],
     description: 'Gets organization`s users',
   })
+  @ApiNotFoundResponse({
+    description: `There are no users associated to this organization`,
+  })
   async getOrganizationUsersByCode(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<UserDTO[]> {
-    return this.organizationService.findOrganizationUsers(user.organizationId);
+    return this.organizationService.findOrganizationUsers(organizationId);
   }
 
   @Get('/:id')
@@ -82,10 +85,13 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets an organization',
   })
+  @ApiNotFoundResponse({
+    description: `The organization with the id doesn't exist`,
+  })
   async get(
     @Param('id') organizationId: number,
-  ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findById(organizationId);
+  ): Promise<OrganizationDTO | undefined> {
+    return this.organizationService.findOne(organizationId);
   }
 
   @Post()

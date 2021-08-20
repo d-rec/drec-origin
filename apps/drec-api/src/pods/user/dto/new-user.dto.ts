@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IUser } from '../../../models';
-import { Role, UserStatus } from '../../../utils/eums';
+import { IUserProperties } from '../../../models';
+import { Role, UserStatus } from '../../../utils/enums';
 import { IsEnum } from 'class-validator';
 
-export class NewUserDTO implements Omit<IUser, 'id' | 'organizationId'> {
+export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   @ApiProperty({ type: String })
   title: string;
 

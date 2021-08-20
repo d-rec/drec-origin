@@ -2,7 +2,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { UserService } from '../user/user.service';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 import { Wallet } from 'ethers';
 import { Organization } from './organization.entity';
@@ -19,22 +18,20 @@ export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private readonly repository: Repository<Organization>,
-    private userService: UserService,
-    private blockchainPropertiesService: BlockchainPropertiesService,
+    private readonly blockchainPropertiesService: BlockchainPropertiesService,
   ) {}
 
-  async findById(id: number): Promise<Organization | null> {
-    return (await this.repository.findOne(id)) ?? null;
-  }
-
   async findOne(
+    id: number,
     options: FindOneOptions<Organization> = {},
-  ): Promise<Organization | null> {
-    return (
-      (await this.repository.findOne({
-        ...options,
-      })) ?? null
-    );
+  ): Promise<Organization> {
+    const organization = await this.repository.findOne(id, {
+      ...options,
+    });
+    if (!organization) {
+      throw new NotFoundException(`No organization found with id ${id}`);
+    }
+    return organization;
   }
 
   public async findByBlockchainAddress(address: string): Promise<Organization> {
@@ -56,7 +53,8 @@ export class OrganizationService {
   }
 
   public async findOrganizationUsers(id: number): Promise<IUser[]> {
-    return await this.userService.getAll({ where: { organizationId: id } });
+    const organization = await this.findOne(id);
+    return organization ? organization.users : [];
   }
 
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
@@ -133,12 +131,7 @@ export class OrganizationService {
     organizationId: number,
     updateOrganizationDTO: UpdateOrganizationDTO,
   ): Promise<Organization> {
-    let currentOrg = await this.findById(organizationId);
-    if (!currentOrg) {
-      throw new NotFoundException(
-        `No organization found with id ${organizationId}`,
-      );
-    }
+    let currentOrg = await this.findOne(organizationId);
     currentOrg = defaults(updateOrganizationDTO, currentOrg);
     return await this.repository.save(currentOrg);
   }

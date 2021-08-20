@@ -11,7 +11,7 @@ import {
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
-import { IFullUser, IFullOrganization, IDevice } from '../src/models';
+import { IFullOrganization, IDevice, IUserSeed } from '../src/models';
 
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
@@ -46,7 +46,7 @@ export class Seed9999999999999 implements MigrationInterface {
     }
 
     await Promise.all(
-      (UsersJSON as unknown as IFullUser[]).map((user) =>
+      (UsersJSON as unknown as IUserSeed[]).map((user) =>
         queryRunner.query(
           `INSERT INTO public.user (
             id, 

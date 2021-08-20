@@ -1,4 +1,4 @@
-import { OrganizationStatus } from '../utils/eums';
+import { OrganizationStatus } from '../utils/enums';
 
 export class IPublicOrganization {
   id: number;

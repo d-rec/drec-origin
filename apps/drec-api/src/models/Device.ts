@@ -4,7 +4,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../utils/eums';
+} from '../utils/enums';
 
 export interface IDevice {
   id: number;

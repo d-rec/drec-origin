@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, UserStatus } from '../../utils/eums';
+import { Role, UserStatus } from '../../utils/enums';
 import { IsEnum, IsString } from 'class-validator';
 import { IUser } from '../../models';
+import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class User extends ExtendedBaseEntity implements IUser {
@@ -19,22 +20,22 @@ export class User extends ExtendedBaseEntity implements IUser {
   id: number;
 
   @ApiProperty({ type: String })
-  @Column({ nullable: true })
+  @Column()
   @IsString()
   title: string;
 
   @ApiProperty({ type: String })
-  @Column({ nullable: true })
+  @Column()
   @IsString()
   firstName: string;
 
   @ApiProperty({ type: String })
-  @Column({ nullable: true })
+  @Column()
   @IsString()
   lastName: string;
 
   @ApiProperty({ type: String })
-  @Column({ nullable: true })
+  @Column()
   @IsString()
   telephone: string;
 
@@ -61,7 +62,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsEnum(Role)
   role: Role;
 
-  @ApiProperty({ type: Number, nullable: true })
-  @Column()
-  organizationId: number;
+  @ApiProperty({ type: Organization })
+  @ManyToOne(() => Organization, (organization) => organization.users)
+  organization: Organization;
 }

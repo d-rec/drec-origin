@@ -6,7 +6,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../../utils/eums';
+} from '../../utils/enums';
 import {
   IsEnum,
   IsBoolean,
@@ -18,7 +18,7 @@ import { IDevice } from '../../models';
 
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
-  constructor(device?: Partial<Device>) {
+  constructor(device: Partial<Device>) {
     super();
     Object.assign(this, device);
   }

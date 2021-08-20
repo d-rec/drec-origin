@@ -27,10 +27,10 @@ import {
   UpdateDeviceGroupDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/eums';
-import { RolesGuard } from '../../auth/roles-guard';
+import { Role } from '../../utils/enums';
+import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
+import { ILoggedInUser } from '../../models';
 
 @ApiTags('device-group')
 @ApiBearerAuth('access-token')
@@ -57,9 +57,9 @@ export class DeviceGroupController {
   @ApiNotFoundResponse({ description: `No device group found` })
   async get(
     @Param('id') id: number,
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<DeviceGroupDTO | null> {
-    return this.deviceGroupService.findById(id, user.organizationId);
+    return this.deviceGroupService.findById(id, organizationId);
   }
 
   @Post()
@@ -71,11 +71,11 @@ export class DeviceGroupController {
     description: 'Returns a new created Device group',
   })
   public async create(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceGroupToRegister: NewDeviceGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
     return await this.deviceGroupService.create(
-      user.organizationId,
+      organizationId,
       deviceGroupToRegister,
     );
   }
@@ -90,12 +90,12 @@ export class DeviceGroupController {
   })
   public async addDevices(
     @Param('id') id: number,
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceIds: DeviceIdsDTO,
   ): Promise<DeviceGroupDTO | void> {
     return await this.deviceGroupService.addDevices(
       id,
-      user.organizationId,
+      organizationId,
       deviceIds,
     );
   }
@@ -110,12 +110,12 @@ export class DeviceGroupController {
   })
   public async removeDevices(
     @Param('id') id: number,
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceIds: DeviceIdsDTO,
   ): Promise<DeviceGroupDTO | void> {
     return await this.deviceGroupService.removeDevices(
       id,
-      user.organizationId,
+      organizationId,
       deviceIds,
     );
   }
@@ -131,12 +131,12 @@ export class DeviceGroupController {
   @ApiNotFoundResponse({ description: `No device group found` })
   public async update(
     @Param('id') id: number,
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() groupToUpdate: UpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     return await this.deviceGroupService.update(
       id,
-      user.organizationId,
+      organizationId,
       groupToUpdate,
     );
   }
@@ -151,8 +151,8 @@ export class DeviceGroupController {
   @ApiNotFoundResponse({ description: `No device group found` })
   public async remove(
     @Param('id') id: number,
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
-    return await this.deviceGroupService.remove(id, user.organizationId);
+    return await this.deviceGroupService.remove(id, organizationId);
   }
 }

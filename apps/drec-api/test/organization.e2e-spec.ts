@@ -15,7 +15,7 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
-import { OrganizationStatus } from '../src/utils/eums';
+import { OrganizationStatus } from '../src/utils/enums';
 
 describe('Organization tests', () => {
   let app: INestApplication;

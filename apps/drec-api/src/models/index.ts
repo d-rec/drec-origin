@@ -4,3 +4,4 @@ export * from './Organization';
 export * from './Device';
 export * from './DeviceGroup';
 export * from './UserRegistrationData';
+export * from './LoggedInUser';

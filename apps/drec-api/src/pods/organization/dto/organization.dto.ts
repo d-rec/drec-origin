@@ -8,8 +8,9 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
-import { Expose } from 'class-transformer';
-import { OrganizationStatus } from '../../../utils/eums';
+import { Expose, plainToClass } from 'class-transformer';
+import { OrganizationStatus } from '../../../utils/enums';
+import { Organization } from '../organization.entity';
 
 export class OrganizationDTO implements IFullOrganization {
   @ApiProperty({ type: Number })

@@ -10,9 +10,8 @@ import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
-import { NewOrganizationDTO } from '../src/pods/organization/dto';
-import { OrganizationStatus, Role } from '../src/utils/eums';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
+import { Role } from '../src/utils/enums';
 
 describe('Users tests', () => {
   let app: INestApplication;
@@ -66,68 +65,39 @@ describe('Users tests', () => {
   });
 
   it('should create a new user', async () => {
-    const organization = await getNewOrganization();
-    const partialUser: CreateUserDTO = {
-      title: 'Mr',
-      firstName: 'test',
-      lastName: 'user2021',
-      email: 'testNew2021@mailinator.com',
-      telephone: 'telephone',
-      password: 'test',
-      role: Role.Admin,
-      organizationId: organization.id,
-    };
-    await postUser('', HttpStatus.CREATED, partialUser);
-  });
-
-  const getNewOrganization = async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
-    const partialOrg: NewOrganizationDTO = {
-      name: 'New Owner',
-      address: 'Stet clita kasd gubergren',
-      zipCode: 'Zip code',
-      city: 'City',
-      country: 'DE',
-      businessType: 'Issuer',
-      tradeRegistryCompanyNumber: '987654321',
-      vatNumber: 'DE1000',
-      status: OrganizationStatus.Active,
-      signatoryFullName: 'Jane Doe',
-      signatoryAddress: 'Address',
-      signatoryZipCode: 'Zip Code',
-      signatoryCity: 'City',
-      signatoryCountry: 'DE',
-      signatoryEmail: 'owner3@mailinator.com',
-      signatoryPhoneNumber: 'Phone number',
-    };
     await loginUser(loggedUser);
-    const { body: organization } = await postOrganization(
-      '',
-      HttpStatus.CREATED,
-      partialOrg,
-    );
-    return organization;
-  };
+    const partialUser: CreateUserDTO = {
+      title: 'Mr',
+      firstName: 'test',
+      lastName: 'user2021',
+      email: 'test-1-2021@mailinator.com',
+      telephone: 'telephone',
+      password: 'test',
+      role: Role.Admin,
+    };
+    await postUser('', HttpStatus.CREATED, partialUser);
+  });
+
+  it('should register a new user', async () => {
+    const partialUser: CreateUserDTO = {
+      title: 'Mr',
+      firstName: 'test',
+      lastName: 'user2021',
+      email: 'test-2-2021@mailinator.com',
+      telephone: 'telephone',
+      password: 'test',
+      role: Role.Admin,
+    };
+    await postUser('register', HttpStatus.CREATED, partialUser);
+  });
 
   const requestUsers = async (url: string, status: HttpStatus): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/user/${url}`)
-      .set('Authorization', `Bearer ${currentAccessToken}`)
-      .expect(status);
-
-  const postOrganization = async (
-    url: string,
-    status: HttpStatus,
-    body: NewOrganizationDTO,
-  ): Promise<any> =>
-    await request(app.getHttpServer())
-      .post(`/organization/${url}`)
-      .send({
-        ...body,
-      })
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

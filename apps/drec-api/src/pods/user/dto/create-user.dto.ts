@@ -11,7 +11,6 @@ export class CreateUserDTO
     'email',
     'telephone',
     'role',
-    'organizationId',
   ] as const)
   implements UserRegistrationData
 {

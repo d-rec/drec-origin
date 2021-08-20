@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { FILE_SUPPORTED_MIMETYPES } from '@energyweb/origin-backend-core';
 import {
   Controller,
@@ -28,10 +29,10 @@ import { FileDto } from './file.dto';
 import { FileUploadDto } from './file-upload.dto';
 import { FileService } from './file.service';
 import { Roles } from '../user/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/roles-guard';
-import { Role } from '../../utils/eums';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { Role } from '../../utils/enums';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
+import { ILoggedInUser } from '../../models';
 
 const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
@@ -63,14 +64,13 @@ export class FileController {
       },
     }),
   )
-  @UseGuards(AuthGuard())
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: [String],
     description: 'Upload a file',
   })
   async upload(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() user: ILoggedInUser,
     @UploadedFiles()
     uploadedFiles: {
       files: Express.Multer.File[];
@@ -80,7 +80,6 @@ export class FileController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard())
   @ApiResponse({
     status: HttpStatus.OK,
     type: FileDto,
@@ -88,7 +87,7 @@ export class FileController {
   })
   @ApiNotFoundResponse({ description: `The file doesn't exist` })
   async download(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() user: ILoggedInUser,
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {

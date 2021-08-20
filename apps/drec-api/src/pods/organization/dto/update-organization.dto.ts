@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
-import { OrganizationStatus } from '../../../utils/eums';
+import { OrganizationStatus } from '../../../utils/enums';
 
 export class UpdateOrganizationDTO
   implements Omit<IFullOrganization, 'id' | 'blockchainAccountAddress'>
