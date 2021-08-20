@@ -3,12 +3,14 @@ import {
   Injectable,
   Logger,
   UnprocessableEntityException,
+  UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import { FindConditions, Repository, FindManyOptions } from 'typeorm';
-import { IUser, UserPasswordUpdate } from '../../models';
-import { UserStatus } from '../../utils/enums';
+import { ILoggedInUser, isRole, IUser, UserPasswordUpdate } from '../../models';
+import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -30,6 +32,7 @@ export class UserService {
   public async seed(
     data: CreateUserDTO,
     organizationId: number,
+    status?: UserStatus,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
 
@@ -41,6 +44,7 @@ export class UserService {
       telephone: data.telephone,
       password: this.hashPassword(data.password),
       role: data.role,
+      status: status || UserStatus.Active,
       organization: { id: organizationId },
     });
   }
@@ -68,8 +72,12 @@ export class UserService {
     return this.repository.find(options);
   }
 
-  async findById(id: number): Promise<IUser | null> {
-    return this.findOne({ id });
+  async findById(id: number): Promise<IUser> {
+    const user = this.findOne({ id });
+    if (!user) {
+      throw new NotFoundException(`No user found with id ${id}`);
+    }
+    return user;
   }
 
   public async findByIds(ids: number[]): Promise<IUser[]> {
@@ -202,5 +210,29 @@ export class UserService {
         message,
       });
     }
+  }
+
+  public async canViewUserData(
+    userId: IUser['id'],
+    loggedInUser: ILoggedInUser,
+  ): Promise<IUser> {
+    const user = await this.findById(userId);
+
+    const isOwnUser = loggedInUser.id === userId;
+    const isOrgAdmin =
+      loggedInUser.organizationId === user.organization?.id &&
+      loggedInUser.hasRole(Role.OrganizationAdmin);
+    const isAdmin = isRole(Role.Admin);
+
+    const canViewUserData = isOwnUser || isOrgAdmin || isAdmin;
+
+    if (!canViewUserData) {
+      throw new UnauthorizedException({
+        success: false,
+        message: `Unable to fetch user data. Unauthorized.`,
+      });
+    }
+
+    return user;
   }
 }

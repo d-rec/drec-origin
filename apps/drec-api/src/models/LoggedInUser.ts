@@ -1,4 +1,4 @@
-import { IUser } from '.';
+import { isRole, IUser } from '.';
 import { Role } from '../utils/enums';
 
 export interface ILoggedInUser {
@@ -7,6 +7,7 @@ export interface ILoggedInUser {
   email: string;
   blockchainAccountAddress: string | undefined;
   role: Role;
+  hasRole(...role: Role[]): boolean;
   ownerId: string;
   hasOrganization: boolean;
 }
@@ -29,6 +30,10 @@ export class LoggedInUser implements ILoggedInUser {
   blockchainAccountAddress: string | undefined;
 
   role: Role;
+
+  hasRole(...role: Role[]): boolean {
+    return isRole(this.role, ...role);
+  }
 
   get ownerId(): string {
     return (this.organizationId ?? this.id).toString();

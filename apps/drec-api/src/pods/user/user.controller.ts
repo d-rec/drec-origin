@@ -7,6 +7,8 @@ import {
   Post,
   Body,
   Put,
+  Param,
+  ParseIntPipe,
   HttpStatus,
   UseGuards,
   UseInterceptors,
@@ -48,6 +50,20 @@ export class UserController {
   })
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
     return this.userService.findById(id);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserDTO,
+    description: `Get another user's data`,
+  })
+  public async get(
+    @Param('id', new ParseIntPipe()) id: number,
+    @UserDecorator() loggedUser: ILoggedInUser,
+  ): Promise<UserDTO | null> {
+    return await this.userService.canViewUserData(id, loggedUser);
   }
 
   @Post('register')

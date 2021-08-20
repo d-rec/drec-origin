@@ -12,6 +12,18 @@ import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/enums';
+import { UserRegistrationData } from '../src/models';
+import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
+import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
+
+export const userToRegister: UserRegistrationData = {
+  title: 'Mr',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'johndoe@example.com',
+  password: 'thisIsAPassword',
+  telephone: '+11',
+};
 
 describe('Users tests', () => {
   let app: INestApplication;
@@ -62,6 +74,12 @@ describe('Users tests', () => {
     expect(user.firstName).to.equal('Jane');
     expect(user.lastName).to.equal('Williams');
     expect(user.email).to.equal('owner2@mailinator.com');
+    const newLoggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(newLoggedUser);
+    await requestUsers(user.id, HttpStatus.UNAUTHORIZED);
   });
 
   it('should create a new user', async () => {
@@ -93,6 +111,36 @@ describe('Users tests', () => {
       role: Role.Admin,
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
+  });
+
+  it('should update profile for user', async () => {
+    const partialUser: UpdateUserProfileDTO = {
+      firstName: 'Updated first name',
+      lastName: 'Updated last name',
+      email: 'updated@mailinator.com',
+      telephone: 'Updated telephone',
+    };
+    const { body: updatedUser } = await request(app.getHttpServer())
+      .put(`/user/profile`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .send(partialUser)
+      .expect(HttpStatus.OK);
+    expect(updatedUser.firstName).to.eq(partialUser.firstName);
+    expect(updatedUser.lastName).to.eq(partialUser.lastName);
+    expect(updatedUser.email).to.eq(partialUser.email);
+    expect(updatedUser.telephone).to.eq(partialUser.telephone);
+  });
+
+  it('should update notifications for user', async () => {
+    const partialUser: UpdateOwnUserSettingsDTO = {
+      notifications: true,
+    };
+    const { body: updatedUser } = await request(app.getHttpServer())
+      .put(`/user`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .send(partialUser)
+      .expect(HttpStatus.OK);
+    expect(updatedUser.notifications).to.eq(true);
   });
 
   const requestUsers = async (url: string, status: HttpStatus): Promise<any> =>
