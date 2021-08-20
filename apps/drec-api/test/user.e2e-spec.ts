@@ -74,8 +74,6 @@ describe('Users tests', () => {
       email: 'testNew2021@mailinator.com',
       telephone: 'telephone',
       password: 'test',
-      notifications: true,
-      status: UserStatus.Active,
       role: Role.Admin,
       organizationId: organization.id,
     };

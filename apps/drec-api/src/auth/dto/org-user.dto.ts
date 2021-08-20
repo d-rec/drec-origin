@@ -14,7 +14,7 @@ export class OrganizationUserDTO extends UserDTO {
   ): OrganizationUserDTO {
     return {
       ...plainToClass(OrganizationUserDTO, organizationUser, {
-        excludeExtraneousValues: true,
+        excludeExtraneousValues: false,
       }),
       organization: plainToClass(
         OrganizationDTO,

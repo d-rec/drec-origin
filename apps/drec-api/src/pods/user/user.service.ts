@@ -27,9 +27,8 @@ export class UserService {
       email: data.email,
       telephone: data.telephone,
       password: this.hashPassword(data.password),
-      notifications: true,
       role: data.role,
-      status: UserStatus.Active,
+      // status: UserStatus.Active,
       organizationId: data.organizationId,
     });
   }
@@ -43,9 +42,8 @@ export class UserService {
       email: data.email,
       telephone: data.telephone,
       password: this.hashPassword(data.password),
-      notifications: true,
       role: data.role,
-      status: UserStatus.Pending,
+      // status: UserStatus.Pending,
       organizationId: data.organizationId,
     });
   }
