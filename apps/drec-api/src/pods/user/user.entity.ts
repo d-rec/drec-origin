@@ -63,6 +63,8 @@ export class User extends ExtendedBaseEntity implements IUser {
   role: Role;
 
   @ApiProperty({ type: Organization })
-  @ManyToOne(() => Organization, (organization) => organization.users)
+  @ManyToOne(() => Organization, (organization) => organization.users, {
+    onDelete: 'CASCADE',
+  })
   organization: Organization;
 }

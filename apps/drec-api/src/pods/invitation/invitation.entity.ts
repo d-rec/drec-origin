@@ -39,6 +39,8 @@ export class Invitation
   @IsString()
   sender: string;
 
-  @ManyToOne(() => Organization, (organization) => organization.invitations)
+  @ManyToOne(() => Organization, (organization) => organization.invitations, {
+    onDelete: 'CASCADE',
+  })
   organization: Organization;
 }

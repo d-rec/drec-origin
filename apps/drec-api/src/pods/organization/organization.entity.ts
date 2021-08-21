@@ -106,6 +106,7 @@ export class Organization
   @ApiProperty({ type: () => [User] })
   @OneToMany(() => User, (user) => user.organization, {
     cascade: true,
+    onDelete: 'CASCADE',
     eager: true,
   })
   users: User[];

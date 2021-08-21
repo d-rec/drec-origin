@@ -37,6 +37,7 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { ILoggedInUser, isRole, ResponseSuccess } from '../../models';
 import { ActiveUserGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
+import { InvitationDTO } from '../invitation/dto/invitation.dto';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -49,7 +50,7 @@ export class OrganizationController {
 
   @Get()
   @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.SupportAgent)
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
@@ -102,9 +103,29 @@ export class OrganizationController {
     return this.organizationService.findOne(organizationId);
   }
 
+  @Get('/:id/invitations')
+  @UseGuards(AuthGuard())
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [InvitationDTO],
+    description: 'Gets invitations for an organization',
+  })
+  async getInvitationsForOrganization(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+    @UserDecorator() loggedUser: ILoggedInUser,
+  ): Promise<InvitationDTO[]> {
+    this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
+
+    const organization = await this.organizationService.findOne(organizationId);
+
+    return organization?.invitations?.map((inv) =>
+      InvitationDTO.fromInvitation(inv),
+    );
+  }
+
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
