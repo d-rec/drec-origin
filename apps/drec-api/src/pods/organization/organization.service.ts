@@ -149,10 +149,11 @@ export class OrganizationService {
 
     const blockchainProperties = await this.blockchainPropertiesService.get();
 
-    const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-      blockchainProperties!.registry,
-      new Wallet(blockchainAccount.privateKey, provider),
-    );
+    const registryWithSigner =
+      Contracts.factories.RegistryExtendedFactory.connect(
+        blockchainProperties!.registry,
+        new Wallet(blockchainAccount.privateKey, provider),
+      );
 
     await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 

@@ -42,8 +42,6 @@ const getEnvFilePath = () => {
   }
 };
 
-const [Certificate, , BlockchainProperties] = IssuerEntities;
-
 export const entities = [
   User,
   Organization,
@@ -52,8 +50,7 @@ export const entities = [
   Device,
   DeviceGroup,
   File,
-  Certificate,
-  BlockchainProperties,
+  ...IssuerEntities,
 ];
 
 const OriginAppTypeOrmModule = () => {

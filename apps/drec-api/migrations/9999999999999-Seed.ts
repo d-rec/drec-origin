@@ -99,10 +99,11 @@ export class Seed9999999999999 implements MigrationInterface {
         `m/44'/60'/0'/0/${index + 1}`,
       );
 
-      const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-        registryAddress,
-        new Wallet(blockchainAccount.privateKey, provider),
-      );
+      const registryWithSigner =
+        Contracts.factories.RegistryExtendedFactory.connect(
+          registryAddress,
+          new Wallet(blockchainAccount.privateKey, provider),
+        );
 
       await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 
