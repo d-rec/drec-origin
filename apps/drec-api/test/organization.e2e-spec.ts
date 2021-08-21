@@ -6,7 +6,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
@@ -15,7 +15,6 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
-import { OrganizationStatus } from '../src/utils/enums';
 
 describe('Organization tests', () => {
   let app: INestApplication;

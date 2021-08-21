@@ -12,10 +12,12 @@ import { Contracts } from '@energyweb/issuer';
 require('dotenv').config({ path: '../../../.env' });
 
 import { entities, DrecModule } from '../src/drec.module';
-import { UserService } from '../src/pods/user';
-import { OrganizationService } from '../src/pods/organization';
+import { UserService } from '../src/pods/user/user.service';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { DeviceService } from '../src/pods/device';
 import { ConfigService } from '@nestjs/config';
+import { EmailConfirmationService } from '../src/pods/email-confirmation';
+import { InvitationService } from '../src/pods/invitation/invitation.service';
 
 const testLogger = new Logger('e2e');
 
@@ -69,6 +71,12 @@ export const bootstrapTestInstance: any = async () => {
   );
   const userService = await app.resolve<UserService>(UserService);
   const deviceService = await app.resolve<DeviceService>(DeviceService);
+  const emailConfirmationService = await app.resolve<EmailConfirmationService>(
+    EmailConfirmationService,
+  );
+  const invitationService = await app.resolve<InvitationService>(
+    InvitationService,
+  );
 
   const blockchainPropertiesService =
     await app.resolve<BlockchainPropertiesService>(BlockchainPropertiesService);
@@ -93,6 +101,8 @@ export const bootstrapTestInstance: any = async () => {
     userService,
     deviceService,
     configService,
+    emailConfirmationService,
+    invitationService,
     app,
   };
 };

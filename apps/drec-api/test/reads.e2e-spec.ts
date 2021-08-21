@@ -7,7 +7,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
 import { DeviceService } from '../src/pods/device/device.service';
-import { OrganizationService } from '../src/pods/organization';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { MeasurementDTO, ReadDTO, Unit } from '@energyweb/energy-api-influxdb';

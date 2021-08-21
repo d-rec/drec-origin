@@ -13,7 +13,7 @@ import {
 } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
-import { OrganizationService } from '../organization';
+import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
 import { values, groupBy } from 'lodash';

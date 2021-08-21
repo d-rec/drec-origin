@@ -10,9 +10,9 @@ import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
 import { defaults } from 'lodash';
 import { Contracts } from '@energyweb/issuer';
 import { IFullOrganization, isRole, IUser, LoggedInUser } from '../../models';
-import { User } from '../user';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationStatus, Role } from '../../utils/enums';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class OrganizationService {

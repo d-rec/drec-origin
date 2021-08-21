@@ -1,4 +1,4 @@
-import { OrganizationService } from '../src/pods/organization';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { UserService } from '../src/pods/user/user.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/enums/role.enum';

@@ -18,6 +18,7 @@ import { validate } from 'class-validator';
 import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
+import { EmailConfirmationService } from '../email-confirmation';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -27,6 +28,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
+    private readonly emailConfirmationService: EmailConfirmationService,
   ) {}
 
   public async seed(
@@ -63,7 +65,7 @@ export class UserService {
       role: data.role,
     });
 
-    // await this.emailConfirmationService.create(user);
+    await this.emailConfirmationService.create(user);
 
     return new User(user);
   }
@@ -107,6 +109,15 @@ export class UserService {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
+
+    if (user) {
+      const emailConfirmation = await this.emailConfirmationService.get(
+        user.id,
+      );
+
+      user.emailConfirmed = emailConfirmation?.confirmed || false;
+    }
+
     return user;
   }
 
@@ -199,6 +210,15 @@ export class UserService {
     });
   }
 
+  public async changeRole(
+    userId: number,
+    role: Role,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    this.logger.log(`Changing user role for userId=${userId} to ${role}`);
+    await this.repository.update(userId, { role });
+    return this.findOne({ id: userId });
+  }
+
   private async checkForExistingUser(email: string): Promise<void> {
     const isExistingUser = await this.hasUser({ email });
     if (isExistingUser) {
@@ -210,6 +230,10 @@ export class UserService {
         message,
       });
     }
+  }
+
+  async getPlatformAdmin(): Promise<IUser | undefined> {
+    return this.findOne({ role: Role.Admin });
   }
 
   public async canViewUserData(

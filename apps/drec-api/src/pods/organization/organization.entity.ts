@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
 import { OrganizationStatus } from '../../utils/enums';
 import { User } from '../user/user.entity';
+import { Invitation } from '../invitation/invitation.entity';
 
 @Entity({ name: 'organization' })
 export class Organization
@@ -108,4 +109,10 @@ export class Organization
     eager: true,
   })
   users: User[];
+
+  @ApiProperty({ type: () => [Invitation] })
+  @OneToMany(() => Invitation, (invitation) => invitation.organization, {
+    eager: true,
+  })
+  invitations: Invitation[];
 }

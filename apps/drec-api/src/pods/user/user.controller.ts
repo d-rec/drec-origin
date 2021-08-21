@@ -20,6 +20,7 @@ import {
   ApiBody,
   ApiTags,
   ApiUnprocessableEntityResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from './decorators/user.decorator';
@@ -28,18 +29,27 @@ import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
-import { ILoggedInUser } from '../../models';
+import {
+  EmailConfirmationResponse,
+  IEmailConfirmationToken,
+  ILoggedInUser,
+} from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { EmailConfirmationService } from '../email-confirmation';
+import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly emailConfirmationService: EmailConfirmationService,
+  ) {}
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
@@ -144,5 +154,31 @@ export class UserController {
     @Body() body: UpdatePasswordDTO,
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
+  }
+
+  @Put('confirm-email/:token')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: String,
+    description: `Confirm an email confirmation token`,
+  })
+  @ApiParam({ name: 'token', type: String })
+  public async confirmToken(
+    @Param('token') token: IEmailConfirmationToken['token'],
+  ): Promise<EmailConfirmationResponse> {
+    return this.emailConfirmationService.confirmEmail(token);
+  }
+
+  @Put('re-send-confirm-email')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: `Re-send a confirmation email`,
+  })
+  public async reSendEmailConfirmation(
+    @UserDecorator() { email }: ILoggedInUser,
+  ): Promise<SuccessResponseDTO> {
+    return this.emailConfirmationService.sendConfirmationEmail(email);
   }
 }
