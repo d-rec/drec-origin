@@ -10,6 +10,7 @@ specifiers:
   '@energyweb/origin-backend': 10.0.2-alpha.1629978728.0
   '@energyweb/origin-backend-core': 8.0.2-alpha.1629978728.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1629978728.0
+  '@energyweb/utils-general': 11.0.3-alpha.1629978728.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -145,6 +146,7 @@ dependencies:
   '@energyweb/origin-backend': 10.0.2-alpha.1629978728.0_swagger-ui-express@4.1.6
   '@energyweb/origin-backend-core': 8.0.2-alpha.1629978728.0
   '@energyweb/origin-backend-utils': 1.5.2-alpha.1629978728.0_a5df9406a476462f1b7ccd7e962bcb31
+  '@energyweb/utils-general': 11.0.3-alpha.1629978728.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -4318,20 +4320,6 @@ packages:
       - fastify-swagger
       - supports-color
       - swagger-ui-express
-      - utf-8-validate
-    dev: false
-
-  /@energyweb/utils-general/11.0.3-alpha.1626693085.0:
-    resolution: {integrity: sha512-dHQi2RzvftbTisXdiBGjbALRsXAec3rdtBAB2Zzr7CSu2gvSWQTtv5EAkacn8hFZVXShFQzoqB1ExzZ6GUfvqA==}
-    dependencies:
-      chai: 4.3.0
-      eth-sig-util: 2.5.4
-      ethers: 5.3.1
-      jsonschema: 1.4.0
-      moment: 2.29.1
-      winston: 3.3.3
-    transitivePeerDependencies:
-      - bufferutil
       - utf-8-validate
     dev: false
 
@@ -24402,14 +24390,14 @@ packages:
     dev: false
 
   file:projects/origin-drec-ui.tgz_luxon@1.27.0+ts-node@9.1.0:
-    resolution: {integrity: sha512-9+tp5gZrEpEyST+u//+fK8opunyRJwM+q7k3QlE6gJcT1F6xeWHdOfyEO6yI2l0WfXSXMENfEwiYSHVTRULsHA==, tarball: file:projects/origin-drec-ui.tgz}
+    resolution: {integrity: sha512-mq/vo66xI9MUuTXWdGrYSU9lCEhvqZWdS1kv+5+DwI3hj5xdd8Q/RLVG12opuWWok6JXowPzS8oU7saf2wteSw==, tarball: file:projects/origin-drec-ui.tgz}
     id: file:projects/origin-drec-ui.tgz
     name: '@rush-temp/origin-drec-ui'
     version: 0.0.0
     dependencies:
       '@emotion/react': 11.1.5_9280ae23271fd1e8184f767af1a90e55
       '@emotion/styled': 11.3.0_d1684368aa48bcd833e699b62fd7e3c4
-      '@energyweb/utils-general': 11.0.3-alpha.1626693085.0
+      '@energyweb/utils-general': 11.0.3-alpha.1629978728.0
       '@hookform/resolvers': 2.7.1_react-hook-form@7.12.2
       '@material-ui/core': 5.0.0-alpha.32_82361f01d3aa53148d352449213d1cc9
       '@material-ui/icons': 5.0.0-alpha.29_5df2c225269dbb8d41a8caf2c0545c1b
