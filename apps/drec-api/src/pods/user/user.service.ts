@@ -24,7 +24,7 @@ import { validate } from 'class-validator';
 import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { EmailConfirmationService } from '../email-confirmation';
+import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;

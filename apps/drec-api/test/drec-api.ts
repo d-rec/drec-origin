@@ -16,7 +16,7 @@ import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { DeviceService } from '../src/pods/device';
 import { ConfigService } from '@nestjs/config';
-import { EmailConfirmationService } from '../src/pods/email-confirmation';
+import { EmailConfirmationService } from '../src/pods/email-confirmation/email-confirmation.service';
 import { InvitationService } from '../src/pods/invitation/invitation.service';
 
 const testLogger = new Logger('e2e');

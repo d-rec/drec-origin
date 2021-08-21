@@ -19,10 +19,8 @@ import { DeviceGroup } from './pods/device-group/device-group.entity';
 import { DeviceGroupModule } from './pods/device-group/device-group.module';
 import { IssuerModule } from './pods/issuer/issuer.module';
 import { MailModule } from './mail';
-import {
-  EmailConfirmation,
-  EmailConfirmationModule,
-} from './pods/email-confirmation';
+import { EmailConfirmationModule } from './pods/email-confirmation/email-confirmation.module';
+import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.entity';
 import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';

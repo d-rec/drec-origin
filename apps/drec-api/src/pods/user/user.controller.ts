@@ -38,7 +38,7 @@ import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
-import { EmailConfirmationService } from '../email-confirmation';
+import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
 @ApiTags('user')
