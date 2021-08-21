@@ -105,7 +105,6 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     email: 'owner2@mailinator.com',
     telephone: 'telephone',
     password: 'test',
-    role: Role.DeviceOwner,
   },
   {
     title: 'Mr',
@@ -114,7 +113,6 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     email: 'buyer2@mailinator.com',
     telephone: 'telephone',
     password: 'test',
-    role: Role.Buyer,
   },
   {
     title: 'Mr',
@@ -123,7 +121,6 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     email: 'admin2@mailinator.com',
     telephone: 'telephone',
     password: 'test',
-    role: Role.Admin,
   },
   {
     title: 'Mrs',
@@ -132,7 +129,6 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     email: 'owner3@mailinator.com',
     telephone: 'telephone',
     password: 'test',
-    role: Role.DeviceOwner,
   },
 ];
 
@@ -255,10 +251,20 @@ export const seed = async ({
 
   const [user1, user2, user3, user4] = testUsers;
 
-  await userService.seed(user1, createdOrg1.id, UserStatus.Active);
-  await userService.seed(user2, createdOrg2.id, UserStatus.Active);
-  await userService.seed(user3, createdOrg3.id, UserStatus.Active);
-  await userService.seed(user4, createdOrg4.id, UserStatus.Active);
+  await userService.seed(
+    user1,
+    createdOrg1.id,
+    Role.DeviceOwner,
+    UserStatus.Active,
+  );
+  await userService.seed(user2, createdOrg2.id, Role.Buyer, UserStatus.Active);
+  await userService.seed(user3, createdOrg3.id, Role.Admin, UserStatus.Active);
+  await userService.seed(
+    user4,
+    createdOrg4.id,
+    Role.DeviceOwner,
+    UserStatus.Active,
+  );
 
   const [device1, device2, device3, device4] = testDevices;
   await deviceService.seed(createdOrg1.id, device1);

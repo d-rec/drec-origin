@@ -18,6 +18,9 @@ export class MailService {
         ...sendMailOptions,
       });
 
+      this.logger.log(`Sending email...`);
+      this.logger.error(JSON.stringify(result));
+
       const allSucceeded = result?.response.every((m: { status: string }) =>
         ['sent', 'queued', 'scheduled'].includes(m.status),
       );
@@ -27,9 +30,6 @@ export class MailService {
         this.logger.log(JSON.stringify(result.response));
         return true;
       }
-
-      this.logger.error(`Error when sending email.`);
-      this.logger.error(JSON.stringify(result.response));
 
       return false;
     } catch (error) {

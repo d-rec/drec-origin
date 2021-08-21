@@ -35,6 +35,12 @@ export declare type UserPasswordUpdate = {
 export interface IFullUser extends IUser {
   password: string;
 }
+
+export interface IUserFilter {
+  orgName?: string;
+  status?: UserStatus;
+}
+
 export declare type UpdateUserResponseReturnType = IUser;
 
 export const isRole = (orgRole: Role, ...roles: Role[]): boolean =>

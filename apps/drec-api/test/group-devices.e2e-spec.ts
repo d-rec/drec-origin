@@ -17,6 +17,7 @@ import {
   UpdateDeviceGroupDTO,
 } from '../src/pods/device-group/dto';
 import { Device } from '../src/pods/device';
+import { IFullOrganization } from '../src/models';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
@@ -85,11 +86,12 @@ describe('Device Group tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const orgs = await organizationService.getAll();
 
-    const firstBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[0].id,
+    const firstBatch = devices.filter((device: Device) =>
+      orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
-    const secondBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[3].id,
+    const secondBatch = firstBatch.filter(
+      (device: Device) =>
+        device.organizationId !== firstBatch[0].organizationId,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
@@ -132,12 +134,12 @@ describe('Device Group tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const orgs = await organizationService.getAll();
 
-    const firstBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[0].id,
+    const firstBatch = devices.filter((device: Device) =>
+      orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
-      deviceIds: [firstBatch[0].id],
+      deviceIds: [firstBatch[0]?.id],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -166,8 +168,8 @@ describe('Device Group tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const orgs = await organizationService.getAll();
 
-    const firstBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[3].id,
+    const firstBatch = devices.filter((device: Device) =>
+      orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
@@ -200,8 +202,8 @@ describe('Device Group tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const orgs = await organizationService.getAll();
 
-    const firstBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[3].id,
+    const firstBatch = devices.filter((device: Device) =>
+      orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
@@ -237,12 +239,12 @@ describe('Device Group tests', () => {
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
     const orgs = await organizationService.getAll();
-    const firstBatch = devices.filter(
-      (device: Device) => device.organizationId === orgs[0].id,
+    const firstBatch = devices.filter((device: Device) =>
+      orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group',
-      deviceIds: [firstBatch[0].id],
+      deviceIds: [firstBatch[0]?.id],
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };

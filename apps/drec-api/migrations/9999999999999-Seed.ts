@@ -49,7 +49,6 @@ export class Seed9999999999999 implements MigrationInterface {
       (UsersJSON as unknown as IUserSeed[]).map((user) =>
         queryRunner.query(
           `INSERT INTO public.user (
-            id, 
             "title", 
             "firstName", 
             "lastName", 
@@ -61,7 +60,6 @@ export class Seed9999999999999 implements MigrationInterface {
             "role", 
             "organizationId"
             ) VALUES (
-              ${user.id}, 
               '${user.title}', 
               '${user.firstName}', 
               '${user.lastName}', 
@@ -110,7 +108,6 @@ export class Seed9999999999999 implements MigrationInterface {
 
       await queryRunner.query(
         `INSERT INTO public.organization (
-          id,
           "name",
           "address",
           "zipCode",
@@ -129,7 +126,6 @@ export class Seed9999999999999 implements MigrationInterface {
           "signatoryEmail",
           "signatoryPhoneNumber"
         ) VALUES (
-          '${organization.id}', 
           '${organization.name}', 
           '${organization.address}', 
           '${organization.zipCode}', 
@@ -164,7 +160,6 @@ export class Seed9999999999999 implements MigrationInterface {
       (DevicesJSON as IDevice[]).map((device) =>
         queryRunner.query(
           `INSERT INTO public.device (
-            id, 
             "drecID", 
             "organizationId", 
             "projectName", 
@@ -185,7 +180,6 @@ export class Seed9999999999999 implements MigrationInterface {
             "impactStory", 
             "countryCode"
           ) VALUES (
-              '${device.id}', 
               '${device.drecID}', 
               '${device.organizationId}', 
               '${device.projectName}', 

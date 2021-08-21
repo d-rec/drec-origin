@@ -43,10 +43,12 @@ export class BaseReadServiceForCi implements PublicPart<ReadsService> {
     return readDTO;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public findLatestReadByMeterQuery(meterId: string): string {
     return '';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async onModuleInit(): Promise<void> {}
 
   public async store(

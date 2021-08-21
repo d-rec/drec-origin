@@ -9,7 +9,7 @@ import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class User extends ExtendedBaseEntity implements IUser {
-  constructor(user: Partial<User>) {
+  constructor(user?: Partial<User>) {
     super();
 
     Object.assign(this, user);

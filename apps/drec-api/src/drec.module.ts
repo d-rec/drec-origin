@@ -25,6 +25,7 @@ import {
 } from './pods/email-confirmation';
 import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
+import { AdminModule } from './pods/admin/admin.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -99,6 +100,7 @@ const OriginAppTypeOrmModule = () => {
     IssuerModule,
     InvitationModule,
     EmailConfirmationModule,
+    AdminModule,
   ],
 })
 export class DrecModule {}

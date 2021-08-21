@@ -1,27 +1,32 @@
 import {
-  EmailConfirmationResponse,
-  IEmailConfirmationToken,
-  ISuccessResponse,
-  IUser,
-} from '@energyweb/origin-backend-core';
-import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
 import { Repository } from 'typeorm';
+import { MailService } from '../../mail';
+import {
+  EmailConfirmationResponse,
+  IEmailConfirmationToken,
+  ISuccessResponse,
+  IUser,
+} from '../../models';
 
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 
 @Injectable()
 export class EmailConfirmationService {
+  private readonly logger = new Logger(EmailConfirmationService.name);
+
   constructor(
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
+    private mailService: MailService,
   ) {}
 
   public async create(user: User): Promise<EmailConfirmation> {
@@ -71,6 +76,7 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<EmailConfirmationResponse> {
     const emailConfirmation = await this.repository.findOne({ token });
+    console.log('EMAIL confirmation: ', emailConfirmation);
 
     if (!emailConfirmation) {
       throw new BadRequestException({
@@ -83,7 +89,9 @@ export class EmailConfirmationService {
       return EmailConfirmationResponse.AlreadyConfirmed;
     }
 
-    if (emailConfirmation.expiryTimestamp < DateTime.now().toSeconds()) {
+    if (
+      emailConfirmation.expiryTimestamp < Math.floor(DateTime.now().toSeconds())
+    ) {
       return EmailConfirmationResponse.Expired;
     }
 
@@ -106,7 +114,7 @@ export class EmailConfirmationService {
       };
     }
 
-    let { expiryTimestamp } = currentToken;
+    let { token, expiryTimestamp } = currentToken;
     const { id, confirmed } = currentToken;
 
     if (confirmed === true) {
@@ -116,22 +124,43 @@ export class EmailConfirmationService {
       });
     }
 
-    if (expiryTimestamp < DateTime.now().toSeconds()) {
+    if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
       const newToken = this.generateEmailToken();
       await this.repository.update(id, newToken);
 
-      ({ expiryTimestamp } = newToken);
+      ({ token, expiryTimestamp } = newToken);
     }
+
+    await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
     return {
       success: true,
     };
   }
 
+  private async sendConfirmEmailRequest(
+    email: string,
+    token: string,
+  ): Promise<void> {
+    const url = `${process.env.REACT_APP_BACKEND_URL}/account/confirm-email?token=${token}`;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Confirm your email address`,
+      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}">${url}</a>.`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
+    }
+  }
+
   generateEmailToken(): IEmailConfirmationToken {
     return {
       token: crypto.randomBytes(64).toString('hex'),
-      expiryTimestamp: DateTime.now().plus({ hours: 8 }).toSeconds(),
+      expiryTimestamp: Math.floor(
+        DateTime.now().plus({ hours: 8 }).toSeconds(),
+      ),
     };
   }
 }

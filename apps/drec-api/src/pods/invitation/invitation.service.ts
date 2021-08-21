@@ -13,6 +13,8 @@ import { AlreadyPartOfOrganizationError } from './errors';
 import { Invitation } from './invitation.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
+import { OrganizationDTO } from '../organization/dto';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class InvitationService {
@@ -23,6 +25,7 @@ export class InvitationService {
     private readonly invitationRepository: Repository<Invitation>,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly mailService: MailService,
   ) {}
 
   public async invite(
@@ -52,6 +55,8 @@ export class InvitationService {
       status: OrganizationInvitationStatus.Pending,
       sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
     });
+
+    await this.sendInvitation(organization, lowerCaseEmail);
   }
 
   public async update(
@@ -124,6 +129,23 @@ export class InvitationService {
         success: false,
         error: `User has already been invited to this organization.`,
       });
+    }
+  }
+
+  private async sendInvitation(
+    organization: OrganizationDTO,
+    email: string,
+  ): Promise<void> {
+    const url = `${process.env.REACT_APP_BACKEND_URL}/organization/organization-invitations`;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Organization invitation`,
+      html: `Organization ${organization.name} has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
     }
   }
 }

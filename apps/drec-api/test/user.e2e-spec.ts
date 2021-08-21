@@ -11,7 +11,6 @@ import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
-import { Role } from '../src/utils/enums';
 import { UserRegistrationData } from '../src/models';
 import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
@@ -95,7 +94,6 @@ describe('Users tests', () => {
       email: 'test-1-2021@mailinator.com',
       telephone: 'telephone',
       password: 'test',
-      role: Role.Admin,
     };
     await postUser('', HttpStatus.CREATED, partialUser);
   });
@@ -108,7 +106,6 @@ describe('Users tests', () => {
       email: 'test-2-2021@mailinator.com',
       telephone: 'telephone',
       password: 'test',
-      role: Role.Admin,
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
   });

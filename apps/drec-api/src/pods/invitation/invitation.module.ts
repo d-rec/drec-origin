@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailModule } from '../../mail';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
 import { InvitationController } from './invitation.controller';
@@ -11,6 +12,7 @@ import { InvitationService } from './invitation.service';
     forwardRef(() => TypeOrmModule.forFeature([Invitation])),
     UserModule,
     OrganizationModule,
+    MailModule,
   ],
   providers: [InvitationService],
   controllers: [InvitationController],

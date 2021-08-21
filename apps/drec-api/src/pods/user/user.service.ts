@@ -9,7 +9,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import { FindConditions, Repository, FindManyOptions } from 'typeorm';
-import { ILoggedInUser, isRole, IUser, UserPasswordUpdate } from '../../models';
+import {
+  ILoggedInUser,
+  isRole,
+  IUser,
+  IUserFilter,
+  UserPasswordUpdate,
+} from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -19,6 +25,7 @@ import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { EmailConfirmationService } from '../email-confirmation';
+import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -34,6 +41,7 @@ export class UserService {
   public async seed(
     data: CreateUserDTO,
     organizationId: number,
+    role?: Role,
     status?: UserStatus,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
@@ -45,7 +53,7 @@ export class UserService {
       email: data.email,
       telephone: data.telephone,
       password: this.hashPassword(data.password),
-      role: data.role,
+      role: role || Role.Admin,
       status: status || UserStatus.Active,
       organization: { id: organizationId },
     });
@@ -62,7 +70,7 @@ export class UserService {
       password: this.hashPassword(data.password),
       notifications: true,
       status: UserStatus.Pending,
-      role: data.role,
+      role: Role.OrganizationAdmin,
     });
 
     await this.emailConfirmationService.create(user);
@@ -234,6 +242,70 @@ export class UserService {
 
   async getPlatformAdmin(): Promise<IUser | undefined> {
     return this.findOne({ role: Role.Admin });
+  }
+
+  public async getUsersBy(filter: IUserFilter): Promise<IUser[]> {
+    const { orgName, status } = filter;
+
+    const isNullOrUndefined = (variable: any) =>
+      variable === null || variable === undefined;
+    let result;
+    if (orgName === undefined || '') {
+      result = await this.repository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.organization', 'organization')
+        .where(
+          `${isNullOrUndefined(status) ? '' : 'user.status = :status'} 
+            `,
+        )
+        .getMany();
+    } else {
+      const _orgName = `%${orgName}%`;
+      result = await this.repository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.organization', 'organization')
+        .where(
+          `organization.name ilike :_orgName ${
+            isNullOrUndefined(status) ? '' : 'and user.status = :status'
+          } `,
+          { _orgName, status },
+        )
+        .getMany();
+    }
+    return result;
+  }
+
+  async update(
+    id: number,
+    data: UpdateUserDTO,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const entity = await this.findOne({ id });
+
+    if (!entity) {
+      throw new Error(`Can't find entity.`);
+    }
+
+    const validationErrors = await validate(data, {
+      skipUndefinedProperties: true,
+    });
+
+    if (validationErrors.length > 0) {
+      throw new UnprocessableEntityException({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+
+    await this.repository.update(id, {
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      telephone: data.telephone,
+      email: data.email,
+      status: data.status,
+    });
+
+    return this.findOne({ id });
   }
 
   public async canViewUserData(
