@@ -40,7 +40,7 @@ export class UserService {
 
   public async seed(
     data: CreateUserDTO,
-    organizationId: number,
+    organizationId: number | null,
     role?: Role,
     status?: UserStatus,
   ): Promise<UserDTO> {
@@ -55,7 +55,7 @@ export class UserService {
       password: this.hashPassword(data.password),
       role: role || Role.Admin,
       status: status || UserStatus.Active,
-      organization: { id: organizationId },
+      organization: organizationId ? { id: organizationId } : {},
     });
   }
 
