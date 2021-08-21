@@ -5,17 +5,17 @@ import {
   UnprocessableEntityException,
   UnauthorizedException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
-import { FindConditions, Repository, FindManyOptions } from 'typeorm';
 import {
-  ILoggedInUser,
-  isRole,
-  IUser,
-  IUserFilter,
-  UserPasswordUpdate,
-} from '../../models';
+  FindConditions,
+  Repository,
+  FindManyOptions,
+  SelectQueryBuilder,
+} from 'typeorm';
+import { ILoggedInUser, isRole, IUser, UserPasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -26,6 +26,7 @@ import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
+import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -244,35 +245,30 @@ export class UserService {
     return this.findOne({ role: Role.Admin });
   }
 
-  public async getUsersBy(filter: IUserFilter): Promise<IUser[]> {
-    const { orgName, status } = filter;
-
-    const isNullOrUndefined = (variable: any) =>
-      variable === null || variable === undefined;
-    let result;
-    if (orgName === undefined || '') {
-      result = await this.repository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.organization', 'organization')
-        .where(
-          `${isNullOrUndefined(status) ? '' : 'user.status = :status'} 
-            `,
-        )
-        .getMany();
-    } else {
-      const _orgName = `%${orgName}%`;
-      result = await this.repository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.organization', 'organization')
-        .where(
-          `organization.name ilike :_orgName ${
-            isNullOrUndefined(status) ? '' : 'and user.status = :status'
-          } `,
-          { _orgName, status },
-        )
-        .getMany();
+  public async getUsersByFilter(filterDto: UserFilterDTO): Promise<IUser[]> {
+    const query = this.getFilteredQuery(filterDto);
+    try {
+      const users = await query.getMany();
+      return users;
+    } catch (error) {
+      this.logger.error(`Failed to retrieve users`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve users');
     }
-    return result;
+  }
+
+  private getFilteredQuery(filterDto: UserFilterDTO): SelectQueryBuilder<User> {
+    const { organizationName, status } = filterDto;
+    const query = this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.organization', 'organization');
+    if (organizationName) {
+      const baseQuery = 'organization.name ILIKE :organizationName';
+      query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    if (status) {
+      query.andWhere(`user.status = '${status}'`);
+    }
+    return query;
   }
 
   async update(

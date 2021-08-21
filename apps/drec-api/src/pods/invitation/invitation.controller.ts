@@ -109,12 +109,6 @@ export class InvitationController {
     @Body() { email, role }: InviteDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
-    if (!isEmail(email)) {
-      throw new BadRequestException(
-        ResponseFailure('Provided email address is incorrect'),
-      );
-    }
-
     if (!loggedUser.hasOrganization) {
       throw new BadRequestException(
         ResponseFailure(`User doesn't belong to any organization.`),

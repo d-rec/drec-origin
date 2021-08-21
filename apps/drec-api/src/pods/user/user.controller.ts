@@ -169,12 +169,12 @@ export class UserController {
     return this.emailConfirmationService.confirmEmail(token);
   }
 
-  @Put('re-send-confirm-email')
+  @Put('resend-confirm-email')
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: `Re-send a confirmation email`,
+    description: `Resend a confirmation email`,
   })
   public async reSendEmailConfirmation(
     @UserDecorator() { email }: ILoggedInUser,

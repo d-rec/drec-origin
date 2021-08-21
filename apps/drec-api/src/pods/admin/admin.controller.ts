@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   UseGuards,
+  ValidationPipe,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,8 +26,9 @@ import { UserDTO } from '../user/dto/user.dto';
 
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, RolesGuard } from '../../guards';
-import { Role, UserStatus } from '../../utils/enums';
+import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
+import { UserFilterDTO } from './dto/user-filter.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
@@ -38,35 +40,15 @@ export class AdminController {
   @Get('users')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.SupportAgent)
-  @ApiQuery({
-    name: 'orgName',
-    description: 'Filter users by organization name',
-    required: false,
-    type: String,
-  })
-  @ApiQuery({
-    name: 'status',
-    description: 'Filter users by user status',
-    required: false,
-    enum: UserStatus,
-  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
     description: 'Gets all users',
   })
   public async getUsers(
-    @Query('orgName') orgName?: string,
-    @Query('status') status?: UserStatus,
+    @Query(ValidationPipe) filterDto: UserFilterDTO,
   ): Promise<UserDTO[]> {
-    if (!orgName && !status) {
-      return this.userService.getAll({ relations: ['organization'] });
-    }
-
-    return this.userService.getUsersBy({
-      orgName,
-      status,
-    });
+    return this.userService.getUsersByFilter(filterDto);
   }
 
   @Put('users/:id')

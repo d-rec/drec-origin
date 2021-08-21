@@ -14,10 +14,8 @@ export function extractPort(url: string): number | null {
 
 export function getPort(): number {
   return (
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    parseInt(process.env.PORT!, 10) ||
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    parseInt(process.env.BACKEND_PORT!, 10) ||
-    3030
+    parseInt(process.env.PORT ?? '3040', 10) ||
+    parseInt(process.env.BACKEND_PORT ?? '3040', 10) ||
+    3040
   );
 }
