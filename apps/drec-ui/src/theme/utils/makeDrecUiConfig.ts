@@ -64,7 +64,6 @@ const makeDrecUiConfig = (configuration: Partial<IDrecThemeConfiguration> = {}) 
         }
     }
 
-    // setGlobalTimeLanguage(SupportedLanguagesEnum.en);
     return newConfiguration;
 };
 
