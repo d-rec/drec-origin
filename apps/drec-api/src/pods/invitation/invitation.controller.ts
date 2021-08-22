@@ -55,7 +55,7 @@ export class InvitationController {
   ) {}
 
   @Get()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -73,7 +73,7 @@ export class InvitationController {
   }
 
   @Put(':id/:status')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('jwt'))
   @ApiParam({
     name: 'status',
     enum: OrganizationInvitationStatus,
@@ -97,7 +97,7 @@ export class InvitationController {
   }
 
   @Post()
-  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @ApiBody({ type: InviteDTO })
   @ApiResponse({

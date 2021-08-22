@@ -13,9 +13,5 @@ export function extractPort(url: string): number | null {
 }
 
 export function getPort(): number {
-  return (
-    parseInt(process.env.PORT ?? '3040', 10) ||
-    parseInt(process.env.BACKEND_PORT ?? '3040', 10) ||
-    3040
-  );
+  return parseInt(process.env.PORT || process.env.BACKEND_PORT || '3040', 10);
 }

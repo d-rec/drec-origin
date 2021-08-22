@@ -48,13 +48,15 @@ export class InvitationService {
 
     this.ensureIsNotMember(lowerCaseEmail, organization);
 
-    await this.invitationRepository.save({
-      email: lowerCaseEmail,
-      organization,
-      role,
-      status: OrganizationInvitationStatus.Pending,
-      sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
-    });
+    if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
+      await this.invitationRepository.save({
+        email: lowerCaseEmail,
+        organization,
+        role,
+        status: OrganizationInvitationStatus.Pending,
+        sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
+      });
+    }
 
     await this.sendInvitation(organization, lowerCaseEmail);
   }
@@ -64,12 +66,7 @@ export class InvitationService {
     invitationId: string,
     status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
-    this.logger.debug(
-      `User with userId=${user.id} requested invitationId=${invitationId}`,
-    );
-
     const lowerCaseEmail = user.email.toLowerCase();
-
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
@@ -121,13 +118,6 @@ export class InvitationService {
       throw new BadRequestException({
         success: false,
         error: `Invited user already belongs to this organization.`,
-      });
-    }
-
-    if (organization.invitations.find((u) => u.email === lowerCaseEmail)) {
-      throw new BadRequestException({
-        success: false,
-        error: `User has already been invited to this organization.`,
       });
     }
   }

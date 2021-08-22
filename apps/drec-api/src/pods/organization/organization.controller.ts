@@ -104,7 +104,7 @@ export class OrganizationController {
   }
 
   @Get('/:id/invitations')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -118,7 +118,7 @@ export class OrganizationController {
 
     const organization = await this.organizationService.findOne(organizationId);
 
-    return organization?.invitations?.map((inv) =>
+    return organization?.invitations.map((inv) =>
       InvitationDTO.fromInvitation(inv),
     );
   }
@@ -161,7 +161,7 @@ export class OrganizationController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,

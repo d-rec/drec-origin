@@ -44,7 +44,7 @@ export class BaseReadServiceForCi implements PublicPart<ReadsService> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public findLatestReadByMeterQuery(meterId: string): string {
+  public findLatestReadByMeterQuery(_meterId: string): string {
     return '';
   }
 
