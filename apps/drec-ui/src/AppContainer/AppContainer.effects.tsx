@@ -40,7 +40,6 @@ export const useAppContainerEffects = () => {
     const accountMenu = getAccountMenu({
         isOpen: isAccountTabActive,
         showSection: true,
-        showSettings: true,
         showUserProfile: isAuthenticated
     });
     const adminMenu = getAdminMenu({
