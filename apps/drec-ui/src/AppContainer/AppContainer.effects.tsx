@@ -1,7 +1,7 @@
 import { useTopbarButtonList } from '../shared';
 import { isRole } from '../utils';
 import { Role } from '@energyweb/origin-drec-api-client';
-import { useUser, useAxiosInterceptors, useOrganization } from '../api';
+import { useUser, useAxiosInterceptors } from '../api';
 import { useActiveMenuTab } from '../shared';
 import { getOrganizationMenu } from '../organization';
 import { getDeviceMenu } from '../device';
@@ -11,7 +11,6 @@ export const useAppContainerEffects = () => {
     useAxiosInterceptors();
 
     const { isAuthenticated, user, logout, userLoading } = useUser();
-    const { organization, organizationLoading } = useOrganization();
 
     const topbarButtons = useTopbarButtonList(isAuthenticated, logout);
     const { isOrganizationTabActive, isDeviceTabActive, isAccountTabActive, isAdminTabAcive } =
@@ -52,14 +51,13 @@ export const useAppContainerEffects = () => {
 
     const menuSections = [deviceMenu, orgMenu, accountMenu, adminMenu];
 
-    const isLoading = userLoading || organizationLoading;
+    const isLoading = userLoading;
 
     return {
         topbarButtons,
         isAuthenticated,
         menuSections,
         user,
-        organization,
         isLoading
     };
 };

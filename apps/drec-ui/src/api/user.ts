@@ -6,13 +6,12 @@ import {
     useUserControllerMe,
     UserDTO
 } from '@energyweb/origin-drec-api-client';
-import { NotificationTypeEnum, showNotification } from '../core';
+import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 import {
     getAuthenticationToken,
     removeAuthenticationToken,
     setAuthenticationToken
 } from '../shared';
-import axios from 'axios';
 import { useNavigate } from 'react-router';
 import { useQueryClient, UseQueryOptions } from 'react-query';
 import { AxiosResponse } from 'axios';

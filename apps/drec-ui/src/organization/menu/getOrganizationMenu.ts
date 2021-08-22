@@ -1,4 +1,4 @@
-import { TMenuSection, TModuleMenuItem } from '../../core';
+import { TMenuSection, TModuleMenuItem } from '@energyweb/origin-ui-core';
 
 type TGetOrganizationMenuArgs = {
     isOpen: boolean;

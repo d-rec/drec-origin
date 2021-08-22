@@ -1,4 +1,4 @@
-import { TMenuSection } from '../../core';
+import { TMenuSection } from '@energyweb/origin-ui-core';
 
 interface IGetAdminMenuFnArgs {
     isOpen: boolean;

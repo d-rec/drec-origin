@@ -1,7 +1,7 @@
 import { useUserLogin } from '../../api';
 import { UserModalsActionsEnum, useUserModalsDispatch } from '../../user';
 import { UnpackNestedValue } from 'react-hook-form';
-import { GenericFormProps } from '../../core';
+import { GenericFormProps } from '@energyweb/origin-ui-core';
 
 import * as Yup from 'yup';
 
