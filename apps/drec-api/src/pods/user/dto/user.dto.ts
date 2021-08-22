@@ -9,6 +9,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  IsOptional,
   ValidateNested,
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
@@ -60,4 +61,9 @@ export class UserDTO implements Omit<IUserProperties, 'password'> {
   @ApiProperty({ type: OrganizationDTO })
   @ValidateNested()
   organization: IFullOrganization;
+
+  @ApiProperty({ type: Boolean, required: false })
+  @IsOptional()
+  @IsBoolean()
+  emailConfirmed?: boolean;
 }

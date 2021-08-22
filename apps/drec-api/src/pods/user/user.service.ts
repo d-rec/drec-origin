@@ -79,7 +79,7 @@ export class UserService {
     return new User(user);
   }
 
-  public async getAll(options?: FindManyOptions<UserDTO>): Promise<IUser[]> {
+  public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
 
