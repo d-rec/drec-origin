@@ -7,8 +7,12 @@ import {
   Body,
   HttpStatus,
   Param,
+  Delete,
   UseGuards,
   UseInterceptors,
+  ForbiddenException,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -27,10 +31,12 @@ import {
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
-import { RolesGuard } from '../../auth/roles-guard';
-import { Role } from '../../utils/eums/role.enum';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
+import { ILoggedInUser, isRole, ResponseSuccess } from '../../models';
+import { ActiveUserGuard } from '../../guards';
+import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -49,7 +55,7 @@ export class OrganizationController {
     description: 'Returns all Organizations',
   })
   async getAll(): Promise<OrganizationDTO[]> {
-    return this.organizationService.getAll();
+    return await this.organizationService.getAll();
   }
 
   @Get('/me')
@@ -58,10 +64,10 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets user`s organization',
   })
-  async getOrganizationByCode(
-    @UserDecorator() { organization: { code } }: OrganizationUserDTO,
-  ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(code);
+  async getOrganizationById(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<OrganizationDTO | undefined> {
+    return await this.organizationService.findOne(organizationId);
   }
 
   @Get('/users')
@@ -70,22 +76,30 @@ export class OrganizationController {
     type: [UserDTO],
     description: 'Gets organization`s users',
   })
+  @ApiNotFoundResponse({
+    description: `There are no users associated to this organization`,
+  })
   async getOrganizationUsersByCode(
-    @UserDecorator() { organization: { code } }: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<UserDTO[]> {
-    return this.organizationService.findOrganizationUsers(code);
+    return this.organizationService.findOrganizationUsers(organizationId);
   }
 
-  @Get('/:code')
+  @Get('/:id')
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
     description: 'Gets an organization',
   })
+  @ApiNotFoundResponse({
+    description: `The organization with the id doesn't exist`,
+  })
   async get(
-    @Param('code') organizationCode: string,
-  ): Promise<OrganizationDTO | null> {
-    return this.organizationService.findOne(organizationCode);
+    @Param('id', new ParseIntPipe()) organizationId: number,
+    @UserDecorator() loggedUser: ILoggedInUser,
+  ): Promise<OrganizationDTO | undefined> {
+    this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
+    return this.organizationService.findOne(organizationId);
   }
 
   @Post()
@@ -96,11 +110,17 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Returns a new created Organization',
   })
-  public async create(@Body() organizationToRegister: NewOrganizationDTO) {
-    return await this.organizationService.create(organizationToRegister);
+  public async register(
+    @Body() organizationToRegister: NewOrganizationDTO,
+    @UserDecorator() loggedUser: ILoggedInUser,
+  ): Promise<OrganizationDTO> {
+    return await this.organizationService.create(
+      organizationToRegister,
+      loggedUser,
+    );
   }
 
-  @Patch('/:code')
+  @Patch('/:id')
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
@@ -110,12 +130,49 @@ export class OrganizationController {
   })
   @ApiNotFoundResponse({ description: `No organization found` })
   public async update(
-    @Param('code') organizationCode: string,
+    @Param('id') organizationId: number,
     @Body() organizationToUpdate: UpdateOrganizationDTO,
-  ) {
+  ): Promise<OrganizationDTO> {
     return await this.organizationService.update(
-      organizationCode,
+      organizationId,
       organizationToUpdate,
     );
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an organization',
+  })
+  async delete(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+  ): Promise<SuccessResponseDTO> {
+    const organization = await this.organizationService.findOne(organizationId);
+
+    if (!organization) {
+      throw new NotFoundException('Does not exist');
+    }
+
+    await this.organizationService.remove(organizationId);
+
+    return ResponseSuccess();
+  }
+
+  private ensureOrganizationMemberOrAdmin(
+    user: ILoggedInUser,
+    organizationId: number,
+  ) {
+    const isOrganizationMember = user.organizationId === organizationId;
+    const hasAdminRole = isRole(user.role, Role.Admin);
+
+    if (hasAdminRole) {
+      return;
+    }
+    if (!isOrganizationMember) {
+      throw new ForbiddenException('Not a member of the organization.');
+    }
   }
 }

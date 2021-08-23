@@ -1,14 +1,7 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsString, IsNotEmpty } from 'class-validator';
-import { IDevice } from '../device';
-
-export interface IDeviceGroup {
-  id: number;
-  name: string;
-  organizationId: string;
-  devices?: IDevice[];
-}
+import { IDevice, IDeviceGroup } from '../../models';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -21,7 +14,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   name: string;
 
   @Column()
-  organizationId: string;
+  organizationId: number;
 
   devices?: IDevice[];
 }

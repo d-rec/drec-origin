@@ -17,10 +17,10 @@ export const useAppContainerEffects = () => {
     const { isOrganizationTabActive, isDeviceTabActive, isAccountTabActive, isAdminTabAcive } =
         useActiveMenuTab();
 
-    const userHasOrg = Boolean(user?.organizationId);
-    const userIsDeviceManagerOrAdmin = isRole(organization?.role, Role.DeviceOwner, Role.Admin);
-    const userIsAdmin = isRole(organization?.role, Role.Admin);
-    const userIsOrgAdminOrAdminOrSupport = isRole(organization?.role, Role.Admin);
+    const userHasOrg = Boolean(user?.organization?.id);
+    const userIsDeviceManagerOrAdmin = isRole(user?.role, Role.DeviceOwner, Role.Admin);
+    const userIsAdmin = isRole(user?.role, Role.Admin);
+    const userIsOrgAdminOrAdminOrSupport = isRole(user?.role, Role.Admin);
 
     const orgMenu = getOrganizationMenu({
         isOpen: isOrganizationTabActive,

@@ -25,7 +25,7 @@ export class DeviceGroupService {
     return this.repository.find();
   }
 
-  async findById(id: number, organizationId: string): Promise<DeviceGroup> {
+  async findById(id: number, organizationId: number): Promise<DeviceGroup> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     return deviceGroup;
@@ -38,7 +38,7 @@ export class DeviceGroupService {
   }
 
   async create(
-    organizationId: string,
+    organizationId: number,
     data: NewDeviceGroupDTO,
   ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
@@ -50,7 +50,7 @@ export class DeviceGroupService {
 
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    const ownerCode = devices[0].registrant_organisation_code;
+    const ownerCode = devices[0].organizationId;
     await Promise.all(
       devices.map(async (device: Device) => {
         await this.deviceService.addToGroup(device, group.id, ownerCode);
@@ -62,14 +62,14 @@ export class DeviceGroupService {
 
   async addDevices(
     id: number,
-    organizationId: string,
+    organizationId: number,
     data: DeviceIdsDTO,
   ): Promise<DeviceGroup | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     const ownerCode = (
       (await this.deviceService.findForGroup(id)) as Device[]
-    )[0]?.registrant_organisation_code;
+    )[0]?.organizationId;
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     if (!data?.deviceIds?.length) {
@@ -87,7 +87,7 @@ export class DeviceGroupService {
 
   async removeDevices(
     id: number,
-    organizationId: string,
+    organizationId: number,
     data: DeviceIdsDTO,
   ): Promise<DeviceGroup | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
@@ -108,7 +108,7 @@ export class DeviceGroupService {
 
   async update(
     id: number,
-    organizationId: string,
+    organizationId: number,
     data: UpdateDeviceGroupDTO,
   ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
@@ -122,7 +122,7 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
-  async remove(id: number, organizationId: string): Promise<void> {
+  async remove(id: number, organizationId: number): Promise<void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     const devices = await this.deviceService.findForGroup(deviceGroup.id);
@@ -156,7 +156,7 @@ export class DeviceGroupService {
 
   private async findDeviceGroupById(
     id: number,
-    organizationId: string,
+    organizationId: number,
   ): Promise<DeviceGroup> {
     const deviceGroup = await this.repository.findOne({
       id,

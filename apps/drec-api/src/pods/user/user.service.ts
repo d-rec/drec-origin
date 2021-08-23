@@ -1,11 +1,25 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  UnprocessableEntityException,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import { FindConditions, Repository, FindManyOptions } from 'typeorm';
+import { ILoggedInUser, isRole, IUser, UserPasswordUpdate } from '../../models';
+import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { validate } from 'class-validator';
 
 import { UserDTO } from './dto/user.dto';
-import { IUser, User } from './user.entity';
+import { User } from './user.entity';
+import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
+
+export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
 export class UserService {
@@ -15,40 +29,62 @@ export class UserService {
     @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  public async seed(data: CreateUserDTO): Promise<UserDTO> {
-    const isExistingUser = await this.hasUser({ email: data.email });
-
-    if (isExistingUser) {
-      const message = `User with email ${data.email} already exists`;
-
-      this.logger.error(message);
-      throw new ConflictException({
-        success: false,
-        message,
-      });
-    }
+  public async seed(
+    data: CreateUserDTO,
+    organizationId: number,
+    status?: UserStatus,
+  ): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
 
     return this.repository.save({
-      username: data.username,
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
+      telephone: data.telephone,
       password: this.hashPassword(data.password),
-      organizationId: data.organizationId,
+      role: data.role,
+      status: status || UserStatus.Active,
+      organization: { id: organizationId },
     });
   }
 
-  public async getAll(options?: FindManyOptions<UserDTO>) {
+  public async create(data: CreateUserDTO): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
+    const user = await this.repository.save({
+      title: data.title,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      telephone: data.telephone,
+      password: this.hashPassword(data.password),
+      notifications: true,
+      status: UserStatus.Pending,
+      role: data.role,
+    });
+
+    // await this.emailConfirmationService.create(user);
+
+    return new User(user);
+  }
+
+  public async getAll(options?: FindManyOptions<UserDTO>): Promise<IUser[]> {
     return this.repository.find(options);
   }
 
-  async findById(id: number) {
-    return this.findOne({ id });
+  async findById(id: number): Promise<IUser> {
+    const user = this.findOne({ id });
+    if (!user) {
+      throw new NotFoundException(`No user found with id ${id}`);
+    }
+    return user;
   }
 
   public async findByIds(ids: number[]): Promise<IUser[]> {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
 
     return this.findOne({ email: lowerCaseEmail });
@@ -67,8 +103,11 @@ export class UserService {
     return user ?? null;
   }
 
-  async findOne(conditions: FindConditions<User>): Promise<User | null> {
-    return (await this.repository.findOne(conditions)) ?? null;
+  async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
+    const user = await (this.repository.findOne(conditions, {
+      relations: ['organization'],
+    }) as Promise<IUser> as Promise<TUserBaseEntity>);
+    return user;
   }
 
   private hashPassword(password: string) {
@@ -77,5 +116,123 @@ export class UserService {
 
   private async hasUser(conditions: FindConditions<User>) {
     return Boolean(await this.findOne(conditions));
+  }
+
+  async setNotifications(
+    id: number,
+    notifications: boolean,
+  ): Promise<IUser | null> {
+    await this.repository.update(id, { notifications });
+
+    return this.findById(id);
+  }
+
+  async addToOrganization(
+    userId: number,
+    organizationId: number,
+  ): Promise<void> {
+    await this.repository.update(userId, {
+      organization: { id: organizationId },
+    });
+  }
+
+  async removeFromOrganization(userId: number): Promise<void> {
+    await this.repository.update(userId, { organization: undefined });
+  }
+
+  async updateProfile(
+    id: number,
+    { firstName, lastName, email, telephone }: UpdateUserProfileDTO,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const updateEntity = new User({
+      firstName,
+      lastName,
+      email,
+      telephone,
+    });
+
+    const validationErrors = await validate(updateEntity, {
+      skipUndefinedProperties: true,
+    });
+
+    if (validationErrors.length > 0) {
+      throw new UnprocessableEntityException({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+
+    await this.repository.update(id, updateEntity);
+
+    return this.findOne({ id });
+  }
+
+  async updatePassword(
+    email: string,
+    user: UserPasswordUpdate,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const _user = await this.getUserAndPasswordByEmail(email);
+
+    if (_user && bcrypt.compareSync(user.oldPassword, _user.password)) {
+      const updateEntity = new User({
+        password: this.hashPassword(user.newPassword),
+      });
+
+      const validationErrors = await validate(updateEntity, {
+        skipUndefinedProperties: true,
+      });
+
+      if (validationErrors.length > 0) {
+        throw new UnprocessableEntityException({
+          success: false,
+          errors: validationErrors,
+        });
+      }
+
+      await this.repository.update(_user.id, updateEntity);
+      return this.findOne({ id: _user.id });
+    }
+
+    throw new ConflictException({
+      success: false,
+      errors: `Incorrect current password.`,
+    });
+  }
+
+  private async checkForExistingUser(email: string): Promise<void> {
+    const isExistingUser = await this.hasUser({ email });
+    if (isExistingUser) {
+      const message = `User with email ${email} already exists`;
+
+      this.logger.error(message);
+      throw new ConflictException({
+        success: false,
+        message,
+      });
+    }
+  }
+
+  public async canViewUserData(
+    userId: IUser['id'],
+    loggedInUser: ILoggedInUser,
+  ): Promise<IUser> {
+    const user = await this.findById(userId);
+
+    const isOwnUser = loggedInUser.id === userId;
+    const isOrgAdmin =
+      loggedInUser.organizationId === user.organization?.id &&
+      loggedInUser.hasRole(Role.OrganizationAdmin);
+    const isAdmin = isRole(Role.Admin);
+
+    const canViewUserData = isOwnUser || isOrgAdmin || isAdmin;
+
+    if (!canViewUserData) {
+      throw new UnauthorizedException({
+        success: false,
+        message: `Unable to fetch user data. Unauthorized.`,
+      });
+    }
+
+    return user;
   }
 }

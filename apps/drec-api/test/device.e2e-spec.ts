@@ -21,7 +21,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-} from '../src/utils/eums';
+} from '../src/utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 
 describe('Device tests', () => {
@@ -40,6 +40,7 @@ describe('Device tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'device', 'organization');
@@ -95,7 +96,7 @@ describe('Device tests', () => {
       password: 'test',
     };
     const partialDevice = {
-      project_name: 'Device 2 - Update',
+      projectName: 'Device 2 - Update',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
@@ -114,25 +115,25 @@ describe('Device tests', () => {
     };
     const partialDevice: NewDeviceDTO = {
       drecID: 'DREC001',
-      project_name: 'Device New',
+      projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
-      country_code: 'DE',
-      zip_code: 111111,
-      fuel_code: 'ES100',
-      device_type_code: 'TC110',
-      installation_configuration: Installation.StandAlone,
+      countryCode: 'DE',
+      zipCode: 111111,
+      fuelCode: 'ES100',
+      deviceTypeCode: 'TC110',
+      installationConfiguration: Installation.StandAlone,
       capacity: 1340,
-      commissioning_date: '2012-07-01',
-      grid_interconnection: true,
-      off_taker: OffTaker.Commercial,
+      commissioningDate: '2012-07-01',
+      gridInterconnection: true,
+      offTaker: OffTaker.Commercial,
       sector: Sector.Agriculture,
-      standard_compliance: StandardCompliance.IREC,
-      yield_value: 1000,
-      generators_ids: [],
+      standardCompliance: StandardCompliance.IREC,
+      yieldValue: 1000,
+      generatorsIds: [],
       labels: '',
-      impact_story: '',
+      impactStory: '',
       data: '',
       images: [],
     };
@@ -142,7 +143,7 @@ describe('Device tests', () => {
       HttpStatus.CREATED,
       partialDevice,
     );
-    expect(updatedDevice.project_name).to.equal('Device New');
+    expect(updatedDevice.projectName).to.equal('Device New');
     expect(updatedDevice.status).to.equal(DeviceStatus.Active);
   });
 
@@ -152,7 +153,7 @@ describe('Device tests', () => {
       password: 'test',
     };
     const partialDevice = {
-      project_name: 'Device 2 - Update',
+      projectName: 'Device 2 - Update',
     };
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     await loginUser(loggedUser);
@@ -166,25 +167,25 @@ describe('Device tests', () => {
     };
     const partialDevice: NewDeviceDTO = {
       drecID: 'DREC001',
-      project_name: 'Device New',
+      projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
-      fuel_code: 'ES100',
-      device_type_code: 'TC110',
-      installation_configuration: Installation.StandAlone,
+      fuelCode: 'ES100',
+      deviceTypeCode: 'TC110',
+      installationConfiguration: Installation.StandAlone,
       capacity: 1340,
-      country_code: 'DE',
-      zip_code: 111111,
-      commissioning_date: '2012-07-01',
-      grid_interconnection: true,
-      off_taker: OffTaker.Commercial,
+      countryCode: 'DE',
+      zipCode: 111111,
+      commissioningDate: '2012-07-01',
+      gridInterconnection: true,
+      offTaker: OffTaker.Commercial,
       sector: Sector.Agriculture,
-      standard_compliance: StandardCompliance.IREC,
-      yield_value: 1000,
-      generators_ids: [],
+      standardCompliance: StandardCompliance.IREC,
+      yieldValue: 1000,
+      generatorsIds: [],
       labels: '',
-      impact_story: '',
+      impactStory: '',
       data: '',
       images: [],
     };

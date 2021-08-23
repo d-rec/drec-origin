@@ -23,8 +23,8 @@ import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../user/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/roles-guard';
-import { Role } from '../../utils/eums';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { Role } from '../../utils/enums';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -48,7 +48,7 @@ export class ReadsController extends BaseReadsController {
   public async getReads(
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
-  ) {
+  ): Promise<ReadDTO[]> {
     return super.getReads(meterId, filter);
   }
 
@@ -63,7 +63,7 @@ export class ReadsController extends BaseReadsController {
   public async getReadsDifference(
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
-  ) {
+  ): Promise<ReadDTO[]> {
     return super.getReadsDifference(meterId, filter);
   }
 
@@ -78,7 +78,7 @@ export class ReadsController extends BaseReadsController {
   public async getReadsAggregates(
     @Param('meter') meterId: string,
     @Query() filter: AggregateFilterDTO,
-  ) {
+  ): Promise<AggregatedReadDTO[]> {
     return super.getReadsAggregates(meterId, filter);
   }
 
@@ -88,7 +88,7 @@ export class ReadsController extends BaseReadsController {
   public async storeReads(
     @Param('id') id: string,
     @Body() measurements: MeasurementDTO,
-  ) {
+  ): Promise<void> {
     return await this.internalReadsService.storeRead(id, measurements);
   }
 }

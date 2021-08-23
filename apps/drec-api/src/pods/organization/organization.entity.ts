@@ -1,70 +1,111 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
-import { Role } from '../../utils/eums/role.enum';
-
-export class IOrganization {
-  code: string;
-  name: string;
-  address: string;
-  primaryContact: string;
-  telephone: string;
-  email: string;
-  regNumber: string;
-  vatNumber: string;
-  regAddress: string;
-  country: string;
-  blockchainAccountAddress: string;
-  role: Role;
-}
+import { ApiProperty } from '@nestjs/swagger';
+import { IFullOrganization } from '../../models';
+import { OrganizationStatus } from '../../utils/enums';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'organization' })
-export class Organization extends ExtendedBaseEntity implements IOrganization {
+export class Organization
+  extends ExtendedBaseEntity
+  implements IFullOrganization
+{
   constructor(organization?: Partial<Organization>) {
     super();
     Object.assign(this, organization);
   }
 
-  @PrimaryColumn()
-  code: string;
+  @ApiProperty({ type: Number })
+  @PrimaryGeneratedColumn()
+  id: number;
 
+  @ApiProperty({ type: String })
   @Column()
   @IsString()
   name: string;
 
+  @ApiProperty({ type: String })
   @Column()
   @IsString()
   address: string;
 
-  @Column()
-  primaryContact: string;
-
-  @Column()
-  telephone: string;
-
-  @Column()
-  email: string;
-
+  @ApiProperty({ type: String })
   @Column()
   @IsString()
-  regNumber: string;
+  zipCode: string;
 
+  @ApiProperty({ type: String })
   @Column()
   @IsString()
-  vatNumber: string;
+  city: string;
 
-  @Column()
-  @IsString()
-  regAddress: string;
-
+  @ApiProperty({ type: String })
   @Column()
   @IsISO31661Alpha2()
   country: string;
 
-  @Column({ unique: true })
+  @Column({ nullable: true, unique: true })
   blockchainAccountAddress: string;
 
   @Column()
-  @IsEnum(Role)
-  role: Role;
+  @IsString()
+  businessType: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  tradeRegistryCompanyNumber: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  vatNumber: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryFullName: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryAddress: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryZipCode: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryCity: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsISO31661Alpha2()
+  signatoryCountry: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryEmail: string;
+
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  signatoryPhoneNumber: string;
+
+  @ApiProperty({ enum: OrganizationStatus, enumName: 'OrganizationStatus' })
+  @Column({ default: OrganizationStatus.Submitted })
+  @IsEnum(OrganizationStatus)
+  status: OrganizationStatus;
+
+  @ApiProperty({ type: () => [User] })
+  @OneToMany(() => User, (user) => user.organization, {
+    cascade: true,
+    eager: true,
+  })
+  users: User[];
 }

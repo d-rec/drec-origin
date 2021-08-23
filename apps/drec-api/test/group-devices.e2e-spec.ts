@@ -7,7 +7,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization';
-import { seed, testOrgs } from './seed';
+import { seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
 import { DeviceService } from '../src/pods/device/device.service';
@@ -34,6 +34,7 @@ describe('Device Group tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'device', 'organization');
@@ -82,13 +83,13 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const orgs = await organizationService.getAll();
+
     const firstBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[0].code,
+      (device: Device) => device.organizationId === orgs[0].id,
     );
     const secondBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[3].code,
+      (device: Device) => device.organizationId === orgs[3].id,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
@@ -129,9 +130,10 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const orgs = await organizationService.getAll();
+
     const firstBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[0].code,
+      (device: Device) => device.organizationId === orgs[0].id,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
@@ -162,9 +164,10 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const orgs = await organizationService.getAll();
+
     const firstBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[3].code,
+      (device: Device) => device.organizationId === orgs[3].id,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
@@ -195,9 +198,10 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const orgs = await organizationService.getAll();
+
     const firstBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[3].code,
+      (device: Device) => device.organizationId === orgs[3].id,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
@@ -232,9 +236,9 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    const orgs = await organizationService.getAll();
     const firstBatch = devices.filter(
-      (device: Device) =>
-        device.registrant_organisation_code === testOrgs[0].code,
+      (device: Device) => device.organizationId === orgs[0].id,
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group',

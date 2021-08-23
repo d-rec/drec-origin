@@ -9,13 +9,13 @@ import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization';
 import { seed } from './seed';
 import { expect } from 'chai';
-import { Role } from '..//src/utils/eums/role.enum';
 import { before, after } from 'mocha';
 import {
   NewOrganizationDTO,
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
+import { OrganizationStatus } from '../src/utils/enums';
 
 describe('Organization tests', () => {
   let app: INestApplication;
@@ -33,6 +33,7 @@ describe('Organization tests', () => {
       userService,
       deviceService,
       databaseService,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
@@ -89,10 +90,7 @@ describe('Organization tests', () => {
       'me',
       HttpStatus.OK,
     );
-    expect(organization.code).to.equal('B0012');
     expect(organization.name).to.equal('Buyer');
-    expect(organization.country).to.equal('DE');
-    expect(organization.role).to.equal(Role.Buyer);
   });
 
   it('should retrieve all users from an organizations', async () => {
@@ -104,7 +102,6 @@ describe('Organization tests', () => {
     const { body: users } = await requestOrganization('users', HttpStatus.OK);
     expect(users).to.be.instanceOf(Array);
     expect(users).to.have.length(1);
-    expect(users[0].organizationId).to.equal('B0012');
   });
 
   it('should update an organization', async () => {
@@ -112,19 +109,17 @@ describe('Organization tests', () => {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
-    const orgCode = 'D0012';
     const partialOrg = {
       name: 'Device Owner - Update',
-      regAddress: 'Update',
     };
+    const orgs = await organizationService.getAll();
     await loginUser(loggedUser);
     const { body: updatedOrg } = await updateOrganization(
-      orgCode,
+      orgs[0]?.id.toString(),
       HttpStatus.OK,
       partialOrg,
     );
     expect(updatedOrg.name).to.equal('Device Owner - Update');
-    expect(updatedOrg.regAddress).to.equal('Update');
   });
 
   it('should return forbbidden when updating an organization', async () => {
@@ -148,17 +143,21 @@ describe('Organization tests', () => {
       password: 'test',
     };
     const partialOrg: NewOrganizationDTO = {
-      code: 'D0013',
       name: 'New Owner',
-      address: 'New address',
-      primaryContact: 'New user',
-      telephone: '81-3-6889-2713',
-      email: 'owner3@mailinator.com',
-      regNumber: '12345672189',
-      vatNumber: '12345672189',
-      regAddress: 'New address',
+      address: 'Stet clita kasd gubergren',
+      zipCode: 'Zip code',
+      city: 'City',
       country: 'DE',
-      role: Role.DeviceOwner,
+      businessType: 'Issuer',
+      tradeRegistryCompanyNumber: '987654321',
+      vatNumber: 'DE1000',
+      signatoryFullName: 'New user',
+      signatoryAddress: 'Address',
+      signatoryZipCode: 'Zip Code',
+      signatoryCity: 'City',
+      signatoryCountry: 'DE',
+      signatoryEmail: 'owner3@mailinator.com',
+      signatoryPhoneNumber: 'Phone number',
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
@@ -174,7 +173,7 @@ describe('Organization tests', () => {
       .expect(status);
 
   const updateOrganization = async (
-    url: string,
+    url: string | null,
     status: HttpStatus,
     body: Partial<UpdateOrganizationDTO>,
   ): Promise<any> =>

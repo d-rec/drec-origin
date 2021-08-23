@@ -7,7 +7,7 @@ export const useUserAndOrgData = (
 ): { userData: UserNavData; orgData: OrgNavData } => {
     return {
         userData: {
-            username: `${user?.email}`
+            username: `${user?.firstName} ${user?.lastName}`
         },
         orgData: {
             orgName: organization?.name

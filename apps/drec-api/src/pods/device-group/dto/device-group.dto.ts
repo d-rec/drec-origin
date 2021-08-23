@@ -1,6 +1,6 @@
 import { IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IDeviceGroup } from '../device-group.entity';
+import { IDeviceGroup } from '../../../models';
 
 export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty()
@@ -12,6 +12,6 @@ export class DeviceGroupDTO implements IDeviceGroup {
   name: string;
 
   @ApiProperty()
-  @IsString()
-  organizationId: string;
+  @IsNumber()
+  organizationId: number;
 }

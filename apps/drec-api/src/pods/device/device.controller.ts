@@ -24,11 +24,11 @@ import { DeviceDTO } from './dto/device.dto';
 import { DeviceService } from './device.service';
 import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/eums';
-import { RolesGuard } from '../../auth/roles-guard';
+import { Role } from '../../utils/enums';
+import { RolesGuard } from '../../guards/RolesGuard';
 import { UpdateOrganizationDTO } from '../organization/dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationUserDTO } from '../../auth/dto/org-user.dto';
+import { ILoggedInUser } from '../../models';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -64,13 +64,10 @@ export class DeviceController {
     description: 'Returns a new created Device id',
   })
   public async create(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
-  ) {
-    return await this.deviceService.register(
-      user.organization.code,
-      deviceToRegister,
-    );
+  ): Promise<DeviceDTO> {
+    return await this.deviceService.register(organizationId, deviceToRegister);
   }
 
   @Patch('/:id')
@@ -83,12 +80,13 @@ export class DeviceController {
   })
   @ApiNotFoundResponse({ description: `No device found` })
   public async update(
-    @UserDecorator() user: OrganizationUserDTO,
+    @UserDecorator() user: ILoggedInUser,
     @Param('id') id: number,
     @Body() deviceToUpdate: UpdateDeviceDTO,
-  ) {
+  ): Promise<DeviceDTO> {
     return await this.deviceService.update(
-      user.organization.code,
+      user.organizationId,
+      user.role,
       id,
       deviceToUpdate,
     );
