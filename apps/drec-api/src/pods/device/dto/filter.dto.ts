@@ -20,6 +20,7 @@ export class FilterDTO {
   @ApiPropertyOptional({
     type: Installation,
     description: 'Installation configuration',
+    enum: Installation,
   })
   installationConfiguration: Installation;
 
@@ -43,11 +44,19 @@ export class FilterDTO {
   gridInterconnection: boolean;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: OffTaker, description: 'Off-taker' })
+  @ApiPropertyOptional({
+    type: OffTaker,
+    description: 'Off-taker',
+    enum: OffTaker,
+  })
   offTaker: OffTaker;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: Sector, description: 'Off-takers sectors' })
+  @ApiPropertyOptional({
+    type: Sector,
+    description: 'Off-takers sectors',
+    enum: Sector,
+  })
   sector: Sector;
 
   @IsOptional()
@@ -58,6 +67,7 @@ export class FilterDTO {
   @ApiPropertyOptional({
     type: StandardCompliance,
     description: 'Standard Compliance',
+    enum: StandardCompliance,
   })
   standardCompliance: StandardCompliance;
 

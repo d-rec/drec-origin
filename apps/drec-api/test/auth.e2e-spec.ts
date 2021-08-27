@@ -6,7 +6,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { ConfigService } from '@nestjs/config';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { DeviceService } from '../src/pods/device/device.service';
 import { seed } from './seed';
 

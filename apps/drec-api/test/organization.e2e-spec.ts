@@ -6,7 +6,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization';
+import { OrganizationService } from '../src/pods/organization/organization.service';
 import { seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
@@ -15,7 +15,6 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
-import { OrganizationStatus } from '../src/utils/enums';
 
 describe('Organization tests', () => {
   let app: INestApplication;
@@ -36,7 +35,7 @@ describe('Organization tests', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
-    await databaseService.truncate('user', 'organization');
+    await databaseService.truncate('user', 'organization', 'device');
 
     await app.init();
   });
@@ -163,6 +162,30 @@ describe('Organization tests', () => {
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
   });
 
+  it('should delete an organization', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: organizations } = await requestOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(organizations).to.be.instanceOf(Array);
+    expect(organizations).to.have.length(4);
+    await deleteOrganization(
+      organizations[organizations.length - 1].id.toString(),
+      HttpStatus.OK,
+    );
+    const { body: afterDeleteOrgs } = await requestOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(afterDeleteOrgs).to.be.instanceOf(Array);
+    expect(afterDeleteOrgs).to.have.length(3);
+  });
+
   const requestOrganization = async (
     url: string,
     status: HttpStatus,
@@ -182,6 +205,15 @@ describe('Organization tests', () => {
       .send({
         ...body,
       })
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const deleteOrganization = async (
+    url: string | null,
+    status: HttpStatus,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .delete(`/organization/${url}`)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

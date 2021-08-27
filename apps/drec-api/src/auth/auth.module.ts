@@ -1,7 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { OrganizationModule } from '../pods/organization/organization.module';
 import { UserModule } from '../pods/user/user.module';
 import { AuthController } from './auth.controller';

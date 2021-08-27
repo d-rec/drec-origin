@@ -44,7 +44,7 @@
         "axios": "0.21.1",
         "mobx": "^6.1.8",
         "mobx-react-lite": "^3.2.0",
-        "@energyweb/utils-general": "11.0.3-alpha.1626693085.0",
+        "@energyweb/utils-general": "11.0.3-alpha.1629978728.0",
         "react-toastify": "7.0.4",
         "tslib": "2.3.1",
         "react-material-ui-carousel": "2.2.7",

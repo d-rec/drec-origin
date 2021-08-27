@@ -10,7 +10,6 @@ export class CreateUserDTO
     'lastName',
     'email',
     'telephone',
-    'role',
   ] as const)
   implements UserRegistrationData
 {

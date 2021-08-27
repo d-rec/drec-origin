@@ -49,7 +49,6 @@ export class Seed9999999999999 implements MigrationInterface {
       (UsersJSON as unknown as IUserSeed[]).map((user) =>
         queryRunner.query(
           `INSERT INTO public.user (
-            id, 
             "title", 
             "firstName", 
             "lastName", 
@@ -61,7 +60,6 @@ export class Seed9999999999999 implements MigrationInterface {
             "role", 
             "organizationId"
             ) VALUES (
-              ${user.id}, 
               '${user.title}', 
               '${user.firstName}', 
               '${user.lastName}', 
@@ -101,16 +99,16 @@ export class Seed9999999999999 implements MigrationInterface {
         `m/44'/60'/0'/0/${index + 1}`,
       );
 
-      const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-        registryAddress,
-        new Wallet(blockchainAccount.privateKey, provider),
-      );
+      const registryWithSigner =
+        Contracts.factories.RegistryExtendedFactory.connect(
+          registryAddress,
+          new Wallet(blockchainAccount.privateKey, provider),
+        );
 
       await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 
       await queryRunner.query(
         `INSERT INTO public.organization (
-          id,
           "name",
           "address",
           "zipCode",
@@ -129,7 +127,6 @@ export class Seed9999999999999 implements MigrationInterface {
           "signatoryEmail",
           "signatoryPhoneNumber"
         ) VALUES (
-          '${organization.id}', 
           '${organization.name}', 
           '${organization.address}', 
           '${organization.zipCode}', 
@@ -164,7 +161,6 @@ export class Seed9999999999999 implements MigrationInterface {
       (DevicesJSON as IDevice[]).map((device) =>
         queryRunner.query(
           `INSERT INTO public.device (
-            id, 
             "drecID", 
             "organizationId", 
             "projectName", 
@@ -185,7 +181,6 @@ export class Seed9999999999999 implements MigrationInterface {
             "impactStory", 
             "countryCode"
           ) VALUES (
-              '${device.id}', 
               '${device.drecID}', 
               '${device.organizationId}', 
               '${device.projectName}', 

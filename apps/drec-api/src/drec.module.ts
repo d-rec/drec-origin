@@ -18,6 +18,12 @@ import { ReadsModule } from './pods/reads/reads.module';
 import { DeviceGroup } from './pods/device-group/device-group.entity';
 import { DeviceGroupModule } from './pods/device-group/device-group.module';
 import { IssuerModule } from './pods/issuer/issuer.module';
+import { MailModule } from './mail';
+import { EmailConfirmationModule } from './pods/email-confirmation/email-confirmation.module';
+import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.entity';
+import { Invitation } from './pods/invitation/invitation.entity';
+import { InvitationModule } from './pods/invitation/invitation.module';
+import { AdminModule } from './pods/admin/admin.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -36,16 +42,15 @@ const getEnvFilePath = () => {
   }
 };
 
-const [Certificate, , BlockchainProperties] = IssuerEntities;
-
 export const entities = [
   User,
   Organization,
+  Invitation,
+  EmailConfirmation,
   Device,
   DeviceGroup,
   File,
-  Certificate,
-  BlockchainProperties,
+  ...IssuerEntities,
 ];
 
 const OriginAppTypeOrmModule = () => {
@@ -80,6 +85,7 @@ const OriginAppTypeOrmModule = () => {
     OriginAppTypeOrmModule(),
     ScheduleModule.forRoot(),
     AuthModule,
+    MailModule,
     OrganizationModule,
     UserModule,
     DeviceModule,
@@ -87,6 +93,9 @@ const OriginAppTypeOrmModule = () => {
     FileModule,
     ReadsModule,
     IssuerModule,
+    InvitationModule,
+    EmailConfirmationModule,
+    AdminModule,
   ],
 })
 export class DrecModule {}

@@ -10,9 +10,9 @@ import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
 import { defaults } from 'lodash';
 import { Contracts } from '@energyweb/issuer';
 import { IFullOrganization, isRole, IUser, LoggedInUser } from '../../models';
-import { User } from '../user';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationStatus, Role } from '../../utils/enums';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class OrganizationService {
@@ -149,10 +149,11 @@ export class OrganizationService {
 
     const blockchainProperties = await this.blockchainPropertiesService.get();
 
-    const registryWithSigner = Contracts.factories.RegistryFactory.connect(
-      blockchainProperties!.registry,
-      new Wallet(blockchainAccount.privateKey, provider),
-    );
+    const registryWithSigner =
+      Contracts.factories.RegistryExtendedFactory.connect(
+        blockchainProperties!.registry,
+        new Wallet(blockchainAccount.privateKey, provider),
+      );
 
     await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 

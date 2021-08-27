@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { IUser, UserLoginReturnData } from '@energyweb/origin-backend-core';
 
 import { UserService } from '../pods/user/user.service';
+import { UserDTO } from '../pods/user/dto/user.dto';
 
 export interface IJWTPayload {
   id: number;
@@ -17,7 +18,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, unencryptedPassword: string) {
+  async validateUser(
+    email: string,
+    unencryptedPassword: string,
+  ): Promise<UserDTO | null> {
     const user = await this.userService.getUserAndPasswordByEmail(email);
 
     if (user && bcrypt.compareSync(unencryptedPassword, user.password)) {
