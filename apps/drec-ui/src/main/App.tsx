@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import { FC, memo } from 'react';
 import {
     MainLayout,
     PageNotFound,
@@ -10,6 +10,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DashboardPage } from 'pages';
+import { DrecLogo } from 'assets';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -32,6 +33,8 @@ const App: FC<AppProps> = memo(({ isAuthenticated, user, menuSections, topbarBut
                         menuSections={menuSections}
                         userData={userData}
                         orgData={orgData}
+                        icon={<DrecLogo />}
+                        iconWrapperProps={{ my: 5, px: 2 }}
                     />
                 }
             >
