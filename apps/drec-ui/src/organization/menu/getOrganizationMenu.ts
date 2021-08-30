@@ -1,11 +1,13 @@
 import { TMenuSection, TModuleMenuItem } from '@energyweb/origin-ui-core';
 
-type TGetOrganizationMenuArgs = {
+export type TGetOrganizationMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
     showRegisterOrg: boolean;
     showMyOrg: boolean;
     showMembers: boolean;
+    showInvitations: boolean;
+    showInvite: boolean;
     showAllOrgs: boolean;
 };
 
@@ -17,6 +19,8 @@ export const getOrganizationMenu: TGetOrganizationMenu = ({
     showRegisterOrg,
     showMyOrg,
     showMembers,
+    showInvitations,
+    showInvite,
     showAllOrgs
 }) => {
     const menuList: TModuleMenuItem[] = [
@@ -34,6 +38,16 @@ export const getOrganizationMenu: TGetOrganizationMenu = ({
             url: 'members',
             label: 'Members',
             show: showMembers
+        },
+        {
+            url: 'invitations',
+            label: 'Invitations',
+            show: showInvitations
+        },
+        {
+            url: 'invite',
+            label: 'invite',
+            show: showInvite
         },
         {
             url: 'all',

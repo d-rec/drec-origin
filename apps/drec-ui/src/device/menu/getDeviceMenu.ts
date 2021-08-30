@@ -1,6 +1,6 @@
 import { TMenuSection } from '@energyweb/origin-ui-core';
 
-type TGetDeviceMenuArgs = {
+export type TGetDeviceMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
     showAllDevices: boolean;

@@ -1,4 +1,5 @@
 import { useApiUpdateUserAccountPassword } from '../../../../api';
+import { GenericFormProps } from '@energyweb/origin-ui-core';
 import * as Yup from 'yup';
 
 export type TUpdateUserPasswordFormValues = {
@@ -12,9 +13,10 @@ const INITIAL_FORM_VALUES = {
     newPassword: '',
     newPasswordConfirm: ''
 };
+
 export const useUpdateUserPasswordEffects = () => {
     const { submitHandler } = useApiUpdateUserAccountPassword();
-    const formConfig = {
+    const formConfig: Omit<GenericFormProps<TUpdateUserPasswordFormValues>, 'submitHandler'> = {
         buttonText: 'Change',
         fields: [
             {

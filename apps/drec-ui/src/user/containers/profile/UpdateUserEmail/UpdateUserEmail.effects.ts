@@ -1,10 +1,15 @@
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useApiUpdateUserAccountEmail } from '../../../../api';
+import { GenericFormProps } from '@energyweb/origin-ui-core';
 import * as Yup from 'yup';
+
+type TUpdateUserEmailFormValues = {
+    email: string;
+};
 
 export const useUpdateUserEmailEffects = (initialUserData: UserDTO) => {
     const { submitHandler } = useApiUpdateUserAccountEmail();
-    const formConfig = {
+    const formConfig: Omit<GenericFormProps<TUpdateUserEmailFormValues>, 'submitHandler'> = {
         buttonText: 'Change',
         fields: [
             {

@@ -1,15 +1,15 @@
 import {
     userControllerMe,
     getUserControllerMeQueryKey,
-    LoginDataDTO,
     useAuthControllerLogin,
     useUserControllerMe,
-    UserDTO,
+    LoginDataDTO,
     useUserControllerReSendEmailConfirmation,
     useUserControllerUpdateOwnPassword,
-    UserStatus,
     useUserControllerUpdateOwnProfile,
-    UpdateUserProfileDTO
+    UserStatus,
+    UpdateUserProfileDTO,
+    UserDTO
 } from '@energyweb/origin-drec-api-client';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 import {
@@ -192,8 +192,8 @@ export const useApiUpdateUserAccountEmail = () => {
                     showNotification(
                         'User email updated successfully. Please log in using new email',
                         NotificationTypeEnum.Success
-                    ),
-                        resetForm();
+                    );
+                    resetForm();
                     logout();
                 },
                 onError: (error: any) => {

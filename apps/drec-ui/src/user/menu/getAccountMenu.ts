@@ -1,12 +1,12 @@
 import { TMenuSection } from '@energyweb/origin-ui-core';
 
-interface IAccountMenuFnArgs {
+export type TGetAccountMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
     showUserProfile: boolean;
-}
+};
 
-type TGetAccountMenuFn = (args?: IAccountMenuFnArgs) => TMenuSection;
+type TGetAccountMenuFn = (args?: TGetAccountMenuArgs) => TMenuSection;
 
 export const getAccountMenu: TGetAccountMenuFn = ({ isOpen, showUserProfile }) => ({
     isOpen,
