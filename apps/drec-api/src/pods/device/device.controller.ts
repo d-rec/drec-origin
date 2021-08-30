@@ -34,7 +34,6 @@ import { ILoggedInUser } from '../../models';
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device')
-@UseGuards(AuthGuard('jwt'))
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
@@ -47,6 +46,7 @@ export class DeviceController {
   }
 
   @Get('/:id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -56,7 +56,7 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -71,7 +71,7 @@ export class DeviceController {
   }
 
   @Patch('/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,

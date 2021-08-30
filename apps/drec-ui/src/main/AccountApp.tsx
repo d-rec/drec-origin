@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Route, Routes } from 'react-router';
-import { ProfilePage } from './pages';
-import { PageNotFound } from './pages/PageNotFound';
+import { ProfilePage } from '../pages';
+import { PageNotFound } from '../pages/PageNotFound';
 
 interface AccountAppProps {
     routesConfig: {
