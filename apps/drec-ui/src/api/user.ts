@@ -20,7 +20,6 @@ import {
 import { useNavigate } from 'react-router';
 import { useQueryClient, UseQueryOptions } from 'react-query';
 import { AxiosResponse } from 'axios';
-import { useCallback } from 'react';
 import { UseFormReset } from 'react-hook-form';
 
 export type TUpdateUserPasswordFormValues = {
@@ -103,22 +102,23 @@ export const useApiResendConfirmationEmail = () => {
     const { isLoading, error, isError, isSuccess, status, mutateAsync } =
         useUserControllerReSendEmailConfirmation();
 
+    const submitHandler = () => {
+        mutateAsync().then(
+            () => {
+                showNotification('Email was resent', NotificationTypeEnum.Success);
+            },
+            () => {
+                showNotification('Cannot resed email', NotificationTypeEnum.Error);
+            }
+        );
+    };
     return {
         status,
         isLoading,
         isSuccess,
         isError,
         error,
-        submitHandler: useCallback((): void => {
-            mutateAsync().then(
-                () => {
-                    showNotification('Email was resent', NotificationTypeEnum.Success);
-                },
-                () => {
-                    showNotification('Cannot resed email', NotificationTypeEnum.Error);
-                }
-            );
-        }, [])
+        submitHandler
     };
 };
 
@@ -172,7 +172,10 @@ export const useApiUpdateUserAccountEmail = () => {
     const queryClient = useQueryClient();
     const userQueryKey = getUserControllerMeQueryKey();
 
-    const submitHandler = (values: Pick<UpdateUserProfileDTO, 'email'>, resetForm: any) => {
+    const submitHandler = (
+        values: Pick<UpdateUserProfileDTO, 'email'>,
+        resetForm: UseFormReset<Pick<UpdateUserProfileDTO, 'email'>>
+    ) => {
         const user: UserDTO = queryClient.getQueryData(userQueryKey);
         const { firstName, lastName, telephone, status } = user;
         const restUserProps = { firstName, lastName, telephone };
@@ -187,7 +190,6 @@ export const useApiUpdateUserAccountEmail = () => {
         return mutate(
             { data: { ...values, ...restUserProps } },
             {
-                /* eslint-disable @typescript-eslint/no-unused-expressions */
                 onSuccess: () => {
                     showNotification(
                         'User email updated successfully. Please log in using new email',

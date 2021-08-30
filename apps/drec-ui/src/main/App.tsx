@@ -4,7 +4,6 @@ import { LoginApp } from '../LoginApp';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
-import { DashboardPage } from 'pages';
 import { DrecLogo } from 'assets';
 import { AccountApp } from '../AccountApp';
 import { RoutesConfig } from '../AppContainer';
@@ -40,7 +39,6 @@ const App: FC<AppProps> = memo(
                     }
                 >
                     <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
-                    {/* <Route path="dashboard" element={<DashboardPage />} /> */}
                     <Route element={<Navigate to="account/profile" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
