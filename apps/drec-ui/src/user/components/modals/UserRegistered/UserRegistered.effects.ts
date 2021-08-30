@@ -1,4 +1,4 @@
-import { GenericModalProps } from '../../../../core';
+import { GenericModalProps } from '@energyweb/origin-ui-core';
 import { useUserRegisteredModalLogic } from '../../../../shared/logic';
 import { useNavigate } from 'react-router';
 import { useUserModalsStore, useUserModalsDispatch, UserModalsActionsEnum } from '../../../context';

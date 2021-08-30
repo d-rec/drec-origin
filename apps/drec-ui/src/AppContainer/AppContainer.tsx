@@ -1,11 +1,10 @@
-import React from 'react';
 import App from '../main/App';
 import { DrecGlobalStyles } from '../main';
 import { useAppContainerEffects } from './AppContainer.effects';
-import { NotificationsCenter } from '../core';
+import { NotificationsCenter } from '../components';
 
 export const AppContainer = () => {
-    const { topbarButtons, menuSections, user, organization, isAuthenticated } =
+    const { topbarButtons, menuSections, user, isAuthenticated, routesConfig } =
         useAppContainerEffects();
 
     return (
@@ -15,9 +14,9 @@ export const AppContainer = () => {
             <App
                 menuSections={menuSections}
                 user={user}
-                organization={organization}
                 isAuthenticated={isAuthenticated}
                 topbarButtons={topbarButtons}
+                routesConfig={routesConfig}
             />
         </>
     );

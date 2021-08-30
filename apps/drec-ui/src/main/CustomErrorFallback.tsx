@@ -1,4 +1,4 @@
-import { ErrorFallback } from '../core';
+import { ErrorFallback } from '@energyweb/origin-ui-core';
 import { Box, Button } from '@material-ui/core';
 import React, { FC } from 'react';
 

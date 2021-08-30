@@ -1,4 +1,4 @@
-import { GenericModal } from '../../../../core';
+import { GenericModal } from '@energyweb/origin-ui-core';
 import { HowToReg } from '@material-ui/icons';
 import React from 'react';
 import { useUserRegisteredEffects } from './UserRegistered.effects';

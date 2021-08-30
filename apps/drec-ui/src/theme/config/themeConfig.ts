@@ -1,14 +1,14 @@
 import { createMuiTheme, Theme, ThemeOptions } from '@material-ui/core/styles';
+import { enUS } from '@material-ui/core/locale';
 import { LightenColor } from '../utils/colors';
-import { variables } from './variables';
-import { enUS, plPL } from '@material-ui/core/locale';
 import { IDrecStyleConfig } from '../utils/makeDrecUiConfig';
+import { variables } from './variables';
 
 const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
     palette: {
         primary: {
             main: styleConfig.PRIMARY_COLOR,
-            contrastText: styleConfig.SIMPLE_TEXT_COLOR
+            contrastText: '#000'
         },
         background: {
             paper: styleConfig.MAIN_BACKGROUND_COLOR,
@@ -174,7 +174,6 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
 const createMaterialThemeForDrec = (styleConfig: IDrecStyleConfig, language: 'en'): Theme => {
     const materialLocale =
         {
-            pl: plPL,
             en: enUS
         }[language] ?? enUS;
 

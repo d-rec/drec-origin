@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 
-import { useStyles } from './LoginPage.styles';
-import { Box, Button, Paper, Typography } from '@material-ui/core';
-import { GenericForm } from '../../core';
+import { Paper } from '@material-ui/core';
+import { GenericForm } from '@energyweb/origin-ui-core';
 import { useLogInPageEffects } from './LoginPage.effects';
+import { useStyles } from './LoginPage.styles';
 import { DrecLogo, DrecBackground } from '../../assets';
 
 export const LoginPage: FC = () => {

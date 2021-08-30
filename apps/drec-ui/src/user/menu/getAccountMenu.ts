@@ -1,25 +1,19 @@
-import { TMenuSection } from '../../core';
+import { TMenuSection } from '@energyweb/origin-ui-core';
 
-interface IAccountMenuFnArgs {
+export type TGetAccountMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
-    showSettings: boolean;
     showUserProfile: boolean;
-}
+};
 
-type TGetAccountMenuFn = (args?: IAccountMenuFnArgs) => TMenuSection;
+type TGetAccountMenuFn = (args?: TGetAccountMenuArgs) => TMenuSection;
 
-export const getAccountMenu: TGetAccountMenuFn = ({ isOpen, showSettings, showUserProfile }) => ({
+export const getAccountMenu: TGetAccountMenuFn = ({ isOpen, showUserProfile }) => ({
     isOpen,
-    sectionTitle: showUserProfile ? 'Account' : 'Settings',
+    sectionTitle: 'Account',
     rootUrl: 'account',
-    show: true,
+    show: showUserProfile,
     menuList: [
-        {
-            url: 'settings',
-            label: 'Settings',
-            show: showSettings
-        },
         {
             url: 'profile',
             label: 'User profile',

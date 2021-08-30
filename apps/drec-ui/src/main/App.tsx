@@ -1,43 +1,45 @@
-import React, { FC, memo } from 'react';
-import { MainLayout, PageNotFound, TMenuSection, TopBarButtonData } from '../core';
+import { FC, memo } from 'react';
+import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { LoginApp } from '../LoginApp';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { UserDTO, OrganizationDTO } from '@energyweb/origin-drec-api-client';
+import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
-import { DashboardPage } from 'pages';
+import { DrecLogo } from 'assets';
+import { AccountApp } from '../AccountApp';
+import { RoutesConfig } from '../AppContainer';
+import { PageNotFound } from '../pages/PageNotFound';
 
 export interface AppProps {
     isAuthenticated: boolean;
     topbarButtons: TopBarButtonData[];
     user: UserDTO;
-    organization: OrganizationDTO;
     menuSections: TMenuSection[];
+    routesConfig: RoutesConfig;
 }
 
 const App: FC<AppProps> = memo(
-    ({ isAuthenticated, user, organization, menuSections, topbarButtons }) => {
-        const { orgData, userData } = useUserAndOrgData(user, organization);
+    ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
+        const { orgData, userData } = useUserAndOrgData(user);
+        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
 
         return (
             <Routes>
                 <Route
                     path="/"
                     element={
-                        isAuthenticated ? (
-                            <MainLayout
-                                isAuthenticated={isAuthenticated}
-                                topbarButtons={topbarButtons}
-                                menuSections={menuSections}
-                                userData={userData}
-                                orgData={orgData}
-                            />
-                        ) : (
-                            <Navigate to="/login" />
-                        )
+                        <MainLayout
+                            isAuthenticated={isAuthenticated}
+                            topbarButtons={topbarButtons}
+                            menuSections={menuSections}
+                            userData={userData}
+                            orgData={orgData}
+                            icon={<DrecLogo />}
+                            iconWrapperProps={{ my: 5, px: 2 }}
+                        />
                     }
                 >
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route element={<Navigate to="dashboard" />} />
+                    <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
+                    <Route element={<Navigate to="account/profile" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
                 <Route path="*" element={<PageNotFound />} />

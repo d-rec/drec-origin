@@ -7,7 +7,9 @@ export const DrecThemeProvider: FC = ({ children }) => {
     const configuration = makeDrecUiConfig();
     return (
         <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={configuration.materialTheme}>{children}</ThemeProvider>
+            <ThemeProvider theme={configuration.materialTheme}>
+                {children}
+            </ThemeProvider>
         </StyledEngineProvider>
     );
 };

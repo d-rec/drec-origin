@@ -1,4 +1,4 @@
-import { TopBarButtonData } from '../../../core';
+import { TopBarButtonData } from '@energyweb/origin-ui-core';
 import { useNavigate } from 'react-router';
 import { HowToReg, AccountCircle, ExitToApp } from '@material-ui/icons';
 
@@ -27,7 +27,7 @@ export const useTopbarButtonList = (
         },
         {
             label: 'Logout',
-            show: isAuthenticated,
+            show: !!isAuthenticated,
             onClick: onLogout,
             Icon: ExitToApp
         }
