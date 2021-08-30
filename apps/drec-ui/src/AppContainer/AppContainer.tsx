@@ -1,7 +1,7 @@
 import App from '../main/App';
 import { DrecGlobalStyles } from '../main';
 import { useAppContainerEffects } from './AppContainer.effects';
-import { NotificationsCenter } from '@energyweb/origin-ui-core';
+import { NotificationsCenter } from '../components';
 
 export const AppContainer = () => {
     const { topbarButtons, menuSections, user, isAuthenticated, routesConfig } =

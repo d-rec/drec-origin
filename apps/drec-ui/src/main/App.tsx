@@ -1,10 +1,5 @@
 import { FC, memo } from 'react';
-import {
-    MainLayout,
-    PageNotFound,
-    TMenuSection,
-    TopBarButtonData
-} from '@energyweb/origin-ui-core';
+import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { LoginApp } from '../LoginApp';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
@@ -13,6 +8,7 @@ import { DashboardPage } from 'pages';
 import { DrecLogo } from 'assets';
 import { AccountApp } from '../AccountApp';
 import { RoutesConfig } from '../AppContainer';
+import { PageNotFound } from '../pages/PageNotFound';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -44,8 +40,8 @@ const App: FC<AppProps> = memo(
                     }
                 >
                     <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route element={<Navigate to="dashboard" />} />
+                    {/* <Route path="dashboard" element={<DashboardPage />} /> */}
+                    <Route element={<Navigate to="account/profile" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
                 <Route path="*" element={<PageNotFound />} />
