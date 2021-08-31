@@ -1,7 +1,7 @@
-import { PageNotFound } from '@energyweb/origin-ui-core';
 import React, { FC } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AllDevicesPage } from '../device';
+import { PageNotFound } from '../pages';
 
 export interface DeviceAppProps {
     routesConfig: {

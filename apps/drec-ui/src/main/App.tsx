@@ -7,7 +7,7 @@ import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
 import { AccountApp } from './AccountApp';
 import { RoutesConfig } from '../AppContainer';
-import { PageNotFound } from '../pages/PageNotFound';
+import { PageNotFound } from '../pages';
 import { DeviceApp } from './DeviceApp';
 
 export interface AppProps {

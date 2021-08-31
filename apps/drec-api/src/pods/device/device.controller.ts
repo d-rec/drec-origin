@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { plainToClass } from 'class-transformer';
 
 import { DeviceDTO } from './dto/device.dto';
 import { DeviceService } from './device.service';
@@ -29,6 +30,7 @@ import { RolesGuard } from '../../guards/RolesGuard';
 import { UpdateOrganizationDTO } from '../organization/dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+import { CodeNameDTO } from './dto/code-name';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -43,6 +45,31 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
   ): Promise<DeviceDTO[]> {
     return this.deviceService.find(filterDto);
+  }
+
+  @Get('/device-type')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: 'Returns all IREC device types',
+  })
+  getDeviceTypes(): CodeNameDTO[] {
+    const deviceTypes = this.deviceService.getDeviceTypes();
+
+    return deviceTypes.map((deviceType) =>
+      plainToClass(CodeNameDTO, deviceType),
+    );
+  }
+
+  @Get('/fuel-type')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: 'Returns all IREC fuel types',
+  })
+  getFuelTypes(): CodeNameDTO[] {
+    const fuelTypes = this.deviceService.getFuelTypes();
+    return fuelTypes.map((fuelType) => plainToClass(CodeNameDTO, fuelType));
   }
 
   @Get('/:id')

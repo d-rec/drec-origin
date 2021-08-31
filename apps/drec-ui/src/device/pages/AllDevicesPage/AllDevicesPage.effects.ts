@@ -1,9 +1,10 @@
-import { useApiAllDevices } from '../../../api';
+import { useApiAllDevices, useAllDeviceFuelTypes } from '../../../api';
 
 export const useAllDevicesPageEffects = () => {
     const { allDevices, isLoading: isAllDevicesLoading } = useApiAllDevices();
+    const { allTypes: allDeviceTypes, isLoading: allTypesLoading } = useAllDeviceFuelTypes();
 
-    const isLoading = isAllDevicesLoading;
+    const isLoading = isAllDevicesLoading || allTypesLoading;
 
-    return { allDevices, isLoading };
+    return { allDevices, allDeviceTypes, isLoading };
 };
