@@ -8,12 +8,9 @@ export const useStyles = makeStyles((theme) => ({
     icon: {
         width: 80,
         padding: 50,
-        fill: theme.palette.primary.main,
-        '&:hover': {
-            color: 'red !important'
-        }
+        fill: theme.palette.primary.main
     },
-    imageWrapper: {
-        color: '#fff !important'
+    overlayText: {
+        color: '#fff'
     }
 }));

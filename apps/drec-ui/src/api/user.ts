@@ -88,7 +88,7 @@ export const useUser = (options?: UseQueryOptions<AxiosResponse<UserDTO>, Error>
     });
 
     const logout = () => clearUser();
-    const isAuthenticated = user && isSuccess;
+    const isAuthenticated = !!(user && isSuccess);
 
     return {
         user,
