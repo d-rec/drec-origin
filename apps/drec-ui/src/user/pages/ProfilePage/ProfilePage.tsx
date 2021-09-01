@@ -1,6 +1,6 @@
 import React from 'react';
 import { CircularProgress, Paper, Box } from '@material-ui/core';
-import { UpdateUserData, UpdateUserEmail, UpdateUserPassword } from '../../user';
+import { UpdateUserData, UpdateUserEmail, UpdateUserPassword } from '../..';
 import { useStyles } from './ProfilePage.styles';
 import { useProfilePageEffects } from './ProfilePage.effects';
 

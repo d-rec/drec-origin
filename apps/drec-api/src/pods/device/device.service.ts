@@ -17,6 +17,8 @@ import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
 import { IDevice } from '../../models';
+import { CodeNameDTO } from './dto/code-name';
+import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
 
 @Injectable()
 export class DeviceService {
@@ -95,6 +97,22 @@ export class DeviceService {
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
     return await this.repository.save(currentDevice);
+  }
+
+  getDeviceTypes(): CodeNameDTO[] {
+    return IREC_DEVICE_TYPES;
+  }
+
+  getFuelTypes(): CodeNameDTO[] {
+    return IREC_FUEL_TYPES;
+  }
+
+  isValidDeviceType(deviceType: string): boolean {
+    return !!this.getDeviceTypes().find((device) => device.code === deviceType);
+  }
+
+  isValidFuelType(fuelType: string): boolean {
+    return !!this.getFuelTypes().find((fuel) => fuel.code === fuelType);
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {

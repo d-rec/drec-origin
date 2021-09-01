@@ -55,7 +55,7 @@
         "react-beautiful-dnd": "13.1.0",
         "@energyweb/origin-ui-utils": "0.0.2-beta.0",
         "@energyweb/origin-ui-assets": "0.0.1-alpha.0",
-        "@energyweb/origin-ui-core": "2.0.0-alpha.3"
+        "@energyweb/origin-ui-core": "2.0.0-alpha.5"
     },
     "devDependencies": {
         "@storybook/addon-actions": "^6.2.9",

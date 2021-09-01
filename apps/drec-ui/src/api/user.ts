@@ -3,11 +3,11 @@ import {
     getUserControllerMeQueryKey,
     useAuthControllerLogin,
     useUserControllerMe,
-    LoginDataDTO,
     useUserControllerReSendEmailConfirmation,
     useUserControllerUpdateOwnPassword,
     useUserControllerUpdateOwnProfile,
     UserStatus,
+    LoginDataDTO,
     UpdateUserProfileDTO,
     UserDTO
 } from '@energyweb/origin-drec-api-client';
@@ -88,7 +88,7 @@ export const useUser = (options?: UseQueryOptions<AxiosResponse<UserDTO>, Error>
     });
 
     const logout = () => clearUser();
-    const isAuthenticated = user && isSuccess;
+    const isAuthenticated = !!(user && isSuccess);
 
     return {
         user,
@@ -133,10 +133,11 @@ export const useApiUpdateUserAccountPassword = () => {
         const user: UserDTO = queryClient.getQueryData(userQueryKey);
         const { status } = user;
         if (status !== UserStatus.Active) {
-            return showNotification(
+            showNotification(
                 `Only active users can perform this action. Your status is ${user.status}`,
                 NotificationTypeEnum.Error
             );
+            return;
         }
         mutate(
             { data: values },
@@ -181,10 +182,11 @@ export const useApiUpdateUserAccountEmail = () => {
         const restUserProps = { firstName, lastName, telephone };
 
         if (status !== UserStatus.Active) {
-            return showNotification(
+            showNotification(
                 `Only active users can perform this action. Your status is ${user.status}`,
                 NotificationTypeEnum.Error
             );
+            return;
         }
 
         return mutate(
@@ -229,10 +231,11 @@ export const useApiUpdateUserAccountData = () => {
         const { email, status } = user;
 
         if (status !== UserStatus.Active) {
-            return showNotification(
+            showNotification(
                 `Only active users can perform this action. Your status is ${user.status}`,
                 NotificationTypeEnum.Error
             );
+            return;
         }
 
         mutate(
@@ -249,8 +252,8 @@ export const useApiUpdateUserAccountData = () => {
                 onError: (error: any) => {
                     showNotification(
                         `Error while updating user information:
-              ${error?.response?.data?.message || ''}
-              `,
+                            ${error?.response?.data?.message || ''}
+                            `,
                         NotificationTypeEnum.Error
                     );
                 }

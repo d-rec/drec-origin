@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { plainToClass } from 'class-transformer';
 
 import { DeviceDTO } from './dto/device.dto';
 import { DeviceService } from './device.service';
@@ -29,12 +30,12 @@ import { RolesGuard } from '../../guards/RolesGuard';
 import { UpdateOrganizationDTO } from '../organization/dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+import { CodeNameDTO } from './dto/code-name';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device')
-@UseGuards(AuthGuard('jwt'))
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
@@ -46,7 +47,33 @@ export class DeviceController {
     return this.deviceService.find(filterDto);
   }
 
+  @Get('/device-type')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: 'Returns all IREC device types',
+  })
+  getDeviceTypes(): CodeNameDTO[] {
+    const deviceTypes = this.deviceService.getDeviceTypes();
+
+    return deviceTypes.map((deviceType) =>
+      plainToClass(CodeNameDTO, deviceType),
+    );
+  }
+
+  @Get('/fuel-type')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: 'Returns all IREC fuel types',
+  })
+  getFuelTypes(): CodeNameDTO[] {
+    const fuelTypes = this.deviceService.getFuelTypes();
+    return fuelTypes.map((fuelType) => plainToClass(CodeNameDTO, fuelType));
+  }
+
   @Get('/:id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -56,7 +83,7 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -71,7 +98,7 @@ export class DeviceController {
   }
 
   @Patch('/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
