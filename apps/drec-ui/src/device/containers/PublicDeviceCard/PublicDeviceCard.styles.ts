@@ -12,5 +12,8 @@ export const useStyles = makeStyles((theme) => ({
         '&:hover': {
             color: 'red !important'
         }
+    },
+    imageWrapper: {
+        color: '#fff !important'
     }
 }));

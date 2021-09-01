@@ -23,6 +23,7 @@ export const PublicDeviceCard: FC<PublicDeviceCardProps> = ({ device, allDeviceT
             {...cardProps}
             fallbackIconProps={{ className: classes.icon }}
             cardProps={{ className: classes.card }}
+            overlayTextProps={{ className: classes.imageWrapper }}
             content={
                 <PublicDeviceCardContent
                     id={device.id}

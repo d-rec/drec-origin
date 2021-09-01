@@ -20,7 +20,7 @@ export const UpdateUserData: FC<UpdateUserDataProps> = memo(({ userAccountData }
             {userAccountData.email && !userAccountData.emailConfirmed && (
                 <UserResendConfirmationEmail />
             )}
-            <GenericForm {...formProps}></GenericForm>
+            <GenericForm {...formProps} />
         </>
     );
 });

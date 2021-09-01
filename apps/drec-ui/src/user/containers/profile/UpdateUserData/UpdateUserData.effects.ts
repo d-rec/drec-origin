@@ -11,6 +11,20 @@ export type TUpdateUserDataFormValues = {
 };
 
 export const useUpdateUserDataEffects = (user: UserDTO) => {
+    const formConfig = useUpdateUserAccountDataFormConfig(user);
+    const { submitHandler } = useApiUpdateUserAccountData();
+
+    const formProps = {
+        ...formConfig,
+        submitHandler
+    };
+
+    return { formProps };
+};
+
+const useUpdateUserAccountDataFormConfig = (
+    user: UserDTO
+): Omit<GenericFormProps<TUpdateUserDataFormValues>, 'submitHandler'> => {
     const { firstName, lastName, telephone, status } = user;
     const initialFormData: TUpdateUserDataFormValues = {
         firstName,
@@ -18,7 +32,7 @@ export const useUpdateUserDataEffects = (user: UserDTO) => {
         telephone,
         status
     };
-    const formConfig: Omit<GenericFormProps<TUpdateUserDataFormValues>, 'submitHandler'> = {
+    return {
         buttonText: 'Edit',
         fields: [
             {
@@ -52,12 +66,4 @@ export const useUpdateUserDataEffects = (user: UserDTO) => {
             telephone: Yup.string().min(10).label('Telephone').required()
         })
     };
-    const { submitHandler } = useApiUpdateUserAccountData();
-
-    const formProps = {
-        ...formConfig,
-        submitHandler
-    };
-
-    return { formProps };
 };
