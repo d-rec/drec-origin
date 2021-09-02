@@ -40,12 +40,12 @@ const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(Role.Admin, Role.DeviceOwner)
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileUploadDto })
   @UseInterceptors(
@@ -80,6 +80,7 @@ export class FileController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     type: FileDto,
@@ -104,5 +105,66 @@ export class FileController {
       .json({
         data: file.data,
       });
+  }
+
+  @Get('/public/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: FileDto,
+    description: 'Download a file anonymously',
+  })
+  @ApiNotFoundResponse({ description: `The file doesn't exist` })
+  async downloadAnonymously(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const file = await this.fileService.get(id);
+    if (!file) {
+      throw new NotFoundException();
+    }
+
+    res
+      .set({
+        'Content-Type': file.contentType,
+        'Content-Length': file.data.length,
+      })
+      .json({
+        data: file.data,
+      });
+  }
+
+  @Post('/public')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileUploadDto })
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
+      storage: multer.memoryStorage(),
+      fileFilter: (req: Request, file, callback) => {
+        if (!FILE_SUPPORTED_MIMETYPES.includes(file.mimetype)) {
+          callback(new Error('Unsupported file type'), false);
+        }
+
+        callback(null, true);
+      },
+      limits: {
+        files: maxFilesLimit,
+        fileSize: maxFileSize,
+      },
+    }),
+  )
+  @UseGuards(AuthGuard('jwt'))
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: [String],
+    description: 'Upload a file',
+  })
+  async uploadAnonymously(
+    @UserDecorator() user: ILoggedInUser,
+    @UploadedFiles()
+    uploadedFiles: {
+      files: Express.Multer.File[];
+    },
+  ): Promise<string[]> {
+    return this.fileService.store(user, uploadedFiles.files, true);
   }
 }

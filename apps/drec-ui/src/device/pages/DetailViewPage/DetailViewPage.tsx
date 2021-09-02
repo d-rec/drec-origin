@@ -22,7 +22,7 @@ export const DetailViewPage: FC = () => {
 
             <DetailViewCard {...cardProps} />
 
-            {device.labels && <Typography my={5}>{device.labels}</Typography>}
+            {device.impactStory && <Typography my={5}>{device.impactStory}</Typography>}
         </div>
     );
 };

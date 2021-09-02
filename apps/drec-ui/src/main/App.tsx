@@ -22,8 +22,6 @@ const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
         const { orgData, userData } = useUserAndOrgData(user);
         const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
-        console.log('1 process.env.REACT_APP_BACKEND_URL: ', process.env.REACT_APP_BACKEND_URL);
-        console.log('2 process.env.GOOGLE_MAPS_API_KEY: ', process.env.GOOGLE_MAPS_API_KEY);
         return (
             <Routes>
                 <Route
@@ -46,7 +44,7 @@ const App: FC<AppProps> = memo(
                             <DeviceApp
                                 routesConfig={deviceRoutes}
                                 envVariables={{
-                                    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+                                    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
                                 }}
                             />
                         }

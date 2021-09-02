@@ -6,7 +6,8 @@ import { getMainFuelType, getEnergyTypeImage, getDeviceAgeInYears } from '../../
 export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
     device,
     allTypes,
-    clickHandler
+    clickHandler,
+    imageUrl
 }) => {
     const specsData: SpecFieldProps[] = [
         {
@@ -34,7 +35,7 @@ export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
     const cardProps: Omit<CardWithImageProps, 'content'> = {
         heading: device.projectName,
         hoverText: 'View details'.toUpperCase(),
-        imageUrl: '',
+        imageUrl,
         fallbackIcon: deviceIcon,
         onActionClick: () => clickHandler(detailViewLink)
     };

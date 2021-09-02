@@ -64,16 +64,36 @@ export const useDeviceDetailViewLogic: TUseDeviceDetailViewLogic = ({
                 value: device?.address
             },
             {
-                label: 'Sector',
-                value: device?.sector
+                label: 'Zip Code',
+                value: device?.zipCode
             },
             {
-                label: 'Capacity',
+                label: 'Installation',
+                value: device?.installationConfiguration
+            },
+            {
+                label: 'Capacity (MW)',
                 value: PowerFormatter.format(device?.capacity)
             },
             {
                 label: 'Age (Years)',
                 value: getDeviceAgeInYears(device?.commissioningDate)
+            },
+            {
+                label: 'Off Taker',
+                value: device?.offTaker
+            },
+            {
+                label: 'Sector',
+                value: device?.sector
+            },
+            {
+                label: 'Standard Compliance',
+                value: device?.standardCompliance
+            },
+            {
+                label: 'Labels',
+                value: device?.labels
             }
         ]
     };

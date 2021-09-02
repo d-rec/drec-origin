@@ -101,7 +101,7 @@ export class DeviceController {
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UpdateOrganizationDTO,
+    type: UpdateDeviceDTO,
     description: 'Returns an updated Device',
   })
   @ApiNotFoundResponse({ description: `No device found` })

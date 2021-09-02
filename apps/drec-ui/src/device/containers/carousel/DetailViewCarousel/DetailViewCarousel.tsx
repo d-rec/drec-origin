@@ -1,4 +1,3 @@
-import { BlockTintedBottom, ImagesCarousel } from '@energyweb/origin-ui-core';
 import { DeviceDTO, CodeNameDTO } from '@energyweb/origin-drec-api-client';
 import React, { FC } from 'react';
 import { CarouselModeEnum } from '../CarouselControls';
@@ -16,37 +15,25 @@ export const DetailViewCarousel: FC<DetailViewCarouselProps> = ({ device, allFue
     const { carouselMode, handleModeChange } = useDetailViewCarouselEffects();
     const classes = useStyles();
     return (
-        <ImagesCarousel
-            carouselProps={{
-                interval: 10000,
-                navButtonsAlwaysInvisible: true,
-                indicatorContainerProps: {
-                    className: classes.indicatorContainer,
-                    style: {}
-                }
-            }}
-        >
-            <BlockTintedBottom height={carouselMode === CarouselModeEnum.Map ? 70 : undefined}>
-                {carouselMode === CarouselModeEnum.Photo ? (
-                    <DeviceImagesCarousel
-                        projectName={device.projectName}
-                        images={device.images}
-                        fuelCode={device.fuelCode}
-                        allFuelTypes={allFuelTypes}
-                        carouselMode={carouselMode}
-                        handleModeChange={handleModeChange}
-                        itemProps={{ className: classes.item }}
-                    />
-                ) : (
-                    <DeviceMapCarousel
-                        device={device}
-                        carouselMode={carouselMode}
-                        handleModeChange={handleModeChange}
-                        mapContainerClassName={classes.mapContainer}
-                        itemProps={{ className: classes.item }}
-                    />
-                )}
-            </BlockTintedBottom>
-        </ImagesCarousel>
+        <>
+            {carouselMode === CarouselModeEnum.Photo ? (
+                <DeviceImagesCarousel
+                    projectName={device.projectName}
+                    images={device.images}
+                    fuelCode={device.fuelCode}
+                    allFuelTypes={allFuelTypes}
+                    carouselMode={carouselMode}
+                    handleModeChange={handleModeChange}
+                    itemProps={{ className: classes.item }}
+                />
+            ) : (
+                <DeviceMapCarousel
+                    device={device}
+                    carouselMode={carouselMode}
+                    handleModeChange={handleModeChange}
+                    itemProps={{ className: classes.item }}
+                />
+            )}
+        </>
     );
 };
