@@ -73,7 +73,6 @@ export class DeviceController {
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'))
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,

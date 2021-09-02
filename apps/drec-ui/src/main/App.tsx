@@ -5,10 +5,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
-import { AccountApp } from './AccountApp';
+import { AccountApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
 import { PageNotFound } from '../pages';
-import { DeviceApp } from './DeviceApp';
+import { DeviceApp } from '../device';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -22,7 +22,8 @@ const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
         const { orgData, userData } = useUserAndOrgData(user);
         const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
-
+        console.log('1 process.env.REACT_APP_BACKEND_URL: ', process.env.REACT_APP_BACKEND_URL);
+        console.log('2 process.env.GOOGLE_MAPS_API_KEY: ', process.env.GOOGLE_MAPS_API_KEY);
         return (
             <Routes>
                 <Route
@@ -39,7 +40,17 @@ const App: FC<AppProps> = memo(
                         />
                     }
                 >
-                    <Route path="device/*" element={<DeviceApp routesConfig={deviceRoutes} />} />
+                    <Route
+                        path="device/*"
+                        element={
+                            <DeviceApp
+                                routesConfig={deviceRoutes}
+                                envVariables={{
+                                    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+                                }}
+                            />
+                        }
+                    />
                     <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
                     <Route element={<Navigate to="device/all" />} />
                 </Route>

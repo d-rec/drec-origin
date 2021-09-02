@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Route, Routes } from 'react-router';
-import { ProfilePage } from '../user';
+import { ProfilePage } from './pages';
 import { PageNotFound } from '../pages';
 
 interface AccountAppProps {

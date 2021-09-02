@@ -26,11 +26,6 @@ export const getDeviceMenu: TGetDeviceMenu = ({
             show: showAllDevices ?? true
         },
         {
-            url: 'map',
-            label: 'Map View',
-            show: showMapView ?? true
-        },
-        {
             url: 'my',
             label: 'My Devices',
             show: showMyDevices

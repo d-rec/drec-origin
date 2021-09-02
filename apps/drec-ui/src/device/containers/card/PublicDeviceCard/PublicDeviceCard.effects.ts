@@ -1,5 +1,5 @@
 import { DeviceDTO, CodeNameDTO } from '@energyweb/origin-drec-api-client';
-import { useSpecsForAllDeviceCard } from '../../logic';
+import { useSpecsForAllDeviceCard } from '../../../logic';
 import { useNavigate } from 'react-router';
 
 type TUsePublicDeviceCardEffectsArgs = {

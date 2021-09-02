@@ -1,4 +1,6 @@
 import {
+    DeviceDTO,
+    useDeviceControllerGet,
     useDeviceControllerGetAll,
     useDeviceControllerGetFuelTypes
 } from '@energyweb/origin-drec-api-client';
@@ -17,4 +19,13 @@ export const useAllDeviceFuelTypes = () => {
     });
 
     return { allTypes, isLoading };
+};
+
+export const useDeviceDetailData = (id: DeviceDTO['id']) => {
+    const { data, isLoading: isDeviceLoading } = useDeviceControllerGet(id);
+    const isLoading = isDeviceLoading;
+
+    const device = !isLoading && data;
+
+    return { device, isLoading };
 };
