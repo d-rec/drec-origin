@@ -2,6 +2,7 @@ import { CardWithImageProps, IconTextProps, SpecFieldProps } from '@energyweb/or
 import { EnergyTypeEnum, PowerFormatter } from '@energyweb/origin-ui-utils';
 import { TUseSpecsForAllDeviceCard } from './types';
 import { getMainFuelType, getEnergyTypeImage, getDeviceAgeInYears } from '../../utils';
+import { GermanyFlag } from '../../../assets';
 
 export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
     device,
@@ -27,6 +28,10 @@ export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
             icon: deviceIcon,
             title: mainType,
             subtitle: restType
+        },
+        {
+            icon: GermanyFlag,
+            title: `${device.countryCode}`
         }
     ];
 

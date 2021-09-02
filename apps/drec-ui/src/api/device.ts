@@ -2,7 +2,8 @@ import {
     DeviceDTO,
     useDeviceControllerGet,
     useDeviceControllerGetAll,
-    useDeviceControllerGetFuelTypes
+    useDeviceControllerGetFuelTypes,
+    useDeviceControllerGetMyDevices
 } from '@energyweb/origin-drec-api-client';
 import { publicFileDownloadHandler } from './file';
 import { useEffect, useState } from 'react';
@@ -81,4 +82,12 @@ export const useDeviceImageUrls = (imageIds: DeviceDTO['images']) => {
     }, [imageIds]);
 
     return imageUrls;
+};
+
+export const useApiMyDevices = () => {
+    const { data: myDevices, isLoading: isDevicesLoading } = useDeviceControllerGetMyDevices();
+
+    const isLoading = isDevicesLoading;
+
+    return { isLoading, myDevices };
 };

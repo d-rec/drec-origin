@@ -39,6 +39,14 @@ export class DeviceService {
     return this.repository.find(options);
   }
 
+  async getOrganizationDevices(organizationId: number): Promise<Device[]> {
+    const devices = await this.repository.find({
+      where: { organizationId },
+    });
+
+    return devices;
+  }
+
   public async findForGroup(groupId: number): Promise<Device[]> {
     return this.repository.find({ groupId });
   }

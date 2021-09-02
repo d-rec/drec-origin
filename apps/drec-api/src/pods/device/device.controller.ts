@@ -27,10 +27,10 @@ import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
-import { UpdateOrganizationDTO } from '../organization/dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
+import { ActiveUserGuard } from '../../guards';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -70,6 +70,20 @@ export class DeviceController {
   getFuelTypes(): CodeNameDTO[] {
     const fuelTypes = this.deviceService.getFuelTypes();
     return fuelTypes.map((fuelType) => plainToClass(CodeNameDTO, fuelType));
+  }
+
+  @Get('/my')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.OrganizationUser)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceDTO],
+    description: 'Returns my Devices',
+  })
+  async getMyDevices(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<DeviceDTO[]> {
+    return await this.deviceService.getOrganizationDevices(organizationId);
   }
 
   @Get('/:id')
