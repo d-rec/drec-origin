@@ -102,9 +102,7 @@ export class FileController {
         'Content-Type': file.contentType,
         'Content-Length': file.data.length,
       })
-      .send({
-        data: file.data,
-      });
+      .send(file.data);
   }
 
   @Get('/public/:id')
@@ -128,9 +126,7 @@ export class FileController {
         'Content-Type': file.contentType,
         'Content-Length': file.data.length,
       })
-      .send({
-        data: file.data,
-      });
+      .send(file.data);
   }
 
   @Post('/public')
