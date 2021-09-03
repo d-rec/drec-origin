@@ -16,7 +16,6 @@ type TUseSmartMeterReadsArgs = {
 };
 
 export const useSmartMeterReads = ({ meterId, start, end, window }: TUseSmartMeterReadsArgs) => {
-    console.log('Start: ', dayjs(start).toDate(), dayjs(start).toISOString());
     const { data, isLoading } = useReadsControllerGetReadsAggregates(meterId.toString(), {
         start: dayjs(start).toISOString(),
         end: dayjs(end).toISOString(),
