@@ -3,7 +3,6 @@ import { Grid } from '@material-ui/core';
 
 import { DeviceDTO, CodeNameDTO } from '@energyweb/origin-drec-api-client';
 
-// import { RequestCertificateForm } from '../../form';
 import { MyDeviceCard } from '../MyDeviceCard';
 
 import { useMyDeviceCardsListEffects } from './MyDeviceCardsList.effects';

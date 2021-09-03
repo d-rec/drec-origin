@@ -13,7 +13,8 @@ export const usePublicDeviceCardEffects = ({
     allDeviceTypes
 }: TUsePublicDeviceCardEffectsArgs) => {
     const navigate = useNavigate();
-    const imageUrl = useDeviceFirstImageUrl(device.images);
+    const imageRequestUrl = device.images.length ? device.images : null;
+    const imageUrl = useDeviceFirstImageUrl(imageRequestUrl);
 
     const viewDetailsClickHandler = (link: string) => navigate(link);
 

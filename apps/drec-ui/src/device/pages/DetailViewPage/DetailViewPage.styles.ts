@@ -3,7 +3,8 @@ import { makeStyles } from '@material-ui/core';
 export const useStyles = makeStyles((theme) => ({
     wrapper: {
         width: '100%',
-        position: 'relative'
+        position: 'relative',
+        minHeight: 580
     },
     images: {
         width: '100%',

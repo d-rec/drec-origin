@@ -25,11 +25,8 @@ export const useAllDeviceFuelTypes = () => {
 };
 
 export const useDeviceDetailData = (id: DeviceDTO['id']) => {
-    const { data, isLoading: isDeviceLoading } = useDeviceControllerGet(id);
+    const { data: device, isLoading: isDeviceLoading } = useDeviceControllerGet(id);
     const isLoading = isDeviceLoading;
-
-    const device = !isLoading && data;
-
     return { device, isLoading };
 };
 
@@ -85,9 +82,6 @@ export const useDeviceImageUrls = (imageIds: DeviceDTO['images']) => {
 };
 
 export const useApiMyDevices = () => {
-    const { data: myDevices, isLoading: isDevicesLoading } = useDeviceControllerGetMyDevices();
-
-    const isLoading = isDevicesLoading;
-
+    const { data: myDevices, isLoading } = useDeviceControllerGetMyDevices();
     return { isLoading, myDevices };
 };
