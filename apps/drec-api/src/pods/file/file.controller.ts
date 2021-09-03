@@ -102,7 +102,7 @@ export class FileController {
         'Content-Type': file.contentType,
         'Content-Length': file.data.length,
       })
-      .json({
+      .send({
         data: file.data,
       });
   }
@@ -128,7 +128,7 @@ export class FileController {
         'Content-Type': file.contentType,
         'Content-Length': file.data.length,
       })
-      .json({
+      .send({
         data: file.data,
       });
   }

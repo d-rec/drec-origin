@@ -30,13 +30,11 @@ export class FileService {
     if (!files || !files?.length) {
       throw new NotAcceptableException('No files added');
     }
-    if (user) {
-      this.logger.debug(
-        `User ${JSON.stringify(user)} requested store for ${
-          files?.length
-        } files`,
-      );
-    }
+    this.logger.debug(
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${
+        files?.length
+      } files`,
+    );
 
     const storedFile: string[] = [];
     await this.connection.transaction(async (entityManager) => {
@@ -45,8 +43,8 @@ export class FileService {
           filename: this.generateUniqueFilename(file.originalname),
           data: file.buffer,
           contentType: file.mimetype,
-          userId: user?.id?.toString(),
-          organizationId: user?.organizationId?.toString(),
+          userId: user.id.toString(),
+          organizationId: user.organizationId.toString(),
           isPublic,
         });
         await entityManager.insert<File>(File, fileToStore);
@@ -54,11 +52,11 @@ export class FileService {
         storedFile.push(fileToStore.id);
       }
     });
-    if (user) {
-      this.logger.debug(
-        `User ${JSON.stringify(user)} has stored ${JSON.stringify(storedFile)}`,
-      );
-    }
+    this.logger.debug(
+      `User ${
+        user ? JSON.stringify(user) : 'Anonymous'
+      } has stored ${JSON.stringify(storedFile)}`,
+    );
 
     return storedFile;
   }
@@ -67,8 +65,10 @@ export class FileService {
     id: string,
     user?: ILoggedInUser,
   ): Promise<File | undefined> {
+    this.logger.debug(
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested file ${id}`,
+    );
     if (user) {
-      this.logger.debug(`User ${JSON.stringify(user)} requested file ${id}`);
       if (user.role === Role.Admin) {
         return this.repository.findOne(id);
       }
