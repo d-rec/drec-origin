@@ -26,14 +26,14 @@ export const getDeviceMenu: TGetDeviceMenu = ({
             show: showAllDevices ?? true
         },
         {
+            url: 'map',
+            label: 'Map',
+            show: showMapView ?? true
+        },
+        {
             url: 'my',
             label: 'My Devices',
             show: showMyDevices
-        },
-        {
-            url: 'register',
-            label: 'Register Device',
-            show: showRegisterDevice
         }
     ];
 
