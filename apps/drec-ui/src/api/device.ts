@@ -45,7 +45,6 @@ export const useDeviceFirstImageUrl = (imageIds: DeviceDTO['images']) => {
 
     useEffect(() => {
         if (imageIds?.length > 0) {
-            console.log('HERE: ', imageIds, imageIds.length);
             getAndSetImage(imageIds[0]);
         }
     }, [imageIds]);
