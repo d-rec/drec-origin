@@ -2,7 +2,12 @@ import React, { FC } from 'react';
 
 import { CircularProgress, Typography } from '@material-ui/core';
 
-import { DetailViewCard, DetailViewCarousel, DeviceLocationData } from '../../containers';
+import {
+    DetailViewCard,
+    DetailViewCarousel,
+    DeviceLocationData,
+    SmartMeterBlock
+} from '../../containers';
 import { useDetailViewPageEffects } from './DetailViewPage.effects';
 import { useStyles } from './DetailViewPage.styles';
 
@@ -23,6 +28,8 @@ export const DetailViewPage: FC = () => {
             <DetailViewCard {...cardProps} />
 
             {device.impactStory && <Typography my={5}>{device.impactStory}</Typography>}
+
+            <SmartMeterBlock device={device} />
         </div>
     );
 };

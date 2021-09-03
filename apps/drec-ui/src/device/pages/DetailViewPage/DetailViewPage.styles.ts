@@ -4,7 +4,7 @@ export const useStyles = makeStyles((theme) => ({
     wrapper: {
         width: '100%',
         position: 'relative',
-        minHeight: 580
+        minHeight: 500
     },
     images: {
         width: '100%',
