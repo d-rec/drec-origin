@@ -25,8 +25,7 @@ export const useAllDeviceFuelTypes = () => {
 };
 
 export const useDeviceDetailData = (id: DeviceDTO['id']) => {
-    const { data: device, isLoading: isDeviceLoading } = useDeviceControllerGet(id);
-    const isLoading = isDeviceLoading;
+    const { data: device, isLoading } = useDeviceControllerGet(id);
     return { device, isLoading };
 };
 
@@ -46,6 +45,7 @@ export const useDeviceFirstImageUrl = (imageIds: DeviceDTO['images']) => {
 
     useEffect(() => {
         if (imageIds?.length > 0) {
+            console.log('HERE: ', imageIds, imageIds.length);
             getAndSetImage(imageIds[0]);
         }
     }, [imageIds]);
