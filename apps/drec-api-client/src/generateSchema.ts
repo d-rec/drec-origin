@@ -16,8 +16,8 @@ export const generateSchema = async () => {
     app.setGlobalPrefix('api');
 
     const options = new DocumentBuilder()
-        .setTitle('Drec Origin API')
-        .setDescription('Swagger documentation for Drec Origin API')
+        .setTitle('D-REC Origin API')
+        .setDescription('Swagger documentation for D-REC Origin API')
         .setVersion('0.1')
         .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'access-token')
         .build();
