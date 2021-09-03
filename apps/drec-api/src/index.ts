@@ -44,8 +44,8 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   }
 
   const options = new DocumentBuilder()
-    .setTitle('DREC Origin API')
-    .setDescription('Swagger documentation for DREC Origin API')
+    .setTitle('D-REC Origin API')
+    .setDescription('Swagger documentation for D-REC Origin API')
     .setVersion('0.1')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

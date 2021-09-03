@@ -3,7 +3,7 @@ import { CircularProgress, Grid } from '@material-ui/core';
 import { useStyles } from './AllDevicesPage.styles';
 import { useAllDevicesPageEffects } from './AllDevicesPage.effects';
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
-import { PublicDeviceCard } from '../../containers';
+import { NoDevicesOwnedCard, PublicDeviceCard } from '../../containers';
 
 export const AllDevicesPage: FC = () => {
     const { allDevices, allDeviceTypes, isLoading } = useAllDevicesPageEffects();
@@ -11,6 +11,10 @@ export const AllDevicesPage: FC = () => {
 
     if (isLoading) {
         return <CircularProgress />;
+    }
+
+    if (allDevices.length === 0) {
+        return <NoDevicesOwnedCard />;
     }
 
     return (

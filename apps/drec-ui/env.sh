@@ -2,6 +2,7 @@
 
 REQUIRED_VARIABLES=(
     REACT_APP_BACKEND_URL
+    REACT_APP_GOOGLE_MAPS_API_KEY
 )
 
 # Recreate config file
@@ -33,6 +34,6 @@ for i in "${REQUIRED_VARIABLES[@]}"
     if [[ $i == $last ]]; then
         echo "$varname=$value " >> ./.env.local
       else
-        echo "$varname=$value," >> ./.env.local
+        echo "$varname=$value" >> ./.env.local
     fi
   done

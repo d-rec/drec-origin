@@ -116,7 +116,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   data: string;
 
-  @Column('simple-array', { nullable: true, default: [] })
+  @Column('simple-array', { nullable: true })
   images: string[];
 
   @Column({ type: 'int', nullable: true })

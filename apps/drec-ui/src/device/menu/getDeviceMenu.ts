@@ -34,11 +34,6 @@ export const getDeviceMenu: TGetDeviceMenu = ({
             url: 'my',
             label: 'My Devices',
             show: showMyDevices
-        },
-        {
-            url: 'register',
-            label: 'Register Device',
-            show: showRegisterDevice
         }
     ];
 

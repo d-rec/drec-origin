@@ -2,11 +2,13 @@ import { CardWithImageProps, IconTextProps, SpecFieldProps } from '@energyweb/or
 import { EnergyTypeEnum, PowerFormatter } from '@energyweb/origin-ui-utils';
 import { TUseSpecsForAllDeviceCard } from './types';
 import { getMainFuelType, getEnergyTypeImage, getDeviceAgeInYears } from '../../utils';
+import { GermanyFlag } from '../../../assets';
 
 export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
     device,
     allTypes,
-    clickHandler
+    clickHandler,
+    imageUrl
 }) => {
     const specsData: SpecFieldProps[] = [
         {
@@ -26,6 +28,10 @@ export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
             icon: deviceIcon,
             title: mainType,
             subtitle: restType
+        },
+        {
+            icon: GermanyFlag,
+            title: `${device.countryCode}`
         }
     ];
 
@@ -34,7 +40,7 @@ export const useSpecsForAllDeviceCard: TUseSpecsForAllDeviceCard = ({
     const cardProps: Omit<CardWithImageProps, 'content'> = {
         heading: device.projectName,
         hoverText: 'View details'.toUpperCase(),
-        imageUrl: '',
+        imageUrl,
         fallbackIcon: deviceIcon,
         onActionClick: () => clickHandler(detailViewLink)
     };

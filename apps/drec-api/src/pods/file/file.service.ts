@@ -31,7 +31,9 @@ export class FileService {
       throw new NotAcceptableException('No files added');
     }
     this.logger.debug(
-      `User ${JSON.stringify(user)} requested store for ${files?.length} files`,
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${
+        files?.length
+      } files`,
     );
 
     const storedFile: string[] = [];
@@ -42,7 +44,7 @@ export class FileService {
           data: file.buffer,
           contentType: file.mimetype,
           userId: user.id.toString(),
-          organizationId: user.organizationId?.toString(),
+          organizationId: user.organizationId.toString(),
           isPublic,
         });
         await entityManager.insert<File>(File, fileToStore);
@@ -51,23 +53,36 @@ export class FileService {
       }
     });
     this.logger.debug(
-      `User ${JSON.stringify(user)} has stored ${JSON.stringify(storedFile)}`,
+      `User ${
+        user ? JSON.stringify(user) : 'Anonymous'
+      } has stored ${JSON.stringify(storedFile)}`,
     );
 
     return storedFile;
   }
 
-  public async get(id: string, user: ILoggedInUser): Promise<File | undefined> {
-    this.logger.debug(`User ${JSON.stringify(user)} requested file ${id}`);
+  public async get(
+    id: string,
+    user?: ILoggedInUser,
+  ): Promise<File | undefined> {
+    this.logger.debug(
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested file ${id}`,
+    );
+    if (user) {
+      if (user.role === Role.Admin) {
+        return this.repository.findOne(id);
+      }
 
-    if (user.role === Role.Admin) {
-      return this.repository.findOne(id);
+      return this.repository.findOne(id, {
+        where: {
+          userId: user.id.toString(),
+          organizationId: user.organizationId?.toString(),
+        },
+      });
     }
-
     return this.repository.findOne(id, {
       where: {
-        userId: user.id.toString(),
-        organizationId: user.organizationId?.toString(),
+        isPublic: true,
       },
     });
   }
