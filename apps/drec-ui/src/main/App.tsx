@@ -5,7 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
-import { AccountApp } from '../user';
+import { AccountApp, AuthApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
 import { PageNotFound } from '../pages';
 import { DeviceApp } from '../device';
@@ -53,6 +53,10 @@ const App: FC<AppProps> = memo(
                     <Route
                         path="organization/*"
                         element={<OrganizationApp routesConfig={orgRoutes} />}
+                    />
+                    <Route
+                        path="auth/*"
+                        element={<AuthApp routesConfig={{ showRegister: !isAuthenticated }} />}
                     />
                     <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
                     <Route element={<Navigate to="device/all" />} />
