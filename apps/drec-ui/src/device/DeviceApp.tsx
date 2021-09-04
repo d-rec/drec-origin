@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AllDevicesPage, DetailViewPage, MyDevicesPage, MapViewPage } from './pages';
-import { PageNotFound } from '../pages';
+import { PageNotFound } from '../shared';
 import { DeviceAppEnvProvider, DeviceEnvVariables } from './context';
 
 export interface DeviceAppProps {

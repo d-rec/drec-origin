@@ -1,13 +1,12 @@
 import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
-import { LoginApp } from './LoginApp';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
-import { AccountApp, AuthApp } from '../user';
+import { AccountApp, AuthApp, LoginApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
-import { PageNotFound } from '../pages';
+import { PageNotFound } from '../shared';
 import { DeviceApp } from '../device';
 import { OrganizationApp } from '../organization';
 

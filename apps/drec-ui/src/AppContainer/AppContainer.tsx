@@ -1,7 +1,7 @@
 import App from '../main/App';
 import { DrecGlobalStyles } from '../main';
 import { useAppContainerEffects } from './AppContainer.effects';
-import { NotificationsCenter } from '../components';
+import { NotificationsCenter } from '../shared';
 
 export const AppContainer = () => {
     const { topbarButtons, menuSections, user, isAuthenticated, routesConfig } =
