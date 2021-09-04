@@ -142,7 +142,7 @@ export class EmailConfirmationService {
     email: string,
     token: string,
   ): Promise<void> {
-    const url = `${process.env.REACT_APP_BACKEND_URL}/account/confirm-email?token=${token}`;
+    const url = `${process.env.UI_BASE_URL}/account/confirm-email?token=${token}`;
 
     const result = await this.mailService.send({
       to: email,

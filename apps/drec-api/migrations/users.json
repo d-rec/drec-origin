@@ -33,7 +33,6 @@
     "telephone": "111-111-111",
     "email": "admin@mailinator.com",
     "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
-    "organization_name": "Buyer",
     "notifications": true,
     "status": "Active",
     "role": "Admin",
@@ -47,10 +46,22 @@
     "telephone": "111-111-111",
     "email": "jonsnow@mailinator.com",
     "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
-    "organization_name": "Admin",
     "notifications": true,
     "status": "Active",
     "role": "DeviceOwner",
+    "organizationId": 4
+  },
+  {
+    "id": 4,
+    "title": "Mr",
+    "firstName": "Device",
+    "lastName": "Manager",
+    "telephone": "111-111-111",
+    "email": "manager@mailinator.com",
+    "password": "$2a$08$PF9D0yCpgvc8NDaQI42Jx.84idyWaspL8mTnmb40iRk0aUl6raL.q",
+    "notifications": true,
+    "status": "Active",
+    "role": "OrganizationAdmin",
     "organizationId": 4
   }
 ]

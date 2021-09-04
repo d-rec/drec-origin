@@ -16,6 +16,7 @@ import { IFullOrganization, IDevice, IUserSeed } from '../src/models';
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
 import DevicesJSON from './devices.json';
+import { Organization } from '../src/pods/organization/organization.entity';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
@@ -46,7 +47,11 @@ export class Seed9999999999999 implements MigrationInterface {
     }
 
     await Promise.all(
-      (UsersJSON as unknown as IUserSeed[]).map((user) =>
+      (UsersJSON as unknown as IUserSeed[]).map(async (user) => {
+        const userOrganizations: IFullOrganization[] = await queryRunner.query(
+          `SELECT id FROM "organization" WHERE "signatoryEmail" = '${user.email}'`,
+        );
+        console.log('User organization: ', userOrganizations);
         queryRunner.query(
           `INSERT INTO public.user (
             "title", 
@@ -69,10 +74,10 @@ export class Seed9999999999999 implements MigrationInterface {
               '${user.notifications}', 
               '${user.status}', 
               '${user.role}', 
-              '${user.organizationId}'
+              '${userOrganizations[0].id}'
             )`,
-        ),
-      ),
+        );
+      }),
     );
   }
 

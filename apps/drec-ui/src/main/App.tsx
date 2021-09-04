@@ -9,6 +9,7 @@ import { AccountApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
 import { PageNotFound } from '../pages';
 import { DeviceApp } from '../device';
+import { OrganizationApp } from '../organization';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -48,6 +49,10 @@ const App: FC<AppProps> = memo(
                                 }}
                             />
                         }
+                    />
+                    <Route
+                        path="organization/*"
+                        element={<OrganizationApp routesConfig={orgRoutes} />}
                     />
                     <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
                     <Route element={<Navigate to="device/all" />} />

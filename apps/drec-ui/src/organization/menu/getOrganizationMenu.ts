@@ -46,7 +46,7 @@ export const getOrganizationMenu: TGetOrganizationMenu = ({
         },
         {
             url: 'invite',
-            label: 'invite',
+            label: 'Invite',
             show: showInvite
         },
         {

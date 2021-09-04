@@ -2,8 +2,8 @@
   {
     "id": 1,
     "name": "Device Owner Organization",
-    "address": "Address",
-    "zipCode": "Zip code",
+    "zipCode": "002312",
+    "address": "Somewhere",
     "city": "City",
     "country": "DE",
     "businessType": "Issuer",
@@ -15,13 +15,14 @@
     "signatoryZipCode": "Zip Code",
     "signatoryCity": "City",
     "signatoryCountry": "DE",
-    "signatoryEmail": "issuer@mailinator.com",
+    "signatoryEmail": "owner@mailinator.com",
     "signatoryPhoneNumber": "Phone number"
   },
   {
     "id": 2,
     "name": "Nights Watch",
-    "zipCode": "Zip code",
+    "zipCode": "002312",
+    "address": "Somewhere",
     "city": "City",
     "country": "DE",
     "businessType": "Issuer",
@@ -39,7 +40,8 @@
   {
     "id": 3,
     "name": "Buyer",
-    "zipCode": "Zip code",
+    "zipCode": "002312",
+    "address": "Somewhere",
     "city": "City",
     "country": "DE",
     "businessType": "Issuer",
@@ -57,7 +59,8 @@
   {
     "id": 4,
     "name": "Admin",
-    "zipCode": "Zip code",
+    "zipCode": "002312",
+    "address": "Somewhere",
     "city": "City",
     "country": "DE",
     "businessType": "Issuer",
@@ -70,6 +73,25 @@
     "signatoryCity": "City",
     "signatoryCountry": "DE",
     "signatoryEmail": "admin@mailinator.com",
+    "signatoryPhoneNumber": "81-3-6889-2713"
+  },
+  {
+    "id": 5,
+    "name": "New Organization",
+    "zipCode": "002312",
+    "address": "Somewhere",
+    "city": "City",
+    "country": "DE",
+    "businessType": "Issuer",
+    "tradeRegistryCompanyNumber": "1000",
+    "vatNumber": "DE1000",
+    "status": "Active",
+    "signatoryFullName": "Organization Admin",
+    "signatoryAddress": "Address",
+    "signatoryZipCode": "Zip Code",
+    "signatoryCity": "City",
+    "signatoryCountry": "DE",
+    "signatoryEmail": "manager@mailinator.com",
     "signatoryPhoneNumber": "81-3-6889-2713"
   }
 ]
