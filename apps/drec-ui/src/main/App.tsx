@@ -57,7 +57,18 @@ const App: FC<AppProps> = memo(
                         path="auth/*"
                         element={<AuthApp routesConfig={{ showRegister: !isAuthenticated }} />}
                     />
-                    <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
+                    <Route
+                        path="account/*"
+                        element={
+                            <AccountApp
+                                routesConfig={accountRoutes}
+                                envVariables={{
+                                    registrationMessage:
+                                        process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN
+                                }}
+                            />
+                        }
+                    />
                     <Route element={<Navigate to="device/all" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
