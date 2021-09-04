@@ -51,7 +51,6 @@ export class Seed9999999999999 implements MigrationInterface {
         const userOrganizations: IFullOrganization[] = await queryRunner.query(
           `SELECT id FROM "organization" WHERE "signatoryEmail" = '${user.email}'`,
         );
-        console.log('User organization: ', userOrganizations);
         queryRunner.query(
           `INSERT INTO public.user (
             "title", 
