@@ -1,7 +1,7 @@
 import {
     useOrganizationControllerGetAll,
-    useOrganizationControllerGetOrganizationUsersByCode,
-    useOrganizationControllerGetOrganizationById,
+    useOrganizationControllerGetOrganizationUsers,
+    useOrganizationControllerGetMyOrganization,
     useUserControllerMe,
     useOrganizationControllerUpdate,
     getOrganizationControllerGetAllQueryKey,
@@ -22,7 +22,7 @@ export const useAllOrganizations = () => {
 };
 
 export const useOrganizationUsers = () => {
-    const { data, isLoading: usersLoading } = useOrganizationControllerGetOrganizationUsersByCode();
+    const { data, isLoading: usersLoading } = useOrganizationControllerGetOrganizationUsers();
 
     return {
         users: data,
@@ -32,7 +32,7 @@ export const useOrganizationUsers = () => {
 
 export const useOrganization = () => {
     const { data: organization, isLoading: organizationLoading } =
-        useOrganizationControllerGetOrganizationById();
+        useOrganizationControllerGetMyOrganization();
     return {
         organization,
         organizationLoading
@@ -47,10 +47,9 @@ export const useMyOrganizationData = () => {
 };
 
 export const useOrganizationMembersData = () => {
-    const { isLoading: isMembersLoading, data: members } =
-        useOrganizationControllerGetOrganizationUsersByCode();
+    const { isLoading, data: members } = useOrganizationControllerGetOrganizationUsers();
 
-    return { isLoading: isMembersLoading, members };
+    return { isLoading, members };
 };
 
 export const useOrgApproveHandler = () => {

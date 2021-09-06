@@ -15,7 +15,9 @@ export const useSentOrgInvitationsData = () => {
     const { data: user, isLoading: userLoading } = useUserControllerMe();
 
     const { data: invitations, isLoading: invitationsLoading } =
-        useOrganizationControllerGetInvitationsForOrganization(user?.organization?.id);
+        useOrganizationControllerGetInvitationsForOrganization(user?.organization?.id, {
+            enabled: Boolean(user?.organization?.id)
+        });
 
     return { isLoading: userLoading || invitationsLoading, invitations };
 };

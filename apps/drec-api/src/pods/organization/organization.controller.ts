@@ -65,7 +65,7 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets user`s organization',
   })
-  async getOrganizationById(
+  async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
     return await this.organizationService.findOne(organizationId);
@@ -80,7 +80,7 @@ export class OrganizationController {
   @ApiNotFoundResponse({
     description: `There are no users associated to this organization`,
   })
-  async getOrganizationUsersByCode(
+  async getOrganizationUsers(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<UserDTO[]> {
     return this.organizationService.findOrganizationUsers(organizationId);

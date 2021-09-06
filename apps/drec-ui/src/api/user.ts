@@ -66,7 +66,6 @@ export const useUserLogin = (openRegisterOrgModal: () => void) => {
 
 export const useUser = (options?: UseQueryOptions<AxiosResponse<UserDTO>, Error>) => {
     const queryClient = useQueryClient();
-    const userQueryKey = getUserControllerMeQueryKey();
     const navigate = useNavigate();
 
     const clearUser = () => {
