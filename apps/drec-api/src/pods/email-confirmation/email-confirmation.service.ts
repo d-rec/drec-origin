@@ -76,7 +76,6 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<EmailConfirmationResponse> {
     const emailConfirmation = await this.repository.findOne({ token });
-    console.log('EMAIL confirmation: ', emailConfirmation);
 
     if (!emailConfirmation) {
       throw new BadRequestException({
