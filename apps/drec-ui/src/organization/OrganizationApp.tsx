@@ -35,7 +35,6 @@ export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
                 {showAllOrgs && <Route path="all" element={<AllOrganizationsPage />} />}
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
-
             <OrganizationModalsCenter />
         </OrganizationModalsProvider>
     );

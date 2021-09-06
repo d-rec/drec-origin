@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { getProviderWithFallback } from '@energyweb/utils-general';
@@ -13,6 +18,8 @@ import { IFullOrganization, isRole, IUser, LoggedInUser } from '../../models';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationStatus, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
+import { UserService } from '../user/user.service';
+import { MailService } from '../../mail';
 
 @Injectable()
 export class OrganizationService {
@@ -22,6 +29,8 @@ export class OrganizationService {
     @InjectRepository(Organization)
     private readonly repository: Repository<Organization>,
     private readonly blockchainPropertiesService: BlockchainPropertiesService,
+    private readonly userService: UserService,
+    private readonly mailService: MailService,
   ) {}
 
   async findOne(
@@ -169,6 +178,40 @@ export class OrganizationService {
     return await this.repository.save(currentOrg);
   }
 
+  async changeMemberRole(
+    organizationId: number,
+    memberId: number,
+    newRole: Role,
+  ): Promise<void> {
+    const organization = await this.findOne(organizationId);
+
+    if (!organization.users.find((u) => u.id === memberId)) {
+      throw new BadRequestException({
+        success: false,
+        message: `User to be removed is not part of the organization.`,
+      });
+    }
+
+    const userToBeChanged = await this.userService.findById(memberId);
+    const admins = organization.users.filter((u) =>
+      isRole(u.role, Role.OrganizationAdmin),
+    );
+
+    if (
+      newRole !== Role.OrganizationAdmin &&
+      isRole(userToBeChanged.role, Role.OrganizationAdmin) &&
+      admins.length < 2
+    ) {
+      throw new BadRequestException({
+        success: false,
+        message: `Can't change role of admin user from organization. There always has to be at least one admin in the organization.`,
+      });
+    }
+
+    await this.userService.changeRole(memberId, newRole);
+    await this.sendRoleChangeEmail(organization, userToBeChanged, newRole);
+  }
+
   private async isNameAlreadyTaken(name: string): Promise<boolean> {
     const existingOrganizations = await this.repository
       .createQueryBuilder()
@@ -176,5 +219,23 @@ export class OrganizationService {
       .getCount();
 
     return existingOrganizations > 0;
+  }
+
+  private async sendRoleChangeEmail(
+    organization: IFullOrganization,
+    member: IUser,
+    role: Role,
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}/account/user-profile`;
+
+    const result = await this.mailService.send({
+      to: member.email,
+      subject: `[Origin] Organization role update`,
+      html: `The administrator of ${organization.name} changed your role to ${Role[role]}. Visit <a href="${url}">${url}</a> to see the details.`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${member.email}.`);
+    }
   }
 }
