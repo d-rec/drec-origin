@@ -6,3 +6,4 @@ export * from './file';
 export * from './invite';
 export * from './invitations';
 export * from './registerUser';
+export * from './meterReads';
