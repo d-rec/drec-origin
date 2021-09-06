@@ -1,11 +1,5 @@
-import { AggregatedReadDTO, ReadDTO, DeviceDTO } from '@energyweb/origin-drec-api-client';
+import { AggregatedReadDTO } from '@energyweb/origin-drec-api-client';
 import { ReadingsWindowEnum } from '../../../api';
-
-export type TUseSmartMeterTableArgs = {
-    device: DeviceDTO;
-    reads: ReadDTO[];
-    loading: boolean;
-};
 
 export type TUseSmartMeterChartSelectorsArgs = {
     startDate: Date;
