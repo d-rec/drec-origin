@@ -1,5 +1,4 @@
 import { AggregatedReadDTO, ReadDTO, DeviceDTO } from '@energyweb/origin-drec-api-client';
-import { TableComponentProps } from '@energyweb/origin-ui-core';
 import { ReadingsWindowEnum } from '../../../api';
 
 export type TUseSmartMeterTableArgs = {
@@ -7,10 +6,6 @@ export type TUseSmartMeterTableArgs = {
     reads: ReadDTO[];
     loading: boolean;
 };
-
-export type TUseSmartMeterTableLogic = (
-    args: TUseSmartMeterTableArgs
-) => TableComponentProps<ReadDTO['timestamp']>;
 
 export type TUseSmartMeterChartSelectorsArgs = {
     startDate: Date;

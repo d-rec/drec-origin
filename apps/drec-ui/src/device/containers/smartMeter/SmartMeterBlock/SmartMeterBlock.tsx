@@ -12,8 +12,8 @@ export const SmartMeterBlock: FC<SmartMeterBlockProps> = ({ device }) => {
     const classes = useStyles();
     return (
         <Paper className={classes.paper}>
-            <Grid container spacing={4}>
-                <Grid item xs={12} md={12}>
+            <Grid container>
+                <Grid item className={classes.chartContainer}>
                     <SmartMeterChart meterId={device.id} />
                 </Grid>
             </Grid>
