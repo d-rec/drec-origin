@@ -43,7 +43,7 @@ import {
   isRole,
   ResponseSuccess,
 } from '../../models';
-import { ActiveUserGuard, NotDeletedUserGuard } from '../../guards';
+import { ActiveUserGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
@@ -202,7 +202,7 @@ export class OrganizationController {
   }
 
   @Post('chain-address')
-  @UseGuards(AuthGuard('jwt'), NotDeletedUserGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
   @ApiBody({ type: BindBlockchainAccountDTO })
   @ApiResponse({
     status: HttpStatus.OK,
