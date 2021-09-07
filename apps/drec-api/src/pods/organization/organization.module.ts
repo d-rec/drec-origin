@@ -6,12 +6,14 @@ import { Organization } from './organization.entity';
 import { OrganizationService } from './organization.service';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
+import { MailModule } from '../../mail';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Organization]),
     forwardRef(() => UserModule),
     BlockchainPropertiesModule,
+    MailModule,
   ],
   providers: [OrganizationService],
   controllers: [OrganizationController],

@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { LoginPage } from 'pages';
-import { UserModalsProvider, UserModalsCenter } from '../user';
+import { LoginPage } from './pages';
+import { UserModalsProvider, UserModalsCenter } from '.';
 
 export const LoginApp: FC = () => {
     return (

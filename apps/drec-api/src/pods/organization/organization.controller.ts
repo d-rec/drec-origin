@@ -13,6 +13,7 @@ import {
   ForbiddenException,
   ParseIntPipe,
   NotFoundException,
+  Put,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,6 +21,7 @@ import {
   ApiSecurity,
   ApiNotFoundResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -34,10 +36,16 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
-import { ILoggedInUser, isRole, ResponseSuccess } from '../../models';
+import {
+  ensureOrganizationRole,
+  ILoggedInUser,
+  isRole,
+  ResponseSuccess,
+} from '../../models';
 import { ActiveUserGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
+import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -65,7 +73,7 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets user`s organization',
   })
-  async getOrganizationById(
+  async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
     return await this.organizationService.findOne(organizationId);
@@ -80,7 +88,7 @@ export class OrganizationController {
   @ApiNotFoundResponse({
     description: `There are no users associated to this organization`,
   })
-  async getOrganizationUsersByCode(
+  async getOrganizationUsers(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<UserDTO[]> {
     return this.organizationService.findOrganizationUsers(organizationId);
@@ -139,6 +147,38 @@ export class OrganizationController {
       organizationToRegister,
       loggedUser,
     );
+  }
+
+  @Put(':id/change-role/:userId')
+  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @ApiBody({ type: UpdateMemberDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Removes a member from an organization',
+  })
+  async changeMemberRole(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+    @Param('userId', new ParseIntPipe()) memberId: number,
+    @Body() { role }: UpdateMemberDTO,
+    @UserDecorator() loggedUser: ILoggedInUser,
+  ): Promise<SuccessResponseDTO> {
+    this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
+
+    try {
+      ensureOrganizationRole(role);
+    } catch (e) {
+      throw new ForbiddenException();
+    }
+
+    await this.organizationService.changeMemberRole(
+      loggedUser.organizationId,
+      memberId,
+      role,
+    );
+
+    return ResponseSuccess();
   }
 
   @Patch('/:id')

@@ -1,4 +1,3 @@
-import { useTopbarButtonList } from '../shared';
 import { isRole } from '../utils';
 import {
     Role,
@@ -6,10 +5,10 @@ import {
     UserStatus
 } from '@energyweb/origin-drec-api-client';
 import { useUser, useAxiosInterceptors } from '../api';
-import { useActiveMenuTab } from '../shared';
 import { getOrganizationMenu, TGetOrganizationMenuArgs } from '../organization';
 import { getDeviceMenu, TGetDeviceMenuArgs } from '../device';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from '../user';
+import { useActiveMenuTab, useTopbarButtonList } from '../shared';
 
 export type RoutesConfig = {
     orgRoutes: Omit<TGetOrganizationMenuArgs, 't' | 'isOpen' | 'showSection'>;

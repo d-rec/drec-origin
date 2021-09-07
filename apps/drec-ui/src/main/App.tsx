@@ -1,14 +1,14 @@
 import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
-import { LoginApp } from './LoginApp';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
-import { AccountApp } from '../user';
+import { AccountApp, AuthApp, LoginApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
-import { PageNotFound } from '../pages';
+import { PageNotFound } from '../shared';
 import { DeviceApp } from '../device';
+import { OrganizationApp } from '../organization';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -49,7 +49,26 @@ const App: FC<AppProps> = memo(
                             />
                         }
                     />
-                    <Route path="account/*" element={<AccountApp routesConfig={accountRoutes} />} />
+                    <Route
+                        path="organization/*"
+                        element={<OrganizationApp routesConfig={orgRoutes} />}
+                    />
+                    <Route
+                        path="auth/*"
+                        element={<AuthApp routesConfig={{ showRegister: !isAuthenticated }} />}
+                    />
+                    <Route
+                        path="account/*"
+                        element={
+                            <AccountApp
+                                routesConfig={accountRoutes}
+                                envVariables={{
+                                    registrationMessage:
+                                        process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN
+                                }}
+                            />
+                        }
+                    />
                     <Route element={<Navigate to="device/all" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />

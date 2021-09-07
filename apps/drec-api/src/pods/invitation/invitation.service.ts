@@ -126,7 +126,7 @@ export class InvitationService {
     organization: OrganizationDTO,
     email: string,
   ): Promise<void> {
-    const url = `${process.env.REACT_APP_BACKEND_URL}/organization/organization-invitations`;
+    const url = `${process.env.UI_BASE_URL}/organization/invitations`;
 
     const result = await this.mailService.send({
       to: email,

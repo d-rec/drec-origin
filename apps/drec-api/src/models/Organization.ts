@@ -1,4 +1,4 @@
-import { OrganizationStatus } from '../utils/enums';
+import { OrganizationStatus, Role } from '../utils/enums';
 
 export class IPublicOrganization {
   id: number;
@@ -22,4 +22,8 @@ export interface IFullOrganization extends IPublicOrganization {
   signatoryCountry: string;
   signatoryEmail: string;
   signatoryPhoneNumber: string;
+}
+
+export interface IOrganizationUpdateMemberRole {
+  role: Role;
 }

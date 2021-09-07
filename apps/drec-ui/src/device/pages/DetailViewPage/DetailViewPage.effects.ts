@@ -6,7 +6,8 @@ import {
     getMainFuelType,
     PowerFormatter
 } from '../../utils';
-import { EnergyTypeEnum, TUseDeviceDetailViewLogic } from '../../../utils';
+import { EnergyTypeEnum } from '../../../utils';
+import { TUseDeviceDetailViewLogic } from '../../logic';
 
 export const useDetailViewPageEffects = () => {
     const { id } = useParams();
