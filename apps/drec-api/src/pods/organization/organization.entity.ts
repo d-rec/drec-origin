@@ -1,6 +1,12 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsISO31661Alpha2,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
 import { OrganizationStatus } from '../../utils/enums';
@@ -48,6 +54,9 @@ export class Organization
 
   @Column({ nullable: true, unique: true })
   blockchainAccountAddress: string;
+
+  @Column({ nullable: true })
+  blockchainAccountSignedMessage: string;
 
   @Column()
   @IsString()
@@ -98,6 +107,12 @@ export class Organization
   @IsString()
   signatoryPhoneNumber: string;
 
+  @ApiProperty({ type: () => [String] })
+  @Column('simple-array', { nullable: true })
+  @IsOptional()
+  @IsArray()
+  signatoryDocumentIds: string[];
+
   @ApiProperty({ enum: OrganizationStatus, enumName: 'OrganizationStatus' })
   @Column({ default: OrganizationStatus.Submitted })
   @IsEnum(OrganizationStatus)
@@ -116,4 +131,10 @@ export class Organization
     eager: true,
   })
   invitations: Invitation[];
+
+  @ApiProperty({ type: () => [String] })
+  @Column('simple-array', { nullable: true })
+  @IsOptional()
+  @IsArray()
+  documentIds: string[];
 }

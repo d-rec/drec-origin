@@ -1,4 +1,10 @@
-import { IsISO31661Alpha2, IsString, IsEmail } from 'class-validator';
+import {
+  IsISO31661Alpha2,
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
 
@@ -65,4 +71,14 @@ export class NewOrganizationDTO
   @ApiProperty({ type: String })
   @IsString()
   signatoryPhoneNumber: string;
+
+  @ApiProperty({ type: [String], required: false })
+  @IsOptional()
+  @IsArray()
+  documentIds?: string[];
+
+  @ApiProperty({ type: [String], required: false })
+  @IsOptional()
+  @IsArray()
+  signatoryDocumentIds?: string[];
 }
