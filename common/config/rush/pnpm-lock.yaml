@@ -75,6 +75,8 @@ specifiers:
   '@types/yup': ^0.29.11
   '@typescript-eslint/eslint-plugin': 3.10.1
   '@typescript-eslint/parser': 3.10.1
+  '@web3-react/core': 6.1.9
+  '@web3-react/injected-connector': 6.0.7
   axios: 0.21.1
   babel-loader: 8.1.0
   barrelsby: 2.2.0
@@ -219,6 +221,8 @@ dependencies:
   '@types/yup': 0.29.13
   '@typescript-eslint/eslint-plugin': 3.10.1_78c90eb01c736ca8fc94478e2e2a5ff9
   '@typescript-eslint/parser': 3.10.1_eslint@7.15.0+typescript@4.1.3
+  '@web3-react/core': 6.1.9_react@17.0.2
+  '@web3-react/injected-connector': 6.0.7
   axios: 0.21.1
   babel-loader: 8.1.0_webpack@4.44.2
   barrelsby: 2.2.0
@@ -9211,6 +9215,37 @@ packages:
 
   /@ungap/promise-all-settled/1.1.2:
     resolution: {integrity: sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==}
+    dev: false
+
+  /@web3-react/abstract-connector/6.0.7:
+    resolution: {integrity: sha512-RhQasA4Ox8CxUC0OENc1AJJm8UTybu/oOCM61Zjg6y0iF7Z0sqv1Ai1VdhC33hrQpA8qSBgoXN9PaP8jKmtdqg==}
+    dependencies:
+      '@web3-react/types': 6.0.7
+    dev: false
+
+  /@web3-react/core/6.1.9_react@17.0.2:
+    resolution: {integrity: sha512-P877DslsbAkWIlMANpWiK7pCvNwlz0kJC0EGckuVh0wlA23J4UnFxq6xyOaxkxaDCu14rA/tAO0NbwjcXTQgSA==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@ethersproject/keccak256': 5.4.0
+      '@web3-react/abstract-connector': 6.0.7
+      '@web3-react/types': 6.0.7
+      react: 17.0.2
+      tiny-invariant: 1.1.0
+      tiny-warning: 1.0.3
+    dev: false
+
+  /@web3-react/injected-connector/6.0.7:
+    resolution: {integrity: sha512-Y7aJSz6pg+MWKtvdyuqyy6LWuH+4Tqtph1LWfiyVms9II9ar/9B/de4R8wh4wjg91wmHkU+D75yP09E/Soh2RA==}
+    dependencies:
+      '@web3-react/abstract-connector': 6.0.7
+      '@web3-react/types': 6.0.7
+      tiny-warning: 1.0.3
+    dev: false
+
+  /@web3-react/types/6.0.7:
+    resolution: {integrity: sha512-ofGmfDhxmNT1/P/MgVa8IKSkCStFiyvXe+U5tyZurKdrtTDFU+wJ/LxClPDtFerWpczNFPUSrKcuhfPX1sI6+A==}
     dev: false
 
   /@webassemblyjs/ast/1.9.0:
@@ -25067,7 +25102,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-ui.tgz_luxon@1.27.0+ts-node@9.1.0:
-    resolution: {integrity: sha512-BDzHSbugceipJrocUiTC9ufpFI4uuhTH3FxayIC7U3g1zvQ3LGD5fp7Scd9Df8cmN7A2gJCimh8ADp4lQedtpw==, tarball: file:projects/origin-drec-ui.tgz}
+    resolution: {integrity: sha512-tE+W4pNUDyICnYWuoFloS3DNLlv+ESs7ftfxsHPlfYX5NpEfZIZN1XuCI12A/hgnKtAiFZHfe+N2o1S95aNtTA==, tarball: file:projects/origin-drec-ui.tgz}
     id: file:projects/origin-drec-ui.tgz
     name: '@rush-temp/origin-drec-ui'
     version: 0.0.0
@@ -25079,6 +25114,7 @@ packages:
       '@energyweb/origin-ui-theme': 0.0.1-alpha.1_@material-ui+core@5.0.0-alpha.32
       '@energyweb/origin-ui-utils': 0.0.2-beta.0
       '@energyweb/utils-general': 11.0.3-alpha.1629978728.0
+      '@ethersproject/providers': 5.3.1
       '@hookform/resolvers': 2.3.0_react-hook-form@7.1.0
       '@material-ui/core': 5.0.0-alpha.32_82361f01d3aa53148d352449213d1cc9
       '@material-ui/icons': 5.0.0-alpha.29_5df2c225269dbb8d41a8caf2c0545c1b
@@ -25102,6 +25138,8 @@ packages:
       '@types/react-router-dom': 5.1.8
       '@types/testing-library__jest-dom': 5.9.5
       '@types/yup': 0.29.13
+      '@web3-react/core': 6.1.9_react@17.0.2
+      '@web3-react/injected-connector': 6.0.7
       axios: 0.21.1
       babel-loader: 8.1.0_webpack@4.44.2
       chart.js: 3.3.2

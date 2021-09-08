@@ -4,3 +4,4 @@ export * from './all-organizations';
 export * from './members';
 export * from './invite';
 export * from './invitations';
+export * from './register';

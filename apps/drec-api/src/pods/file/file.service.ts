@@ -87,19 +87,16 @@ export class FileService {
     });
   }
 
-  public async updateOrganization(
+  public async assignFilesToUser(
     user: LoggedInUser,
-    ids: string[],
+    fileIds: string[],
   ): Promise<void> {
-    if (!ids) {
-      return;
-    }
     if (!user.hasOrganization) {
       throw new Error('User is not part of the organization');
     }
 
     await this.connection.transaction(async (entityManager) => {
-      for (const id of ids) {
+      for (const id of fileIds) {
         await entityManager.update<File>(
           File,
           { id, userId: user.id.toString() },
@@ -109,16 +106,19 @@ export class FileService {
     });
   }
 
-  public async isOwner(user: LoggedInUser, ids: string[]): Promise<boolean> {
+  public async isOwner(
+    user: LoggedInUser,
+    fileIds: string[],
+  ): Promise<boolean> {
     this.logger.debug(
       `User ${JSON.stringify(
         user,
-      )} requested ownership check for ${JSON.stringify(ids)}`,
+      )} requested ownership check for ${JSON.stringify(fileIds)}`,
     );
 
     let isOwner = true;
 
-    for (const documentId of ids) {
+    for (const documentId of fileIds) {
       const hasOrganization = user.organizationId && user.organizationId > 0;
 
       const where = hasOrganization
@@ -135,7 +135,7 @@ export class FileService {
       const count = await this.repository.count({ where });
 
       this.logger.debug(
-        `Found ${count} documents matching user ID ${user.id} and org ID ${user.organizationId}`,
+        `Found ${count} documents matching documen ID ${documentId}, user ID ${user.id} and org ID ${user.organizationId}`,
       );
 
       if (count == 0) {
@@ -146,7 +146,7 @@ export class FileService {
 
     this.logger.debug(
       `User ${JSON.stringify(user)} ownership for ${JSON.stringify(
-        ids,
+        fileIds,
       )} returns ${isOwner}}`,
     );
 

@@ -151,7 +151,10 @@ export class OrganizationService {
     });
 
     const stored = await this.repository.save(organizationToCreate);
-    await this.fileService.updateOrganization(user, documents);
+
+    if (documents.length) {
+      await this.fileService.assignFilesToUser(user, documents);
+    }
 
     this.logger.debug(
       `Successfully registered a new organization with id ${organizationToRegister.name}`,
@@ -251,9 +254,16 @@ export class OrganizationService {
       );
     }
 
+    const registrationMessageToSign = this.configService.get<string>(
+      'REGISTRATION_MESSAGE_TO_SIGN',
+    );
+
+    if (!registrationMessageToSign) {
+      throw new BadRequestException('Registration message to sign missing!');
+    }
+
     const address = await recoverTypedSignatureAddress(
-      this.configService.get<string>('REGISTRATION_MESSAGE_TO_SIGN') ||
-        'I register as D-REC user',
+      registrationMessageToSign,
       signedMessage,
     );
 
