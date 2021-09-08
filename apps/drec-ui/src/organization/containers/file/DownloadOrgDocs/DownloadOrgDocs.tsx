@@ -12,7 +12,7 @@ export const DownloadOrgDocs: FC<DownloadOrgDocsProps> = ({ documents, blockTitl
     const classes = useStyles();
     return (
         <aside className={classes.thumbsContainer}>
-            {documents.map((documentId, index) => (
+            {documents?.map((documentId, index) => (
                 <DownloadableChip
                     key={documentId}
                     downloadFunc={fileDownloadHandler}
