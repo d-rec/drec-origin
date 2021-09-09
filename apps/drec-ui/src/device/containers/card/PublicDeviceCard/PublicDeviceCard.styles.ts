@@ -10,7 +10,5 @@ export const useStyles = makeStyles((theme) => ({
         padding: 50,
         fill: theme.palette.primary.main
     },
-    overlayText: {
-        color: '#fff'
-    }
+    overlayText: {}
 }));
