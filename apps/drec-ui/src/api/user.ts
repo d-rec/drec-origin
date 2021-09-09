@@ -33,6 +33,7 @@ export type TUpdateUserDataFormValues = {
     lastName: UserDTO['lastName'];
     telephone: UserDTO['telephone'];
     status: UserDTO['status'];
+    emailConfirmed: string;
 };
 
 export const useUserLogin = (openRegisterOrgModal: () => void) => {

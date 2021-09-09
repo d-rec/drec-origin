@@ -9,12 +9,8 @@ import crypto from 'crypto';
 import { DateTime } from 'luxon';
 import { Repository } from 'typeorm';
 import { MailService } from '../../mail';
-import {
-  EmailConfirmationResponse,
-  IEmailConfirmationToken,
-  ISuccessResponse,
-  IUser,
-} from '../../models';
+import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
+import { EmailConfirmationResponse } from '../../utils/enums';
 
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
@@ -141,7 +137,7 @@ export class EmailConfirmationService {
     email: string,
     token: string,
   ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}/account/confirm-email?token=${token}`;
+    const url = `${process.env.UI_BASE_URL}/confirm-email?token=${token}`;
 
     const result = await this.mailService.send({
       to: email,
