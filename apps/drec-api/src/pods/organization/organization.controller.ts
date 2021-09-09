@@ -29,6 +29,7 @@ import {
   OrganizationDTO,
   NewOrganizationDTO,
   UpdateOrganizationDTO,
+  BindBlockchainAccountDTO,
 } from './dto';
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
@@ -197,6 +198,28 @@ export class OrganizationController {
     return await this.organizationService.update(
       organizationId,
       organizationToUpdate,
+    );
+  }
+
+  @Post('chain-address')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @ApiBody({ type: BindBlockchainAccountDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: `Set the organization blockchain address`,
+  })
+  public async setBlockchainAddress(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() { signedMessage }: BindBlockchainAccountDTO,
+  ): Promise<SuccessResponseDTO> {
+    if (!organizationId) {
+      throw new NotFoundException('User is not a part of an organization.');
+    }
+
+    return this.organizationService.setBlockchainAddress(
+      organizationId,
+      signedMessage,
     );
   }
 

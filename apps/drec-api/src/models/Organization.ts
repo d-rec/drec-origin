@@ -11,7 +11,9 @@ export class IPublicOrganization {
   tradeRegistryCompanyNumber: string;
   vatNumber: string;
   status: OrganizationStatus;
+
   blockchainAccountAddress?: string;
+  blockchainAccountSignedMessage?: string;
 }
 
 export interface IFullOrganization extends IPublicOrganization {
@@ -22,6 +24,8 @@ export interface IFullOrganization extends IPublicOrganization {
   signatoryCountry: string;
   signatoryEmail: string;
   signatoryPhoneNumber: string;
+  signatoryDocumentIds?: string[];
+  documentIds?: string[];
 }
 
 export interface IOrganizationUpdateMemberRole {

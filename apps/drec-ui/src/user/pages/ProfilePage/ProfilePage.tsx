@@ -1,6 +1,10 @@
-import React from 'react';
 import { CircularProgress, Paper, Box } from '@material-ui/core';
-import { UpdateUserData, UpdateUserEmail, UpdateUserPassword } from '../..';
+import {
+    BlockchainAddressesContainer,
+    UpdateUserData,
+    UpdateUserEmail,
+    UpdateUserPassword
+} from '../../containers';
 import { useStyles } from './ProfilePage.styles';
 import { useProfilePageEffects } from './ProfilePage.effects';
 
@@ -22,6 +26,9 @@ export const ProfilePage = () => {
             </Paper>
             <Paper classes={{ root: classes.paper }}>
                 <UpdateUserPassword />
+            </Paper>
+            <Paper classes={{ root: classes.paper }}>
+                <BlockchainAddressesContainer />
             </Paper>
         </Box>
     );

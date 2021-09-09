@@ -7,6 +7,7 @@ import { OrganizationService } from './organization.service';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
 import { MailModule } from '../../mail';
+import { FileModule } from '../file';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MailModule } from '../../mail';
     forwardRef(() => UserModule),
     BlockchainPropertiesModule,
     MailModule,
+    FileModule,
   ],
   providers: [OrganizationService],
   controllers: [OrganizationController],

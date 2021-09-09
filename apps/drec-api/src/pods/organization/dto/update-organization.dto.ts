@@ -4,13 +4,18 @@ import {
   IsString,
   IsEmail,
   IsOptional,
+  IsArray,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
 import { OrganizationStatus } from '../../../utils/enums';
 
 export class UpdateOrganizationDTO
-  implements Omit<IFullOrganization, 'id' | 'blockchainAccountAddress'>
+  implements
+    Omit<
+      IFullOrganization,
+      'id' | 'blockchainAccountAddress' | 'blockchainAccountSignedMessage'
+    >
 {
   @ApiPropertyOptional({ type: String })
   @IsString()
@@ -95,4 +100,14 @@ export class UpdateOrganizationDTO
   @IsString()
   @IsOptional()
   signatoryPhoneNumber: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsArray()
+  @IsOptional()
+  documentIds?: string[];
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsArray()
+  @IsOptional()
+  signatoryDocumentIds?: string[];
 }

@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { DrecThemeProvider } from './theme';
+import { Web3ReactProvider } from '@web3-react/core';
 import { CustomErrorFallback, DrecQueryClientProvider } from './main';
 import { AppContainer } from './AppContainer';
+import { getLibrary } from './user';
 
 import './index.css';
 
@@ -13,9 +15,11 @@ ReactDOM.render(
         <DrecThemeProvider>
             <ErrorBoundary FallbackComponent={CustomErrorFallback}>
                 <BrowserRouter>
-                    <DrecQueryClientProvider>
-                        <AppContainer />
-                    </DrecQueryClientProvider>
+                    <Web3ReactProvider getLibrary={getLibrary}>
+                        <DrecQueryClientProvider>
+                            <AppContainer />
+                        </DrecQueryClientProvider>
+                    </Web3ReactProvider>
                 </BrowserRouter>
             </ErrorBoundary>
         </DrecThemeProvider>

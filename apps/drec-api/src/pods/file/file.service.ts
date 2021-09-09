@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { ILoggedInUser } from '../../models';
+import { ILoggedInUser, LoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
 
 import { File } from './file.entity';
@@ -85,6 +85,72 @@ export class FileService {
         isPublic: true,
       },
     });
+  }
+
+  public async assignFilesToUser(
+    user: LoggedInUser,
+    fileIds: string[],
+  ): Promise<void> {
+    if (!user.hasOrganization) {
+      throw new Error('User is not part of the organization');
+    }
+
+    await this.connection.transaction(async (entityManager) => {
+      for (const id of fileIds) {
+        await entityManager.update<File>(
+          File,
+          { id, userId: user.id.toString() },
+          { organizationId: user.organizationId.toString() },
+        );
+      }
+    });
+  }
+
+  public async isOwner(
+    user: LoggedInUser,
+    fileIds: string[],
+  ): Promise<boolean> {
+    this.logger.debug(
+      `User ${JSON.stringify(
+        user,
+      )} requested ownership check for ${JSON.stringify(fileIds)}`,
+    );
+
+    let isOwner = true;
+
+    for (const documentId of fileIds) {
+      const hasOrganization = user.organizationId && user.organizationId > 0;
+
+      const where = hasOrganization
+        ? {
+            id: documentId,
+            userId: user.id.toString(),
+            organizationId: user.organizationId.toString(),
+          }
+        : {
+            id: documentId,
+            userId: user.id.toString(),
+          };
+
+      const count = await this.repository.count({ where });
+
+      this.logger.debug(
+        `Found ${count} documents matching documen ID ${documentId}, user ID ${user.id} and org ID ${user.organizationId}`,
+      );
+
+      if (count == 0) {
+        isOwner = false;
+        break;
+      }
+    }
+
+    this.logger.debug(
+      `User ${JSON.stringify(user)} ownership for ${JSON.stringify(
+        fileIds,
+      )} returns ${isOwner}}`,
+    );
+
+    return isOwner;
   }
 
   private generateUniqueFilename(originalFilename: string) {

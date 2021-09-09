@@ -28,9 +28,6 @@ import multer from 'multer';
 import { FileDto } from './file.dto';
 import { FileUploadDto } from './file-upload.dto';
 import { FileService } from './file.service';
-import { Roles } from '../user/decorators/roles.decorator';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { Role } from '../../utils/enums';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 
@@ -40,12 +37,10 @@ const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
-@Roles(Role.Admin, Role.DeviceOwner)
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileUploadDto })
   @UseInterceptors(
@@ -64,6 +59,7 @@ export class FileController {
       },
     }),
   )
+  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: [String],
@@ -76,11 +72,12 @@ export class FileController {
       files: Express.Multer.File[];
     },
   ): Promise<string[]> {
+    console.log('Uploaded files: ', uploadedFiles);
     return this.fileService.store(user, uploadedFiles.files);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
     type: FileDto,

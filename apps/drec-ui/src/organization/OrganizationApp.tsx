@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { OrganizationModalsCenter } from './containers';
 import { OrganizationModalsProvider } from './context';
 import {
+    RegisterPage,
     AllOrganizationsPage,
     OrganizationViewPage,
     MembersPage,
@@ -23,7 +24,8 @@ interface OrganizationAppProps {
 }
 
 export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
-    const { showMyOrg, showInvite, showMembers, showInvitations, showAllOrgs } = routesConfig;
+    const { showRegisterOrg, showMyOrg, showInvite, showMembers, showInvitations, showAllOrgs } =
+        routesConfig;
 
     return (
         <OrganizationModalsProvider>
@@ -33,6 +35,7 @@ export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
                 {showInvite && <Route path="invite" element={<InvitePage />} />}
                 {showMembers && <Route path="members" element={<MembersPage />} />}
                 {showAllOrgs && <Route path="all" element={<AllOrganizationsPage />} />}
+                {showRegisterOrg && <Route path="register" element={<RegisterPage />} />}
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
             <OrganizationModalsCenter />

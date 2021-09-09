@@ -1,25 +1,43 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { getProviderWithFallback } from '@energyweb/utils-general';
-import { Wallet } from 'ethers';
+import {
+  getProviderWithFallback,
+  recoverTypedSignatureAddress,
+} from '@energyweb/utils-general';
+import { utils, Wallet } from 'ethers';
+import { ConfigService } from '@nestjs/config';
 import { Organization } from './organization.entity';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
-import { NewOrganizationDTO, UpdateOrganizationDTO } from './dto';
+import {
+  BindBlockchainAccountDTO,
+  NewOrganizationDTO,
+  UpdateOrganizationDTO,
+} from './dto';
 import { defaults } from 'lodash';
 import { Contracts } from '@energyweb/issuer';
-import { IFullOrganization, isRole, IUser, LoggedInUser } from '../../models';
+import {
+  IFullOrganization,
+  isRole,
+  ISuccessResponse,
+  IUser,
+  LoggedInUser,
+  ResponseSuccess,
+} from '../../models';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
+import { OrganizationDocumentOwnershipMismatchError } from './error/organization-document-ownership-mismatch.error';
 import { OrganizationStatus, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
+import { FileService } from '../file';
 
 @Injectable()
 export class OrganizationService {
@@ -28,9 +46,11 @@ export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private readonly repository: Repository<Organization>,
+    private readonly configService: ConfigService,
     private readonly blockchainPropertiesService: BlockchainPropertiesService,
     private readonly userService: UserService,
     private readonly mailService: MailService,
+    private readonly fileService: FileService,
   ) {}
 
   async findOne(
@@ -111,24 +131,30 @@ export class OrganizationService {
       )}`,
     );
 
-    const allOrganizationsCount = await this.repository.count();
-    const blockchainAccountAddress = await this.generateBlockchainAddress(
-      allOrganizationsCount,
-    );
-
     if (await this.isNameAlreadyTaken(organizationToRegister.name)) {
       throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
+    }
+    const documents = [
+      ...(organizationToRegister.documentIds ?? []),
+      ...(organizationToRegister.signatoryDocumentIds ?? []),
+    ];
+
+    if (!(await this.isDocumentOwner(user, documents))) {
+      throw new OrganizationDocumentOwnershipMismatchError();
     }
 
     const organizationToCreate = new Organization({
       ...organizationToRegister,
-      blockchainAccountAddress,
 
       status: OrganizationStatus.Submitted,
       users: [{ id: user.id } as User],
     });
 
     const stored = await this.repository.save(organizationToCreate);
+
+    if (documents.length) {
+      await this.fileService.assignFilesToUser(user, documents);
+    }
 
     this.logger.debug(
       `Successfully registered a new organization with id ${organizationToRegister.name}`,
@@ -212,6 +238,67 @@ export class OrganizationService {
     await this.sendRoleChangeEmail(organization, userToBeChanged, newRole);
   }
 
+  async setBlockchainAddress(
+    id: number,
+    signedMessage: BindBlockchainAccountDTO['signedMessage'],
+  ): Promise<ISuccessResponse> {
+    if (!signedMessage) {
+      throw new BadRequestException('Signed message is empty.');
+    }
+
+    const organization = await this.findOne(id);
+
+    if (organization.blockchainAccountAddress) {
+      throw new ConflictException(
+        'Organization already has a blockchain address',
+      );
+    }
+
+    const registrationMessageToSign = this.configService.get<string>(
+      'REGISTRATION_MESSAGE_TO_SIGN',
+    );
+
+    if (!registrationMessageToSign) {
+      throw new BadRequestException('Registration message to sign missing!');
+    }
+
+    const address = await recoverTypedSignatureAddress(
+      registrationMessageToSign,
+      signedMessage,
+    );
+
+    return this.updateBlockchainAddress(
+      id,
+      utils.getAddress(address),
+      signedMessage,
+    );
+  }
+
+  async updateBlockchainAddress(
+    orgId: number,
+    address: string,
+    signedMessage?: string,
+  ): Promise<ISuccessResponse> {
+    const organization = await this.findOne(orgId);
+
+    const alreadyExistingOrganizationWithAddress = await this.repository.count({
+      blockchainAccountAddress: address,
+    });
+
+    if (alreadyExistingOrganizationWithAddress > 0) {
+      throw new ConflictException(
+        `This blockchain address has already been linked to a different organization.`,
+      );
+    }
+
+    organization.blockchainAccountSignedMessage = signedMessage || '';
+    organization.blockchainAccountAddress = address;
+
+    await this.repository.save(organization);
+
+    return ResponseSuccess();
+  }
+
   private async isNameAlreadyTaken(name: string): Promise<boolean> {
     const existingOrganizations = await this.repository
       .createQueryBuilder()
@@ -237,5 +324,12 @@ export class OrganizationService {
     if (result) {
       this.logger.log(`Notification email sent to ${member.email}.`);
     }
+  }
+
+  private async isDocumentOwner(user: LoggedInUser, documentIds: string[]) {
+    if (!documentIds?.length) {
+      return true;
+    }
+    return this.fileService.isOwner(user, documentIds);
   }
 }
