@@ -1,6 +1,7 @@
 import { useUserLogin } from '../../../api';
 import { UnpackNestedValue } from 'react-hook-form';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
+import { useNavigate } from 'react-router';
 
 import * as Yup from 'yup';
 import { UserModalsActionsEnum, useUserModalsDispatch } from '../../context';
@@ -16,6 +17,7 @@ export const INITIAL_FORM_VALUES: TUserLoginFormValues = {
 };
 
 export const useLogInPageEffects = () => {
+    const navigate = useNavigate();
     const dispatchModals = useUserModalsDispatch();
     const useUserLogInFormConfig = (
         formSubmitHandler: (values: UnpackNestedValue<TUserLoginFormValues>) => void
@@ -56,5 +58,9 @@ export const useLogInPageEffects = () => {
     const submitHandler = useUserLogin(openRegisterOrgModal);
     const formConfig = useUserLogInFormConfig(submitHandler);
 
-    return { formProps: formConfig };
+    const navigateToRegister = () => {
+        navigate('/auth/register');
+    };
+
+    return { formProps: formConfig, navigateToRegister };
 };
