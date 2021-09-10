@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Paper } from '@material-ui/core';
+import { Box, Button, Paper, Typography } from '@material-ui/core';
 import { GenericForm } from '@energyweb/origin-ui-core';
 import { useLogInPageEffects } from './LoginPage.effects';
 import { useStyles } from './LoginPage.styles';
@@ -8,7 +8,7 @@ import { DrecLogo, DrecBackground } from '../../../assets';
 
 export const LoginPage: FC = () => {
     const classes = useStyles();
-    const { formProps } = useLogInPageEffects();
+    const { formProps, navigateToRegister } = useLogInPageEffects();
 
     return (
         <>
@@ -16,6 +16,10 @@ export const LoginPage: FC = () => {
             <Paper className={classes.paper}>
                 <DrecLogo />
                 <GenericForm {...formProps}></GenericForm>
+                <Box>
+                    <Typography>Don't have an account?</Typography>
+                    <Button onClick={navigateToRegister}>Register now</Button>
+                </Box>
             </Paper>
         </>
     );

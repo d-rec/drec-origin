@@ -11,6 +11,6 @@ export const useStyles = makeStyles((theme) => ({
         fill: theme.palette.primary.main
     },
     overlayText: {
-        color: '#fff'
+        color: '#000'
     }
 }));

@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData } from '../shared';
 import { DrecLogo } from 'assets';
-import { AccountApp, AuthApp, LoginApp } from '../user';
+import { AccountApp, AuthApp, ConfirmEmailApp, LoginApp } from '../user';
 import { RoutesConfig } from '../AppContainer';
 import { PageNotFound } from '../shared';
 import { DeviceApp } from '../device';
@@ -72,6 +72,7 @@ const App: FC<AppProps> = memo(
                     <Route element={<Navigate to="device/all" />} />
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
+                <Route path="/confirm-email" element={<ConfirmEmailApp />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         );

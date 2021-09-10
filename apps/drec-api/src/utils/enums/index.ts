@@ -6,3 +6,4 @@ export * from './standard-compliance.enum';
 export * from './user-status.enum';
 export * from './organization-status.enum';
 export * from './device-status.enum';
+export * from './email-confirmation-response.enum';

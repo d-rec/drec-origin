@@ -28,12 +28,8 @@ import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { Roles } from './decorators/roles.decorator';
-import { Role } from '../../utils/enums';
-import {
-  EmailConfirmationResponse,
-  IEmailConfirmationToken,
-  ILoggedInUser,
-} from '../../models';
+import { EmailConfirmationResponse, Role } from '../../utils/enums';
+import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';

@@ -8,18 +8,17 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
     palette: {
         primary: {
             main: styleConfig.PRIMARY_COLOR,
-            contrastText: '#000'
+            contrastText: styleConfig.MAIN_BACKGROUND_COLOR
         },
         background: {
-            paper: styleConfig.MAIN_BACKGROUND_COLOR,
-            default: 'rgb(244,67,54)'
+            paper: styleConfig.MAIN_BACKGROUND_COLOR
         },
         text: {
             primary: styleConfig.SIMPLE_TEXT_COLOR,
             secondary: styleConfig.TEXT_COLOR_DEFAULT,
             disabled: styleConfig.TEXT_COLOR_DEFAULT
         },
-        mode: 'dark'
+        mode: 'light'
     },
     typography: {
         fontFamily: styleConfig.FONT_FAMILY_PRIMARY,
@@ -44,13 +43,13 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
                     }
                 },
                 root: {
-                    backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -0.5),
+                    backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -10),
                     borderRadius: 5,
                     '&.Mui-disabled': {
-                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -2)
+                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -12)
                     },
                     '&.Mui-focused': {
-                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -0.5)
+                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -10)
                     }
                 }
             }
@@ -104,7 +103,7 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
         MuiTableHead: {
             styleOverrides: {
                 root: {
-                    background: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 0.5)
+                    background: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 0)
                 }
             }
         },
@@ -112,10 +111,10 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
             styleOverrides: {
                 root: {
                     'tr:nth-of-type(1n)': {
-                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 3.5)
+                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -7)
                     },
                     'tr:nth-of-type(2n)': {
-                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 0.5)
+                        backgroundColor: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, -3)
                     }
                 }
             }
@@ -123,7 +122,7 @@ const getThemeConfig = (styleConfig: IDrecStyleConfig): ThemeOptions => ({
         MuiTableFooter: {
             styleOverrides: {
                 root: {
-                    background: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 0.5)
+                    background: LightenColor(styleConfig.MAIN_BACKGROUND_COLOR, 0)
                 }
             }
         },
