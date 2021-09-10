@@ -9,6 +9,7 @@ import { RoutesConfig } from '../AppContainer';
 import { PageNotFound } from '../shared';
 import { DeviceApp } from '../device';
 import { OrganizationApp } from '../organization';
+import { CertificateApp } from '../certificate';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -21,7 +22,8 @@ export interface AppProps {
 const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
+        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes, certificateRoutes } =
+            routesConfig;
         return (
             <Routes>
                 <Route
@@ -45,6 +47,18 @@ const App: FC<AppProps> = memo(
                                 routesConfig={deviceRoutes}
                                 envVariables={{
                                     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                }}
+                            />
+                        }
+                    />
+                    <Route
+                        path="certificate/*"
+                        element={
+                            <CertificateApp
+                                routesConfig={certificateRoutes}
+                                envVariables={{
+                                    googleMapsApiKey: process.env.NX_GOOGLE_MAPS_API_KEY,
+                                    exchangeWalletPublicKey: process.env.NX_EXCHANGE_WALLET_PUB
                                 }}
                             />
                         }

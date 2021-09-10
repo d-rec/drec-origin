@@ -9,22 +9,31 @@ import { getOrganizationMenu, TGetOrganizationMenuArgs } from '../organization';
 import { getDeviceMenu, TGetDeviceMenuArgs } from '../device';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from '../user';
 import { useActiveMenuTab, useTopbarButtonList } from '../shared';
+import { getCertificateMenu, TGetCertificateMenuArgs } from '../certificate';
+import { useStyles } from './AppContainer.styles';
 
 export type RoutesConfig = {
-    orgRoutes: Omit<TGetOrganizationMenuArgs, 't' | 'isOpen' | 'showSection'>;
-    deviceRoutes: Omit<TGetDeviceMenuArgs, 't' | 'isOpen' | 'showSection'>;
-    accountRoutes: Omit<TGetAccountMenuArgs, 't' | 'isOpen' | 'showSection'>;
-    adminRoutes: Omit<TGetAdminMenuArgs, 't' | 'isOpen' | 'showSection'>;
+    orgRoutes: Omit<TGetOrganizationMenuArgs, 'isOpen' | 'showSection'>;
+    deviceRoutes: Omit<TGetDeviceMenuArgs, 'isOpen' | 'showSection'>;
+    certificateRoutes: Omit<TGetCertificateMenuArgs, 'isOpen' | 'showSection'>;
+    accountRoutes: Omit<TGetAccountMenuArgs, 'isOpen' | 'showSection'>;
+    adminRoutes: Omit<TGetAdminMenuArgs, 'isOpen' | 'showSection'>;
 };
 
 export const useAppContainerEffects = () => {
     useAxiosInterceptors();
+    const classes = useStyles();
 
     const { isAuthenticated, user, logout, userLoading } = useUser();
 
     const topbarButtons = useTopbarButtonList(isAuthenticated, logout);
-    const { isOrganizationTabActive, isDeviceTabActive, isAccountTabActive, isAdminTabAcive } =
-        useActiveMenuTab();
+    const {
+        isOrganizationTabActive,
+        isCertificateTabActive,
+        isDeviceTabActive,
+        isAccountTabActive,
+        isAdminTabAcive
+    } = useActiveMenuTab();
     const { data: userInvitations, isLoading: areInvitationsLoading } =
         useInvitationControllerGetInvitations({
             enabled: isAuthenticated
@@ -41,6 +50,10 @@ export const useAppContainerEffects = () => {
         Role.Admin,
         Role.SupportAgent
     );
+    const userOrgHasBlockchainAccountAttached = Boolean(
+        user?.organization?.blockchainAccountAddress
+    );
+
     const orgRoutesConfig: RoutesConfig['orgRoutes'] = {
         showRegisterOrg: !userHasOrg,
         showMyOrg: userHasOrg,
@@ -53,6 +66,8 @@ export const useAppContainerEffects = () => {
     const orgMenu = getOrganizationMenu({
         isOpen: isOrganizationTabActive,
         showSection: userIsOrgAdminOrAdminOrSupport,
+        menuButtonClass: classes.menuButton,
+        selectedMenuItemClass: classes.selectedMenuItem,
         ...orgRoutesConfig
     });
 
@@ -65,6 +80,8 @@ export const useAppContainerEffects = () => {
     const deviceMenu = getDeviceMenu({
         isOpen: isDeviceTabActive,
         showSection: true,
+        menuButtonClass: classes.menuButton,
+        selectedMenuItemClass: classes.selectedMenuItem,
         ...deviceRoutesConfig
     });
 
@@ -74,6 +91,8 @@ export const useAppContainerEffects = () => {
     const accountMenu = getAccountMenu({
         isOpen: isAccountTabActive,
         showSection: true,
+        menuButtonClass: classes.menuButton,
+        selectedMenuItemClass: classes.selectedMenuItem,
         ...accountRoutesConfig
     });
 
@@ -83,14 +102,29 @@ export const useAppContainerEffects = () => {
     const adminMenu = getAdminMenu({
         isOpen: isAdminTabAcive,
         showSection: userIsAdminOrSupport,
+        menuButtonClass: classes.menuButton,
+        selectedMenuItemClass: classes.selectedMenuItem,
         ...adminRoutesConfig
     });
 
-    const menuSections = [deviceMenu, orgMenu, accountMenu, adminMenu];
+    const certificateRoutesConfig: RoutesConfig['certificateRoutes'] = {
+        showExchangeInbox: userIsActive && userHasOrg,
+        showBlockchainInbox: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached
+    };
+    const certificateMenu = getCertificateMenu({
+        isOpen: isCertificateTabActive,
+        showSection: userIsActive && userHasOrg,
+        menuButtonClass: classes.menuButton,
+        selectedMenuItemClass: classes.selectedMenuItem,
+        ...certificateRoutesConfig
+    });
+
+    const menuSections = [deviceMenu, certificateMenu, orgMenu, accountMenu, adminMenu];
 
     const routesConfig: RoutesConfig = {
         orgRoutes: orgRoutesConfig,
         deviceRoutes: deviceRoutesConfig,
+        certificateRoutes: certificateRoutesConfig,
         accountRoutes: accountRoutesConfig,
         adminRoutes: adminRoutesConfig
     };
