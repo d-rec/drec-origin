@@ -27,12 +27,12 @@ export class FileService {
     files: FileUpload[],
     isPublic = false,
   ): Promise<string[]> {
-    if (!files || !files?.length) {
+    if (!files || !files.length) {
       throw new NotAcceptableException('No files added');
     }
     this.logger.debug(
       `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${
-        files?.length
+        files.length
       } files`,
     );
 
@@ -44,7 +44,7 @@ export class FileService {
           data: file.buffer,
           contentType: file.mimetype,
           userId: user.id.toString(),
-          organizationId: user.organizationId.toString(),
+          organizationId: user.organizationId?.toString(),
           isPublic,
         });
         await entityManager.insert<File>(File, fileToStore);

@@ -8,11 +8,14 @@ export const useUserAndOrgData = (
     return {
         userData: {
             username: `${user?.firstName} ${user?.lastName}`,
-            userPending: user?.status === UserStatus.Pending
+            userPending: user?.status === UserStatus.Pending,
+            userTooltip: 'Your account status is pending'
         },
         orgData: {
             orgName: user?.organization?.name,
-            orgPending: user?.organization && user.organization.status !== OrganizationStatus.Active
+            orgPending:
+                user?.organization && user.organization.status !== OrganizationStatus.Active,
+            orgTooltip: 'Your organization status is pending'
         }
     };
 };
