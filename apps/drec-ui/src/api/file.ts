@@ -13,8 +13,6 @@ export const publicFileDownloadHandler = async (id: string) => {
 };
 
 export const fileUploadHandler = async (file: Blob[]) => {
-    // API returns 500 Server Error
-    console.log('FILES to upload from file.ts: ', file);
     return await fileControllerUpload({ files: file });
 };
 
