@@ -108,7 +108,6 @@ export const useAppContainerEffects = () => {
     });
 
     const certificateRoutesConfig: RoutesConfig['certificateRoutes'] = {
-        showExchangeInbox: userIsActive && userHasOrg,
         showBlockchainInbox: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached
     };
     const certificateMenu = getCertificateMenu({

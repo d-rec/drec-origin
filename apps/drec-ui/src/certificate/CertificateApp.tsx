@@ -6,21 +6,31 @@ import {
     CertificateEnvVariables,
     TransactionPendingProvider
 } from './context';
+import { BlockchainInboxPage } from './pages';
 
 export interface CertificateAppProps {
     routesConfig: {
-        showExchangeInbox: boolean;
         showBlockchainInbox: boolean;
     };
     envVariables: CertificateEnvVariables;
 }
 
 export const CertificateApp: FC<CertificateAppProps> = ({ routesConfig, envVariables }) => {
-    const { showExchangeInbox, showBlockchainInbox } = routesConfig;
+    const { showBlockchainInbox } = routesConfig;
 
     return (
         <CertificateAppEnvProvider variables={envVariables}>
             <Routes>
+                {showBlockchainInbox && (
+                    <Route
+                        path="blockchain-inbox"
+                        element={
+                            <TransactionPendingProvider>
+                                <BlockchainInboxPage />
+                            </TransactionPendingProvider>
+                        }
+                    />
+                )}
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </CertificateAppEnvProvider>

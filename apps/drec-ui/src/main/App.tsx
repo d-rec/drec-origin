@@ -57,8 +57,7 @@ const App: FC<AppProps> = memo(
                             <CertificateApp
                                 routesConfig={certificateRoutes}
                                 envVariables={{
-                                    googleMapsApiKey: process.env.NX_GOOGLE_MAPS_API_KEY,
-                                    exchangeWalletPublicKey: process.env.NX_EXCHANGE_WALLET_PUB
+                                    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
                                 }}
                             />
                         }

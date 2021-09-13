@@ -3,7 +3,6 @@ import { FC } from 'react';
 
 export type CertificateEnvVariables = {
     googleMapsApiKey: string;
-    exchangeWalletPublicKey: string;
 };
 
 const CertificateAppEnv = createContext<CertificateEnvVariables>(null);
