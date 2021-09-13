@@ -13,7 +13,7 @@ export const AllDevicesPage: FC = () => {
         return <CircularProgress />;
     }
 
-    if (allDevices.length === 0) {
+    if (allDevices?.length === 0) {
         return <NoDevicesOwnedCard />;
     }
 

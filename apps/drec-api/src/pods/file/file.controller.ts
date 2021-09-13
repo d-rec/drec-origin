@@ -72,7 +72,6 @@ export class FileController {
       files: Express.Multer.File[];
     },
   ): Promise<string[]> {
-    console.log('Uploaded files: ', uploadedFiles);
     return this.fileService.store(user, uploadedFiles.files);
   }
 
