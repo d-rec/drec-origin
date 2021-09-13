@@ -2,13 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
-import { DrecThemeProvider } from './theme';
 import { Web3ReactProvider } from '@web3-react/core';
-import { CustomErrorFallback, DrecQueryClientProvider } from './main';
-import { AppContainer } from './AppContainer';
-import { getLibrary } from './user';
-
-import './index.css';
+import { getLibrary } from 'utils';
+import { DrecThemeProvider } from 'theme';
+import { CustomErrorFallback, DrecQueryClientProvider, AppContainer } from './main';
 
 ReactDOM.render(
     <React.StrictMode>

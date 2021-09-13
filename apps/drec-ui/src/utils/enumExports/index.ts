@@ -27,3 +27,20 @@ export enum EmailConfirmationResponse {
     AlreadyConfirmed = 'Email already confirmed',
     Expired = 'Email confirmation token expired'
 }
+
+export enum ReadingsWindowEnum {
+    Day = '1d',
+    Week = '1w',
+    Month = '1mo',
+    Year = '1y'
+}
+
+export enum TimeUnitPluralEnum {
+    milliseconds = 'milliseconds',
+    seconds = 'seconds',
+    minutes = 'minutes',
+    hours = 'hours',
+    days = 'days',
+    months = 'months',
+    years = 'years'
+}
