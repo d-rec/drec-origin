@@ -1,4 +1,4 @@
-import { UserDTO } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { roleNamesMatcherForMembersPage } from '../../utils';
 import { TFormatOrgMembers, TUseMembersTableLogic } from './types';
 

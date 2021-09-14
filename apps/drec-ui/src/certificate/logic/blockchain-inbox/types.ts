@@ -1,10 +1,12 @@
 import { CertificateDTO, CodeNameDTO, DeviceDTO } from '@energyweb/origin-drec-api-client';
 import {
+    GenericFormProps,
     ItemsListWithActionsProps,
     ListAction,
     TItemsListWithActionsContainers
 } from '@energyweb/origin-ui-core';
 import React, { FC } from 'react';
+import { Dayjs } from 'dayjs';
 
 export interface ListItemContentProps<Id> {
     certificateId: Id;
@@ -58,6 +60,17 @@ export type TUseRetireActionLogic<Id> = (args: TUseRetireActionLogicArgs<Id>) =>
     buttonText: string;
     selectedItems: SelectedItem<Id>[];
 };
+
+export type BeneficiaryFormValues = {
+    startDate: Dayjs;
+    endDate: Dayjs;
+    purpose: string;
+};
+
+export type TUseBeneficiaryFormLogic = () => Pick<
+    GenericFormProps<BeneficiaryFormValues>,
+    'initialValues' | 'validationSchema' | 'fields'
+>;
 
 type TUseBlockchainTransferActionLogicArgs<Id> = {
     selectedIds: Id[];

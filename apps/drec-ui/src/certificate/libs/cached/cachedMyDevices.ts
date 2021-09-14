@@ -1,7 +1,7 @@
 import {
     getDeviceControllerGetMyDevicesQueryKey,
     DeviceDTO
-} from '@energyweb/origin-drec-api-client/dist/js/src';
+} from '@energyweb/origin-drec-api-client';
 import { useQueryClient } from 'react-query';
 
 export const useCachedMyDevices = () => {

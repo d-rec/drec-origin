@@ -51,7 +51,8 @@ const App: FC<AppProps> = memo(
                             />
                         }
                     />
-                    <Route
+                    {/* Hiding this page until device grouping is done */}
+                    {/* <Route
                         path="certificate/*"
                         element={
                             <CertificateApp
@@ -61,7 +62,7 @@ const App: FC<AppProps> = memo(
                                 }}
                             />
                         }
-                    />
+                    /> */}
                     <Route
                         path="organization/*"
                         element={<OrganizationApp routesConfig={orgRoutes} />}

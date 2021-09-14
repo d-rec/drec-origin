@@ -1,7 +1,12 @@
-import { useCertificateControllerGetAll } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { useCertificateControllerGetAll } from '@energyweb/origin-drec-api-client';
 import { ListAction } from '@energyweb/origin-ui-core';
 import { useAllDeviceFuelTypes, useApiAllDevices, useUser } from '../../../api';
-import { ListItemContent, ListItemHeader, BlockchainTransferAction } from '../../containers';
+import {
+    ListItemContent,
+    ListItemHeader,
+    BlockchainTransferAction,
+    RetireAction
+} from '../../containers';
 import { useTransactionPendingStore } from '../../context';
 import { useBlockchainInboxLogic } from '../../logic';
 import { useBlockchainInboxPermissionsLogic } from '../../logic/blockchain-inbox/permissions';
@@ -11,6 +16,7 @@ export const useBlockchainInboxPageEffects = () => {
 
     const { data: blockchainCertificates, isLoading: areCertificatesLoading } =
         useCertificateControllerGetAll();
+
     const { allDevices, isLoading: areDevicesLoading } = useApiAllDevices();
     const { allTypes: allFuelTypes, isLoading: areFuelTypesLoading } = useAllDeviceFuelTypes();
     const { user, userLoading } = useUser();
@@ -23,6 +29,10 @@ export const useBlockchainInboxPageEffects = () => {
         areCertificatesLoading || areDevicesLoading || areFuelTypesLoading || userLoading;
 
     const actions: ListAction[] = [
+        {
+            name: 'Retire',
+            component: RetireAction
+        },
         {
             name: 'Transfer',
             component: BlockchainTransferAction

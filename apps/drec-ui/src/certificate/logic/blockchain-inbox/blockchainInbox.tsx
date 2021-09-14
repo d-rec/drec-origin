@@ -17,20 +17,22 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
 
     if (allDevices && blockchainCertificates) {
         allDevices.forEach((device) => {
-            const deviceHasCertificates = blockchainCertificates.find(
-                (certificate) => certificate.deviceId === device.id.toString()
-            );
-            if (!deviceHasCertificates) {
-                return;
-            }
-            const certificatesMatchingDevice = blockchainCertificates.filter(
-                (certificate) =>
-                    certificate.deviceId === device.id.toString() &&
-                    parseInt(certificate.energy.publicVolume) > 0
-            );
-            if (certificatesMatchingDevice.length === 0) {
-                return;
-            }
+            // We need to take into account Device Group Id and not device ID
+            // Will revisit this part after Device Grouping is implemented
+            // const deviceHasCertificates = blockchainCertificates.find(
+            //     (certificate) => certificate.deviceId === device.id.toString()
+            // );
+            // if (!deviceHasCertificates) {
+            //     return;
+            // }
+            // const certificatesMatchingDevice = blockchainCertificates.filter(
+            //     (certificate) =>
+            //         certificate.deviceId === device.id.toString() &&
+            //         parseInt(certificate.energy.publicVolume) > 0
+            // );
+            // if (certificatesMatchingDevice.length === 0) {
+            //     return;
+            // }
             const countryName = Countries.find(
                 (country) => country.code === device.countryCode
             )?.name;
@@ -43,7 +45,7 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
                 ),
                 containerListItemProps: { style: { padding: 8 } },
                 itemListItemProps: { style: { padding: 8 } },
-                items: certificatesMatchingDevice.map((certificate) => {
+                items: blockchainCertificates.map((certificate) => {
                     const startDate = formatDate(certificate.generationStartTime * 1000);
                     const endDate = formatDate(certificate.generationEndTime * 1000);
                     const generationTimeText = `${startDate} - ${endDate}`;

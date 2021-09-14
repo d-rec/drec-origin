@@ -112,7 +112,7 @@ export const useAppContainerEffects = () => {
     };
     const certificateMenu = getCertificateMenu({
         isOpen: isCertificateTabActive,
-        showSection: userIsActive && userHasOrg,
+        showSection: false, // userIsActive && userHasOrg,
         menuButtonClass: classes.menuButton,
         selectedMenuItemClass: classes.selectedMenuItem,
         ...certificateRoutesConfig
