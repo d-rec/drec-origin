@@ -2,14 +2,15 @@ import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
-import { useUserAndOrgData } from '../shared';
+
+import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
-import { AccountApp, AuthApp, ConfirmEmailApp, LoginApp } from '../user';
-import { RoutesConfig } from '../AppContainer';
-import { PageNotFound } from '../shared';
-import { DeviceApp } from '../device';
-import { OrganizationApp } from '../organization';
-import { CertificateApp } from '../certificate';
+import { CertificateApp } from 'apps/certificate';
+import { AccountApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
+import { DeviceApp } from 'apps/device';
+import { OrganizationApp } from 'apps/organization';
+
+import { RoutesConfig } from './AppContainer';
 
 export interface AppProps {
     isAuthenticated: boolean;
@@ -19,7 +20,7 @@ export interface AppProps {
     routesConfig: RoutesConfig;
 }
 
-const App: FC<AppProps> = memo(
+export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
         const { orgData, userData } = useUserAndOrgData(user);
         const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes, certificateRoutes } =
@@ -94,5 +95,3 @@ const App: FC<AppProps> = memo(
 );
 
 App.displayName = 'App';
-
-export default App;
