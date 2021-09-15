@@ -4,11 +4,18 @@ export type TGetAccountMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
     showUserProfile: boolean;
+    menuButtonClass?: string;
+    selectedMenuItemClass?: string;
 };
 
 type TGetAccountMenuFn = (args?: TGetAccountMenuArgs) => TMenuSection;
 
-export const getAccountMenu: TGetAccountMenuFn = ({ isOpen, showUserProfile }) => ({
+export const getAccountMenu: TGetAccountMenuFn = ({
+    isOpen,
+    showUserProfile,
+    menuButtonClass,
+    selectedMenuItemClass
+}) => ({
     isOpen,
     sectionTitle: 'Account',
     rootUrl: 'account',
@@ -19,5 +26,7 @@ export const getAccountMenu: TGetAccountMenuFn = ({ isOpen, showUserProfile }) =
             label: 'User profile',
             show: showUserProfile
         }
-    ]
+    ],
+    menuButtonClass,
+    selectedMenuItemClass
 });

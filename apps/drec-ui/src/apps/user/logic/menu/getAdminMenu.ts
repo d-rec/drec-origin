@@ -4,11 +4,19 @@ export type TGetAdminMenuArgs = {
     isOpen: boolean;
     showSection: boolean;
     showUsers: boolean;
+    menuButtonClass?: string;
+    selectedMenuItemClass?: string;
 };
 
 type TUseAdminMenuFn = (args?: TGetAdminMenuArgs) => TMenuSection;
 
-export const getAdminMenu: TUseAdminMenuFn = ({ isOpen, showSection, showUsers }) => {
+export const getAdminMenu: TUseAdminMenuFn = ({
+    isOpen,
+    showSection,
+    showUsers,
+    menuButtonClass,
+    selectedMenuItemClass
+}) => {
     return {
         isOpen,
         sectionTitle: 'Admin',
@@ -20,6 +28,8 @@ export const getAdminMenu: TUseAdminMenuFn = ({ isOpen, showSection, showUsers }
                 label: 'Users',
                 show: showUsers
             }
-        ]
+        ],
+        menuButtonClass,
+        selectedMenuItemClass
     };
 };

@@ -1,4 +1,4 @@
-import { Role } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { Role } from '@energyweb/origin-drec-api-client';
 import { RoleDescription, TRoleChangedLogic } from './types';
 
 export const getRoleChangedLogic: TRoleChangedLogic = ({ closeModal, role, orgName }) => {

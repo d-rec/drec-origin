@@ -5,7 +5,7 @@ import { UserDTO } from '@energyweb/origin-drec-api-client';
 
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
-
+import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
@@ -23,7 +23,8 @@ export interface AppProps {
 export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, orgRoutes, deviceRoutes } = routesConfig;
+        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes, certificateRoutes } =
+            routesConfig;
         return (
             <Routes>
                 <Route
@@ -51,6 +52,18 @@ export const App: FC<AppProps> = memo(
                             />
                         }
                     />
+                    {/* Hiding this page until device grouping is done */}
+                    {/* <Route
+                        path="certificate/*"
+                        element={
+                            <CertificateApp
+                                routesConfig={certificateRoutes}
+                                envVariables={{
+                                    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                }}
+                            />
+                        }
+                    /> */}
                     <Route
                         path="organization/*"
                         element={<OrganizationApp routesConfig={orgRoutes} />}
