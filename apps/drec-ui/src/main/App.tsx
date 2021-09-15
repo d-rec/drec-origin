@@ -6,7 +6,7 @@ import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 import { CertificateApp } from 'apps/certificate';
-import { AccountApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
+import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
 
@@ -68,6 +68,7 @@ export const App: FC<AppProps> = memo(
                         path="organization/*"
                         element={<OrganizationApp routesConfig={orgRoutes} />}
                     />
+                    <Route path="admin/*" element={<AdminApp routesConfig={adminRoutes} />} />
                     <Route
                         path="auth/*"
                         element={<AuthApp routesConfig={{ showRegister: !isAuthenticated }} />}

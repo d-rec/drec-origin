@@ -7,3 +7,5 @@ export * from './updateUserEmail';
 export * from './updateUserPassword';
 export * from './login';
 export * from './registerUser';
+export * from './fetching';
+export * from './handlers';
