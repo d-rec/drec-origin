@@ -1,13 +1,13 @@
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import { ChangeEvent, useState } from 'react';
-import { useTransactionPendingDispatch } from '../../../context';
+import { useTransactionPendingDispatch } from 'apps/certificate/view/context';
 import {
     useBlockchainTransferCertificateHandler,
     useCachedAllDevices,
     useCachedAllFuelTypes,
     useCachedBlockchainCertificates
-} from '../../../../logic';
-import { useBlockchainTransferActionLogic } from '../../../../logic';
+} from 'apps/certificate/data';
+import { useBlockchainTransferActionLogic } from 'apps/certificate/logic';
 
 export const useBlockchainTransferActionEffects = (
     selectedIds: CertificateDTO['id'][],

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ApiDownloadFunction } from '../types';
+import { ApiDownloadFunction } from '../../logic/types';
 
 export const fileDownloadHandler = async (id: string) => {
     return await axios.get(`api/file/${id}`);

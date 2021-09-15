@@ -1,6 +1,7 @@
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import { EnergyTypeEnum, formatDate, PowerFormatter } from '@energyweb/origin-ui-utils';
-import { getEnergyTypeImage, getMainFuelType } from '../../data';
+import { getEnergyTypeImage } from '../../data';
+import { getMainFuelType } from '../getMainFuelType';
 import { TFormatSelectedBlockchainItems } from './types';
 
 export const formatSelectedBlockchainItems: TFormatSelectedBlockchainItems = ({

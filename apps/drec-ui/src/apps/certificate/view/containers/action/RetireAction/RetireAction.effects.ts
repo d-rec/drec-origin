@@ -1,19 +1,19 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useTransactionPendingDispatch } from '../../../context';
+import { useTransactionPendingDispatch } from 'apps/certificate/view/context';
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import {
     useCachedAllDevices,
     useCachedAllFuelTypes,
     useCachedBlockchainCertificates,
     useRetireCertificateHandler
-} from '../../../../logic';
+} from 'apps/certificate/data';
 import {
     BeneficiaryFormValues,
     useBeneficiaryFormLogic,
     useRetireActionLogic
-} from '../../../../logic';
-import { useMyOrganizationData } from '../../../../../organization';
+} from 'apps/certificate/logic';
+import { useMyOrganizationData } from 'apps/organization';
 
 export const useRetireActionEffects = (
     selectedIds: CertificateDTO['id'][],

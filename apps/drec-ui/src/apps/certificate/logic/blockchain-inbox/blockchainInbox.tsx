@@ -1,6 +1,7 @@
 import { EnergyTypeEnum, formatDate, PowerFormatter } from '@energyweb/origin-ui-utils';
 import { Countries } from '@energyweb/utils-general';
-import { getEnergyTypeImage, getMainFuelType } from '../../data';
+import { getEnergyTypeImage } from '../../data';
+import { getMainFuelType } from '../getMainFuelType';
 import { BlockchainInboxContainers, TUseBlockchainInboxLogic } from './types';
 
 export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({

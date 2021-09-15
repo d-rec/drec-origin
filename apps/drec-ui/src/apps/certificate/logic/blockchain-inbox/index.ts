@@ -2,3 +2,4 @@ export * from './blockchainInbox';
 export * from './blockchainTransferAction';
 export * from './retireAction';
 export * from './types';
+export * from './permissions';

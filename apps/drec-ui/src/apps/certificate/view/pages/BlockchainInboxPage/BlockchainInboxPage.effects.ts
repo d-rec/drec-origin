@@ -1,9 +1,9 @@
 import { useCertificateControllerGetAll } from '@energyweb/origin-drec-api-client';
 import { ListAction } from '@energyweb/origin-ui-core';
-import { useUser } from '../../../../../api';
-import { useAllDeviceFuelTypes, useApiAllDevices } from '../../../../device';
-import { useBlockchainInboxLogic } from '../../../logic';
-import { useBlockchainInboxPermissionsLogic } from '../../../logic/blockchain-inbox/permissions';
+import { useUser } from 'api';
+import { useAllDeviceFuelTypes, useApiAllDevices } from 'apps/device';
+import { useBlockchainInboxLogic } from 'apps/certificate/logic';
+import { useBlockchainInboxPermissionsLogic } from 'apps/certificate/logic';
 import {
     ListItemContent,
     ListItemHeader,
