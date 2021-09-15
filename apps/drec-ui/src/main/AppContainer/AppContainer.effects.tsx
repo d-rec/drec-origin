@@ -60,8 +60,7 @@ export const useAppContainerEffects = () => {
         showMembers: userHasOrg && userIsOrgAdmin,
         showInvitations:
             userHasOrg && userIsOrgAdmin ? true : !!userInvitations && userInvitations.length > 0,
-        showInvite: userIsActive && userHasOrg && userIsOrgAdmin,
-        showAllOrgs: isAuthenticated && userIsActive && userIsAdminOrSupport
+        showInvite: userIsActive && userHasOrg && userIsOrgAdmin
     };
     const orgMenu = getOrganizationMenu({
         isOpen: isOrganizationTabActive,
@@ -97,7 +96,8 @@ export const useAppContainerEffects = () => {
     });
 
     const adminRoutesConfig: RoutesConfig['adminRoutes'] = {
-        showUsers: userIsAdminOrSupport
+        showUsers: userIsAdminOrSupport,
+        showAllOrgs: isAuthenticated && userIsActive && userIsAdminOrSupport
     };
     const adminMenu = getAdminMenu({
         isOpen: isAdminTabAcive,
