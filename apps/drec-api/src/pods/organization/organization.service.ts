@@ -152,8 +152,13 @@ export class OrganizationService {
 
     const stored = await this.repository.save(organizationToCreate);
 
+    const updatedUser = await this.userService.findById(user.id);
+
     if (documents.length) {
-      await this.fileService.assignFilesToUser(user, documents);
+      await this.fileService.assignFilesToUser(
+        new LoggedInUser(updatedUser),
+        documents,
+      );
     }
 
     this.logger.debug(
