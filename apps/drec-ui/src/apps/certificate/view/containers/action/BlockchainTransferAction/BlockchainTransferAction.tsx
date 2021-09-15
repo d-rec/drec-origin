@@ -2,6 +2,7 @@ import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import { ListActionComponentProps } from '@energyweb/origin-ui-core';
 import { CircularProgress, TextField } from '@material-ui/core';
 import React, { PropsWithChildren, ReactElement } from 'react';
+import { withMetamask } from 'utils';
 import { CertificateActionContent } from '../../list';
 import { useBlockchainTransferActionEffects } from './BlockchainTransferAction.effects';
 import { useStyles } from './BlockchainTransferAction.styles';
@@ -12,7 +13,7 @@ export type TBlockchainTransferAction = <Id>(
     props: PropsWithChildren<BlockchainTransferActionProps>
 ) => ReactElement;
 
-export const BlockchainTransferAction: TBlockchainTransferAction = ({ selectedIds, resetIds }) => {
+const Component: TBlockchainTransferAction = ({ selectedIds, resetIds }) => {
     const classes = useStyles();
     const {
         title,
@@ -54,3 +55,4 @@ export const BlockchainTransferAction: TBlockchainTransferAction = ({ selectedId
         </CertificateActionContent>
     );
 };
+export const BlockchainTransferAction = withMetamask(Component);

@@ -3,6 +3,7 @@ import { ListActionComponentProps, FormDatePicker, FormInput } from '@energyweb/
 import { CircularProgress, Grid, Box } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import React, { PropsWithChildren, ReactElement } from 'react';
+import { withMetamask } from 'utils';
 import { CertificateActionContent } from '../../list';
 import { useRetireActionEffects } from './RetireAction.effects';
 import { useStyles } from './RetireAction.styles';
@@ -11,7 +12,7 @@ type RetireActionProps = ListActionComponentProps<CertificateDTO['id']>;
 
 export type TRetireAction = (props: PropsWithChildren<RetireActionProps>) => ReactElement;
 
-export const RetireAction: TRetireAction = ({ selectedIds, resetIds }) => {
+const Component: TRetireAction = ({ selectedIds, resetIds }) => {
     const classes = useStyles();
     const {
         title,
@@ -66,3 +67,4 @@ export const RetireAction: TRetireAction = ({ selectedIds, resetIds }) => {
         </CertificateActionContent>
     );
 };
+export const RetireAction = withMetamask(Component);

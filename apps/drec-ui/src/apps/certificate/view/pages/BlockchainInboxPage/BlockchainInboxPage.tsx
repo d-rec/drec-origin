@@ -2,10 +2,9 @@ import { ItemsListWithActions, Requirements } from '@energyweb/origin-ui-core';
 import { CircularProgress, Typography } from '@material-ui/core';
 
 import React, { FC } from 'react';
-import { withMetamask } from '../../../../../utils';
 import { useBlockchainInboxPageEffects } from './BlockchainInboxPage.effects';
 
-const Component: FC = () => {
+export const BlockchainInboxPage: FC = () => {
     const {
         isLoading,
         listProps,
@@ -29,5 +28,3 @@ const Component: FC = () => {
         />
     );
 };
-
-export const BlockchainInboxPage = withMetamask(Component);
