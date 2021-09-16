@@ -36,7 +36,7 @@ export const useAppContainerEffects = () => {
     } = useActiveMenuTab();
     const { data: userInvitations, isLoading: areInvitationsLoading } =
         useInvitationControllerGetInvitations({
-            enabled: isAuthenticated
+            query: { enabled: isAuthenticated }
         });
     const userHasOrg = Boolean(user?.organization?.id);
     const userIsOrgAdmin = isRole(user?.role, Role.OrganizationAdmin);

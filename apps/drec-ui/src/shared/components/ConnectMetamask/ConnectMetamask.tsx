@@ -2,8 +2,7 @@ import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-cor
 import { Button, Box, Typography, useMediaQuery, Paper } from '@material-ui/core';
 import { useTheme } from '@material-ui/core';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import React from 'react';
-import { injectedConnector } from '../../../utils';
+import { injectedConnector } from 'utils';
 import { useStyles } from './ConnectMetamask.styles';
 
 export const ConnectMetamask = () => {

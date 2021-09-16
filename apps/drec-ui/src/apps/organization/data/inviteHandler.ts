@@ -11,20 +11,22 @@ export const useOrganizationInviteHandler = () => {
     const { data: user, isLoading: isUserLoading } = useUserControllerMe();
     const { data: alreadySentInvitations, isLoading: isInvitationsLoading } =
         useOrganizationControllerGetInvitationsForOrganization(user?.organization?.id, {
-            enabled: Boolean(user?.organization?.id)
+            query: { enabled: Boolean(user?.organization?.id) }
         });
 
     const { mutate } = useInvitationControllerInvite({
-        onSuccess: () => {
-            showNotification('Invitation sent', NotificationTypeEnum.Success);
-        },
-        onError: (error: any) => {
-            showNotification(
-                `Could not invite user to organization:
+        mutation: {
+            onSuccess: () => {
+                showNotification('Invitation sent', NotificationTypeEnum.Success);
+            },
+            onError: (error: any) => {
+                showNotification(
+                    `Could not invite user to organization:
         ${error?.response?.data?.message || ''}
         `,
-                NotificationTypeEnum.Error
-            );
+                    NotificationTypeEnum.Error
+                );
+            }
         }
     });
 

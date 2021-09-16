@@ -16,7 +16,7 @@ export const useSentOrgInvitationsData = () => {
 
     const { data: invitations, isLoading: invitationsLoading } =
         useOrganizationControllerGetInvitationsForOrganization(user?.organization?.id, {
-            enabled: Boolean(user?.organization?.id)
+            query: { enabled: Boolean(user?.organization?.id) }
         });
 
     return { isLoading: userLoading || invitationsLoading, invitations };
@@ -33,12 +33,7 @@ export const useReceivedInvitationsActions = (openRoleChangedModal: () => void) 
     const invitationsKey = getInvitationControllerGetInvitationsQueryKey();
     const userKey = getUserControllerMeQueryKey();
 
-    const { mutate } = useInvitationControllerUpdateInvitation({
-        onSettled: () => {
-            queryClient.invalidateQueries(invitationsKey);
-            queryClient.invalidateQueries(userKey);
-        }
-    });
+    const { mutate, isLoading: isMutating } = useInvitationControllerUpdateInvitation();
 
     const acceptInvite = (id: InvitationDTO['id']) =>
         mutate(
@@ -71,6 +66,8 @@ export const useReceivedInvitationsActions = (openRoleChangedModal: () => void) 
             {
                 onSuccess: () => {
                     showNotification('Invitation rejected', NotificationTypeEnum.Success);
+                    queryClient.invalidateQueries(invitationsKey);
+                    queryClient.invalidateQueries(userKey);
                 },
                 onError: (error: any) => {
                     showNotification(
@@ -83,5 +80,5 @@ export const useReceivedInvitationsActions = (openRoleChangedModal: () => void) 
             }
         );
 
-    return { acceptInvite, rejectInvite };
+    return { acceptInvite, rejectInvite, isMutating };
 };
