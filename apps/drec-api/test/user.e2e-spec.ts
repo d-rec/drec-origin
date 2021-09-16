@@ -78,7 +78,7 @@ describe('Users tests', () => {
       password: 'test',
     };
     await loginUser(newLoggedUser);
-    await requestUsers(user.id, HttpStatus.UNAUTHORIZED);
+    await requestUsers(user.id, HttpStatus.OK);
   });
 
   it('should create a new user', async () => {

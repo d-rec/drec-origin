@@ -1,4 +1,3 @@
-export * from './AllOrganizationsPage';
 export * from './OrganizationViewPage';
 export * from './MembersPage';
 export * from './InvitePage';

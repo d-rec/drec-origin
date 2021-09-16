@@ -5,7 +5,6 @@ import { OrganizationModalsCenter } from './containers';
 import { OrganizationModalsProvider } from './context';
 import {
     RegisterPage,
-    AllOrganizationsPage,
     OrganizationViewPage,
     MembersPage,
     InvitePage,
@@ -19,13 +18,11 @@ interface OrganizationAppProps {
         showMembers: boolean;
         showInvitations: boolean;
         showInvite: boolean;
-        showAllOrgs: boolean;
     };
 }
 
 export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
-    const { showRegisterOrg, showMyOrg, showInvite, showMembers, showInvitations, showAllOrgs } =
-        routesConfig;
+    const { showRegisterOrg, showMyOrg, showInvite, showMembers, showInvitations } = routesConfig;
 
     return (
         <OrganizationModalsProvider>
@@ -34,7 +31,6 @@ export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
                 {showInvitations && <Route path="invitations" element={<InvitationsPage />} />}
                 {showInvite && <Route path="invite" element={<InvitePage />} />}
                 {showMembers && <Route path="members" element={<MembersPage />} />}
-                {showAllOrgs && <Route path="all" element={<AllOrganizationsPage />} />}
                 {showRegisterOrg && <Route path="register" element={<RegisterPage />} />}
                 <Route path="*" element={<PageNotFound />} />
             </Routes>

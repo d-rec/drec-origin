@@ -314,7 +314,7 @@ export class UserService {
     const isOrgAdmin =
       loggedInUser.organizationId === user.organization?.id &&
       loggedInUser.hasRole(Role.OrganizationAdmin);
-    const isAdmin = isRole(Role.Admin);
+    const isAdmin = loggedInUser.hasRole(Role.Admin);
 
     const canViewUserData = isOwnUser || isOrgAdmin || isAdmin;
 

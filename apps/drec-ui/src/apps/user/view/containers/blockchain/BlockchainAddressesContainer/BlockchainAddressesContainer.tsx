@@ -1,13 +1,17 @@
-import { Typography } from '@material-ui/core';
+import React from 'react';
+import { Paper, Typography } from '@material-ui/core';
 import { OrganizationBlockchainAddress } from '../OrganizationBlockchainAddress';
+import { useStyles } from './BlockchainAddressesContainer.styles';
+import { withMetamask } from 'utils';
 
-export const BlockchainAddressesContainer = () => {
+const Component = () => {
+    const classes = useStyles();
     return (
-        <>
+        <Paper classes={{ root: classes.paper }}>
             <Typography variant="h5">Blockchain Addresses</Typography>
             <OrganizationBlockchainAddress />
-        </>
+        </Paper>
     );
 };
 
-export default BlockchainAddressesContainer;
+export const BlockchainAddressesContainer = withMetamask(Component);

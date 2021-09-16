@@ -8,7 +8,6 @@ export type TGetOrganizationMenuArgs = {
     showMembers: boolean;
     showInvitations: boolean;
     showInvite: boolean;
-    showAllOrgs: boolean;
     menuButtonClass?: string;
     selectedMenuItemClass?: string;
 };
@@ -23,7 +22,6 @@ export const getOrganizationMenu: TGetOrganizationMenu = ({
     showMembers,
     showInvitations,
     showInvite,
-    showAllOrgs,
     menuButtonClass,
     selectedMenuItemClass
 }) => {
@@ -52,11 +50,6 @@ export const getOrganizationMenu: TGetOrganizationMenu = ({
             url: 'invite',
             label: 'Invite',
             show: showInvite
-        },
-        {
-            url: 'all',
-            label: 'All Organizations',
-            show: showAllOrgs
         }
     ];
 
