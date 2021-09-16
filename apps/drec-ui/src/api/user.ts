@@ -22,7 +22,9 @@ export const useUser = () => {
         isLoading: userLoading,
         isSuccess
     } = useUserControllerMe({
-        enabled: tokenExists
+        query: {
+            enabled: tokenExists
+        }
     });
 
     const logout = () => clearUser();

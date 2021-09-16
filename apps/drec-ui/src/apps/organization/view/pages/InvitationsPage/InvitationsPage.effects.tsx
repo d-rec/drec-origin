@@ -24,17 +24,20 @@ export const useInvitationsPageEffects = () => {
         });
     };
 
-    const { acceptInvite, rejectInvite } = useReceivedInvitationsActions(openRoleChangedModal);
+    const { acceptInvite, rejectInvite, isMutating } =
+        useReceivedInvitationsActions(openRoleChangedModal);
     const receivedInvitationsActions = [
         {
             icon: <Check />,
             name: 'Accept',
-            onClick: (id: InvitationDTO['id']) => acceptInvite(id)
+            onClick: (id: InvitationDTO['id']) => acceptInvite(id),
+            loading: isMutating
         },
         {
             icon: <Clear />,
             name: 'Decline',
-            onClick: (id: InvitationDTO['id']) => rejectInvite(id)
+            onClick: (id: InvitationDTO['id']) => rejectInvite(id),
+            loading: isMutating
         }
     ];
     const { isLoading: isReceivedLoading, invitations: receivedInvitations } =
