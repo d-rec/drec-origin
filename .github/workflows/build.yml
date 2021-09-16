@@ -20,6 +20,9 @@ env:
     HEROKU_STABLE_APP_UI: ${{secrets.HEROKU_STABLE_APP_UI}}
     HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
     REACT_APP_BACKEND_URL: https://${{secrets.HEROKU_STABLE_APP_API}}.herokuapp.com
+    REACT_APP_GOOGLE_MAPS_API_KEY: ${{secrets.REACT_APP_GOOGLE_MAPS_API_KEY}}
+    REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: ${{secrets.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN}}
+    REACT_APP_SUPPORTED_NETWORK_IDS: ${{secrets.REACT_APP_SUPPORTED_NETWORK_IDS}}
     MNEMONIC: stone eyebrow bronze glide upon subject camera cushion rice outside swing casual
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
