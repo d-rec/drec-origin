@@ -12,7 +12,7 @@ on:
 
 env:
     MODE: CI
-    WEB3: http://localhost:8545
+    WEB3: https://volta-rpc.energyweb.org
     INFLUXDB_URL: http://localhost:8086
     INFLUXDB_TOKEN: admin:admin
     INFLUXDB_BUCKET: energy/autogen
