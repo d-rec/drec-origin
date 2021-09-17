@@ -8,13 +8,17 @@ import { useStyles } from './OrganizationBlockchainAddress.styles';
 export const OrganizationBlockchainAddress: FC = () => {
     const classes = useStyles();
     const {
+        isApprovedOperator,
+        approveOperatorHandler,
         submitHandler,
         isLoading,
         blockchainAddress,
         isUpdating,
         title,
         buttonText,
-        popoverText
+        operatorApprovalButtonText,
+        popoverText,
+        operatorApprovalPopoverText
     } = useOrganizationBlockchainAddressEffects();
 
     if (isLoading) {
@@ -22,7 +26,7 @@ export const OrganizationBlockchainAddress: FC = () => {
     }
 
     return (
-        <Grid item md={8} xs={12}>
+        <Grid item xs={12}>
             <Typography variant="h6">{title}</Typography>
             <div className={classes.fieldWrapper}>
                 {blockchainAddress ? (
@@ -50,6 +54,27 @@ export const OrganizationBlockchainAddress: FC = () => {
                     icon={Info}
                     iconSize={IconSize.Large}
                     popoverText={popoverText}
+                    className={classes.iconPopover}
+                />
+            </div>
+            <div className={classes.fieldWrapper}>
+                {isApprovedOperator() ? (
+                    'Operator is approved!'
+                ) : (
+                    <Button
+                        type="button"
+                        variant="contained"
+                        color="primary"
+                        disabled={isUpdating}
+                        onClick={approveOperatorHandler}
+                    >
+                        {operatorApprovalButtonText}
+                    </Button>
+                )}
+                <IconPopover
+                    icon={Info}
+                    iconSize={IconSize.Large}
+                    popoverText={operatorApprovalPopoverText}
                     className={classes.iconPopover}
                 />
             </div>

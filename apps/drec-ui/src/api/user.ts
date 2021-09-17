@@ -11,8 +11,8 @@ export const useUser = () => {
         const token = getAuthenticationToken();
         if (token) {
             removeAuthenticationToken();
-            navigate('/');
             queryClient.clear();
+            navigate('/');
         }
     };
     const tokenExists = Boolean(getAuthenticationToken());

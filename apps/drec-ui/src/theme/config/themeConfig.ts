@@ -1,4 +1,4 @@
-import { createMuiTheme, Theme, ThemeOptions } from '@material-ui/core/styles';
+import { createTheme, Theme, ThemeOptions } from '@material-ui/core/styles';
 import { enUS } from '@material-ui/core/locale';
 import { LightenColor } from '../utils/colors';
 import { IDrecStyleConfig } from '../utils/makeDrecUiConfig';
@@ -176,7 +176,7 @@ const createMaterialThemeForDrec = (styleConfig: IDrecStyleConfig, language: 'en
             en: enUS
         }[language] ?? enUS;
 
-    return createMuiTheme(getThemeConfig(styleConfig), materialLocale);
+    return createTheme(getThemeConfig(styleConfig), materialLocale);
 };
 
 export default createMaterialThemeForDrec;

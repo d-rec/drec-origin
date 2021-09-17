@@ -6,6 +6,10 @@ export const useOrganizationBlockchainAddressLogic = () => {
             'A connected user blockchain address is required to withdraw certificates from the exchange and retire certificates.',
             'Select the right blockchain account in your MetaMask browser wallet and click “Connect Blockchain Address” to connect. Visit metamask.io to set up your own blockchain wallet.'
         ],
-        buttonText: 'Connect Blockchain Address'
+        operatorApprovalPopoverText: [
+            'The user needs to give operator approval for the platform to automatically transfer certificates.'
+        ],
+        buttonText: 'Connect Blockchain Address',
+        operatorApprovalButtonText: 'Give Operator Approval'
     };
 };

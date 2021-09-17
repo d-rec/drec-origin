@@ -1,10 +1,10 @@
 import { addDecorator } from '@storybook/react';
-import { createMuiTheme, ThemeProvider as MuiThemeProvider } from '@material-ui/core';
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@material-ui/core';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { themeOptions } from '../src/utils/styling';
 
-const theme = createMuiTheme(themeOptions);
+const theme = createTheme(themeOptions);
 const queryClient = new QueryClient();
 
 addDecorator((story) => <MemoryRouter initialEntries={['/']}>{story()}</MemoryRouter>);
