@@ -57,27 +57,31 @@ export const OrganizationBlockchainAddress: FC = () => {
                     className={classes.iconPopover}
                 />
             </div>
-            <div className={classes.fieldWrapper}>
-                {isApprovedOperator() ? (
-                    'Operator is approved!'
-                ) : (
-                    <Button
-                        type="button"
-                        variant="contained"
-                        color="primary"
-                        disabled={isUpdating}
-                        onClick={approveOperatorHandler}
-                    >
-                        {operatorApprovalButtonText}
-                    </Button>
-                )}
-                <IconPopover
-                    icon={Info}
-                    iconSize={IconSize.Large}
-                    popoverText={operatorApprovalPopoverText}
-                    className={classes.iconPopover}
-                />
-            </div>
+            {blockchainAddress ? (
+                <div className={classes.fieldWrapper}>
+                    {isApprovedOperator() ? (
+                        <Typography>Operator is approved!</Typography>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="contained"
+                            color="primary"
+                            disabled={isUpdating}
+                            onClick={approveOperatorHandler}
+                        >
+                            {operatorApprovalButtonText}
+                        </Button>
+                    )}
+                    <IconPopover
+                        icon={Info}
+                        iconSize={IconSize.Large}
+                        popoverText={operatorApprovalPopoverText}
+                        className={classes.iconPopover}
+                    />
+                </div>
+            ) : (
+                ''
+            )}
         </Grid>
     );
 };

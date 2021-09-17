@@ -78,6 +78,7 @@ specifiers:
   '@typescript-eslint/parser': 3.10.1
   '@web3-react/core': 6.1.9
   '@web3-react/injected-connector': 6.0.7
+  axios: 0.21.4
   babel-loader: 8.1.0
   barrelsby: 2.2.0
   bcryptjs: 2.4.3
@@ -124,6 +125,7 @@ specifiers:
   react-error-boundary: 3.1.1
   react-hook-form: 7.1.0
   react-material-ui-carousel: 2.2.7
+  react-query: 3.23.2
   react-router: 6.0.0-beta.4
   react-router-dom: 6.0.0-beta.4
   react-scripts: 4.0.3
@@ -224,6 +226,7 @@ dependencies:
   '@typescript-eslint/parser': 3.10.1_eslint@7.15.0+typescript@4.1.3
   '@web3-react/core': 6.1.9_react@17.0.2
   '@web3-react/injected-connector': 6.0.7
+  axios: 0.21.4
   babel-loader: 8.1.0_webpack@4.44.2
   barrelsby: 2.2.0
   bcryptjs: 2.4.3
@@ -270,6 +273,7 @@ dependencies:
   react-error-boundary: 3.1.1_react@17.0.2
   react-hook-form: 7.1.0_react@17.0.2
   react-material-ui-carousel: 2.2.7_9f1257122ad5e48540fe8e9a1c9339ca
+  react-query: 3.23.2_react-dom@17.0.2+react@17.0.2
   react-router: 6.0.0-beta.4_history@5.0.0+react@17.0.2
   react-router-dom: 6.0.0-beta.4_d9087d3b29103f1c99eb8571e6a2a0c4
   react-scripts: 4.0.3_8144f534d768f9b53b20ee4c76a50983
@@ -20663,25 +20667,6 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /react-query/3.15.1_react-dom@17.0.2+react@17.0.2:
-    resolution: {integrity: sha512-F17OuiL7CS9HDbNt1vUN5Opk0Ua+r2y2liDGLlZh3mbdc3ANob0mgaWB6TOBdlyMewbgg+qf1keS2aCV1qVWOg==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.15.3
-      broadcast-channel: 3.7.0
-      match-sorter: 6.3.0
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-    dev: false
-
   /react-query/3.23.2_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-RFnJh1ZKj4DImWR8SijHnUunYk9WC7aoHuSqxdg7kV9IBq4IIUVbFwix5sYFk0CfUZTh2F4m2KZMlguweLzj+w==}
     peerDependencies:
@@ -24840,7 +24825,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api-client.tgz_8f23d899990a142f129966be031cc153:
-    resolution: {integrity: sha512-mIXlwr/o0/gNpJRHYhVZ7vWC+IgvTHr2Z94BFhg55n+CKb4M5MnKgHk7j+mXdG6r2ynO0wBqIILlZTLUrOTDtg==, tarball: file:projects/origin-drec-api-client.tgz}
+    resolution: {integrity: sha512-Nt8lqqxTKsWp5VKw+QZtSAIxtFWzZjEF+4/UsX46HcaVXlVrs8OTWXcOtnbSpIWL66F8i5BoDoM+M/YlX3NgYg==, tarball: file:projects/origin-drec-api-client.tgz}
     id: file:projects/origin-drec-api-client.tgz
     name: '@rush-temp/origin-drec-api-client'
     version: 0.0.0
@@ -24850,13 +24835,13 @@ packages:
       '@nestjs/typeorm': 7.1.5_55f779d3e59ebc0549592e91a5d06141
       '@types/mocha': 8.2.0
       '@types/node': 14.14.11
-      axios: 0.21.1
+      axios: 0.21.4
       barrelsby: 2.2.0
       json-to-pretty-yaml: 1.2.2
       mocha: 8.2.1
       orval: 5.5.9
       prettier: 2.1.2
-      react-query: 3.15.1_react-dom@17.0.2+react@17.0.2
+      react-query: 3.23.2_react-dom@17.0.2+react@17.0.2
       ts-node: 9.1.0_typescript@4.1.3
       typescript: 4.1.3
     transitivePeerDependencies:
@@ -24880,7 +24865,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-3zGoRi6OTxlHZIOe1uYopS49RlwtKjHMqOsFdkwsuWX9YTIxuzseXbkJzP/8wx3896z/O3MDQf9CFopnzSOR9A==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-R6ycHz0xNjwhdjMMYKOV5qorwUNsO0r9ZFVMQMeumc0ihtcZxKaQyH9MowUM7na7FQh2fyamxAOv1TmoVX3WZA==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24924,7 +24909,7 @@ packages:
       '@types/uuid': 8.3.0
       '@typescript-eslint/eslint-plugin': 3.10.1_78c90eb01c736ca8fc94478e2e2a5ff9
       '@typescript-eslint/parser': 3.10.1_eslint@7.15.0+typescript@4.1.3
-      axios: 0.21.1
+      axios: 0.21.4
       bcryptjs: 2.4.3
       chai: 4.2.0
       class-transformer: 0.3.1
