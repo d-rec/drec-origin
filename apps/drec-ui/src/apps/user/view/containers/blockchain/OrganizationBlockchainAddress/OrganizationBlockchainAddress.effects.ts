@@ -5,7 +5,7 @@ import { useUserAppEnv } from '../../../context';
 
 export const useOrganizationBlockchainAddressEffects = () => {
     const [isUpdating, setIsUpdating] = useState(false);
-    const [isOperatorApproved, setOperatorApproved] = useState(false);
+    const [isOperatorApproved, setOperatorApproved] = useState<boolean>();
 
     const { registrationMessage } = useUserAppEnv();
 

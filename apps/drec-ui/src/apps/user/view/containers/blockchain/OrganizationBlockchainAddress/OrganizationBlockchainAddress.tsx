@@ -57,7 +57,7 @@ export const OrganizationBlockchainAddress: FC = () => {
                     className={classes.iconPopover}
                 />
             </div>
-            {blockchainAddress ? (
+            {blockchainAddress && isOperatorApproved !== undefined ? (
                 <div className={classes.fieldWrapper}>
                     {isOperatorApproved ? (
                         <Typography>Operator is approved!</Typography>
