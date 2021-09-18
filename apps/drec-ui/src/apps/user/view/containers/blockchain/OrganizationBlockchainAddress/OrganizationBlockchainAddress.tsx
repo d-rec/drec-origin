@@ -8,7 +8,7 @@ import { useStyles } from './OrganizationBlockchainAddress.styles';
 export const OrganizationBlockchainAddress: FC = () => {
     const classes = useStyles();
     const {
-        isApprovedOperator,
+        isOperatorApproved,
         approveOperatorHandler,
         submitHandler,
         isLoading,
@@ -59,7 +59,7 @@ export const OrganizationBlockchainAddress: FC = () => {
             </div>
             {blockchainAddress ? (
                 <div className={classes.fieldWrapper}>
-                    {isApprovedOperator() ? (
+                    {isOperatorApproved ? (
                         <Typography>Operator is approved!</Typography>
                     ) : (
                         <Button

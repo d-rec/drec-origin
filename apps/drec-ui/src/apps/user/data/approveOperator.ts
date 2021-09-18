@@ -25,7 +25,6 @@ export const useApproveOperatorHandler = () => {
             issuer: Contracts.factories.IssuerFactory.connect(blockchainProperties?.issuer, web3),
             activeUser: web3.getSigner()
         };
-        console.log('active user: ', web3.getSigner());
         return { configuration };
     };
 
@@ -37,15 +36,17 @@ export const useApproveOperatorHandler = () => {
         return await CertificateUtils.approveOperator(issuerAccount.address, configuration);
     };
 
-    const isApprovedOperator = async () => {
+    const checkOperatorApprovedForAll = async () => {
         if (!blockchainProperties) {
             return;
         }
         const { configuration } = getBlockchainProperties();
-        console.log('ADDRESS: ', issuerAccount.address);
-        console.log('configuration: ', configuration);
-        return await CertificateUtils.isApprovedForAll(issuerAccount.address, configuration);
+        const isApprovedForAll = await CertificateUtils.isApprovedForAll(
+            issuerAccount.address,
+            configuration
+        );
+        return isApprovedForAll;
     };
 
-    return { approveOperatorHandler, isApprovedOperator, isLoading };
+    return { approveOperatorHandler, checkOperatorApprovedForAll, isLoading };
 };
