@@ -1,7 +1,6 @@
 import {
     getUserControllerMeQueryKey,
     OrganizationStatus,
-    useBlockchainPropertiesControllerGet,
     useOrganizationControllerSetBlockchainAddress,
     UserStatus
 } from '@energyweb/origin-drec-api-client';
@@ -11,8 +10,6 @@ import { signTypedMessage } from '@energyweb/utils-general';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 import { useUser } from 'api';
 import { userApiErrorHandler } from './errorHandler';
-import { Wallet } from 'ethers';
-import { CertificateUtils, Contracts, IBlockchainProperties } from '@energyweb/issuer';
 
 export const useUpdateBlockchainAddress = (
     registrationMessage: string,
@@ -22,39 +19,10 @@ export const useUpdateBlockchainAddress = (
     const userQuerykey = getUserControllerMeQueryKey();
     const { mutate, error, isError, isSuccess, status } =
         useOrganizationControllerSetBlockchainAddress();
-    const { data: blockchainProperties } = useBlockchainPropertiesControllerGet();
 
     const { user, userLoading } = useUser();
     const blockchainAddress = user?.organization?.blockchainAccountAddress;
     const { library: web3, account } = useWeb3React();
-
-    const approveOperatorHandler = async () => {
-        const { issuerAccount, configuration } = getBlockchainProperties();
-        await CertificateUtils.approveOperator(issuerAccount.address, configuration);
-    };
-
-    const isApprovedOperator = async () => {
-        const { issuerAccount, configuration } = getBlockchainProperties();
-        return await CertificateUtils.isApprovedForAll(issuerAccount.address, configuration);
-    };
-
-    const getBlockchainProperties = () => {
-        const issuerAccount = Wallet.fromMnemonic(
-            process.env.REACT_APP_MNEMONIC!,
-            `m/44'/60'/0'/0/${0}`
-        );
-        const configuration: IBlockchainProperties = {
-            web3,
-            registry: Contracts.factories.RegistryExtendedFactory.connect(
-                blockchainProperties?.registry,
-                web3
-            ),
-            issuer: Contracts.factories.IssuerFactory.connect(blockchainProperties?.issuer, web3),
-            activeUser: web3.getSigner()
-        };
-
-        return { issuerAccount, configuration };
-    };
 
     const submitHandler = () => {
         try {
@@ -107,8 +75,6 @@ export const useUpdateBlockchainAddress = (
         isSuccess,
         isError,
         error,
-        submitHandler,
-        approveOperatorHandler,
-        isApprovedOperator
+        submitHandler
     };
 };
