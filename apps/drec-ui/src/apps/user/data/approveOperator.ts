@@ -1,52 +1,72 @@
 import { useWeb3React } from '@web3-react/core';
+import { useQueryClient } from 'react-query';
 import { Web3Provider } from '@ethersproject/providers';
-import { useBlockchainPropertiesControllerGet } from '@energyweb/origin-drec-api-client';
-import { CertificateUtils, Contracts, IBlockchainProperties } from '@energyweb/issuer';
-import { Wallet } from 'ethers';
+import {
+    BlockchainPropertiesDTO,
+    getBlockchainPropertiesControllerGetQueryKey,
+    useBlockchainPropertiesControllerGet
+} from '@energyweb/origin-drec-api-client';
+import { CertificateUtils } from '@energyweb/issuer';
+import { getBlockchainConfiguration } from 'utils';
+import { NotificationTypeEnum, showNotification } from 'shared';
 
-export const useApproveOperatorHandler = () => {
+export const useApproveOperatorHandler = (
+    issuerAddress: string,
+    setIsGivingApproval: (value: boolean) => void
+) => {
+    const queryClient = useQueryClient();
     const { data: blockchainProperties, isLoading } = useBlockchainPropertiesControllerGet();
-
-    const web3Interface = useWeb3React<Web3Provider>();
-    const { library: web3 } = web3Interface;
-
-    const issuerAccount = Wallet.fromMnemonic(
-        process.env.REACT_APP_MNEMONIC!,
-        `m/44'/60'/0'/0/${0}`
-    );
-
-    const getBlockchainProperties = () => {
-        const configuration: IBlockchainProperties = {
-            web3,
-            registry: Contracts.factories.RegistryExtendedFactory.connect(
-                blockchainProperties?.registry,
-                web3
-            ),
-            issuer: Contracts.factories.IssuerFactory.connect(blockchainProperties?.issuer, web3),
-            activeUser: web3.getSigner()
-        };
-        return { configuration };
-    };
+    const blockchainPropertiesQueryKey = getBlockchainPropertiesControllerGetQueryKey();
+    const { library } = useWeb3React<Web3Provider>();
 
     const approveOperatorHandler = async () => {
-        if (!blockchainProperties) {
-            return;
+        if (!blockchainProperties) return;
+
+        const configuration = getBlockchainConfiguration(library, blockchainProperties);
+
+        try {
+            const transaction = await CertificateUtils.approveOperator(
+                issuerAddress,
+                configuration
+            );
+
+            setIsGivingApproval(true);
+            const receipt = await transaction.wait();
+
+            if (receipt.status === 0) {
+                throw new Error('Transaction failed');
+            } else {
+                setIsGivingApproval(false);
+                showNotification(
+                    'You have successfully give an operator approval',
+                    NotificationTypeEnum.Success
+                );
+                queryClient.resetQueries(blockchainPropertiesQueryKey);
+            }
+        } catch (error) {
+            setIsGivingApproval(false);
+            showNotification('Error while giving operator approval', NotificationTypeEnum.Error);
+            console.error(error);
         }
-        const { configuration } = getBlockchainProperties();
-        return await CertificateUtils.approveOperator(issuerAccount.address, configuration);
     };
 
-    const checkOperatorApprovedForAll = async () => {
-        if (!blockchainProperties) {
-            return;
+    const checkOperatorApprovedForAll = async (
+        web3: Web3Provider,
+        blockchainProps: BlockchainPropertiesDTO
+    ) => {
+        if (!blockchainProps) return;
+
+        const configuration = getBlockchainConfiguration(web3, blockchainProps);
+        try {
+            const isApprovedForAll = await CertificateUtils.isApprovedForAll(
+                issuerAddress,
+                configuration
+            );
+            return isApprovedForAll;
+        } catch (error) {
+            console.error(error);
         }
-        const { configuration } = getBlockchainProperties();
-        const isApprovedForAll = await CertificateUtils.isApprovedForAll(
-            issuerAccount.address,
-            configuration
-        );
-        return isApprovedForAll;
     };
 
-    return { approveOperatorHandler, checkOperatorApprovedForAll, isLoading };
+    return { approveOperatorHandler, checkOperatorApprovedForAll, isLoading, blockchainProperties };
 };

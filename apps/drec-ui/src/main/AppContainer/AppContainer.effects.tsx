@@ -3,7 +3,6 @@ import {
     useInvitationControllerGetInvitations,
     UserStatus
 } from '@energyweb/origin-drec-api-client';
-import { useStyles } from './AppContainer.styles';
 import { useUser, useAxiosInterceptors } from 'api';
 import { getOrganizationMenu, TGetOrganizationMenuArgs } from 'apps/organization';
 import { getDeviceMenu, TGetDeviceMenuArgs } from 'apps/device';
@@ -22,7 +21,6 @@ export type RoutesConfig = {
 
 export const useAppContainerEffects = () => {
     useAxiosInterceptors();
-    const classes = useStyles();
 
     const { isAuthenticated, user, logout, userLoading } = useUser();
 
@@ -65,8 +63,6 @@ export const useAppContainerEffects = () => {
     const orgMenu = getOrganizationMenu({
         isOpen: isOrganizationTabActive,
         showSection: userIsOrgAdminOrAdminOrSupport,
-        menuButtonClass: classes.menuButton,
-        selectedMenuItemClass: classes.selectedMenuItem,
         ...orgRoutesConfig
     });
 
@@ -79,8 +75,6 @@ export const useAppContainerEffects = () => {
     const deviceMenu = getDeviceMenu({
         isOpen: isDeviceTabActive,
         showSection: true,
-        menuButtonClass: classes.menuButton,
-        selectedMenuItemClass: classes.selectedMenuItem,
         ...deviceRoutesConfig
     });
 
@@ -90,8 +84,6 @@ export const useAppContainerEffects = () => {
     const accountMenu = getAccountMenu({
         isOpen: isAccountTabActive,
         showSection: true,
-        menuButtonClass: classes.menuButton,
-        selectedMenuItemClass: classes.selectedMenuItem,
         ...accountRoutesConfig
     });
 
@@ -102,8 +94,6 @@ export const useAppContainerEffects = () => {
     const adminMenu = getAdminMenu({
         isOpen: isAdminTabAcive,
         showSection: userIsAdminOrSupport,
-        menuButtonClass: classes.menuButton,
-        selectedMenuItemClass: classes.selectedMenuItem,
         ...adminRoutesConfig
     });
 
@@ -113,8 +103,6 @@ export const useAppContainerEffects = () => {
     const certificateMenu = getCertificateMenu({
         isOpen: isCertificateTabActive,
         showSection: false, // userIsActive && userHasOrg,
-        menuButtonClass: classes.menuButton,
-        selectedMenuItemClass: classes.selectedMenuItem,
         ...certificateRoutesConfig
     });
 

@@ -3,10 +3,9 @@ import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { CircularProgress } from '@material-ui/core';
-
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
-import { CertificateApp } from 'apps/certificate';
+// import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
@@ -25,8 +24,7 @@ export interface AppProps {
 export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig, loading }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes, certificateRoutes } =
-            routesConfig;
+        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
         return (
             <Routes>
                 <Route
@@ -92,7 +90,8 @@ export const App: FC<AppProps> = memo(
                                         routesConfig={accountRoutes}
                                         envVariables={{
                                             registrationMessage:
-                                                process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN
+                                                process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN,
+                                            issuerAddress: process.env.REACT_APP_ISSUER_ADDRESS
                                         }}
                                     />
                                 }

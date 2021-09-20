@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Button, CircularProgress, Grid, TextField, Typography } from '@material-ui/core';
+import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@material-ui/core';
 import { Info } from '@material-ui/icons';
 import { IconPopover, IconSize } from '@energyweb/origin-ui-core';
 import { useOrganizationBlockchainAddressEffects } from './OrganizationBlockchainAddress.effects';
@@ -18,15 +18,14 @@ export const OrganizationBlockchainAddress: FC = () => {
         buttonText,
         operatorApprovalButtonText,
         popoverText,
-        operatorApprovalPopoverText
+        operatorApprovalPopoverText,
+        givingApproval
     } = useOrganizationBlockchainAddressEffects();
 
-    if (isLoading) {
-        return <CircularProgress />;
-    }
+    if (isLoading) return <CircularProgress />;
 
     return (
-        <Grid item xs={12}>
+        <Grid item xs={12} md={8}>
             <Typography variant="h6">{title}</Typography>
             <div className={classes.fieldWrapper}>
                 {blockchainAddress ? (
@@ -57,7 +56,7 @@ export const OrganizationBlockchainAddress: FC = () => {
                     className={classes.iconPopover}
                 />
             </div>
-            {blockchainAddress && isOperatorApproved !== undefined ? (
+            {blockchainAddress && isOperatorApproved !== null ? (
                 <div className={classes.fieldWrapper}>
                     {isOperatorApproved ? (
                         <Typography>Operator is approved!</Typography>
@@ -66,10 +65,19 @@ export const OrganizationBlockchainAddress: FC = () => {
                             type="button"
                             variant="contained"
                             color="primary"
-                            disabled={isUpdating}
+                            disabled={givingApproval}
                             onClick={approveOperatorHandler}
                         >
-                            {operatorApprovalButtonText}
+                            {givingApproval ? (
+                                <>
+                                    {operatorApprovalButtonText}
+                                    <Box ml={2}>
+                                        <CircularProgress size={20} />
+                                    </Box>
+                                </>
+                            ) : (
+                                operatorApprovalButtonText
+                            )}
                         </Button>
                     )}
                     <IconPopover
@@ -79,9 +87,7 @@ export const OrganizationBlockchainAddress: FC = () => {
                         className={classes.iconPopover}
                     />
                 </div>
-            ) : (
-                ''
-            )}
+            ) : null}
         </Grid>
     );
 };
