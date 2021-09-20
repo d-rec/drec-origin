@@ -23,6 +23,7 @@ export const useUpdateBlockchainAddress = (
     const { user, userLoading } = useUser();
     const blockchainAddress = user?.organization?.blockchainAccountAddress;
     const { library: web3, account } = useWeb3React();
+
     const submitHandler = () => {
         try {
             if (user?.status !== UserStatus.Active) {

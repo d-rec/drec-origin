@@ -1,4 +1,5 @@
 import { CircularProgress, Paper, Box } from '@material-ui/core';
+import { UserStatus } from '@energyweb/origin-drec-api-client';
 import {
     BlockchainAddressesContainer,
     UpdateUserData,
@@ -27,7 +28,7 @@ export const ProfilePage = () => {
             <Paper classes={{ root: classes.paper }}>
                 <UpdateUserPassword />
             </Paper>
-            <BlockchainAddressesContainer />
+            {user.status === UserStatus.Active ? <BlockchainAddressesContainer /> : null}
         </Box>
     );
 };

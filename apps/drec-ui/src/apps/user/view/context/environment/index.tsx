@@ -1,8 +1,9 @@
-import React, { createContext, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { FC } from 'react';
 
 export type UserEnvVariables = {
     registrationMessage: string;
+    issuerAddress: string;
 };
 
 const UserAppEnv = createContext<UserEnvVariables>(null);

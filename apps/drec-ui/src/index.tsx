@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Web3ReactProvider } from '@web3-react/core';
 import { getLibrary } from 'utils';
-import { DrecThemeProvider } from 'theme';
+import { DrecThemeProvider } from './theme/theme-provider';
 import { CustomErrorFallback, DrecQueryClientProvider, AppContainer } from './main';
 
 ReactDOM.render(

@@ -2,7 +2,7 @@ import { LightenColor } from '../utils/colors';
 
 const $primaryColor = '#fec30b';
 const $primaryColorDark = LightenColor($primaryColor, -10);
-const $primaryColorDim = '#362c45';
+const $primaryColorDim = '#ab8200';
 
 const $textColorDefault = '#2D1155';
 const $simpleTextColor = '#000000';

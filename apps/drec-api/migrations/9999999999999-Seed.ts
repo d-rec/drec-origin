@@ -16,7 +16,6 @@ import { IFullOrganization, IDevice, IUserSeed } from '../src/models';
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
 import DevicesJSON from './devices.json';
-import { Organization } from '../src/pods/organization/organization.entity';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });

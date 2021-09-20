@@ -1,5 +1,5 @@
-import { LightenColor } from 'theme';
-import { makeStyles } from '@material-ui/core';
+import { LightenColor } from '@energyweb/origin-ui-theme';
+import { makeStyles } from '@material-ui/styles';
 
 export const useStyles = makeStyles((theme) => ({
     specsWrapper: {

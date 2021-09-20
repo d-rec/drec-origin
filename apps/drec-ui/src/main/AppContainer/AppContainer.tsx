@@ -1,10 +1,10 @@
+import { NotificationsCenter } from 'shared';
 import { App } from '../App';
 import { DrecGlobalStyles } from '../DrecGlobalStyles';
 import { useAppContainerEffects } from './AppContainer.effects';
-import { NotificationsCenter } from 'shared';
 
 export const AppContainer = () => {
-    const { topbarButtons, menuSections, user, isAuthenticated, routesConfig } =
+    const { topbarButtons, menuSections, user, isAuthenticated, routesConfig, isLoading } =
         useAppContainerEffects();
 
     return (
@@ -17,6 +17,7 @@ export const AppContainer = () => {
                 isAuthenticated={isAuthenticated}
                 topbarButtons={topbarButtons}
                 routesConfig={routesConfig}
+                loading={isLoading}
             />
         </>
     );

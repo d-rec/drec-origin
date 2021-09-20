@@ -1,11 +1,18 @@
-import { DeviceDTO } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { DeviceDTO } from '@energyweb/origin-drec-api-client';
 import { useEffect, useState } from 'react';
+import { publicFileDownloadHandler } from '../../../api';
 
 export const useDeviceImageUrls = (imageIds: DeviceDTO['images']) => {
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
     const getImageUrl = async (id: string) => {
-        const imageUrl = `${process.env.REACT_APP_BACKEND_URL}/api/file/public/${id}`;
+        const response = await publicFileDownloadHandler(id);
+        const imageType = (response as any).headers['content-type'];
+        const blob = new Blob([Buffer.from((response.data as any).data as unknown as string)], {
+            type: imageType
+        });
+        const urlCreator = window.URL || window.webkitURL;
+        const imageUrl = urlCreator.createObjectURL(blob);
         return imageUrl;
     };
 
