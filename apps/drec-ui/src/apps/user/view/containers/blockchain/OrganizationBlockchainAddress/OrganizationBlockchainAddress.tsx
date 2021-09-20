@@ -59,7 +59,9 @@ export const OrganizationBlockchainAddress: FC = () => {
             {blockchainAddress && isOperatorApproved !== null ? (
                 <div className={classes.fieldWrapper}>
                     {isOperatorApproved ? (
-                        <Typography>Operator is approved!</Typography>
+                        <Button disabled color="primary" variant="contained">
+                            Operator is approved!
+                        </Button>
                     ) : (
                         <Button
                             type="button"

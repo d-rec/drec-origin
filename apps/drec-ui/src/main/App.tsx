@@ -102,7 +102,7 @@ export const App: FC<AppProps> = memo(
                 </Route>
                 <Route path="/login" element={<LoginApp />} />
                 <Route path="/confirm-email" element={<ConfirmEmailApp />} />
-                <Route path="*" element={<PageNotFound />} />
+                {!loading && <Route path="*" element={<PageNotFound />} />}
             </Routes>
         );
     }

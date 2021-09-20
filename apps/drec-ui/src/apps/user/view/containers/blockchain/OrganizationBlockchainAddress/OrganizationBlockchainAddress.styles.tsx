@@ -7,7 +7,7 @@ export const useStyles = makeStyles((theme) => ({
     },
     fieldWrapper: {
         width: '100%',
-        marginTop: 10,
+        marginTop: theme.spacing(2),
         display: 'flex',
         alignItems: 'center',
         [theme.breakpoints.down('sm')]: {

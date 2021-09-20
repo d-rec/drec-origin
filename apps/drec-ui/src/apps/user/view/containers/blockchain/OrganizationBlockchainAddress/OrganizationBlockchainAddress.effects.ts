@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
+import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { useApproveOperatorHandler, useUpdateBlockchainAddress } from 'apps/user/data';
 import { useOrganizationBlockchainAddressLogic } from 'apps/user/logic';
 import { useUserAppEnv } from '../../../context';
-import { Web3Provider } from '@ethersproject/providers';
 
 export const useOrganizationBlockchainAddressEffects = () => {
     const [isUpdating, setIsUpdating] = useState(false);
