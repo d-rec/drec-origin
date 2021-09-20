@@ -174,6 +174,32 @@ export class OrganizationService {
     return stored;
   }
 
+  private async generateBlockchainAddress(index: number): Promise<string> {
+    const issuerAccount = Wallet.fromMnemonic(
+      process.env.MNEMONIC!,
+      `m/44'/60'/0'/0/${0}`,
+    ); // Index 0 account
+
+    const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
+    const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
+    const blockchainAccount = Wallet.fromMnemonic(
+      process.env.MNEMONIC!,
+      `m/44'/60'/0'/0/${index + 1}`,
+    );
+
+    const blockchainProperties = await this.blockchainPropertiesService.get();
+
+    const registryWithSigner =
+      Contracts.factories.RegistryExtendedFactory.connect(
+        blockchainProperties!.registry,
+        new Wallet(blockchainAccount.privateKey, provider),
+      );
+
+    await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
+
+    return blockchainAccount.address;
+  }
+
   async update(
     organizationId: number,
     updateOrganizationDTO: UpdateOrganizationDTO,
