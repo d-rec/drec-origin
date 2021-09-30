@@ -64,7 +64,7 @@ export class DeviceGroupController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.Buyer, Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -82,7 +82,7 @@ export class DeviceGroupController {
 
   @Post('/add/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Buyer, Role.Admin)
+  @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -102,7 +102,7 @@ export class DeviceGroupController {
 
   @Post('/remove/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Buyer, Role.Admin)
+  @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -122,7 +122,7 @@ export class DeviceGroupController {
 
   @Patch('/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Buyer, Role.Admin)
+  @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateDeviceGroupDTO,
@@ -143,7 +143,7 @@ export class DeviceGroupController {
 
   @Delete('/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Buyer, Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Remove device group',

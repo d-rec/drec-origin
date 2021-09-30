@@ -79,7 +79,7 @@ describe('Device Group tests', () => {
 
   it('should return Not Acceptable when creating a group with device from different owner', async () => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'owner2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -127,7 +127,7 @@ describe('Device Group tests', () => {
 
   it('should add devices to a device group', async () => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -161,7 +161,7 @@ describe('Device Group tests', () => {
 
   it('should remove devices from a device group', async () => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -195,7 +195,7 @@ describe('Device Group tests', () => {
 
   it('non-owner should not be able to remove device from group', async () => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'owner3@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -233,7 +233,7 @@ describe('Device Group tests', () => {
 
   const createDeviceGroup = async (): Promise<any> => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);

@@ -10,6 +10,7 @@ import { DeviceService } from '../device/device.service';
 import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
+import { IDevice } from '../../models';
 
 @Injectable()
 export class DeviceGroupService {
@@ -42,7 +43,6 @@ export class DeviceGroupService {
     data: NewDeviceGroupDTO,
   ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
-
     const group = await this.repository.save({
       name: data.name,
       organizationId,
@@ -50,10 +50,19 @@ export class DeviceGroupService {
 
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
+
+    const firstDevice = devices[0];
     const ownerCode = devices[0].organizationId;
     await Promise.all(
       devices.map(async (device: Device) => {
-        await this.deviceService.addToGroup(device, group.id, ownerCode);
+        if (await this.compareDeviceForGrouping(firstDevice, device)) {
+          return await this.deviceService.addToGroup(
+            device,
+            group.id,
+            ownerCode,
+          );
+        }
+        return;
       }),
     );
 
@@ -168,5 +177,21 @@ export class DeviceGroupService {
       );
     }
     return deviceGroup;
+  }
+
+  private async compareDeviceForGrouping(
+    initialDevice: IDevice,
+    deviceToCompare: IDevice,
+  ): Promise<boolean> {
+    if (
+      !initialDevice ||
+      !deviceToCompare ||
+      initialDevice.countryCode !== deviceToCompare.countryCode ||
+      initialDevice.fuelCode !== deviceToCompare.fuelCode ||
+      initialDevice.standardCompliance !== deviceToCompare.standardCompliance
+    ) {
+      return false;
+    }
+    return true;
   }
 }
