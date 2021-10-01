@@ -84,6 +84,18 @@ export class DeviceService {
     });
   }
 
+  public async registerBulk(
+    orgCode: number,
+    newDevices: NewDeviceDTO[],
+  ): Promise<Device[]> {
+    const devices = await Promise.all(
+      newDevices.map(
+        async (device: NewDeviceDTO) => await this.register(orgCode, device),
+      ),
+    );
+    return devices;
+  }
+
   async update(
     organizationId: number,
     role: Role,
