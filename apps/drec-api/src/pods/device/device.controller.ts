@@ -17,13 +17,13 @@ import {
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
-import { DeviceDTO } from './dto/device.dto';
 import { DeviceService } from './device.service';
-import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO } from './dto';
+import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO, DeviceDTO } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -108,6 +108,25 @@ export class DeviceController {
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     return await this.deviceService.register(organizationId, deviceToRegister);
+  }
+
+  @Post('bulk')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [NewDeviceDTO],
+    description: 'Returns a new created devices',
+  })
+  @ApiBody({ type: [NewDeviceDTO] })
+  public async createBulk(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() devicesToRegister: NewDeviceDTO[],
+  ): Promise<DeviceDTO[]> {
+    return await this.deviceService.registerBulk(
+      organizationId,
+      devicesToRegister,
+    );
   }
 
   @Patch('/:id')

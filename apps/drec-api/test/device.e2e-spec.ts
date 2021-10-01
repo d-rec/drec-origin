@@ -7,7 +7,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization/organization.service';
-import { seed } from './seed';
+import { batchDevices, seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
 import {
@@ -147,6 +147,19 @@ describe('Device tests', () => {
     expect(updatedDevice.status).to.equal(DeviceStatus.Active);
   });
 
+  it('should create a batch of devices', async () => {
+    const loggedUser = {
+      email: 'owner2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: devices } = await bulkPostDevice(
+      HttpStatus.CREATED,
+      batchDevices,
+    );
+    expect(devices.length).to.equal(4);
+  });
+
   it('should return forbbidden when updating a device', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
@@ -227,6 +240,16 @@ describe('Device tests', () => {
       .send({
         ...body,
       })
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const bulkPostDevice = async (
+    status: HttpStatus,
+    body: NewDeviceDTO[],
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/device/bulk`)
+      .send(body)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
