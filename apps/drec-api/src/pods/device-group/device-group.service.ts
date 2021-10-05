@@ -44,10 +44,9 @@ export class DeviceGroupService {
   ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
     const group = await this.repository.save({
-      name: data.name,
       organizationId,
+      ...data,
     });
-
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
@@ -124,7 +123,9 @@ export class DeviceGroupService {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     deviceGroup.name = data.name;
+
     const updatedGroup = await this.repository.save(deviceGroup);
+
     updatedGroup.devices = await this.deviceService.findForGroup(
       deviceGroup.id,
     );
