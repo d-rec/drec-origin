@@ -124,10 +124,8 @@ export class DeviceGroupService {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     deviceGroup.name = data.name;
-    console.log('deviceGroup: ', deviceGroup);
 
     const updatedGroup = await this.repository.save(deviceGroup);
-    console.log('updatedGroup: ', updatedGroup);
 
     updatedGroup.devices = await this.deviceService.findForGroup(
       deviceGroup.id,
