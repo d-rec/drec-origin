@@ -122,7 +122,7 @@ export class DeviceGroupController {
 
   @Patch('/:id')
   @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateDeviceGroupDTO,

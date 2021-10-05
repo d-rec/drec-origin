@@ -11,6 +11,7 @@ import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { IDevice } from '../../models';
+import { CommissioningDateRange } from '../../utils/enums';
 
 @Injectable()
 export class DeviceGroupService {
@@ -44,10 +45,9 @@ export class DeviceGroupService {
   ): Promise<DeviceGroup> {
     await this.checkNameConflict(data.name);
     const group = await this.repository.save({
-      name: data.name,
       organizationId,
+      ...data,
     });
-
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
@@ -124,7 +124,11 @@ export class DeviceGroupService {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     deviceGroup.name = data.name;
+    console.log('deviceGroup: ', deviceGroup);
+
     const updatedGroup = await this.repository.save(deviceGroup);
+    console.log('updatedGroup: ', updatedGroup);
+
     updatedGroup.devices = await this.deviceService.findForGroup(
       deviceGroup.id,
     );

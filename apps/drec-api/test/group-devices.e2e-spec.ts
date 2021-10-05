@@ -18,6 +18,7 @@ import {
 } from '../src/pods/device-group/dto';
 import { Device } from '../src/pods/device';
 import { IFullOrganization } from '../src/models';
+import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
@@ -66,13 +67,13 @@ describe('Device Group tests', () => {
 
   it('should update a device group', async () => {
     const { body: createdGroup } = await createDeviceGroup();
-    const updateDeviceGrouo: UpdateDeviceGroupDTO = {
+    const updatedDeviceGroup: UpdateDeviceGroupDTO = {
       name: 'updated-device-group',
     };
     const { body: updatedDevice } = await updateDeviceGroup(
       createdGroup.id,
       HttpStatus.OK,
-      updateDeviceGrouo,
+      updatedDeviceGroup,
     );
     expect(updatedDevice.name).to.equal('updated-device-group');
   });
@@ -96,6 +97,19 @@ describe('Device Group tests', () => {
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
       deviceIds: [firstBatch[0].id, secondBatch[0].id],
+      countryCode: firstBatch[0]?.countryCode,
+      fuelCode: firstBatch[0]?.fuelCode,
+      standardCompliance: firstBatch[0]?.standardCompliance,
+      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
+      offTakers: [firstBatch[0]?.offTaker],
+      installationConfigurations: [firstBatch[0]?.installationConfiguration],
+      sectors: [firstBatch[0]?.sector],
+      gridInterconnection: firstBatch[0]?.gridInterconnection,
+      aggregatedCapacity: firstBatch[0]?.capacity,
+      capacityRange: CapacityRange.Between_51_500_w,
+      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
+      yieldValue: firstBatch[0]?.yieldValue,
+      labels: firstBatch[0]?.labels,
     };
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
@@ -140,6 +154,19 @@ describe('Device Group tests', () => {
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-2',
       deviceIds: [firstBatch[0]?.id],
+      countryCode: firstBatch[0]?.countryCode,
+      fuelCode: firstBatch[0]?.fuelCode,
+      standardCompliance: firstBatch[0]?.standardCompliance,
+      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
+      offTakers: [firstBatch[0]?.offTaker],
+      installationConfigurations: [firstBatch[0]?.installationConfiguration],
+      sectors: [firstBatch[0]?.sector],
+      gridInterconnection: firstBatch[0]?.gridInterconnection,
+      aggregatedCapacity: firstBatch[0]?.capacity,
+      capacityRange: CapacityRange.Between_51_500_w,
+      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
+      yieldValue: firstBatch[0]?.yieldValue,
+      labels: firstBatch[0]?.labels,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -174,6 +201,19 @@ describe('Device Group tests', () => {
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
+      countryCode: firstBatch[0]?.countryCode,
+      fuelCode: firstBatch[0]?.fuelCode,
+      standardCompliance: firstBatch[0]?.standardCompliance,
+      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
+      offTakers: [firstBatch[0]?.offTaker],
+      installationConfigurations: [firstBatch[0]?.installationConfiguration],
+      sectors: [firstBatch[0]?.sector],
+      gridInterconnection: firstBatch[0]?.gridInterconnection,
+      aggregatedCapacity: firstBatch[0]?.capacity,
+      capacityRange: CapacityRange.Between_51_500_w,
+      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
+      yieldValue: firstBatch[0]?.yieldValue,
+      labels: firstBatch[0]?.labels,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -208,6 +248,19 @@ describe('Device Group tests', () => {
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
+      countryCode: firstBatch[0]?.countryCode,
+      fuelCode: firstBatch[0]?.fuelCode,
+      standardCompliance: firstBatch[0]?.standardCompliance,
+      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
+      offTakers: [firstBatch[0]?.offTaker],
+      installationConfigurations: [firstBatch[0]?.installationConfiguration],
+      sectors: [firstBatch[0]?.sector],
+      gridInterconnection: firstBatch[0]?.gridInterconnection,
+      aggregatedCapacity: firstBatch[0]?.capacity,
+      capacityRange: CapacityRange.Between_51_500_w,
+      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
+      yieldValue: firstBatch[0]?.yieldValue,
+      labels: firstBatch[0]?.labels,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
 
@@ -245,6 +298,19 @@ describe('Device Group tests', () => {
     const newDeviceGroup: NewDeviceGroupDTO = {
       name: 'test-device-group',
       deviceIds: [firstBatch[0]?.id],
+      countryCode: firstBatch[0]?.countryCode,
+      fuelCode: firstBatch[0]?.fuelCode,
+      standardCompliance: firstBatch[0]?.standardCompliance,
+      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
+      offTakers: [firstBatch[0]?.offTaker],
+      installationConfigurations: [firstBatch[0]?.installationConfiguration],
+      sectors: [firstBatch[0]?.sector],
+      gridInterconnection: firstBatch[0]?.gridInterconnection,
+      aggregatedCapacity: firstBatch[0]?.capacity,
+      capacityRange: CapacityRange.Between_51_500_w,
+      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
+      yieldValue: firstBatch[0]?.yieldValue,
+      labels: firstBatch[0]?.labels,
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };

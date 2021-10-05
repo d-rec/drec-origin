@@ -76,6 +76,7 @@ export class IssuerService {
     if (!devicesWithoutGroups.length) {
       return;
     }
+
     const ownerGroupedDevices = values(
       groupBy(devicesWithoutGroups, deviceGroupRule1),
     );
@@ -84,17 +85,18 @@ export class IssuerService {
       ownerGroupedDevices.flatMap(async (ownerBasedGroup: IDevice[], i) => {
         values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
           async (countryBasedGroup: IDevice[], j) => {
-            const categorizedGroup: IDeviceGroup = {
-              id: 0,
-              name: `Default Group ${ownerBasedGroup[i]?.organizationId}_${i}-${j}`,
-              organizationId: ownerBasedGroup[i]?.organizationId,
-              devices: countryBasedGroup,
-            };
-            return await this.issueCertificateForGroup(
-              categorizedGroup,
-              startDate,
-              endDate,
-            );
+            // const categorizedGroup: IDeviceGroup = {
+            //   id: 0,
+            //   name: `Default Group ${ownerBasedGroup[i]?.organizationId}_${i}-${j}`,
+            //   organizationId: ownerBasedGroup[i]?.organizationId,
+            //   devices: countryBasedGroup,
+            // };
+            // return await this.issueCertificateForGroup(
+            //   categorizedGroup,
+            //   startDate,
+            //   endDate,
+            // );
+            return;
           },
         );
       }),
