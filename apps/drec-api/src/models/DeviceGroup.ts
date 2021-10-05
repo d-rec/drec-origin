@@ -1,4 +1,4 @@
-import { IDevice } from '.';
+import { IDevice } from './Device';
 import {
   CapacityRange,
   CommissioningDateRange,

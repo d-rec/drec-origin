@@ -11,7 +11,6 @@ import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { IDevice } from '../../models';
-import { CommissioningDateRange } from '../../utils/enums';
 
 @Injectable()
 export class DeviceGroupService {
