@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsBoolean,
   IsNumber,
+  IsOptional,
 } from 'class-validator';
 import { IDevice, IDeviceGroup } from '../../models';
 import {
@@ -94,6 +95,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   yieldValue: number;
 
   @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   labels: string;
 
