@@ -16,6 +16,7 @@ import {
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -31,6 +32,7 @@ import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+import { NewDeviceDTO } from '../device/dto';
 
 @ApiTags('device-group')
 @ApiBearerAuth('access-token')
@@ -77,6 +79,25 @@ export class DeviceGroupController {
     return await this.deviceGroupService.create(
       organizationId,
       deviceGroupToRegister,
+    );
+  }
+
+  @Post('bulk-devices')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Returns auto-created device groups',
+  })
+  @ApiBody({ type: [NewDeviceDTO] })
+  public async createBulk(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() devicesToRegister: NewDeviceDTO[],
+  ): Promise<DeviceGroupDTO[]> {
+    return await this.deviceGroupService.registerBulkDevices(
+      organizationId,
+      devicesToRegister,
     );
   }
 

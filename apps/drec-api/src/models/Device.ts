@@ -34,3 +34,21 @@ export interface IDevice {
   images?: string[];
   groupId?: number | null;
 }
+
+export type DeviceKey =
+  | 'id'
+  | 'drecID'
+  | 'status'
+  | 'organizationId'
+  | 'projectName'
+  | 'countryCode'
+  | 'fuelCode'
+  | 'deviceTypeCode'
+  | 'installationConfiguration'
+  | 'capacity'
+  | 'commissioningDate'
+  | 'gridInterconnection'
+  | 'offTaker'
+  | 'sector'
+  | 'standardCompliance'
+  | 'yieldValue';

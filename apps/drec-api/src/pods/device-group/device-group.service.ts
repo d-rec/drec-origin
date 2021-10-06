@@ -7,10 +7,18 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindConditions } from 'typeorm';
 import { DeviceService } from '../device/device.service';
-import { DeviceIdsDTO, NewDeviceGroupDTO, UpdateDeviceGroupDTO } from './dto';
+import {
+  DeviceGroupDTO,
+  DeviceIdsDTO,
+  NewDeviceGroupDTO,
+  UpdateDeviceGroupDTO,
+} from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { IDevice } from '../../models';
+import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { CapacityRange, CommissioningDateRange } from '../../utils/enums';
+import { groupByProps } from '../../utils/group-by-properties';
 
 @Injectable()
 export class DeviceGroupService {
@@ -147,6 +155,43 @@ export class DeviceGroupService {
     await this.repository.delete(id);
   }
 
+  public async registerBulkDevices(
+    orgCode: number,
+    newDevices: NewDeviceDTO[],
+  ): Promise<DeviceGroupDTO[]> {
+    const devices: Device[] = await Promise.all(
+      newDevices.map(
+        async (device: NewDeviceDTO) =>
+          await this.deviceService.register(orgCode, device),
+      ),
+    );
+
+    // Create groups automatically based on criteria
+    const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
+      devices,
+      (item) => {
+        return [
+          item['organizationId'],
+          item['countryCode'],
+          item['fuelCode'],
+          item['standardCompliance'],
+          item['installationConfiguration'],
+          item['offTaker'],
+        ];
+      },
+    );
+    const createdDeviceGroups: DeviceGroup[] = await Promise.all(
+      groupedDevicesByProps.map(
+        async (groupedDevice: DeviceDTO[]) =>
+          await this.create(
+            orgCode,
+            this.createDeviceGroupFromDevices(groupedDevice),
+          ),
+      ),
+    );
+    return createdDeviceGroups;
+  }
+
   private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
     return Boolean(await this.findOne(conditions));
   }
@@ -194,5 +239,109 @@ export class DeviceGroupService {
       return false;
     }
     return true;
+  }
+
+  private getCapacityRange(aggregatedCapacity: number): CapacityRange {
+    const aggregatedCapacityKw = Math.round(aggregatedCapacity * 10 ** -3);
+    const aggregatedCapacityMw = Math.round(aggregatedCapacityKw * 10 ** -3);
+    if (aggregatedCapacity <= 50) {
+      return CapacityRange.Between_0_50_w;
+    } else if (aggregatedCapacity > 50 && aggregatedCapacity <= 500) {
+      return CapacityRange.Between_51_500_w;
+    } else if (aggregatedCapacity > 501 && aggregatedCapacityKw <= 1) {
+      return CapacityRange.Between_501w_1kw;
+    } else if (aggregatedCapacityKw > 1 && aggregatedCapacityKw <= 50) {
+      return CapacityRange.Between_1kw_50kw;
+    } else if (aggregatedCapacityKw > 50 && aggregatedCapacityKw <= 100) {
+      return CapacityRange.Between_50kw_100kw;
+    } else if (aggregatedCapacityKw > 100 && aggregatedCapacityKw <= 1) {
+      return CapacityRange.Between_101kw_1mw;
+    } else if (aggregatedCapacityMw > 1) {
+      return CapacityRange.Above_1mw;
+    }
+    return CapacityRange.Above_1mw;
+  }
+
+  private getDateRangeFromYear(
+    commissioningDate: string,
+  ): CommissioningDateRange {
+    const year = new Date(commissioningDate).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const range = currentYear - year;
+    if (range === 0) {
+      return CommissioningDateRange.Year_1;
+    } else if (range === 1) {
+      return CommissioningDateRange.Year_2;
+    } else if (range === 2) {
+      return CommissioningDateRange.Year_3;
+    } else if (range === 3) {
+      return CommissioningDateRange.Year_4;
+    } else if (range === 4) {
+      return CommissioningDateRange.Year_5;
+    } else if (range >= 6 && range <= 10) {
+      return CommissioningDateRange.Between_years_6_10;
+    } else if (range >= 11 && range <= 15) {
+      return CommissioningDateRange.Between_years_11_15;
+    } else if (range >= 15) {
+      return CommissioningDateRange.Above_15_years;
+    }
+    return CommissioningDateRange.Year_1;
+  }
+
+  private getCommissioningDateRange(
+    devices: DeviceDTO[],
+  ): CommissioningDateRange[] {
+    const dates = Array.from(
+      new Set(
+        devices.map((device: DeviceDTO) =>
+          this.getDateRangeFromYear(device.commissioningDate),
+        ),
+      ),
+    );
+    return dates;
+  }
+
+  private createDeviceGroupFromDevices(
+    devices: DeviceDTO[],
+  ): NewDeviceGroupDTO {
+    const aggregatedCapacity = devices.reduce(
+      (accumulator, currentValue: DeviceDTO) =>
+        accumulator + currentValue.capacity,
+      0,
+    );
+    const averageYieldValue =
+      devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.yieldValue,
+        0,
+      ) / devices.length;
+    const gridInterconnection = devices.every(
+      (device: DeviceDTO) => device.gridInterconnection === true,
+    );
+    const sectors = Array.from(
+      new Set(devices.map((device: DeviceDTO) => device.sector)),
+    );
+
+    const deviceGroup: NewDeviceGroupDTO = {
+      name: `Group_Country_${devices[0].countryCode}_Fuel_${devices[0].fuelCode}_StandardCompliance_${devices[0].standardCompliance}_OffTaker_${devices[0].offTaker}_InstallationConfiguration_${devices[0].installationConfiguration}`,
+      deviceIds: devices.map((device: DeviceDTO) => device.id),
+      fuelCode: devices[0].fuelCode,
+      countryCode: devices[0].countryCode,
+      standardCompliance: devices[0].standardCompliance,
+      deviceTypeCodes: devices.map(
+        (device: DeviceDTO) => device.deviceTypeCode,
+      ),
+      offTakers: [devices[0].offTaker],
+      installationConfigurations: [devices[0].installationConfiguration],
+      sectors,
+      gridInterconnection,
+      aggregatedCapacity,
+      capacityRange: this.getCapacityRange(aggregatedCapacity),
+      commissioningDateRange: this.getCommissioningDateRange(devices),
+      yieldValue: averageYieldValue,
+      labels: devices.map((device: DeviceDTO) => device.labels),
+    };
+
+    return deviceGroup;
   }
 }

@@ -19,6 +19,8 @@ import {
 import { Device } from '../src/pods/device';
 import { IFullOrganization } from '../src/models';
 import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
+import TestDevicesToGroup from '../migrations/test-devices-for-grouping.json';
+import { NewDeviceDTO } from '../src/pods/device/dto';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
@@ -78,6 +80,26 @@ describe('Device Group tests', () => {
     expect(updatedDevice.name).to.equal('updated-device-group');
   });
 
+  it('should create a batch of devices and groups', async () => {
+    const loggedUser = {
+      email: 'owner2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const bulkDevices = TestDevicesToGroup as unknown as NewDeviceDTO[];
+    const { body: deviceGroups } = await bulkPostDevice(
+      HttpStatus.CREATED,
+      bulkDevices,
+    );
+    expect(deviceGroups.length).to.equal(2);
+    expect(deviceGroups[0].name).to.equal(
+      'Group_Country_DE_Fuel_ES200_StandardCompliance_REC_OffTaker_School_InstallationConfiguration_StandAlone',
+    );
+    expect(deviceGroups[1].name).to.equal(
+      'Group_Country_DE_Fuel_ES300_StandardCompliance_I-REC_OffTaker_Commercial_InstallationConfiguration_Microgrid',
+    );
+  });
+
   it('should return Not Acceptable when creating a group with device from different owner', async () => {
     const loggedUser = {
       email: 'owner2@mailinator.com',
@@ -109,7 +131,7 @@ describe('Device Group tests', () => {
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
-      labels: firstBatch[0]?.labels,
+      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
@@ -166,7 +188,7 @@ describe('Device Group tests', () => {
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
-      labels: firstBatch[0]?.labels,
+      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -213,7 +235,7 @@ describe('Device Group tests', () => {
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
-      labels: firstBatch[0]?.labels,
+      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -260,7 +282,7 @@ describe('Device Group tests', () => {
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
-      labels: firstBatch[0]?.labels,
+      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
 
@@ -310,7 +332,7 @@ describe('Device Group tests', () => {
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
-      labels: firstBatch[0]?.labels,
+      labels: [firstBatch[0]?.labels],
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };
@@ -318,6 +340,16 @@ describe('Device Group tests', () => {
   const requestDevice = async (url: string, status: HttpStatus): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/device/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const bulkPostDevice = async (
+    status: HttpStatus,
+    body: NewDeviceDTO[],
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/device-group/bulk-devices`)
+      .send(body)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

@@ -110,25 +110,6 @@ export class DeviceController {
     return await this.deviceService.register(organizationId, deviceToRegister);
   }
 
-  @Post('bulk')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [NewDeviceDTO],
-    description: 'Returns a new created devices',
-  })
-  @ApiBody({ type: [NewDeviceDTO] })
-  public async createBulk(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() devicesToRegister: NewDeviceDTO[],
-  ): Promise<DeviceDTO[]> {
-    return await this.deviceService.registerBulk(
-      organizationId,
-      devicesToRegister,
-    );
-  }
-
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)

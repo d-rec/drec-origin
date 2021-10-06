@@ -28,7 +28,7 @@ export interface IDeviceGroup {
 
   yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
 
-  labels?: string;
+  labels?: string[];
 
   devices?: IDevice[];
 }
