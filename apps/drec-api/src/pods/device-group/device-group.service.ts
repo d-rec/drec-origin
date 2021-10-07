@@ -17,7 +17,7 @@ import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
-import { CapacityRange, CommissioningDateRange } from '../../utils/enums';
+import { CommissioningDateRange } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';

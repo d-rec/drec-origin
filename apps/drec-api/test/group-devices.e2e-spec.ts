@@ -19,7 +19,7 @@ import {
 import { Device } from '../src/pods/device';
 import { IFullOrganization } from '../src/models';
 import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
-import TestDevicesToGroup from '../migrations/test-devices-for-grouping.json';
+import TestDevicesToGroup from './test-devices-for-grouping.json';
 import { NewDeviceDTO } from '../src/pods/device/dto';
 
 describe('Device Group tests', () => {

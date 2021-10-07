@@ -7,7 +7,7 @@ import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization/organization.service';
-import { batchDevices, seed } from './seed';
+import { seed } from './seed';
 import { expect } from 'chai';
 import { before, after } from 'mocha';
 import {
