@@ -100,8 +100,8 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsOptional()
   yieldValue: number;
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ type: [String] })
+  @IsArray()
   @IsOptional()
-  labels: string;
+  labels: string[];
 }

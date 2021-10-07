@@ -16,18 +16,7 @@ import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
-import { values, groupBy } from 'lodash';
 import { IDevice, IDeviceGroup } from '../../models';
-
-export type DeviceKey =
-  | 'id'
-  | 'drecID'
-  | 'status'
-  | 'organizationId'
-  | 'projectName'
-  | 'countryCode'
-  | 'fuelCode'
-  | 'deviceTypeCode';
 
 @Injectable()
 export class IssuerService {
@@ -47,12 +36,6 @@ export class IssuerService {
   // @Cron(CronExpression.EVERY_10_SECONDS)
   @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
-    const deviceGroupRule1: DeviceKey =
-      this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_1') ||
-      ('organizationId' as DeviceKey);
-    const deviceGroupRule2: DeviceKey =
-      this.configService.get<DeviceKey>('DEVICE_GROUP_RULE_2') ||
-      ('countryCode' as DeviceKey);
     this.logger.debug('Called every day at 23:30 Server time');
 
     const startDate = DateTime.now().minus({ days: 1 }).toUTC();
@@ -65,40 +48,6 @@ export class IssuerService {
       groups.map(async (group: IDeviceGroup) => {
         group.devices = await this.deviceService.findForGroup(group.id);
         return await this.issueCertificateForGroup(group, startDate, endDate);
-      }),
-    );
-    const devicesWithoutGroups = await this.deviceService.findMultiple({
-      where: {
-        groupId: null,
-      },
-    });
-
-    if (!devicesWithoutGroups.length) {
-      return;
-    }
-
-    const ownerGroupedDevices = values(
-      groupBy(devicesWithoutGroups, deviceGroupRule1),
-    );
-
-    await Promise.all(
-      ownerGroupedDevices.flatMap(async (ownerBasedGroup: IDevice[], i) => {
-        values(groupBy(ownerBasedGroup, deviceGroupRule2)).map(
-          async (countryBasedGroup: IDevice[], j) => {
-            // const categorizedGroup: IDeviceGroup = {
-            //   id: 0,
-            //   name: `Default Group ${ownerBasedGroup[i]?.organizationId}_${i}-${j}`,
-            //   organizationId: ownerBasedGroup[i]?.organizationId,
-            //   devices: countryBasedGroup,
-            // };
-            // return await this.issueCertificateForGroup(
-            //   categorizedGroup,
-            //   startDate,
-            //   endDate,
-            // );
-            return;
-          },
-        );
       }),
     );
   }

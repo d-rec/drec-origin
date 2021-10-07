@@ -39,7 +39,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsString()
   countryCode: string;
 
-  @Column()
+  @Column({ type: 'enum', enum: StandardCompliance })
   @IsEnum(StandardCompliance)
   standardCompliance: StandardCompliance;
 
@@ -86,7 +86,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   aggregatedCapacity: number;
 
-  @Column()
+  @Column({ type: 'enum', enum: CapacityRange })
   @IsEnum(CapacityRange)
   capacityRange: CapacityRange;
 
@@ -94,10 +94,9 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   yieldValue: number;
 
-  @Column({ nullable: true })
+  @Column('simple-array', { nullable: true })
   @IsOptional()
-  @IsString()
-  labels: string;
+  labels: string[];
 
   devices?: IDevice[];
 }
