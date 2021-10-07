@@ -20,9 +20,7 @@ export const getDateRangeFromYear = (
     return CommissioningDateRange.Between_years_6_10;
   } else if (range >= 11 && range <= 15) {
     return CommissioningDateRange.Between_years_11_15;
-  } else if (range > 15) {
-    return CommissioningDateRange.Above_15_years;
   } else {
-    return CommissioningDateRange.Year_1;
+    return CommissioningDateRange.Above_15_years;
   }
 };

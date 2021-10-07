@@ -15,8 +15,6 @@ export const getCapacityRange = (aggregatedCapacity: number): CapacityRange => {
     return CapacityRange.Between_50kw_100kw;
   } else if (aggregatedCapacityKw > 100 && aggregatedCapacityMw <= 1) {
     return CapacityRange.Between_101kw_1mw;
-  } else if (aggregatedCapacityMw > 1) {
-    return CapacityRange.Above_1mw;
   } else {
     return CapacityRange.Above_1mw;
   }
