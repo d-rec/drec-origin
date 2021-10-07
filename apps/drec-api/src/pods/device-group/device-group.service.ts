@@ -19,6 +19,8 @@ import { IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import { CapacityRange, CommissioningDateRange } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
+import { getCapacityRange } from '../../utils/get-capacity-range';
+import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 
 @Injectable()
 export class DeviceGroupService {
@@ -241,60 +243,13 @@ export class DeviceGroupService {
     return true;
   }
 
-  private getCapacityRange(aggregatedCapacity: number): CapacityRange {
-    const aggregatedCapacityKw = Math.round(aggregatedCapacity * 10 ** -3);
-    const aggregatedCapacityMw = Math.round(aggregatedCapacityKw * 10 ** -3);
-    if (aggregatedCapacity <= 50) {
-      return CapacityRange.Between_0_50_w;
-    } else if (aggregatedCapacity > 50 && aggregatedCapacity <= 500) {
-      return CapacityRange.Between_51_500_w;
-    } else if (aggregatedCapacity > 501 && aggregatedCapacityKw <= 1) {
-      return CapacityRange.Between_501w_1kw;
-    } else if (aggregatedCapacityKw > 1 && aggregatedCapacityKw <= 50) {
-      return CapacityRange.Between_1kw_50kw;
-    } else if (aggregatedCapacityKw > 50 && aggregatedCapacityKw <= 100) {
-      return CapacityRange.Between_50kw_100kw;
-    } else if (aggregatedCapacityKw > 100 && aggregatedCapacityKw <= 1) {
-      return CapacityRange.Between_101kw_1mw;
-    } else if (aggregatedCapacityMw > 1) {
-      return CapacityRange.Above_1mw;
-    }
-    return CapacityRange.Above_1mw;
-  }
-
-  private getDateRangeFromYear(
-    commissioningDate: string,
-  ): CommissioningDateRange {
-    const year = new Date(commissioningDate).getFullYear();
-    const currentYear = new Date().getFullYear();
-    const range = currentYear - year;
-    if (range === 0) {
-      return CommissioningDateRange.Year_1;
-    } else if (range === 1) {
-      return CommissioningDateRange.Year_2;
-    } else if (range === 2) {
-      return CommissioningDateRange.Year_3;
-    } else if (range === 3) {
-      return CommissioningDateRange.Year_4;
-    } else if (range === 4) {
-      return CommissioningDateRange.Year_5;
-    } else if (range >= 6 && range <= 10) {
-      return CommissioningDateRange.Between_years_6_10;
-    } else if (range >= 11 && range <= 15) {
-      return CommissioningDateRange.Between_years_11_15;
-    } else if (range >= 15) {
-      return CommissioningDateRange.Above_15_years;
-    }
-    return CommissioningDateRange.Year_1;
-  }
-
   private getCommissioningDateRange(
     devices: DeviceDTO[],
   ): CommissioningDateRange[] {
     const dates = Array.from(
       new Set(
         devices.map((device: DeviceDTO) =>
-          this.getDateRangeFromYear(device.commissioningDate),
+          getDateRangeFromYear(device.commissioningDate),
         ),
       ),
     );
@@ -336,7 +291,7 @@ export class DeviceGroupService {
       sectors,
       gridInterconnection,
       aggregatedCapacity,
-      capacityRange: this.getCapacityRange(aggregatedCapacity),
+      capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
       yieldValue: averageYieldValue,
       labels: devices.map((device: DeviceDTO) => device.labels),
