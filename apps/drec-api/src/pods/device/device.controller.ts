@@ -17,7 +17,6 @@ import {
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
-  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -31,6 +30,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
 import { ActiveUserGuard } from '../../guards';
+import { OrderByDTO } from './dto/device-order-by.dto';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -40,11 +40,26 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
   @Get()
+  // Will be restricted only for Admins
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
   ): Promise<DeviceDTO[]> {
     return this.deviceService.find(filterDto);
+  }
+
+  @Get('/ungrouped')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  @ApiOkResponse({
+    type: [DeviceDTO],
+    description: 'Returns all ungrouped Devices',
+  })
+  async getAllUngrouped(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(ValidationPipe) orderFilterDto: OrderByDTO,
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.findUngrouped(organizationId, orderFilterDto);
   }
 
   @Get('/device-type')

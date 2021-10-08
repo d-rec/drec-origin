@@ -1,4 +1,5 @@
 import {
+  DeviceOrderBy,
   DeviceStatus,
   Installation,
   OffTaker,
@@ -52,3 +53,18 @@ export type DeviceKey =
   | 'sector'
   | 'standardCompliance'
   | 'yieldValue';
+
+export type DeviceSortTypeValuedKeys = { [K in DeviceOrderBy]?: DeviceKey };
+
+export const DeviceSortPropertyMapper: DeviceSortTypeValuedKeys = {
+  [DeviceOrderBy.OffTaker]: 'offTaker' as DeviceKey,
+  [DeviceOrderBy.FuelCode]: 'fuelCode' as DeviceKey,
+  [DeviceOrderBy.Country]: 'countryCode' as DeviceKey,
+  [DeviceOrderBy.StandardCompliance]: 'standardCompliance' as DeviceKey,
+  [DeviceOrderBy.Sector]: 'sector' as DeviceKey,
+  [DeviceOrderBy.InstallationConfiguration]:
+    'installationConfiguration' as DeviceKey,
+  [DeviceOrderBy.GridInterconnection]: 'gridInterconnection' as DeviceKey,
+  [DeviceOrderBy.Capacity]: 'capacity' as DeviceKey,
+  [DeviceOrderBy.CommissioningDate]: 'commissioningDate' as DeviceKey,
+};
