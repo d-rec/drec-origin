@@ -58,7 +58,7 @@ export class DeviceController {
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDto: OrderByDTO,
-  ): Promise<DeviceDTO[]> {
+  ): Promise<DeviceDTO[][]> {
     return this.deviceService.findUngrouped(organizationId, orderFilterDto);
   }
 

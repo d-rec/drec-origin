@@ -21,6 +21,7 @@ import { CodeNameDTO } from './dto/code-name';
 import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
 import { OrderByDTO } from './dto/device-order-by.dto';
 import { EntityFieldsNames } from 'typeorm/common/EntityFieldsNames';
+import { groupByProps } from '../../utils/group-by-properties';
 
 @Injectable()
 export class DeviceService {
@@ -112,9 +113,13 @@ export class DeviceService {
   async findUngrouped(
     organizationId: number,
     orderFilterDto: OrderByDTO,
-  ): Promise<DeviceDTO[]> {
-    const query = this.getOrderQuery(organizationId, orderFilterDto);
-    return this.repository.find(query);
+  ): Promise<DeviceDTO[][]> {
+    // const query = this.getOrderQuery(organizationId, orderFilterDto);
+    // return this.repository.find(query);
+    const devices = await this.repository.find({
+      where: { groupId: null, organizationId },
+    });
+    return this.groupDevices(orderFilterDto, devices);
   }
 
   getDeviceTypes(): CodeNameDTO[] {
@@ -133,7 +138,30 @@ export class DeviceService {
     return !!this.getFuelTypes().find((fuel) => fuel.code === fuelType);
   }
 
-  private getOrderQuery(
+  groupDevices(orderFilterDto: OrderByDTO, devices: Device[]): DeviceDTO[][] {
+    const { orderBy } = orderFilterDto;
+    const orderByRules: DeviceOrderBy[] = !Array.isArray(orderBy)
+      ? [orderBy]
+      : orderBy;
+    const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
+      devices,
+      (item) => {
+        return [
+          ...orderByRules.map((order: DeviceOrderBy) => {
+            if (DeviceSortPropertyMapper[order]) {
+              const deviceKey: DeviceKey = DeviceSortPropertyMapper[
+                order
+              ] as DeviceKey;
+              return item[deviceKey];
+            }
+          }),
+        ];
+      },
+    );
+    return groupedDevicesByProps;
+  }
+
+  private getSortQuery(
     organizationId: number,
     orderFilterDto: OrderByDTO,
   ): FindManyOptions<Device> {

@@ -46,7 +46,7 @@ describe('Device tests', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
-    await databaseService.truncate('user', 'device', 'organization');
+    await databaseService.truncate('user', 'organization', 'device');
 
     await app.init();
   });
@@ -76,29 +76,6 @@ describe('Device tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     expect(devices).to.be.instanceOf(Array);
     expect(devices).to.have.length(4);
-  });
-
-  it('should retrieve all ungroupped devices', async () => {
-    const loggedUser = {
-      email: 'owner2@mailinator.com',
-      password: 'test',
-    };
-    const orderFilter: Partial<OrderByDTO> = {
-      orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
-      orderDirection: OrderDirection.Asc,
-    };
-    await loginUser(loggedUser);
-    const { body: devices } = await requestUngrouppedDevice(
-      HttpStatus.OK,
-      orderFilter,
-    );
-    console.log('DEVICES: ', devices);
-    expect(devices).to.be.instanceOf(Array);
-    expect(devices).to.have.length(2);
-    expect(devices[0].offTaker).to.eq(OffTaker.HealthFacility);
-    expect(devices[0].sector).to.eq(Sector.Agriculture);
-    expect(devices[1].offTaker).to.eq(OffTaker.Commercial);
-    expect(devices[1].sector).to.eq(Sector.PublicServices);
   });
 
   it('should retrieve device by id', async () => {
@@ -219,6 +196,28 @@ describe('Device tests', () => {
     await postDevice('', HttpStatus.FORBIDDEN, partialDevice);
   });
 
+  // it('return something', async () => {
+  // const loggedUser = {
+  //   email: 'owner2@mailinator.com',
+  //   password: 'test',
+  // };
+  // await loginUser(loggedUser);
+  // const orderFilter: Partial<OrderByDTO> = {
+  //   orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
+  //   orderDirection: OrderDirection.Asc,
+  // };
+  // const { body: devices } = await requestUngrouppedDevice(
+  //   HttpStatus.OK,
+  //   orderFilter,
+  // );
+  // expect(devices).to.be.instanceOf(Array);
+  // expect(devices).to.have.length(2);
+  // expect(devices[0].offTaker).to.eq(OffTaker.HealthFacility);
+  // expect(devices[0].sector).to.eq(Sector.Agriculture);
+  // expect(devices[1].offTaker).to.eq(OffTaker.Commercial);
+  // expect(devices[1].sector).to.eq(Sector.PublicServices);
+  // });
+
   const requestDevice = async (
     url: string,
     status: HttpStatus,
@@ -230,15 +229,15 @@ describe('Device tests', () => {
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
-  const requestUngrouppedDevice = async (
-    status: HttpStatus,
-    orderFilterDto: Partial<OrderByDTO>,
-  ): Promise<any> =>
-    await request(app.getHttpServer())
-      .get(`/device/ungrouped`)
-      .query(orderFilterDto)
-      .set('Authorization', `Bearer ${currentAccessToken}`)
-      .expect(status);
+  // const requestUngrouppedDevice = async (
+  //   status: HttpStatus,
+  //   orderFilterDto: Partial<OrderByDTO>,
+  // ): Promise<any> =>
+  //   await request(app.getHttpServer())
+  //     .get(`/device/ungrouped`)
+  //     .query(orderFilterDto)
+  //     .set('Authorization', `Bearer ${currentAccessToken}`)
+  //     .expect(status);
 
   const updateDevice = async (
     url: string,
