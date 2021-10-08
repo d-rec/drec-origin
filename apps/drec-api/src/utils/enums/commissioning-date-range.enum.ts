@@ -1,5 +1,8 @@
 export enum CommissioningDateRange {
-  Year_1 = 'Year1',
+  Year_1_Q1 = 'Year1-Q1',
+  Year_1_Q2 = 'Year1-Q2',
+  Year_1_Q3 = 'Year1-Q3',
+  Year_1_Q4 = 'Year1-Q4',
   Year_2 = 'Year2',
   Year_3 = 'Year3',
   Year_4 = 'Year4',
