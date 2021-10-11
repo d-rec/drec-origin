@@ -19,8 +19,7 @@ import { Countries } from '@energyweb/utils-general';
 import { DeviceKey, DeviceSortPropertyMapper, IDevice } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
 import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
-import { OrderByDTO } from './dto/device-order-by.dto';
-import { EntityFieldsNames } from 'typeorm/common/EntityFieldsNames';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 import { groupByProps } from '../../utils/group-by-properties';
 
 @Injectable()
@@ -112,10 +111,8 @@ export class DeviceService {
 
   async findUngrouped(
     organizationId: number,
-    orderFilterDto: OrderByDTO,
+    orderFilterDto: DeviceGroupByDTO,
   ): Promise<DeviceDTO[][]> {
-    // const query = this.getOrderQuery(organizationId, orderFilterDto);
-    // return this.repository.find(query);
     const devices = await this.repository.find({
       where: { groupId: null, organizationId },
     });
@@ -138,7 +135,10 @@ export class DeviceService {
     return !!this.getFuelTypes().find((fuel) => fuel.code === fuelType);
   }
 
-  groupDevices(orderFilterDto: OrderByDTO, devices: Device[]): DeviceDTO[][] {
+  groupDevices(
+    orderFilterDto: DeviceGroupByDTO,
+    devices: Device[],
+  ): DeviceDTO[][] {
     const { orderBy } = orderFilterDto;
     const orderByRules: DeviceOrderBy[] = !Array.isArray(orderBy)
       ? [orderBy]
@@ -159,37 +159,6 @@ export class DeviceService {
       },
     );
     return groupedDevicesByProps;
-  }
-
-  private getSortQuery(
-    organizationId: number,
-    orderFilterDto: OrderByDTO,
-  ): FindManyOptions<Device> {
-    const { orderBy } = orderFilterDto;
-    const orderDirection: 'ASC' | 'DESC' =
-      orderFilterDto.orderDirection || 'DESC';
-    const order: {
-      [P in EntityFieldsNames<Device>]?: 'ASC' | 'DESC' | 1 | -1;
-    } = {};
-    if (orderBy) {
-      const orderByRules: DeviceOrderBy[] = !Array.isArray(orderBy)
-        ? [orderBy]
-        : orderBy;
-      orderByRules.forEach((item: DeviceOrderBy) => {
-        if (DeviceSortPropertyMapper[item]) {
-          const deviceKey: DeviceKey = DeviceSortPropertyMapper[
-            item
-          ] as DeviceKey;
-          order[deviceKey] = orderDirection;
-        }
-      });
-    }
-
-    const query: FindManyOptions<Device> = {
-      where: { groupId: null, organizationId },
-      order,
-    };
-    return query;
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {

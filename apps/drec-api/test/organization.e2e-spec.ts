@@ -175,7 +175,7 @@ describe('Organization tests', () => {
     expect(organizations).to.be.instanceOf(Array);
     expect(organizations).to.have.length(4);
     await deleteOrganization(
-      organizations[organizations.length - 1].id.toString(),
+      organizations[organizations.length - 2].id.toString(),
       HttpStatus.OK,
     );
     const { body: afterDeleteOrgs } = await requestOrganization(

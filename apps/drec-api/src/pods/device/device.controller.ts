@@ -30,7 +30,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
 import { ActiveUserGuard } from '../../guards';
-import { OrderByDTO } from './dto/device-order-by.dto';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -57,7 +57,7 @@ export class DeviceController {
   })
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query(ValidationPipe) orderFilterDto: OrderByDTO,
+    @Query(ValidationPipe) orderFilterDto: DeviceGroupByDTO,
   ): Promise<DeviceDTO[][]> {
     return this.deviceService.findUngrouped(organizationId, orderFilterDto);
   }
