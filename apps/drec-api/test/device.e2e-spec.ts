@@ -17,12 +17,15 @@ import {
 } from '../src/pods/device/dto';
 import { DeviceService } from '../src/pods/device/device.service';
 import {
+  DeviceOrderBy,
   Installation,
   OffTaker,
   Sector,
   StandardCompliance,
 } from '../src/utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
+import TestDevicesToGroup from './test-devices-for-grouping.json';
+import { DeviceGroupByDTO } from '../src/pods/device/dto/device-group-by.dto';
 
 describe('Device tests', () => {
   let app: INestApplication;
@@ -43,7 +46,7 @@ describe('Device tests', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       configService,
     } = await bootstrapTestInstance());
-    await databaseService.truncate('user', 'device', 'organization');
+    await databaseService.truncate('user', 'organization', 'device');
 
     await app.init();
   });
@@ -193,6 +196,49 @@ describe('Device tests', () => {
     await postDevice('', HttpStatus.FORBIDDEN, partialDevice);
   });
 
+  it('should return grouped devices', async () => {
+    const loggedUser = {
+      email: 'owner2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser);
+    const { body: organization } = await requestOrganization(
+      'me',
+      HttpStatus.OK,
+    );
+    const bulkDevices = TestDevicesToGroup as unknown as NewDeviceDTO[];
+    bulkDevices.map(async (device: NewDeviceDTO) => {
+      await deviceService.seed(organization.id, device);
+    });
+    const orderFilter: Partial<DeviceGroupByDTO> = {
+      orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
+    };
+    const { body: devices } = await requestUngrouppedDevice(
+      HttpStatus.OK,
+      orderFilter,
+    );
+    expect(devices).to.be.instanceOf(Array);
+    expect(devices[2]).to.be.instanceOf(Array);
+    expect(devices[2]).to.have.length(4);
+    expect(devices[2][0].offTaker).to.eq(OffTaker.School);
+    expect(devices[2][1].offTaker).to.eq(OffTaker.School);
+    expect(devices[2][2].offTaker).to.eq(OffTaker.School);
+    expect(devices[2][3].offTaker).to.eq(OffTaker.School);
+    expect(devices[2][0].sector).to.eq(Sector.Education);
+    expect(devices[2][1].sector).to.eq(Sector.Education);
+    expect(devices[2][2].sector).to.eq(Sector.Education);
+    expect(devices[2][3].sector).to.eq(Sector.Education);
+  });
+
+  const requestOrganization = async (
+    url: string,
+    status: HttpStatus,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .get(`/organization/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
   const requestDevice = async (
     url: string,
     status: HttpStatus,
@@ -201,6 +247,16 @@ describe('Device tests', () => {
     await request(app.getHttpServer())
       .get(`/device/${url}`)
       .query(filterDTO)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const requestUngrouppedDevice = async (
+    status: HttpStatus,
+    orderFilterDto: Partial<DeviceGroupByDTO>,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .get(`/device/ungrouped`)
+      .query(orderFilterDto)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

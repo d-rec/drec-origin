@@ -10,15 +10,17 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
-import { FilterDTO, UpdateDeviceDTO } from './dto';
+import { DeviceDTO, FilterDTO, UpdateDeviceDTO } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { Role } from '../../utils/enums';
+import { DeviceOrderBy, Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
-import { IDevice } from '../../models';
+import { DeviceKey, DeviceSortPropertyMapper, IDevice } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
 import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
+import { groupByProps } from '../../utils/group-by-properties';
 
 @Injectable()
 export class DeviceService {
@@ -107,6 +109,16 @@ export class DeviceService {
     return await this.repository.save(currentDevice);
   }
 
+  async findUngrouped(
+    organizationId: number,
+    orderFilterDto: DeviceGroupByDTO,
+  ): Promise<DeviceDTO[][]> {
+    const devices = await this.repository.find({
+      where: { groupId: null, organizationId },
+    });
+    return this.groupDevices(orderFilterDto, devices);
+  }
+
   getDeviceTypes(): CodeNameDTO[] {
     return IREC_DEVICE_TYPES;
   }
@@ -121,6 +133,32 @@ export class DeviceService {
 
   isValidFuelType(fuelType: string): boolean {
     return !!this.getFuelTypes().find((fuel) => fuel.code === fuelType);
+  }
+
+  groupDevices(
+    orderFilterDto: DeviceGroupByDTO,
+    devices: Device[],
+  ): DeviceDTO[][] {
+    const { orderBy } = orderFilterDto;
+    const orderByRules: DeviceOrderBy[] = Array.isArray(orderBy)
+      ? orderBy
+      : [orderBy];
+    const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
+      devices,
+      (item) => {
+        return [
+          ...orderByRules.map((order: DeviceOrderBy) => {
+            if (DeviceSortPropertyMapper[order]) {
+              const deviceKey: DeviceKey = DeviceSortPropertyMapper[
+                order
+              ] as DeviceKey;
+              return item[deviceKey];
+            }
+          }),
+        ];
+      },
+    );
+    return groupedDevicesByProps;
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
