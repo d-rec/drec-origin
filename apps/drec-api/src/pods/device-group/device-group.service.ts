@@ -42,6 +42,12 @@ export class DeviceGroupService {
     return deviceGroup;
   }
 
+  async getOrganizationDeviceGroups(
+    organizationId: number,
+  ): Promise<DeviceGroup[]> {
+    return this.repository.find({ where: { organizationId } });
+  }
+
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
