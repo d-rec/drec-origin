@@ -140,9 +140,9 @@ export class DeviceService {
     devices: Device[],
   ): DeviceDTO[][] {
     const { orderBy } = orderFilterDto;
-    const orderByRules: DeviceOrderBy[] = !Array.isArray(orderBy)
-      ? [orderBy]
-      : orderBy;
+    const orderByRules: DeviceOrderBy[] = Array.isArray(orderBy)
+      ? orderBy
+      : [orderBy];
     const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
       devices,
       (item) => {
