@@ -42,6 +42,15 @@ export class Seed9999999999999 implements MigrationInterface {
         ) + 1
     );`,
     );
+    await queryRunner.query(
+      `SELECT setval(
+        pg_get_serial_sequence('public.user', 'id'),
+        (
+            SELECT MAX("id")
+            FROM public.user
+        ) + 1
+    );`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {}
