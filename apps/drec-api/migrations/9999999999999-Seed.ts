@@ -33,6 +33,15 @@ export class Seed9999999999999 implements MigrationInterface {
     await this.seedOrganizations(queryRunner, registry);
     await this.seedUsers(queryRunner);
     await this.seedDevices(queryRunner);
+    await queryRunner.query(
+      `SELECT setval(
+        pg_get_serial_sequence('public.organization', 'id'),
+        (
+            SELECT MAX("id")
+            FROM public.organization
+        ) + 1
+    );`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {}
@@ -47,11 +56,9 @@ export class Seed9999999999999 implements MigrationInterface {
 
     await Promise.all(
       (UsersJSON as unknown as IUserSeed[]).map(async (user) => {
-        const userOrganizations: IFullOrganization[] = await queryRunner.query(
-          `SELECT id FROM "organization" WHERE "signatoryEmail" = '${user.email}'`,
-        );
         queryRunner.query(
           `INSERT INTO public.user (
+            "id", 
             "title", 
             "firstName", 
             "lastName", 
@@ -63,6 +70,7 @@ export class Seed9999999999999 implements MigrationInterface {
             "role", 
             "organizationId"
             ) VALUES (
+              '${user.id}', 
               '${user.title}', 
               '${user.firstName}', 
               '${user.lastName}', 
@@ -72,7 +80,7 @@ export class Seed9999999999999 implements MigrationInterface {
               '${user.notifications}', 
               '${user.status}', 
               '${user.role}', 
-              '${userOrganizations[0].id}'
+              '${user.organizationId}'
             )`,
         );
       }),
@@ -112,6 +120,7 @@ export class Seed9999999999999 implements MigrationInterface {
 
       await queryRunner.query(
         `INSERT INTO public.organization (
+          "id",
           "name",
           "address",
           "zipCode",
@@ -130,6 +139,7 @@ export class Seed9999999999999 implements MigrationInterface {
           "signatoryEmail",
           "signatoryPhoneNumber"
         ) VALUES (
+          '${organization.id}', 
           '${organization.name}', 
           '${organization.address}', 
           '${organization.zipCode}', 

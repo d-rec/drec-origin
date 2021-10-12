@@ -20,25 +20,6 @@
   },
   {
     "id": 2,
-    "name": "Nights Watch",
-    "zipCode": "002312",
-    "address": "Somewhere",
-    "city": "City",
-    "country": "DE",
-    "businessType": "Issuer",
-    "tradeRegistryCompanyNumber": "5000",
-    "vatNumber": "DE5000",
-    "status": "Active",
-    "signatoryFullName": "Jon Snow",
-    "signatoryAddress": "Castle Black",
-    "signatoryZipCode": "Zip Code",
-    "signatoryCity": "City",
-    "signatoryCountry": "DE",
-    "signatoryEmail": "jonsnow@mailinator.com",
-    "signatoryPhoneNumber": "81-3-6889-2713"
-  },
-  {
-    "id": 3,
     "name": "Buyer",
     "zipCode": "002312",
     "address": "Somewhere",
@@ -57,7 +38,7 @@
     "signatoryPhoneNumber": "81-3-6889-2713"
   },
   {
-    "id": 4,
+    "id": 3,
     "name": "Admin",
     "zipCode": "002312",
     "address": "Somewhere",
@@ -76,8 +57,8 @@
     "signatoryPhoneNumber": "81-3-6889-2713"
   },
   {
-    "id": 5,
-    "name": "New Organization",
+    "id": 4,
+    "name": "Organization Manager",
     "zipCode": "002312",
     "address": "Somewhere",
     "city": "City",

@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "drecID": "DREC02",
+    "drecID": "DREC01",
     "organizationId": 1,
     "projectName": "Project Device 1",
     "address": "Street 1, Bucharest",
@@ -18,12 +18,12 @@
     "sector": "Education",
     "standardCompliance": "I-REC",
     "yieldValue": 1000,
-    "labels": "Women-owned businesses",
+    "labels": "Label 1",
     "impactStory": "Wind: Onshore"
   },
   {
     "id": 2,
-    "drecID": "DREC03",
+    "drecID": "DREC02",
     "organizationId": 4,
     "projectName": "Project Device 2",
     "address": "Street 2, Berlin",
@@ -40,12 +40,12 @@
     "sector": "Health",
     "standardCompliance": "REC",
     "yieldValue": 1000,
-    "labels": "Women-owned businesses",
+    "labels": "Label 2",
     "impactStory": "PV Ground mounted"
   },
   {
     "id": 3,
-    "drecID": "DREC04",
+    "drecID": "DREC03",
     "organizationId": 1,
     "projectName": "Project Device 3",
     "address": "Street 3, Oslo",
@@ -62,12 +62,12 @@
     "sector": "Agriculture",
     "standardCompliance": "GO",
     "yieldValue": 1000,
-    "labels": "Women-owned businesses",
+    "labels": "Label 3",
     "impactStory": "PV Roof Mounted (single installation)"
   },
   {
     "id": 4,
-    "drecID": "DREC05",
+    "drecID": "DREC04",
     "organizationId": 4,
     "projectName": "Project Device 4",
     "address": "Street 4, Warsaw",
@@ -84,7 +84,7 @@
     "sector": "Manufacturing",
     "standardCompliance": "TIGR",
     "yieldValue": 1100,
-    "labels": "Women-owned businesses",
+    "labels": "Label 4",
     "impactStory": "Run of river"
   }
 ]

@@ -143,6 +143,19 @@ describe('Device Group tests', () => {
     expect(deviceGroups).to.have.length(1);
   });
 
+  it('should retrieve my device groups', async () => {
+    await createDeviceGroup({
+      email: 'owner2@mailinator.com',
+      password: 'test',
+    });
+    const { body: deviceGroups } = await requestDeviceGroup(
+      'my',
+      HttpStatus.OK,
+    );
+    expect(deviceGroups).to.be.instanceOf(Array);
+    expect(deviceGroups).to.have.length(1);
+  });
+
   it('should retrieve device group by id', async () => {
     await createDeviceGroup();
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -306,8 +319,11 @@ describe('Device Group tests', () => {
     );
   });
 
-  const createDeviceGroup = async (): Promise<any> => {
-    const loggedUser = {
+  const createDeviceGroup = async (user?: {
+    email: string;
+    password: string;
+  }): Promise<any> => {
+    const loggedUser = user || {
       email: 'admin2@mailinator.com',
       password: 'test',
     };
