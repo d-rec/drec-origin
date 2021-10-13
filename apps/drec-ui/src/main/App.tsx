@@ -9,6 +9,7 @@ import { DrecLogo } from 'assets';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
+import { DeviceGroupApp } from 'apps/device-group/view/DeviceGroupApp';
 
 import { RoutesConfig } from './AppContainer';
 
@@ -24,7 +25,8 @@ export interface AppProps {
 export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig, loading }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes } = routesConfig;
+        const { accountRoutes, adminRoutes, orgRoutes, deviceRoutes, deviceGroupRoutes } =
+            routesConfig;
         return (
             <Routes>
                 <Route
@@ -50,6 +52,18 @@ export const App: FC<AppProps> = memo(
                                 element={
                                     <DeviceApp
                                         routesConfig={deviceRoutes}
+                                        envVariables={{
+                                            googleMapsApiKey:
+                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                        }}
+                                    />
+                                }
+                            />
+                            <Route
+                                path="device-group/*"
+                                element={
+                                    <DeviceGroupApp
+                                        routesConfig={deviceGroupRoutes}
                                         envVariables={{
                                             googleMapsApiKey:
                                                 process.env.REACT_APP_GOOGLE_MAPS_API_KEY

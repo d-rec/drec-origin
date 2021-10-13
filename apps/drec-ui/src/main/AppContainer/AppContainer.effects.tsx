@@ -6,6 +6,7 @@ import {
 import { useUser, useAxiosInterceptors } from 'api';
 import { getOrganizationMenu, TGetOrganizationMenuArgs } from 'apps/organization';
 import { getDeviceMenu, TGetDeviceMenuArgs } from 'apps/device';
+import { getDeviceGroupMenu, TGetDeviceGroupMenuArgs } from 'apps/device-group';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from 'apps/user';
 import { useActiveMenuTab, useTopbarButtonList } from 'shared';
 import { getCertificateMenu, TGetCertificateMenuArgs } from 'apps/certificate/logic';
@@ -14,6 +15,7 @@ import { isRole } from 'utils';
 export type RoutesConfig = {
     orgRoutes: Omit<TGetOrganizationMenuArgs, 'isOpen' | 'showSection'>;
     deviceRoutes: Omit<TGetDeviceMenuArgs, 'isOpen' | 'showSection'>;
+    deviceGroupRoutes: Omit<TGetDeviceGroupMenuArgs, 'isOpen' | 'showSection'>;
     certificateRoutes: Omit<TGetCertificateMenuArgs, 'isOpen' | 'showSection'>;
     accountRoutes: Omit<TGetAccountMenuArgs, 'isOpen' | 'showSection'>;
     adminRoutes: Omit<TGetAdminMenuArgs, 'isOpen' | 'showSection'>;
@@ -106,11 +108,29 @@ export const useAppContainerEffects = () => {
         ...certificateRoutesConfig
     });
 
-    const menuSections = [deviceMenu, certificateMenu, orgMenu, accountMenu, adminMenu];
+    const deviceGroupRoutesConfig: RoutesConfig['deviceGroupRoutes'] = {
+        showAllDeviceGroups: true,
+        showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
+    };
+    const deviceGroupMenu = getDeviceGroupMenu({
+        isOpen: isDeviceTabActive,
+        showSection: true,
+        ...deviceGroupRoutesConfig
+    });
+
+    const menuSections = [
+        deviceMenu,
+        deviceGroupMenu,
+        certificateMenu,
+        orgMenu,
+        accountMenu,
+        adminMenu
+    ];
 
     const routesConfig: RoutesConfig = {
         orgRoutes: orgRoutesConfig,
         deviceRoutes: deviceRoutesConfig,
+        deviceGroupRoutes: deviceGroupRoutesConfig,
         certificateRoutes: certificateRoutesConfig,
         accountRoutes: accountRoutesConfig,
         adminRoutes: adminRoutesConfig
