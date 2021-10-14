@@ -31,6 +31,7 @@ export const useAppContainerEffects = () => {
         isOrganizationTabActive,
         isCertificateTabActive,
         isDeviceTabActive,
+        isDeviceGroupTabActive,
         isAccountTabActive,
         isAdminTabAcive
     } = useActiveMenuTab();
@@ -113,7 +114,7 @@ export const useAppContainerEffects = () => {
         showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
     };
     const deviceGroupMenu = getDeviceGroupMenu({
-        isOpen: isDeviceTabActive,
+        isOpen: isDeviceGroupTabActive,
         showSection: true,
         ...deviceGroupRoutesConfig
     });

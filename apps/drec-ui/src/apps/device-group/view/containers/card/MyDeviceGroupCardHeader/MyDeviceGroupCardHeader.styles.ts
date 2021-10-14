@@ -3,13 +3,12 @@ import { makeStyles } from '@material-ui/styles';
 export const useStyles = makeStyles((theme) => ({
     headerWrapper: {
         display: 'flex',
-        [theme.breakpoints.down('sm')]: {
-            flexDirection: 'column'
-        }
+        flexDirection: 'column'
     },
     nameBlockWrapper: {
         width: '50%',
         paddingLeft: 15,
+        paddingBottom: 15,
         [theme.breakpoints.down('sm')]: {
             paddingLeft: 0,
             width: '100%',
@@ -19,11 +18,12 @@ export const useStyles = makeStyles((theme) => ({
         }
     },
     specBlockWrapper: {
-        width: '50%',
+        width: '100%',
         display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        paddingRight: 15,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'start',
+        gap: '10px',
         [theme.breakpoints.down('sm')]: {
             width: '100%',
             justifyContent: 'center',
@@ -45,7 +45,7 @@ export const useStyles = makeStyles((theme) => ({
     specFieldWrapper: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end'
+        justifyContent: 'space-between'
     },
     specFieldValue: {
         color: theme.palette.text.primary,

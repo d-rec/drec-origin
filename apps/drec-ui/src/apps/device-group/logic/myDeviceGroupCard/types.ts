@@ -9,10 +9,12 @@ type TUseSpecsForMyDeviceGroupCardArgs = {
 export type TUseSpecsForMyDeviceGroupCardReturnType = {
     fallbackIcon: FallbackIconProps['icon'];
     cardHeaderProps: {
+        deviceGroupId: number;
         deviceGroupName: string;
         buttonText: string;
         buttonLink: string;
-        specFieldProps: SpecFieldProps;
+        deleteButtonText: string;
+        specFieldProps: SpecFieldProps[];
     };
     cardContentProps: {
         iconsProps: IconTextProps[];

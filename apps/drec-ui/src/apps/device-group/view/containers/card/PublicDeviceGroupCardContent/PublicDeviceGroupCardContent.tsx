@@ -23,7 +23,11 @@ export const PublicDeviceGroupCardContent: TPublicDeviceGroupCardContent = ({
         <>
             <div className={classes.specsWrapper}>
                 {specsData.map((spec) => (
-                    <SpecField key={spec.label + id} {...spec} />
+                    <SpecField
+                        key={spec.label + id}
+                        wrapperProps={{ className: classes.specFieldWrapper }}
+                        {...spec}
+                    />
                 ))}
             </div>
             <Divider />

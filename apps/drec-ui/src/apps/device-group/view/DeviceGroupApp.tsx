@@ -2,7 +2,12 @@ import { FC } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { PageNotFound } from 'shared';
 import { AllDeviceGroupsPage, MyDeviceGroupsPage } from './pages';
-import { DeviceGroupAppEnvProvider, DeviceGroupEnvVariables } from './context';
+import {
+    DeviceGroupAppEnvProvider,
+    DeviceGroupEnvVariables,
+    DeviceGroupModalsProvider
+} from './context';
+import { DeviceGroupModalsCenter } from './containers/modals/DeviceGroupModalsCenter';
 
 export interface DeviceGroupAppProps {
     routesConfig: {
@@ -16,11 +21,14 @@ export const DeviceGroupApp: FC<DeviceGroupAppProps> = ({ routesConfig, envVaria
     const { showAllDeviceGroups, showMyDeviceGroups } = routesConfig;
     return (
         <DeviceGroupAppEnvProvider variables={envVariables}>
-            <Routes>
-                {showAllDeviceGroups && <Route path="all" element={<AllDeviceGroupsPage />} />}
-                {showMyDeviceGroups && <Route path="my" element={<MyDeviceGroupsPage />} />}
-                <Route path="*" element={<PageNotFound />} />
-            </Routes>
+            <DeviceGroupModalsProvider>
+                <Routes>
+                    {showAllDeviceGroups && <Route path="all" element={<AllDeviceGroupsPage />} />}
+                    {showMyDeviceGroups && <Route path="my" element={<MyDeviceGroupsPage />} />}
+                    <Route path="*" element={<PageNotFound />} />
+                </Routes>
+                <DeviceGroupModalsCenter />
+            </DeviceGroupModalsProvider>
         </DeviceGroupAppEnvProvider>
     );
 };

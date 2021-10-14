@@ -12,7 +12,8 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
     const specsData: SpecFieldProps[] = [
         {
             label: 'Aggregated Capacity (MW)',
-            value: PowerFormatter.format(deviceGroup.aggregatedCapacity)
+            // value: PowerFormatter.format(deviceGroup.aggregatedCapacity, true)
+            value: deviceGroup.aggregatedCapacity
         },
         {
             label: 'Capacity Range',
@@ -20,7 +21,19 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
         },
         {
             label: 'Commissioning date ranges',
-            value: deviceGroup.commissioningDateRange.join()
+            value: deviceGroup.commissioningDateRange.join().replaceAll(',', ', ')
+        },
+        {
+            label: 'Standard Compliance',
+            value: deviceGroup.standardCompliance
+        },
+        {
+            label: 'Offtaker',
+            value: deviceGroup.offTakers.join().replaceAll(',', ', ')
+        },
+        {
+            label: 'Installation Configuration',
+            value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
         }
     ];
     const { mainType, restType } = getMainFuelType(deviceGroup.fuelCode, allTypes);
@@ -41,7 +54,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
     const detailViewLink = `/device-group/detail-view/${deviceGroup.id}`;
 
     const cardProps: Omit<CardWithImageProps, 'content'> = {
-        heading: deviceGroup.name,
+        heading: `Facility ${deviceGroup.id}`,
         hoverText: 'View details'.toUpperCase(),
         imageUrl: '',
         fallbackIcon: deviceGroupIcon,

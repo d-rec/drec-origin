@@ -3,10 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 enum ActiveMenuItem {
     Device = 1,
-    Certificate = 2,
-    Organization = 3,
-    Admin = 4,
-    Account = 5
+    DeviceGroup = 2,
+    Certificate = 3,
+    Organization = 4,
+    Admin = 5,
+    Account = 6
 }
 
 const useGetActiveTabFromLocation = (): ActiveMenuItem => {
@@ -17,6 +18,9 @@ const useGetActiveTabFromLocation = (): ActiveMenuItem => {
         switch (location.pathname.split('/')[1].toString().toLowerCase()) {
             case 'device':
                 setActiveTab(ActiveMenuItem.Device);
+                return;
+            case 'device-group':
+                setActiveTab(ActiveMenuItem.DeviceGroup);
                 return;
             case 'certificate':
                 setActiveTab(ActiveMenuItem.Certificate);
@@ -38,6 +42,7 @@ export const useActiveMenuTab = () => {
     const activeTab = useGetActiveTabFromLocation();
 
     const isDeviceTabActive = activeTab === ActiveMenuItem.Device;
+    const isDeviceGroupTabActive = activeTab === ActiveMenuItem.DeviceGroup;
     const isCertificateTabActive = activeTab === ActiveMenuItem.Certificate;
     const isOrganizationTabActive = activeTab === ActiveMenuItem.Organization;
     const isAdminTabAcive = activeTab === ActiveMenuItem.Admin;
@@ -46,6 +51,7 @@ export const useActiveMenuTab = () => {
     return useMemo(
         () => ({
             isDeviceTabActive,
+            isDeviceGroupTabActive,
             isCertificateTabActive,
             isOrganizationTabActive,
             isAdminTabAcive,
