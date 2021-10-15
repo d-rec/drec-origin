@@ -49,7 +49,7 @@ export class DeviceService {
     return devices;
   }
 
-  public async findForGroup(groupId: number): Promise<Device[]> {
+  public async findForGroup(groupId: number): Promise<DeviceDTO[]> {
     return this.repository.find({ groupId });
   }
 
