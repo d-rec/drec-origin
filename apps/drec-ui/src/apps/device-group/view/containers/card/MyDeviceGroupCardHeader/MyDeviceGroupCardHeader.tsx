@@ -52,7 +52,10 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
             </div>
             <div className={classes.attributesBlockWrapper}>
                 {groupAttributes.map((attributes, i) => (
-                    <div key={`group-attributes-${i}`} style={{ width: '100%' }}>
+                    <div
+                        key={`group-attributes-${attributes[0].label}-${attributes[0].value}-${attributes[1]?.value}`}
+                        style={{ width: '100%' }}
+                    >
                         <div className={classes.attributeSpecBlockWrapper}>
                             {attributes.map((specAttribute, j) => (
                                 <div
