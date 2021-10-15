@@ -1,5 +1,5 @@
 import { SpecField, SpecFieldProps } from '@energyweb/origin-ui-core';
-import { Button, Typography } from '@material-ui/core';
+import { Button, IconButton, Typography, Divider } from '@material-ui/core';
 import { ChevronRight, Delete } from '@material-ui/icons';
 import React from 'react';
 import { useMyDeviceGroupCardHeaderEffects } from './MyDeviceGroupCardHeader.effects';
@@ -10,7 +10,7 @@ interface MyDeviceGroupCardHeaderProps {
     deviceGroupName: string;
     buttonText: string;
     buttonLink: string;
-    deleteButtonText: string;
+    groupAttributes: SpecFieldProps[][];
     specFieldProps: SpecFieldProps[];
 }
 
@@ -19,7 +19,7 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
     deviceGroupName,
     buttonText,
     buttonLink,
-    deleteButtonText,
+    groupAttributes,
     specFieldProps
 }) => {
     const classes = useStyles();
@@ -32,8 +32,10 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
     return (
         <div className={classes.headerWrapper}>
             <div className={classes.nameBlockWrapper}>
-                <Typography variant="h5">{deviceGroupName}</Typography>
-                <div>
+                <Typography sx={{ display: { xs: 'none', lg: 'block', xl: 'block' } }} variant="h5">
+                    {deviceGroupName}
+                </Typography>
+                <div className={classes.buttonsWrapper}>
                     <Button
                         color="inherit"
                         onClick={clickHandler}
@@ -43,16 +45,34 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
                     >
                         {buttonText}
                     </Button>
-                    <Button
-                        color="inherit"
-                        onClick={deleteHandler}
-                        className={classes.button}
-                        classes={{ endIcon: classes.buttonEndIcon }}
-                        endIcon={<Delete color="error" fontSize="small" />}
-                    >
-                        {deleteButtonText}
-                    </Button>
+                    <IconButton color="primary" size="large" onClick={deleteHandler}>
+                        <Delete fontSize="inherit" />
+                    </IconButton>
                 </div>
+            </div>
+            <div className={classes.attributesBlockWrapper}>
+                {groupAttributes.map((attributes, i) => (
+                    <div key={i} style={{ width: '100%' }}>
+                        <div className={classes.attributeSpecBlockWrapper}>
+                            {attributes.map((specAttribute, j) => (
+                                <div key={j} style={{ width: '100%' }}>
+                                    <SpecField
+                                        wrapperProps={{ className: classes.specFieldWrapper }}
+                                        valueProps={{ className: classes.specFieldValue }}
+                                        {...specAttribute}
+                                    />
+                                    {j < attributes.length - 1 ? (
+                                        <Divider
+                                            sx={{ display: { md: 'block', lg: 'none' } }}
+                                            className={classes.divider}
+                                        />
+                                    ) : null}
+                                </div>
+                            ))}
+                        </div>
+                        <Divider className={classes.divider} />
+                    </div>
+                ))}
             </div>
             <div className={classes.specBlockWrapper}>
                 {specFieldProps.map((specProp, index) => (
@@ -62,6 +82,9 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
                             valueProps={{ className: classes.specFieldValue }}
                             {...specProp}
                         />
+                        {index < specFieldProps.length - 1 ? (
+                            <Divider className={classes.divider} />
+                        ) : null}
                     </div>
                 ))}
             </div>

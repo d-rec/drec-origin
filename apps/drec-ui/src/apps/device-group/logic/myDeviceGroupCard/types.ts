@@ -13,7 +13,7 @@ export type TUseSpecsForMyDeviceGroupCardReturnType = {
         deviceGroupName: string;
         buttonText: string;
         buttonLink: string;
-        deleteButtonText: string;
+        groupAttributes: SpecFieldProps[][];
         specFieldProps: SpecFieldProps[];
     };
     cardContentProps: {

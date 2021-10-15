@@ -12,31 +12,32 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
 
     const cardHeaderProps: TUseSpecsForMyDeviceGroupCardReturnType['cardHeaderProps'] = {
         deviceGroupId: deviceGroup.id,
-        deviceGroupName: deviceGroup.name,
+        deviceGroupName: deviceGroup.name.replaceAll('_', ' '),
         buttonText: 'View details',
         buttonLink: `/device-group/detail-view/${deviceGroup.id}`,
-        deleteButtonText: 'Remove group',
+        groupAttributes: [
+            [
+                {
+                    label: 'Facility ID',
+                    value: deviceGroup.id.toString()
+                },
+                {
+                    label: 'Standard Compliance',
+                    value: deviceGroup.standardCompliance
+                }
+            ],
+            [
+                {
+                    label: 'Aggregated Capacity (MW)',
+                    value: deviceGroup.aggregatedCapacity
+                },
+                {
+                    label: 'Capacity Range',
+                    value: deviceGroup.capacityRange
+                }
+            ]
+        ],
         specFieldProps: [
-            {
-                label: 'Facility ID',
-                value: deviceGroup.id.toString()
-            },
-            {
-                label: 'Aggregated Capacity (MW)',
-                value: deviceGroup.aggregatedCapacity
-            },
-            {
-                label: 'Capacity Range',
-                value: deviceGroup.capacityRange
-            },
-            {
-                label: 'Commissioning date ranges',
-                value: deviceGroup.commissioningDateRange.join().replaceAll(',', ', ')
-            },
-            {
-                label: 'Standard Compliance',
-                value: deviceGroup.standardCompliance
-            },
             {
                 label: 'Offtaker',
                 value: deviceGroup.offTakers.join().replaceAll(',', ', ')
@@ -44,6 +45,11 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
             {
                 label: 'Installation Configuration',
                 value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
+            },
+
+            {
+                label: 'Commissioning date ranges',
+                value: deviceGroup.commissioningDateRange.join().replaceAll(',', ', ')
             }
         ]
     };
