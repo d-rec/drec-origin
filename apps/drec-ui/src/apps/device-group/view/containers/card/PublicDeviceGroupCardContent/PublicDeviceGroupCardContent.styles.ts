@@ -3,8 +3,7 @@ import { makeStyles } from '@material-ui/styles';
 
 export const useStyles = makeStyles((theme) => ({
     specsWrapper: {
-        marginBottom: theme.spacing(1.5),
-        color: '#fff'
+        marginBottom: theme.spacing(1.5)
     },
     specFieldWrapper: {
         display: 'flex',

@@ -1,7 +1,7 @@
 import { CardWithImageProps, IconTextProps, SpecFieldProps } from '@energyweb/origin-ui-core';
-import { EnergyTypeEnum, PowerFormatter } from '@energyweb/origin-ui-utils';
+import { EnergyTypeEnum } from '@energyweb/origin-ui-utils';
 import { TUseSpecsForAllDeviceGroupCard } from './types';
-import { getMainFuelType, getEnergyTypeImage } from 'utils';
+import { getMainFuelType, getEnergyTypeImage, PowerFormatter } from 'utils';
 import { GermanyFlag } from 'assets';
 
 export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
@@ -12,8 +12,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
     const specsData: SpecFieldProps[] = [
         {
             label: 'Aggregated Capacity (MW)',
-            // value: PowerFormatter.format(deviceGroup.aggregatedCapacity, true)
-            value: deviceGroup.aggregatedCapacity
+            value: PowerFormatter.format(deviceGroup.aggregatedCapacity, true)
         },
         {
             label: 'Capacity Range',

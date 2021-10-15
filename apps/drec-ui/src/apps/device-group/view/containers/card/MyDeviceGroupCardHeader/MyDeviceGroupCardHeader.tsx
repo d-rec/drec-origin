@@ -52,10 +52,13 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
             </div>
             <div className={classes.attributesBlockWrapper}>
                 {groupAttributes.map((attributes, i) => (
-                    <div key={i} style={{ width: '100%' }}>
+                    <div key={`group-attributes-${i}`} style={{ width: '100%' }}>
                         <div className={classes.attributeSpecBlockWrapper}>
                             {attributes.map((specAttribute, j) => (
-                                <div key={j} style={{ width: '100%' }}>
+                                <div
+                                    key={`spec-attribute-${specAttribute.label}`}
+                                    style={{ width: '100%' }}
+                                >
                                     <SpecField
                                         wrapperProps={{ className: classes.specFieldWrapper }}
                                         valueProps={{ className: classes.specFieldValue }}
@@ -76,7 +79,7 @@ export const MyDeviceGroupCardHeader: React.FC<MyDeviceGroupCardHeaderProps> = (
             </div>
             <div className={classes.specBlockWrapper}>
                 {specFieldProps.map((specProp, index) => (
-                    <div key={index} style={{ width: '100%' }}>
+                    <div key={`spec-field-${specProp.label}`} style={{ width: '100%' }}>
                         <SpecField
                             wrapperProps={{ className: classes.specFieldWrapper }}
                             valueProps={{ className: classes.specFieldValue }}

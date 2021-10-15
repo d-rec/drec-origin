@@ -1,6 +1,6 @@
-import { EnergyTypeEnum, PowerFormatter } from '@energyweb/origin-ui-utils';
+import { EnergyTypeEnum } from '@energyweb/origin-ui-utils';
 import { GermanyFlag } from 'assets';
-import { getEnergyTypeImage, getMainFuelType } from 'utils';
+import { getEnergyTypeImage, getMainFuelType, PowerFormatter } from 'utils';
 import { TUseSpecsForMyDeviceGroupCard, TUseSpecsForMyDeviceGroupCardReturnType } from './types';
 
 export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
@@ -29,7 +29,7 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
             [
                 {
                     label: 'Aggregated Capacity (MW)',
-                    value: deviceGroup.aggregatedCapacity
+                    value: PowerFormatter.format(deviceGroup.aggregatedCapacity, true)
                 },
                 {
                     label: 'Capacity Range',

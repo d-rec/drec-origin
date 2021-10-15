@@ -9,7 +9,7 @@ export type TGetDeviceGroupMenuArgs = {
     selectedMenuItemClass?: string;
 };
 
-type TGetDeviceGroupMenu = (args?: TGetDeviceGroupMenuArgs) => TMenuSection;
+type TGetDeviceGroupMenu = (args: TGetDeviceGroupMenuArgs) => TMenuSection;
 
 export const getDeviceGroupMenu: TGetDeviceGroupMenu = ({
     isOpen,
