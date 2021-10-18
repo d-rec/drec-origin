@@ -73,11 +73,8 @@ export class DeviceGroupController {
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async get(
-    @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<DeviceGroupDTO | null> {
-    return this.deviceGroupService.findById(id, organizationId);
+  async get(@Param('id') id: number): Promise<DeviceGroupDTO | null> {
+    return this.deviceGroupService.findById(id);
   }
 
   @Post()

@@ -1,7 +1,7 @@
 import { useParams } from 'react-router';
 import { useDeviceGroupDetailData } from '../../../data';
 import { useAllDeviceFuelTypes } from 'apps/device/data';
-import { useDeviceGroupDetailViewLogic } from '../../../logic';
+import { useDeviceGroupDetailViewLogic, useDevicesTableLogic } from '../../../logic';
 
 export const useDetailViewGroupPageEffects = () => {
     const { id } = useParams();
@@ -17,5 +17,7 @@ export const useDetailViewGroupPageEffects = () => {
 
     const isLoading = isDeviceGroupLoading || isDeviceTypesLoading;
 
-    return { locationProps, cardProps, deviceGroup, isLoading, allTypes };
+    const tableProps = useDevicesTableLogic(deviceGroup?.devices, isLoading);
+
+    return { locationProps, cardProps, deviceGroup, isLoading, tableProps };
 };

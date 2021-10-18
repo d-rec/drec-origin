@@ -6,6 +6,7 @@ export const useStyles = makeStyles((theme) => ({
         margin: '15px 0',
         padding: '0 20px',
         display: 'flex',
+        width: 'calc(100% -20px)',
         borderTop: `1px solid ${LightenColor(
             theme.palette.background.paper,
             15,
@@ -16,18 +17,15 @@ export const useStyles = makeStyles((theme) => ({
             15,
             theme.palette.mode
         )}`,
-        [theme.breakpoints.up('lg')]: {
-            width: '60%'
-        },
         [theme.breakpoints.down('lg')]: {
-            padding: 0,
-            width: '100%'
+            width: '100%',
+            padding: 0
         },
         [theme.breakpoints.down('md')]: {
             flexDirection: 'column'
         }
     },
-    owner: {
+    name: {
         color: theme.palette.text.secondary
     }
 }));

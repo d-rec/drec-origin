@@ -1,17 +1,23 @@
 import React, { FC } from 'react';
 
-import { CircularProgress, Typography } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 
 import { useDetailViewGroupPageEffects } from './DetailViewGroupPage.effects';
 import { useStyles } from './DetailViewGroupPage.styles';
-import { DetailViewCard, DeviceGroupLocationData, DevicesMap } from '../../containers';
+import {
+    DetailViewCard,
+    DeviceGroupLocationData,
+    DeviceGroupName,
+    DevicesMap
+} from '../../containers';
+import { TableComponent } from '@energyweb/origin-ui-core';
 
 export const DetailViewGroupPage: FC = () => {
     const classes = useStyles();
-    const { locationProps, cardProps, deviceGroup, isLoading, allTypes } =
+    const { locationProps, cardProps, deviceGroup, isLoading, tableProps } =
         useDetailViewGroupPageEffects();
 
-    if (isLoading) {
+    if (isLoading && !deviceGroup) {
         return <CircularProgress />;
     }
 
@@ -23,8 +29,9 @@ export const DetailViewGroupPage: FC = () => {
                 itemProps={{ className: classes.map }}
             />
             <DeviceGroupLocationData {...locationProps} />
-
+            <DeviceGroupName name={deviceGroup.name} />
             <DetailViewCard {...cardProps} />
+            <TableComponent {...tableProps} />
         </div>
     );
 };

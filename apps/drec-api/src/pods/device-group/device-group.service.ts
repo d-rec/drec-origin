@@ -36,8 +36,13 @@ export class DeviceGroupService {
     return this.repository.find();
   }
 
-  async findById(id: number, organizationId: number): Promise<DeviceGroup> {
-    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
+  async findById(id: number): Promise<DeviceGroup> {
+    const deviceGroup = await this.repository.findOne({
+      id,
+    });
+    if (!deviceGroup) {
+      throw new NotFoundException(`No device group found with id ${id}`);
+    }
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     return deviceGroup;
   }
