@@ -55,6 +55,10 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
                 value: deviceGroup?.commissioningDateRange.join().replaceAll(',', ', ')
             },
             {
+                label: 'Yield value',
+                value: deviceGroup?.yieldValue
+            },
+            {
                 label: 'Labels',
                 value: deviceGroup?.labels.join().replaceAll(',', ', ')
             }

@@ -8,7 +8,8 @@ import {
     DetailViewCard,
     DeviceGroupLocationData,
     DeviceGroupName,
-    DevicesMap
+    DevicesMap,
+    SmartMeterBlock
 } from '../../containers';
 import { TableComponent } from '@energyweb/origin-ui-core';
 
@@ -32,6 +33,7 @@ export const DetailViewGroupPage: FC = () => {
             <DeviceGroupName name={deviceGroup.name} />
             <DetailViewCard {...cardProps} />
             <TableComponent {...tableProps} />
+            <SmartMeterBlock deviceGroup={deviceGroup} />
         </div>
     );
 };

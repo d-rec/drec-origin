@@ -1,5 +1,5 @@
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
-import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
+import { TableComponentProps } from '@energyweb/origin-ui-core';
 import { PowerFormatter } from '../../../../utils';
 
 const prepareDevicesData = (device: DeviceDTO) => ({

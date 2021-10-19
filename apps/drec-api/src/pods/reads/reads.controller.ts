@@ -67,6 +67,21 @@ export class ReadsController extends BaseReadsController {
     return super.getReadsDifference(meterId, filter);
   }
 
+  @Get('group/:groupId/aggregate')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [AggregatedReadDTO],
+    description:
+      'Returns aggregated time-series of difference between subsequent meter reads',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  public async getGroupAggregatedReads(
+    @Param('groupId') groupId: number,
+    @Query() filter: AggregateFilterDTO,
+  ): Promise<AggregatedReadDTO[]> {
+    return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
+  }
+
   @Get('/:meter/aggregate')
   @ApiResponse({
     status: HttpStatus.OK,
