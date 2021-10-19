@@ -1,4 +1,3 @@
-import { IDevice } from './Device';
 import {
   CapacityRange,
   CommissioningDateRange,
@@ -7,6 +6,7 @@ import {
   Sector,
   StandardCompliance,
 } from '../utils/enums';
+import { DeviceDTO } from '../pods/device/dto';
 
 export interface IDeviceGroup {
   id: number;
@@ -30,5 +30,5 @@ export interface IDeviceGroup {
 
   labels?: string[];
 
-  devices?: IDevice[];
+  devices?: DeviceDTO[];
 }

@@ -1,4 +1,4 @@
-import { InvitationDTO, UserDTO } from '@energyweb/origin-drec-api-client';
+import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 
 const prepareUsersData = (user: UserDTO, actions: TableActionData<UserDTO['id']>[]) => ({
@@ -14,7 +14,7 @@ export const useAdminUsersTableLogic = (
     users: UserDTO[],
     actions: TableActionData<UserDTO['id']>[],
     loading: boolean
-): TableComponentProps<InvitationDTO['id']> => {
+): TableComponentProps<UserDTO['id']> => {
     return {
         header: {
             name: 'Name',

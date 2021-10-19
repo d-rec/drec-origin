@@ -7,7 +7,7 @@ import {
   IsBoolean,
   IsOptional,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IDeviceGroup } from '../../../models';
 import {
   CapacityRange,
@@ -17,6 +17,7 @@ import {
   Sector,
   StandardCompliance,
 } from '../../../utils/enums';
+import { DeviceDTO } from '../../device/dto';
 
 export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty()
@@ -104,4 +105,9 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsArray()
   @IsOptional()
   labels: string[];
+
+  @ApiPropertyOptional({ type: [DeviceDTO] })
+  @IsArray()
+  @IsOptional()
+  devices?: DeviceDTO[];
 }

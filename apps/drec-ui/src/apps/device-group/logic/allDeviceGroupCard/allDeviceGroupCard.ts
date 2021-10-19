@@ -27,11 +27,11 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
             value: deviceGroup.standardCompliance
         },
         {
-            label: 'Offtaker',
+            label: 'Offtakers',
             value: deviceGroup.offTakers.join().replaceAll(',', ', ')
         },
         {
-            label: 'Installation Configuration',
+            label: 'Installation Configurations',
             value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
         }
     ];

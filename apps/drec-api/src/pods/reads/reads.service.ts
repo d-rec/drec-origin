@@ -1,5 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
+  Aggregate,
+  AggregatedReadDTO,
+  AggregateFilterDTO,
   MeasurementDTO,
   ReadDTO,
   ReadsService as BaseReadService,
@@ -14,6 +17,8 @@ import { EventBus } from '@nestjs/cqrs';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 
 @Injectable()
 export class ReadsService {
@@ -23,9 +28,50 @@ export class ReadsService {
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,
+    private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {}
+
+  public async getGroupAggregatedReads(
+    groupId: number,
+    filter: AggregateFilterDTO,
+  ): Promise<AggregatedReadDTO[]> {
+    const deviceGroup = await this.deviceGroupService.findById(groupId);
+    if (!deviceGroup.devices?.length) {
+      throw new NotFoundException(
+        `No devices were found for group with id ${groupId}`,
+      );
+    }
+    const allReads = flattenDeep(
+      await Promise.all(
+        deviceGroup.devices.map(
+          async (device: DeviceDTO) =>
+            await this.baseReadsService.aggregate(device.id.toString(), filter),
+        ),
+      ),
+    );
+
+    // Group all read which have same start and stop dates
+    const readsGroupedBySameDates = values(
+      groupBy(allReads, (read) => JSON.stringify([read.start, read.stop])),
+    );
+
+    const aggregatedReads = readsGroupedBySameDates.map(
+      (group: AggregatedReadDTO[]): AggregatedReadDTO => {
+        return {
+          start: group[0].start,
+          stop: group[0].stop,
+          value: this.aggregateArray(
+            filter.aggregate,
+            group.map((item: AggregatedReadDTO) => item.value),
+          ),
+        };
+      },
+    );
+
+    return aggregatedReads;
+  }
 
   public async storeRead(
     id: string,
@@ -54,7 +100,7 @@ export class ReadsService {
   private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,
-    device: Device,
+    device: DeviceDTO,
   ): Promise<void> {
     const organization = await this.organizationService.findOne(
       device.organizationId,
@@ -195,5 +241,14 @@ export class ReadsService {
       }, MaxEnergy: ${maxEnergy}`,
     );
     return Math.round(read.value + margin * read.value) < maxEnergy;
+  }
+
+  private aggregateArray(aggregate: Aggregate, array: number[]): number {
+    switch (aggregate) {
+      case Aggregate.Mean:
+        return Math.floor(mean(array));
+      case Aggregate.Sum:
+        return Math.floor(sum(array));
+    }
   }
 }

@@ -9,6 +9,7 @@ import { BASE_READ_SERVICE } from './const';
 import { ReadsController } from './reads.controller';
 import { ReadsService } from './reads.service';
 import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
+import { DeviceGroupModule } from '../device-group/device-group.module';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -27,6 +28,7 @@ const baseReadServiceProvider = {
     ConfigModule,
     CqrsModule,
     DeviceModule,
+    DeviceGroupModule,
     UserModule,
     OrganizationModule,
   ],

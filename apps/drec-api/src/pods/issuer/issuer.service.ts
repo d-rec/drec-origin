@@ -16,7 +16,8 @@ import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ConfigService } from '@nestjs/config';
-import { IDevice, IDeviceGroup } from '../../models';
+import { IDevice } from '../../models';
+import { DeviceGroupDTO } from '../device-group/dto';
 
 @Injectable()
 export class IssuerService {
@@ -45,7 +46,7 @@ export class IssuerService {
 
     const groups = await this.groupService.getAll();
     await Promise.all(
-      groups.map(async (group: IDeviceGroup) => {
+      groups.map(async (group: DeviceGroupDTO) => {
         group.devices = await this.deviceService.findForGroup(group.id);
         return await this.issueCertificateForGroup(group, startDate, endDate);
       }),
@@ -53,7 +54,7 @@ export class IssuerService {
   }
 
   private async issueCertificateForGroup(
-    group: IDeviceGroup,
+    group: DeviceGroupDTO,
     startDate: DateTime,
     endDate: DateTime,
   ): Promise<void> {
