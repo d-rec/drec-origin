@@ -100,7 +100,7 @@ export class ReadsService {
   private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,
-    device: Device,
+    device: DeviceDTO,
   ): Promise<void> {
     const organization = await this.organizationService.findOne(
       device.organizationId,

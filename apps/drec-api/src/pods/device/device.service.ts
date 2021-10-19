@@ -16,7 +16,7 @@ import { DeviceOrderBy, Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
-import { DeviceKey, DeviceSortPropertyMapper, IDevice } from '../../models';
+import { DeviceKey, DeviceSortPropertyMapper } from '../../models';
 import { CodeNameDTO } from './dto/code-name';
 import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
 import { DeviceGroupByDTO } from './dto/device-group-by.dto';
@@ -49,11 +49,11 @@ export class DeviceService {
     return devices;
   }
 
-  public async findForGroup(groupId: number): Promise<DeviceDTO[]> {
+  public async findForGroup(groupId: number): Promise<Device[]> {
     return this.repository.find({ groupId });
   }
 
-  public async findByIds(ids: number[]): Promise<IDevice[]> {
+  public async findByIds(ids: number[]): Promise<Device[]> {
     return await this.repository.findByIds(ids);
   }
 

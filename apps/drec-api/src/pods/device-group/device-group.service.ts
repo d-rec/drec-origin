@@ -32,11 +32,11 @@ export class DeviceGroupService {
     private deviceService: DeviceService,
   ) {}
 
-  async getAll(): Promise<DeviceGroup[]> {
+  async getAll(): Promise<DeviceGroupDTO[]> {
     return this.repository.find();
   }
 
-  async findById(id: number): Promise<DeviceGroup> {
+  async findById(id: number): Promise<DeviceGroupDTO> {
     const deviceGroup = await this.repository.findOne({
       id,
     });
@@ -49,20 +49,20 @@ export class DeviceGroupService {
 
   async getOrganizationDeviceGroups(
     organizationId: number,
-  ): Promise<DeviceGroup[]> {
+  ): Promise<DeviceGroupDTO[]> {
     return this.repository.find({ where: { organizationId } });
   }
 
   async findOne(
     conditions: FindConditions<DeviceGroup>,
-  ): Promise<DeviceGroup | null> {
+  ): Promise<DeviceGroupDTO | null> {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
   async create(
     organizationId: number,
     data: NewDeviceGroupDTO,
-  ): Promise<DeviceGroup> {
+  ): Promise<DeviceGroupDTO> {
     await this.checkNameConflict(data.name);
     const group = await this.repository.save({
       organizationId,
@@ -93,7 +93,7 @@ export class DeviceGroupService {
     id: number,
     organizationId: number,
     data: DeviceIdsDTO,
-  ): Promise<DeviceGroup | void> {
+  ): Promise<DeviceGroupDTO | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     const ownerCode = (
@@ -118,7 +118,7 @@ export class DeviceGroupService {
     id: number,
     organizationId: number,
     data: DeviceIdsDTO,
-  ): Promise<DeviceGroup | void> {
+  ): Promise<DeviceGroupDTO | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     if (!data?.deviceIds?.length) {
@@ -139,7 +139,7 @@ export class DeviceGroupService {
     id: number,
     organizationId: number,
     data: UpdateDeviceGroupDTO,
-  ): Promise<DeviceGroup> {
+  ): Promise<DeviceGroupDTO> {
     await this.checkNameConflict(data.name);
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
@@ -172,7 +172,7 @@ export class DeviceGroupService {
     orgCode: number,
     newDevices: NewDeviceDTO[],
   ): Promise<DeviceGroupDTO[]> {
-    const devices: Device[] = await Promise.all(
+    const devices: DeviceDTO[] = await Promise.all(
       newDevices.map(
         async (device: NewDeviceDTO) =>
           await this.deviceService.register(orgCode, device),
@@ -193,7 +193,7 @@ export class DeviceGroupService {
         ];
       },
     );
-    const createdDeviceGroups: DeviceGroup[] = await Promise.all(
+    const createdDeviceGroups: DeviceGroupDTO[] = await Promise.all(
       groupedDevicesByProps.map(
         async (groupedDevice: DeviceDTO[]) =>
           await this.create(
@@ -225,7 +225,7 @@ export class DeviceGroupService {
   private async findDeviceGroupById(
     id: number,
     organizationId: number,
-  ): Promise<DeviceGroup> {
+  ): Promise<DeviceGroupDTO> {
     const deviceGroup = await this.repository.findOne({
       id,
       organizationId,
