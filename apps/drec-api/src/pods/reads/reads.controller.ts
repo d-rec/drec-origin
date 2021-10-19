@@ -74,7 +74,6 @@ export class ReadsController extends BaseReadsController {
     description:
       'Returns aggregated time-series of difference between subsequent meter reads',
   })
-  @UseGuards(AuthGuard('jwt'))
   public async getGroupAggregatedReads(
     @Param('groupId') groupId: number,
     @Query() filter: AggregateFilterDTO,
@@ -89,7 +88,6 @@ export class ReadsController extends BaseReadsController {
     description:
       'Returns aggregated time-series of difference between subsequent meter reads',
   })
-  @UseGuards(AuthGuard('jwt'))
   public async getReadsAggregates(
     @Param('meter') meterId: string,
     @Query() filter: AggregateFilterDTO,
