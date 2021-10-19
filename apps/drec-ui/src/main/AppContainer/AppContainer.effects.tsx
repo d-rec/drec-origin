@@ -120,7 +120,7 @@ export const useAppContainerEffects = () => {
     });
 
     const menuSections = [
-        deviceMenu,
+        // deviceMenu,
         deviceGroupMenu,
         certificateMenu,
         orgMenu,

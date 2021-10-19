@@ -7,7 +7,7 @@ import {
     useChartDataLogic,
     useDateArrowHandlers,
     useSmartMeterChartSelectors
-} from 'apps/device/logic';
+} from 'apps/device-group/logic';
 
 export const useSmartMeterChartsEffects = (meterId: number) => {
     const [window, setWindow] = useState(ReadingsWindowEnum.Day);

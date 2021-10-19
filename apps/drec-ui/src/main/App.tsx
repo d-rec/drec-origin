@@ -7,7 +7,7 @@ import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 // import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
-import { DeviceApp } from 'apps/device';
+// import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
 import { DeviceGroupApp } from 'apps/device-group/view/DeviceGroupApp';
 
@@ -47,7 +47,7 @@ export const App: FC<AppProps> = memo(
                         <CircularProgress />
                     ) : (
                         <>
-                            <Route
+                            {/* <Route
                                 path="device/*"
                                 element={
                                     <DeviceApp
@@ -58,7 +58,7 @@ export const App: FC<AppProps> = memo(
                                         }}
                                     />
                                 }
-                            />
+                            /> */}
                             <Route
                                 path="device-group/*"
                                 element={
@@ -110,7 +110,7 @@ export const App: FC<AppProps> = memo(
                                     />
                                 }
                             />
-                            <Route element={<Navigate to="device/all" />} />
+                            <Route element={<Navigate to="device-group/all" />} />
                         </>
                     )}
                 </Route>

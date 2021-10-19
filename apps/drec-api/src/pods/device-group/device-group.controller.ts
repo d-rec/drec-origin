@@ -38,7 +38,6 @@ import { NewDeviceDTO } from '../device/dto';
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device-group')
-@UseGuards(AuthGuard('jwt'))
 export class DeviceGroupController {
   constructor(private readonly deviceGroupService: DeviceGroupService) {}
 
@@ -78,7 +77,7 @@ export class DeviceGroupController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -115,7 +114,7 @@ export class DeviceGroupController {
   }
 
   @Post('/add/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -135,7 +134,7 @@ export class DeviceGroupController {
   }
 
   @Post('/remove/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -155,7 +154,7 @@ export class DeviceGroupController {
   }
 
   @Patch('/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -176,7 +175,7 @@ export class DeviceGroupController {
   }
 
   @Delete('/:id')
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,

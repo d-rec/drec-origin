@@ -1,4 +1,4 @@
-import { useAllDeviceFuelTypes } from 'apps/device/data';
+import { useAllDeviceFuelTypes } from 'apps/device-group/data';
 import { useApiMyDeviceGroups } from 'apps/device-group/data';
 
 export const useMyDeviceGroupsPageEffects = () => {

@@ -1,6 +1,5 @@
 import { useParams } from 'react-router';
-import { useDeviceGroupDetailData } from '../../../data';
-import { useAllDeviceFuelTypes } from 'apps/device/data';
+import { useDeviceGroupDetailData, useAllDeviceFuelTypes } from '../../../data';
 import { useDeviceGroupDetailViewLogic, useDevicesTableLogic } from '../../../logic';
 
 export const useDetailViewGroupPageEffects = () => {

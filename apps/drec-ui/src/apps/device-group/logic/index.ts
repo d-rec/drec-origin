@@ -4,3 +4,4 @@ export * from './menu';
 export * from './deleteDeviceGroup';
 export * from './detailView';
 export * from './table';
+export * from './smartMeter';
