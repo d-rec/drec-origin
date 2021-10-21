@@ -22,15 +22,21 @@ import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
 import { DeviceService } from './device.service';
-import { FilterDTO, NewDeviceDTO, UpdateDeviceDTO, DeviceDTO } from './dto';
+import {
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+  DeviceDTO,
+  DeviceGroupByDTO,
+  GroupedDevicesDTO,
+} from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
-import { CodeNameDTO } from './dto/code-name';
+import { CodeNameDTO } from './dto/code-name.dto';
 import { ActiveUserGuard } from '../../guards';
-import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -40,7 +46,8 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
   @Get()
-  // Will be restricted only for Admins
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
@@ -52,13 +59,13 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiOkResponse({
-    type: [DeviceDTO],
+    type: [GroupedDevicesDTO],
     description: 'Returns all ungrouped Devices',
   })
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDto: DeviceGroupByDTO,
-  ): Promise<DeviceDTO[][]> {
+  ): Promise<GroupedDevicesDTO[]> {
     return this.deviceService.findUngrouped(organizationId, orderFilterDto);
   }
 
@@ -102,6 +109,8 @@ export class DeviceController {
   }
 
   @Get('/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,

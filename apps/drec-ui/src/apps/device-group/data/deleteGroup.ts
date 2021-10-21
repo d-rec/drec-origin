@@ -1,7 +1,7 @@
 import {
     useDeviceGroupControllerRemove,
     getDeviceGroupControllerGetMyDevicesQueryKey
-} from '@energyweb/origin-drec-api-client/dist/js/src';
+} from '@energyweb/origin-drec-api-client';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 import { useQueryClient } from 'react-query';
 

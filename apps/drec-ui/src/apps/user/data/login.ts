@@ -3,7 +3,7 @@ import {
     LoginDataDTO,
     useAuthControllerLogin,
     userControllerMe
-} from '@energyweb/origin-drec-api-client/dist/js/src';
+} from '@energyweb/origin-drec-api-client';
 import { useNavigate } from 'react-router';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, setAuthenticationToken, showNotification } from 'shared';

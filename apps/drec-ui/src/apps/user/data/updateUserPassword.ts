@@ -3,7 +3,7 @@ import {
     UserDTO,
     UserStatus,
     useUserControllerUpdateOwnPassword
-} from '@energyweb/origin-drec-api-client/dist/js/src';
+} from '@energyweb/origin-drec-api-client';
 import { useUser } from 'api';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, showNotification } from 'shared';

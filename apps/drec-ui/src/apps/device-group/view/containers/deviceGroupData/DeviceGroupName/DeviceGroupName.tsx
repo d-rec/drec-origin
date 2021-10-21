@@ -12,7 +12,7 @@ export const DeviceGroupName: FC<DeviceGroupNameProps> = ({ name }) => {
         <div className={classes.wrapper}>
             <Grid container alignItems="center" my={1}>
                 <Typography className={classes.name}>
-                    Facility name: {name.replaceAll('_', ' ')}
+                    Facility name: {name.replaceAll(',', ' ')}
                 </Typography>
             </Grid>
         </div>

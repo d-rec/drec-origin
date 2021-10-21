@@ -7,5 +7,5 @@ export enum DeviceOrderBy {
   InstallationConfiguration = 'Installation Configuration',
   GridInterconnection = 'Grid Interconnection',
   Capacity = 'Capacity',
-  CommissioningDate = 'CommissioningDate',
+  CommissioningDate = 'Commissioning Date',
 }

@@ -289,7 +289,7 @@ export class DeviceGroupService {
     );
 
     const deviceGroup: NewDeviceGroupDTO = {
-      name: `Group_Country_${devices[0].countryCode}_Fuel_${devices[0].fuelCode}_StandardCompliance_${devices[0].standardCompliance}_OffTaker_${devices[0].offTaker}_InstallationConfiguration_${devices[0].installationConfiguration}`,
+      name: `${devices[0].countryCode},${devices[0].fuelCode},${devices[0].standardCompliance},${devices[0].offTaker},${devices[0].installationConfiguration}`,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,

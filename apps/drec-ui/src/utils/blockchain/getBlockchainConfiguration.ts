@@ -1,5 +1,5 @@
 import { Contracts, IBlockchainProperties } from '@energyweb/issuer';
-import { BlockchainPropertiesDTO } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { BlockchainPropertiesDTO } from '@energyweb/origin-drec-api-client';
 import { Web3Provider } from '@ethersproject/providers';
 
 export const getBlockchainConfiguration = (

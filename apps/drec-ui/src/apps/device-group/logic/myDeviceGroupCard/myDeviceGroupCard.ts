@@ -12,7 +12,7 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
 
     const cardHeaderProps: TUseSpecsForMyDeviceGroupCardReturnType['cardHeaderProps'] = {
         deviceGroupId: deviceGroup.id,
-        deviceGroupName: deviceGroup.name.replaceAll('_', ' '),
+        deviceGroupName: deviceGroup.name.replaceAll(',', ' '),
         buttonText: 'View details',
         buttonLink: `/device-group/detail-view/${deviceGroup.id}`,
         groupAttributes: [
