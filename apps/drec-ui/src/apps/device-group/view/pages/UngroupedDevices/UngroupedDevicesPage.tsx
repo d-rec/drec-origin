@@ -11,6 +11,7 @@ export const UngroupedDevicesPage: FC = () => {
         field,
         orderItems,
         handleChange,
+        handleChecked,
         onGroupSelected,
         onAutoGroupSelected,
         groupedDevicesList,
@@ -50,6 +51,7 @@ export const UngroupedDevicesPage: FC = () => {
                         <UngroupedDevicesContainer
                             itemProps={{ className: classes.devicesWrapper }}
                             groupedDevices={groupedDevices}
+                            handleChecked={handleChecked}
                         />
                     </Grid>
                 ))}

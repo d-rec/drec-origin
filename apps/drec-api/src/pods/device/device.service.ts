@@ -14,6 +14,7 @@ import {
   DeviceDTO,
   FilterDTO,
   GroupedDevicesDTO,
+  UngroupedDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
@@ -30,6 +31,8 @@ import {
 import { CodeNameDTO } from './dto/code-name.dto';
 import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 import { groupByProps } from '../../utils/group-by-properties';
+import { getCapacityRange } from '../../utils/get-capacity-range';
+import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 
 @Injectable()
 export class DeviceService {
@@ -174,7 +177,18 @@ export class DeviceService {
             devices,
             orderByRules,
           ),
-          devices: devices,
+          devices: devices.map(
+            (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
+              return {
+                ...device,
+                commissioningDateRange: getDateRangeFromYear(
+                  device.commissioningDate,
+                ),
+                capacityRange: getCapacityRange(device.capacity),
+                selected: true,
+              };
+            },
+          ),
         };
       },
     );
