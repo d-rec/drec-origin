@@ -15,8 +15,7 @@ export const useCreateNewGroupFormLogic: TCreateNewGroupFormLogic = (handleClose
                 required: true
             }
         ],
-        buttonDisabled: false,
-        validationMode: 'onTouched',
+        validationMode: 'onSubmit',
         inputsVariant: 'filled',
         secondaryButtons: [
             {
@@ -28,7 +27,8 @@ export const useCreateNewGroupFormLogic: TCreateNewGroupFormLogic = (handleClose
         ],
         buttonText: 'Create New Group',
         validationSchema: yup.object({
-            groupName: yup.string().required().label('Group Name')
-        })
+            groupName: yup.string().label('Group Name').required()
+        }),
+        buttonDisabled: false
     };
 };

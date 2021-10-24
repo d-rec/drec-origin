@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
 import { CircularProgress, Paper, Typography, Grid, Button } from '@material-ui/core';
-import { SelectGroupBy, UngroupedDevicesContainer } from '../../containers';
+import { SelectGroupBy, UngroupedDevicesContainer, NoUngroupedDevices } from '../../containers';
 import { useUngrouppedDevicesPageEffects } from './UngroupedDevicesPage.effects';
 import { useStyles } from './UngroupedDevicesPage.styles';
 
@@ -21,6 +21,10 @@ export const UngroupedDevicesPage: FC = () => {
 
     if (isLoading) {
         return <CircularProgress />;
+    }
+
+    if (!isLoading && groupedDevicesList?.length === 0) {
+        return <NoUngroupedDevices />;
     }
 
     return (

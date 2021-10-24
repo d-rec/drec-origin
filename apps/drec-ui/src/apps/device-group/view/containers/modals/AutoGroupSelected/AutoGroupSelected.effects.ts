@@ -1,5 +1,5 @@
-import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
 import { GenericModalProps } from '@energyweb/origin-ui-core';
+import { useAutoSelectedGroups } from '../../../../data';
 import { useAutoGroupModalLogic } from '../../../../logic';
 import {
     useDeviceGroupModalsStore,
@@ -13,18 +13,6 @@ export const useAutoGroupSelectedEffects = () => {
     } = useDeviceGroupModalsStore();
     const dispatchModals = useDeviceGroupModalsDispatch();
 
-    const autoGroupSelectedHandler = (selected: any) => {
-        console.log('CALL API AUTO GROUP SELECTED: ', selected);
-    };
-
-    const autoGroupHandler = () => {
-        dispatchModals({
-            type: DeviceGroupModalsActionsEnum.AUTO_GROUP_SELECTED,
-            payload: { open: false, selected: [], groupRules: [] }
-        });
-        autoGroupSelectedHandler(selected);
-    };
-
     const closeModal = () => {
         dispatchModals({
             type: DeviceGroupModalsActionsEnum.AUTO_GROUP_SELECTED,
@@ -35,6 +23,17 @@ export const useAutoGroupSelectedEffects = () => {
             }
         });
     };
+
+    const autoGroupSelectedHandler = useAutoSelectedGroups(selected, closeModal);
+
+    const autoGroupHandler = () => {
+        dispatchModals({
+            type: DeviceGroupModalsActionsEnum.AUTO_GROUP_SELECTED,
+            payload: { open: false, selected: [], groupRules: [] }
+        });
+        autoGroupSelectedHandler();
+    };
+
     const { title, text, buttons } = useAutoGroupModalLogic(
         groupRules,
         selected?.length,

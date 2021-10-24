@@ -6,3 +6,4 @@ export * from './NoDeviceGroupsOwnedCard';
 export * from './PublicDeviceGroupCard';
 export * from './PublicDeviceGroupCardContent';
 export * from './DetailViewCard';
+export * from './NoUngroupedDevices';

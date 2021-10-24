@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindConditions } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
+  AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
@@ -87,6 +88,32 @@ export class DeviceGroupService {
     );
 
     return group;
+  }
+
+  async createOne(
+    organizationId: number,
+    group: AddGroupDTO,
+  ): Promise<DeviceGroupDTO> {
+    const devices = await this.deviceService.findByIds(group.deviceIds);
+    return await this.create(
+      organizationId,
+      this.createDeviceGroupFromDevices(devices, group.name),
+    );
+  }
+
+  async createMultiple(
+    organizationId: number,
+    groups: AddGroupDTO[],
+  ): Promise<DeviceGroupDTO[]> {
+    return await Promise.all(
+      groups.map(async (group: AddGroupDTO) => {
+        const devices = await this.deviceService.findByIds(group.deviceIds);
+        return await this.create(
+          organizationId,
+          this.createDeviceGroupFromDevices(devices, group.name),
+        );
+      }),
+    );
   }
 
   async addDevices(
@@ -195,10 +222,10 @@ export class DeviceGroupService {
     );
     const createdDeviceGroups: DeviceGroupDTO[] = await Promise.all(
       groupedDevicesByProps.map(
-        async (groupedDevice: DeviceDTO[]) =>
+        async (groupedDeviceList: DeviceDTO[]) =>
           await this.create(
             orgCode,
-            this.createDeviceGroupFromDevices(groupedDevice),
+            this.createDeviceGroupFromDevices(groupedDeviceList),
           ),
       ),
     );
@@ -269,18 +296,22 @@ export class DeviceGroupService {
 
   private createDeviceGroupFromDevices(
     devices: DeviceDTO[],
+    groupName?: string,
   ): NewDeviceGroupDTO {
-    const aggregatedCapacity = devices.reduce(
-      (accumulator, currentValue: DeviceDTO) =>
-        accumulator + currentValue.capacity,
-      0,
+    const aggregatedCapacity = Math.floor(
+      devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.capacity,
+        0,
+      ),
     );
-    const averageYieldValue =
+    const averageYieldValue = Math.floor(
       devices.reduce(
         (accumulator, currentValue: DeviceDTO) =>
           accumulator + currentValue.yieldValue,
         0,
-      ) / devices.length;
+      ) / devices.length,
+    );
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
@@ -289,7 +320,9 @@ export class DeviceGroupService {
     );
 
     const deviceGroup: NewDeviceGroupDTO = {
-      name: `${devices[0].countryCode},${devices[0].fuelCode},${devices[0].standardCompliance},${devices[0].offTaker},${devices[0].installationConfiguration}`,
+      name:
+        groupName ||
+        `${devices[0].countryCode},${devices[0].fuelCode},${devices[0].standardCompliance},${devices[0].offTaker},${devices[0].installationConfiguration}`,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,

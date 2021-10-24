@@ -1,7 +1,7 @@
 import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 
-type TCreateNewGroupFormValues = {
+export type TCreateNewGroupFormValues = {
     groupName: string;
 };
 
