@@ -3,6 +3,7 @@ import { FormSelectOption, SelectAutocompleteField } from '@energyweb/origin-ui-
 import { useEffect, useState } from 'react';
 import { DeviceOrderBy, prepareGroupByOptions } from '../../../../../utils';
 import { useUngroupedDevices } from '../../../data';
+import { DeviceGroupModalsActionsEnum, useDeviceGroupModalsDispatch } from '../../context';
 
 export const useUngrouppedDevicesPageEffects = () => {
     const [orderItems, setOrderItems] = useState([
@@ -13,6 +14,7 @@ export const useUngrouppedDevicesPageEffects = () => {
     const [enableFetch, setEnableFetch] = useState(true);
     const { groupedDevicesList, isLoading } = useUngroupedDevices(orderItems, enableFetch);
     const [selectedDevicesList, setSelectedDevicesList] = useState(groupedDevicesList);
+    const dispatchModals = useDeviceGroupModalsDispatch();
 
     const handleChange = (options: FormSelectOption[]) => {
         setEnableFetch(false);
@@ -22,7 +24,7 @@ export const useUngrouppedDevicesPageEffects = () => {
     };
 
     useEffect(() => {
-        setSelectedDevicesList(selectedDevicesList);
+        setSelectedDevicesList(groupedDevicesList);
     }, [groupedDevicesList]);
 
     const field: SelectAutocompleteField<any> = {
@@ -53,7 +55,43 @@ export const useUngrouppedDevicesPageEffects = () => {
     };
 
     const onAutoGroupSelected = () => {
-        console.log('Auto Group selected: ', selectedDevicesList);
+        const autoSelected: GroupedDevicesDTO[] = selectedDevicesList
+            .map((selectedGroup: GroupedDevicesDTO) => {
+                const selectedDevices = selectedGroup?.devices?.filter(
+                    (device: UngroupedDeviceDTO) => device.selected === true
+                );
+                return selectedDevices.length
+                    ? {
+                          ...selectedGroup,
+                          devices: selectedDevices
+                      }
+                    : null;
+            })
+            .filter((selectedGroup: GroupedDevicesDTO) => selectedGroup !== null);
+        dispatchModals({
+            type: DeviceGroupModalsActionsEnum.AUTO_GROUP_SELECTED,
+            payload: {
+                open: true,
+                selected: autoSelected,
+                groupRules: orderItems
+            }
+        });
+    };
+
+    const handleCreateNewGroup = (groupedDevices: GroupedDevicesDTO) => {
+        const selectedGroupedDevies: GroupedDevicesDTO = {
+            name: groupedDevices.name,
+            devices: groupedDevices.devices?.filter(
+                (device: UngroupedDeviceDTO) => device.selected === true
+            )
+        };
+        dispatchModals({
+            type: DeviceGroupModalsActionsEnum.CREATE_NEW_GROUP,
+            payload: {
+                open: true,
+                group: selectedGroupedDevies
+            }
+        });
     };
 
     return {
@@ -64,6 +102,7 @@ export const useUngrouppedDevicesPageEffects = () => {
         onGroupSelected,
         onAutoGroupSelected,
         groupedDevicesList,
-        isLoading
+        isLoading,
+        handleCreateNewGroup
     };
 };

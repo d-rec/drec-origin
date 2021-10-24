@@ -15,7 +15,8 @@ export const UngroupedDevicesPage: FC = () => {
         onGroupSelected,
         onAutoGroupSelected,
         groupedDevicesList,
-        isLoading
+        isLoading,
+        handleCreateNewGroup
     } = useUngrouppedDevicesPageEffects();
 
     if (isLoading) {
@@ -52,6 +53,7 @@ export const UngroupedDevicesPage: FC = () => {
                             itemProps={{ className: classes.devicesWrapper }}
                             groupedDevices={groupedDevices}
                             handleChecked={handleChecked}
+                            handleCreateNewGroup={() => handleCreateNewGroup(groupedDevices)}
                         />
                     </Grid>
                 ))}

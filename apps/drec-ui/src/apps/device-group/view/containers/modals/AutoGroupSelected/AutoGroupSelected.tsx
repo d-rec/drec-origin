@@ -1,9 +1,9 @@
 import { GenericModal } from '@energyweb/origin-ui-core';
 import { FC } from 'react';
-import { useDeleteDeviceGroupEffects } from './DeleteDeviceGroup.effects';
+import { useAutoGroupSelectedEffects } from './AutoGroupSelected.effects';
 
-export const DeleteDeviceGroup: FC = () => {
-    const { open, title, text, buttons, dialogProps } = useDeleteDeviceGroupEffects();
+export const AutoGroupSelected: FC = () => {
+    const { open, title, text, buttons, dialogProps } = useAutoGroupSelectedEffects();
 
     return (
         <GenericModal
