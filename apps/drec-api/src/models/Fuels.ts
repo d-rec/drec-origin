@@ -1,4 +1,4 @@
-import { CodeNameDTO } from './dto/code-name';
+import { CodeNameDTO } from '../pods/device/dto/code-name.dto';
 
 export const IREC_FUEL_TYPES: CodeNameDTO[] = [
   { code: 'ES200', name: 'Wind' },

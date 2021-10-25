@@ -7,3 +7,4 @@ export * from './UserRegistrationData';
 export * from './LoggedInUser';
 export * from './General';
 export * from './OrganizationInvitation';
+export * from './Fuels';

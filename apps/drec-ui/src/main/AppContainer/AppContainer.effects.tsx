@@ -111,7 +111,8 @@ export const useAppContainerEffects = () => {
 
     const deviceGroupRoutesConfig: RoutesConfig['deviceGroupRoutes'] = {
         showAllDeviceGroups: true,
-        showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
+        showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
+        showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
     };
     const deviceGroupMenu = getDeviceGroupMenu({
         isOpen: isDeviceGroupTabActive,

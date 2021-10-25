@@ -5,6 +5,7 @@ export type TGetDeviceGroupMenuArgs = {
     showSection: boolean;
     showAllDeviceGroups: boolean;
     showMyDeviceGroups: boolean;
+    showUngroupedDevices: boolean;
     menuButtonClass?: string;
     selectedMenuItemClass?: string;
 };
@@ -16,6 +17,7 @@ export const getDeviceGroupMenu: TGetDeviceGroupMenu = ({
     showSection,
     showAllDeviceGroups,
     showMyDeviceGroups,
+    showUngroupedDevices,
     selectedMenuItemClass,
     menuButtonClass
 }) => {
@@ -29,6 +31,11 @@ export const getDeviceGroupMenu: TGetDeviceGroupMenu = ({
             url: 'my',
             label: 'My Device Groups',
             show: showMyDeviceGroups
+        },
+        {
+            url: 'ungrouped',
+            label: 'Ungrouped Devices',
+            show: showUngroupedDevices
         }
     ];
 

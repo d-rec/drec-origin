@@ -22,9 +22,9 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { DeviceGroupService } from './device-group.service';
 import {
+  AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
-  NewDeviceGroupDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -84,13 +84,32 @@ export class DeviceGroupController {
     type: DeviceGroupDTO,
     description: 'Returns a new created Device group',
   })
-  public async create(
+  public async createOne(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceGroupToRegister: NewDeviceGroupDTO,
+    @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
-    return await this.deviceGroupService.create(
+    return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,
+    );
+  }
+
+  @Post('multiple')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.DeviceOwner, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Returns a new created Device group',
+  })
+  @ApiBody({ type: [AddGroupDTO] })
+  public async createMultiple(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() deviceGroupsToRegister: AddGroupDTO[],
+  ): Promise<DeviceGroupDTO[]> {
+    return await this.deviceGroupService.createMultiple(
+      organizationId,
+      deviceGroupsToRegister,
     );
   }
 

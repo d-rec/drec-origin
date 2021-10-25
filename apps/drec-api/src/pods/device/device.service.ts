@@ -10,17 +10,29 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
-import { DeviceDTO, FilterDTO, UpdateDeviceDTO } from './dto';
+import {
+  DeviceDTO,
+  FilterDTO,
+  GroupedDevicesDTO,
+  UngroupedDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceOrderBy, Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import { Countries } from '@energyweb/utils-general';
-import { DeviceKey, DeviceSortPropertyMapper } from '../../models';
-import { CodeNameDTO } from './dto/code-name';
-import { IREC_DEVICE_TYPES, IREC_FUEL_TYPES } from './Fuels';
+import {
+  DeviceKey,
+  DeviceSortPropertyMapper,
+  IREC_DEVICE_TYPES,
+  IREC_FUEL_TYPES,
+} from '../../models';
+import { CodeNameDTO } from './dto/code-name.dto';
 import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 import { groupByProps } from '../../utils/group-by-properties';
+import { getCapacityRange } from '../../utils/get-capacity-range';
+import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 
 @Injectable()
 export class DeviceService {
@@ -112,7 +124,7 @@ export class DeviceService {
   async findUngrouped(
     organizationId: number,
     orderFilterDto: DeviceGroupByDTO,
-  ): Promise<DeviceDTO[][]> {
+  ): Promise<GroupedDevicesDTO[]> {
     const devices = await this.repository.find({
       where: { groupId: null, organizationId },
     });
@@ -138,7 +150,7 @@ export class DeviceService {
   groupDevices(
     orderFilterDto: DeviceGroupByDTO,
     devices: Device[],
-  ): DeviceDTO[][] {
+  ): GroupedDevicesDTO[] {
     const { orderBy } = orderFilterDto;
     const orderByRules: DeviceOrderBy[] = Array.isArray(orderBy)
       ? orderBy
@@ -158,7 +170,42 @@ export class DeviceService {
         ];
       },
     );
-    return groupedDevicesByProps;
+    const groupedDevices: GroupedDevicesDTO[] = groupedDevicesByProps.map(
+      (devices: DeviceDTO[]) => {
+        return {
+          name: this.getDeviceGroupNameFromGroupedDevices(
+            devices,
+            orderByRules,
+          ),
+          devices: devices.map(
+            (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
+              return {
+                ...device,
+                commissioningDateRange: getDateRangeFromYear(
+                  device.commissioningDate,
+                ),
+                capacityRange: getCapacityRange(device.capacity),
+                selected: true,
+              };
+            },
+          ),
+        };
+      },
+    );
+    return groupedDevices;
+  }
+
+  private getDeviceGroupNameFromGroupedDevices(
+    devices: DeviceDTO[],
+    orderByRules: DeviceOrderBy[],
+  ): string {
+    const name = `${orderByRules.map((orderRule: DeviceOrderBy) => {
+      const deviceKey: DeviceKey = DeviceSortPropertyMapper[
+        orderRule
+      ] as DeviceKey;
+      return devices[0][deviceKey];
+    })}`;
+    return name;
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {

@@ -1,12 +1,11 @@
-import { Paper, Typography, Button, Box } from '@material-ui/core';
-import { NavLink } from 'react-router-dom';
+import { Paper, Typography } from '@material-ui/core';
 import { useStyles } from './NoDeviceGroupsOwnedCard.styles';
 
 export const NoDeviceGroupsOwnedCard = () => {
     const classes = useStyles();
 
     const noDeviceGroupTitle = 'Currently you don`t have any device groups';
-    const noDeviceGoupDescription =
+    const noDeviceGroupDescription =
         'You can add new device groups to D-REC Origin by registering a new one.';
 
     return (
@@ -14,7 +13,7 @@ export const NoDeviceGroupsOwnedCard = () => {
             <Typography textAlign="center" variant="h6">
                 {noDeviceGroupTitle}
             </Typography>
-            <Typography textAlign="center">{noDeviceGoupDescription}</Typography>
+            <Typography textAlign="center">{noDeviceGroupDescription}</Typography>
         </Paper>
     );
 };

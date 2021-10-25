@@ -69,7 +69,7 @@ describe('Device tests', () => {
 
   it('should retrieve all devices', async () => {
     const loggedUser = {
-      email: 'owner2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -80,7 +80,7 @@ describe('Device tests', () => {
 
   it('should retrieve device by id', async () => {
     const loggedUser = {
-      email: 'owner2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -95,7 +95,7 @@ describe('Device tests', () => {
 
   it('should update a device', async () => {
     const loggedUser = {
-      email: 'owner2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     const partialDevice = {
@@ -152,14 +152,19 @@ describe('Device tests', () => {
 
   it('should return forbbidden when updating a device', async () => {
     const loggedUser = {
-      email: 'buyer2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     const partialDevice = {
       projectName: 'Device 2 - Update',
     };
-    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     await loginUser(loggedUser);
+    const { body: devices } = await requestDevice('', HttpStatus.OK, {});
+    const loggedUser2 = {
+      email: 'buyer2@mailinator.com',
+      password: 'test',
+    };
+    await loginUser(loggedUser2);
     await updateDevice(devices[0].id, HttpStatus.FORBIDDEN, partialDevice);
   });
 
@@ -213,21 +218,24 @@ describe('Device tests', () => {
     const orderFilter: Partial<DeviceGroupByDTO> = {
       orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
     };
-    const { body: devices } = await requestUngrouppedDevice(
+    const { body: deviceGroups } = await requestUngrouppedDevice(
       HttpStatus.OK,
       orderFilter,
     );
-    expect(devices).to.be.instanceOf(Array);
-    expect(devices[2]).to.be.instanceOf(Array);
-    expect(devices[2]).to.have.length(4);
-    expect(devices[2][0].offTaker).to.eq(OffTaker.School);
-    expect(devices[2][1].offTaker).to.eq(OffTaker.School);
-    expect(devices[2][2].offTaker).to.eq(OffTaker.School);
-    expect(devices[2][3].offTaker).to.eq(OffTaker.School);
-    expect(devices[2][0].sector).to.eq(Sector.Education);
-    expect(devices[2][1].sector).to.eq(Sector.Education);
-    expect(devices[2][2].sector).to.eq(Sector.Education);
-    expect(devices[2][3].sector).to.eq(Sector.Education);
+    expect(deviceGroups).to.be.instanceOf(Array);
+    expect(deviceGroups[2].name).to.eq(
+      `${Sector.Education},${OffTaker.School}`,
+    );
+    expect(deviceGroups[2].devices).to.be.instanceOf(Array);
+    expect(deviceGroups[2].devices).to.have.length(4);
+    expect(deviceGroups[2].devices[0].offTaker).to.eq(OffTaker.School);
+    expect(deviceGroups[2].devices[1].offTaker).to.eq(OffTaker.School);
+    expect(deviceGroups[2].devices[2].offTaker).to.eq(OffTaker.School);
+    expect(deviceGroups[2].devices[3].offTaker).to.eq(OffTaker.School);
+    expect(deviceGroups[2].devices[0].sector).to.eq(Sector.Education);
+    expect(deviceGroups[2].devices[1].sector).to.eq(Sector.Education);
+    expect(deviceGroups[2].devices[2].sector).to.eq(Sector.Education);
+    expect(deviceGroups[2].devices[3].sector).to.eq(Sector.Education);
   });
 
   const requestOrganization = async (
