@@ -29,6 +29,7 @@ export const useCreateNewGroupFormLogic: TCreateNewGroupFormLogic = (handleClose
         validationSchema: yup.object({
             groupName: yup.string().label('Group Name').required()
         }),
-        buttonDisabled: false
+        buttonDisabled: false,
+        acceptInitialValues: true
     };
 };
