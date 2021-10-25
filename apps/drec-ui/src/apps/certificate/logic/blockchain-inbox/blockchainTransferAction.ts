@@ -4,11 +4,11 @@ import { SelectedItem, TUseBlockchainTransferActionLogic } from './types';
 
 export const useBlockchainTransferActionLogic: TUseBlockchainTransferActionLogic<
     CertificateDTO['id']
-> = ({ selectedIds, blockchainCertificates, allDevices, allFuelTypes }) => {
+> = ({ selectedIds, blockchainCertificates, allDeviceGroups, allFuelTypes }) => {
     const selectedItems: SelectedItem<CertificateDTO['id']>[] = selectedIds
         ? formatSelectedBlockchainItems({
               selectedIds,
-              allDevices,
+              allDeviceGroups,
               blockchainCertificates,
               allFuelTypes
           })

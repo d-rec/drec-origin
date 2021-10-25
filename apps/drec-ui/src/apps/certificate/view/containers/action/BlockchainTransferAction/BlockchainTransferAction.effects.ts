@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from 'react';
 import { useTransactionPendingDispatch } from 'apps/certificate/view/context';
 import {
     useBlockchainTransferCertificateHandler,
-    useCachedAllDevices,
+    useCachedAllDeviceGroups,
     useCachedAllFuelTypes,
     useCachedBlockchainCertificates
 } from 'apps/certificate/data';
@@ -20,7 +20,7 @@ export const useBlockchainTransferActionEffects = (
     };
 
     const blockchainCertificates = useCachedBlockchainCertificates();
-    const allDevices = useCachedAllDevices();
+    const allDeviceGroups = useCachedAllDeviceGroups();
     const allFuelTypes = useCachedAllFuelTypes();
     const setTxPending = useTransactionPendingDispatch();
 
@@ -33,7 +33,7 @@ export const useBlockchainTransferActionEffects = (
     const actionLogic = useBlockchainTransferActionLogic({
         selectedIds,
         blockchainCertificates,
-        allDevices,
+        allDeviceGroups,
         allFuelTypes
     });
 

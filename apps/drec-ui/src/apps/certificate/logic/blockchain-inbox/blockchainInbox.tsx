@@ -1,3 +1,4 @@
+import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { EnergyTypeEnum, formatDate, PowerFormatter } from '@energyweb/origin-ui-utils';
 import { Countries } from '@energyweb/utils-general';
 import { getEnergyTypeImage } from '../../data';
@@ -6,7 +7,7 @@ import { BlockchainInboxContainers, TUseBlockchainInboxLogic } from './types';
 
 export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
     blockchainCertificates,
-    allDevices,
+    allDeviceGroups,
     allFuelTypes,
     actions,
     ListItemHeader,
@@ -16,33 +17,34 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
     const generationTimeTitle = 'Generation Time Frame';
     const viewButtonLabel = 'View';
 
-    if (allDevices && blockchainCertificates) {
-        allDevices.forEach((device) => {
-            // We need to take into account Device Group Id and not device ID
-            // Will revisit this part after Device Grouping is implemented
-            // const deviceHasCertificates = blockchainCertificates.find(
-            //     (certificate) => certificate.deviceId === device.id.toString()
-            // );
-            // if (!deviceHasCertificates) {
-            //     return;
-            // }
-            // const certificatesMatchingDevice = blockchainCertificates.filter(
-            //     (certificate) =>
-            //         certificate.deviceId === device.id.toString() &&
-            //         parseInt(certificate.energy.publicVolume) > 0
-            // );
-            // if (certificatesMatchingDevice.length === 0) {
-            //     return;
-            // }
+    if (allDeviceGroups && blockchainCertificates) {
+        allDeviceGroups.forEach((deviceGroup: DeviceGroupDTO) => {
+            const deviceHasCertificates = blockchainCertificates.find(
+                (certificate) => certificate.deviceId === deviceGroup.id.toString()
+            );
+            if (!deviceHasCertificates) {
+                return;
+            }
+            const certificatesMatchingDevice = blockchainCertificates.filter(
+                (certificate) =>
+                    certificate.deviceId === deviceGroup.id.toString() &&
+                    parseInt(certificate.energy.publicVolume) > 0
+            );
+            if (certificatesMatchingDevice.length === 0) {
+                return;
+            }
             const countryName = Countries.find(
-                (country) => country.code === device.countryCode
+                (country) => country.code === deviceGroup.countryCode
             )?.name;
-            const { mainType: deviceFuelType } = getMainFuelType(device.fuelCode, allFuelTypes);
+            const { mainType: deviceFuelType } = getMainFuelType(
+                deviceGroup.fuelCode,
+                allFuelTypes
+            );
             const deviceIcon = getEnergyTypeImage(deviceFuelType as EnergyTypeEnum);
 
-            containers.set(device.id, {
+            containers.set(deviceGroup.id, {
                 containerComponent: (
-                    <ListItemHeader name={device.projectName} country={countryName} />
+                    <ListItemHeader name={deviceGroup.name} country={countryName} />
                 ),
                 containerListItemProps: { style: { padding: 8 } },
                 itemListItemProps: { style: { padding: 8 } },

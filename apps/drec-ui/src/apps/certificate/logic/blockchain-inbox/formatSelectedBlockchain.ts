@@ -7,18 +7,18 @@ import { TFormatSelectedBlockchainItems } from './types';
 export const formatSelectedBlockchainItems: TFormatSelectedBlockchainItems = ({
     selectedIds,
     blockchainCertificates,
-    allDevices,
+    allDeviceGroups,
     allFuelTypes
 }) => {
     return selectedIds.map((selectedId) => {
         const certificate = blockchainCertificates.find(
             (item) => item.id === (selectedId as unknown as CertificateDTO['id'])
         );
-        const matchingDevice = allDevices.find(
-            (device) => device.id.toString() === certificate.deviceId
+        const matchingDeviceGroup = allDeviceGroups.find(
+            (deviceGroup) => deviceGroup.id.toString() === certificate.deviceId
         );
 
-        const { mainType } = getMainFuelType(matchingDevice.fuelCode, allFuelTypes);
+        const { mainType } = getMainFuelType(matchingDeviceGroup.fuelCode, allFuelTypes);
         const icon = getEnergyTypeImage(mainType.toLowerCase() as EnergyTypeEnum, true);
 
         const startDate = formatDate(certificate.generationStartTime * 1000);
@@ -27,7 +27,7 @@ export const formatSelectedBlockchainItems: TFormatSelectedBlockchainItems = ({
         return {
             id: selectedId,
             icon,
-            deviceName: matchingDevice.projectName,
+            deviceName: matchingDeviceGroup.name,
             energy: PowerFormatter.format(Number(certificate.energy.publicVolume), true),
             generationTime
         };

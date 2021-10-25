@@ -101,6 +101,7 @@ export class IssuerService {
       userId: org.blockchainAccountAddress,
       metadata: {
         deviceIds: group.devices.map((device: IDevice) => device.id),
+        deviceGroup: group,
         groupId: group.id?.toString() || null,
       },
     };
