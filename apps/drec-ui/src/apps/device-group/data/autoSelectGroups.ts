@@ -17,12 +17,10 @@ export const useAutoSelectedGroups = (
     const currentUngroupedDevicesQueryKey = getDeviceControllerGetAllUngroupedQueryKey();
 
     const autoSelectGroupsHandler = () => {
-        const data: AddGroupDTO[] = selected.map((groupedDevice: GroupedDevicesDTO) => {
-            return {
-                name: groupedDevice.name,
-                deviceIds: groupedDevice.devices.map((device: UngroupedDeviceDTO) => device.id)
-            };
-        });
+        const data: AddGroupDTO[] = selected.map((groupedDevice: GroupedDevicesDTO) => ({
+            name: groupedDevice.name,
+            deviceIds: groupedDevice.devices.map((device: UngroupedDeviceDTO) => device.id)
+        }));
         mutate(
             { data },
             {
