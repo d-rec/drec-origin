@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import { before, after } from 'mocha';
 import { DeviceService } from '../src/pods/device/device.service';
 import {
+  AddGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
   UpdateDeviceGroupDTO,
@@ -92,17 +93,11 @@ describe('Device Group tests', () => {
       bulkDevices,
     );
     expect(deviceGroups.length).to.equal(2);
-    expect(deviceGroups[0].name).to.equal(
-      'Group_Country_DE_Fuel_ES200_StandardCompliance_REC_OffTaker_School_InstallationConfiguration_StandAlone',
-    );
-    expect(deviceGroups[1].name).to.equal(
-      'Group_Country_DE_Fuel_ES300_StandardCompliance_I-REC_OffTaker_Commercial_InstallationConfiguration_Microgrid',
-    );
   });
 
   it('should return Not Acceptable when creating a group with device from different owner', async () => {
     const loggedUser = {
-      email: 'owner2@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -144,16 +139,17 @@ describe('Device Group tests', () => {
   });
 
   it('should retrieve my device groups', async () => {
-    await createDeviceGroup({
+    await createDeviceGroup();
+    const loggedUser = {
       email: 'owner2@mailinator.com',
       password: 'test',
-    });
+    };
+    await loginUser(loggedUser);
     const { body: deviceGroups } = await requestDeviceGroup(
       'my',
       HttpStatus.OK,
     );
     expect(deviceGroups).to.be.instanceOf(Array);
-    expect(deviceGroups).to.have.length(1);
   });
 
   it('should retrieve device group by id', async () => {
@@ -233,22 +229,9 @@ describe('Device Group tests', () => {
     const firstBatch = devices.filter((device: Device) =>
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
-    const newDeviceGroup: NewDeviceGroupDTO = {
+    const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
-      countryCode: firstBatch[0]?.countryCode,
-      fuelCode: firstBatch[0]?.fuelCode,
-      standardCompliance: firstBatch[0]?.standardCompliance,
-      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
-      offTakers: [firstBatch[0]?.offTaker],
-      installationConfigurations: [firstBatch[0]?.installationConfiguration],
-      sectors: [firstBatch[0]?.sector],
-      gridInterconnection: firstBatch[0]?.gridInterconnection,
-      aggregatedCapacity: firstBatch[0]?.capacity,
-      capacityRange: CapacityRange.Between_51_500_w,
-      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
-      yieldValue: firstBatch[0]?.yieldValue,
-      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -268,9 +251,9 @@ describe('Device Group tests', () => {
     expect(updateDeviceGroup.devices).to.have.length(0);
   });
 
-  it('non-owner should not be able to remove device from group', async () => {
+  it('non-admin should not be able to remove device from group', async () => {
     const loggedUser = {
-      email: 'owner3@mailinator.com',
+      email: 'admin2@mailinator.com',
       password: 'test',
     };
     await loginUser(loggedUser);
@@ -280,22 +263,9 @@ describe('Device Group tests', () => {
     const firstBatch = devices.filter((device: Device) =>
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
-    const newDeviceGroup: NewDeviceGroupDTO = {
+    const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
-      countryCode: firstBatch[0]?.countryCode,
-      fuelCode: firstBatch[0]?.fuelCode,
-      standardCompliance: firstBatch[0]?.standardCompliance,
-      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
-      offTakers: [firstBatch[0]?.offTaker],
-      installationConfigurations: [firstBatch[0]?.installationConfiguration],
-      sectors: [firstBatch[0]?.sector],
-      gridInterconnection: firstBatch[0]?.gridInterconnection,
-      aggregatedCapacity: firstBatch[0]?.capacity,
-      capacityRange: CapacityRange.Between_51_500_w,
-      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
-      yieldValue: firstBatch[0]?.yieldValue,
-      labels: [firstBatch[0]?.labels],
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
 
@@ -308,13 +278,13 @@ describe('Device Group tests', () => {
       deviceIds: [firstBatch[0].id],
     };
     const newLoggedUser = {
-      email: 'admin2@mailinator.com',
+      email: 'owner3@mailinator.com',
       password: 'test',
     };
     await loginUser(newLoggedUser);
     await addRemoveDevices(
       `remove/${deviceGroup.id}`,
-      HttpStatus.NOT_FOUND,
+      HttpStatus.FORBIDDEN,
       deviceIds,
     );
   });
@@ -333,22 +303,9 @@ describe('Device Group tests', () => {
     const firstBatch = devices.filter((device: Device) =>
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
-    const newDeviceGroup: NewDeviceGroupDTO = {
+    const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group',
       deviceIds: [firstBatch[0]?.id],
-      countryCode: firstBatch[0]?.countryCode,
-      fuelCode: firstBatch[0]?.fuelCode,
-      standardCompliance: firstBatch[0]?.standardCompliance,
-      deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
-      offTakers: [firstBatch[0]?.offTaker],
-      installationConfigurations: [firstBatch[0]?.installationConfiguration],
-      sectors: [firstBatch[0]?.sector],
-      gridInterconnection: firstBatch[0]?.gridInterconnection,
-      aggregatedCapacity: firstBatch[0]?.capacity,
-      capacityRange: CapacityRange.Between_51_500_w,
-      commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
-      yieldValue: firstBatch[0]?.yieldValue,
-      labels: [firstBatch[0]?.labels],
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };
@@ -394,7 +351,7 @@ describe('Device Group tests', () => {
   const postDeviceGroup = async (
     url: string,
     status: HttpStatus,
-    body: NewDeviceGroupDTO,
+    body: AddGroupDTO,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .post(`/device-group/${url}`)
