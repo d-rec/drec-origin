@@ -1,6 +1,7 @@
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { EnergyTypeEnum, formatDate, PowerFormatter } from '@energyweb/origin-ui-utils';
+import { EnergyTypeEnum, formatDate } from '@energyweb/origin-ui-utils';
 import { Countries } from '@energyweb/utils-general';
+import { PowerFormatter } from '../../../../utils';
 import { getEnergyTypeImage } from '../../data';
 import { getMainFuelType } from '../getMainFuelType';
 import { BlockchainInboxContainers, TUseBlockchainInboxLogic } from './types';

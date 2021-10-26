@@ -53,7 +53,7 @@ export const SelectedItem: TSelectedItem = ({
                     </div>
                 </div>
                 <div className={classes.item}>
-                    <Typography style={{ marginRight: 10 }}>{amount} MWh</Typography>
+                    <Typography style={{ marginRight: 10 }}>{amount} kWh</Typography>
                     {!editMode ? (
                         <IconButton onClick={openEditMode}>
                             <Edit color="primary" />

@@ -3,10 +3,10 @@ import {
     getCertificateControllerGetAllQueryKey
 } from '@energyweb/origin-drec-api-client';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
-import { PowerFormatter } from '@energyweb/origin-ui-utils';
 import { BigNumber } from 'ethers';
 import { Dispatch, SetStateAction } from 'react';
 import { useQueryClient } from 'react-query';
+import { PowerFormatter } from '../../../../utils';
 import { useGetBlockchainCertificateHandler } from '../fetching';
 
 export const useBlockchainTransferCertificateHandler = (
