@@ -4,17 +4,16 @@ specifiers:
   '@emotion/react': 11.4.1
   '@emotion/styled': 11.3.0
   '@energyweb/energy-api-influxdb': 0.8.0
-  '@energyweb/issuer': 4.1.1-alpha.1631878057.0
-  '@energyweb/issuer-api': 0.4.0
-  '@energyweb/origin-247-certificate': 2.0.1
-  '@energyweb/origin-backend': 11.0.1
-  '@energyweb/origin-backend-core': 8.0.3
-  '@energyweb/origin-backend-utils': 1.6.1
+  '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+  '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0
+  '@energyweb/origin-247-certificate': 2.1.2
+  '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0
+  '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
+  '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0
   '@energyweb/origin-ui-assets': 0.1.0
   '@energyweb/origin-ui-core': 2.0.0
   '@energyweb/origin-ui-theme': 0.1.0
   '@energyweb/origin-ui-utils': 0.1.0
-  '@energyweb/utils-general': 11.0.4
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -152,17 +151,16 @@ dependencies:
   '@emotion/react': 11.4.1_6e44cfea672f844fe365824ce49901bd
   '@emotion/styled': 11.3.0_17d2c1c118fdd49ec5ea34ebe26bbb6d
   '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
-  '@energyweb/issuer': 4.1.1-alpha.1631878057.0
-  '@energyweb/issuer-api': 0.4.0_9dc07df28397b513ab1abcfa79e8c88c
-  '@energyweb/origin-247-certificate': 2.0.1_f5d578f9a44920630361d1f3f51d68b7
-  '@energyweb/origin-backend': 11.0.1_swagger-ui-express@4.1.6
-  '@energyweb/origin-backend-core': 8.0.3
-  '@energyweb/origin-backend-utils': 1.6.1_a5df9406a476462f1b7ccd7e962bcb31
+  '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+  '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_9dc07df28397b513ab1abcfa79e8c88c
+  '@energyweb/origin-247-certificate': 2.1.2_a1b67e60083a0f64adab87445ef00c80
+  '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
+  '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
+  '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
   '@energyweb/origin-ui-assets': 0.1.0_f5d94561c617c3964f1ab50652031c52
   '@energyweb/origin-ui-core': 2.0.0_ff60517c3619744d5d05c03a5b5172ad
   '@energyweb/origin-ui-theme': 0.1.0_f5d94561c617c3964f1ab50652031c52
   '@energyweb/origin-ui-utils': 0.1.0_history@5.0.0+react@17.0.2
-  '@energyweb/utils-general': 11.0.4
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -4151,16 +4149,16 @@ packages:
       - swagger-ui-express
     dev: false
 
-  /@energyweb/issuer-api/0.4.0_9dc07df28397b513ab1abcfa79e8c88c:
-    resolution: {integrity: sha512-Qq3047Ymzmmo0nYlekGOOKEpv4/TFdBvCmmIYyG80iqReT0rOnBgjPMBqsf/i/Ns647bFZ1zxghoe9pK7O44rA==}
+  /@energyweb/issuer-api/0.4.1-alpha.1634225870.0_9dc07df28397b513ab1abcfa79e8c88c:
+    resolution: {integrity: sha512-LicAgx4n49efFICb0KqgM792nyx8EGr8PO7F1aOQPxWYt4YCPKklEAJseWp7Q7TgGA4ASHwNaKcdlIaYW+bY0w==}
     hasBin: true
     dependencies:
-      '@energyweb/issuer': 4.1.0
-      '@energyweb/origin-backend-core': 8.0.3
-      '@energyweb/origin-backend-utils': 1.6.1_a5df9406a476462f1b7ccd7e962bcb31
-      '@energyweb/utils-general': 11.0.4
+      '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+      '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
+      '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
+      '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      '@nestjs/config': 1.0.1_ad92c204621b18a69181da190abca121
+      '@nestjs/config': 1.0.2_ad92c204621b18a69181da190abca121
       '@nestjs/core': 7.6.18_7a3a1497da37e5ec1892d251d02d75a3
       '@nestjs/cqrs': 7.0.1_b3355eaaab723e52e70bfca874d5ccb9
       '@nestjs/passport': 7.1.6_fd45a09fcff1f973814c588ad08d33e0
@@ -4194,10 +4192,10 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/issuer/4.1.0:
-    resolution: {integrity: sha512-ezMMyC6xYUAQQdZxh53ygCvCsWQbkP8xuvrErZjmZR/c0LM+CkjN8hpNQwLrL/qxmwZuVfCUBGOlRUBPc6QTog==}
+  /@energyweb/issuer/4.1.1-alpha.1634225870.0:
+    resolution: {integrity: sha512-9p+E7G9K2iYmJAvodeSqlpMKD24t4VR3gu1Cd4EIdiYqBh3Zr3TYka9CuLw0PtYryt6B/JTvya6oM9UZ6N/sUg==}
     dependencies:
-      '@energyweb/utils-general': 11.0.4
+      '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@ethersproject/abi': 5.3.1
       '@ethersproject/abstract-signer': 5.3.0
       '@ethersproject/contracts': 5.3.0
@@ -4214,34 +4212,14 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/issuer/4.1.1-alpha.1631878057.0:
-    resolution: {integrity: sha512-nV1H/cxdZeAbl+zS37U+y4cmd7rFtkzvx4nYu7Sla8u4liOflqPRXgjc+LIiMskLlYjF+NPcvosddRNpJrBewA==}
-    dependencies:
-      '@energyweb/utils-general': 11.0.5-alpha.1631878057.0
-      '@ethersproject/abi': 5.3.1
-      '@ethersproject/abstract-signer': 5.3.0
-      '@ethersproject/contracts': 5.3.0
-      '@ethersproject/providers': 5.3.1
-      '@ethersproject/wallet': 5.3.0
-      dotenv: 10.0.0
-      ethers: 5.3.1
-      ganache-cli: 6.12.2
-      moment: 2.29.1
-      precise-proofs-js: 1.2.0
-      winston: 3.3.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-    dev: false
-
-  /@energyweb/origin-247-certificate/2.0.1_f5d578f9a44920630361d1f3f51d68b7:
-    resolution: {integrity: sha512-vX6s6crEvi74iANe8fh/GKVBM70hQi0xYHCsXbRtMkgQxCCuUX/4FXLw3kv1p1JOHVIHa9utiPfY0V+95DBfYw==}
+  /@energyweb/origin-247-certificate/2.1.2_a1b67e60083a0f64adab87445ef00c80:
+    resolution: {integrity: sha512-0d5C+3bBCnF/uZw5O0QhjVwXkbBDWBUp1sZeJcLVdnhpsRs0QE+UVQfAVjQ+rMVzLxyIi+EC+O78zwhTAged2w==}
     peerDependencies:
-      '@energyweb/issuer': 3.2.1-alpha.1629812330.0
-      '@energyweb/issuer-api': 0.2.1-alpha.1629812330.0
+      '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+      '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0
     dependencies:
-      '@energyweb/issuer': 4.1.1-alpha.1631878057.0
-      '@energyweb/issuer-api': 0.4.0_9dc07df28397b513ab1abcfa79e8c88c
+      '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+      '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_9dc07df28397b513ab1abcfa79e8c88c
       '@nestjs/bull': 0.3.1_c86fa2ed7bc9e7a48760c2e5795b24d0
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
       '@nestjs/core': 7.6.18_7a3a1497da37e5ec1892d251d02d75a3
@@ -4268,8 +4246,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend-core/8.0.3:
-    resolution: {integrity: sha512-rnliq/jBkTGalyoWT2bRyQd5lQ9Ydvnd/oqdWNlokJ1+6SoHGaoa8mmUTcHxah8bkf6IIKAwP3omVHfxuQ9rxg==}
+  /@energyweb/origin-backend-core/8.0.4-alpha.1634225870.0:
+    resolution: {integrity: sha512-SNSIO280Acdjwq76q0otk4y6bJYem2M1N+JXx51bVmHBEEzffVn2n/aG1oJQXMZwVhvD2JhG6tiMljmlnYgnIw==}
     dependencies:
       class-transformer: 0.3.1
       class-validator: 0.13.1
@@ -4279,16 +4257,17 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend-utils/1.6.1_a5df9406a476462f1b7ccd7e962bcb31:
-    resolution: {integrity: sha512-q6r185ZQajBcpgRguPYgbxOyar6wq8KbO0mFNIcZsqCkn8imxqcbyeB0maKlJKgT72lHXE/ysu8zdMDL6vjTDg==}
+  /@energyweb/origin-backend-utils/1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31:
+    resolution: {integrity: sha512-Mr00ZGyvFgiXK5IApe2WnSomXZgl3/EDAj8mIXTHWiMFnJ9CpB5Nld4JGATelPjX0/aoodB33aro3w8n74sKHw==}
     dependencies:
-      '@energyweb/origin-backend-core': 8.0.3
+      '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      '@nestjs/config': 1.0.1_ad92c204621b18a69181da190abca121
+      '@nestjs/config': 1.0.2_ad92c204621b18a69181da190abca121
       '@nestjs/core': 7.6.18_7a3a1497da37e5ec1892d251d02d75a3
       '@nestjs/swagger': 4.8.2_d7a751e9d3f2b7adf81a9509448f2f4e
       bn.js: 5.2.0
       class-validator: 0.13.1
+      pg: 8.7.1
       polly-js: 1.8.2
       rxjs: 6.6.7
       typeorm: 0.2.34
@@ -4301,22 +4280,24 @@ packages:
       - class-transformer
       - debug
       - fastify-swagger
+      - pg-native
       - reflect-metadata
       - supports-color
       - swagger-ui-express
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend-utils/1.6.1_c7b4fd5a60aa4ccaca1dbb6491d2e70d:
-    resolution: {integrity: sha512-q6r185ZQajBcpgRguPYgbxOyar6wq8KbO0mFNIcZsqCkn8imxqcbyeB0maKlJKgT72lHXE/ysu8zdMDL6vjTDg==}
+  /@energyweb/origin-backend-utils/1.6.2-alpha.1634225870.0_c7b4fd5a60aa4ccaca1dbb6491d2e70d:
+    resolution: {integrity: sha512-Mr00ZGyvFgiXK5IApe2WnSomXZgl3/EDAj8mIXTHWiMFnJ9CpB5Nld4JGATelPjX0/aoodB33aro3w8n74sKHw==}
     dependencies:
-      '@energyweb/origin-backend-core': 8.0.3
+      '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      '@nestjs/config': 1.0.1_ad92c204621b18a69181da190abca121
+      '@nestjs/config': 1.0.2_ad92c204621b18a69181da190abca121
       '@nestjs/core': 7.6.18_cf22c14faf7a8288645a80ae61717d6f
       '@nestjs/swagger': 4.8.2_d7a751e9d3f2b7adf81a9509448f2f4e
       bn.js: 5.2.0
       class-validator: 0.13.1
+      pg: 8.7.1
       polly-js: 1.8.2
       rxjs: 6.6.7
       typeorm: 0.2.34
@@ -4329,25 +4310,26 @@ packages:
       - class-transformer
       - debug
       - fastify-swagger
+      - pg-native
       - reflect-metadata
       - supports-color
       - swagger-ui-express
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend/11.0.1_swagger-ui-express@4.1.6:
-    resolution: {integrity: sha512-XcrD53tcLuD1oajsNdaoNdlQ0fH7cZZzlPbISaR+IETMZCXhlGTKOOWmWJ5egWvWkuzdTCDZjY/m0Pmc0wpk/g==}
+  /@energyweb/origin-backend/11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6:
+    resolution: {integrity: sha512-Z5kcT/eKFixEbk6FPCao6oAfywgtr5+wgcf1mUxE+UxNNv0SADIMUCRiVQeIkKqP/UOvCaxLThnru/QWFvSxJQ==}
     hasBin: true
     dependencies:
-      '@energyweb/origin-backend-core': 8.0.3
-      '@energyweb/origin-backend-utils': 1.6.1_c7b4fd5a60aa4ccaca1dbb6491d2e70d
-      '@energyweb/utils-general': 11.0.4
+      '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
+      '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_c7b4fd5a60aa4ccaca1dbb6491d2e70d
+      '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      '@nestjs/config': 1.0.1_ad92c204621b18a69181da190abca121
+      '@nestjs/config': 1.0.2_ad92c204621b18a69181da190abca121
       '@nestjs/core': 7.6.18_cf22c14faf7a8288645a80ae61717d6f
       '@nestjs/cqrs': 7.0.1_b3355eaaab723e52e70bfca874d5ccb9
       '@nestjs/jwt': 8.0.0_@nestjs+common@7.6.18
-      '@nestjs/passport': 7.1.6_fd45a09fcff1f973814c588ad08d33e0
+      '@nestjs/passport': 7.1.6_1b8f5eed36ce747133de95b67a6002a2
       '@nestjs/platform-express': 7.6.18_2664420588e0901c7943acb4693cbaf4
       '@nestjs/swagger': 4.8.2_d7a751e9d3f2b7adf81a9509448f2f4e
       '@nestjs/typeorm': 7.1.5_770ecc3e0a72b32465b4dc73ad110208
@@ -4360,7 +4342,7 @@ packages:
       express: 4.17.1
       moment: 2.29.1
       multer: 1.4.3
-      passport: 0.4.1
+      passport: 0.5.0
       passport-jwt: 4.0.0
       passport-local: 1.0.0
       reflect-metadata: 0.1.13
@@ -4374,6 +4356,7 @@ packages:
       - cache-manager
       - debug
       - fastify-swagger
+      - pg-native
       - supports-color
       - swagger-ui-express
       - utf-8-validate
@@ -4510,8 +4493,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/utils-general/11.0.5-alpha.1631878057.0:
-    resolution: {integrity: sha512-EQPLwNRR7UL5T/xtDa6O28rCSik5vBOkqxPEUM5Pf2xABT2OKhls2swHp4Fji4Jm0iWmRBgOA8sjHwvZFSwbMQ==}
+  /@energyweb/utils-general/11.0.5-alpha.1634225870.0:
+    resolution: {integrity: sha512-DFPUZQ9z8t5FrV1vimm2vGWRkR1pOxxX2BjWEkaVsEnHb6HZAutBpb6SrLzEMFxhAeNfpIlLSHavhPPPh8zDug==}
     dependencies:
       chai: 4.3.0
       eth-sig-util: 2.5.4
@@ -5921,8 +5904,8 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /@nestjs/config/1.0.1_ad92c204621b18a69181da190abca121:
-    resolution: {integrity: sha512-azMl4uYlFIhYsywFxPJT81RxF3Pnn0TZW3EEmr0Wa0Wex8R2xpvBNrCcrOgW3TB1xGMP7eqBrlfsVh5ZP82szg==}
+  /@nestjs/config/1.0.2_ad92c204621b18a69181da190abca121:
+    resolution: {integrity: sha512-2q8CcI4UszJ110uDacZe09sj2EJzQztqEOvPXoYaoXoeWWMEwIovAF7cyiBpJWJS+LikpbZyHqtA6p3//mSiOg==}
     peerDependencies:
       '@nestjs/common': ^7.0.0 || ^8.0.0
       reflect-metadata: ^0.1.13
@@ -6161,6 +6144,16 @@ packages:
     dependencies:
       '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
       passport: 0.4.1
+    dev: false
+
+  /@nestjs/passport/7.1.6_1b8f5eed36ce747133de95b67a6002a2:
+    resolution: {integrity: sha512-iHD/4D01CsKKWg7kUzo4yGNS4m90z1an0eUz+6nBlE5VeEOuCzhGFoBKAt0OKLJLOTEsJKuj4C2b5QfjqXVTyQ==}
+    peerDependencies:
+      '@nestjs/common': ^6.0.0 || ^7.0.0
+      passport: ^0.4.0
+    dependencies:
+      '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
+      passport: 0.5.0
     dev: false
 
   /@nestjs/passport/7.1.6_fd45a09fcff1f973814c588ad08d33e0:
@@ -18811,6 +18804,14 @@ packages:
       pause: 0.0.1
     dev: false
 
+  /passport/0.5.0:
+    resolution: {integrity: sha512-ln+ue5YaNDS+fes6O5PCzXKSseY5u8MYhX9H5Co4s+HfYI5oqvnHKoOORLYDUPh+8tHvrxugF2GFcUA1Q1Gqfg==}
+    engines: {node: '>= 0.4.0'}
+    dependencies:
+      passport-strategy: 1.0.0
+      pause: 0.0.1
+    dev: false
+
   /path-browserify/0.0.1:
     resolution: {integrity: sha512-BapA40NHICOS+USX9SN4tyhq+A2RrN/Ws5F0Z5aMHDp98Fl86lX8Oti8B7uN93L4Ifv4fHOEA+pQw87gmMO/lQ==}
     dev: false
@@ -24865,19 +24866,19 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-R6ycHz0xNjwhdjMMYKOV5qorwUNsO0r9ZFVMQMeumc0ihtcZxKaQyH9MowUM7na7FQh2fyamxAOv1TmoVX3WZA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-zwaIPHNIup4IqadkP3WKFgrtOyfofg43Ijlgwwe2zP8RKO2m/uNO4VIn+xKVPmU6+owTYdVByly4XQqQRSUByA==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
       '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
-      '@energyweb/issuer': 4.1.1-alpha.1631878057.0
-      '@energyweb/issuer-api': 0.4.0_9dc07df28397b513ab1abcfa79e8c88c
-      '@energyweb/origin-247-certificate': 2.0.1_f5d578f9a44920630361d1f3f51d68b7
-      '@energyweb/origin-backend': 11.0.1_swagger-ui-express@4.1.6
-      '@energyweb/origin-backend-core': 8.0.3
-      '@energyweb/origin-backend-utils': 1.6.1_a5df9406a476462f1b7ccd7e962bcb31
-      '@energyweb/utils-general': 11.0.4
+      '@energyweb/issuer': 4.1.1-alpha.1634225870.0
+      '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_9dc07df28397b513ab1abcfa79e8c88c
+      '@energyweb/origin-247-certificate': 2.1.2_a1b67e60083a0f64adab87445ef00c80
+      '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
+      '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
+      '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
+      '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@nestjs-modules/mailer': 1.6.0_5a34d5120a791a9ff54e7665b56346dd
       '@nestjs/cli': 7.5.4
       '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
@@ -24966,14 +24967,14 @@ packages:
     dev: false
 
   file:projects/origin-drec-ui.tgz_luxon@1.27.0+ts-node@9.1.0:
-    resolution: {integrity: sha512-nuoH97gFAEj4kH5wsRzz24Gs43O6FySPst80tqJM4NmeeB1VnkquJ7p+05lQKpaC5Xrm3wo+Psu6ORPxSv4iDQ==, tarball: file:projects/origin-drec-ui.tgz}
+    resolution: {integrity: sha512-OvBsyeYbOkVeOalg/ZbO1n8xTOjJtGiJmikoNtz3Ci5dhk+/iDQIcOigBRz1uJp8i6ULm5j8jPXf3m6w64WaMg==, tarball: file:projects/origin-drec-ui.tgz}
     id: file:projects/origin-drec-ui.tgz
     name: '@rush-temp/origin-drec-ui'
     version: 0.0.0
     dependencies:
       '@emotion/react': 11.4.1_6e44cfea672f844fe365824ce49901bd
       '@emotion/styled': 11.3.0_17d2c1c118fdd49ec5ea34ebe26bbb6d
-      '@energyweb/issuer': 4.1.1-alpha.1631878057.0
+      '@energyweb/issuer': 4.1.1-alpha.1634225870.0
       '@energyweb/origin-ui-assets': 0.1.0_f5d94561c617c3964f1ab50652031c52
       '@energyweb/origin-ui-core': 2.0.0_ff60517c3619744d5d05c03a5b5172ad
       '@energyweb/origin-ui-theme': 0.1.0_f5d94561c617c3964f1ab50652031c52
