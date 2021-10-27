@@ -23,6 +23,7 @@ env:
     REACT_APP_GOOGLE_MAPS_API_KEY: ${{secrets.REACT_APP_GOOGLE_MAPS_API_KEY}}
     REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: ${{secrets.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN}}
     REACT_APP_SUPPORTED_NETWORK_IDS: ${{secrets.REACT_APP_SUPPORTED_NETWORK_IDS}}
+    REACT_APP_ISSUER_ADDRESS: ${{secrets.REACT_APP_ISSUER_ADDRESS}}
     MNEMONIC: stone eyebrow bronze glide upon subject camera cushion rice outside swing casual
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
