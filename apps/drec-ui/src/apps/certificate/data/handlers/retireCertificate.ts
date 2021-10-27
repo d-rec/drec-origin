@@ -6,11 +6,11 @@ import {
 } from '@energyweb/origin-drec-api-client';
 
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
-import { PowerFormatter } from '@energyweb/origin-ui-utils';
 import { Dayjs } from 'dayjs';
 import { BigNumber } from 'ethers';
 import { Dispatch, SetStateAction } from 'react';
 import { useQueryClient } from 'react-query';
+import { PowerFormatter } from '../../../../utils';
 import { useGetBlockchainCertificateHandler } from '../fetching';
 
 export const useRetireCertificateHandler = (

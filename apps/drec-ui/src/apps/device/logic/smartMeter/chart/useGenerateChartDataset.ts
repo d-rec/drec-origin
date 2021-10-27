@@ -9,7 +9,7 @@ export const useGenerateChartDataset = (reads: AggregatedReadDTO[]) => {
         {
             data: currentData,
             backgroundColor: theme.palette.primary.main,
-            label: 'Energy (MWh)'
+            label: 'Energy (kWh)'
         }
     ];
 };

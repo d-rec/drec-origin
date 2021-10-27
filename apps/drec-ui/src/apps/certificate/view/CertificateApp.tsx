@@ -6,7 +6,7 @@ import {
     CertificateEnvVariables,
     TransactionPendingProvider
 } from './context';
-import { BlockchainInboxPage } from './pages';
+import { BlockchainInboxPage, DetailViewPage } from './pages';
 
 export interface CertificateAppProps {
     routesConfig: {
@@ -31,6 +31,7 @@ export const CertificateApp: FC<CertificateAppProps> = ({ routesConfig, envVaria
                         }
                     />
                 )}
+                <Route path="detail-view/:id" element={<DetailViewPage />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </CertificateAppEnvProvider>
