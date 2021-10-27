@@ -63,7 +63,7 @@
         "@energyweb/origin-ui-utils": "0.1.0",
         "@energyweb/origin-ui-assets": "0.1.0",
         "@energyweb/origin-ui-core": "2.0.0",
-        "@energyweb/issuer": "4.1.1-alpha.1631878057.0"
+        "@energyweb/issuer": "4.1.1-alpha.1634225870.0"
     },
     "devDependencies": {
         "@storybook/addon-actions": "^6.2.9",

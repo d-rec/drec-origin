@@ -35,20 +35,20 @@
     "test:e2e:mocha": "mocha -r ts-node/register test/*.e2e-spec.ts --timeout 60000 --exit",
     "test:e2e": "concurrently --success first --kill-others -n eth,test \"yarn run:ganache\" \"wait-on tcp:8545 && yarn typeorm:drop && yarn migrate && yarn test:e2e:mocha\"",
     "test:e2e:single": "sh ./scripts/test-e2e-single.sh",
-    "run:ganache": "ganache-cli -q -m 'stone eyebrow bronze glide upon subject camera cushion rice outside swing casual' -l 8000000 -e 1000000 -a 20"
+    "run:ganache": "ganache-cli -m 'stone eyebrow bronze glide upon subject camera cushion rice outside swing casual' -l 8000000 -e 1000000 -a 20"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
   },
   "dependencies": {
     "@energyweb/energy-api-influxdb": "0.8.0",
-    "@energyweb/issuer": "4.1.1-alpha.1631878057.0",
-    "@energyweb/issuer-api": "0.4.0",
-    "@energyweb/origin-247-certificate": "2.0.1",
-    "@energyweb/origin-backend": "11.0.1",
-    "@energyweb/origin-backend-core": "8.0.3",
-    "@energyweb/origin-backend-utils": "1.6.1",
-    "@energyweb/utils-general": "11.0.4",
+    "@energyweb/issuer": "4.1.1-alpha.1634225870.0",
+    "@energyweb/issuer-api": "0.4.1-alpha.1634225870.0",
+    "@energyweb/origin-247-certificate": "2.1.2",
+    "@energyweb/origin-backend": "11.0.2-alpha.1634225870.0",
+    "@energyweb/origin-backend-core": "8.0.4-alpha.1634225870.0",
+    "@energyweb/origin-backend-utils": "1.6.2-alpha.1634225870.0",
+    "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
     "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/common": "7.6.13",
     "@nestjs/config": "0.6.3",
