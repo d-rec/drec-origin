@@ -12,5 +12,5 @@ export const useDetailedPageViewEffects = () => {
     const deviceGroup = useMetadataFromCertificate(certificate, foundDeviceGroup);
     const isLoading = isCertificateLoading || isDeviceGroupLoading;
 
-    return { certificate, isLoading, deviceGroup: foundDeviceGroup };
+    return { certificate, isLoading, deviceGroup };
 };

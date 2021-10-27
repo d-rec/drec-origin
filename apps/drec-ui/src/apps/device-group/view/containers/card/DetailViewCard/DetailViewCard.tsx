@@ -6,12 +6,17 @@ import { useStyles } from './DetailViewCard.styles';
 export interface DetailViewCardProps {
     headingIconProps: IconTextProps;
     specFields: SpecFieldProps[];
+    fullWidth?: boolean;
 }
 
-export const DetailViewCard: FC<DetailViewCardProps> = ({ headingIconProps, specFields }) => {
+export const DetailViewCard: FC<DetailViewCardProps> = ({
+    headingIconProps,
+    specFields,
+    fullWidth
+}) => {
     const classes = useStyles();
     return (
-        <Card className={classes.card}>
+        <Card className={fullWidth ? classes.fullWidthCard : classes.card}>
             <Box py={1} px={2} className={classes.heading}>
                 <IconText
                     gridContainerProps={{

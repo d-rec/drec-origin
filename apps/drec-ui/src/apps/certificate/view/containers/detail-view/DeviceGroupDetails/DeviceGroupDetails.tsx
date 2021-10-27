@@ -1,8 +1,11 @@
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { CircularProgress } from '@material-ui/core';
 import { FC } from 'react';
-import { DeviceGroupLocationData } from '../../../../../device-group';
-import { DeviceGroupDetailCard } from '../DeviceGroupDetailCard';
+import {
+    DeviceGroupLocationData,
+    DetailViewCard,
+    DeviceGroupName
+} from '../../../../../device-group';
 import { useDeviceGroupDetailsEffects } from './DeviceGroupDetails.effects';
 import { useStyles } from './DeviceGroupDetails.styles';
 
@@ -19,7 +22,8 @@ export const DeviceGroupDetails: FC<DeviceGroupDetailsProps> = ({ deviceGroup })
     return (
         <div className={classes.wrapper}>
             <DeviceGroupLocationData {...locationProps} />
-            <DeviceGroupDetailCard deviceGroupId={deviceGroup?.id} {...cardProps} />
+            <DeviceGroupName name={deviceGroup.name} />
+            <DetailViewCard {...cardProps} fullWidth={true} />
         </div>
     );
 };

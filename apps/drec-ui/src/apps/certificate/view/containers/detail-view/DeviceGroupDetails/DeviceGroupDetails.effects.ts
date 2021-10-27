@@ -1,13 +1,12 @@
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { useAllDeviceFuelTypes } from '../../../../../device-group';
-import { useDeviceGroupDetailsLogic } from '../../../../logic';
+import { useAllDeviceFuelTypes, useDeviceGroupDetailViewLogic } from 'apps/device-group';
 
 export const useDeviceGroupDetailsEffects = (deviceGroup: DeviceGroupDTO) => {
     const { allTypes, isLoading } = useAllDeviceFuelTypes();
 
-    const { locationProps, cardProps } = useDeviceGroupDetailsLogic({
+    const { locationProps, cardProps } = useDeviceGroupDetailViewLogic({
         deviceGroup,
-        owner: deviceGroup?.organizationId?.toString(),
+        owner: deviceGroup?.organizationId,
         allTypes
     });
 
