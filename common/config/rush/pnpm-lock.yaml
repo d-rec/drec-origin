@@ -14,6 +14,7 @@ specifiers:
   '@energyweb/origin-ui-core': 2.0.0
   '@energyweb/origin-ui-theme': 0.1.0
   '@energyweb/origin-ui-utils': 0.1.0
+  '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -161,6 +162,7 @@ dependencies:
   '@energyweb/origin-ui-core': 2.0.0_ff60517c3619744d5d05c03a5b5172ad
   '@energyweb/origin-ui-theme': 0.1.0_f5d94561c617c3964f1ab50652031c52
   '@energyweb/origin-ui-utils': 0.1.0_history@5.0.0+react@17.0.2
+  '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -24967,7 +24969,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-ui.tgz_luxon@1.27.0+ts-node@9.1.0:
-    resolution: {integrity: sha512-OvBsyeYbOkVeOalg/ZbO1n8xTOjJtGiJmikoNtz3Ci5dhk+/iDQIcOigBRz1uJp8i6ULm5j8jPXf3m6w64WaMg==, tarball: file:projects/origin-drec-ui.tgz}
+    resolution: {integrity: sha512-sxg1/mX++O86mhPw0KIO5NgP+cDfKWQMJLiLNwLIVrBs961jlEVypjT2nwdm7qQChMikVG4OeIvoFxE/0OMEcA==, tarball: file:projects/origin-drec-ui.tgz}
     id: file:projects/origin-drec-ui.tgz
     name: '@rush-temp/origin-drec-ui'
     version: 0.0.0
@@ -24979,7 +24981,7 @@ packages:
       '@energyweb/origin-ui-core': 2.0.0_ff60517c3619744d5d05c03a5b5172ad
       '@energyweb/origin-ui-theme': 0.1.0_f5d94561c617c3964f1ab50652031c52
       '@energyweb/origin-ui-utils': 0.1.0_history@5.0.0+react@17.0.2
-      '@energyweb/utils-general': 11.0.4
+      '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@ethersproject/providers': 5.3.1
       '@hookform/resolvers': 2.3.0_react-hook-form@7.1.0
       '@material-ui/core': 5.0.0-beta.4_f5d94561c617c3964f1ab50652031c52
