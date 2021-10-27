@@ -1,5 +1,5 @@
 import { CircularProgress } from '@material-ui/core';
-import { CertificateDetails } from '../../containers';
+import { CertificateDetails, DeviceGroupDetails } from '../../containers';
 import { useDetailedPageViewEffects } from './DetailViewPage.effects';
 import { useStyles } from './DetailViewPage.styles';
 
@@ -12,6 +12,7 @@ export const DetailViewPage = () => {
     return (
         <div className={classes.wrapper}>
             <CertificateDetails certificate={certificate} />
+            <DeviceGroupDetails deviceGroup={deviceGroup} />
         </div>
     );
 };
