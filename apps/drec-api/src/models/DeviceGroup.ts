@@ -31,4 +31,7 @@ export interface IDeviceGroup {
   labels?: string[];
 
   devices?: DeviceDTO[];
+
+  buyerId?: number;
+  buyerAddress?: string;
 }

@@ -8,6 +8,8 @@ import {
   Body,
   UseGuards,
   Delete,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -25,6 +27,7 @@ import {
   AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
+  UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -48,6 +51,19 @@ export class DeviceGroupController {
   })
   async getAll(): Promise<DeviceGroupDTO[]> {
     return this.deviceGroupService.getAll();
+  }
+
+  @Get('/unreserved')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.Buyer)
+  @ApiOkResponse({
+    type: [DeviceGroupDTO],
+    description: 'Returns all unreserved Device Groups',
+  })
+  async getUnreserved(
+    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<DeviceGroupDTO[]> {
+    return this.deviceGroupService.getUnreserved(filterDto);
   }
 
   @Get('/my')

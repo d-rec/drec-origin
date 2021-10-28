@@ -5,13 +5,14 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindConditions, FindManyOptions, In } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
@@ -22,7 +23,9 @@ import { CommissioningDateRange } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
-
+import cleanDeep from 'clean-deep';
+import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { Like, ILike, Raw } from 'typeorm';
 @Injectable()
 export class DeviceGroupService {
   private readonly logger = new Logger(DeviceGroupService.name);
@@ -58,6 +61,20 @@ export class DeviceGroupService {
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroupDTO | null> {
     return (await this.repository.findOne(conditions)) ?? null;
+  }
+
+  async getUnreserved(
+    filterDto: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<DeviceGroup[]> {
+    // const query = this.repository
+    // .createQueryBuilder('deviceGroup')
+    // .where('deviceGroup.sectors @> ARRAY[:sectors]', {
+    //   sectors: filterDto.sector,
+    // })
+    // .getMany();
+    // return query;
+    const query = this.getUnreservedFilteredQuery(filterDto);
+    return this.repository.find(query);
   }
 
   async create(
@@ -342,5 +359,45 @@ export class DeviceGroupService {
     };
 
     return deviceGroup;
+  }
+
+  private getUnreservedFilteredQuery(
+    filter: UnreservedDeviceGroupsFilterDTO,
+  ): FindManyOptions<DeviceGroup> {
+    const where: FindConditions<DeviceGroup> = cleanDeep({
+      countryCode: filter.country && getCodeFromCountry(filter.country),
+      fuelCode: filter.fuelCode,
+      standardCompliance: filter.standardCompliance,
+      gridInterconnection: filter.gridInterconnection,
+      // installationConfiguration: [filter.installationConfiguration], // Array
+      // offTakers: [filter.offTaker],  // Array
+      // sectors: Raw((alias) => `${alias} @> ARRAY[:...filterOffTakers]`, { filterOffTakers: [filter.sector]}),  // Array
+      // sectors: In([filter.gridInterconnection]),
+    });
+    if (filter.sector) {
+      where.sectors = In([[filter.sector]]);
+    }
+    if (filter.installationConfiguration) {
+      where.installationConfigurations = In([
+        filter.installationConfiguration
+          ? [filter.installationConfiguration]
+          : [],
+      ]);
+    }
+    if (filter.offTaker) {
+      where.offTakers = In([filter.offTaker ? [filter.offTaker] : []]);
+    }
+    console.log('WHERE CLAUSE: ', where);
+    const query: FindManyOptions<DeviceGroup> = {
+      where: {
+        buyerAddress: null,
+        buyerId: null,
+        ...where,
+      },
+      order: {
+        organizationId: 'ASC',
+      },
+    };
+    return query;
   }
 }
