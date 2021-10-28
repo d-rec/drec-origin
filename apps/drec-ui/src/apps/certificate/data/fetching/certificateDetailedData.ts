@@ -12,9 +12,7 @@ export const useCertificateDetailedData = (id: string) => {
         useCertificateControllerGetAllEvents(parseInt(id));
 
     const certificate: DetailedCertificate = {
-        blockchainPart: {
-            ...blockchainCertificate
-        },
+        blockchainPart: blockchainCertificate,
         events: blockchainEvents
     };
 
