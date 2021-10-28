@@ -53,7 +53,7 @@ export const ListItemContent: TListItemContent = ({
             <Button
                 onClick={handleViewNavigate}
                 className={classes.button}
-                variant="outlined"
+                variant="contained"
                 color="primary"
             >
                 {viewButtonLabel}

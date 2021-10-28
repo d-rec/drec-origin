@@ -1,4 +1,4 @@
-import { CertificateDTO, CodeNameDTO, DeviceDTO } from '@energyweb/origin-drec-api-client';
+import { CertificateDTO, CodeNameDTO, DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import {
     GenericFormProps,
     ItemsListWithActionsProps,
@@ -24,7 +24,7 @@ export type TListItemContent = <Id>(
 
 type TUseBlockchainInboxLogicArgs = {
     blockchainCertificates: CertificateDTO[];
-    allDevices: DeviceDTO[];
+    allDeviceGroups: DeviceGroupDTO[];
     allFuelTypes: CodeNameDTO[];
     actions: ListAction[];
     ListItemHeader: React.FC<{ name: string; country: string }>;
@@ -33,10 +33,10 @@ type TUseBlockchainInboxLogicArgs = {
 
 export type TUseBlockchainInboxLogic = (
     args: TUseBlockchainInboxLogicArgs
-) => ItemsListWithActionsProps<DeviceDTO['id'], CertificateDTO['id']>;
+) => ItemsListWithActionsProps<DeviceGroupDTO['id'], CertificateDTO['id']>;
 
 export type BlockchainInboxContainers = TItemsListWithActionsContainers<
-    DeviceDTO['id'],
+    DeviceGroupDTO['id'],
     CertificateDTO['id']
 >;
 
@@ -51,7 +51,7 @@ export type SelectedItem<Id> = {
 type TUseRetireActionLogicArgs<Id> = {
     selectedIds: Id[];
     blockchainCertificates: CertificateDTO[];
-    allDevices: DeviceDTO[];
+    allDeviceGroups: DeviceGroupDTO[];
     allFuelTypes: CodeNameDTO[];
 };
 
@@ -75,7 +75,7 @@ export type TUseBeneficiaryFormLogic = () => Pick<
 type TUseBlockchainTransferActionLogicArgs<Id> = {
     selectedIds: Id[];
     blockchainCertificates: CertificateDTO[];
-    allDevices: DeviceDTO[];
+    allDeviceGroups: DeviceGroupDTO[];
     allFuelTypes: CodeNameDTO[];
 };
 
@@ -91,7 +91,7 @@ export type TUseBlockchainTransferActionLogic<Id> = (
 type FormatSelectedBlockchainItemsArgs<Id> = {
     selectedIds: Id[];
     blockchainCertificates: CertificateDTO[];
-    allDevices: DeviceDTO[];
+    allDeviceGroups: DeviceGroupDTO[];
     allFuelTypes: CodeNameDTO[];
 };
 

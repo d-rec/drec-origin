@@ -14,6 +14,9 @@ export const useStyles = makeStyles((theme) => ({
             margin: '20px 0'
         }
     },
+    fullWidthCard: {
+        margin: '20px 0'
+    },
     heading: {
         backgroundColor: LightenColor(theme.palette.background.paper, 10, theme.palette.mode)
     },

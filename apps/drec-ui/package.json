@@ -51,7 +51,7 @@
         "axios": "0.21.4",
         "mobx": "^6.1.8",
         "mobx-react-lite": "^3.2.0",
-        "@energyweb/utils-general": "11.0.4",
+        "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
         "tslib": "2.3.1",
         "react-material-ui-carousel": "2.2.7",
         "@react-google-maps/api": "2.2.0",
@@ -63,7 +63,7 @@
         "@energyweb/origin-ui-utils": "0.1.0",
         "@energyweb/origin-ui-assets": "0.1.0",
         "@energyweb/origin-ui-core": "2.0.0",
-        "@energyweb/issuer": "4.1.1-alpha.1631878057.0"
+        "@energyweb/issuer": "4.1.1-alpha.1634225870.0"
     },
     "devDependencies": {
         "@storybook/addon-actions": "^6.2.9",

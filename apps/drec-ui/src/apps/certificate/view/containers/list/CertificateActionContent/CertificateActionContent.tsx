@@ -74,7 +74,7 @@ export const CertificateActionContent: TCertificateActionContent = ({
             )}
             <div className={classes.totalVolume}>
                 <Typography color="textSecondary">{totalVolumeText}</Typography>
-                <Typography>{totalVolume} MWh</Typography>
+                <Typography>{totalVolume} kWh</Typography>
             </div>
             {children}
             <Button

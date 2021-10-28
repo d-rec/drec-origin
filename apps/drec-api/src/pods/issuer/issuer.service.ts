@@ -15,7 +15,6 @@ import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { ConfigService } from '@nestjs/config';
 import { IDevice } from '../../models';
 import { DeviceGroupDTO } from '../device-group/dto';
 
@@ -31,7 +30,6 @@ export class IssuerService {
     private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
-    private readonly configService: ConfigService,
   ) {}
 
   // @Cron(CronExpression.EVERY_10_SECONDS)
@@ -91,9 +89,12 @@ export class IssuerService {
 
     // Convert from W to kW
     const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
-
+    const deviceGroup = {
+      ...group,
+      devices: [],
+    };
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
-      deviceId: group.id?.toString(), // groupID
+      deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: totalReadValueKw.toString(),
       fromTime: new Date(startDate.toString()),
       toTime: new Date(endDate.toString()),
@@ -101,6 +102,7 @@ export class IssuerService {
       userId: org.blockchainAccountAddress,
       metadata: {
         deviceIds: group.devices.map((device: IDevice) => device.id),
+        deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };

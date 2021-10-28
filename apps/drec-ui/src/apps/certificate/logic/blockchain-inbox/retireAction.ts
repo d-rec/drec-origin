@@ -6,13 +6,13 @@ import { SelectedItem, TUseBeneficiaryFormLogic, TUseRetireActionLogic } from '.
 export const useRetireActionLogic: TUseRetireActionLogic<CertificateDTO['id']> = ({
     selectedIds,
     blockchainCertificates,
-    allDevices,
+    allDeviceGroups,
     allFuelTypes
 }) => {
     const selectedItems: SelectedItem<CertificateDTO['id']>[] = selectedIds
         ? formatSelectedBlockchainItems({
               selectedIds,
-              allDevices,
+              allDeviceGroups,
               blockchainCertificates,
               allFuelTypes
           })

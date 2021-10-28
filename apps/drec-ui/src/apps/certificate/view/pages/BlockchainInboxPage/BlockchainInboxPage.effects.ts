@@ -1,9 +1,12 @@
 import { useCertificateControllerGetAll } from '@energyweb/origin-drec-api-client';
 import { ListAction } from '@energyweb/origin-ui-core';
 import { useUser } from 'api';
-import { useAllDeviceFuelTypes, useApiAllDevices } from 'apps/device';
-import { useBlockchainInboxLogic } from 'apps/certificate/logic';
-import { useBlockchainInboxPermissionsLogic } from 'apps/certificate/logic';
+import { useAllDeviceFuelTypes } from 'apps/device';
+import { useApiAllDeviceGroups } from 'apps/device-group';
+import {
+    useBlockchainInboxLogic,
+    useBlockchainInboxPermissionsLogic
+} from 'apps/certificate/logic';
 import {
     ListItemContent,
     ListItemHeader,
@@ -18,7 +21,7 @@ export const useBlockchainInboxPageEffects = () => {
     const { data: blockchainCertificates, isLoading: areCertificatesLoading } =
         useCertificateControllerGetAll();
 
-    const { allDevices, isLoading: areDevicesLoading } = useApiAllDevices();
+    const { allDeviceGroups, isLoading: areDevicesGroupsLoading } = useApiAllDeviceGroups();
     const { allTypes: allFuelTypes, isLoading: areFuelTypesLoading } = useAllDeviceFuelTypes();
     const { user, userLoading } = useUser();
 
@@ -27,7 +30,7 @@ export const useBlockchainInboxPageEffects = () => {
     });
 
     const isLoading =
-        areCertificatesLoading || areDevicesLoading || areFuelTypesLoading || userLoading;
+        areCertificatesLoading || areDevicesGroupsLoading || areFuelTypesLoading || userLoading;
 
     const actions: ListAction[] = [
         {
@@ -42,7 +45,7 @@ export const useBlockchainInboxPageEffects = () => {
 
     const listProps = useBlockchainInboxLogic({
         blockchainCertificates,
-        allDevices,
+        allDeviceGroups,
         allFuelTypes,
         actions,
         ListItemHeader,
