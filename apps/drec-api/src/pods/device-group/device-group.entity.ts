@@ -8,7 +8,7 @@ import {
   IsNumber,
   IsOptional,
 } from 'class-validator';
-import { IDeviceGroup } from '../../models';
+import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
@@ -18,6 +18,7 @@ import {
   StandardCompliance,
 } from '../../utils/enums';
 import { Device } from '../device';
+import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -88,4 +89,5 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   buyerAddress: string;
 
   devices?: Device[];
+  organization?: Pick<IFullOrganization, 'name'>;
 }

@@ -6,7 +6,7 @@ export const useDeviceGroupDetailsEffects = (deviceGroup: DeviceGroupDTO) => {
 
     const { locationProps, cardProps } = useDeviceGroupDetailViewLogic({
         deviceGroup,
-        owner: deviceGroup?.organizationId,
+        owner: deviceGroup?.organization?.name,
         allTypes
     });
 

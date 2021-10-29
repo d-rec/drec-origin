@@ -19,6 +19,7 @@ import {
   DeviceGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
+  UnreservedDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
@@ -37,6 +38,7 @@ import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class DeviceGroupService {
@@ -46,6 +48,7 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
     private deviceService: DeviceService,
+    private organizationService: OrganizationService,
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -60,6 +63,12 @@ export class DeviceGroupService {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
+    const organization = await this.organizationService.findOne(
+      deviceGroup.organizationId,
+    );
+    deviceGroup.organization = {
+      name: organization.name,
+    };
     return deviceGroup;
   }
 
@@ -77,9 +86,25 @@ export class DeviceGroupService {
 
   async getUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroupDTO[]> {
+  ): Promise<UnreservedDeviceGroupDTO[]> {
     const query = this.getUnreservedFilteredQuery(filterDto);
-    return this.repository.find(query);
+    const deviceGroups = await this.repository.find(query);
+
+    const res = await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        const organization = await this.organizationService.findOne(
+          deviceGroup.organizationId,
+        );
+        return {
+          ...deviceGroup,
+          organization: {
+            name: organization.name,
+          },
+          selected: false,
+        };
+      }),
+    );
+    return res;
   }
 
   async reserveGroup(

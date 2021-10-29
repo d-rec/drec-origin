@@ -62,7 +62,7 @@ export const useDeviceDetailViewLogic: TUseDeviceDetailViewLogic = ({
                 value: getDeviceAgeInYears(device?.commissioningDate)
             },
             {
-                label: 'Off Taker',
+                label: 'Offtaker',
                 value: device?.offTaker
             },
             {

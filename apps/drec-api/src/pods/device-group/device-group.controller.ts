@@ -19,6 +19,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -27,6 +28,7 @@ import {
   AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
+  UnreservedDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
@@ -57,12 +59,12 @@ export class DeviceGroupController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.Buyer)
   @ApiOkResponse({
-    type: [DeviceGroupDTO],
+    type: [UnreservedDeviceGroupDTO],
     description: 'Returns all unreserved Device Groups',
   })
   async getUnreserved(
     @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroupDTO[]> {
+  ): Promise<UnreservedDeviceGroupDTO[]> {
     return this.deviceGroupService.getUnreserved(filterDto);
   }
 

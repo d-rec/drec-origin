@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
 import { CircularProgress, Paper, Typography, Grid, Button } from '@material-ui/core';
-import { SelectGroupBy, UngroupedDevicesContainer, NoUngroupedDevices } from '../../containers';
+import { SelectGroupBy, UngroupedDevicesContainer, NoItems } from '../../containers';
 import { useUngrouppedDevicesPageEffects } from './UngroupedDevicesPage.effects';
 import { useStyles } from './UngroupedDevicesPage.styles';
 
@@ -16,7 +16,8 @@ export const UngroupedDevicesPage: FC = () => {
         onAutoGroupSelected,
         groupedDevicesList,
         isLoading,
-        handleCreateNewGroup
+        handleCreateNewGroup,
+        noUngroupedDevicesTitle
     } = useUngrouppedDevicesPageEffects();
 
     if (isLoading) {
@@ -24,7 +25,7 @@ export const UngroupedDevicesPage: FC = () => {
     }
 
     if (!isLoading && groupedDevicesList?.length === 0) {
-        return <NoUngroupedDevices />;
+        return <NoItems title={noUngroupedDevicesTitle} />;
     }
 
     return (

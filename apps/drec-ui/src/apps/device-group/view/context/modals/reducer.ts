@@ -3,7 +3,8 @@ import { IDeviceGroupModalsStore, TDeviceGroupModalsAction } from './types';
 export enum DeviceGroupModalsActionsEnum {
     SHOW_DELETE_GROUP = 'SHOW_DELETE_GROUP',
     AUTO_GROUP_SELECTED = 'AUTO_GROUP_SELECTED',
-    CREATE_NEW_GROUP = 'CREATE_NEW_GROUP'
+    CREATE_NEW_GROUP = 'CREATE_NEW_GROUP',
+    RESERVE = 'RESERVE'
 }
 
 export const deviceGroupModalsInitialState: IDeviceGroupModalsStore = {
@@ -19,6 +20,10 @@ export const deviceGroupModalsInitialState: IDeviceGroupModalsStore = {
     createNewGroup: {
         open: false,
         group: null
+    },
+    reserveSelected: {
+        open: false,
+        selected: []
     }
 };
 
@@ -33,5 +38,7 @@ export const deviceGroupModalsReducer = (
             return { ...state, autoGroupSelected: action.payload };
         case DeviceGroupModalsActionsEnum.CREATE_NEW_GROUP:
             return { ...state, createNewGroup: action.payload };
+        case DeviceGroupModalsActionsEnum.RESERVE:
+            return { ...state, reserveSelected: action.payload };
     }
 };
