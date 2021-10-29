@@ -110,6 +110,26 @@ export class DeviceGroupController {
     );
   }
 
+  @Post('/reserve/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: 'Returns a new created Device group',
+  })
+  public async reserve(
+    @Param('id') id: number,
+    @UserDecorator()
+    { organizationId, blockchainAccountAddress }: ILoggedInUser,
+  ): Promise<DeviceGroupDTO | null> {
+    return await this.deviceGroupService.reserveGroup(
+      id,
+      organizationId,
+      blockchainAccountAddress,
+    );
+  }
+
   @Post('multiple')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin)

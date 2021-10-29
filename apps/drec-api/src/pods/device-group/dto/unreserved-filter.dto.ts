@@ -1,6 +1,8 @@
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  CapacityRange,
+  CommissioningDateRange,
   Installation,
   OffTaker,
   Sector,
@@ -51,4 +53,20 @@ export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })
   gridInterconnection: boolean;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: CommissioningDateRange,
+    description: 'Commissioning DateRange',
+    enum: CommissioningDateRange,
+  })
+  commissioningDateRange: CommissioningDateRange;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: CapacityRange,
+    description: 'Capacity Range',
+    enum: CapacityRange,
+  })
+  capacityRange: CapacityRange;
 }

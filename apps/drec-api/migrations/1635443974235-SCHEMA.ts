@@ -1,29 +1,17 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class SCHEMA1633936733861 implements MigrationInterface {
-  name = 'SCHEMA1633936733861';
+export class SCHEMA1635443974235 implements MigrationInterface {
+  name = 'SCHEMA1635443974235';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TYPE "device_group_standardcompliance_enum" AS ENUM('I-REC', 'REC', 'GO', 'TIGR')`,
     );
     await queryRunner.query(
-      `CREATE TYPE "device_group_offtakers_enum" AS ENUM('School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "device_group_installationconfigurations_enum" AS ENUM('StandAlone', 'Microgrid')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "device_group_sectors_enum" AS ENUM('Agriculture', 'Manufacturing', 'PublicServices', 'Telecom', 'Residential', 'Mining', 'Education', 'Health', 'Textiles', 'Financial')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "device_group_commissioningdaterange_enum" AS ENUM('Year1-Q1', 'Year1-Q2', 'Year1-Q3', 'Year1-Q4', 'Year2', 'Year3', 'Year4', 'Year5', '6-10years', '11-15years', '15+years')`,
-    );
-    await queryRunner.query(
       `CREATE TYPE "device_group_capacityrange_enum" AS ENUM('0-50watts', '51-500watts', '501watts-1kW', '1.001kW-50kW', '50.001kW-100kW', '100.001kW-1MW', '1.001MW+')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "device_group" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "name" character varying NOT NULL, "organizationId" integer NOT NULL, "fuelCode" character varying NOT NULL, "countryCode" character varying NOT NULL, "standardCompliance" "device_group_standardcompliance_enum" NOT NULL, "deviceTypeCodes" text array NOT NULL, "offTakers" "device_group_offtakers_enum" array NOT NULL DEFAULT '{}', "installationConfigurations" "device_group_installationconfigurations_enum" array NOT NULL DEFAULT '{}', "sectors" "device_group_sectors_enum" array NOT NULL DEFAULT '{}', "commissioningDateRange" "device_group_commissioningdaterange_enum" array NOT NULL DEFAULT '{}', "gridInterconnection" boolean NOT NULL, "aggregatedCapacity" integer NOT NULL, "capacityRange" "device_group_capacityrange_enum" NOT NULL, "yieldValue" integer NOT NULL DEFAULT '1000', "labels" text, CONSTRAINT "UQ_f2ef78d341a5125990cafc9493c" UNIQUE ("name"), CONSTRAINT "PK_6bb808be579ff0722c914a8d6a1" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "device_group" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "name" character varying NOT NULL, "organizationId" integer NOT NULL, "fuelCode" character varying NOT NULL, "countryCode" character varying NOT NULL, "standardCompliance" "device_group_standardcompliance_enum" NOT NULL, "deviceTypeCodes" text array NOT NULL, "offTakers" text array NOT NULL, "installationConfigurations" text array NOT NULL, "sectors" text array NOT NULL, "commissioningDateRange" text array NOT NULL, "gridInterconnection" boolean NOT NULL, "aggregatedCapacity" integer NOT NULL, "capacityRange" "device_group_capacityrange_enum" NOT NULL, "yieldValue" integer NOT NULL DEFAULT '1000', "labels" text, "buyerId" integer, "buyerAddress" character varying, CONSTRAINT "UQ_f2ef78d341a5125990cafc9493c" UNIQUE ("name"), CONSTRAINT "PK_6bb808be579ff0722c914a8d6a1" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "device" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "drecID" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'Active', "organizationId" integer NOT NULL, "projectName" character varying NOT NULL, "address" character varying NOT NULL, "latitude" character varying NOT NULL, "longitude" character varying NOT NULL, "countryCode" character varying NOT NULL, "zipCode" integer, "fuelCode" character varying NOT NULL, "deviceTypeCode" character varying NOT NULL, "installationConfiguration" character varying NOT NULL, "capacity" integer NOT NULL, "commissioningDate" character varying NOT NULL, "gridInterconnection" boolean NOT NULL, "offTaker" character varying NOT NULL, "sector" character varying NOT NULL, "standardCompliance" character varying NOT NULL, "yieldValue" integer NOT NULL DEFAULT '1000', "generatorsIds" integer array, "labels" character varying, "impactStory" character varying, "data" character varying, "images" text, "groupId" integer, CONSTRAINT "UQ_a93bf3af71fa160724c7ae04a2e" UNIQUE ("drecID"), CONSTRAINT "PK_2dc10972aa4e27c01378dad2c72" PRIMARY KEY ("id"))`,
@@ -72,14 +60,6 @@ export class SCHEMA1633936733861 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "device"`);
     await queryRunner.query(`DROP TABLE "device_group"`);
     await queryRunner.query(`DROP TYPE "device_group_capacityrange_enum"`);
-    await queryRunner.query(
-      `DROP TYPE "device_group_commissioningdaterange_enum"`,
-    );
-    await queryRunner.query(`DROP TYPE "device_group_sectors_enum"`);
-    await queryRunner.query(
-      `DROP TYPE "device_group_installationconfigurations_enum"`,
-    );
-    await queryRunner.query(`DROP TYPE "device_group_offtakers_enum"`);
     await queryRunner.query(`DROP TYPE "device_group_standardcompliance_enum"`);
   }
 }

@@ -66,15 +66,21 @@ export class DeviceGroupService {
   async getUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
   ): Promise<DeviceGroup[]> {
-    // const query = this.repository
-    // .createQueryBuilder('deviceGroup')
-    // .where('deviceGroup.sectors @> ARRAY[:sectors]', {
-    //   sectors: filterDto.sector,
-    // })
-    // .getMany();
-    // return query;
     const query = this.getUnreservedFilteredQuery(filterDto);
     return this.repository.find(query);
+  }
+
+  async reserveGroup(
+    id: number,
+    organizationId: number,
+    blockchainAccountAddress: string | undefined,
+  ): Promise<DeviceGroup | null> {
+    const deviceGroup = await this.findById(id);
+    deviceGroup.buyerId = organizationId;
+    deviceGroup.buyerAddress = blockchainAccountAddress || '';
+
+    const updatedGroup = await this.repository.save(deviceGroup);
+    return updatedGroup;
   }
 
   async create(
@@ -369,25 +375,33 @@ export class DeviceGroupService {
       fuelCode: filter.fuelCode,
       standardCompliance: filter.standardCompliance,
       gridInterconnection: filter.gridInterconnection,
-      // installationConfiguration: [filter.installationConfiguration], // Array
-      // offTakers: [filter.offTaker],  // Array
-      // sectors: Raw((alias) => `${alias} @> ARRAY[:...filterOffTakers]`, { filterOffTakers: [filter.sector]}),  // Array
-      // sectors: In([filter.gridInterconnection]),
+      capacityRange: filter.capacityRange,
     });
     if (filter.sector) {
-      where.sectors = In([[filter.sector]]);
+      where.sectors = Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
+        filterSectors: [filter.sector],
+      });
     }
     if (filter.installationConfiguration) {
-      where.installationConfigurations = In([
-        filter.installationConfiguration
-          ? [filter.installationConfiguration]
-          : [],
-      ]);
+      where.installationConfigurations = Raw(
+        (alias) => `${alias} @> ARRAY[:...filterInstallationConfigurations]`,
+        {
+          filterInstallationConfigurations: [filter.installationConfiguration],
+        },
+      );
     }
     if (filter.offTaker) {
-      where.offTakers = In([filter.offTaker ? [filter.offTaker] : []]);
+      where.offTakers = Raw(
+        (alias) => `${alias} @> ARRAY[:...filterOffTakers]`,
+        { filterOffTakers: [filter.offTaker] },
+      );
     }
-    console.log('WHERE CLAUSE: ', where);
+    if (filter.commissioningDateRange) {
+      where.commissioningDateRange = Raw(
+        (alias) => `${alias} @> ARRAY[:...filterCommissioningDateRange]`,
+        { filterCommissioningDateRange: [filter.commissioningDateRange] },
+      );
+    }
     const query: FindManyOptions<DeviceGroup> = {
       where: {
         buyerAddress: null,
