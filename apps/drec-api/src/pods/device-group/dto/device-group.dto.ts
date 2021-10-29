@@ -110,4 +110,14 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsArray()
   @IsOptional()
   devices?: DeviceDTO[];
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: Number })
+  @IsNumber()
+  buyerId: number;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  buyerAddress: string;
 }

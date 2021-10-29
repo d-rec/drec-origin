@@ -47,36 +47,16 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column('text', { array: true })
   deviceTypeCodes: string[];
 
-  @Column({
-    type: 'enum',
-    enum: OffTaker,
-    array: true,
-    default: [],
-  })
+  @Column('text', { array: true })
   offTakers: OffTaker[];
 
-  @Column({
-    type: 'enum',
-    enum: Installation,
-    array: true,
-    default: [],
-  })
+  @Column('text', { array: true })
   installationConfigurations: Installation[];
 
-  @Column({
-    type: 'enum',
-    enum: Sector,
-    array: true,
-    default: [],
-  })
+  @Column('text', { array: true })
   sectors: Sector[];
 
-  @Column({
-    type: 'enum',
-    enum: CommissioningDateRange,
-    array: true,
-    default: [],
-  })
+  @Column('text', { array: true })
   commissioningDateRange: CommissioningDateRange[];
 
   @Column()
@@ -98,6 +78,14 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column('simple-array', { nullable: true })
   @IsOptional()
   labels: string[];
+
+  @Column({ nullable: true })
+  @IsNumber()
+  buyerId: number;
+
+  @Column({ nullable: true })
+  @IsString()
+  buyerAddress: string;
 
   devices?: Device[];
 }

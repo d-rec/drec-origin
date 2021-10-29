@@ -21,7 +21,6 @@ import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceOrderBy, Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
-import { Countries } from '@energyweb/utils-general';
 import {
   DeviceKey,
   DeviceSortPropertyMapper,
@@ -33,6 +32,7 @@ import { DeviceGroupByDTO } from './dto/device-group-by.dto';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
+import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 
 @Injectable()
 export class DeviceService {
@@ -219,7 +219,7 @@ export class DeviceService {
       sector: filter.sector,
       labels: filter.labels,
       standardCompliance: filter.standardCompliance,
-      countryCode: filter.country && this.getCodeFromCountry(filter.country),
+      countryCode: filter.country && getCodeFromCountry(filter.country),
       commissioningDate:
         filter.start_date &&
         filter.end_date &&
@@ -232,13 +232,6 @@ export class DeviceService {
       },
     };
     return query;
-  }
-
-  private getCodeFromCountry(countryName: string) {
-    if (!countryName) {
-      return;
-    }
-    return Countries.filter((country) => country.name === countryName)[0].code;
   }
 
   public async addToGroup(
