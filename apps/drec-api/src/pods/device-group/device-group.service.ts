@@ -5,7 +5,14 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindConditions, FindManyOptions, In } from 'typeorm';
+import {
+  Repository,
+  FindConditions,
+  FindManyOptions,
+  In,
+  FindOperator,
+  Raw,
+} from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
@@ -19,13 +26,18 @@ import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
-import { CommissioningDateRange } from '../../utils/enums';
+import {
+  CommissioningDateRange,
+  Installation,
+  OffTaker,
+  Sector,
+} from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
-import { Like, ILike, Raw } from 'typeorm';
+
 @Injectable()
 export class DeviceGroupService {
   private readonly logger = new Logger(DeviceGroupService.name);
@@ -65,7 +77,7 @@ export class DeviceGroupService {
 
   async getUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroup[]> {
+  ): Promise<DeviceGroupDTO[]> {
     const query = this.getUnreservedFilteredQuery(filterDto);
     return this.repository.find(query);
   }
@@ -74,10 +86,12 @@ export class DeviceGroupService {
     id: number,
     organizationId: number,
     blockchainAccountAddress: string | undefined,
-  ): Promise<DeviceGroup | null> {
+  ): Promise<DeviceGroupDTO | null> {
     const deviceGroup = await this.findById(id);
     deviceGroup.buyerId = organizationId;
-    deviceGroup.buyerAddress = blockchainAccountAddress || '';
+    if (blockchainAccountAddress) {
+      deviceGroup.buyerAddress = blockchainAccountAddress;
+    }
 
     const updatedGroup = await this.repository.save(deviceGroup);
     return updatedGroup;
@@ -378,28 +392,19 @@ export class DeviceGroupService {
       capacityRange: filter.capacityRange,
     });
     if (filter.sector) {
-      where.sectors = Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
-        filterSectors: [filter.sector],
-      });
+      where.sectors = this.getRawFilter(filter.sector);
     }
     if (filter.installationConfiguration) {
-      where.installationConfigurations = Raw(
-        (alias) => `${alias} @> ARRAY[:...filterInstallationConfigurations]`,
-        {
-          filterInstallationConfigurations: [filter.installationConfiguration],
-        },
+      where.installationConfigurations = this.getRawFilter(
+        filter.installationConfiguration,
       );
     }
     if (filter.offTaker) {
-      where.offTakers = Raw(
-        (alias) => `${alias} @> ARRAY[:...filterOffTakers]`,
-        { filterOffTakers: [filter.offTaker] },
-      );
+      where.offTakers = this.getRawFilter(filter.offTaker);
     }
     if (filter.commissioningDateRange) {
-      where.commissioningDateRange = Raw(
-        (alias) => `${alias} @> ARRAY[:...filterCommissioningDateRange]`,
-        { filterCommissioningDateRange: [filter.commissioningDateRange] },
+      where.commissioningDateRange = this.getRawFilter(
+        filter.commissioningDateRange,
       );
     }
     const query: FindManyOptions<DeviceGroup> = {
@@ -413,5 +418,18 @@ export class DeviceGroupService {
       },
     };
     return query;
+  }
+
+  private getRawFilter(
+    filter:
+      | Sector
+      | Installation
+      | OffTaker
+      | Installation
+      | CommissioningDateRange,
+  ): FindOperator<any> {
+    return Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
+      filterSectors: [filter],
+    });
   }
 }
