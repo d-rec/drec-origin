@@ -10,7 +10,6 @@ import { useAllDeviceFuelTypes, useUnreservedDeviceGroups } from '../../../data'
 import { useEffect, useState } from 'react';
 import { UnreservedDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { UseFormReset } from 'react-hook-form';
-import cleanDeep from 'clean-deep';
 
 export const useUnreservedPageEffects = () => {
     const initialFormValues: UnreservedFormFormValues = {
@@ -31,10 +30,6 @@ export const useUnreservedPageEffects = () => {
     const dispatchModals = useDeviceGroupModalsDispatch();
 
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
-
-    const onResetHandler = () => {
-        setFilterUnreserved(initialFormValues);
-    };
 
     const { fields, initialValues, validationSchema, buttonText } = useUnreservedFilterFormLogic(
         filterUnreserved,
@@ -108,7 +103,6 @@ export const useUnreservedPageEffects = () => {
         isLoading,
         noUnreservedDeviceGroupsTitle,
         onReserveHandler,
-        onResetHandler,
         disableReserveButton
     };
 };

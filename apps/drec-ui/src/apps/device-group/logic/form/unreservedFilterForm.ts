@@ -37,6 +37,7 @@ export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
     // resetForm: () => void
 ) => {
     const gridInterconnectionOptions: FormSelectOption[] = [
+        { value: '', label: '- Clear -' },
         { value: 'Yes', label: 'Yes' },
         { value: 'No', label: 'No' }
     ];

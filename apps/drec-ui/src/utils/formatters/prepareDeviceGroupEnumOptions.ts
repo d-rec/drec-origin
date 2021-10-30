@@ -5,5 +5,10 @@ export const prepareDeviceGroupEnumOptions = (array: string[]): FormSelectOption
         value: item,
         label: item
     }));
+    const resetOption = {
+        value: '',
+        label: '- Clear -'
+    };
+    groupOptions.unshift(resetOption);
     return groupOptions;
 };

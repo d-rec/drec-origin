@@ -14,7 +14,6 @@ export const UnreservedPage: FC = () => {
         isLoading,
         noUnreservedDeviceGroupsTitle,
         onReserveHandler,
-        onResetHandler,
         disableReserveButton
     } = useUnreservedPageEffects();
 
@@ -33,30 +32,29 @@ export const UnreservedPage: FC = () => {
                 }}
                 {...formData}
             />
-            <Button onClick={onResetHandler} color="primary" variant="contained">
-                Reset Form
-            </Button>
-            <Grid container className={classes.devicesWrapper} style={{ width: '100%' }}>
-                {!isLoading && deviceGroups?.length === 0 ? (
-                    <Box style={{ width: '100%' }}>
-                        <Typography textAlign="center" variant="h6">
-                            {noUnreservedDeviceGroupsTitle}
-                        </Typography>
-                    </Box>
-                ) : (
-                    <TableComponent {...tableProps} />
-                )}
-            </Grid>
-            <div className={classes.buttonsWrapper}>
-                <Button
-                    disabled={disableReserveButton}
-                    onClick={onReserveHandler}
-                    color="primary"
-                    variant="contained"
-                >
-                    Reserve
-                </Button>
-            </div>
+            {!isLoading && deviceGroups?.length === 0 ? (
+                <Box style={{ width: '100%', margin: 20 }}>
+                    <Typography textAlign="center" variant="h6">
+                        {noUnreservedDeviceGroupsTitle}
+                    </Typography>
+                </Box>
+            ) : (
+                <>
+                    <Grid container className={classes.devicesWrapper} style={{ width: '100%' }}>
+                        <TableComponent {...tableProps} />
+                    </Grid>
+                    <div className={classes.buttonsWrapper}>
+                        <Button
+                            disabled={disableReserveButton}
+                            onClick={onReserveHandler}
+                            color="primary"
+                            variant="contained"
+                        >
+                            Reserve
+                        </Button>
+                    </div>
+                </>
+            )}
         </Paper>
     );
 };
