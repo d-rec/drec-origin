@@ -19,6 +19,7 @@ import {
   DeviceGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
+  ReserveGroupsDTO,
   UnreservedDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
@@ -108,18 +109,24 @@ export class DeviceGroupService {
   }
 
   async reserveGroup(
-    id: number,
+    data: ReserveGroupsDTO,
     organizationId: number,
     blockchainAccountAddress: string | undefined,
-  ): Promise<DeviceGroupDTO | null> {
-    const deviceGroup = await this.findById(id);
-    deviceGroup.buyerId = organizationId;
-    if (blockchainAccountAddress) {
-      deviceGroup.buyerAddress = blockchainAccountAddress;
-    }
+  ): Promise<DeviceGroupDTO[]> {
+    const deviceGroups = await this.repository.findByIds(data.groupsIds);
+    const updatedDeviceGroups: DeviceGroupDTO[] = [];
+    await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        deviceGroup.buyerId = organizationId;
+        if (blockchainAccountAddress) {
+          deviceGroup.buyerAddress = blockchainAccountAddress;
+        }
+        const updatedGroup = await this.repository.save(deviceGroup);
+        updatedDeviceGroups.push(updatedGroup);
+      }),
+    );
 
-    const updatedGroup = await this.repository.save(deviceGroup);
-    return updatedGroup;
+    return updatedDeviceGroups;
   }
 
   async create(

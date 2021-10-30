@@ -8,3 +8,4 @@ export * from './ungroupedDevices';
 export * from './createNewGroup';
 export * from './autoSelectGroups';
 export * from './allUnreservedDeviceGroups';
+export * from './reserveSelectedGroups';

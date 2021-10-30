@@ -13,7 +13,9 @@ export const UnreservedPage: FC = () => {
         mobileView,
         isLoading,
         noUnreservedDeviceGroupsTitle,
-        onReserveHandler
+        onReserveHandler,
+        onResetHandler,
+        disableReserveButton
     } = useUnreservedPageEffects();
 
     if (isLoading) {
@@ -31,6 +33,9 @@ export const UnreservedPage: FC = () => {
                 }}
                 {...formData}
             />
+            <Button onClick={onResetHandler} color="primary" variant="contained">
+                Reset Form
+            </Button>
             <Grid container className={classes.devicesWrapper} style={{ width: '100%' }}>
                 {!isLoading && deviceGroups?.length === 0 ? (
                     <Box style={{ width: '100%' }}>
@@ -43,7 +48,12 @@ export const UnreservedPage: FC = () => {
                 )}
             </Grid>
             <div className={classes.buttonsWrapper}>
-                <Button onClick={onReserveHandler} color="primary" variant="contained">
+                <Button
+                    disabled={disableReserveButton}
+                    onClick={onReserveHandler}
+                    color="primary"
+                    variant="contained"
+                >
                     Reserve
                 </Button>
             </div>

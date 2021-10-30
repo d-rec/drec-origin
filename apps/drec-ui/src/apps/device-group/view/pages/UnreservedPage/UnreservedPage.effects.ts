@@ -1,4 +1,4 @@
-import { useDeviceGroupModalsDispatch } from '../../context';
+import { DeviceGroupModalsActionsEnum, useDeviceGroupModalsDispatch } from '../../context';
 import {
     UnreservedFormFormValues,
     useUnreservedDeviceGroupsTableLogic,
@@ -32,14 +32,13 @@ export const useUnreservedPageEffects = () => {
 
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
 
-    const resetForm = () => {
+    const onResetHandler = () => {
         setFilterUnreserved(initialFormValues);
     };
 
     const { fields, initialValues, validationSchema, buttonText } = useUnreservedFilterFormLogic(
         filterUnreserved,
-        allTypes,
-        resetForm
+        allTypes
     );
 
     const theme = useTheme();
@@ -81,11 +80,25 @@ export const useUnreservedPageEffects = () => {
     };
 
     const onReserveHandler = () => {
-        console.log('Here there will be a Modal');
+        const autoSelected: UnreservedDeviceGroupDTO[] = selectedDeviceGroupList.filter(
+            (group: UnreservedDeviceGroupDTO) => group.selected === true
+        );
+        dispatchModals({
+            type: DeviceGroupModalsActionsEnum.RESERVE,
+            payload: {
+                open: true,
+                selected: autoSelected
+            }
+        });
     };
 
     const noUnreservedDeviceGroupsTitle =
         'Currently there aren`t any unreserved device groups for the selection criteria';
+
+    const disableReserveButton =
+        selectedDeviceGroupList?.filter(
+            (group: UnreservedDeviceGroupDTO) => group.selected === true
+        ).length === 0;
 
     return {
         deviceGroups,
@@ -94,6 +107,8 @@ export const useUnreservedPageEffects = () => {
         mobileView,
         isLoading,
         noUnreservedDeviceGroupsTitle,
-        onReserveHandler
+        onReserveHandler,
+        onResetHandler,
+        disableReserveButton
     };
 };

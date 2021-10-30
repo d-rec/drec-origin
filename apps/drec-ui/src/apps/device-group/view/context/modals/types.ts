@@ -1,4 +1,4 @@
-import { GroupedDevicesDTO, DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
+import { GroupedDevicesDTO, UnreservedDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { DeviceOrderBy } from '../../../../../utils';
 import { DeviceGroupModalsActionsEnum } from './reducer';
 
@@ -15,7 +15,7 @@ export type TCreateNewGroup = {
 
 export type TReserveSelected = {
     open: boolean;
-    selected: DeviceGroupDTO[];
+    selected: UnreservedDeviceGroupDTO[];
 };
 
 export interface IDeviceGroupModalsStore {

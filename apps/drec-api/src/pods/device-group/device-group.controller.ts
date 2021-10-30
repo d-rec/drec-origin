@@ -19,7 +19,6 @@ import {
   ApiSecurity,
   ApiTags,
   ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -31,6 +30,7 @@ import {
   UnreservedDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
+  ReserveGroupsDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
@@ -112,7 +112,7 @@ export class DeviceGroupController {
     );
   }
 
-  @Post('/reserve/:id')
+  @Post('/reserve')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Buyer)
   @ApiResponse({
@@ -121,12 +121,12 @@ export class DeviceGroupController {
     description: 'Returns a new created Device group',
   })
   public async reserve(
-    @Param('id') id: number,
     @UserDecorator()
     { organizationId, blockchainAccountAddress }: ILoggedInUser,
-  ): Promise<DeviceGroupDTO | null> {
+    @Body() ids: ReserveGroupsDTO,
+  ): Promise<DeviceGroupDTO[]> {
     return await this.deviceGroupService.reserveGroup(
-      id,
+      ids,
       organizationId,
       blockchainAccountAddress,
     );

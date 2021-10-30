@@ -27,14 +27,14 @@ export type UnreservedFormFormValues = {
 
 type TUnreservedFormFormLogic = (
     initialValues: UnreservedFormFormValues,
-    allFuelTypes: CodeNameDTO[],
-    resetForm: () => void
+    allFuelTypes: CodeNameDTO[]
+    // resetForm: () => void
 ) => Omit<GenericFormProps<UnreservedFormFormValues>, 'submitHandler'>;
 
 export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
     initialValues: UnreservedFormFormValues,
-    allFuelTypes: CodeNameDTO[],
-    resetForm: () => void
+    allFuelTypes: CodeNameDTO[]
+    // resetForm: () => void
 ) => {
     const gridInterconnectionOptions: FormSelectOption[] = [
         { value: 'Yes', label: 'Yes' },
@@ -58,16 +58,8 @@ export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
                 name: 'country',
                 label: 'Country',
                 select: true,
-                multiple: false,
                 autocomplete: true,
                 options: COUNTRY_OPTIONS_ISO
-            },
-            {
-                name: 'fuelCode',
-                label: 'Fuel type',
-                select: true,
-                autocomplete: true,
-                options: prepareFuelTypeOptions(allFuelTypes)
             },
             {
                 name: 'installationConfiguration',
@@ -92,6 +84,13 @@ export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
                 label: 'Standard Compliance',
                 select: true,
                 options: prepareDeviceGroupEnumOptions(Object.values(StandardCompliance))
+            },
+            {
+                name: 'fuelCode',
+                label: 'Fuel type',
+                select: true,
+                autocomplete: true,
+                options: prepareFuelTypeOptions(allFuelTypes)
             },
             {
                 name: 'gridInterconnection',
@@ -119,8 +118,7 @@ export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
             {
                 variant: 'outlined',
                 style: { marginRight: 20 },
-                label: 'Reset',
-                onClick: resetForm
+                label: 'Reset'
             }
         ],
         buttonDisabled: false,
