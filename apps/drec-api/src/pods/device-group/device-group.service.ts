@@ -417,7 +417,7 @@ export class DeviceGroupService {
     filter: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
     const where: FindConditions<DeviceGroup> = cleanDeep({
-      countryCode: filter.country && getCodeFromCountry(filter.country),
+      countryCode: filter.country,
       fuelCode: filter.fuelCode,
       standardCompliance: filter.standardCompliance,
       gridInterconnection: filter.gridInterconnection,
