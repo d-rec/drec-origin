@@ -35,9 +35,6 @@ export const useUnreservedPageEffects = () => {
         allTypes
     );
 
-    const theme = useTheme();
-    const mobileView = useMediaQuery(theme.breakpoints.down('sm'));
-
     const handleChecked = (id: UnreservedDeviceGroupDTO['id'], checked: boolean) => {
         const groupIndex = deviceGroups.findIndex((selectable) => selectable.id === id);
         const updatedDeviceGroups = [...deviceGroups];
@@ -95,7 +92,6 @@ export const useUnreservedPageEffects = () => {
         deviceGroups,
         tableProps,
         formData,
-        mobileView,
         isLoading,
         noUnreservedDeviceGroupsTitle,
         onReserveHandler,

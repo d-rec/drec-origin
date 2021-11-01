@@ -10,7 +10,6 @@ export const UnreservedPage: FC = () => {
         deviceGroups,
         tableProps,
         formData,
-        mobileView,
         isLoading,
         noUnreservedDeviceGroupsTitle,
         onReserveHandler,
@@ -26,13 +25,13 @@ export const UnreservedPage: FC = () => {
             <Typography variant="h5">Unreserved Device Groups</Typography>
             <GenericForm
                 inputsVariant="filled"
-                twoColumns={!mobileView}
+                twoColumns={true}
                 buttonWrapperProps={{
                     justifyContent: 'flex-end'
                 }}
                 {...formData}
             />
-            {!isLoading && deviceGroups?.length === 0 ? (
+            {deviceGroups?.length === 0 ? (
                 <Box style={{ width: '100%', margin: 20 }}>
                     <Typography textAlign="center" variant="h6">
                         {noUnreservedDeviceGroupsTitle}

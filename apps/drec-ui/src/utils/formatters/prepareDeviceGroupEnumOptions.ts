@@ -7,7 +7,7 @@ export const prepareDeviceGroupEnumOptions = (array: string[]): FormSelectOption
     }));
     const resetOption = {
         value: '',
-        label: '- Any -'
+        label: 'Any'
     };
     groupOptions.unshift(resetOption);
     return groupOptions;
