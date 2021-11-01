@@ -9,7 +9,6 @@ import { GenericFormProps } from '@energyweb/origin-ui-core';
 import { useAllDeviceFuelTypes, useUnreservedDeviceGroups } from '../../../data';
 import { useEffect, useState } from 'react';
 import { UnreservedDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { UseFormReset } from 'react-hook-form';
 
 export const useUnreservedPageEffects = () => {
     const initialFormValues: UnreservedFormFormValues = {
@@ -59,10 +58,7 @@ export const useUnreservedPageEffects = () => {
         setSelectedDeviceGroupList(deviceGroups);
     }, [deviceGroups]);
 
-    const submitHandler = (
-        values: UnreservedFormFormValues,
-        reset: UseFormReset<UnreservedFormFormValues>
-    ) => {
+    const submitHandler = (values: UnreservedFormFormValues) => {
         setFilterUnreserved(values);
     };
     const isLoading = IsLoadingDeviceGroups || isDeviceTypesLoading;
