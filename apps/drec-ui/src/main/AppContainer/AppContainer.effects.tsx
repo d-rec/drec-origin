@@ -54,6 +54,7 @@ export const useAppContainerEffects = () => {
     const userOrgHasBlockchainAccountAttached = Boolean(
         user?.organization?.blockchainAccountAddress
     );
+    const userIsBuyer = isRole(user?.role, Role.Buyer);
 
     const orgRoutesConfig: RoutesConfig['orgRoutes'] = {
         showRegisterOrg: !userHasOrg,
@@ -112,7 +113,8 @@ export const useAppContainerEffects = () => {
     const deviceGroupRoutesConfig: RoutesConfig['deviceGroupRoutes'] = {
         showAllDeviceGroups: true,
         showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
-        showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
+        showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
+        showUnreserved: userIsActive && userIsBuyer
     };
     const deviceGroupMenu = getDeviceGroupMenu({
         isOpen: isDeviceGroupTabActive,

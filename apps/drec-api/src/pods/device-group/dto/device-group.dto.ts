@@ -18,6 +18,7 @@ import {
   StandardCompliance,
 } from '../../../utils/enums';
 import { DeviceDTO } from '../../device/dto';
+import { OrganizationDTO } from '../../organization/dto';
 
 export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty()
@@ -110,6 +111,10 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsArray()
   @IsOptional()
   devices?: DeviceDTO[];
+
+  @ApiPropertyOptional({ type: OrganizationDTO })
+  @IsOptional()
+  organization?: Pick<OrganizationDTO, 'name'>;
 
   @IsOptional()
   @ApiPropertyOptional({ type: Number })

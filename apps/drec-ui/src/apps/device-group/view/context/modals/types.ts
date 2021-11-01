@@ -1,4 +1,4 @@
-import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
+import { GroupedDevicesDTO, UnreservedDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { DeviceOrderBy } from '../../../../../utils';
 import { DeviceGroupModalsActionsEnum } from './reducer';
 
@@ -12,6 +12,12 @@ export type TCreateNewGroup = {
     open: boolean;
     group: GroupedDevicesDTO;
 };
+
+export type TReserveSelected = {
+    open: boolean;
+    selected: UnreservedDeviceGroupDTO[];
+};
+
 export interface IDeviceGroupModalsStore {
     deviceGroupDelete: {
         open: boolean;
@@ -19,6 +25,7 @@ export interface IDeviceGroupModalsStore {
     };
     autoGroupSelected: TAutoGroupSelected;
     createNewGroup: TCreateNewGroup;
+    reserveSelected: TReserveSelected;
 }
 
 interface IDeviceGroupDeleteAction {
@@ -39,7 +46,13 @@ interface IDeviceGroupCreateNewAction {
     payload: TCreateNewGroup;
 }
 
+interface IDeviceGroupReserveAction {
+    type: DeviceGroupModalsActionsEnum.RESERVE;
+    payload: TReserveSelected;
+}
+
 export type TDeviceGroupModalsAction =
     | IDeviceGroupDeleteAction
     | IDeviceGroupAutoGroupActions
-    | IDeviceGroupCreateNewAction;
+    | IDeviceGroupCreateNewAction
+    | IDeviceGroupReserveAction;

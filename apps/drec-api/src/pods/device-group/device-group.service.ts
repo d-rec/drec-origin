@@ -19,6 +19,8 @@ import {
   DeviceGroupDTO,
   DeviceIdsDTO,
   NewDeviceGroupDTO,
+  ReserveGroupsDTO,
+  UnreservedDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
@@ -37,6 +39,7 @@ import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class DeviceGroupService {
@@ -46,6 +49,7 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
     private deviceService: DeviceService,
+    private organizationService: OrganizationService,
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -60,6 +64,12 @@ export class DeviceGroupService {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
+    const organization = await this.organizationService.findOne(
+      deviceGroup.organizationId,
+    );
+    deviceGroup.organization = {
+      name: organization.name,
+    };
     return deviceGroup;
   }
 
@@ -77,24 +87,46 @@ export class DeviceGroupService {
 
   async getUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroupDTO[]> {
+  ): Promise<UnreservedDeviceGroupDTO[]> {
     const query = this.getUnreservedFilteredQuery(filterDto);
-    return this.repository.find(query);
+    const deviceGroups = await this.repository.find(query);
+
+    const res = await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        const organization = await this.organizationService.findOne(
+          deviceGroup.organizationId,
+        );
+        return {
+          ...deviceGroup,
+          organization: {
+            name: organization.name,
+          },
+          selected: false,
+        };
+      }),
+    );
+    return res;
   }
 
   async reserveGroup(
-    id: number,
+    data: ReserveGroupsDTO,
     organizationId: number,
     blockchainAccountAddress: string | undefined,
-  ): Promise<DeviceGroupDTO | null> {
-    const deviceGroup = await this.findById(id);
-    deviceGroup.buyerId = organizationId;
-    if (blockchainAccountAddress) {
-      deviceGroup.buyerAddress = blockchainAccountAddress;
-    }
+  ): Promise<DeviceGroupDTO[]> {
+    const deviceGroups = await this.repository.findByIds(data.groupsIds);
+    const updatedDeviceGroups: DeviceGroupDTO[] = [];
+    await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        deviceGroup.buyerId = organizationId;
+        if (blockchainAccountAddress) {
+          deviceGroup.buyerAddress = blockchainAccountAddress;
+        }
+        const updatedGroup = await this.repository.save(deviceGroup);
+        updatedDeviceGroups.push(updatedGroup);
+      }),
+    );
 
-    const updatedGroup = await this.repository.save(deviceGroup);
-    return updatedGroup;
+    return updatedDeviceGroups;
   }
 
   async create(

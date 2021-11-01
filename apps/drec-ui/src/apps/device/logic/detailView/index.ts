@@ -13,8 +13,7 @@ export const useDeviceDetailViewLogic: TUseDeviceDetailViewLogic = ({
     allTypes
 }) => {
     const locationProps = {
-        // @should be changed to actual owner name
-        owner: `Device owner organization id ${owner}`,
+        owner: `Device owner organization ${owner}`,
         location: `${device?.countryCode}`,
         coordinates: `${device?.latitude}, ${device?.longitude}`
     };
@@ -62,7 +61,7 @@ export const useDeviceDetailViewLogic: TUseDeviceDetailViewLogic = ({
                 value: getDeviceAgeInYears(device?.commissioningDate)
             },
             {
-                label: 'Off Taker',
+                label: 'Offtaker',
                 value: device?.offTaker
             },
             {

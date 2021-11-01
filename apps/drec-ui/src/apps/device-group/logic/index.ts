@@ -5,3 +5,4 @@ export * from './detailView';
 export * from './table';
 export * from './smartMeter';
 export * from './modals';
+export * from './form';

@@ -42,11 +42,11 @@ export const useUngrouppedDevicesPageEffects = () => {
     const handleChecked = (id: UngroupedDeviceDTO['id'], checked: boolean) => {
         const selectedGroupedDevicesList = groupedDevicesList.map(
             (groupedDeviceList: GroupedDevicesDTO) => {
-                const updatedProjectIndex = groupedDeviceList.devices.findIndex(
+                const groupIndex = groupedDeviceList.devices.findIndex(
                     (selectableDevice) => selectableDevice.id === id
                 );
-                if (updatedProjectIndex !== -1) {
-                    groupedDeviceList.devices[updatedProjectIndex].selected = checked;
+                if (groupIndex !== -1) {
+                    groupedDeviceList.devices[groupIndex].selected = checked;
                 }
                 return groupedDeviceList;
             }
@@ -94,6 +94,8 @@ export const useUngrouppedDevicesPageEffects = () => {
         });
     };
 
+    const noUngroupedDevicesTitle = 'Currently there aren`t any ungrouped devices';
+
     return {
         field,
         orderItems,
@@ -103,6 +105,7 @@ export const useUngrouppedDevicesPageEffects = () => {
         onAutoGroupSelected,
         groupedDevicesList,
         isLoading,
-        handleCreateNewGroup
+        handleCreateNewGroup,
+        noUngroupedDevicesTitle
     };
 };

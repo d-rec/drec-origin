@@ -5,7 +5,8 @@ import {
     AllDeviceGroupsPage,
     MyDeviceGroupsPage,
     DetailViewGroupPage,
-    UngroupedDevicesPage
+    UngroupedDevicesPage,
+    UnreservedPage
 } from './pages';
 import {
     DeviceGroupAppEnvProvider,
@@ -19,12 +20,14 @@ export interface DeviceGroupAppProps {
         showAllDeviceGroups: boolean;
         showMyDeviceGroups: boolean;
         showUngroupedDevices: boolean;
+        showUnreserved: boolean;
     };
     envVariables: DeviceGroupEnvVariables;
 }
 
 export const DeviceGroupApp: FC<DeviceGroupAppProps> = ({ routesConfig, envVariables }) => {
-    const { showAllDeviceGroups, showMyDeviceGroups, showUngroupedDevices } = routesConfig;
+    const { showAllDeviceGroups, showMyDeviceGroups, showUngroupedDevices, showUnreserved } =
+        routesConfig;
     return (
         <DeviceGroupAppEnvProvider variables={envVariables}>
             <DeviceGroupModalsProvider>
@@ -34,6 +37,7 @@ export const DeviceGroupApp: FC<DeviceGroupAppProps> = ({ routesConfig, envVaria
                     {showUngroupedDevices && (
                         <Route path="ungrouped" element={<UngroupedDevicesPage />} />
                     )}
+                    {showUnreserved && <Route path="unreserved" element={<UnreservedPage />} />}
                     {showAllDeviceGroups && (
                         <Route path="detail-view/:id" element={<DetailViewGroupPage />} />
                     )}

@@ -10,7 +10,7 @@ export const useDetailViewGroupPageEffects = () => {
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
     const { locationProps, cardProps } = useDeviceGroupDetailViewLogic({
         deviceGroup,
-        owner: deviceGroup?.organizationId,
+        owner: deviceGroup?.organization?.name,
         allTypes
     });
 

@@ -7,6 +7,7 @@ import {
   StandardCompliance,
 } from '../utils/enums';
 import { DeviceDTO } from '../pods/device/dto';
+import { OrganizationDTO } from '../pods/organization/dto';
 
 export interface IDeviceGroup {
   id: number;
@@ -31,6 +32,7 @@ export interface IDeviceGroup {
   labels?: string[];
 
   devices?: DeviceDTO[];
+  organization?: Pick<OrganizationDTO, 'name'>;
 
   buyerId?: number;
   buyerAddress?: string;

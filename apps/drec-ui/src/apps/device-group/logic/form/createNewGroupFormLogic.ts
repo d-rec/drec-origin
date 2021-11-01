@@ -1,4 +1,4 @@
-import { TCreateNewGroupFormLogic } from './types';
+import { TCreateNewGroupFormLogic } from '../modals/types';
 import * as yup from 'yup';
 
 export const useCreateNewGroupFormLogic: TCreateNewGroupFormLogic = (handleClose, group) => {

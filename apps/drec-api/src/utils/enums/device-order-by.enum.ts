@@ -1,5 +1,5 @@
 export enum DeviceOrderBy {
-  OffTaker = 'Off Taker',
+  OffTaker = 'Offtaker',
   FuelCode = 'Fuel code',
   Country = 'Country',
   StandardCompliance = 'Standard Compliance',

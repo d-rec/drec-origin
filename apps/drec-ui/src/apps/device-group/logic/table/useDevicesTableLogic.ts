@@ -29,7 +29,7 @@ export const useDevicesTableLogic = (
             installation: 'Installation',
             capacity: 'Capacity',
             age: 'Age',
-            offTaker: 'Off Taker',
+            offTaker: 'Offtaker',
             sector: 'Sector',
             standardCompliance: 'Standard Compliance'
         },

@@ -3,7 +3,7 @@ import { DeviceGroupDTO, CodeNameDTO } from '@energyweb/origin-drec-api-client';
 
 type TUseDeviceGroupDetailViewLogicArgs = {
     deviceGroup: DeviceGroupDTO;
-    owner: number;
+    owner: string;
     allTypes: CodeNameDTO[];
 };
 

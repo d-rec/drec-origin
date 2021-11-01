@@ -1,0 +1,28 @@
+import { makeStyles } from '@material-ui/styles';
+
+export const useStyles = makeStyles(() => ({
+    paper: {
+        width: '100%',
+        marginBottom: 20,
+        padding: '20px'
+    },
+    dataWrapper: {
+        width: '100%',
+        padding: 20
+    },
+    devicesWrapper: {
+        marginTop: 20,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'start',
+        alignItems: 'start',
+        gap: 20
+    },
+    buttonsWrapper: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'end',
+        marginTop: 20
+    }
+}));

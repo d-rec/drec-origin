@@ -7,8 +7,7 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
     allTypes
 }) => {
     const locationProps = {
-        // @should be changed to actual owner name
-        owner: `DeviceGroup owner organization id ${owner}`,
+        owner: `DeviceGroup owner organization ${owner}`,
         location: `${deviceGroup?.countryCode}`
     };
 
