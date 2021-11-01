@@ -24,7 +24,6 @@ import {
   StandardCompliance,
 } from '../src/utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import TestDevicesToGroup from './test-devices-for-grouping.json';
 import { DeviceGroupByDTO } from '../src/pods/device/dto/device-group-by.dto';
 
 describe('Device tests', () => {
@@ -207,14 +206,6 @@ describe('Device tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    const { body: organization } = await requestOrganization(
-      'me',
-      HttpStatus.OK,
-    );
-    const bulkDevices = TestDevicesToGroup as unknown as NewDeviceDTO[];
-    bulkDevices.map(async (device: NewDeviceDTO) => {
-      await deviceService.seed(organization.id, device);
-    });
     const orderFilter: Partial<DeviceGroupByDTO> = {
       orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
     };
@@ -222,30 +213,11 @@ describe('Device tests', () => {
       HttpStatus.OK,
       orderFilter,
     );
+    console.log('Device groups: ', deviceGroups[0].devices);
     expect(deviceGroups).to.be.instanceOf(Array);
-    expect(deviceGroups[2].name).to.eq(
-      `${Sector.Education},${OffTaker.School}`,
-    );
-    expect(deviceGroups[2].devices).to.be.instanceOf(Array);
-    expect(deviceGroups[2].devices).to.have.length(4);
-    expect(deviceGroups[2].devices[0].offTaker).to.eq(OffTaker.School);
-    expect(deviceGroups[2].devices[1].offTaker).to.eq(OffTaker.School);
-    expect(deviceGroups[2].devices[2].offTaker).to.eq(OffTaker.School);
-    expect(deviceGroups[2].devices[3].offTaker).to.eq(OffTaker.School);
-    expect(deviceGroups[2].devices[0].sector).to.eq(Sector.Education);
-    expect(deviceGroups[2].devices[1].sector).to.eq(Sector.Education);
-    expect(deviceGroups[2].devices[2].sector).to.eq(Sector.Education);
-    expect(deviceGroups[2].devices[3].sector).to.eq(Sector.Education);
+    expect(deviceGroups[0].devices[0].offTaker).to.eq(OffTaker.HealthFacility);
+    expect(deviceGroups[0].devices[0].sector).to.eq(Sector.Agriculture);
   });
-
-  const requestOrganization = async (
-    url: string,
-    status: HttpStatus,
-  ): Promise<any> =>
-    await request(app.getHttpServer())
-      .get(`/organization/${url}`)
-      .set('Authorization', `Bearer ${currentAccessToken}`)
-      .expect(status);
 
   const requestDevice = async (
     url: string,
