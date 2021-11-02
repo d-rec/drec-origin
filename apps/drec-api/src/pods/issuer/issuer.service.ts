@@ -156,8 +156,8 @@ export class IssuerService {
     if (num === 0) {
       return num;
     }
-    const m = Number((Math.abs(num) * 100).toPrecision(15));
-    return (Math.round(m) / 100) * Math.sign(num);
+    const precision = 2;
+    return Math.round(1.15 * 10 ** precision) / 10 ** precision;
   }
 
   private async getDeviceFullReads(
