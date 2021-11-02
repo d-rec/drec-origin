@@ -38,7 +38,6 @@ import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
-import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
