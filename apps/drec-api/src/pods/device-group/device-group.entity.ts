@@ -88,9 +88,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   buyerAddress: string;
 
   @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
+    type: 'float',
     default: 0.0,
     nullable: true,
   })

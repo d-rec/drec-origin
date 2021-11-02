@@ -131,8 +131,8 @@ export class IssuerService {
     // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
 
     const totalReadValueKw = group.leftoverReads
-      ? totalReadValueW / 10 ** 3 + Number(group.leftoverReads)
-      : totalReadValueW / 10 ** -3;
+      ? totalReadValueW / 10 ** 3 + group.leftoverReads
+      : totalReadValueW / 10 ** 3;
     const { integralVal, decimalVal } =
       this.separateIntegerAndDecimal(totalReadValueKw);
     await this.groupService.updateLeftOverRead(group.id, decimalVal);
@@ -157,7 +157,7 @@ export class IssuerService {
       return num;
     }
     const precision = 2;
-    return Math.round(1.15 * 10 ** precision) / 10 ** precision;
+    return Math.round(num * 10 ** precision) / 10 ** precision;
   }
 
   private async getDeviceFullReads(

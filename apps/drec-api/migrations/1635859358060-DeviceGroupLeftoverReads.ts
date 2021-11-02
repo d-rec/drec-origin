@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class DeviceGroupLeftoverReads1635785881039
+export class DeviceGroupLeftoverReads1635859358060
   implements MigrationInterface
 {
-  name = 'DeviceGroupLeftoverReads1635785881039';
+  name = 'DeviceGroupLeftoverReads1635859358060';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device_group" ADD "leftoverReads" numeric(10,2) DEFAULT '0'`,
+      `ALTER TABLE "device_group" ADD "leftoverReads" double precision DEFAULT '0'`,
     );
   }
 
