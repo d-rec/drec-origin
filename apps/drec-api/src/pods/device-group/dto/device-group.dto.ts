@@ -122,6 +122,11 @@ export class DeviceGroupDTO implements IDeviceGroup {
   buyerId: number;
 
   @IsOptional()
+  @ApiPropertyOptional({ type: Number })
+  @IsNumber()
+  leftoverReads: number;
+
+  @IsOptional()
   @ApiPropertyOptional({ type: String })
   @IsString()
   buyerAddress: string;

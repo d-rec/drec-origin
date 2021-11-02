@@ -31,6 +31,8 @@ export interface IDeviceGroup {
 
   labels?: string[];
 
+  leftoverReads?: number; // in KW
+
   devices?: DeviceDTO[];
   organization?: Pick<OrganizationDTO, 'name'>;
 

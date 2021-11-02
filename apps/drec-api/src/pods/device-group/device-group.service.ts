@@ -38,7 +38,6 @@ import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
-import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
@@ -246,6 +245,16 @@ export class DeviceGroupService {
     updatedGroup.devices = await this.deviceService.findForGroup(
       deviceGroup.id,
     );
+    return updatedGroup;
+  }
+
+  async updateLeftOverRead(
+    id: number,
+    leftOverRead: number,
+  ): Promise<DeviceGroupDTO> {
+    const deviceGroup = await this.findById(id);
+    deviceGroup.leftoverReads = leftOverRead;
+    const updatedGroup = await this.repository.save(deviceGroup);
     return updatedGroup;
   }
 

@@ -18,7 +18,6 @@ import {
   StandardCompliance,
 } from '../../utils/enums';
 import { Device } from '../device';
-import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -87,6 +86,15 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column({ nullable: true })
   @IsString()
   buyerAddress: string;
+
+  @Column({
+    type: 'float',
+    default: 0.0,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  leftoverReads: number;
 
   devices?: Device[];
   organization?: Pick<IFullOrganization, 'name'>;
