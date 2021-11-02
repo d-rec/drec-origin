@@ -106,7 +106,7 @@ export const useAppContainerEffects = () => {
     };
     const certificateMenu = getCertificateMenu({
         isOpen: isCertificateTabActive,
-        showSection: userIsActive && userHasOrg,
+        showSection: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached,
         ...certificateRoutesConfig
     });
 
