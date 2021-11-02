@@ -249,6 +249,16 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
+  async updateLeftOverRead(
+    id: number,
+    leftOverRead: number,
+  ): Promise<DeviceGroupDTO> {
+    const deviceGroup = await this.findById(id);
+    deviceGroup.leftoverReads = leftOverRead;
+    const updatedGroup = await this.repository.save(deviceGroup);
+    return updatedGroup;
+  }
+
   async remove(id: number, organizationId: number): Promise<void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 

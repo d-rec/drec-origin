@@ -16,7 +16,7 @@ import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { IDevice } from '../../models';
-import { DeviceGroupDTO } from '../device-group/dto';
+import { DeviceGroup } from '../device-group/device-group.entity';
 
 @Injectable()
 export class IssuerService {
@@ -44,7 +44,7 @@ export class IssuerService {
 
     const groups = await this.groupService.getAll();
     await Promise.all(
-      groups.map(async (group: DeviceGroupDTO) => {
+      groups.map(async (group: DeviceGroup) => {
         group.devices = await this.deviceService.findForGroup(group.id);
         return await this.issueCertificateForGroup(group, startDate, endDate);
       }),
@@ -52,7 +52,7 @@ export class IssuerService {
   }
 
   private async issueCertificateForGroup(
-    group: DeviceGroupDTO,
+    group: DeviceGroup,
     startDate: DateTime,
     endDate: DateTime,
   ): Promise<void> {
@@ -87,8 +87,15 @@ export class IssuerService {
       return;
     }
 
-    // Convert from W to kW
-    const totalReadValueKw = Math.round(totalReadValue * 10 ** -3);
+    const totalReadValueKw = await this.handleLeftoverReads(
+      group,
+      +totalReadValue,
+    );
+
+    if (!totalReadValueKw) {
+      return;
+    }
+
     const deviceGroup = {
       ...group,
       devices: [],
@@ -110,6 +117,37 @@ export class IssuerService {
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
     return await this.issueCertificate(issuance);
+  }
+
+  private async handleLeftoverReads(
+    group: DeviceGroup,
+    totalReadValueW: number,
+  ): Promise<number> {
+    // Logic
+    // 1. Get the accummulated read values from devices
+    // 2. Transform current value from watts to kw
+    // 3. Add any leftover value from group to the current total value
+    // 4. Separate all decimal values from the curent kw value and store it as leftover value to the device group
+    // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
+
+    const totalReadValueKw = group.leftoverReads
+      ? totalReadValueW * 10 ** -3 + Number(group.leftoverReads)
+      : totalReadValueW * 10 ** -3;
+    const integerReadValueKw = Math.floor(totalReadValueKw);
+    const leftOverReadValueKw = this.roundDecimalNumber(
+      totalReadValueKw - integerReadValueKw,
+    );
+    await this.groupService.updateLeftOverRead(group.id, leftOverReadValueKw);
+
+    return integerReadValueKw;
+  }
+
+  private roundDecimalNumber(num: number): number {
+    if (num === 0) {
+      return num;
+    }
+    const m = Number((Math.abs(num) * 100).toPrecision(15));
+    return (Math.round(m) / 100) * Math.sign(num);
   }
 
   private async getDeviceFullReads(
