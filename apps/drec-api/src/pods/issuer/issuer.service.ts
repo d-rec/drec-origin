@@ -89,7 +89,7 @@ export class IssuerService {
 
     const totalReadValueKw = await this.handleLeftoverReads(
       group,
-      +totalReadValue,
+      totalReadValue,
     );
 
     if (!totalReadValueKw) {
