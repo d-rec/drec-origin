@@ -16,15 +16,18 @@ export const useGenerateChartLabels = ({
     format
 }: TUseGenerateChartLabelsArgs) => {
     const labels: string[] = [];
-    let current = start;
 
-    while (dayjs(current).isBefore(dayjs(end))) {
+    for (
+        let current = start;
+        current < end;
+        current = dayjs(current).add(multiplier, TimeUnitPluralEnum.minutes).toDate()
+    ) {
+        if (labels.includes(dayjs(current).format(format))) {
+            continue;
+        }
         const formatted = dayjs(current).format(format);
-
-        const date = dayjs(current).add(multiplier, TimeUnitPluralEnum.minutes).toDate();
-
         labels.push(formatted);
-        current = date;
     }
+
     return labels;
 };
