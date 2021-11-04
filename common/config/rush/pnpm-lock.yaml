@@ -27,6 +27,7 @@ specifiers:
   '@material-ui/lab': 5.0.0-alpha.43
   '@material-ui/styles': 5.0.0-beta.4
   '@nestjs-modules/mailer': ^1.6.0
+  '@nestjs/bull': 0.4.2
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13
   '@nestjs/config': 0.6.3
@@ -175,6 +176,7 @@ dependencies:
   '@material-ui/lab': 5.0.0-alpha.43_c247c90764275636850552337eaaff16
   '@material-ui/styles': 5.0.0-beta.4_6e44cfea672f844fe365824ce49901bd
   '@nestjs-modules/mailer': 1.6.0_5a34d5120a791a9ff54e7665b56346dd
+  '@nestjs/bull': 0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
   '@nestjs/config': 0.6.3_d7cd252d64d37aa44636795684f471c1
@@ -5753,6 +5755,17 @@ packages:
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
       '@nestjs/core': 7.6.18_7a3a1497da37e5ec1892d251d02d75a3
       bull: 3.22.9
+    dev: false
+
+  /@nestjs/bull/0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f:
+    resolution: {integrity: sha512-HYRMbgqoUIpGplXN8kaZ23E/yHn6TRrQ297ILRqaHTxBp4vO+XNLfL1qUmJ4Z6weufsNKGg0xcX4dSC5AhXV9g==}
+    peerDependencies:
+      '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0
+      '@nestjs/core': ^6.10.11 || ^7.0.0 || ^8.0.0
+      bull: ^3.3 || ^3.22.0
+    dependencies:
+      '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
+      '@nestjs/core': 7.6.13_cc6176a3c1ea342f4d67886e21f85e5f
     dev: false
 
   /@nestjs/cli/7.5.4:
@@ -24868,7 +24881,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-zwaIPHNIup4IqadkP3WKFgrtOyfofg43Ijlgwwe2zP8RKO2m/uNO4VIn+xKVPmU6+owTYdVByly4XQqQRSUByA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-XW/Qgom7v4uLMxamdzltdsC7ru2uSCYrCCQs+mpkRk0Odjrg+vePT/8/rkpyV/KnJTKYyJiawQvH3SOkM1cxwQ==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24882,6 +24895,7 @@ packages:
       '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
       '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@nestjs-modules/mailer': 1.6.0_5a34d5120a791a9ff54e7665b56346dd
+      '@nestjs/bull': 0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f
       '@nestjs/cli': 7.5.4
       '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
       '@nestjs/config': 0.6.3_d7cd252d64d37aa44636795684f471c1
@@ -24956,6 +24970,7 @@ packages:
       - '@nestjs/microservices'
       - '@nestjs/websockets'
       - bufferutil
+      - bull
       - cache-manager
       - canvas
       - debug

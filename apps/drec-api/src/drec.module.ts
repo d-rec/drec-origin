@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import path from 'path';
 import { entities as IssuerEntities } from '@energyweb/issuer-api';
@@ -76,6 +77,12 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
+const QueueingModule = () => {
+  return BullModule.forRoot({
+    redis: process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
+  });
+};
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -83,6 +90,7 @@ const OriginAppTypeOrmModule = () => {
       isGlobal: true,
     }),
     OriginAppTypeOrmModule(),
+    QueueingModule(),
     ScheduleModule.forRoot(),
     AuthModule,
     MailModule,

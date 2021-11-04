@@ -50,6 +50,7 @@
     "@energyweb/origin-backend-utils": "1.6.2-alpha.1634225870.0",
     "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
     "@nestjs-modules/mailer": "^1.6.0",
+    "@nestjs/bull": "0.4.2",
     "@nestjs/common": "7.6.13",
     "@nestjs/config": "0.6.3",
     "@nestjs/core": "7.6.13",
