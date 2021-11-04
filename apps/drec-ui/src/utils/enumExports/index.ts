@@ -29,10 +29,10 @@ export enum EmailConfirmationResponse {
 }
 
 export enum ReadingsWindowEnum {
-    Day = '1d',
-    Week = '1w',
-    Month = '1mo',
-    Year = '1y'
+    Day = '1h',
+    Week = '1d',
+    Month = '1w',
+    Year = '1mo'
 }
 
 export enum TimeUnitPluralEnum {
