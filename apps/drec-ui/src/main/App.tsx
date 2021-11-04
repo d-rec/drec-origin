@@ -7,7 +7,6 @@ import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
-// import { DeviceApp } from 'apps/device';
 import { OrganizationApp } from 'apps/organization';
 import { DeviceGroupApp } from 'apps/device-group/view/DeviceGroupApp';
 
@@ -47,18 +46,6 @@ export const App: FC<AppProps> = memo(
                         <CircularProgress />
                     ) : (
                         <>
-                            {/* <Route
-                                path="device/*"
-                                element={
-                                    <DeviceApp
-                                        routesConfig={deviceRoutes}
-                                        envVariables={{
-                                            googleMapsApiKey:
-                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                                        }}
-                                    />
-                                }
-                            /> */}
                             <Route
                                 path="device-group/*"
                                 element={
