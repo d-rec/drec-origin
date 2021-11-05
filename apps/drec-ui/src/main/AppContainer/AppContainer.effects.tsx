@@ -5,7 +5,6 @@ import {
 } from '@energyweb/origin-drec-api-client';
 import { useUser, useAxiosInterceptors } from 'api';
 import { getOrganizationMenu, TGetOrganizationMenuArgs } from 'apps/organization';
-import { getDeviceMenu, TGetDeviceMenuArgs } from 'apps/device';
 import { getDeviceGroupMenu, TGetDeviceGroupMenuArgs } from 'apps/device-group';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from 'apps/user';
 import { useActiveMenuTab, useTopbarButtonList } from 'shared';
@@ -14,7 +13,6 @@ import { isRole } from 'utils';
 
 export type RoutesConfig = {
     orgRoutes: Omit<TGetOrganizationMenuArgs, 'isOpen' | 'showSection'>;
-    deviceRoutes: Omit<TGetDeviceMenuArgs, 'isOpen' | 'showSection'>;
     deviceGroupRoutes: Omit<TGetDeviceGroupMenuArgs, 'isOpen' | 'showSection'>;
     certificateRoutes: Omit<TGetCertificateMenuArgs, 'isOpen' | 'showSection'>;
     accountRoutes: Omit<TGetAccountMenuArgs, 'isOpen' | 'showSection'>;
@@ -70,18 +68,6 @@ export const useAppContainerEffects = () => {
         ...orgRoutesConfig
     });
 
-    const deviceRoutesConfig: RoutesConfig['deviceRoutes'] = {
-        showAllDevices: true,
-        showMapView: true,
-        showMyDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
-        showRegisterDevice: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin
-    };
-    const deviceMenu = getDeviceMenu({
-        isOpen: isDeviceTabActive,
-        showSection: true,
-        ...deviceRoutesConfig
-    });
-
     const accountRoutesConfig: RoutesConfig['accountRoutes'] = {
         showUserProfile: isAuthenticated
     };
@@ -133,7 +119,6 @@ export const useAppContainerEffects = () => {
 
     const routesConfig: RoutesConfig = {
         orgRoutes: orgRoutesConfig,
-        deviceRoutes: deviceRoutesConfig,
         deviceGroupRoutes: deviceGroupRoutesConfig,
         certificateRoutes: certificateRoutesConfig,
         accountRoutes: accountRoutesConfig,

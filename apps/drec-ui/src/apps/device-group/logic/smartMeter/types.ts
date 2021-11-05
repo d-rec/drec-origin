@@ -1,5 +1,5 @@
 import { AggregatedReadDTO } from '@energyweb/origin-drec-api-client';
-import { ReadingsWindowEnum } from 'utils';
+import { DayJsTimeMultiplier, ReadingsWindowEnum } from 'utils';
 
 export type TUseSmartMeterChartSelectorsArgs = {
     startDate: Date;
@@ -15,7 +15,7 @@ export type TSetDateBasedOnWindowArgs = {
 
 export type TInterval = {
     label: string;
-    multiplier: number;
+    multiplier: DayJsTimeMultiplier;
     format: string;
 };
 
@@ -33,6 +33,6 @@ export type TUseChartDataLogicArgs = {
 export type TUseGenerateChartLabelsArgs = {
     start: Date;
     end: Date;
-    multiplier: number;
+    multiplier: DayJsTimeMultiplier;
     format: string;
 };

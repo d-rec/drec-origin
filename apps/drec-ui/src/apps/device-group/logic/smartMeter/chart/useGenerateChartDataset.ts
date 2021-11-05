@@ -1,9 +1,10 @@
 import { AggregatedReadDTO } from '@energyweb/origin-drec-api-client';
 import { useTheme } from '@material-ui/core';
+import { getMegawattsFromWatts } from 'utils';
 
 export const useGenerateChartDataset = (reads: AggregatedReadDTO[]) => {
     const theme = useTheme();
-    const currentData = reads.map((read) => read.value);
+    const currentData = reads.map((read) => getMegawattsFromWatts(read.value));
 
     return [
         {

@@ -1,4 +1,4 @@
 export * from './user';
-export * from './device';
+export * from './device-group';
 export * from './organization';
 export * from './certificate';
