@@ -93,7 +93,7 @@ describe('Users tests', () => {
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
       telephone: 'telephone',
-      password: 'test',
+      password: 'testUser2',
     };
     await postUser('', HttpStatus.CREATED, partialUser);
   });
@@ -105,7 +105,7 @@ describe('Users tests', () => {
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
       telephone: 'telephone',
-      password: 'test',
+      password: 'testUser2',
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
   });
