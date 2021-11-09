@@ -20,10 +20,10 @@ export class CreateUserDTO
   implements UserRegistrationData
 {
   @ApiProperty({ type: String })
-  @MinLength(6)
   @MaxLength(20)
-  @Matches(/((?=.*[0-9])(?=.*[a-z]).{6,})/, {
-    message: 'password must contain at least one digit',
+  @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
+    message:
+      'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
   })
   @IsNotEmpty()
   @IsString()
