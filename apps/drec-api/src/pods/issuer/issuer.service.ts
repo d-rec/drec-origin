@@ -46,6 +46,12 @@ export class IssuerService {
     await Promise.all(
       groups.map(async (group: DeviceGroup) => {
         group.devices = await this.deviceService.findForGroup(group.id);
+        const organization = await this.organizationService.findOne(
+          group.organizationId,
+        );
+        group.organization = {
+          name: organization.name,
+        };
         return await this.issueCertificateForGroup(group, startDate, endDate);
       }),
     );
