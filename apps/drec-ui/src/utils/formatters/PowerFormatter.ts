@@ -22,4 +22,10 @@ export class PowerFormatter {
             includeDisplayUnit ? ' ' + PowerFormatter.displayUnit : ''
         }`;
     }
+
+    static formatDisplay(powerInWatt: number, includeDisplayUnit?: boolean): string {
+        return `${PowerFormatter.formatter.format(powerInWatt)}${
+            includeDisplayUnit ? ' ' + PowerFormatter.displayUnit : ''
+        }`;
+    }
 }

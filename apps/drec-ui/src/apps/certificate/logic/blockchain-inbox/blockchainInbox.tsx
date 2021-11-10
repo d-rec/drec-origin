@@ -53,7 +53,7 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
                     const startDate = formatDate(certificate.generationStartTime * 1000);
                     const endDate = formatDate(certificate.generationEndTime * 1000);
                     const generationTimeText = `${startDate} - ${endDate}`;
-                    const formattedEnergy = PowerFormatter.format(
+                    const formattedEnergy = PowerFormatter.formatDisplay(
                         parseInt(certificate.energy.publicVolume),
                         true
                     );

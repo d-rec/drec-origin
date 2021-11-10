@@ -1,6 +1,11 @@
 import { makeStyles } from '@material-ui/styles';
 
 export const useStyles = makeStyles(() => ({
+    wrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 20
+    },
     paper: {
         width: '100%',
         marginBottom: 20,

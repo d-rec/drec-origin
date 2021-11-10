@@ -52,7 +52,19 @@ export class DeviceGroupService {
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
-    return this.repository.find();
+    const groups = await this.repository.find();
+    const groupsWithOrganization = await Promise.all(
+      groups.map(async (group: DeviceGroupDTO) => {
+        const organization = await this.organizationService.findOne(
+          group.organizationId,
+        );
+        group.organization = {
+          name: organization.name,
+        };
+        return group;
+      }),
+    );
+    return groupsWithOrganization;
   }
 
   async findById(id: number): Promise<DeviceGroupDTO> {
@@ -68,6 +80,7 @@ export class DeviceGroupService {
     );
     deviceGroup.organization = {
       name: organization.name,
+      blockchainAccountAddress: organization.blockchainAccountAddress,
     };
     return deviceGroup;
   }
@@ -99,6 +112,7 @@ export class DeviceGroupService {
           ...deviceGroup,
           organization: {
             name: organization.name,
+            blockchainAccountAddress: organization.blockchainAccountAddress,
           },
           selected: false,
         };
