@@ -7,3 +7,4 @@ export * from './PublicDeviceGroupCard';
 export * from './PublicDeviceGroupCardContent';
 export * from './DetailViewCard';
 export * from './NoItems';
+export * from './OperatorApprovalMessageCard';
