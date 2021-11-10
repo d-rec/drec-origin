@@ -4,6 +4,8 @@ import {
   CertificateService,
   CERTIFICATE_SERVICE_TOKEN,
   IIssueCommandParams,
+  IIssuedCertificate,
+  ITransferCommand,
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { DateTime } from 'luxon';
@@ -32,7 +34,7 @@ export class IssuerService {
     private baseReadsService: BaseReadsService,
   ) {}
 
-  // @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   @Cron('0 30 23 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
@@ -51,6 +53,7 @@ export class IssuerService {
         );
         group.organization = {
           name: organization.name,
+          blockchainAccountAddress: organization.blockchainAccountAddress,
         };
         return await this.issueCertificateForGroup(group, startDate, endDate);
       }),
@@ -122,7 +125,31 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    return await this.issueCertificate(issuance);
+    const issuedCertificate = await this.issueCertificate(issuance);
+    await this.transferCertificateToBuyer(group, issuedCertificate);
+    return;
+  }
+
+  private async transferCertificateToBuyer(
+    group: DeviceGroup,
+    certificate: IIssuedCertificate<ICertificateMetadata>,
+  ) {
+    if (
+      !certificate ||
+      !group.buyerAddress ||
+      !group.buyerId ||
+      !group.organization?.blockchainAccountAddress
+    ) {
+      return;
+    }
+    this.logger.log(`Transfering a certificate`);
+    const transferCommand: ITransferCommand = {
+      certificateId: certificate.id,
+      fromAddress: group.organization.blockchainAccountAddress,
+      toAddress: group.buyerAddress,
+      energyValue: certificate.energy.publicVolume,
+    };
+    await this.certificateService.transfer(transferCommand);
   }
 
   private async handleLeftoverReads(
@@ -182,10 +209,10 @@ export class IssuerService {
 
   private async issueCertificate(
     reading: IIssueCommandParams<ICertificateMetadata>,
-  ): Promise<void> {
+  ): Promise<IIssuedCertificate<ICertificateMetadata>> {
     this.logger.log(`Issuing a certificate for reading`);
     const issuedCertificate = await this.certificateService.issue(reading);
     this.logger.log(`Issued a certificate with ID ${issuedCertificate.id}`);
-    return;
+    return issuedCertificate;
   }
 }

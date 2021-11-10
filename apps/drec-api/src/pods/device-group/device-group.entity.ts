@@ -97,5 +97,5 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   leftoverReads: number;
 
   devices?: Device[];
-  organization?: Pick<IFullOrganization, 'name'>;
+  organization?: Pick<IFullOrganization, 'name' | 'blockchainAccountAddress'>;
 }
