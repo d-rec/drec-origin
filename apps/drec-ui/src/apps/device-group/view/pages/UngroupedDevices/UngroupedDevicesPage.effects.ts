@@ -40,7 +40,7 @@ export const useUngrouppedDevicesPageEffects = () => {
     };
 
     const handleChecked = (id: UngroupedDeviceDTO['id'], checked: boolean) => {
-        const selectedGroupedDevicesList = groupedDevicesList.map(
+        const selectedGroupedDevicesList = groupedDevicesList?.map(
             (groupedDeviceList: GroupedDevicesDTO) => {
                 const groupIndex = groupedDeviceList.devices.findIndex(
                     (selectableDevice) => selectableDevice.id === id
@@ -56,7 +56,7 @@ export const useUngrouppedDevicesPageEffects = () => {
 
     const onAutoGroupSelected = () => {
         const autoSelected: GroupedDevicesDTO[] = selectedDevicesList
-            .map((selectedGroup: GroupedDevicesDTO) => {
+            ?.map((selectedGroup: GroupedDevicesDTO) => {
                 const selectedDevices = selectedGroup?.devices?.filter(
                     (device: UngroupedDeviceDTO) => device.selected === true
                 );

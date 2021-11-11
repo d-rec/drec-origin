@@ -68,6 +68,23 @@ export class DeviceGroupController {
     return this.deviceGroupService.getUnreserved(filterDto);
   }
 
+  @Get('/reserved')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.Buyer)
+  @ApiOkResponse({
+    type: [DeviceGroupDTO],
+    description: 'Returns all reserved Device Groups',
+  })
+  async getReserved(
+    @UserDecorator() { id, blockchainAccountAddress }: ILoggedInUser,
+    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<DeviceGroupDTO[]> {
+    return this.deviceGroupService.getReserved(filterDto, {
+      id,
+      blockchainAccountAddress,
+    });
+  }
+
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.OrganizationUser)
@@ -126,6 +143,25 @@ export class DeviceGroupController {
     @Body() ids: ReserveGroupsDTO,
   ): Promise<DeviceGroupDTO[]> {
     return await this.deviceGroupService.reserveGroup(
+      ids,
+      organizationId,
+      blockchainAccountAddress,
+    );
+  }
+
+  @Post('/unreserve')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Unreserves device groups from buyer',
+  })
+  public async unreserve(
+    @UserDecorator()
+    { organizationId, blockchainAccountAddress }: ILoggedInUser,
+    @Body() ids: ReserveGroupsDTO,
+  ): Promise<void> {
+    return await this.deviceGroupService.unreserveGroup(
       ids,
       organizationId,
       blockchainAccountAddress,

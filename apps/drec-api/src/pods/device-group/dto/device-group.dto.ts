@@ -119,15 +119,15 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsOptional()
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
-  buyerId: number;
+  buyerId!: number | null;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  buyerAddress!: string | null;
 
   @IsOptional()
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   leftoverReads: number;
-
-  @IsOptional()
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  buyerAddress: string;
 }

@@ -36,6 +36,6 @@ export interface IDeviceGroup {
   devices?: DeviceDTO[];
   organization?: Pick<OrganizationDTO, 'name'>;
 
-  buyerId?: number;
-  buyerAddress?: string;
+  buyerId?: number | null;
+  buyerAddress?: string | null;
 }
