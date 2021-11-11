@@ -13,7 +13,7 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
     redeemedCertificates,
     allFuelTypes
 }) => {
-    return redeemedCertificates?.length > 0 && deviceGroups.length > 0
+    return redeemedCertificates?.length > 0 && deviceGroups?.length > 0
         ? redeemedCertificates?.map((certificate) => {
               const compliance = 'I-REC';
               const fullCertificateData = blockchainCertificates.find(
