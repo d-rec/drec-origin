@@ -1,4 +1,4 @@
-import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client/dist/js/src';
+import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { CertificateMetadata, DetailedCertificate } from '../../types';
 
 export const useMetadataFromCertificate = (

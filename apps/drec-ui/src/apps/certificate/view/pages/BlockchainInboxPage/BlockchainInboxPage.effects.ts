@@ -33,7 +33,7 @@ export const useBlockchainInboxPageEffects = () => {
 
     const actions: ListAction[] = [
         {
-            name: 'Retire',
+            name: 'Redeem',
             component: RetireAction
         },
         {
