@@ -42,7 +42,7 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                 <Grid item xs={6}>
                     <FormDatePicker
                         control={control}
-                        field={fields[1]}
+                        field={fields[0]}
                         errorExists={!isEmpty(errors[fields[0].name])}
                         errorText={(errors[fields[0].name] as any)?.message ?? ''}
                     />
@@ -50,7 +50,7 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                 <Grid item xs={6}>
                     <FormDatePicker
                         control={control}
-                        field={fields[2]}
+                        field={fields[1]}
                         errorExists={!isEmpty(errors[fields[1].name])}
                         errorText={(errors[fields[1].name] as any)?.message ?? ''}
                     />

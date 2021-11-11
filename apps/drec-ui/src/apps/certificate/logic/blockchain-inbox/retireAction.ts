@@ -19,8 +19,8 @@ export const useRetireActionLogic: TUseRetireActionLogic<CertificateDTO['id']> =
         : [];
 
     return {
-        title: 'Selected For Retirement',
-        buttonText: 'Retire',
+        title: 'Selected For Redemption ',
+        buttonText: 'Redeem',
         selectedItems
     };
 };

@@ -39,7 +39,6 @@ export const useAppContainerEffects = () => {
         });
     const userHasOrg = Boolean(user?.organization?.id);
     const userIsOrgAdmin = isRole(user?.role, Role.OrganizationAdmin);
-
     const userIsDeviceManagerOrAdmin = isRole(user?.role, Role.DeviceOwner, Role.OrganizationAdmin);
     const userIsActive = user && user.status === UserStatus.Active;
     const userIsAdminOrSupport = isRole(user?.role, Role.Admin, Role.SupportAgent);
@@ -88,7 +87,8 @@ export const useAppContainerEffects = () => {
     });
 
     const certificateRoutesConfig: RoutesConfig['certificateRoutes'] = {
-        showBlockchainInbox: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached
+        showBlockchainInbox: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached,
+        showRedemptionReport: userIsActive && userHasOrg && userOrgHasBlockchainAccountAttached
     };
     const certificateMenu = getCertificateMenu({
         isOpen: isCertificateTabActive,

@@ -9,7 +9,7 @@ const prepareDevicesData = (device: DeviceDTO) => ({
     status: device.status,
     address: device.address,
     installation: device.installationConfiguration,
-    capacity: PowerFormatter.format(device.capacity, true),
+    capacity: PowerFormatter.formatDisplay(device.capacity, true),
     age: device.commissioningDate,
     offTaker: device.offTaker,
     sector: device.sector,

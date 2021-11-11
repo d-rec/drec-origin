@@ -6,17 +6,18 @@ import {
     CertificateEnvVariables,
     TransactionPendingProvider
 } from './context';
-import { BlockchainInboxPage, DetailViewPage } from './pages';
+import { BlockchainInboxPage, DetailViewPage, RedemptionReportPage } from './pages';
 
 export interface CertificateAppProps {
     routesConfig: {
         showBlockchainInbox: boolean;
+        showRedemptionReport: boolean;
     };
     envVariables: CertificateEnvVariables;
 }
 
 export const CertificateApp: FC<CertificateAppProps> = ({ routesConfig, envVariables }) => {
-    const { showBlockchainInbox } = routesConfig;
+    const { showBlockchainInbox, showRedemptionReport } = routesConfig;
 
     return (
         <CertificateAppEnvProvider variables={envVariables}>
@@ -30,6 +31,9 @@ export const CertificateApp: FC<CertificateAppProps> = ({ routesConfig, envVaria
                             </TransactionPendingProvider>
                         }
                     />
+                )}
+                {showRedemptionReport && (
+                    <Route path="redemption-report" element={<RedemptionReportPage />} />
                 )}
                 <Route path="detail-view/:id" element={<DetailViewPage />} />
                 <Route path="*" element={<PageNotFound />} />
