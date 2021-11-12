@@ -9,7 +9,6 @@ import {
   Repository,
   FindConditions,
   FindManyOptions,
-  In,
   FindOperator,
   Raw,
 } from 'typeorm';
@@ -20,7 +19,7 @@ import {
   DeviceIdsDTO,
   NewDeviceGroupDTO,
   ReserveGroupsDTO,
-  UnreservedDeviceGroupDTO,
+  SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
@@ -97,10 +96,12 @@ export class DeviceGroupService {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
-  async getUnreserved(
+  async getReservedOrUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<UnreservedDeviceGroupDTO[]> {
-    const query = this.getUnreservedFilteredQuery(filterDto);
+    selected: boolean,
+    buyerId?: number,
+  ): Promise<SelectableDeviceGroupDTO[]> {
+    const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
     const deviceGroups = await this.repository.find(query);
 
     const res = await Promise.all(
@@ -114,7 +115,7 @@ export class DeviceGroupService {
             name: organization.name,
             blockchainAccountAddress: organization.blockchainAccountAddress,
           },
-          selected: false,
+          selected,
         };
       }),
     );
@@ -123,14 +124,15 @@ export class DeviceGroupService {
 
   async reserveGroup(
     data: ReserveGroupsDTO,
-    organizationId: number,
-    blockchainAccountAddress: string | undefined,
+    buyerId: number,
+    blockchainAccountAddress?: string,
   ): Promise<DeviceGroupDTO[]> {
     const deviceGroups = await this.repository.findByIds(data.groupsIds);
     const updatedDeviceGroups: DeviceGroupDTO[] = [];
+
     await Promise.all(
       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        deviceGroup.buyerId = organizationId;
+        deviceGroup.buyerId = buyerId;
         if (blockchainAccountAddress) {
           deviceGroup.buyerAddress = blockchainAccountAddress;
         }
@@ -139,6 +141,27 @@ export class DeviceGroupService {
       }),
     );
 
+    return updatedDeviceGroups;
+  }
+
+  async unreserveGroup(
+    data: ReserveGroupsDTO,
+    buyerId: number,
+  ): Promise<DeviceGroupDTO[]> {
+    const deviceGroups = await this.repository.findByIds(data.groupsIds);
+    const updatedDeviceGroups: DeviceGroupDTO[] = [];
+
+    await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        if (deviceGroup.buyerId === buyerId) {
+          deviceGroup.buyerId = null;
+          deviceGroup.buyerAddress = null;
+          await this.repository.save(deviceGroup);
+        }
+        const updatedGroup = await this.repository.save(deviceGroup);
+        updatedDeviceGroups.push(updatedGroup);
+      }),
+    );
     return updatedDeviceGroups;
   }
 
@@ -438,6 +461,7 @@ export class DeviceGroupService {
 
   private getUnreservedFilteredQuery(
     filter: UnreservedDeviceGroupsFilterDTO,
+    buyerId?: number,
   ): FindManyOptions<DeviceGroup> {
     const where: FindConditions<DeviceGroup> = cleanDeep({
       countryCode: filter.country,
@@ -464,8 +488,7 @@ export class DeviceGroupService {
     }
     const query: FindManyOptions<DeviceGroup> = {
       where: {
-        buyerAddress: null,
-        buyerId: null,
+        buyerId: buyerId || null,
         ...where,
       },
       order: {

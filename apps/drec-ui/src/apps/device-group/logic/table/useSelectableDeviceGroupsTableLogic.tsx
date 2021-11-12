@@ -1,12 +1,12 @@
-import { CodeNameDTO, UnreservedDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
+import { CodeNameDTO, SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { TableComponentProps } from '@energyweb/origin-ui-core';
 import { Checkbox } from '@material-ui/core';
 import { getFuelNameFromCode } from '../../../../utils';
 
-const prepareUnreservedDeviceGroupsData = (
-    group: UnreservedDeviceGroupDTO,
+const prepareSelectableDeviceGroupsData = (
+    group: SelectableDeviceGroupDTO,
     allFuelTypes: CodeNameDTO[],
-    handleChecked: (id: UnreservedDeviceGroupDTO['id'], checked: boolean) => void
+    handleChecked: (id: SelectableDeviceGroupDTO['id'], checked: boolean) => void
 ) => ({
     id: group.id,
     country: group.countryCode,
@@ -28,12 +28,12 @@ const prepareUnreservedDeviceGroupsData = (
     )
 });
 
-export const useUnreservedDeviceGroupsTableLogic = (
-    groups: UnreservedDeviceGroupDTO[],
-    handleChecked: (id: UnreservedDeviceGroupDTO['id'], checked: boolean) => void,
+export const useSelectableDeviceGroupsTableLogic = (
+    groups: SelectableDeviceGroupDTO[],
+    handleChecked: (id: SelectableDeviceGroupDTO['id'], checked: boolean) => void,
     loading: boolean,
     allFuelTypes: CodeNameDTO[]
-): TableComponentProps<UnreservedDeviceGroupDTO['id']> => {
+): TableComponentProps<SelectableDeviceGroupDTO['id']> => {
     return {
         header: {
             country: 'Country',
@@ -51,7 +51,7 @@ export const useUnreservedDeviceGroupsTableLogic = (
         pageSize: 25,
         data:
             groups?.map((group) =>
-                prepareUnreservedDeviceGroupsData(group, allFuelTypes, handleChecked)
+                prepareSelectableDeviceGroupsData(group, allFuelTypes, handleChecked)
             ) ?? []
     };
 };

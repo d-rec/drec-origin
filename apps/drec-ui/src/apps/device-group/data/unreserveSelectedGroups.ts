@@ -1,19 +1,19 @@
 import {
     SelectableDeviceGroupDTO,
-    getDeviceGroupControllerGetUnreservedQueryKey,
-    useDeviceGroupControllerReserve,
+    getDeviceGroupControllerGetReservedQueryKey,
+    useDeviceGroupControllerUnreserve,
     ReserveGroupsDTO
 } from '@energyweb/origin-drec-api-client';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 
-export const useReserveSelectedGroups = (
+export const useUnreserveSelectedGroups = (
     selected: SelectableDeviceGroupDTO[],
     handleModalClose: () => void
 ) => {
-    const { mutate } = useDeviceGroupControllerReserve();
+    const { mutate } = useDeviceGroupControllerUnreserve();
     const queryClient = useQueryClient();
-    const currentUnreservedDeviceGroupsQueryKey = getDeviceGroupControllerGetUnreservedQueryKey();
+    const currentReservedDeviceGroupsQueryKey = getDeviceGroupControllerGetReservedQueryKey();
 
     const reserveGroupsHandler = () => {
         const data: ReserveGroupsDTO = {
@@ -23,16 +23,16 @@ export const useReserveSelectedGroups = (
             { data },
             {
                 onSuccess: () => {
-                    queryClient.resetQueries(currentUnreservedDeviceGroupsQueryKey);
+                    queryClient.resetQueries(currentReservedDeviceGroupsQueryKey);
                     showNotification(
-                        'Device groups successfully reserved',
+                        'Device groups successfully unreserved',
                         NotificationTypeEnum.Success
                     );
                     handleModalClose();
                 },
                 onError: (error: any) => {
                     showNotification(
-                        `Error while reserving device groups:
+                        `Error while unreserving device groups:
                             ${error?.response?.data?.message || ''}
                             `,
                         NotificationTypeEnum.Error

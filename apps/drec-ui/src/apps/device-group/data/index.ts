@@ -9,3 +9,5 @@ export * from './createNewGroup';
 export * from './autoSelectGroups';
 export * from './allUnreservedDeviceGroups';
 export * from './reserveSelectedGroups';
+export * from './allReservedDeviceGroups';
+export * from './unreserveSelectedGroups';

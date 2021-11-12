@@ -28,7 +28,6 @@ export const useAppContainerEffects = () => {
     const {
         isOrganizationTabActive,
         isCertificateTabActive,
-        isDeviceTabActive,
         isDeviceGroupTabActive,
         isAccountTabActive,
         isAdminTabAcive
@@ -100,7 +99,8 @@ export const useAppContainerEffects = () => {
         showAllDeviceGroups: true,
         showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
         showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
-        showUnreserved: userIsActive && userIsBuyer
+        showUnreserved: userIsActive && userHasOrg && userIsBuyer,
+        showReserved: userIsActive && userHasOrg && userIsBuyer
     };
     const deviceGroupMenu = getDeviceGroupMenu({
         isOpen: isDeviceGroupTabActive,

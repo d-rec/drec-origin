@@ -27,7 +27,7 @@ import {
   AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
-  UnreservedDeviceGroupDTO,
+  SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
   ReserveGroupsDTO,
@@ -59,13 +59,27 @@ export class DeviceGroupController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.Buyer)
   @ApiOkResponse({
-    type: [UnreservedDeviceGroupDTO],
+    type: [SelectableDeviceGroupDTO],
     description: 'Returns all unreserved Device Groups',
   })
   async getUnreserved(
     @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<UnreservedDeviceGroupDTO[]> {
-    return this.deviceGroupService.getUnreserved(filterDto);
+  ): Promise<SelectableDeviceGroupDTO[]> {
+    return this.deviceGroupService.getReservedOrUnreserved(filterDto, false);
+  }
+
+  @Get('/reserved')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.Buyer)
+  @ApiOkResponse({
+    type: [SelectableDeviceGroupDTO],
+    description: 'Returns all reserved Device Groups',
+  })
+  async getReserved(
+    @UserDecorator() { id }: ILoggedInUser,
+    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<SelectableDeviceGroupDTO[]> {
+    return this.deviceGroupService.getReservedOrUnreserved(filterDto, true, id);
   }
 
   @Get('/my')
@@ -117,19 +131,35 @@ export class DeviceGroupController {
   @Roles(Role.Buyer)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: DeviceGroupDTO,
+    type: [DeviceGroupDTO],
     description: 'Returns a new created Device group',
   })
   public async reserve(
     @UserDecorator()
-    { organizationId, blockchainAccountAddress }: ILoggedInUser,
+    { id, blockchainAccountAddress }: ILoggedInUser,
     @Body() ids: ReserveGroupsDTO,
   ): Promise<DeviceGroupDTO[]> {
     return await this.deviceGroupService.reserveGroup(
       ids,
-      organizationId,
+      id,
       blockchainAccountAddress,
     );
+  }
+
+  @Post('/unreserve')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Unreserves device groups from buyer',
+  })
+  public async unreserve(
+    @UserDecorator()
+    { id }: ILoggedInUser,
+    @Body() ids: ReserveGroupsDTO,
+  ): Promise<DeviceGroupDTO[]> {
+    return await this.deviceGroupService.unreserveGroup(ids, id);
   }
 
   @Post('multiple')

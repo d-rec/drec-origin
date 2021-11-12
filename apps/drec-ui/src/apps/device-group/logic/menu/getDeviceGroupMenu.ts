@@ -7,6 +7,7 @@ export type TGetDeviceGroupMenuArgs = {
     showMyDeviceGroups: boolean;
     showUngroupedDevices: boolean;
     showUnreserved: boolean;
+    showReserved: boolean;
     menuButtonClass?: string;
     selectedMenuItemClass?: string;
 };
@@ -20,6 +21,7 @@ export const getDeviceGroupMenu: TGetDeviceGroupMenu = ({
     showMyDeviceGroups,
     showUngroupedDevices,
     showUnreserved,
+    showReserved,
     selectedMenuItemClass,
     menuButtonClass
 }) => {
@@ -43,6 +45,11 @@ export const getDeviceGroupMenu: TGetDeviceGroupMenu = ({
             url: 'unreserved',
             label: 'Unreserved Device Groups',
             show: showUnreserved
+        },
+        {
+            url: 'reserved',
+            label: 'Reserved Device Groups',
+            show: showReserved
         }
     ];
 

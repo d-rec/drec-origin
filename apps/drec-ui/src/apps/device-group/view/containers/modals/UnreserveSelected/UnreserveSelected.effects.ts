@@ -1,21 +1,21 @@
 import { GenericModalProps } from '@energyweb/origin-ui-core';
-import { useReserveSelectedGroups } from '../../../../data';
-import { useReserveSelectedModalLogic } from '../../../../logic';
+import { useUnreserveSelectedGroups } from '../../../../data';
+import { useUnreserveSelectedModalLogic } from '../../../../logic';
 import {
     useDeviceGroupModalsStore,
     useDeviceGroupModalsDispatch,
     DeviceGroupModalsActionsEnum
 } from '../../../context';
 
-export const useReserveSelectedEffects = () => {
+export const useUnreserveSelectedEffects = () => {
     const {
-        reserveSelected: { open, selected }
+        unreserveSelected: { open, selected }
     } = useDeviceGroupModalsStore();
     const dispatchModals = useDeviceGroupModalsDispatch();
 
     const closeModal = () => {
         dispatchModals({
-            type: DeviceGroupModalsActionsEnum.RESERVE,
+            type: DeviceGroupModalsActionsEnum.UNRESERVE,
             payload: {
                 open: false,
                 selected: []
@@ -23,14 +23,14 @@ export const useReserveSelectedEffects = () => {
         });
     };
 
-    const reserveSelectedHandler = useReserveSelectedGroups(selected, closeModal);
+    const unreserveSelectedHandler = useUnreserveSelectedGroups(selected, closeModal);
 
-    const reserveHandler = () => {
-        reserveSelectedHandler();
+    const unreserveHandler = () => {
+        unreserveSelectedHandler();
         closeModal();
     };
 
-    const { text, buttons } = useReserveSelectedModalLogic(closeModal, reserveHandler);
+    const { text, buttons } = useUnreserveSelectedModalLogic(closeModal, unreserveHandler);
 
     const dialogProps: GenericModalProps['dialogProps'] = {
         maxWidth: 'sm'

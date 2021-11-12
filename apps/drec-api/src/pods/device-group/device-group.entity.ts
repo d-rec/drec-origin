@@ -79,13 +79,13 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsOptional()
   labels: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   @IsNumber()
-  buyerId: number;
+  buyerId!: number | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   @IsString()
-  buyerAddress: string;
+  buyerAddress!: string | null;
 
   @Column({
     type: 'float',

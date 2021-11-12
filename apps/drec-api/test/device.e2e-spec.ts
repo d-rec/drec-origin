@@ -213,7 +213,7 @@ describe('Device tests', () => {
       HttpStatus.OK,
       orderFilter,
     );
-    console.log('Device groups: ', deviceGroups[0].devices);
+
     expect(deviceGroups).to.be.instanceOf(Array);
     expect(deviceGroups[0].devices[0].offTaker).to.eq(OffTaker.HealthFacility);
     expect(deviceGroups[0].devices[0].sector).to.eq(Sector.Agriculture);

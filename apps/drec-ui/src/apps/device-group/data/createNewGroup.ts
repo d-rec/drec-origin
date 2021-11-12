@@ -37,7 +37,7 @@ export const useCreateNewGroup = (group: GroupedDevicesDTO, handleModalClose: ()
                 },
                 onError: (error: any) => {
                     showNotification(
-                        `Error while updating user:
+                        `Error while creating device group:
                             ${error?.response?.data?.message || ''}
                             `,
                         NotificationTypeEnum.Error

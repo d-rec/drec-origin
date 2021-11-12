@@ -5,7 +5,7 @@ import {
     useDeviceGroupsFilterFormLogic
 } from '../../../logic';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
-import { useAllDeviceFuelTypes, useUnreservedDeviceGroups } from '../../../data';
+import { useAllDeviceFuelTypes, useReservedDeviceGroups } from '../../../data';
 import { useEffect, useState } from 'react';
 import { SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 
@@ -21,17 +21,17 @@ const initialFormValues: UnreservedFormFormValues = {
     capacityRange: ''
 };
 
-export const useUnreservedPageEffects = () => {
+export const useReservedPageEffects = () => {
     const [filterUnreserved, setFilterUnreserved] = useState(initialFormValues);
     const { deviceGroups, isLoading: IsDeviceGroupsMutating } =
-        useUnreservedDeviceGroups(filterUnreserved);
+        useReservedDeviceGroups(filterUnreserved);
     const [selectedDeviceGroupList, setSelectedDeviceGroupList] = useState(deviceGroups);
     const dispatchModals = useDeviceGroupModalsDispatch();
 
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
 
     const formLogic = useDeviceGroupsFilterFormLogic(
-        filterUnreserved,
+        initialFormValues,
         allTypes,
         IsDeviceGroupsMutating
     );
@@ -65,12 +65,12 @@ export const useUnreservedPageEffects = () => {
         submitHandler
     };
 
-    const onReserveHandler = () => {
+    const onUnreserveHandler = () => {
         const autoSelected: SelectableDeviceGroupDTO[] = selectedDeviceGroupList.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === true
+            (group: SelectableDeviceGroupDTO) => group.selected === false
         );
         dispatchModals({
-            type: DeviceGroupModalsActionsEnum.RESERVE,
+            type: DeviceGroupModalsActionsEnum.UNRESERVE,
             payload: {
                 open: true,
                 selected: autoSelected
@@ -78,12 +78,12 @@ export const useUnreservedPageEffects = () => {
         });
     };
 
-    const noUnreservedDeviceGroupsTitle =
-        'Currently there aren`t any unreserved device groups for the selection criteria';
+    const noReservedDeviceGroupsTitle =
+        'Currently there aren`t any reserved device groups for the selection criteria';
 
     const disableReserveButton =
         selectedDeviceGroupList?.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === true
+            (group: SelectableDeviceGroupDTO) => group.selected === false
         ).length === 0;
 
     return {
@@ -91,8 +91,8 @@ export const useUnreservedPageEffects = () => {
         tableProps,
         formData,
         isLoading,
-        noUnreservedDeviceGroupsTitle,
-        onReserveHandler,
+        noReservedDeviceGroupsTitle,
+        onUnreserveHandler,
         disableReserveButton
     };
 };

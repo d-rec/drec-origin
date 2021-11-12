@@ -27,15 +27,17 @@ export type UnreservedFormFormValues = {
 
 type TUnreservedFormFormLogic = (
     initialValues: UnreservedFormFormValues,
-    allFuelTypes: CodeNameDTO[]
+    allFuelTypes: CodeNameDTO[],
+    isMutating: boolean
 ) => Omit<GenericFormProps<UnreservedFormFormValues>, 'submitHandler'>;
 
-export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
+export const useDeviceGroupsFilterFormLogic: TUnreservedFormFormLogic = (
     initialValues: UnreservedFormFormValues,
-    allFuelTypes: CodeNameDTO[]
+    allFuelTypes: CodeNameDTO[],
+    isMutating: boolean
 ) => {
     const gridInterconnectionOptions: FormSelectOption[] = [
-        { value: '', label: '- Clear -' },
+        { value: '', label: 'Any' },
         { value: 'Yes', label: 'Yes' },
         { value: 'No', label: 'No' }
     ];
@@ -113,7 +115,7 @@ export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
         validationMode: 'onSubmit',
         inputsVariant: 'filled',
         buttonText: 'Filter',
-        buttonDisabled: false,
+        buttonDisabled: isMutating,
         acceptInitialValues: true
     };
 };
