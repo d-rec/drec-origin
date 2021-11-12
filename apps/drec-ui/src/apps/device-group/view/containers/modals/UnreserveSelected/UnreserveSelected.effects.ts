@@ -26,11 +26,8 @@ export const useUnreserveSelectedEffects = () => {
     const unreserveSelectedHandler = useUnreserveSelectedGroups(selected, closeModal);
 
     const unreserveHandler = () => {
-        dispatchModals({
-            type: DeviceGroupModalsActionsEnum.UNRESERVE,
-            payload: { open: false, selected: [] }
-        });
         unreserveSelectedHandler();
+        closeModal();
     };
 
     const { text, buttons } = useUnreserveSelectedModalLogic(closeModal, unreserveHandler);

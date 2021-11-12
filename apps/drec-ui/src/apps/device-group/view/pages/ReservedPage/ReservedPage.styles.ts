@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/styles';
 
-export const useStyles = makeStyles(() => ({
+export const useStyles = makeStyles({
     paper: {
         width: '100%',
         marginBottom: 20,
@@ -25,4 +25,4 @@ export const useStyles = makeStyles(() => ({
         justifyContent: 'end',
         marginTop: 20
     }
-}));
+});

@@ -26,11 +26,8 @@ export const useReserveSelectedEffects = () => {
     const reserveSelectedHandler = useReserveSelectedGroups(selected, closeModal);
 
     const reserveHandler = () => {
-        dispatchModals({
-            type: DeviceGroupModalsActionsEnum.RESERVE,
-            payload: { open: false, selected: [] }
-        });
         reserveSelectedHandler();
+        closeModal();
     };
 
     const { text, buttons } = useReserveSelectedModalLogic(closeModal, reserveHandler);
