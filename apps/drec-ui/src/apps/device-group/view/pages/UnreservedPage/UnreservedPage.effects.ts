@@ -9,29 +9,31 @@ import { useAllDeviceFuelTypes, useUnreservedDeviceGroups } from '../../../data'
 import { useEffect, useState } from 'react';
 import { SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 
+const initialFormValues: UnreservedFormFormValues = {
+    country: [],
+    fuelCode: [],
+    installationConfiguration: '',
+    offTaker: '',
+    sector: '',
+    standardCompliance: '',
+    gridInterconnection: '',
+    commissioningDateRange: '',
+    capacityRange: ''
+};
+
 export const useUnreservedPageEffects = () => {
-    const initialFormValues: UnreservedFormFormValues = {
-        country: [],
-        fuelCode: [],
-        installationConfiguration: '',
-        offTaker: '',
-        sector: '',
-        standardCompliance: '',
-        gridInterconnection: '',
-        commissioningDateRange: '',
-        capacityRange: ''
-    };
     const [filterUnreserved, setFilterUnreserved] = useState(initialFormValues);
-    const { deviceGroups, isLoading: IsLoadingDeviceGroups } =
+    const { deviceGroups, isLoading: IsDeviceGroupsMutating } =
         useUnreservedDeviceGroups(filterUnreserved);
     const [selectedDeviceGroupList, setSelectedDeviceGroupList] = useState(deviceGroups);
     const dispatchModals = useDeviceGroupModalsDispatch();
 
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
 
-    const { fields, initialValues, validationSchema, buttonText } = useDeviceGroupsFilterFormLogic(
+    const formLogic = useDeviceGroupsFilterFormLogic(
         filterUnreserved,
-        allTypes
+        allTypes,
+        IsDeviceGroupsMutating
     );
 
     const handleChecked = (id: SelectableDeviceGroupDTO['id'], checked: boolean) => {
@@ -46,7 +48,7 @@ export const useUnreservedPageEffects = () => {
     const tableProps = useSelectableDeviceGroupsTableLogic(
         deviceGroups,
         handleChecked,
-        IsLoadingDeviceGroups,
+        IsDeviceGroupsMutating,
         allTypes
     );
 
@@ -57,12 +59,9 @@ export const useUnreservedPageEffects = () => {
     const submitHandler = (values: UnreservedFormFormValues) => {
         setFilterUnreserved(values);
     };
-    const isLoading = IsLoadingDeviceGroups || isDeviceTypesLoading;
+    const isLoading = isDeviceTypesLoading;
     const formData: GenericFormProps<UnreservedFormFormValues> = {
-        fields,
-        initialValues,
-        validationSchema,
-        buttonText,
+        ...formLogic,
         submitHandler
     };
 
