@@ -11,7 +11,10 @@ export class DeviceGroupBuyerId1636639831399 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device_group" ALTER COLUMN "buyerAddress" character varying`,
+      `ALTER TABLE "device_group" DROP COLUMN "buyerAddress"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "device_group" ADD "buyerAddress" character varying`,
     );
   }
 }
