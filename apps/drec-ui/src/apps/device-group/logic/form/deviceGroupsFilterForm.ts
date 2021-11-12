@@ -30,7 +30,7 @@ type TUnreservedFormFormLogic = (
     allFuelTypes: CodeNameDTO[]
 ) => Omit<GenericFormProps<UnreservedFormFormValues>, 'submitHandler'>;
 
-export const useUnreservedFilterFormLogic: TUnreservedFormFormLogic = (
+export const useDeviceGroupsFilterFormLogic: TUnreservedFormFormLogic = (
     initialValues: UnreservedFormFormValues,
     allFuelTypes: CodeNameDTO[]
 ) => {

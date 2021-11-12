@@ -1,2 +1,2 @@
-export * from './unreservedFilterForm';
+export * from './deviceGroupsFilterForm';
 export * from './createNewGroupFormLogic';

@@ -3,3 +3,4 @@ export * from './AllDeviceGroupsPage';
 export * from './DetailViewGroupPage';
 export * from './UngroupedDevices';
 export * from './UnreservedPage';
+export * from './ReservedPage';

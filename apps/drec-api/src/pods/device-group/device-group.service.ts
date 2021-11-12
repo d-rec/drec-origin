@@ -19,13 +19,13 @@ import {
   DeviceIdsDTO,
   NewDeviceGroupDTO,
   ReserveGroupsDTO,
-  UnreservedDeviceGroupDTO,
+  SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { IDevice, ILoggedInUser } from '../../models';
+import { IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
@@ -96,11 +96,12 @@ export class DeviceGroupService {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
-  async getReserved(
+  async getReservedOrUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-    loggedUser?: Pick<ILoggedInUser, 'id' | 'blockchainAccountAddress'>,
-  ): Promise<DeviceGroupDTO[]> {
-    const query = this.getUnreservedFilteredQuery(filterDto, loggedUser);
+    selected: boolean,
+    buyerId?: number,
+  ): Promise<SelectableDeviceGroupDTO[]> {
+    const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
     const deviceGroups = await this.repository.find(query);
 
     const res = await Promise.all(
@@ -114,30 +115,7 @@ export class DeviceGroupService {
             name: organization.name,
             blockchainAccountAddress: organization.blockchainAccountAddress,
           },
-        };
-      }),
-    );
-    return res;
-  }
-
-  async getUnreserved(
-    filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<UnreservedDeviceGroupDTO[]> {
-    const query = this.getUnreservedFilteredQuery(filterDto);
-    const deviceGroups = await this.repository.find(query);
-
-    const res = await Promise.all(
-      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        const organization = await this.organizationService.findOne(
-          deviceGroup.organizationId,
-        );
-        return {
-          ...deviceGroup,
-          organization: {
-            name: organization.name,
-            blockchainAccountAddress: organization.blockchainAccountAddress,
-          },
-          selected: false,
+          selected,
         };
       }),
     );
@@ -146,14 +124,15 @@ export class DeviceGroupService {
 
   async reserveGroup(
     data: ReserveGroupsDTO,
-    organizationId: number,
-    blockchainAccountAddress: string | undefined,
+    buyerId: number,
+    blockchainAccountAddress?: string,
   ): Promise<DeviceGroupDTO[]> {
     const deviceGroups = await this.repository.findByIds(data.groupsIds);
     const updatedDeviceGroups: DeviceGroupDTO[] = [];
+
     await Promise.all(
       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        deviceGroup.buyerId = organizationId;
+        deviceGroup.buyerId = buyerId;
         if (blockchainAccountAddress) {
           deviceGroup.buyerAddress = blockchainAccountAddress;
         }
@@ -167,22 +146,23 @@ export class DeviceGroupService {
 
   async unreserveGroup(
     data: ReserveGroupsDTO,
-    organizationId: number,
-    blockchainAccountAddress: string | undefined,
-  ): Promise<void> {
+    buyerId: number,
+  ): Promise<DeviceGroupDTO[]> {
     const deviceGroups = await this.repository.findByIds(data.groupsIds);
+    const updatedDeviceGroups: DeviceGroupDTO[] = [];
+
     await Promise.all(
       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        if (
-          deviceGroup.buyerId === organizationId &&
-          deviceGroup.buyerAddress === blockchainAccountAddress
-        ) {
+        if (deviceGroup.buyerId === buyerId) {
           deviceGroup.buyerId = null;
           deviceGroup.buyerAddress = null;
+          await this.repository.save(deviceGroup);
         }
+        const updatedGroup = await this.repository.save(deviceGroup);
+        updatedDeviceGroups.push(updatedGroup);
       }),
     );
-    return;
+    return updatedDeviceGroups;
   }
 
   async create(
@@ -481,7 +461,7 @@ export class DeviceGroupService {
 
   private getUnreservedFilteredQuery(
     filter: UnreservedDeviceGroupsFilterDTO,
-    loggedUser?: Pick<ILoggedInUser, 'id' | 'blockchainAccountAddress'>,
+    buyerId?: number,
   ): FindManyOptions<DeviceGroup> {
     const where: FindConditions<DeviceGroup> = cleanDeep({
       countryCode: filter.country,
@@ -508,8 +488,7 @@ export class DeviceGroupService {
     }
     const query: FindManyOptions<DeviceGroup> = {
       where: {
-        buyerAddress: loggedUser?.blockchainAccountAddress || null,
-        buyerId: loggedUser?.id || null,
+        buyerId: buyerId || null,
         ...where,
       },
       order: {

@@ -34,7 +34,7 @@ export const useAutoSelectedGroups = (
                 },
                 onError: (error: any) => {
                     showNotification(
-                        `Error while updating user:
+                        `Error while creating device groups:
                             ${error?.response?.data?.message || ''}
                             `,
                         NotificationTypeEnum.Error
