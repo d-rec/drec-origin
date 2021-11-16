@@ -71,7 +71,7 @@ export class AdminController {
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
   })
-  async getAll(): Promise<OrganizationDTO[]> {
+  async getAllOrganizations(): Promise<OrganizationDTO[]> {
     return await this.organizationService.getAll();
   }
 
@@ -85,7 +85,7 @@ export class AdminController {
   @ApiNotFoundResponse({
     description: `The organization with the id doesn't exist`,
   })
-  async get(
+  async getOrganizationById(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<OrganizationDTO | undefined> {
     return this.organizationService.findOne(organizationId);
@@ -99,7 +99,7 @@ export class AdminController {
     type: CreateUserDTO,
     description: 'Returns a new created user',
   })
-  public async create(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
+  public async createUser(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
     return await this.userService.create(newUser);
   }
 
@@ -126,7 +126,7 @@ export class AdminController {
     description: 'Returns an updated Organization',
   })
   @ApiNotFoundResponse({ description: `No organization found` })
-  public async update(
+  public async updateOrganization(
     @Param('id') organizationId: number,
     @Body() organizationToUpdate: UpdateOrganizationDTO,
   ): Promise<OrganizationDTO> {
@@ -143,7 +143,7 @@ export class AdminController {
     type: SuccessResponseDTO,
     description: 'Delete an organization',
   })
-  async delete(
+  async deleteOrganization(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<SuccessResponseDTO> {
     const organization = await this.organizationService.findOne(organizationId);

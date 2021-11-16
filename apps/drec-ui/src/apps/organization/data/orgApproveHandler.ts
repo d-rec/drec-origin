@@ -1,16 +1,16 @@
 import {
-    getOrganizationControllerGetAllQueryKey,
+    getAdminControllerGetAllOrganizationsQueryKey,
     OrganizationDTO,
     OrganizationStatus,
-    useOrganizationControllerUpdate
+    useAdminControllerUpdateOrganization
 } from '@energyweb/origin-drec-api-client';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, showNotification } from 'shared';
 
 export const useOrgApproveHandler = () => {
-    const { mutate } = useOrganizationControllerUpdate();
+    const { mutate } = useAdminControllerUpdateOrganization();
     const queryClient = useQueryClient();
-    const allOrgsQueryKey = getOrganizationControllerGetAllQueryKey();
+    const allOrgsQueryKey = getAdminControllerGetAllOrganizationsQueryKey();
 
     return (id: OrganizationDTO['id']) => {
         mutate(
