@@ -86,27 +86,6 @@ export class DeviceGroupService {
     return deviceGroup;
   }
 
-  async getDeviceGroupById(
-    id: number,
-    user: ILoggedInUser,
-  ): Promise<DeviceGroupDTO> {
-    const deviceGroup = await this.repository.findOne({
-      id,
-    });
-
-    const isOrganizationMember =
-      user.organizationId === deviceGroup?.organizationId;
-    const hasAdminRole = isRole(user.role, Role.Admin);
-
-    if (hasAdminRole) {
-      return this.findById(id);
-    }
-    if (!isOrganizationMember) {
-      throw new ForbiddenException('Not a member of the organization.');
-    }
-    return this.findById(id);
-  }
-
   async getOrganizationDeviceGroups(
     organizationId: number,
   ): Promise<DeviceGroupDTO[]> {

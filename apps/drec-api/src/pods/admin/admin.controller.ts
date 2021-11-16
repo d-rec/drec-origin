@@ -10,29 +10,49 @@ import {
   UseGuards,
   ValidationPipe,
   UseInterceptors,
+  Delete,
+  NotFoundException,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-import { NullOrUndefinedResultInterceptor } from '@energyweb/origin-backend-utils';
+import {
+  NullOrUndefinedResultInterceptor,
+  SuccessResponseDTO,
+} from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
 
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, RolesGuard } from '../../guards';
+import { OrganizationService } from '../organization/organization.service';
 import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
+import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
+import { ResponseSuccess } from '../../models';
+import { CreateUserDTO } from '../user/dto/create-user.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
+@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly organizationService: OrganizationService,
+  ) {}
 
-  @Get('users')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Get('/users')
   @Roles(Role.Admin, Role.SupportAgent)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -45,8 +65,45 @@ export class AdminController {
     return this.userService.getUsersByFilter(filterDto);
   }
 
-  @Put('users/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Get('/organizations')
+  @Roles(Role.Admin, Role.SupportAgent)
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: 'Returns all Organizations',
+  })
+  async getAll(): Promise<OrganizationDTO[]> {
+    return await this.organizationService.getAll();
+  }
+
+  @Get('/organizations/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OrganizationDTO,
+    description: 'Gets an organization',
+  })
+  @Roles(Role.Admin, Role.SupportAgent)
+  @ApiNotFoundResponse({
+    description: `The organization with the id doesn't exist`,
+  })
+  async get(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+  ): Promise<OrganizationDTO | undefined> {
+    return this.organizationService.findOne(organizationId);
+  }
+
+  @Post('/users')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: CreateUserDTO,
+    description: 'Returns a new created user',
+  })
+  public async create(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
+    return await this.userService.create(newUser);
+  }
+
+  @Put('/users/:id')
   @Roles(Role.Admin, Role.SupportAgent)
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
@@ -59,5 +116,44 @@ export class AdminController {
     @Body() body: UpdateUserDTO,
   ): Promise<UserDTO> {
     return this.userService.update(id, body);
+  }
+
+  @Patch('/organizations/:id')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UpdateOrganizationDTO,
+    description: 'Returns an updated Organization',
+  })
+  @ApiNotFoundResponse({ description: `No organization found` })
+  public async update(
+    @Param('id') organizationId: number,
+    @Body() organizationToUpdate: UpdateOrganizationDTO,
+  ): Promise<OrganizationDTO> {
+    return await this.organizationService.update(
+      organizationId,
+      organizationToUpdate,
+    );
+  }
+
+  @Delete('/organizations/:id')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an organization',
+  })
+  async delete(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+  ): Promise<SuccessResponseDTO> {
+    const organization = await this.organizationService.findOne(organizationId);
+
+    if (!organization) {
+      throw new NotFoundException('Does not exist');
+    }
+
+    await this.organizationService.remove(organizationId);
+
+    return ResponseSuccess();
   }
 }

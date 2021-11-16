@@ -62,7 +62,7 @@ describe('Organization tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    await requestOrganization('', HttpStatus.FORBIDDEN);
+    await requestAdminOrganization('', HttpStatus.FORBIDDEN);
   });
 
   it('should retrieve all organizations', async () => {
@@ -71,7 +71,7 @@ describe('Organization tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    const { body: organizations } = await requestOrganization(
+    const { body: organizations } = await requestAdminOrganization(
       '',
       HttpStatus.OK,
     );
@@ -113,7 +113,7 @@ describe('Organization tests', () => {
     };
     const orgs = await organizationService.getAll();
     await loginUser(loggedUser);
-    const { body: updatedOrg } = await updateOrganization(
+    const { body: updatedOrg } = await updateAdminOrganization(
       orgs[0]?.id.toString(),
       HttpStatus.OK,
       partialOrg,
@@ -133,7 +133,7 @@ describe('Organization tests', () => {
       regAddress: 'Update',
     };
     await loginUser(loggedUser);
-    await updateOrganization(orgCode, HttpStatus.FORBIDDEN, partialOrg);
+    await updateAdminOrganization(orgCode, HttpStatus.FORBIDDEN, partialOrg);
   });
 
   it('should return forbbidden when creating an organization', async () => {
@@ -168,7 +168,7 @@ describe('Organization tests', () => {
       password: 'test',
     };
     await loginUser(loggedUser);
-    const { body: organizations } = await requestOrganization(
+    const { body: organizations } = await requestAdminOrganization(
       '',
       HttpStatus.OK,
     );
@@ -178,7 +178,7 @@ describe('Organization tests', () => {
       organizations[organizations.length - 2].id.toString(),
       HttpStatus.OK,
     );
-    const { body: afterDeleteOrgs } = await requestOrganization(
+    const { body: afterDeleteOrgs } = await requestAdminOrganization(
       '',
       HttpStatus.OK,
     );
@@ -186,12 +186,34 @@ describe('Organization tests', () => {
     expect(afterDeleteOrgs).to.have.length(3);
   });
 
+  const requestAdminOrganization = async (
+    url: string,
+    status: HttpStatus,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .get(`/admin/organizations/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
   const requestOrganization = async (
     url: string,
     status: HttpStatus,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/organization/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const updateAdminOrganization = async (
+    url: string | null,
+    status: HttpStatus,
+    body: Partial<UpdateOrganizationDTO>,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .patch(`/admin/organizations/${url}`)
+      .send({
+        ...body,
+      })
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
@@ -213,7 +235,7 @@ describe('Organization tests', () => {
     status: HttpStatus,
   ): Promise<any> =>
     await request(app.getHttpServer())
-      .delete(`/organization/${url}`)
+      .delete(`/admin/organizations/${url}`)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

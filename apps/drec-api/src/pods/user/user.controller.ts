@@ -85,18 +85,6 @@ export class UserController {
     return this.userService.create(userRegistrationData);
   }
 
-  @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: CreateUserDTO,
-    description: 'Returns a new created user',
-  })
-  public async create(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
-    return await this.userService.create(newUser);
-  }
-
   @Put()
   @UseGuards(AuthGuard('jwt'))
   @ApiBody({ type: UpdateOwnUserSettingsDTO })

@@ -3,17 +3,16 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Body,
   HttpStatus,
   Param,
-  Delete,
   UseGuards,
   UseInterceptors,
   ForbiddenException,
   ParseIntPipe,
   NotFoundException,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -28,7 +27,6 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   OrganizationDTO,
   NewOrganizationDTO,
-  UpdateOrganizationDTO,
   BindBlockchainAccountDTO,
 } from './dto';
 import { OrganizationService } from './organization.service';
@@ -57,17 +55,6 @@ import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Get()
-  @UseGuards(RolesGuard)
-  @Roles(Role.Admin, Role.SupportAgent)
-  @ApiResponse({
-    type: [OrganizationDTO],
-    description: 'Returns all Organizations',
-  })
-  async getAll(): Promise<OrganizationDTO[]> {
-    return await this.organizationService.getAll();
-  }
-
   @Get('/me')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -93,24 +80,6 @@ export class OrganizationController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<UserDTO[]> {
     return this.organizationService.findOrganizationUsers(organizationId);
-  }
-
-  @Get('/:id')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: OrganizationDTO,
-    description: 'Gets an organization',
-  })
-  @Roles(Role.Admin, Role.SupportAgent)
-  @ApiNotFoundResponse({
-    description: `The organization with the id doesn't exist`,
-  })
-  async get(
-    @Param('id', new ParseIntPipe()) organizationId: number,
-    @UserDecorator() loggedUser: ILoggedInUser,
-  ): Promise<OrganizationDTO | undefined> {
-    this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
-    return this.organizationService.findOne(organizationId);
   }
 
   @Get('/:id/invitations')
@@ -145,6 +114,12 @@ export class OrganizationController {
     @Body() organizationToRegister: NewOrganizationDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<OrganizationDTO> {
+    if (loggedUser.organizationId) {
+      throw new BadRequestException({
+        success: false,
+        message: `There is already an organization assigned to this account`,
+      });
+    }
     return await this.organizationService.create(
       organizationToRegister,
       loggedUser,
@@ -183,25 +158,6 @@ export class OrganizationController {
     return ResponseSuccess();
   }
 
-  @Patch('/:id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: UpdateOrganizationDTO,
-    description: 'Returns an updated Organization',
-  })
-  @ApiNotFoundResponse({ description: `No organization found` })
-  public async update(
-    @Param('id') organizationId: number,
-    @Body() organizationToUpdate: UpdateOrganizationDTO,
-  ): Promise<OrganizationDTO> {
-    return await this.organizationService.update(
-      organizationId,
-      organizationToUpdate,
-    );
-  }
-
   @Post('chain-address')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
   @ApiBody({ type: BindBlockchainAccountDTO })
@@ -222,28 +178,6 @@ export class OrganizationController {
       organizationId,
       signedMessage,
     );
-  }
-
-  @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SuccessResponseDTO,
-    description: 'Delete an organization',
-  })
-  async delete(
-    @Param('id', new ParseIntPipe()) organizationId: number,
-  ): Promise<SuccessResponseDTO> {
-    const organization = await this.organizationService.findOne(organizationId);
-
-    if (!organization) {
-      throw new NotFoundException('Does not exist');
-    }
-
-    await this.organizationService.remove(organizationId);
-
-    return ResponseSuccess();
   }
 
   private ensureOrganizationMemberOrAdmin(
