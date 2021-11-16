@@ -101,6 +101,7 @@ export class OrganizationController {
     type: OrganizationDTO,
     description: 'Gets an organization',
   })
+  @Roles(Role.Admin, Role.SupportAgent)
   @ApiNotFoundResponse({
     description: `The organization with the id doesn't exist`,
   })
@@ -113,7 +114,7 @@ export class OrganizationController {
   }
 
   @Get('/:id/invitations')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],

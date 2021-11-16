@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { isEmail } from 'class-validator';
 
 import {
   NullOrUndefinedResultInterceptor,

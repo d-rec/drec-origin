@@ -12,13 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiQuery,
-  ApiBearerAuth,
-  ApiBody,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { NullOrUndefinedResultInterceptor } from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';

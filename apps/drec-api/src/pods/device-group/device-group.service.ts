@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -25,12 +26,13 @@ import {
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { IDevice } from '../../models';
+import { IDevice, ILoggedInUser, isRole } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
   OffTaker,
+  Role,
   Sector,
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
@@ -82,6 +84,27 @@ export class DeviceGroupService {
       blockchainAccountAddress: organization.blockchainAccountAddress,
     };
     return deviceGroup;
+  }
+
+  async getDeviceGroupById(
+    id: number,
+    user: ILoggedInUser,
+  ): Promise<DeviceGroupDTO> {
+    const deviceGroup = await this.repository.findOne({
+      id,
+    });
+
+    const isOrganizationMember =
+      user.organizationId === deviceGroup?.organizationId;
+    const hasAdminRole = isRole(user.role, Role.Admin);
+
+    if (hasAdminRole) {
+      return this.findById(id);
+    }
+    if (!isOrganizationMember) {
+      throw new ForbiddenException('Not a member of the organization.');
+    }
+    return this.findById(id);
   }
 
   async getOrganizationDeviceGroups(
