@@ -76,12 +76,12 @@ export class AdminController {
   }
 
   @Get('/organizations/:id')
+  @Roles(Role.Admin, Role.SupportAgent)
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
     description: 'Gets an organization',
   })
-  @Roles(Role.Admin, Role.SupportAgent)
   @ApiNotFoundResponse({
     description: `The organization with the id doesn't exist`,
   })
@@ -92,7 +92,6 @@ export class AdminController {
   }
 
   @Post('/users')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
