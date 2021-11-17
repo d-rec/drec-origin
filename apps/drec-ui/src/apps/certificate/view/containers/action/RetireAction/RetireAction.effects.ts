@@ -3,7 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTransactionPendingDispatch } from 'apps/certificate/view/context';
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import {
-    useCachedAllDeviceGroups,
+    useCachedMyDeviceGroups,
     useCachedAllFuelTypes,
     useCachedBlockchainCertificates,
     useRetireCertificateHandler
@@ -20,7 +20,7 @@ export const useRetireActionEffects = (
     resetIds: () => void
 ) => {
     const blockchainCertificates = useCachedBlockchainCertificates();
-    const allDeviceGroups = useCachedAllDeviceGroups();
+    const allDeviceGroups = useCachedMyDeviceGroups();
     const allFuelTypes = useCachedAllFuelTypes();
     const setTxPending = useTransactionPendingDispatch();
 
