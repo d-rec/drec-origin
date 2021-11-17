@@ -1,8 +1,8 @@
-import { useOrganizationControllerGetAll } from '@energyweb/origin-drec-api-client';
+import { useAdminControllerGetAllOrganizations } from '@energyweb/origin-drec-api-client';
 
 export const useAllOrganizations = () => {
     const { data: organizations, isLoading: organizationsLoading } =
-        useOrganizationControllerGetAll();
+        useAdminControllerGetAllOrganizations();
 
     return {
         organizations,

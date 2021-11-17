@@ -1,5 +1,5 @@
 import {
-    getOrganizationControllerGetAllQueryKey,
+    getAdminControllerGetAllOrganizationsQueryKey,
     Role,
     useOrganizationControllerChangeMemberRole,
     UserDTO,
@@ -13,7 +13,7 @@ export const useOrganizationMemberRoleUpdate = () => {
     const { data: userUpdating } = useUserControllerMe();
 
     const queryClient = useQueryClient();
-    const membersKey = getOrganizationControllerGetAllQueryKey();
+    const membersKey = getAdminControllerGetAllOrganizationsQueryKey();
 
     const updateRoleHandler = (userToUpdateId: UserDTO['id'], newRole: Role) => {
         mutate(

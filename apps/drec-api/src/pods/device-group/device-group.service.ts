@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -25,12 +26,13 @@ import {
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { IDevice } from '../../models';
+import { IDevice, ILoggedInUser, isRole } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
   OffTaker,
+  Role,
   Sector,
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';

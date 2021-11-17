@@ -95,7 +95,7 @@ describe('Users tests', () => {
       telephone: 'telephone',
       password: 'testUser2',
     };
-    await postUser('', HttpStatus.CREATED, partialUser);
+    await postAdminUser('', HttpStatus.CREATED, partialUser);
   });
 
   it('should register a new user', async () => {
@@ -143,6 +143,19 @@ describe('Users tests', () => {
   const requestUsers = async (url: string, status: HttpStatus): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/user/${url}`)
+      .set('Authorization', `Bearer ${currentAccessToken}`)
+      .expect(status);
+
+  const postAdminUser = async (
+    url: string,
+    status: HttpStatus,
+    body: CreateUserDTO,
+  ): Promise<any> =>
+    await request(app.getHttpServer())
+      .post(`/admin/users/${url}`)
+      .send({
+        ...body,
+      })
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 
