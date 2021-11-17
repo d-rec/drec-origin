@@ -6,3 +6,4 @@ export * from './blockchainCertificates';
 export * from './redeemedCertificates';
 export * from './allDeviceGroups';
 export * from './allFuelTypes';
+export * from './myDeviceGroups';

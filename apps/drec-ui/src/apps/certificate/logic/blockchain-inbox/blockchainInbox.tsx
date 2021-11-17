@@ -20,10 +20,10 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
 
     if (allDeviceGroups && blockchainCertificates) {
         allDeviceGroups.forEach((deviceGroup: DeviceGroupDTO) => {
-            const deviceHasCertificates = blockchainCertificates.find(
+            const deviceGroupCertificates = blockchainCertificates.filter(
                 (certificate) => certificate.deviceId === deviceGroup.id.toString()
             );
-            if (!deviceHasCertificates) {
+            if (!deviceGroupCertificates) {
                 return;
             }
             const certificatesMatchingDevice = blockchainCertificates.filter(
@@ -49,7 +49,7 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
                 ),
                 containerListItemProps: { style: { padding: 8 } },
                 itemListItemProps: { style: { padding: 8 } },
-                items: blockchainCertificates.map((certificate) => {
+                items: deviceGroupCertificates.map((certificate) => {
                     const startDate = formatDate(certificate.generationStartTime * 1000);
                     const endDate = formatDate(certificate.generationEndTime * 1000);
                     const generationTimeText = `${startDate} - ${endDate}`;
