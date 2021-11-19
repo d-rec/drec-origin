@@ -55,8 +55,8 @@ describe('Reads tests', () => {
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
 
-    await requestDeviceCodeReads(devices[0]?.id, HttpStatus.CREATED);
-    await expectReading(devices[0]?.id, 10000000);
+    await requestDeviceCodeReads(devices[0]?.externalId, HttpStatus.CREATED);
+    await expectReading(devices[0]?.externalId, 10000000);
   });
 
   it('validates and stores some meter readings to a device', async () => {
@@ -90,17 +90,17 @@ describe('Reads tests', () => {
     ];
 
     await requestDeviceMultipleCodeReads(
-      devices[1]?.id,
+      devices[1]?.externalId,
       HttpStatus.CREATED,
       measurement1,
     );
     await requestDeviceMultipleCodeReads(
-      devices[1]?.id,
+      devices[1]?.externalId,
       HttpStatus.CREATED,
       measurement2,
     );
     const { body: retrievedReads } = await requestValidatedReadings(
-      devices[1]?.id,
+      devices[1]?.externalId,
       startDate,
       new Date(),
     );
