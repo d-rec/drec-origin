@@ -183,7 +183,7 @@ export class Seed9999999999999 implements MigrationInterface {
       (DevicesJSON as IDevice[]).map((device) =>
         queryRunner.query(
           `INSERT INTO public.device (
-            "drecID", 
+            "externalId", 
             "organizationId", 
             "projectName", 
             address, 
@@ -203,7 +203,7 @@ export class Seed9999999999999 implements MigrationInterface {
             "impactStory", 
             "countryCode"
           ) VALUES (
-              '${device.drecID}', 
+              '${device.externalId}', 
               '${device.organizationId}', 
               '${device.projectName}', 
               '${device.address}', 

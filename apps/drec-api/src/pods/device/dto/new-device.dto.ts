@@ -20,7 +20,7 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @IsString()
-  drecID: string;
+  externalId: string;
 
   @ApiProperty()
   @IsString()

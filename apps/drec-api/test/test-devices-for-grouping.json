@@ -1,6 +1,6 @@
 [
   {
-    "drecID": "DREC-11",
+    "externalId": "DREC-11",
     "organizationId": 1,
     "projectName": "Project Device 1 - group 1",
     "address": "Ludwigslust-Parchim",
@@ -21,7 +21,7 @@
     "impactStory": "Wind: Onshore"
   },
   {
-    "drecID": "DREC-12",
+    "externalId": "DREC-12",
     "organizationId": 1,
     "projectName": "Project Device 2 - group 1",
     "address": "Hamburg",
@@ -42,7 +42,7 @@
     "impactStory": "PV Ground mounted"
   },
   {
-    "drecID": "DREC-13",
+    "externalId": "DREC-13",
     "organizationId": 1,
     "projectName": "Project Device 3 - group 1",
     "address": "Bremen",
@@ -63,7 +63,7 @@
     "impactStory": "PV Roof Mounted (single installation)"
   },
   {
-    "drecID": "DREC-14",
+    "externalId": "DREC-14",
     "organizationId": 1,
     "projectName": "Project Device 4 - group 1",
     "address": "Hanovra",
@@ -84,7 +84,7 @@
     "impactStory": "Run of river"
   },
   {
-    "drecID": "DREC-15",
+    "externalId": "DREC-15",
     "organizationId": 1,
     "projectName": "Project Device 5 - group 2",
     "address": "Darmstadt",
@@ -105,7 +105,7 @@
     "impactStory": "Run of river"
   },
   {
-    "drecID": "DREC-16",
+    "externalId": "DREC-16",
     "organizationId": 1,
     "projectName": "Project Device 6 - group 2",
     "address": "Districtul Böblingen",
@@ -126,7 +126,7 @@
     "impactStory": "Run of river"
   },
   {
-    "drecID": "DREC-17",
+    "externalId": "DREC-17",
     "organizationId": 1,
     "projectName": "Project Device 7 - group 2",
     "address": "Districtul Ebersberg",

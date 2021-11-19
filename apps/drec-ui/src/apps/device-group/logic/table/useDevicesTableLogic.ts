@@ -5,7 +5,7 @@ import { PowerFormatter } from '../../../../utils';
 const prepareDevicesData = (device: DeviceDTO) => ({
     id: device.id,
     projectName: device.projectName,
-    drecId: device.drecID,
+    externalId: device.externalId,
     status: device.status,
     address: device.address,
     installation: device.installationConfiguration,
@@ -23,7 +23,7 @@ export const useDevicesTableLogic = (
     return {
         header: {
             projectName: 'Project name',
-            drecId: 'D-REC ID',
+            externalId: 'External ID',
             status: 'Status',
             address: 'Address',
             installation: 'Installation',

@@ -84,7 +84,9 @@ export class IssuerService {
     const groupReads: number[] = [];
     await Promise.all(
       group.devices.map(async (device: IDevice) =>
-        groupReads.push(await this.getDeviceFullReads(device.id, readsFilter)),
+        groupReads.push(
+          await this.getDeviceFullReads(device.externalId, readsFilter),
+        ),
       ),
     );
     const totalReadValue = groupReads.reduce(
@@ -194,13 +196,10 @@ export class IssuerService {
   }
 
   private async getDeviceFullReads(
-    deviceId: number,
+    meterId: string,
     filter: FilterDTO,
   ): Promise<number> {
-    const allReads = await this.baseReadsService.find(
-      deviceId.toString(),
-      filter,
-    );
+    const allReads = await this.baseReadsService.find(meterId, filter);
     return allReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue.value,
       0,

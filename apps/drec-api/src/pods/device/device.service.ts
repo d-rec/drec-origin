@@ -76,6 +76,13 @@ export class DeviceService {
     return (await this.repository.findOne(id, options)) ?? null;
   }
 
+  async findReads(meterId: string): Promise<DeviceDTO | null> {
+    return (
+      (await this.repository.findOne({ where: { externalId: meterId } })) ??
+      null
+    );
+  }
+
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,

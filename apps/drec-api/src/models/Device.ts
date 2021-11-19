@@ -9,7 +9,7 @@ import {
 
 export interface IDevice {
   id: number;
-  drecID: string;
+  externalId: string;
   status: DeviceStatus;
   organizationId: number;
   projectName: string;
@@ -38,7 +38,7 @@ export interface IDevice {
 
 export type DeviceKey =
   | 'id'
-  | 'drecID'
+  | 'externalId'
   | 'status'
   | 'organizationId'
   | 'projectName'

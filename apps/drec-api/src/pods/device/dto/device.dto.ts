@@ -23,7 +23,7 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
-  drecID: string;
+  externalId: string;
 
   @ApiProperty()
   @IsString()

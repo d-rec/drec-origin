@@ -47,7 +47,7 @@ export class ReadsService {
       await Promise.all(
         deviceGroup.devices.map(
           async (device: DeviceDTO) =>
-            await this.baseReadsService.aggregate(device.id.toString(), filter),
+            await this.baseReadsService.aggregate(device.externalId, filter),
         ),
       ),
     );
@@ -80,10 +80,10 @@ export class ReadsService {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
 
-    const device = await this.deviceService.findOne(+id);
+    const device = await this.deviceService.findReads(id);
 
     if (!device) {
-      throw new NotFoundException(`No device found with id ${id}`);
+      throw new NotFoundException(`No device found with external id ${id}`);
     }
 
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
@@ -122,7 +122,7 @@ export class ReadsService {
 
       this.eventBus.publish(
         new GenerationReadingStoredEvent({
-          deviceId: +id,
+          deviceId: id,
           energyValue: BigNumber.from(measurement.value),
           fromTime: startTime,
           toTime: endTime,
