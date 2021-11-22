@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 
 export interface GenerationReadingStoredPayload {
-  deviceId: number | string;
+  deviceId: string;
   fromTime: Date;
   toTime: Date;
   organizationId: string;
