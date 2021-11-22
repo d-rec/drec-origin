@@ -116,7 +116,7 @@ describe('Device tests', () => {
       password: 'test',
     };
     const partialDevice: NewDeviceDTO = {
-      drecID: 'DREC001',
+      externalId: 'DREC001',
       projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
@@ -173,7 +173,7 @@ describe('Device tests', () => {
       password: 'test',
     };
     const partialDevice: NewDeviceDTO = {
-      drecID: 'DREC001',
+      externalId: 'DREC001',
       projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',

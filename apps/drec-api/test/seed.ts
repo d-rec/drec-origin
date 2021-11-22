@@ -134,7 +134,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
 
 const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
   {
-    drecID: 'DREC02',
+    externalId: 'DREC02',
     projectName: 'Device 1',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -158,7 +158,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
   },
   {
-    drecID: 'DREC03',
+    externalId: 'DREC03',
     projectName: 'Device 2',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -182,7 +182,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
   },
   {
-    drecID: 'DREC04',
+    externalId: 'DREC04',
     projectName: 'Device 3',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -206,7 +206,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
   },
   {
-    drecID: 'DREC05',
+    externalId: 'DREC05',
     projectName: 'Device 5',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -233,7 +233,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
 
 export const batchDevices: NewDeviceDTO[] = [
   {
-    drecID: 'DREC31',
+    externalId: 'DREC31',
     projectName: 'Device 31',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -257,7 +257,7 @@ export const batchDevices: NewDeviceDTO[] = [
     images: [],
   },
   {
-    drecID: 'DREC32',
+    externalId: 'DREC32',
     projectName: 'Device 32',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -281,7 +281,7 @@ export const batchDevices: NewDeviceDTO[] = [
     images: [],
   },
   {
-    drecID: 'DREC33',
+    externalId: 'DREC33',
     projectName: 'Device 33',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -305,7 +305,7 @@ export const batchDevices: NewDeviceDTO[] = [
     images: [],
   },
   {
-    drecID: 'DREC34',
+    externalId: 'DREC34',
     projectName: 'Device 34',
     address: 'Somewhere far away',
     latitude: '34.921213',

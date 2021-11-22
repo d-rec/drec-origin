@@ -28,7 +28,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ unique: true })
   @IsString()
-  drecID: string;
+  externalId: string;
 
   @Column({ nullable: false, default: DeviceStatus.Active })
   @IsNotEmpty()

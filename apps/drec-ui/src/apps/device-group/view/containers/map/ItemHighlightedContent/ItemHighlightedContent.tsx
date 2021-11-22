@@ -6,7 +6,7 @@ import { PowerFormatter } from 'utils';
 
 export const ItemHighlightedContent: FC<DeviceDTO> = ({
     id,
-    drecID,
+    externalId,
     projectName,
     status,
     capacity,
@@ -19,7 +19,7 @@ export const ItemHighlightedContent: FC<DeviceDTO> = ({
                 <b>{projectName}</b>
             </Typography>
             <Typography className={classes.text} paragraph>
-                Drec ID: {drecID}
+                External ID: {externalId}
             </Typography>
             <Typography className={classes.text} paragraph>
                 Status: {status}

@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "drecID": "DREC01",
+    "externalId": "DREC01",
     "organizationId": 1,
     "projectName": "Project Device 1",
     "address": "Street 1, Bucharest",
@@ -23,7 +23,7 @@
   },
   {
     "id": 2,
-    "drecID": "DREC02",
+    "externalId": "DREC02",
     "organizationId": 4,
     "projectName": "Project Device 2",
     "address": "Street 2, Berlin",
@@ -45,7 +45,7 @@
   },
   {
     "id": 3,
-    "drecID": "DREC03",
+    "externalId": "DREC03",
     "organizationId": 1,
     "projectName": "Project Device 3",
     "address": "Street 3, Oslo",
@@ -67,7 +67,7 @@
   },
   {
     "id": 4,
-    "drecID": "DREC04",
+    "externalId": "DREC04",
     "organizationId": 4,
     "projectName": "Project Device 4",
     "address": "Street 4, Warsaw",
