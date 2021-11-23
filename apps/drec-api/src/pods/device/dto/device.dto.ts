@@ -9,6 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import {
   Installation,
+  Integrator,
   OffTaker,
   Sector,
   StandardCompliance,
@@ -122,4 +123,9 @@ export class DeviceDTO implements IDevice {
   @IsArray()
   @IsOptional()
   images: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  integrator?: Integrator;
 }

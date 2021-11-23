@@ -27,6 +27,7 @@ specifiers:
   '@material-ui/lab': 5.0.0-alpha.43
   '@material-ui/styles': 5.0.0-beta.4
   '@nestjs-modules/mailer': ^1.6.0
+  '@nestjs/axios': ~0.0.3
   '@nestjs/bull': 0.4.2
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13
@@ -98,6 +99,7 @@ specifiers:
   eslint-plugin-import: 2.22.1
   eslint-plugin-prettier: 3.2.0
   ethers: 5.3.1
+  form-data: ~4.0.0
   ganache-cli: 6.12.2
   handlebars: ^4.7.7
   history: ^5.0.0-beta.9
@@ -135,7 +137,7 @@ specifiers:
   reflect-metadata: ^0.1.13
   rijndael-js: 2.0.0
   rimraf: ^3.0.2
-  rxjs: ^6.5.4
+  rxjs: 6.6.7
   shx: 0.3.3
   supertest: 6.0.1
   swagger-ui-express: 4.1.6
@@ -176,6 +178,7 @@ dependencies:
   '@material-ui/lab': 5.0.0-alpha.43_c247c90764275636850552337eaaff16
   '@material-ui/styles': 5.0.0-beta.4_6e44cfea672f844fe365824ce49901bd
   '@nestjs-modules/mailer': 1.6.0_5a34d5120a791a9ff54e7665b56346dd
+  '@nestjs/axios': 0.0.3_d7cd252d64d37aa44636795684f471c1
   '@nestjs/bull': 0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
@@ -247,6 +250,7 @@ dependencies:
   eslint-plugin-import: 2.22.1_eslint@7.15.0
   eslint-plugin-prettier: 3.2.0_eslint@7.15.0+prettier@2.1.2
   ethers: 5.3.1
+  form-data: 4.0.0
   ganache-cli: 6.12.2
   handlebars: 4.7.7
   history: 5.0.0
@@ -5745,6 +5749,21 @@ packages:
       - supports-color
     dev: false
 
+  /@nestjs/axios/0.0.3_d7cd252d64d37aa44636795684f471c1:
+    resolution: {integrity: sha512-Cc+D2S2uesthRpalmZEPdm5wF2N9ji4l9Wsb2vFaug/CVWg2BoegHm0L1jzFUL+6kS+mXWSFvwXJmofv+7bajw==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0 || ^8.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0 || ^7.0.0
+    dependencies:
+      '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
+      axios: 0.23.0
+      reflect-metadata: 0.1.13
+      rxjs: 6.6.7
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@nestjs/bull/0.3.1_c86fa2ed7bc9e7a48760c2e5795b24d0:
     resolution: {integrity: sha512-W7NvohlERijj3LTgNmXPKnoznsy7bQNXQjZcSKkSclmsD24WROGZijdUo3ZeWBawTYzewgmUahrXPTW+vPSQrg==}
     peerDependencies:
@@ -8286,7 +8305,7 @@ packages:
     resolution: {integrity: sha512-SCFeogqiptms4Fg29WpOTk5nHIzfpKCemSN63ksBQYKTcXoJEmJagV+DhVmbapZzY4/5YaOV1nZwrsU79fFm1g==}
     dependencies:
       '@types/eslint': 7.28.0
-      '@types/estree': 0.0.45
+      '@types/estree': 0.0.50
     dev: false
 
   /@types/eslint-visitor-keys/1.0.0:
@@ -8702,12 +8721,6 @@ packages:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
     dev: false
 
-  /@types/tapable/2.2.2:
-    resolution: {integrity: sha512-ujqOVJEeLcwpDVJPnp/k3u1UXmTKq5urJq9fO8aUKg8Vlel5RNOFbVKEfqfh6wGfF/M+HiTJlBJMLC1aDfyf0Q==}
-    dependencies:
-      tapable: 2.2.0
-    dev: false
-
   /@types/testing-library__jest-dom/5.9.5:
     resolution: {integrity: sha512-ggn3ws+yRbOHog9GxnXiEZ/35Mow6YtPZpd7Z5mKDeZS/o7zx3yAle0ov/wjhVB5QT4N2Dt+GNoGCdqkBGCajQ==}
     dependencies:
@@ -8757,7 +8770,7 @@ packages:
     dependencies:
       '@types/anymatch': 3.0.0
       '@types/node': 14.14.11
-      '@types/tapable': 2.2.2
+      '@types/tapable': 1.0.8
       '@types/uglify-js': 3.13.1
       '@types/webpack-sources': 3.2.0
       source-map: 0.6.1
@@ -9701,6 +9714,14 @@ packages:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
       follow-redirects: 1.14.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios/0.23.0:
+    resolution: {integrity: sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==}
+    dependencies:
+      follow-redirects: 1.14.5
     transitivePeerDependencies:
       - debug
     dev: false
@@ -12672,8 +12693,8 @@ packages:
       tapable: 1.1.3
     dev: false
 
-  /enhanced-resolve/5.8.2:
-    resolution: {integrity: sha512-F27oB3WuHDzvR2DOGNTaYy0D5o0cnrv8TeI482VM4kYgQd/FT9lUQwuNsJ0oOHtBUq7eiW5ytqzp7nBFknL+GA==}
+  /enhanced-resolve/5.8.3:
+    resolution: {integrity: sha512-EGAbGvH7j7Xt2nc0E7D99La1OiEs8LnyimkRgwExpUMScN6O+3x9tIWs7PLQZVNx4YD+00skHXPXi1yQHpAmZA==}
     engines: {node: '>=10.13.0'}
     dependencies:
       graceful-fs: 4.2.8
@@ -13913,6 +13934,16 @@ packages:
       debug: 4.3.2_supports-color@6.1.0
     dev: false
 
+  /follow-redirects/1.14.5:
+    resolution: {integrity: sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /for-each/0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
     dependencies:
@@ -13952,7 +13983,7 @@ packages:
       '@babel/code-frame': 7.14.5
       '@types/json-schema': 7.0.9
       chalk: 4.1.2
-      chokidar: 3.4.3
+      chokidar: 3.5.2
       cosmiconfig: 6.0.0
       deepmerge: 4.2.2
       fs-extra: 9.1.0
@@ -13984,6 +14015,15 @@ packages:
 
   /form-data/3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.32
+    dev: false
+
+  /form-data/4.0.0:
+    resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
@@ -22170,6 +22210,13 @@ packages:
       source-map: 0.6.1
     dev: false
 
+  /source-map-support/0.5.20:
+    resolution: {integrity: sha512-n1lZZ8Ve4ksRqizaBQgxXDgKwttHDhyfQjA6YZZn8+AroHbsIz+JjwxQDxbp+7y5OYCI8t1Yk7etjD9CRd2hIw==}
+    dependencies:
+      buffer-from: 1.1.2
+      source-map: 0.6.1
+    dev: false
+
   /source-map-url/0.4.1:
     resolution: {integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==}
     dev: false
@@ -22940,7 +22987,7 @@ packages:
     dependencies:
       commander: 2.20.3
       source-map: 0.7.3
-      source-map-support: 0.5.19
+      source-map-support: 0.5.20
     dev: false
 
   /test-exclude/6.0.0:
@@ -23197,13 +23244,22 @@ packages:
     dependencies:
       chalk: 2.4.2
       enhanced-resolve: 4.5.0
-      tsconfig-paths: 3.9.0
+      tsconfig-paths: 3.11.0
     dev: false
 
   /tsconfig-paths/3.10.1:
     resolution: {integrity: sha512-rETidPDgCpltxF7MjBZlAFPUHv5aHH2MymyPvh+vEyWAED4Eb/WeMbsnD/JDr4OKPOA1TssDHgIcpTN5Kh0p6Q==}
     dependencies:
       json5: 2.2.0
+      minimist: 1.2.5
+      strip-bom: 3.0.0
+    dev: false
+
+  /tsconfig-paths/3.11.0:
+    resolution: {integrity: sha512-7ecdYDnIdmv639mmDwslG6KQg1Z9STTz1j7Gcz0xa+nshh/gKDAHcPxRbWOsA3SPp0tXP2leTcY9Kw+NAkfZzA==}
+    dependencies:
+      '@types/json5': 0.0.29
+      json5: 1.0.1
       minimist: 1.2.5
       strip-bom: 3.0.0
     dev: false
@@ -24194,7 +24250,7 @@ packages:
       acorn: 8.4.1
       browserslist: 4.16.7
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.8.2
+      enhanced-resolve: 5.8.3
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
@@ -24881,7 +24937,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-XW/Qgom7v4uLMxamdzltdsC7ru2uSCYrCCQs+mpkRk0Odjrg+vePT/8/rkpyV/KnJTKYyJiawQvH3SOkM1cxwQ==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-4gyoUoJVC2CtLe+Lup/QV/m0c6oHGNi6tM1u28IC/nS5BHw8gP7YMSHX2QXr6P4ursuLKzinTSn9e9Saa0HBvQ==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24895,6 +24951,7 @@ packages:
       '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
       '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
       '@nestjs-modules/mailer': 1.6.0_5a34d5120a791a9ff54e7665b56346dd
+      '@nestjs/axios': 0.0.3_d7cd252d64d37aa44636795684f471c1
       '@nestjs/bull': 0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f
       '@nestjs/cli': 7.5.4
       '@nestjs/common': 7.6.13_fbc9982997ba253269f25bdc348cb93c
@@ -24940,6 +24997,7 @@ packages:
       eslint-plugin-import: 2.22.1_eslint@7.15.0
       eslint-plugin-prettier: 3.2.0_eslint@7.15.0+prettier@2.1.2
       ethers: 5.3.1
+      form-data: 4.0.0
       ganache-cli: 6.12.2
       handlebars: 4.7.7
       jest: 26.6.0_ts-node@9.1.0

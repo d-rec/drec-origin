@@ -3,6 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import {
   DeviceStatus,
   Installation,
+  Integrator,
   OffTaker,
   Sector,
   StandardCompliance,
@@ -121,4 +122,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'int', nullable: true })
   groupId: number | null;
+
+  @Column({ nullable: true })
+  @IsEnum(Integrator)
+  integrator: Integrator;
 }

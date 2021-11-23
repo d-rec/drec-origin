@@ -11,7 +11,6 @@ import {
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
 import { DateTime } from 'luxon';
-import { Device } from '../device/device.entity';
 import { BASE_READ_SERVICE } from './const';
 import { EventBus } from '@nestjs/cqrs';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
