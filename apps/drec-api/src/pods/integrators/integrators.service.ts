@@ -59,7 +59,13 @@ export class IntegratorsService {
     if (!devices?.length) {
       return;
     }
-    const server = this.configService.get<string>('BBOX_SERVER') || '';
+    const server = this.configService.get<string>('BBOX_SERVER');
+
+    if (!server) {
+      this.logger.error(`BBOX server property is missing from configuration`);
+      return;
+    }
+
     const username = this.configService.get<string>('BBOX_USERNAME');
     const password = this.configService.get<string>('BBOX_PASSWORD');
     const loginForm = new FormData();
@@ -149,7 +155,7 @@ export class IntegratorsService {
     const reads: ReadDTO[] = energyData.map((energyValue: string[]) => {
       const read: ReadDTO = {
         timestamp: new Date(energyValue[1]),
-        value: +energyValue[0],
+        value: parseFloat(energyValue[0]),
       };
       return read;
     });
