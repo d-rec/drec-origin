@@ -20,7 +20,6 @@ import { DeviceDTO } from '../device/dto';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { EventBus } from '@nestjs/cqrs';
 import { BigNumber } from 'ethers';
-import { start } from 'repl';
 
 @Injectable()
 export class IntegratorsService {
@@ -68,7 +67,6 @@ export class IntegratorsService {
     loginForm.append('password', password);
 
     const authToken = await this.loginBBOX(server, loginForm);
-    // const productId = '860922049003548';
 
     await Promise.all(
       devices.map(async (device: DeviceDTO) =>
@@ -82,15 +80,6 @@ export class IntegratorsService {
         ),
       ),
     );
-
-    // await this.storeBBOXenergyReads(
-    //   server,
-    //   authToken,
-    //   productId,
-    //   startDate,
-    //   endDate,
-    //   1,
-    // );
   }
 
   private loginBBOX(server: string, loginForm: FormData): Promise<string> {
@@ -118,10 +107,9 @@ export class IntegratorsService {
     const requestConfig: AxiosRequestConfig = {
       headers: { Authorization: `Token token=${token}` },
       params: {
-        start: startDate, // '2021-11-20 08:00:09',
-        end: endDate, // '2021-11-21 12:00:09',
+        start: startDate,
+        end: endDate,
         measurement: 'analysis',
-        // fields: ['energy_in', 'energy_out'],
         fields: 'energy_out',
       },
     };
