@@ -25,6 +25,7 @@ import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.
 import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';
+import { IntegratorsModule } from './pods/integrators/integrators.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -104,6 +105,7 @@ const QueueingModule = () => {
     InvitationModule,
     EmailConfirmationModule,
     AdminModule,
+    IntegratorsModule,
   ],
 })
 export class DrecModule {}

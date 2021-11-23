@@ -11,3 +11,4 @@ export * from './capacity-range.enum';
 export * from './commissioning-date-range.enum';
 export * from './device-order-by.enum';
 export * from './order-direction.enum';
+export * from './integrator.enum';

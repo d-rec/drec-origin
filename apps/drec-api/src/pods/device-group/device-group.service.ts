@@ -26,13 +26,12 @@ import {
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { IDevice, ILoggedInUser, isRole } from '../../models';
+import { IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
   OffTaker,
-  Role,
   Sector,
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';

@@ -2,6 +2,7 @@ import {
   DeviceOrderBy,
   DeviceStatus,
   Installation,
+  Integrator,
   OffTaker,
   Sector,
   StandardCompliance,
@@ -34,6 +35,7 @@ export interface IDevice {
   data?: string;
   images?: string[];
   groupId?: number | null;
+  integrator?: Integrator;
 }
 
 export type DeviceKey =
