@@ -37,11 +37,11 @@ export class IntegratorsService {
   // @Cron(CronExpression.EVERY_30_SECONDS)
   @Cron('0 30 01 * * *') // Every day at 01:30 - Server Time
   async handleBBOXcron(): Promise<void> {
-    this.logger.debug('BBOX Cron called every 6 hours');
+    this.logger.debug('BBOX Cron called every day at 01:30 - Server Time');
 
     const integrator: Integrator = Integrator.BBOX;
     const startDate = DateTime.now()
-      .minus({ days: 4 })
+      .minus({ days: 1 })
       .toUTC()
       .toFormat('yyyy-MM-dd HH:mm:ss');
     const endDate = DateTime.now()
