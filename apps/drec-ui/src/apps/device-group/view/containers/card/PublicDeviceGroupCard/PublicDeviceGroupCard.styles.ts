@@ -3,7 +3,8 @@ import { makeStyles } from '@material-ui/styles';
 export const useStyles = makeStyles((theme) => ({
     card: {
         height: '100%',
-        minWidth: 240
+        minWidth: 435,
+        flex: '1 1 0px'
     },
     icon: {
         width: 80,

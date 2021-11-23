@@ -1,5 +1,5 @@
 import { EnergyTypeEnum } from '@energyweb/origin-ui-utils';
-import { GermanyFlag } from 'assets';
+import { Flag } from 'assets';
 import { getEnergyTypeImage, getMainFuelType, PowerFormatter } from 'utils';
 import { TUseSpecsForMyDeviceGroupCard, TUseSpecsForMyDeviceGroupCardReturnType } from './types';
 
@@ -62,7 +62,7 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
                 subtitle: restType
             },
             {
-                icon: GermanyFlag,
+                icon: Flag,
                 title: `${deviceGroup.countryCode}`
             }
         ]

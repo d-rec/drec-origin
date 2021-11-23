@@ -29,5 +29,8 @@ export const useStyles = makeStyles((theme) => ({
     },
     owner: {
         color: theme.palette.text.secondary
+    },
+    country: {
+        marginLeft: '30px'
     }
 }));
