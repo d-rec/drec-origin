@@ -18,7 +18,7 @@ import {
   UpdateDeviceDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Role } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, Role } from '../../utils/enums';
 import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import {
@@ -47,10 +47,12 @@ export class DeviceService {
     return this.repository.find(query);
   }
 
-  public async findMultiple(
-    options?: FindOneOptions<Device>,
-  ): Promise<Device[]> {
-    return this.repository.find(options);
+  public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
+    return this.repository.find({
+      where: {
+        integrator,
+      },
+    });
   }
 
   async getOrganizationDevices(organizationId: number): Promise<Device[]> {

@@ -51,11 +51,8 @@ export class IntegratorsService {
 
     this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
 
-    const devices = await this.deviceService.findMultiple({
-      where: {
-        integrator,
-      },
-    });
+    const devices = await this.deviceService.findForIntegrator(integrator);
+
     if (!devices?.length) {
       return;
     }
