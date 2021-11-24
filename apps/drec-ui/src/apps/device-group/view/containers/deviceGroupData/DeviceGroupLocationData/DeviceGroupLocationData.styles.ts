@@ -16,12 +16,9 @@ export const useStyles = makeStyles((theme) => ({
             15,
             theme.palette.mode
         )}`,
-        [theme.breakpoints.up('lg')]: {
-            width: '60%'
-        },
+        width: '100%',
         [theme.breakpoints.down('lg')]: {
-            padding: 0,
-            width: '100%'
+            padding: 0
         },
         [theme.breakpoints.down('md')]: {
             flexDirection: 'column'

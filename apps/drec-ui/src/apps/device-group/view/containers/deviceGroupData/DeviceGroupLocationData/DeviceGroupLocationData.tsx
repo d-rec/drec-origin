@@ -13,7 +13,6 @@ export const DeviceGroupLocationData: FC<DeviceGroupLocationDataProps> = ({ owne
         <div className={classes.wrapper}>
             <Grid container alignItems="center" my={1}>
                 <Typography className={classes.owner}>{owner}</Typography>
-                <Typography className={classes.country}>Country: {location}</Typography>
             </Grid>
         </div>
     );

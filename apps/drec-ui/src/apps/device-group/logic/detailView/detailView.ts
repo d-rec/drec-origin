@@ -7,7 +7,7 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
     allTypes
 }) => {
     const locationProps = {
-        owner: `Device Group Owner Organization ${owner}`,
+        owner: `Device Group Owner Organization: ${owner}`,
         location: `${deviceGroup?.countryCode}`
     };
 
@@ -21,10 +21,6 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
             subtitle: restType
         },
         specFields: [
-            {
-                label: 'Facility ID',
-                value: deviceGroup?.id.toString()
-            },
             {
                 label: 'Standard Compliance',
                 value: deviceGroup?.standardCompliance
@@ -52,6 +48,10 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
             {
                 label: 'Commissioning date ranges',
                 value: deviceGroup?.commissioningDateRange.join().replaceAll(',', ', ')
+            },
+            {
+                label: 'Country',
+                value: deviceGroup?.countryCode
             }
         ]
     };

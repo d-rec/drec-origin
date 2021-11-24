@@ -24,11 +24,7 @@ export const DetailViewGroupPage: FC = () => {
 
     return (
         <div className={classes.wrapper}>
-            <DevicesMap
-                deviceGroupName={`Facility ${deviceGroup.id}`}
-                devices={deviceGroup.devices}
-                itemProps={{ className: classes.map }}
-            />
+            <DevicesMap devices={deviceGroup.devices} itemProps={{ className: classes.map }} />
             <DeviceGroupLocationData {...locationProps} />
             <DeviceGroupName name={deviceGroup.name} />
             <DetailViewCard {...cardProps} />

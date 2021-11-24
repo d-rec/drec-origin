@@ -7,7 +7,7 @@ import { useStyles } from './DevicesMap.styles';
 import { ItemHighlightedContent } from '../ItemHighlightedContent';
 
 interface DevicesMapProps {
-    deviceGroupName: string;
+    deviceGroupName?: string;
     devices: DeviceDTO[];
     itemProps: React.HTMLAttributes<HTMLDivElement>;
 }
@@ -31,7 +31,9 @@ export const DevicesMap: FC<DevicesMapProps> = ({ deviceGroupName, devices, item
                     }}
                     infoWindowContent={ItemHighlightedContent}
                 />
-                <Typography className={classes.deviceGroupName}>{deviceGroupName}</Typography>
+                {deviceGroupName ? (
+                    <Typography className={classes.deviceGroupName}>{deviceGroupName}</Typography>
+                ) : null}
             </div>
         </BlockTintedBottom>
     );
