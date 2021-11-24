@@ -40,13 +40,8 @@ export const useAppContainerEffects = () => {
     const userIsOrgAdmin = isRole(user?.role, Role.OrganizationAdmin);
     const userIsDeviceManagerOrAdmin = isRole(user?.role, Role.DeviceOwner, Role.OrganizationAdmin);
     const userIsActive = user && user.status === UserStatus.Active;
-    const userIsAdminOrSupport = isRole(user?.role, Role.Admin, Role.SupportAgent);
-    const userIsOrgAdminOrAdminOrSupport = isRole(
-        user?.role,
-        Role.OrganizationAdmin,
-        Role.Admin,
-        Role.SupportAgent
-    );
+    const userIsAdminOrSupport = isRole(user?.role, Role.Admin);
+    const userIsOrgAdminOrAdminOrSupport = isRole(user?.role, Role.OrganizationAdmin, Role.Admin);
     const userOrgHasBlockchainAccountAttached = Boolean(
         user?.organization?.blockchainAccountAddress
     );
