@@ -17,6 +17,18 @@ export const useStyles = makeStyles((theme) => ({
     specFieldValue: {
         fontSize: '0.9rem'
     },
+    contentWrapper: {
+        display: 'flex'
+    },
+    iconWrapper: {
+        width: '50%',
+        [theme.breakpoints.down('md')]: {
+            width: '50%'
+        },
+        [theme.breakpoints.down('sm')]: {
+            width: '50%'
+        }
+    },
     icon: {
         width: 25,
         fill: LightenColor(theme.palette.text.secondary, -7, theme.palette.mode)

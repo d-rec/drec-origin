@@ -32,13 +32,21 @@ export const PublicDeviceGroupCardContent: TPublicDeviceGroupCardContent = ({
                 ))}
             </div>
             <Divider />
-            <div>
+            <div className={classes.contentWrapper}>
                 {iconsData.map((field) => (
-                    <IconText
-                        key={field.title + id}
-                        iconProps={{ className: classes.icon }}
-                        {...field}
-                    />
+                    <div className={classes.iconWrapper} key={field.title + id}>
+                        <IconText
+                            iconProps={{
+                                className: classes.icon,
+                                width: 25,
+                                height: 25
+                            }}
+                            gridContainerProps={{
+                                justifyContent: 'flex-start'
+                            }}
+                            {...field}
+                        />
+                    </div>
                 ))}
             </div>
         </>

@@ -84,7 +84,7 @@ export class DeviceGroupController {
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.OrganizationUser)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],

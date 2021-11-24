@@ -8,10 +8,6 @@ export const roleNamesMatcherForMembersPage = [
     {
         value: Role.DeviceOwner,
         label: 'Device Manager'
-    },
-    {
-        value: Role.OrganizationUser,
-        label: 'Member'
     }
 ];
 
@@ -23,18 +19,10 @@ export const roleNamesMembersPage = () => [
     {
         value: Role.DeviceOwner,
         label: 'Device Manager'
-    },
-    {
-        value: Role.OrganizationUser,
-        label: 'Member'
     }
 ];
 
 export const roleNamesInvitePage = () => [
-    {
-        value: Role.OrganizationUser,
-        label: 'Member'
-    },
     {
         value: Role.DeviceOwner,
         label: 'Device Manager'

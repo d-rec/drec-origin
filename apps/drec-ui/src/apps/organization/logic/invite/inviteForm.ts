@@ -14,7 +14,7 @@ export const useInviteFormLogic: TUseInviteFormLogic = () => {
     return {
         initialValues: {
             email: '',
-            role: Role.OrganizationUser
+            role: Role.DeviceOwner
         },
         validationSchema: yup.object({
             email: yup.string().email().required().label('Email')
