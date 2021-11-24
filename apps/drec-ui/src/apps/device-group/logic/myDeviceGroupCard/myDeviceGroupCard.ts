@@ -18,17 +18,17 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
         groupAttributes: [
             [
                 {
-                    label: 'Facility ID',
-                    value: deviceGroup.id.toString()
-                },
-                {
                     label: 'Standard Compliance',
                     value: deviceGroup.standardCompliance
+                },
+                {
+                    label: 'Installation Configurations',
+                    value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
                 }
             ],
             [
                 {
-                    label: 'Aggregated Capacity (MW)',
+                    label: 'Aggregated Capacity (kWh)',
                     value: PowerFormatter.format(deviceGroup.aggregatedCapacity, true)
                 },
                 {
@@ -43,10 +43,9 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
                 value: deviceGroup.offTakers.join().replaceAll(',', ', ')
             },
             {
-                label: 'Installation Configurations',
-                value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
+                label: 'Sector',
+                value: deviceGroup?.sectors.join().replaceAll(',', ', ')
             },
-
             {
                 label: 'Commissioning date ranges',
                 value: deviceGroup.commissioningDateRange.join().replaceAll(',', ', ')

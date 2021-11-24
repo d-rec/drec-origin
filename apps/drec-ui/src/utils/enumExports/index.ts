@@ -104,25 +104,25 @@ export enum Sector {
 }
 
 export enum CommissioningDateRange {
-    Year_1_Q1 = 'Year1-Q1',
-    Year_1_Q2 = 'Year1-Q2',
-    Year_1_Q3 = 'Year1-Q3',
-    Year_1_Q4 = 'Year1-Q4',
-    Year_2 = 'Year2',
-    Year_3 = 'Year3',
-    Year_4 = 'Year4',
-    Year_5 = 'Year5',
-    Between_years_6_10 = '6-10years',
-    Between_years_11_15 = '11-15years',
-    Above_15_years = '15+years'
+    Year_1_Q1 = 'Year 1 - Q1',
+    Year_1_Q2 = 'Year 1 - Q2',
+    Year_1_Q3 = 'Year 1 - Q3',
+    Year_1_Q4 = 'Year 1 - Q4',
+    Year_2 = 'Year 2',
+    Year_3 = 'Year 3',
+    Year_4 = 'Year 4',
+    Year_5 = 'Year 5',
+    Between_years_6_10 = '6 - 10 years',
+    Between_years_11_15 = '11 - 15 years',
+    Above_15_years = '15 years+'
 }
 
 export enum CapacityRange {
-    Between_0_50_w = '0-50watts',
-    Between_51_500_w = '51-500watts',
-    Between_501w_1kw = '501watts-1kW',
-    Between_1kw_50kw = '1.001kW-50kW',
-    Between_50kw_100kw = '50.001kW-100kW',
-    Between_101kw_1mw = '100.001kW-1MW',
+    Between_0_50_w = '0 - 50W',
+    Between_51_500_w = '51 - 500W',
+    Between_501w_1kw = '501W - 1kW',
+    Between_1kw_50kw = '1.001kW - 50kW',
+    Between_50kw_100kw = '50.001kW - 100kW',
+    Between_101kw_1mw = '100.001kW - 1MW',
     Above_1mw = '1.001MW+'
 }

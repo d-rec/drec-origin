@@ -4,9 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 export const useStyles = makeStyles((theme) => ({
     contentWrapper: {
         display: 'flex',
-        [theme.breakpoints.down('md')]: {
-            flexDirection: 'column'
-        },
+        [theme.breakpoints.down('md')]: {},
         [theme.breakpoints.down('sm')]: {
             paddingBottom: 10
         }
@@ -14,10 +12,10 @@ export const useStyles = makeStyles((theme) => ({
     iconWrapper: {
         width: '50%',
         [theme.breakpoints.down('md')]: {
-            width: '100%'
+            width: '50%'
         },
         [theme.breakpoints.down('sm')]: {
-            width: '100%'
+            width: '50%'
         }
     },
     deviceGroupIcon: {
