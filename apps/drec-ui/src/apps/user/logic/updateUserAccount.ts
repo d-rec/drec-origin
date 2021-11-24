@@ -20,7 +20,7 @@ export const useUpdateUserAccountDataFormConfig = (
         status
     };
     return {
-        buttonText: 'Edit',
+        buttonText: 'Save',
         fields: [
             {
                 label: 'First name',

@@ -10,7 +10,7 @@ type TUpdateUserEmailFormValues = {
 export const useUpdateUserEmailEffects = (initialUserData: UserDTO) => {
     const { submitHandler } = useApiUpdateUserAccountEmail();
     const formConfig: Omit<GenericFormProps<TUpdateUserEmailFormValues>, 'submitHandler'> = {
-        buttonText: 'Change',
+        buttonText: 'Save',
         fields: [
             {
                 label: 'Email',

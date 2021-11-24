@@ -17,7 +17,7 @@ const INITIAL_FORM_VALUES = {
 export const useUpdateUserPasswordEffects = () => {
     const { submitHandler } = useApiUpdateUserAccountPassword();
     const formConfig: Omit<GenericFormProps<TUpdateUserPasswordFormValues>, 'submitHandler'> = {
-        buttonText: 'Change',
+        buttonText: 'Save',
         fields: [
             {
                 type: 'password',
