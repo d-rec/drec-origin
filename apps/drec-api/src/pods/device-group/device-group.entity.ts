@@ -67,7 +67,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   aggregatedCapacity: number;
 
-  @Column({ type: 'enum', enum: CapacityRange })
+  @Column('text')
   @IsEnum(CapacityRange)
   capacityRange: CapacityRange;
 

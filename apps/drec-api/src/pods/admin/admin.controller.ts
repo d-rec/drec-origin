@@ -53,7 +53,7 @@ export class AdminController {
   ) {}
 
   @Get('/users')
-  @Roles(Role.Admin, Role.SupportAgent)
+  @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -66,7 +66,7 @@ export class AdminController {
   }
 
   @Get('/organizations')
-  @Roles(Role.Admin, Role.SupportAgent)
+  @Roles(Role.Admin)
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
@@ -76,7 +76,7 @@ export class AdminController {
   }
 
   @Get('/organizations/:id')
-  @Roles(Role.Admin, Role.SupportAgent)
+  @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -103,7 +103,7 @@ export class AdminController {
   }
 
   @Put('/users/:id')
-  @Roles(Role.Admin, Role.SupportAgent)
+  @Roles(Role.Admin)
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
     status: HttpStatus.OK,

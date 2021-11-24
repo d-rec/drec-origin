@@ -76,7 +76,7 @@ export const useStyles = makeStyles((theme) => ({
     },
     specFieldValue: {
         color: theme.palette.text.primary,
-        fontSize: '1.2rem',
+        fontSize: '0.9rem',
         margin: '0 20px'
     }
 }));

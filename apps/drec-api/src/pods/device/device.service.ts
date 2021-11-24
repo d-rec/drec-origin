@@ -33,6 +33,8 @@ import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
+import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
 
 @Injectable()
 export class DeviceService {
@@ -212,6 +214,12 @@ export class DeviceService {
       const deviceKey: DeviceKey = DeviceSortPropertyMapper[
         orderRule
       ] as DeviceKey;
+      if (deviceKey === 'fuelCode') {
+        return getFuelNameFromCode(devices[0][deviceKey]);
+      }
+      if (deviceKey === 'deviceTypeCode') {
+        return getDeviceTypeFromCode(devices[0][deviceKey]);
+      }
       return devices[0][deviceKey];
     })}`;
     return name;

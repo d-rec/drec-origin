@@ -7,7 +7,7 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
     allTypes
 }) => {
     const locationProps = {
-        owner: `DeviceGroup owner organization ${owner}`,
+        owner: `Device Group Owner Organization ${owner}`,
         location: `${deviceGroup?.countryCode}`
     };
 
@@ -30,7 +30,7 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
                 value: deviceGroup?.standardCompliance
             },
             {
-                label: 'Aggregated Capacity (kW)',
+                label: 'Aggregated Capacity (kWh)',
                 value: PowerFormatter.formatDisplay(deviceGroup?.aggregatedCapacity, true)
             },
             {
@@ -52,14 +52,6 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
             {
                 label: 'Commissioning date ranges',
                 value: deviceGroup?.commissioningDateRange.join().replaceAll(',', ', ')
-            },
-            {
-                label: 'Yield value',
-                value: deviceGroup?.yieldValue
-            },
-            {
-                label: 'Labels',
-                value: deviceGroup?.labels.join().replaceAll(',', ', ')
             }
         ]
     };

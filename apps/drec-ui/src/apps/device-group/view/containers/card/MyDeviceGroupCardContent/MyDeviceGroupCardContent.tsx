@@ -27,7 +27,7 @@ export const MyDeviceGroupCardContent: FC<MyDeviceGroupCardContentProps> = ({
                             height: 40
                         }}
                         gridContainerProps={{
-                            justifyContent: theme.breakpoints.up('md') ? 'center' : 'flex-start'
+                            justifyContent: 'flex-start'
                         }}
                         {...field}
                     />

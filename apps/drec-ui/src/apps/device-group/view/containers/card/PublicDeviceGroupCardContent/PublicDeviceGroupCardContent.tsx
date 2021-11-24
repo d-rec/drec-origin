@@ -26,6 +26,7 @@ export const PublicDeviceGroupCardContent: TPublicDeviceGroupCardContent = ({
                     <SpecField
                         key={spec.label + id}
                         wrapperProps={{ className: classes.specFieldWrapper }}
+                        valueProps={{ className: classes.specFieldValue }}
                         {...spec}
                     />
                 ))}

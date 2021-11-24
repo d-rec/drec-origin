@@ -93,7 +93,7 @@ export const useChangeMemberRoleLogic: TChangeMemberRoleLogic = ({
                 color: 'secondary'
             },
             {
-                label: 'Change',
+                label: 'Save',
                 onClick: changeRoleHandler,
                 disabled: buttonDisabled
             }

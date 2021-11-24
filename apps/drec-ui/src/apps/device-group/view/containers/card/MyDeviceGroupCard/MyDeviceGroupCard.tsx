@@ -29,16 +29,21 @@ export const MyDeviceGroupCard: React.FC<MyDeviceGroupCardProps> = ({
     const classes = useStyles();
 
     return (
-        <HorizontalCard
-            selected={selected}
-            onClick={onClick}
-            fallbackIcon={fallbackIcon}
-            fallbackIconProps={{ className: classes.fallbackIcon }}
-            fallbackIconWrapperProps={{ className: classes.fallbackIconWrapper }}
-            header={<MyDeviceGroupCardHeader {...cardHeaderProps} />}
-            content={
-                <MyDeviceGroupCardContent deviceGroupId={deviceGroup.id} {...cardContentProps} />
-            }
-        />
+        <div className={classes.card}>
+            <HorizontalCard
+                selected={selected}
+                onClick={onClick}
+                fallbackIcon={fallbackIcon}
+                fallbackIconProps={{ className: classes.fallbackIcon }}
+                fallbackIconWrapperProps={{ className: classes.fallbackIconWrapper }}
+                header={<MyDeviceGroupCardHeader {...cardHeaderProps} />}
+                content={
+                    <MyDeviceGroupCardContent
+                        deviceGroupId={deviceGroup.id}
+                        {...cardContentProps}
+                    />
+                }
+            />
+        </div>
     );
 };

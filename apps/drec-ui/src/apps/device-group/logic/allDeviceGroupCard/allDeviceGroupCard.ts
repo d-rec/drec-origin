@@ -2,7 +2,7 @@ import { CardWithImageProps, IconTextProps, SpecFieldProps } from '@energyweb/or
 import { EnergyTypeEnum } from '@energyweb/origin-ui-utils';
 import { TUseSpecsForAllDeviceGroupCard } from './types';
 import { getMainFuelType, getEnergyTypeImage, PowerFormatter } from 'utils';
-import { GermanyFlag } from 'assets';
+import { Flag } from 'assets';
 
 export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
     deviceGroup,
@@ -11,7 +11,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
 }) => {
     const specsData: SpecFieldProps[] = [
         {
-            label: 'Aggregated Capacity (kW)',
+            label: 'Aggregated Capacity (kWh)',
             value: PowerFormatter.formatDisplay(deviceGroup.aggregatedCapacity, true)
         },
         {
@@ -31,6 +31,10 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
             value: deviceGroup.offTakers.join().replaceAll(',', ', ')
         },
         {
+            label: 'Sector',
+            value: deviceGroup?.sectors.join().replaceAll(',', ', ')
+        },
+        {
             label: 'Installation Configurations',
             value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
         }
@@ -45,7 +49,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
             subtitle: restType
         },
         {
-            icon: GermanyFlag,
+            icon: Flag,
             title: `${deviceGroup.countryCode}`
         }
     ];
@@ -53,7 +57,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
     const detailViewLink = `/device-group/detail-view/${deviceGroup.id}`;
 
     const cardProps: Omit<CardWithImageProps, 'content'> = {
-        heading: `Facility ${deviceGroup.id}`,
+        heading: `${deviceGroup?.name.replaceAll(',', ' ')}`,
         hoverText: 'View details'.toUpperCase(),
         imageUrl: '',
         fallbackIcon: deviceGroupIcon,

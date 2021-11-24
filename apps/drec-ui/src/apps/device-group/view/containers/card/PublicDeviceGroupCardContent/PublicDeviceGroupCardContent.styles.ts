@@ -10,7 +10,12 @@ export const useStyles = makeStyles((theme) => ({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '20px'
+        gap: '30px',
+        fontSize: '0.9rem',
+        marginBottom: '10px'
+    },
+    specFieldValue: {
+        fontSize: '0.9rem'
     },
     icon: {
         width: 25,

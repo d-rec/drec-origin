@@ -39,6 +39,7 @@ import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
+import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 
 @Injectable()
 export class DeviceGroupService {
@@ -438,7 +439,11 @@ export class DeviceGroupService {
     const deviceGroup: NewDeviceGroupDTO = {
       name:
         groupName ||
-        `${devices[0].countryCode},${devices[0].fuelCode},${devices[0].standardCompliance},${devices[0].offTaker},${devices[0].installationConfiguration}`,
+        `${devices[0].countryCode},${getFuelNameFromCode(
+          devices[0].fuelCode,
+        )},${devices[0].standardCompliance},${devices[0].offTaker},${
+          devices[0].installationConfiguration
+        }`,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,
