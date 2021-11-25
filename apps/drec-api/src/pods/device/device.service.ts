@@ -66,7 +66,12 @@ export class DeviceService {
   }
 
   public async findForGroup(groupId: number): Promise<Device[]> {
-    return this.repository.find({ groupId });
+    return this.repository.find({
+      where: { groupId },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   public async findByIds(ids: number[]): Promise<Device[]> {

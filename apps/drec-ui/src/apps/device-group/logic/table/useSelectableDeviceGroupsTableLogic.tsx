@@ -48,7 +48,7 @@ export const useSelectableDeviceGroupsTableLogic = (
             sectors: 'Sectors',
             commissioningDateRange: 'Commissioning Date Range',
             standardCompliance: 'Standard Compliance',
-            actions: 'View details',
+            actions: 'Details',
             checked: ''
         },
         loading,

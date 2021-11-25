@@ -46,72 +46,62 @@ export const App: FC<AppProps> = memo(
                                 />
                             }
                         >
-                            {loading ? (
-                                <CircularProgress />
-                            ) : (
-                                <>
-                                    <Route
-                                        path="device-group/*"
-                                        element={
-                                            <DeviceGroupApp
-                                                routesConfig={deviceGroupRoutes}
-                                                envVariables={{
-                                                    googleMapsApiKey:
-                                                        process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                                                }}
-                                            />
-                                        }
+                            <Route
+                                path="device-group/*"
+                                element={
+                                    <DeviceGroupApp
+                                        routesConfig={deviceGroupRoutes}
+                                        envVariables={{
+                                            googleMapsApiKey:
+                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                        }}
                                     />
-                                    <Route
-                                        path="certificate/*"
-                                        element={
-                                            <CertificateApp
-                                                routesConfig={certificateRoutes}
-                                                envVariables={{
-                                                    googleMapsApiKey:
-                                                        process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                                                }}
-                                            />
-                                        }
+                                }
+                            />
+                            <Route
+                                path="certificate/*"
+                                element={
+                                    <CertificateApp
+                                        routesConfig={certificateRoutes}
+                                        envVariables={{
+                                            googleMapsApiKey:
+                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                        }}
                                     />
-                                    <Route
-                                        path="organization/*"
-                                        element={<OrganizationApp routesConfig={orgRoutes} />}
+                                }
+                            />
+                            <Route
+                                path="organization/*"
+                                element={<OrganizationApp routesConfig={orgRoutes} />}
+                            />
+                            <Route
+                                path="admin/*"
+                                element={<AdminApp routesConfig={adminRoutes} />}
+                            />
+                            <Route
+                                path="auth/*"
+                                element={
+                                    <AuthApp routesConfig={{ showRegister: !isAuthenticated }} />
+                                }
+                            />
+                            <Route
+                                path="account/*"
+                                element={
+                                    <AccountApp
+                                        routesConfig={accountRoutes}
+                                        envVariables={{
+                                            registrationMessage:
+                                                process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN,
+                                            issuerAddress: process.env.REACT_APP_ISSUER_ADDRESS
+                                        }}
                                     />
-                                    <Route
-                                        path="admin/*"
-                                        element={<AdminApp routesConfig={adminRoutes} />}
-                                    />
-                                    <Route
-                                        path="auth/*"
-                                        element={
-                                            <AuthApp
-                                                routesConfig={{ showRegister: !isAuthenticated }}
-                                            />
-                                        }
-                                    />
-                                    <Route
-                                        path="account/*"
-                                        element={
-                                            <AccountApp
-                                                routesConfig={accountRoutes}
-                                                envVariables={{
-                                                    registrationMessage:
-                                                        process.env
-                                                            .REACT_APP_REGISTRATION_MESSAGE_TO_SIGN,
-                                                    issuerAddress:
-                                                        process.env.REACT_APP_ISSUER_ADDRESS
-                                                }}
-                                            />
-                                        }
-                                    />
-                                    <Route element={<Navigate to="device-group/all" />} />
-                                </>
-                            )}
+                                }
+                            />
+                            <Route path="/" element={<Navigate to="device-group/all" />} />
+                            <Route path="*" element={<PageNotFound />} />
                         </Route>
                         <Route path="/login" element={<LoginApp />} />
                         <Route path="/confirm-email" element={<ConfirmEmailApp />} />
-                        {!loading && <Route path="*" element={<PageNotFound />} />}
                     </Routes>
                 )}
             </>

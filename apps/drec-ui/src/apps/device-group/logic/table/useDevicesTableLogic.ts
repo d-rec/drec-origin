@@ -2,8 +2,9 @@ import { DeviceDTO } from '@energyweb/origin-drec-api-client';
 import { TableComponentProps } from '@energyweb/origin-ui-core';
 import { PowerFormatter } from '../../../../utils';
 
-const prepareDevicesData = (device: DeviceDTO) => ({
+const prepareDevicesData = (device: DeviceDTO, index: number) => ({
     id: device.id,
+    no: index + 1,
     projectName: device.projectName,
     externalId: device.externalId,
     status: device.status,
@@ -22,6 +23,7 @@ export const useDevicesTableLogic = (
 ): TableComponentProps<DeviceDTO['id']> => {
     return {
         header: {
+            no: 'No',
             projectName: 'Project name',
             externalId: 'External ID',
             status: 'Status',
@@ -35,6 +37,6 @@ export const useDevicesTableLogic = (
         },
         loading,
         pageSize: 25,
-        data: devices?.map((device) => prepareDevicesData(device)) ?? []
+        data: devices?.map((device, index) => prepareDevicesData(device, index)) ?? []
     };
 };
