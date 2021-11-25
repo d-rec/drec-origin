@@ -1,6 +1,6 @@
 import { IconText, IconTextProps } from '@energyweb/origin-ui-core';
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { Box, Button, Card } from '@material-ui/core';
+import { Box, Button, Card } from '@mui/material';
 import { FC } from 'react';
 import { useDeviceGroupDetailCardEffects } from './DeviceGroupDetailCard.effects';
 import { useStyles } from './DeviceGroupDetailCard.styles';

@@ -1,4 +1,4 @@
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import { CertificateDetails, DeviceGroupDetails } from '../../containers';
 import { useDetailedPageViewEffects } from './DetailViewPage.effects';
 import { useStyles } from './DetailViewPage.styles';

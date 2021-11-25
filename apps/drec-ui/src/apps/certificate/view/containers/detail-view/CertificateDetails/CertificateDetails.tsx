@@ -1,4 +1,4 @@
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { Grid, Paper, Typography } from '@mui/material';
 import React, { FC } from 'react';
 import { DetailedCertificate } from '../../../../types';
 import { StyledTitleAndText } from '../StyledTitleAndText';

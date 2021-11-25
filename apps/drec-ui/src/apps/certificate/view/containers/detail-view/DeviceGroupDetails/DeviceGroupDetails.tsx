@@ -1,5 +1,5 @@
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import { FC } from 'react';
 import {
     DeviceGroupLocationData,

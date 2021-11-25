@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { BlockTintedBottom, GenericMap } from '@energyweb/origin-ui-core';
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { useDeviceGroupAppEnv } from '../../../context';
 import { useStyles } from './DevicesMap.styles';
 import { ItemHighlightedContent } from '../ItemHighlightedContent';

@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { FC } from 'react';
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
 import { useStyles } from './ItemHighlightedContent.styles';

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Paper, Typography } from '@material-ui/core';
+import { Paper, Typography } from '@mui/material';
 import { useStyles } from './NoItems.styles';
 
 export interface NoItemsProps {

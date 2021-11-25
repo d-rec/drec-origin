@@ -1,6 +1,6 @@
 import { CodeNameDTO, SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox } from '@mui/material';
 import { getFuelNameFromCode } from '../../../../utils';
 
 const prepareSelectableDeviceGroupsData = (

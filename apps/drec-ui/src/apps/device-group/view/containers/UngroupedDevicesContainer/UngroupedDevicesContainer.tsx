@@ -1,6 +1,6 @@
 import { GroupedDevicesDTO, UngroupedDeviceDTO } from '@energyweb/origin-drec-api-client';
 import { TableComponent } from '@energyweb/origin-ui-core';
-import { Button, Typography } from '@material-ui/core';
+import { Button, Typography } from '@mui/material';
 import { FC } from 'react';
 import { useUngroupedDevicesContainerEffects } from './UngroupedDevicesContainer.effects';
 import { useStyles } from './UngroupedDevicesContainer.styles';

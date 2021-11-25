@@ -1,6 +1,6 @@
 import React from 'react';
 import { GenericModal } from '@energyweb/origin-ui-core';
-import { DraftsOutlined } from '@material-ui/icons';
+import { DraftsOutlined } from '@mui/icons-material';
 import { useLoginRegisterOrgEffects } from './LoginRegisterOrg.effects';
 import { useStyles } from './LoginRegisterOrg.styles';
 

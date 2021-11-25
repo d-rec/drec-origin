@@ -1,5 +1,5 @@
 import { OrganizationDTO } from '@energyweb/origin-drec-api-client';
-import { Check } from '@material-ui/icons';
+import { Check } from '@mui/icons-material';
 import { useAllOrganizations, useOrgApproveHandler } from 'apps/organization/data';
 import { useAllOrganizationsTableLogic } from 'apps/organization/logic';
 

@@ -1,4 +1,4 @@
-import { PaletteMode } from '@material-ui/core';
+import { PaletteMode } from '@mui/material';
 
 /* eslint-disable no-bitwise */
 export function LightenColor(color: string, percent: number, themeMode?: PaletteMode): string {

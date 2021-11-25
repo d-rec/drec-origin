@@ -1,6 +1,6 @@
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import { ListActionComponentProps } from '@energyweb/origin-ui-core';
-import { CircularProgress, TextField } from '@material-ui/core';
+import { CircularProgress, TextField } from '@mui/material';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { withMetamask } from 'utils';
 import { CertificateActionContent } from '../../list';

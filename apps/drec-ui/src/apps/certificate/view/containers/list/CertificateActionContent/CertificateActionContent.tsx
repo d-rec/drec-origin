@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Paper, Typography } from '@material-ui/core';
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { SelectedItem, SelectedItemProps } from '../SelectedItem';
 import { useCertificateActionContentEffects } from './CertificateActionContent.effects';

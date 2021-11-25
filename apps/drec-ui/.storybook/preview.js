@@ -1,5 +1,5 @@
 import { addDecorator } from '@storybook/react';
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@material-ui/core';
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { themeOptions } from '../src/utils/styling';

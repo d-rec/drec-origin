@@ -1,5 +1,5 @@
 import { AggregatedReadDTO } from '@energyweb/origin-drec-api-client';
-import { useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
 
 export const useGenerateChartDataset = (reads: AggregatedReadDTO[]) => {
     const theme = useTheme();

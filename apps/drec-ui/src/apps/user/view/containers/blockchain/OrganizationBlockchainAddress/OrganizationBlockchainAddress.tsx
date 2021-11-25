@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@material-ui/core';
-import { Info } from '@material-ui/icons';
+import { Box, Button, CircularProgress, Grid, TextField, Typography } from '@mui/material';
+import { Info } from '@mui/icons-material';
 import { IconPopover, IconSize } from '@energyweb/origin-ui-core';
 import { useOrganizationBlockchainAddressEffects } from './OrganizationBlockchainAddress.effects';
 import { useStyles } from './OrganizationBlockchainAddress.styles';

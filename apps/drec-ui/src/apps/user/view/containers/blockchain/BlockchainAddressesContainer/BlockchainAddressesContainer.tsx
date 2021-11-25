@@ -1,4 +1,4 @@
-import { Paper, Typography } from '@material-ui/core';
+import { Paper, Typography } from '@mui/material';
 import { OrganizationBlockchainAddress } from '../OrganizationBlockchainAddress';
 import { useStyles } from './BlockchainAddressesContainer.styles';
 import { withMetamask } from 'utils';

@@ -1,6 +1,6 @@
 import { CodeNameDTO, UngroupedDeviceDTO } from '@energyweb/origin-drec-api-client';
 import { TableComponentProps } from '@energyweb/origin-ui-core';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox } from '@mui/material';
 import { getFuelNameFromCode } from '../../../../utils';
 
 const prepareUngroupedDevicesData = (

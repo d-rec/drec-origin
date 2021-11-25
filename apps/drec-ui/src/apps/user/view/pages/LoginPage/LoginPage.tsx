@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Box, Button, Paper, Typography } from '@material-ui/core';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import { GenericForm, IconLink } from '@energyweb/origin-ui-core';
 import { useLogInPageEffects } from './LoginPage.effects';
 import { useStyles } from './LoginPage.styles';

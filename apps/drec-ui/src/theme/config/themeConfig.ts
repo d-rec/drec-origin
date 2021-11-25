@@ -1,5 +1,5 @@
-import { createTheme, Theme, ThemeOptions } from '@material-ui/core/styles';
-import { enUS } from '@material-ui/core/locale';
+import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
+import { enUS } from '@mui/material/locale';
 import { LightenColor } from '../utils/colors';
 import { IDrecStyleConfig } from '../utils/makeDrecUiConfig';
 import { variables } from './variables';

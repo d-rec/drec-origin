@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { CircularProgress, Grid } from '@material-ui/core';
+import { CircularProgress, Grid } from '@mui/material';
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { useStyles } from './AllDeviceGroupsPage.styles';
 import { useAllDeviceGroupsPageEffects } from './AllDeviceGroupsPage.effects';

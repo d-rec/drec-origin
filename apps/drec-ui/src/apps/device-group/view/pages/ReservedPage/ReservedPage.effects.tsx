@@ -9,7 +9,7 @@ import { useAllDeviceFuelTypes, useReservedDeviceGroups } from '../../../data';
 import { useEffect, useState } from 'react';
 import { SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { useNavigate } from 'react-router';
-import { Pageview } from '@material-ui/icons';
+import { Pageview } from '@mui/icons-material';
 
 const initialFormValues: UnreservedFormFormValues = {
     country: [],
@@ -41,7 +41,9 @@ export const useReservedPageEffects = () => {
     );
 
     const handleChecked = (id: SelectableDeviceGroupDTO['id'], checked: boolean) => {
-        const groupIndex = deviceGroups.findIndex((selectable) => selectable.id === id);
+        const groupIndex = deviceGroups.findIndex(
+            (selectable: SelectableDeviceGroupDTO) => selectable.id === id
+        );
         const updatedDeviceGroups = [...deviceGroups];
         if (groupIndex !== -1) {
             updatedDeviceGroups[groupIndex].selected = checked;

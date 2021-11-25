@@ -2,7 +2,7 @@ import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 import { CertificateApp } from 'apps/certificate';
@@ -27,84 +27,94 @@ export const App: FC<AppProps> = memo(
         const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes } =
             routesConfig;
         return (
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <MainLayout
-                            isAuthenticated={isAuthenticated}
-                            topbarButtons={topbarButtons}
-                            menuSections={menuSections}
-                            userData={userData}
-                            orgData={orgData}
-                            icon={<DrecLogo />}
-                            iconWrapperProps={{ my: 5, px: 2 }}
-                        />
-                    }
-                >
-                    {loading ? (
-                        <CircularProgress />
-                    ) : (
-                        <>
-                            <Route
-                                path="device-group/*"
-                                element={
-                                    <DeviceGroupApp
-                                        routesConfig={deviceGroupRoutes}
-                                        envVariables={{
-                                            googleMapsApiKey:
-                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                                        }}
+            <>
+                {loading ? (
+                    <CircularProgress />
+                ) : (
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={
+                                <MainLayout
+                                    isAuthenticated={isAuthenticated}
+                                    topbarButtons={topbarButtons}
+                                    menuSections={menuSections}
+                                    userData={userData}
+                                    orgData={orgData}
+                                    icon={<DrecLogo />}
+                                    iconWrapperProps={{ my: 5, px: 2 }}
+                                />
+                            }
+                        >
+                            {loading ? (
+                                <CircularProgress />
+                            ) : (
+                                <>
+                                    <Route
+                                        path="device-group/*"
+                                        element={
+                                            <DeviceGroupApp
+                                                routesConfig={deviceGroupRoutes}
+                                                envVariables={{
+                                                    googleMapsApiKey:
+                                                        process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                                }}
+                                            />
+                                        }
                                     />
-                                }
-                            />
-                            <Route
-                                path="certificate/*"
-                                element={
-                                    <CertificateApp
-                                        routesConfig={certificateRoutes}
-                                        envVariables={{
-                                            googleMapsApiKey:
-                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                                        }}
+                                    <Route
+                                        path="certificate/*"
+                                        element={
+                                            <CertificateApp
+                                                routesConfig={certificateRoutes}
+                                                envVariables={{
+                                                    googleMapsApiKey:
+                                                        process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                                }}
+                                            />
+                                        }
                                     />
-                                }
-                            />
-                            <Route
-                                path="organization/*"
-                                element={<OrganizationApp routesConfig={orgRoutes} />}
-                            />
-                            <Route
-                                path="admin/*"
-                                element={<AdminApp routesConfig={adminRoutes} />}
-                            />
-                            <Route
-                                path="auth/*"
-                                element={
-                                    <AuthApp routesConfig={{ showRegister: !isAuthenticated }} />
-                                }
-                            />
-                            <Route
-                                path="account/*"
-                                element={
-                                    <AccountApp
-                                        routesConfig={accountRoutes}
-                                        envVariables={{
-                                            registrationMessage:
-                                                process.env.REACT_APP_REGISTRATION_MESSAGE_TO_SIGN,
-                                            issuerAddress: process.env.REACT_APP_ISSUER_ADDRESS
-                                        }}
+                                    <Route
+                                        path="organization/*"
+                                        element={<OrganizationApp routesConfig={orgRoutes} />}
                                     />
-                                }
-                            />
-                            <Route element={<Navigate to="device-group/all" />} />
-                        </>
-                    )}
-                </Route>
-                <Route path="/login" element={<LoginApp />} />
-                <Route path="/confirm-email" element={<ConfirmEmailApp />} />
-                {!loading && <Route path="*" element={<PageNotFound />} />}
-            </Routes>
+                                    <Route
+                                        path="admin/*"
+                                        element={<AdminApp routesConfig={adminRoutes} />}
+                                    />
+                                    <Route
+                                        path="auth/*"
+                                        element={
+                                            <AuthApp
+                                                routesConfig={{ showRegister: !isAuthenticated }}
+                                            />
+                                        }
+                                    />
+                                    <Route
+                                        path="account/*"
+                                        element={
+                                            <AccountApp
+                                                routesConfig={accountRoutes}
+                                                envVariables={{
+                                                    registrationMessage:
+                                                        process.env
+                                                            .REACT_APP_REGISTRATION_MESSAGE_TO_SIGN,
+                                                    issuerAddress:
+                                                        process.env.REACT_APP_ISSUER_ADDRESS
+                                                }}
+                                            />
+                                        }
+                                    />
+                                    <Route element={<Navigate to="device-group/all" />} />
+                                </>
+                            )}
+                        </Route>
+                        <Route path="/login" element={<LoginApp />} />
+                        <Route path="/confirm-email" element={<ConfirmEmailApp />} />
+                        {!loading && <Route path="*" element={<PageNotFound />} />}
+                    </Routes>
+                )}
+            </>
         );
     }
 );

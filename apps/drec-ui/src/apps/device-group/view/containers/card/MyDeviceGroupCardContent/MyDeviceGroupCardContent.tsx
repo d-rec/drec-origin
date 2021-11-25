@@ -1,5 +1,5 @@
 import { IconText, IconTextProps } from '@energyweb/origin-ui-core';
-import { useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
 import { FC } from 'react';
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
 import { useStyles } from './MyDeviceGroupCardContent.styles';

@@ -1,5 +1,5 @@
 import { GenericModal } from '@energyweb/origin-ui-core';
-import { HowToReg } from '@material-ui/icons';
+import { HowToReg } from '@mui/icons-material';
 import { useUserRegisteredEffects } from './UserRegistered.effects';
 import { useStyles } from './UserRegistered.styles';
 

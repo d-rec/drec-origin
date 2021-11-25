@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { DisabledFormView } from '@energyweb/origin-ui-core';
-import { Box, CircularProgress } from '@material-ui/core';
+import { Box, CircularProgress } from '@mui/material';
 import { useOrganizationViewPageEffects } from './OrganizationViewPage.effects';
 import { useStyles } from './OrganizationViewPage.styles';
 

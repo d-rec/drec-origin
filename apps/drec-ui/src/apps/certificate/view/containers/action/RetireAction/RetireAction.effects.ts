@@ -8,12 +8,9 @@ import {
     useCachedBlockchainCertificates,
     useRetireCertificateHandler
 } from 'apps/certificate/data';
-import {
-    BeneficiaryFormValues,
-    useBeneficiaryFormLogic,
-    useRetireActionLogic
-} from 'apps/certificate/logic';
+import { useBeneficiaryFormLogic, useRetireActionLogic } from 'apps/certificate/logic';
 import { useMyOrganizationData } from 'apps/organization';
+import { Dayjs } from 'dayjs';
 
 export const useRetireActionEffects = (
     selectedIds: CertificateDTO['id'][],
@@ -26,7 +23,7 @@ export const useRetireActionEffects = (
 
     const { initialValues, fields, validationSchema } = useBeneficiaryFormLogic();
 
-    const { register, control, watch, formState } = useForm<BeneficiaryFormValues>({
+    const { register, control, watch, formState } = useForm({
         defaultValues: initialValues,
         mode: 'onChange',
         resolver: yupResolver(validationSchema)
@@ -40,8 +37,8 @@ export const useRetireActionEffects = (
     const { retireHandler, isLoading: isHandlerLoading } = useRetireCertificateHandler(
         selectedBeneficiary,
         resetIds,
-        startDate,
-        endDate,
+        startDate as Dayjs,
+        endDate as Dayjs,
         purpose,
         setTxPending
     );

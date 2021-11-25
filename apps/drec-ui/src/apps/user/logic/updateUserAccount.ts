@@ -7,17 +7,19 @@ type TUpdateUserDataFormValues = {
     lastName: UserDTO['lastName'];
     telephone: UserDTO['telephone'];
     status: UserDTO['status'];
+    emailConfirmed: string;
 };
 
 export const useUpdateUserAccountDataFormConfig = (
     user: UserDTO
 ): Omit<GenericFormProps<TUpdateUserDataFormValues>, 'submitHandler'> => {
-    const { firstName, lastName, telephone, status } = user;
+    const { firstName, lastName, telephone, status, emailConfirmed } = user;
     const initialFormData: TUpdateUserDataFormValues = {
         firstName,
         lastName,
         telephone,
-        status
+        status,
+        emailConfirmed: emailConfirmed ? 'Yes' : 'No'
     };
     return {
         buttonText: 'Save',
@@ -40,6 +42,11 @@ export const useUpdateUserAccountDataFormConfig = (
             {
                 label: 'Status',
                 name: 'status',
+                textFieldProps: { disabled: true }
+            },
+            {
+                label: 'Email confirmed',
+                name: 'emailConfirmed',
                 textFieldProps: { disabled: true }
             }
         ],

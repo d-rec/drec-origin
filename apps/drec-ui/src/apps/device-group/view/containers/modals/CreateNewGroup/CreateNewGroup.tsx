@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from '@material-ui/core';
+import { Dialog, DialogContent } from '@mui/material';
 import { FC } from 'react';
 import { useCreateNewGroupEffects } from './CreateNewGroup.effects';
 import { GenericForm } from '@energyweb/origin-ui-core';

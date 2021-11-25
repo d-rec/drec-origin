@@ -1,5 +1,5 @@
 import { InvitationDTO } from '@energyweb/origin-drec-api-client';
-import { Check, Clear } from '@material-ui/icons';
+import { Check, Clear } from '@mui/icons-material';
 import {
     useReceivedInvitationsActions,
     useReceivedInvitationsData,
