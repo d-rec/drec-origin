@@ -18,6 +18,16 @@ export type TSelectedGroups = {
     selected: SelectableDeviceGroupDTO[];
 };
 
+export type DeviceDetails = {
+    labels?: string;
+    impactStory?: string;
+};
+
+export type TShowDeviceDetails = {
+    open: boolean;
+    details: DeviceDetails;
+};
+
 export interface IDeviceGroupModalsStore {
     deviceGroupDelete: {
         open: boolean;
@@ -27,6 +37,7 @@ export interface IDeviceGroupModalsStore {
     createNewGroup: TCreateNewGroup;
     reserveSelected: TSelectedGroups;
     unreserveSelected: TSelectedGroups;
+    deviceDetails: TShowDeviceDetails;
 }
 
 interface IDeviceGroupDeleteAction {
@@ -57,9 +68,15 @@ interface IDeviceGroupUnreserveAction {
     payload: TSelectedGroups;
 }
 
+interface IDeviceGroupShowDeviceDetails {
+    type: DeviceGroupModalsActionsEnum.SHOW_DEVICE_DETAILS;
+    payload: TShowDeviceDetails;
+}
+
 export type TDeviceGroupModalsAction =
     | IDeviceGroupDeleteAction
     | IDeviceGroupAutoGroupActions
     | IDeviceGroupCreateNewAction
     | IDeviceGroupReserveAction
-    | IDeviceGroupUnreserveAction;
+    | IDeviceGroupUnreserveAction
+    | IDeviceGroupShowDeviceDetails;

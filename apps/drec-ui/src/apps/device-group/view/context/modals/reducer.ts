@@ -5,7 +5,8 @@ export enum DeviceGroupModalsActionsEnum {
     AUTO_GROUP_SELECTED = 'AUTO_GROUP_SELECTED',
     CREATE_NEW_GROUP = 'CREATE_NEW_GROUP',
     RESERVE = 'RESERVE',
-    UNRESERVE = 'UNRESERVE'
+    UNRESERVE = 'UNRESERVE',
+    SHOW_DEVICE_DETAILS = 'SHOW_DEVICE_DETAILS'
 }
 
 export const deviceGroupModalsInitialState: IDeviceGroupModalsStore = {
@@ -29,6 +30,10 @@ export const deviceGroupModalsInitialState: IDeviceGroupModalsStore = {
     unreserveSelected: {
         open: false,
         selected: []
+    },
+    deviceDetails: {
+        open: false,
+        details: null
     }
 };
 
@@ -47,5 +52,7 @@ export const deviceGroupModalsReducer = (
             return { ...state, reserveSelected: action.payload };
         case DeviceGroupModalsActionsEnum.UNRESERVE:
             return { ...state, unreserveSelected: action.payload };
+        case DeviceGroupModalsActionsEnum.SHOW_DEVICE_DETAILS:
+            return { ...state, deviceDetails: action.payload };
     }
 };

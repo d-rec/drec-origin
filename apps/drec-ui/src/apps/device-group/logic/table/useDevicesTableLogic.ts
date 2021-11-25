@@ -1,8 +1,12 @@
 import { DeviceDTO } from '@energyweb/origin-drec-api-client';
-import { TableComponentProps } from '@energyweb/origin-ui-core';
+import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 import { PowerFormatter } from '../../../../utils';
 
-const prepareDevicesData = (device: DeviceDTO, index: number) => ({
+const prepareDevicesData = (
+    device: DeviceDTO,
+    actions: TableActionData<DeviceDTO['id']>[],
+    index: number
+) => ({
     id: device.id,
     no: index + 1,
     projectName: device.projectName,
@@ -14,11 +18,13 @@ const prepareDevicesData = (device: DeviceDTO, index: number) => ({
     age: device.commissioningDate,
     offTaker: device.offTaker,
     sector: device.sector,
-    standardCompliance: device.standardCompliance
+    standardCompliance: device.standardCompliance,
+    actions: actions
 });
 
 export const useDevicesTableLogic = (
     devices: DeviceDTO[],
+    actions: TableActionData<DeviceDTO['id']>[],
     loading: boolean
 ): TableComponentProps<DeviceDTO['id']> => {
     return {
@@ -33,10 +39,11 @@ export const useDevicesTableLogic = (
             age: 'Age',
             offTaker: 'Offtaker',
             sector: 'Sector',
-            standardCompliance: 'Standard Compliance'
+            standardCompliance: 'Standard Compliance',
+            actions: 'Details'
         },
         loading,
         pageSize: 25,
-        data: devices?.map((device, index) => prepareDevicesData(device, index)) ?? []
+        data: devices?.map((device, index) => prepareDevicesData(device, actions, index)) ?? []
     };
 };
