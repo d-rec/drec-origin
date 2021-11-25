@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Box, Button, Paper, Typography } from '@material-ui/core';
-import { GenericForm } from '@energyweb/origin-ui-core';
+import { GenericForm, IconLink } from '@energyweb/origin-ui-core';
 import { useLogInPageEffects } from './LoginPage.effects';
 import { useStyles } from './LoginPage.styles';
 import { DrecLogo, DrecBackground } from 'assets';
@@ -13,7 +13,9 @@ export const LoginPage: FC = () => {
         <>
             <img className={classes.background} src={DrecBackground} alt="login page background" />
             <Paper className={classes.paper}>
-                <DrecLogo />
+                <IconLink url="/">
+                    <DrecLogo />
+                </IconLink>
                 <GenericForm {...formProps}></GenericForm>
                 <Box>
                     <Typography>Don't have an account?</Typography>

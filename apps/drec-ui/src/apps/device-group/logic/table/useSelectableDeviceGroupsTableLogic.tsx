@@ -1,11 +1,12 @@
 import { CodeNameDTO, SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
-import { TableComponentProps } from '@energyweb/origin-ui-core';
+import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 import { Checkbox } from '@material-ui/core';
 import { getFuelNameFromCode } from '../../../../utils';
 
 const prepareSelectableDeviceGroupsData = (
     group: SelectableDeviceGroupDTO,
     allFuelTypes: CodeNameDTO[],
+    actions: TableActionData<SelectableDeviceGroupDTO['id']>[],
     handleChecked: (id: SelectableDeviceGroupDTO['id'], checked: boolean) => void
 ) => ({
     id: group.id,
@@ -18,6 +19,7 @@ const prepareSelectableDeviceGroupsData = (
     sectors: group.sectors.join().replaceAll(',', ', '),
     commissioningDateRange: group.commissioningDateRange.join().replaceAll(',', ', '),
     standardCompliance: group.standardCompliance,
+    actions: actions,
     checked: (
         <Checkbox
             checked={group.selected}
@@ -30,6 +32,7 @@ const prepareSelectableDeviceGroupsData = (
 
 export const useSelectableDeviceGroupsTableLogic = (
     groups: SelectableDeviceGroupDTO[],
+    actions: TableActionData<SelectableDeviceGroupDTO['id']>[],
     handleChecked: (id: SelectableDeviceGroupDTO['id'], checked: boolean) => void,
     loading: boolean,
     allFuelTypes: CodeNameDTO[]
@@ -45,13 +48,14 @@ export const useSelectableDeviceGroupsTableLogic = (
             sectors: 'Sectors',
             commissioningDateRange: 'Commissioning Date Range',
             standardCompliance: 'Standard Compliance',
+            actions: 'View details',
             checked: ''
         },
         loading,
         pageSize: 25,
         data:
             groups?.map((group) =>
-                prepareSelectableDeviceGroupsData(group, allFuelTypes, handleChecked)
+                prepareSelectableDeviceGroupsData(group, allFuelTypes, actions, handleChecked)
             ) ?? []
     };
 };

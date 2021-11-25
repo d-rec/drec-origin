@@ -53,7 +53,11 @@ export class DeviceGroupService {
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
-    const groups = await this.repository.find();
+    const groups = await this.repository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
     const groupsWithOrganization = await Promise.all(
       groups.map(async (group: DeviceGroupDTO) => {
         const organization = await this.organizationService.findOne(
@@ -89,7 +93,12 @@ export class DeviceGroupService {
   async getOrganizationDeviceGroups(
     organizationId: number,
   ): Promise<DeviceGroupDTO[]> {
-    return this.repository.find({ where: { organizationId } });
+    return this.repository.find({
+      where: { organizationId },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   async findOne(

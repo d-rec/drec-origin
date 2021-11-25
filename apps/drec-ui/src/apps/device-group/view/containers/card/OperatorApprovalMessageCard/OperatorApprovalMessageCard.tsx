@@ -6,8 +6,8 @@ export const OperatorApprovalMessageCard = () => {
     const classes = useStyles();
 
     const noDeviceGroupTitle =
-        'Make sure you have operator approval before reserving device-groups';
-    const noDeviceGroupDescription = 'You can give operator approval from the profile page';
+        'Make sure you have Metamask to installed and connected and give operator approval before reserving device-groups';
+    const noDeviceGroupDescription = 'This can be done from the profile page';
 
     return (
         <Paper className={classes.paper}>
