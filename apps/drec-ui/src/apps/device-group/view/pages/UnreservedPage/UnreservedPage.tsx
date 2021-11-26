@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { CircularProgress, Paper, Typography, Grid, Button, Box } from '@material-ui/core';
+import { CircularProgress, Paper, Typography, Grid, Button, Box } from '@mui/material';
 import { useStyles } from './UnreservedPage.styles';
 import { useUnreservedPageEffects } from './UnreservedPage.effects';
 import { GenericForm, TableComponent } from '@energyweb/origin-ui-core';

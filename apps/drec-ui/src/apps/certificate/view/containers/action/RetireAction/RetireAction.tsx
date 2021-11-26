@@ -1,6 +1,6 @@
 import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import { ListActionComponentProps, FormDatePicker, FormInput } from '@energyweb/origin-ui-core';
-import { CircularProgress, Grid, Box } from '@material-ui/core';
+import { CircularProgress, Grid, Box } from '@mui/material';
 import { isEmpty } from 'lodash';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { withMetamask } from 'utils';

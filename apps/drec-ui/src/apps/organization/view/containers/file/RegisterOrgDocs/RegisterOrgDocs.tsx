@@ -1,5 +1,5 @@
 import { FileUpload, GenericFormSecondaryButton } from '@energyweb/origin-ui-core';
-import { Box, Button, CircularProgress, Divider } from '@material-ui/core';
+import { Box, Button, CircularProgress, Divider } from '@mui/material';
 import { FC } from 'react';
 import { UnpackNestedValue } from 'react-hook-form';
 import { DocsUploadFormValues } from 'apps/organization/logic';

@@ -4,10 +4,12 @@ import {
     useSelectableDeviceGroupsTableLogic,
     useDeviceGroupsFilterFormLogic
 } from '../../../logic';
-import { GenericFormProps } from '@energyweb/origin-ui-core';
-import { useAllDeviceFuelTypes, useReservedDeviceGroups } from '../../../data';
+import { GenericFormProps, TableActionData } from '@energyweb/origin-ui-core';
+import { useAllDeviceFuelTypes, useUnreservedDeviceGroups } from '../../../data';
 import { useEffect, useState } from 'react';
 import { SelectableDeviceGroupDTO } from '@energyweb/origin-drec-api-client';
+import { useNavigate } from 'react-router';
+import { Pageview } from '@mui/icons-material';
 
 const initialFormValues: UnreservedFormFormValues = {
     country: [],
@@ -21,23 +23,27 @@ const initialFormValues: UnreservedFormFormValues = {
     capacityRange: ''
 };
 
-export const useReservedPageEffects = () => {
+export const useUnreservedPageEffects = () => {
+    const navigate = useNavigate();
+
     const [filterUnreserved, setFilterUnreserved] = useState(initialFormValues);
     const { deviceGroups, isLoading: IsDeviceGroupsMutating } =
-        useReservedDeviceGroups(filterUnreserved);
+        useUnreservedDeviceGroups(filterUnreserved);
     const [selectedDeviceGroupList, setSelectedDeviceGroupList] = useState(deviceGroups);
     const dispatchModals = useDeviceGroupModalsDispatch();
 
     const { allTypes, isLoading: isDeviceTypesLoading } = useAllDeviceFuelTypes();
 
     const formLogic = useDeviceGroupsFilterFormLogic(
-        initialFormValues,
+        filterUnreserved,
         allTypes,
         IsDeviceGroupsMutating
     );
 
     const handleChecked = (id: SelectableDeviceGroupDTO['id'], checked: boolean) => {
-        const groupIndex = deviceGroups.findIndex((selectable) => selectable.id === id);
+        const groupIndex = deviceGroups.findIndex(
+            (selectable: SelectableDeviceGroupDTO) => selectable.id === id
+        );
         const updatedDeviceGroups = [...deviceGroups];
         if (groupIndex !== -1) {
             updatedDeviceGroups[groupIndex].selected = checked;
@@ -45,8 +51,17 @@ export const useReservedPageEffects = () => {
         setSelectedDeviceGroupList(updatedDeviceGroups);
     };
 
+    const actions: TableActionData<SelectableDeviceGroupDTO['id']>[] = [
+        {
+            icon: <Pageview />,
+            name: 'View details',
+            onClick: (id: SelectableDeviceGroupDTO['id']) =>
+                navigate(`/device-group/detail-view/${id}`)
+        }
+    ];
     const tableProps = useSelectableDeviceGroupsTableLogic(
         deviceGroups,
+        actions,
         handleChecked,
         IsDeviceGroupsMutating,
         allTypes
@@ -65,12 +80,12 @@ export const useReservedPageEffects = () => {
         submitHandler
     };
 
-    const onUnreserveHandler = () => {
+    const onReserveHandler = () => {
         const autoSelected: SelectableDeviceGroupDTO[] = selectedDeviceGroupList.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === false
+            (group: SelectableDeviceGroupDTO) => group.selected === true
         );
         dispatchModals({
-            type: DeviceGroupModalsActionsEnum.UNRESERVE,
+            type: DeviceGroupModalsActionsEnum.RESERVE,
             payload: {
                 open: true,
                 selected: autoSelected
@@ -78,12 +93,12 @@ export const useReservedPageEffects = () => {
         });
     };
 
-    const noReservedDeviceGroupsTitle =
-        'Currently there aren`t any reserved device groups for the selection criteria';
+    const noUnreservedDeviceGroupsTitle =
+        'Currently there aren`t any unreserved device groups for the selection criteria';
 
     const disableReserveButton =
         selectedDeviceGroupList?.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === false
+            (group: SelectableDeviceGroupDTO) => group.selected === true
         ).length === 0;
 
     return {
@@ -91,8 +106,8 @@ export const useReservedPageEffects = () => {
         tableProps,
         formData,
         isLoading,
-        noReservedDeviceGroupsTitle,
-        onUnreserveHandler,
+        noUnreservedDeviceGroupsTitle,
+        onReserveHandler,
         disableReserveButton
     };
 };

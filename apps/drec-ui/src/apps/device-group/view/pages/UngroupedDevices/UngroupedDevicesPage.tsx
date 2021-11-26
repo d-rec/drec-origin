@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { GroupedDevicesDTO } from '@energyweb/origin-drec-api-client';
-import { CircularProgress, Paper, Typography, Grid, Button } from '@material-ui/core';
+import { CircularProgress, Paper, Typography, Grid, Button } from '@mui/material';
 import { SelectGroupBy, UngroupedDevicesContainer, NoItems } from '../../containers';
 import { useUngrouppedDevicesPageEffects } from './UngroupedDevicesPage.effects';
 import { useStyles } from './UngroupedDevicesPage.styles';

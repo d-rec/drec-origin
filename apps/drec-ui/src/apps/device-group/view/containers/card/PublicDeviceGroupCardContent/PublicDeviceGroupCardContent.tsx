@@ -1,5 +1,5 @@
 import { SpecField, SpecFieldProps, IconTextProps, IconText } from '@energyweb/origin-ui-core';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import React, { ReactElement } from 'react';
 import { useStyles } from './PublicDeviceGroupCardContent.styles';
 

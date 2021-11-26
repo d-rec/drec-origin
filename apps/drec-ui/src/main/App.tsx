@@ -2,7 +2,7 @@ import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 import { CertificateApp } from 'apps/certificate';
@@ -27,25 +27,25 @@ export const App: FC<AppProps> = memo(
         const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes } =
             routesConfig;
         return (
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <MainLayout
-                            isAuthenticated={isAuthenticated}
-                            topbarButtons={topbarButtons}
-                            menuSections={menuSections}
-                            userData={userData}
-                            orgData={orgData}
-                            icon={<DrecLogo />}
-                            iconWrapperProps={{ my: 5, px: 2 }}
-                        />
-                    }
-                >
-                    {loading ? (
-                        <CircularProgress />
-                    ) : (
-                        <>
+            <>
+                {loading ? (
+                    <CircularProgress />
+                ) : (
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={
+                                <MainLayout
+                                    isAuthenticated={isAuthenticated}
+                                    topbarButtons={topbarButtons}
+                                    menuSections={menuSections}
+                                    userData={userData}
+                                    orgData={orgData}
+                                    icon={<DrecLogo />}
+                                    iconWrapperProps={{ my: 5, px: 2 }}
+                                />
+                            }
+                        >
                             <Route
                                 path="device-group/*"
                                 element={
@@ -97,14 +97,14 @@ export const App: FC<AppProps> = memo(
                                     />
                                 }
                             />
-                            <Route element={<Navigate to="device-group/all" />} />
-                        </>
-                    )}
-                </Route>
-                <Route path="/login" element={<LoginApp />} />
-                <Route path="/confirm-email" element={<ConfirmEmailApp />} />
-                {!loading && <Route path="*" element={<PageNotFound />} />}
-            </Routes>
+                            <Route path="/" element={<Navigate to="device-group/all" />} />
+                            <Route path="*" element={<PageNotFound />} />
+                        </Route>
+                        <Route path="/login" element={<LoginApp />} />
+                        <Route path="/confirm-email" element={<ConfirmEmailApp />} />
+                    </Routes>
+                )}
+            </>
         );
     }
 );

@@ -1,6 +1,5 @@
 import { UserDTO } from '@energyweb/origin-drec-api-client';
-import { PermIdentityOutlined } from '@material-ui/icons';
-import React from 'react';
+import { PermIdentityOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router';
 import { useApiAdminFetchUsers } from 'apps/user/data';
 import { useAdminUsersTableLogic } from 'apps/user/logic/admin';

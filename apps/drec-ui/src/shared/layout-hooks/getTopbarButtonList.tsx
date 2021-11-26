@@ -1,13 +1,12 @@
 import { TopBarButtonData } from '@energyweb/origin-ui-core';
-import { useNavigate } from 'react-router';
-import { HowToReg, AccountCircle, ExitToApp } from '@material-ui/icons';
+import { HowToReg, AccountCircle, ExitToApp } from '@mui/icons-material';
+import { NavigateFunction } from 'react-router';
 
-export const useTopbarButtonList = (
+export const getTopbarButtonList = (
     isAuthenticated: boolean,
-    onLogout: () => void
+    onLogout: () => void,
+    navigate: NavigateFunction
 ): TopBarButtonData[] => {
-    const navigate = useNavigate();
-
     return [
         {
             label: 'Register',

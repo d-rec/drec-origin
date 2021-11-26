@@ -1,11 +1,12 @@
 import { CodeNameDTO, UngroupedDeviceDTO } from '@energyweb/origin-drec-api-client';
-import { TableComponentProps } from '@energyweb/origin-ui-core';
-import { Checkbox } from '@material-ui/core';
+import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
+import { Checkbox } from '@mui/material';
 import { getFuelNameFromCode } from '../../../../utils';
 
 const prepareUngroupedDevicesData = (
     device: UngroupedDeviceDTO,
     allFuelTypes: CodeNameDTO[],
+    actions: TableActionData<UngroupedDeviceDTO['id']>[],
     handleChecked: (id: UngroupedDeviceDTO['id'], checked: boolean) => void
 ) => ({
     id: device.id,
@@ -18,6 +19,7 @@ const prepareUngroupedDevicesData = (
     offTaker: device.offTaker,
     sector: device.sector,
     standardCompliance: device.standardCompliance,
+    actions: actions,
     checked: (
         <Checkbox
             checked={device.selected}
@@ -30,6 +32,7 @@ const prepareUngroupedDevicesData = (
 
 export const useUngroupedDevicesTableLogic = (
     devices: UngroupedDeviceDTO[],
+    actions: TableActionData<UngroupedDeviceDTO['id']>[],
     handleChecked: (id: UngroupedDeviceDTO['id'], checked: boolean) => void,
     loading: boolean,
     allFuelTypes: CodeNameDTO[]
@@ -45,13 +48,14 @@ export const useUngroupedDevicesTableLogic = (
             offTaker: 'Offtaker',
             sector: 'Sector',
             standardCompliance: 'Standard Compliance',
+            actions: 'Details',
             checked: ''
         },
         loading,
         pageSize: 25,
         data:
             devices?.map((device) =>
-                prepareUngroupedDevicesData(device, allFuelTypes, handleChecked)
+                prepareUngroupedDevicesData(device, allFuelTypes, actions, handleChecked)
             ) ?? []
     };
 };

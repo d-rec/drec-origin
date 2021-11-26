@@ -1,4 +1,4 @@
-import { CircularProgress, Paper, Box } from '@material-ui/core';
+import { CircularProgress, Paper, Box } from '@mui/material';
 import { UserStatus } from '@energyweb/origin-drec-api-client';
 import {
     BlockchainAddressesContainer,

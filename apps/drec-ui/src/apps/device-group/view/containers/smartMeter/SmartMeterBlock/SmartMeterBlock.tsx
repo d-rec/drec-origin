@@ -1,4 +1,4 @@
-import { Grid, Paper } from '@material-ui/core';
+import { Grid, Paper } from '@mui/material';
 import { FC } from 'react';
 import { DeviceGroupDTO } from '@energyweb/origin-drec-api-client';
 import { SmartMeterChart } from '../SmartMeterChart';

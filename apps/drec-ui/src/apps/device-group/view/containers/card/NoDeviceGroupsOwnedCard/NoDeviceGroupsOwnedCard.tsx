@@ -1,4 +1,4 @@
-import { Paper, Typography } from '@material-ui/core';
+import { Paper, Typography } from '@mui/material';
 import { useStyles } from './NoDeviceGroupsOwnedCard.styles';
 
 export const NoDeviceGroupsOwnedCard = () => {

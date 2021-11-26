@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { GenericForm } from '@energyweb/origin-ui-core';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { useUpdateUserEmailEffects } from './UpdateUserEmail.effects';

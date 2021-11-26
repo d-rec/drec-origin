@@ -1,6 +1,6 @@
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
-import { Button, Box, Typography, useMediaQuery, Paper } from '@material-ui/core';
-import { useTheme } from '@material-ui/core';
+import { Button, Box, Typography, useMediaQuery, Paper } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { injectedConnector } from 'utils';
 import { useStyles } from './ConnectMetamask.styles';

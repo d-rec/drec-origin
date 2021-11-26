@@ -1,5 +1,5 @@
 import { GenericFormProps } from '@energyweb/origin-ui-core';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { useOrganizationInviteHandler } from 'apps/organization/data';
 import { InviteFormValues, useInviteFormLogic } from 'apps/organization/logic';
 
