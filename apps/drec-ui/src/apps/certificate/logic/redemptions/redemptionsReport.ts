@@ -14,7 +14,7 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
     allFuelTypes
 }) => {
     return redeemedCertificates?.length > 0 && deviceGroups?.length > 0
-        ? redeemedCertificates?.map((certificate) => {
+        ? redeemedCertificates?.map((certificate, index) => {
               const compliance = 'I-REC';
               const fullCertificateData = blockchainCertificates.find(
                   (bc) => bc.id === certificate.id
@@ -25,19 +25,19 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
               );
 
               return {
-                  id: `${certificate.id};${certificate.claimData.periodStartDate}`,
-                  fuelCode: getFuelNameFromCode(deviceGroup.fuelCode, allFuelTypes),
-                  country: deviceGroup.countryCode,
-                  capacityRange: deviceGroup.capacityRange,
-                  installations: deviceGroup.installationConfigurations
+                  id: `${certificate.id};${index}`,
+                  fuelCode: getFuelNameFromCode(deviceGroup?.fuelCode, allFuelTypes),
+                  country: deviceGroup?.countryCode,
+                  capacityRange: deviceGroup?.capacityRange,
+                  installations: deviceGroup?.installationConfigurations
                       .join()
                       .replaceAll(',', ', '),
-                  offTakers: deviceGroup.offTakers.join().replaceAll(',', ', '),
-                  sectors: deviceGroup.sectors.join().replaceAll(',', ', '),
-                  commissioningDateRange: deviceGroup.commissioningDateRange
+                  offTakers: deviceGroup?.offTakers.join().replaceAll(',', ', '),
+                  sectors: deviceGroup?.sectors.join().replaceAll(',', ', '),
+                  commissioningDateRange: deviceGroup?.commissioningDateRange
                       .join()
                       .replaceAll(',', ', '),
-                  standardCompliance: deviceGroup.standardCompliance,
+                  standardCompliance: deviceGroup?.standardCompliance,
                   compliance,
                   redemptionDate: formatDate(certificate.claimData.periodStartDate),
                   certifiedEnergy: EnergyFormatter.getValueInDisplayUnit(

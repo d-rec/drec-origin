@@ -14,37 +14,38 @@ export const INITIAL_FORM_VALUES: TUserLoginFormValues = {
     password: ''
 };
 
+const useUserLogInFormConfig = (
+    formSubmitHandler: (values: UnpackNestedValue<TUserLoginFormValues>) => void
+): GenericFormProps<TUserLoginFormValues> => {
+    return {
+        buttonFullWidth: true,
+        buttonText: 'Login',
+        fields: [
+            {
+                label: 'Email',
+                type: 'text',
+                name: 'username'
+            },
+            {
+                label: 'Password',
+                type: 'password',
+                name: 'password'
+            }
+        ],
+        buttonWrapperProps: { justifyContent: 'flex-start' },
+        initialValues: INITIAL_FORM_VALUES,
+        submitHandler: formSubmitHandler,
+        validationMode: 'onSubmit',
+        inputsVariant: 'filled',
+        validationSchema: Yup.object().shape({
+            username: Yup.string().email().label('Email').required(),
+            password: Yup.string().label('Password').required()
+        })
+    };
+};
+
 export const useLogInPageEffects = () => {
     const navigate = useNavigate();
-    const useUserLogInFormConfig = (
-        formSubmitHandler: (values: UnpackNestedValue<TUserLoginFormValues>) => void
-    ): GenericFormProps<TUserLoginFormValues> => {
-        return {
-            buttonFullWidth: true,
-            buttonText: 'Login',
-            fields: [
-                {
-                    label: 'Email',
-                    type: 'text',
-                    name: 'username'
-                },
-                {
-                    label: 'Password',
-                    type: 'password',
-                    name: 'password'
-                }
-            ],
-            buttonWrapperProps: { justifyContent: 'flex-start' },
-            initialValues: INITIAL_FORM_VALUES,
-            submitHandler: formSubmitHandler,
-            validationMode: 'onTouched',
-            inputsVariant: 'filled',
-            validationSchema: Yup.object().shape({
-                username: Yup.string().email().label('Email').required(),
-                password: Yup.string().label('Password').required()
-            })
-        };
-    };
 
     const submitHandler = useUserLogin();
     const formConfig = useUserLogInFormConfig(submitHandler);
