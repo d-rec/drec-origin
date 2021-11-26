@@ -74,5 +74,24 @@
     "signatoryCountry": "DE",
     "signatoryEmail": "manager@mailinator.com",
     "signatoryPhoneNumber": "81-3-6889-2713"
+  },
+  {
+    "id": 5,
+    "name": "Okra Solar",
+    "address": "39 Perry Street",
+    "zipCode": "NSW 2151",
+    "city": "North Rocks",
+    "country": "Australia",
+    "businessType": "Developer",
+    "tradeRegistryCompanyNumber": "616 516 020",
+    "vatNumber": "44 616 516 020",
+    "status": "Active",
+    "signatoryFullName": "Markus van der Merwe",
+    "signatoryAddress": "39 Perry Street",
+    "signatoryZipCode": "NSW 2151",
+    "signatoryCity": "New Rocks",
+    "signatoryCountry": "Australia",
+    "signatoryEmail": "markus@okrasolar.com",
+    "signatoryPhoneNumber": "+855 96 959 7361"
   }
 ]

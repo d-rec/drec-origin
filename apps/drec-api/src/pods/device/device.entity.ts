@@ -43,7 +43,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   projectName: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   address: string;
 
@@ -60,8 +60,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   countryCode: string;
 
   @Column({ nullable: true })
-  @IsNumber()
-  zipCode: number;
+  @IsString()
+  zipCode: string;
 
   @Column()
   @IsString()

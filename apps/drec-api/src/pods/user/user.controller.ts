@@ -22,13 +22,11 @@ import {
   ApiUnprocessableEntityResponse,
   ApiParam,
 } from '@nestjs/swagger';
-import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { Roles } from './decorators/roles.decorator';
-import { EmailConfirmationResponse, Role } from '../../utils/enums';
+import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';

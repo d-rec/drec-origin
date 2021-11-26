@@ -27,6 +27,7 @@ export class NewDeviceDTO
   projectName: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   address: string;
 
@@ -44,8 +45,8 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsOptional()
-  @IsNumber()
-  zipCode: number;
+  @IsString()
+  zipCode: string;
 
   @ApiProperty()
   @IsString()

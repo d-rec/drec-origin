@@ -39,6 +39,7 @@ export class DeviceDTO implements IDevice {
   projectName: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   address: string;
 
@@ -57,7 +58,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  zipCode: number;
+  zipCode: string;
 
   @ApiProperty()
   @IsString()

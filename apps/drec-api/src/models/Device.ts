@@ -14,11 +14,11 @@ export interface IDevice {
   status: DeviceStatus;
   organizationId: number;
   projectName: string;
-  address: string;
+  address?: string;
   latitude: string;
   longitude: string;
   countryCode: string;
-  zipCode?: number;
+  zipCode?: string;
   fuelCode: string;
   deviceTypeCode: string;
   installationConfiguration: Installation;
