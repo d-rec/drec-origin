@@ -14,7 +14,7 @@ const prepareDevicesData = (
     status: device.status,
     address: device.address,
     installation: device.installationConfiguration,
-    capacity: PowerFormatter.formatDisplay(device.capacity, true),
+    capacity: PowerFormatter.capacityFormatDisplay(device.capacity, true),
     age: device.commissioningDate,
     offTaker: device.offTaker,
     sector: device.sector,
