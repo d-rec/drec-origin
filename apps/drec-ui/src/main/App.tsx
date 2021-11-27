@@ -2,7 +2,7 @@ import { FC, memo } from 'react';
 import { MainLayout, TMenuSection, TopBarButtonData } from '@energyweb/origin-ui-core';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserDTO } from '@energyweb/origin-drec-api-client';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { useUserAndOrgData, PageNotFound } from 'shared';
 import { DrecLogo } from 'assets';
 import { CertificateApp } from 'apps/certificate';
@@ -29,7 +29,14 @@ export const App: FC<AppProps> = memo(
         return (
             <>
                 {loading ? (
-                    <CircularProgress />
+                    <Box
+                        flex="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        sx={{ width: '100%', padding: 30 }}
+                    >
+                        <CircularProgress />
+                    </Box>
                 ) : (
                     <Routes>
                         <Route
