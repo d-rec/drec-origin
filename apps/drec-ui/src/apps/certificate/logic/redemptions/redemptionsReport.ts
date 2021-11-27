@@ -6,6 +6,7 @@ import {
 } from './types';
 import { useNavigate } from 'react-router-dom';
 import { getFuelNameFromCode } from '../../../../utils';
+import { CertificateMetadata } from '../../types';
 
 const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
     deviceGroups,
@@ -19,10 +20,15 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
               const fullCertificateData = blockchainCertificates.find(
                   (bc) => bc.id === certificate.id
               );
+              const certificateMetadata = JSON.parse(
+                  fullCertificateData?.metadata || ''
+              ) as CertificateMetadata;
 
-              const deviceGroup = deviceGroups.find(
-                  (deviceGroup) => +fullCertificateData?.deviceId === +deviceGroup.id
-              );
+              // If device groups is not present (deleted) then we take device group from the certificate metadata
+              const deviceGroup =
+                  deviceGroups.find(
+                      (deviceGroup) => +fullCertificateData?.deviceId === +deviceGroup.id
+                  ) || certificateMetadata.deviceGroup;
 
               return {
                   id: `${certificate.id};${index}`,
