@@ -26,8 +26,8 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
                 value: deviceGroup?.standardCompliance
             },
             {
-                label: 'Aggregated Capacity (kWh)',
-                value: PowerFormatter.formatDisplay(deviceGroup?.aggregatedCapacity, true)
+                label: 'Aggregated Capacity (kW)',
+                value: PowerFormatter.capacityFormatDisplay(deviceGroup?.aggregatedCapacity, true)
             },
             {
                 label: 'Capacity Range',
