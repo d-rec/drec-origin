@@ -6,7 +6,6 @@ import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-cor
 import { BigNumber } from 'ethers';
 import { Dispatch, SetStateAction } from 'react';
 import { useQueryClient } from 'react-query';
-import { PowerFormatter } from '../../../../utils';
 import { useGetBlockchainCertificateHandler } from '../fetching';
 
 export const useBlockchainTransferCertificateHandler = (
@@ -25,9 +24,7 @@ export const useBlockchainTransferCertificateHandler = (
             const onChainCertificate = await getBlockchainCertificate(
                 id as unknown as CertificateDTO['id']
             );
-            const formattedAmount = BigNumber.from(
-                PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount))
-            );
+            const formattedAmount = BigNumber.from(amount);
 
             const transaction = await onChainCertificate.transfer(receiverAddress, formattedAmount);
             setTxPending(true);
