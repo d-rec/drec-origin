@@ -5,12 +5,14 @@ import { DeviceOrderBy, prepareGroupByOptions } from '../../../../../utils';
 import { useUngroupedDevices } from '../../../data';
 import { DeviceGroupModalsActionsEnum, useDeviceGroupModalsDispatch } from '../../context';
 
+const baseFilters = [
+    DeviceOrderBy.Country,
+    DeviceOrderBy.FuelCode,
+    DeviceOrderBy.StandardCompliance
+];
+
 export const useUngrouppedDevicesPageEffects = () => {
-    const [orderItems, setOrderItems] = useState([
-        DeviceOrderBy.Country,
-        DeviceOrderBy.FuelCode,
-        DeviceOrderBy.StandardCompliance
-    ]);
+    const [orderItems, setOrderItems] = useState(baseFilters);
     const [enableFetch, setEnableFetch] = useState(true);
     const { groupedDevicesList, isLoading } = useUngroupedDevices(orderItems, enableFetch);
     const [selectedDevicesList, setSelectedDevicesList] = useState(groupedDevicesList);
@@ -18,9 +20,11 @@ export const useUngrouppedDevicesPageEffects = () => {
 
     const handleChange = (options: FormSelectOption[]) => {
         setEnableFetch(false);
-        setOrderItems(
-            options.map((orderItem: FormSelectOption) => orderItem.value as DeviceOrderBy)
-        );
+
+        const filteredFromBaseOptions = options
+            .map((option) => option.value as DeviceOrderBy)
+            .filter((item: DeviceOrderBy) => !baseFilters.includes(item));
+        setOrderItems([...baseFilters, ...filteredFromBaseOptions]);
     };
 
     useEffect(() => {

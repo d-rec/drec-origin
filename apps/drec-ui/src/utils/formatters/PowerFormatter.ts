@@ -2,6 +2,7 @@ import { Unit } from '@energyweb/utils-general';
 
 export class PowerFormatter {
     static readonly displayUnit: string = 'kWh';
+    static readonly capacityDisplayUnit: string = 'kW';
 
     static readonly decimalPlaces: number = 3;
 
@@ -20,6 +21,12 @@ export class PowerFormatter {
         // @ts-ignore
         return `${PowerFormatter.formatter.format(powerInWatt / Unit[PowerFormatter.displayUnit])}${
             includeDisplayUnit ? ' ' + PowerFormatter.displayUnit : ''
+        }`;
+    }
+
+    static capacityFormatDisplay(powerInWatt: number, includeDisplayUnit?: boolean): string {
+        return `${PowerFormatter.formatter.format(powerInWatt)}${
+            includeDisplayUnit ? ' ' + PowerFormatter.capacityDisplayUnit : ''
         }`;
     }
 
