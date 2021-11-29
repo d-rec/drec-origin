@@ -5,4 +5,5 @@ export enum Integrator {
   ENGIE = 'Engie',
   CANDIE = 'Candie',
   NSR = 'NSR',
+  DISTRIBUTED_ENERGY = 'Distributed Energy',
 }

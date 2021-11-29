@@ -445,6 +445,18 @@ export class DeviceGroupService {
       new Set(devices.map((device: DeviceDTO) => device.sector)),
     );
 
+    const labels: string[] = [];
+    devices.map((device: DeviceDTO) => {
+      if (!device.labels || device.labels === null) {
+        return;
+      }
+      return labels.push(device.labels);
+    });
+
+    const deviceTypeCodes = Array.from(
+      new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode)),
+    );
+
     const deviceGroup: NewDeviceGroupDTO = {
       name:
         groupName ||
@@ -457,9 +469,7 @@ export class DeviceGroupService {
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,
       standardCompliance: devices[0].standardCompliance,
-      deviceTypeCodes: devices.map(
-        (device: DeviceDTO) => device.deviceTypeCode,
-      ),
+      deviceTypeCodes: deviceTypeCodes,
       offTakers: [devices[0].offTaker],
       installationConfigurations: [devices[0].installationConfiguration],
       sectors,
@@ -468,7 +478,7 @@ export class DeviceGroupService {
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
       yieldValue: averageYieldValue,
-      labels: devices.map((device: DeviceDTO) => device.labels),
+      labels: !labels ? [] : labels,
     };
 
     return deviceGroup;
