@@ -447,7 +447,7 @@ export class DeviceGroupService {
 
     const labels: string[] = [];
     devices.map((device: DeviceDTO) => {
-      if (!device.labels || device.labels === null) {
+      if (!device.labels) {
         return;
       }
       return labels.push(device.labels);
@@ -478,7 +478,7 @@ export class DeviceGroupService {
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
       yieldValue: averageYieldValue,
-      labels: !labels ? [] : labels,
+      labels: labels ?? [],
     };
 
     return deviceGroup;
