@@ -205,7 +205,7 @@ export class ReadsService {
     };
 
     const degradation = 0.5; // [%/year]
-    const yieldValue = device.yieldValue || 1000; // [kWh/kW]
+    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity; // W
 
     const commissioningDate = DateTime.fromISO(device.commissioningDate);

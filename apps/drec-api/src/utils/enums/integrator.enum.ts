@@ -3,7 +3,7 @@ export enum Integrator {
   Odyssey = 'Odyssey',
   OKRA = 'Okra',
   ENGIE = 'Engie',
-  CANDIE = 'Candie',
+  CANDI = 'Candi',
   NSR = 'NSR',
   DISTRIBUTED_ENERGY = 'Distributed Energy',
 }
