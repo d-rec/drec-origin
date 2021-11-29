@@ -69,7 +69,7 @@ describe('Device tests', () => {
   it('should retrieve all devices', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
@@ -80,7 +80,7 @@ describe('Device tests', () => {
   it('should retrieve device by id', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
@@ -95,7 +95,7 @@ describe('Device tests', () => {
   it('should update a device', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialDevice = {
       projectName: 'Device 2 - Update',
@@ -113,7 +113,7 @@ describe('Device tests', () => {
   it('should create a device', async () => {
     const loggedUser = {
       email: 'owner2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialDevice: NewDeviceDTO = {
       externalId: 'DREC001',
@@ -152,7 +152,7 @@ describe('Device tests', () => {
   it('should return forbbidden when updating a device', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialDevice = {
       projectName: 'Device 2 - Update',
@@ -161,7 +161,7 @@ describe('Device tests', () => {
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
     const loggedUser2 = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser2);
     await updateDevice(devices[0].id, HttpStatus.FORBIDDEN, partialDevice);
@@ -170,7 +170,7 @@ describe('Device tests', () => {
   it('should return forbbidden when creating a device', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialDevice: NewDeviceDTO = {
       externalId: 'DREC001',
@@ -203,7 +203,7 @@ describe('Device tests', () => {
   it('should return grouped devices', async () => {
     const loggedUser = {
       email: 'owner2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const orderFilter: Partial<DeviceGroupByDTO> = {

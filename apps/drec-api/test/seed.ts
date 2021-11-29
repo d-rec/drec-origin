@@ -104,7 +104,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Williams',
     email: 'owner2@mailinator.com',
     telephone: 'telephone',
-    password: 'test',
+    password: 'Password123',
   },
   {
     title: 'Mr',
@@ -112,7 +112,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
     telephone: 'telephone',
-    password: 'test',
+    password: 'Password123',
   },
   {
     title: 'Mr',
@@ -120,7 +120,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Miller2',
     email: 'admin2@mailinator.com',
     telephone: 'telephone',
-    password: 'test',
+    password: 'Password123',
   },
   {
     title: 'Mrs',
@@ -128,7 +128,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Williams',
     email: 'owner3@mailinator.com',
     telephone: 'telephone',
-    password: 'test',
+    password: 'Password123',
   },
 ];
 
