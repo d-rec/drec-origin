@@ -456,11 +456,13 @@ export class DeviceGroupService {
     const deviceTypeCodes = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode)),
     );
-
+    const integratorName = devices[0].integrator
+      ? `${devices[0].integrator}-`
+      : '';
     const deviceGroup: NewDeviceGroupDTO = {
       name:
         groupName ||
-        `${devices[0].countryCode},${getFuelNameFromCode(
+        `${integratorName}${devices[0].countryCode},${getFuelNameFromCode(
           devices[0].fuelCode,
         )},${devices[0].standardCompliance},${devices[0].offTaker},${
           devices[0].installationConfiguration
