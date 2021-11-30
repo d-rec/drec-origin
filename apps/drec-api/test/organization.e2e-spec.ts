@@ -56,10 +56,34 @@ describe('Organization tests', () => {
     await databaseService.cleanUp();
   });
 
+  it('should delete an organization', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'Password123',
+    };
+    await loginUser(loggedUser);
+    const { body: organizations } = await requestAdminOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(organizations).to.be.instanceOf(Array);
+    expect(organizations).to.have.length(4);
+    await deleteOrganization(
+      organizations[organizations.length - 2].id.toString(),
+      HttpStatus.OK,
+    );
+    const { body: afterDeleteOrgs } = await requestAdminOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(afterDeleteOrgs).to.be.instanceOf(Array);
+    expect(afterDeleteOrgs).to.have.length(3);
+  });
+
   it('should receive forbidden when requestiong all organizations without appropiate role', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     await requestAdminOrganization('', HttpStatus.FORBIDDEN);
@@ -68,7 +92,7 @@ describe('Organization tests', () => {
   it('should retrieve all organizations', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: organizations } = await requestAdminOrganization(
@@ -82,7 +106,7 @@ describe('Organization tests', () => {
   it('should retrieve user`s organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: organization } = await requestOrganization(
@@ -95,7 +119,7 @@ describe('Organization tests', () => {
   it('should retrieve all users from an organizations', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: users } = await requestOrganization('users', HttpStatus.OK);
@@ -106,7 +130,7 @@ describe('Organization tests', () => {
   it('should update an organization', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialOrg = {
       name: 'Device Owner - Update',
@@ -124,7 +148,7 @@ describe('Organization tests', () => {
   it('should return forbbidden when updating an organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const orgCode = 'D0012';
     const partialOrg = {
@@ -139,7 +163,7 @@ describe('Organization tests', () => {
   it('should return forbbidden when creating an organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     const partialOrg: NewOrganizationDTO = {
       name: 'New Owner',
@@ -160,30 +184,6 @@ describe('Organization tests', () => {
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
-  });
-
-  it('should delete an organization', async () => {
-    const loggedUser = {
-      email: 'admin2@mailinator.com',
-      password: 'test',
-    };
-    await loginUser(loggedUser);
-    const { body: organizations } = await requestAdminOrganization(
-      '',
-      HttpStatus.OK,
-    );
-    expect(organizations).to.be.instanceOf(Array);
-    expect(organizations).to.have.length(4);
-    await deleteOrganization(
-      organizations[organizations.length - 2].id.toString(),
-      HttpStatus.OK,
-    );
-    const { body: afterDeleteOrgs } = await requestAdminOrganization(
-      '',
-      HttpStatus.OK,
-    );
-    expect(afterDeleteOrgs).to.be.instanceOf(Array);
-    expect(afterDeleteOrgs).to.have.length(3);
   });
 
   const requestAdminOrganization = async (
@@ -211,19 +211,6 @@ describe('Organization tests', () => {
   ): Promise<any> =>
     await request(app.getHttpServer())
       .patch(`/admin/organizations/${url}`)
-      .send({
-        ...body,
-      })
-      .set('Authorization', `Bearer ${currentAccessToken}`)
-      .expect(status);
-
-  const updateOrganization = async (
-    url: string | null,
-    status: HttpStatus,
-    body: Partial<UpdateOrganizationDTO>,
-  ): Promise<any> =>
-    await request(app.getHttpServer())
-      .patch(`/organization/${url}`)
       .send({
         ...body,
       })

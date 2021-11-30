@@ -84,7 +84,7 @@ describe('Device Group tests', () => {
   it('should create a batch of devices and groups', async () => {
     const loggedUser = {
       email: 'owner2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const bulkDevices = TestDevicesToGroup as unknown as NewDeviceDTO[];
@@ -98,7 +98,7 @@ describe('Device Group tests', () => {
   it('should return Not Acceptable when creating a group with device from different owner', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
@@ -142,7 +142,7 @@ describe('Device Group tests', () => {
     await createDeviceGroup();
     const loggedUser = {
       email: 'owner2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: deviceGroups } = await requestDeviceGroup(
@@ -173,7 +173,7 @@ describe('Device Group tests', () => {
   it('should add devices to a device group', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
@@ -220,7 +220,7 @@ describe('Device Group tests', () => {
   it('should remove devices from a device group', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
@@ -254,7 +254,7 @@ describe('Device Group tests', () => {
   it('non-admin should not be able to remove device from group', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
@@ -279,7 +279,7 @@ describe('Device Group tests', () => {
     };
     const newLoggedUser = {
       email: 'owner3@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(newLoggedUser);
     await addRemoveDevices(
@@ -295,7 +295,7 @@ describe('Device Group tests', () => {
   }): Promise<any> => {
     const loggedUser = user || {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);

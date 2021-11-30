@@ -66,7 +66,7 @@ describe('Users tests', () => {
   it('should retrieve user`s details', async () => {
     const loggedUser = {
       email: 'owner2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const { body: user } = await requestUsers('me', HttpStatus.OK);
@@ -75,7 +75,7 @@ describe('Users tests', () => {
     expect(user.email).to.equal('owner2@mailinator.com');
     const newLoggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(newLoggedUser);
     await requestUsers(user.id, HttpStatus.OK);
@@ -84,7 +84,7 @@ describe('Users tests', () => {
   it('should create a new user', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'test',
+      password: 'Password123',
     };
     await loginUser(loggedUser);
     const partialUser: CreateUserDTO = {

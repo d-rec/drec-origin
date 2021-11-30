@@ -22,7 +22,6 @@ export const useDetailViewGroupPageEffects = () => {
 
     const showDetailsHandler = (id: number) => {
         const device = deviceGroup?.devices.find((device: DeviceDTO) => device.id === id);
-        console.log('Dispatching modal: ', device);
         dispatchModals({
             type: DeviceGroupModalsActionsEnum.SHOW_DEVICE_DETAILS,
             payload: {

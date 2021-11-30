@@ -46,7 +46,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  zipCode: number;
+  zipCode: string;
 
   @ApiProperty()
   @IsString()

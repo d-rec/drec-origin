@@ -22,7 +22,9 @@ export class AuthService {
     email: string,
     unencryptedPassword: string,
   ): Promise<UserDTO | null> {
-    const user = await this.userService.getUserAndPasswordByEmail(email);
+    const user = await this.userService.getUserAndPasswordByEmail(
+      email.toLowerCase(),
+    );
 
     if (user && bcrypt.compareSync(unencryptedPassword, user.password)) {
       return this.userService.findById(user.id);
@@ -32,7 +34,10 @@ export class AuthService {
   }
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
-    const payload: IJWTPayload = { email: user.email, id: user.id };
+    const payload: IJWTPayload = {
+      email: user.email.toLowerCase(),
+      id: user.id,
+    };
 
     return {
       accessToken: this.jwtService.sign(payload),
