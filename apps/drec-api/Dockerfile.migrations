@@ -7,4 +7,4 @@ COPY ./ /var/deployment
 
 WORKDIR /var/deployment/apps/drec-api
 
-CMD ["/bin/bash","-c", "bin/drec-api"]
+CMD ["/bin/bash","-c", "yarn migrate:docker"]

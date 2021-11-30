@@ -17,6 +17,7 @@ env:
     INFLUXDB_TOKEN: admin:admin
     INFLUXDB_BUCKET: energy/autogen
     HEROKU_STABLE_APP_API: ${{secrets.HEROKU_STABLE_APP_API}}
+    HEROKU_STABLE_APP_MIGRATIONS: ${{secrets.HEROKU_STABLE_APP_MIGRATIONS}}
     HEROKU_STABLE_APP_UI: ${{secrets.HEROKU_STABLE_APP_UI}}
     HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
     REACT_APP_BACKEND_URL: https://${{secrets.HEROKU_STABLE_APP_API}}.herokuapp.com
