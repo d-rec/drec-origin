@@ -23,7 +23,7 @@ ifdef HEROKU_API_KEY
 	@docker push registry.heroku.com/${HEROKU_STABLE_APP_API}/web
 	@heroku container:release web -a ${HEROKU_STABLE_APP_API}
 	
-	@docker tag ${LATEST_MIGRATIONS} registry.heroku.com/${HEROKU_APP_MIGRATIONS}/worker
-	@docker push registry.heroku.com/${HEROKU_APP_MIGRATIONS}/worker
-	@heroku container:release worker -a ${HEROKU_APP_MIGRATIONS}
+	@docker tag ${LATEST_MIGRATIONS} registry.heroku.com/${HEROKU_STABLE_APP_MIGRATIONS}/worker
+	@docker push registry.heroku.com/${HEROKU_STABLE_APP_MIGRATIONS}/worker
+	@heroku container:release worker -a ${HEROKU_STABLE_APP_MIGRATIONS}
 endif
