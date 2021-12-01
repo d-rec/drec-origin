@@ -84,18 +84,29 @@ export class DeviceGroupController {
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
     description: 'Returns my Device groups',
   })
   async getMyDevices(
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() { id, organizationId, role }: ILoggedInUser,
   ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.getOrganizationDeviceGroups(
-      organizationId,
-    );
+    switch (role) {
+      case Role.DeviceOwner:
+        return await this.deviceGroupService.getOrganizationDeviceGroups(
+          organizationId,
+        );
+      case Role.Buyer:
+        return await this.deviceGroupService.getBuyerDeviceGroups(id);
+      case Role.OrganizationAdmin:
+        return await this.deviceGroupService.getAll();
+      default:
+        return await this.deviceGroupService.getOrganizationDeviceGroups(
+          organizationId,
+        );
+    }
   }
 
   @Get('/:id')
