@@ -101,6 +101,15 @@ export class DeviceGroupService {
     });
   }
 
+  async getBuyerDeviceGroups(buyerId: number): Promise<DeviceGroupDTO[]> {
+    return this.repository.find({
+      where: { buyerId },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroupDTO | null> {
