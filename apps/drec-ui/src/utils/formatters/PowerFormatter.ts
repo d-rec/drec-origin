@@ -2,7 +2,7 @@ import { Unit } from '@energyweb/utils-general';
 
 export class PowerFormatter {
     static readonly displayUnit: string = 'kWh';
-    static readonly capacityDisplayUnit: string = 'kW';
+    static readonly capacityDisplayUnit: string = 'W';
 
     static readonly decimalPlaces: number = 3;
 

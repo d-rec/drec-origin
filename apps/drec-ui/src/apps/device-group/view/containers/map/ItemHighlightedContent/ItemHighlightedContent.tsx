@@ -25,7 +25,7 @@ export const ItemHighlightedContent: FC<DeviceDTO> = ({
                 Status: {status}
             </Typography>
             <Typography className={classes.text} paragraph>
-                Capacity: {PowerFormatter.formatDisplay(capacity, true)}
+                Capacity: {PowerFormatter.capacityFormatDisplay(capacity, true)}
             </Typography>
         </div>
     );
