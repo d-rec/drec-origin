@@ -28,7 +28,7 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
             ],
             [
                 {
-                    label: 'Aggregated Capacity (kW)',
+                    label: 'Aggregated Capacity',
                     value: PowerFormatter.capacityFormatDisplay(
                         deviceGroup.aggregatedCapacity,
                         true
