@@ -25,7 +25,8 @@ export class PowerFormatter {
     }
 
     static capacityFormatDisplay(powerInWatt: number, includeDisplayUnit?: boolean): string {
-        return `${PowerFormatter.formatter.format(powerInWatt)}${
+        // @ts-ignore
+        return `${PowerFormatter.formatter.format(powerInWatt / Unit[PowerFormatter.displayUnit])}${
             includeDisplayUnit ? ' ' + PowerFormatter.capacityDisplayUnit : ''
         }`;
     }
