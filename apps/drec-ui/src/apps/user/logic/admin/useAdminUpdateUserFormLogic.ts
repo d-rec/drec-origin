@@ -1,7 +1,7 @@
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 import * as Yup from 'yup';
-import { STATUS_OPTIONS } from './statusOptions';
+import { USER_STATUS_OPTIONS } from './statusOptions';
 
 export type TAdminUpdateUserFormValues = {
     title: UserDTO['title'];
@@ -25,6 +25,8 @@ export const useAdminUpdateUserFormLogic = (
     };
 
     return {
+        formTitle: 'User information',
+        formTitleVariant: 'h5',
         buttonText: 'Update',
         fields: [
             {
@@ -51,7 +53,7 @@ export const useAdminUpdateUserFormLogic = (
                 label: 'Status',
                 name: 'status',
                 select: true,
-                options: STATUS_OPTIONS
+                options: USER_STATUS_OPTIONS
             }
         ],
         buttonWrapperProps: { justifyContent: 'flex-start' },

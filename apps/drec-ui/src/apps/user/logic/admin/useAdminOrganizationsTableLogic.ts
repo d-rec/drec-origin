@@ -6,11 +6,10 @@ const formatOrganizations: TFormatAllOrgs = ({ allOrganizations, actions }) => {
     return allOrganizations?.map((org) => ({
         id: org.id,
         name: org.name,
-        // country: Countries.find((country) => country.code === org.country)?.name,
-        country: org.country,
+        country: Countries.find((country) => country.code === org.country)?.name,
         tradeRegistryNumber: org.tradeRegistryCompanyNumber,
         status: org.status,
-        actions: org.status === OrganizationStatus.Submitted ? actions : undefined
+        actions: org.status === OrganizationStatus.Submitted ? actions : [actions[1]]
     }));
 };
 

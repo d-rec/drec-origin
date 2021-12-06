@@ -15,7 +15,7 @@ import {
   FindManyOptions,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ILoggedInUser, isRole, IUser, UserPasswordUpdate } from '../../models';
+import { ILoggedInUser, IUser, UserPasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -275,12 +275,7 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
-    const entity = await this.findOne({ id });
-
-    if (!entity) {
-      throw new Error(`Can't find entity.`);
-    }
-
+    await this.findById(id);
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
