@@ -24,13 +24,13 @@ export const useCertificateDataLogic = (certificate: DetailedCertificate) => {
         },
         claimedEnergy: certificate.blockchainPart?.energy?.claimedVolume
             ? {
-                  title: 'Claimed Energy (kWh)',
+                  title: `Claimed Energy (${EnergyFormatter.displayUnit})`,
                   text: EnergyFormatter.format(certificate.blockchainPart.energy.claimedVolume)
               }
             : undefined,
         remainingEnergy: certificate.blockchainPart?.energy?.publicVolume
             ? {
-                  title: 'Remaining (unclaimed) Energy (kWh)',
+                  title: `Remaining (unclaimed) Energy (${EnergyFormatter.displayUnit})`,
                   text: EnergyFormatter.format(certificate.blockchainPart.energy.publicVolume)
               }
             : undefined,
