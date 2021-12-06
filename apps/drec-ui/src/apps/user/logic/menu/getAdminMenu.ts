@@ -31,7 +31,7 @@ export const getAdminMenu: TUseAdminMenuFn = ({
                 show: showUsers
             },
             {
-                url: 'all',
+                url: 'organizations',
                 label: 'Organizations',
                 show: showAllOrgs
             }

@@ -1,10 +1,13 @@
+import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { OrganizationDTO } from '@energyweb/origin-drec-api-client';
-import { Check } from '@mui/icons-material';
+import { useNavigate } from 'react-router';
+import { Check, PermIdentityOutlined } from '@mui/icons-material';
 import { useAllOrganizations, useOrgApproveHandler } from 'apps/organization/data';
-import { useAllOrganizationsTableLogic } from 'apps/organization/logic';
+import { useAllOrganizationsTableLogic } from '../../../logic';
 
 export const useAllOrganizationsPageEffects = () => {
     const { organizations, organizationsLoading } = useAllOrganizations();
+    const navigate = useNavigate();
 
     const approveHandler = useOrgApproveHandler();
 
@@ -13,6 +16,11 @@ export const useAllOrganizationsPageEffects = () => {
             icon: <Check />,
             name: 'Approve',
             onClick: (id: OrganizationDTO['id']) => approveHandler(id)
+        },
+        {
+            icon: <PermIdentityOutlined data-cy="edit-user-icon" />,
+            name: 'Update',
+            onClick: (id: UserDTO['id']) => navigate(`/admin/update-organization/${id}`)
         }
     ];
     const tableProps = useAllOrganizationsTableLogic({
