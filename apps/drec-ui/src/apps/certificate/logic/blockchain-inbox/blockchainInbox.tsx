@@ -21,7 +21,9 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
     if (allDeviceGroups && blockchainCertificates) {
         allDeviceGroups.forEach((deviceGroup: DeviceGroupDTO) => {
             const deviceGroupCertificates = blockchainCertificates.filter(
-                (certificate) => certificate.deviceId === deviceGroup.id.toString()
+                (certificate) =>
+                    certificate.deviceId === deviceGroup.id.toString() &&
+                    certificate.energy.publicVolume !== '0'
             );
             if (!deviceGroupCertificates) {
                 return;
