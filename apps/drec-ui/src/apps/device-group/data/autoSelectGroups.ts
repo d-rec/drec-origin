@@ -19,7 +19,7 @@ export const useAutoSelectedGroups = (
     const autoSelectGroupsHandler = () => {
         const data: AddGroupDTO[] = selected.map((groupedDevice: GroupedDevicesDTO) => ({
             name: groupedDevice.name,
-            deviceIds: groupedDevice.devices.map((device: UngroupedDeviceDTO) => device.id)
+            deviceIds: groupedDevice?.devices.map((device: UngroupedDeviceDTO) => device.id)
         }));
         mutate(
             { data },

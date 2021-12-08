@@ -89,7 +89,8 @@
     "typeorm": "0.2.31",
     "uuid": "8.3.2",
     "@nestjs/axios": "~0.0.3",
-    "form-data": "~4.0.0"
+    "form-data": "~4.0.0",
+    "nanoid": "~3.1.30"
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",

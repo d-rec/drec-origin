@@ -13,7 +13,7 @@ export const useUngroupedDevicesContainerEffects = (
 
     const { allTypes, isLoading } = useAllDeviceFuelTypes();
     const isDisabledCreateGroup: boolean =
-        groupedDevices.devices.filter((device: UngroupedDeviceDTO) => device.selected === true)
+        groupedDevices?.devices.filter((device: UngroupedDeviceDTO) => device.selected === true)
             .length === 0;
 
     const actions: TableActionData<UngroupedDeviceDTO['id']>[] = [
@@ -24,7 +24,7 @@ export const useUngroupedDevicesContainerEffects = (
         }
     ];
     const tableProps = useUngroupedDevicesTableLogic(
-        groupedDevices.devices,
+        groupedDevices?.devices,
         actions,
         handleChecked,
         isLoading,
