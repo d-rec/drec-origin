@@ -3,7 +3,6 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -40,6 +39,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class DeviceGroupService {
@@ -188,11 +188,14 @@ export class DeviceGroupService {
   async create(
     organizationId: number,
     data: NewDeviceGroupDTO,
+    fromBulk = false,
   ): Promise<DeviceGroupDTO> {
-    await this.checkNameConflict(data.name);
+    const groupName =
+      (await this.checkNameConflict(data.name, fromBulk)) || data.name;
     const group = await this.repository.save({
       organizationId,
       ...data,
+      name: groupName,
     });
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
@@ -361,6 +364,7 @@ export class DeviceGroupService {
           await this.create(
             orgCode,
             this.createDeviceGroupFromDevices(groupedDeviceList),
+            true,
           ),
       ),
     );
@@ -371,16 +375,23 @@ export class DeviceGroupService {
     return Boolean(await this.findOne(conditions));
   }
 
-  private async checkNameConflict(name: string): Promise<void> {
+  private async checkNameConflict(
+    name: string,
+    fromBulk = false,
+  ): Promise<void | string> {
     const isExistingDeviceGroup = await this.hasDeviceGroup({ name: name });
     if (isExistingDeviceGroup) {
-      const message = `Device group with name ${name} already exists`;
+      if (!fromBulk) {
+        const message = `Device group with name ${name} already exists`;
 
-      this.logger.error(message);
-      throw new ConflictException({
-        success: false,
-        message,
-      });
+        this.logger.error(message);
+        throw new ConflictException({
+          success: false,
+          message,
+        });
+      }
+      // Example of new name generated: Distributed Energy-IN,Solar,REC,Industrial,StandAlone zLb
+      return `${name} ${nanoid(3)}`;
     }
   }
 
