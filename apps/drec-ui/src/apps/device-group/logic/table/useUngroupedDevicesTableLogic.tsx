@@ -2,6 +2,7 @@ import { CodeNameDTO, UngroupedDeviceDTO } from '@energyweb/origin-drec-api-clie
 import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 import { Checkbox } from '@mui/material';
 import { getFuelNameFromCode } from '../../../../utils';
+import { Countries } from '@energyweb/utils-general';
 
 const prepareUngroupedDevicesData = (
     device: UngroupedDeviceDTO,
@@ -11,7 +12,7 @@ const prepareUngroupedDevicesData = (
 ) => ({
     id: device.id,
     projectName: device.projectName,
-    country: device.countryCode,
+    country: Countries.find((country) => country.code === device.countryCode)?.name,
     fuelCode: getFuelNameFromCode(device.fuelCode, allFuelTypes),
     installation: device.installationConfiguration,
     capacity: device.capacityRange,

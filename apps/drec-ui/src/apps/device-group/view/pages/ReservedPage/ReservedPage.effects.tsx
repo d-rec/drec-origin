@@ -83,7 +83,7 @@ export const useReservedPageEffects = () => {
 
     const onUnreserveHandler = () => {
         const autoSelected: SelectableDeviceGroupDTO[] = selectedDeviceGroupList.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === false
+            (group: SelectableDeviceGroupDTO) => group.selected === true
         );
         dispatchModals({
             type: DeviceGroupModalsActionsEnum.UNRESERVE,
@@ -99,7 +99,7 @@ export const useReservedPageEffects = () => {
 
     const disableReserveButton =
         selectedDeviceGroupList?.filter(
-            (group: SelectableDeviceGroupDTO) => group.selected === false
+            (group: SelectableDeviceGroupDTO) => group.selected === true
         ).length === 0;
 
     return {
