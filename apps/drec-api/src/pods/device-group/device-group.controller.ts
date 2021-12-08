@@ -65,7 +65,7 @@ export class DeviceGroupController {
   async getUnreserved(
     @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
   ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto, false);
+    return this.deviceGroupService.getReservedOrUnreserved(filterDto);
   }
 
   @Get('/reserved')
@@ -79,7 +79,7 @@ export class DeviceGroupController {
     @UserDecorator() { id }: ILoggedInUser,
     @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
   ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto, true, id);
+    return this.deviceGroupService.getReservedOrUnreserved(filterDto, id);
   }
 
   @Get('/my')

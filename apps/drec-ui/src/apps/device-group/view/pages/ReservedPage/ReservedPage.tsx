@@ -3,6 +3,7 @@ import { CircularProgress, Paper, Typography, Grid, Button, Box } from '@mui/mat
 import { useStyles } from './ReservedPage.styles';
 import { useReservedPageEffects } from './ReservedPage.effects';
 import { GenericForm, TableComponent } from '@energyweb/origin-ui-core';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export const ReservedPage: FC = () => {
     const classes = useStyles();
@@ -44,6 +45,7 @@ export const ReservedPage: FC = () => {
                     </Grid>
                     <div className={classes.buttonsWrapper}>
                         <Button
+                            startIcon={<DeleteIcon />}
                             disabled={disableReserveButton}
                             onClick={onUnreserveHandler}
                             color="primary"

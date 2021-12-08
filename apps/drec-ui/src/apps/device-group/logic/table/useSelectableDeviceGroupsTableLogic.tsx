@@ -2,6 +2,7 @@ import { CodeNameDTO, SelectableDeviceGroupDTO } from '@energyweb/origin-drec-ap
 import { TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 import { Checkbox } from '@mui/material';
 import { getFuelNameFromCode } from '../../../../utils';
+import { Countries } from '@energyweb/utils-general';
 
 const prepareSelectableDeviceGroupsData = (
     group: SelectableDeviceGroupDTO,
@@ -10,7 +11,7 @@ const prepareSelectableDeviceGroupsData = (
     handleChecked: (id: SelectableDeviceGroupDTO['id'], checked: boolean) => void
 ) => ({
     id: group.id,
-    country: group.countryCode,
+    country: Countries.find((country) => country.code === group.countryCode)?.name,
     organization: group.organization.name,
     fuelCode: getFuelNameFromCode(group.fuelCode, allFuelTypes),
     capacityRange: group.capacityRange,

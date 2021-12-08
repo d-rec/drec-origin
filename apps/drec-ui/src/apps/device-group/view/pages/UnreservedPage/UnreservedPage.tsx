@@ -4,6 +4,7 @@ import { useStyles } from './UnreservedPage.styles';
 import { useUnreservedPageEffects } from './UnreservedPage.effects';
 import { GenericForm, TableComponent } from '@energyweb/origin-ui-core';
 import { OperatorApprovalMessageCard } from '../../containers';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 export const UnreservedPage: FC = () => {
     const classes = useStyles();
@@ -51,6 +52,7 @@ export const UnreservedPage: FC = () => {
                         </Grid>
                         <div className={classes.buttonsWrapper}>
                             <Button
+                                startIcon={<AddCircleIcon />}
                                 disabled={disableReserveButton}
                                 onClick={onReserveHandler}
                                 color="primary"

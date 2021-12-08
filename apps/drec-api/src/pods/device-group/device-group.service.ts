@@ -118,7 +118,6 @@ export class DeviceGroupService {
 
   async getReservedOrUnreserved(
     filterDto: UnreservedDeviceGroupsFilterDTO,
-    selected: boolean,
     buyerId?: number,
   ): Promise<SelectableDeviceGroupDTO[]> {
     const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
@@ -135,7 +134,7 @@ export class DeviceGroupService {
             name: organization.name,
             blockchainAccountAddress: organization.blockchainAccountAddress,
           },
-          selected,
+          selected: false,
         };
       }),
     );
