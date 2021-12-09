@@ -10,6 +10,7 @@ import { Dayjs } from 'dayjs';
 import { BigNumber } from 'ethers';
 import { Dispatch, SetStateAction } from 'react';
 import { useQueryClient } from 'react-query';
+import { PowerFormatter } from '../../../../utils';
 import { useGetBlockchainCertificateHandler } from '../fetching';
 
 export const useRetireCertificateHandler = (
@@ -31,7 +32,10 @@ export const useRetireCertificateHandler = (
             const onChainCertificate = await getBlockchainCertificate(
                 id as unknown as CertificateDTO['id']
             );
-            const formattedAmount = BigNumber.from(amount);
+            const formattedAmount = BigNumber.from(
+                PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount))
+            );
+            console.log('Ammount: ', amount, formattedAmount.toString());
             const claimData: IClaimData = {
                 beneficiary: selectedBeneficiary.name,
                 location: selectedBeneficiary.address,

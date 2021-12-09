@@ -1,11 +1,11 @@
-import { EnergyFormatter, formatDate } from '@energyweb/origin-ui-utils';
+import { formatDate } from '@energyweb/origin-ui-utils';
 import {
     TUseLogicRedemptionsReport,
     TFormatRedemptionsReportData,
     TFormatRedemptionsReportReturnData
 } from './types';
 import { useNavigate } from 'react-router-dom';
-import { getFuelNameFromCode } from '../../../../utils';
+import { EnergyFormatter, getFuelNameFromCode } from '../../../../utils';
 import { CertificateMetadata } from '../../types';
 
 const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
@@ -46,9 +46,10 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
                   standardCompliance: deviceGroup?.standardCompliance,
                   compliance,
                   redemptionDate: formatDate(certificate.claimData.periodStartDate),
-                  certifiedEnergy: EnergyFormatter.getValueInDisplayUnit(
+                  certifiedEnergy: EnergyFormatter.getMegawattsFromWatts(
                       certificate.value
-                  ).toString()
+                  ).toString(),
+                  certificateId: certificate.id
               };
           })
         : ([] as TFormatRedemptionsReportReturnData);
@@ -62,6 +63,7 @@ export const useLogicRedemptionsReport: TUseLogicRedemptionsReport = ({
     loading
 }) => {
     const navigate = useNavigate();
+
     return {
         header: {
             fuelCode: 'Fuel Code',
@@ -74,7 +76,8 @@ export const useLogicRedemptionsReport: TUseLogicRedemptionsReport = ({
             standardCompliance: 'Standard Compliance',
             compliance: 'Compliance',
             redemptionDate: 'Redemption Date',
-            certifiedEnergy: `Certified Energy (${EnergyFormatter.displayUnit})`
+            certifiedEnergy: `Certified Energy (${EnergyFormatter.displayUnit})`,
+            certificateId: 'Certificate ID'
         },
         pageSize: 10,
         loading,

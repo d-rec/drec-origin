@@ -18,8 +18,11 @@ specifiers:
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
+  '@ethersproject/address': 5.3.0
+  '@ethersproject/bignumber': 5.3.0
   '@ethersproject/contracts': 5.3.0
   '@ethersproject/providers': 5.3.1
+  '@ethersproject/units': 5.3.0
   '@ethersproject/wallet': 5.3.0
   '@hookform/resolvers': 2.8.3
   '@mui/icons-material': 5.1.1
@@ -110,6 +113,7 @@ specifiers:
   mobx-react-lite: ^3.2.0
   mocha: 8.2.1
   multer: 1.4.2
+  nanoid: ~3.1.30
   nodemailer: ^6.6.3
   orval: 5.5.9
   passport: 0.4.1
@@ -168,8 +172,11 @@ dependencies:
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
+  '@ethersproject/address': 5.3.0
+  '@ethersproject/bignumber': 5.3.0
   '@ethersproject/contracts': 5.3.0
   '@ethersproject/providers': 5.3.1
+  '@ethersproject/units': 5.3.0
   '@ethersproject/wallet': 5.3.0
   '@hookform/resolvers': 2.8.3_react-hook-form@7.20.2
   '@mui/icons-material': 5.1.1_4af286b00c162bf28c2d6aca57b14910
@@ -260,6 +267,7 @@ dependencies:
   mobx-react-lite: 3.2.2_17a9a2b9737f188c3f2d8ece9728da86
   mocha: 8.2.1
   multer: 1.4.2
+  nanoid: 3.1.30
   nodemailer: 6.7.1
   orval: 5.5.9
   passport: 0.4.1
@@ -4700,11 +4708,11 @@ packages:
   /@ethersproject/address/5.3.0:
     resolution: {integrity: sha512-29TgjzEBK+gUEUAOfWCG7s9IxLNLCqvr+oDSk6L9TXD0VLvZJKhJV479tKQqheVA81OeGxfpdxYtUVH8hqlCvA==}
     dependencies:
-      '@ethersproject/bignumber': 5.3.0
-      '@ethersproject/bytes': 5.3.0
-      '@ethersproject/keccak256': 5.3.0
-      '@ethersproject/logger': 5.3.0
-      '@ethersproject/rlp': 5.3.0
+      '@ethersproject/bignumber': 5.5.0
+      '@ethersproject/bytes': 5.5.0
+      '@ethersproject/keccak256': 5.5.0
+      '@ethersproject/logger': 5.5.0
+      '@ethersproject/rlp': 5.5.0
     dev: false
 
   /@ethersproject/address/5.5.0:
@@ -5115,7 +5123,7 @@ packages:
   /@ethersproject/units/5.3.0:
     resolution: {integrity: sha512-BkfccZGwfJ6Ob+AelpIrgAzuNhrN2VLp3AILnkqTOv+yBdsc83V4AYf25XC/u0rHnWl6f4POaietPwlMqP2vUg==}
     dependencies:
-      '@ethersproject/bignumber': 5.3.0
+      '@ethersproject/bignumber': 5.5.0
       '@ethersproject/constants': 5.5.0
       '@ethersproject/logger': 5.5.0
     dev: false
@@ -25771,7 +25779,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-ui.tgz_c178cd6ac9316836365d6800ee1ac184:
-    resolution: {integrity: sha512-1iEQKerZpnYWd514sh7/eiuBa/rHUDmxxLkjES+IYjtkHehfKg+V3sJPbd7ABP22apOLvuG99TMvBvUUnwnUbw==, tarball: file:projects/origin-drec-ui.tgz}
+    resolution: {integrity: sha512-RmPyDpZIoXB1sEf8OUWJM+uyzj6dBbDBy9HaQoj01EF7BbfvyTJeTRCpIVxf+W0mT9EpORX0gb1rfc3WcnnEAg==, tarball: file:projects/origin-drec-ui.tgz}
     id: file:projects/origin-drec-ui.tgz
     name: '@rush-temp/origin-drec-ui'
     version: 0.0.0
@@ -25784,7 +25792,10 @@ packages:
       '@energyweb/origin-ui-theme': 0.1.0_5a05306dab5b03b28b7ffc5905f23628
       '@energyweb/origin-ui-utils': 0.1.0_history@5.1.0+react@17.0.2
       '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
+      '@ethersproject/address': 5.3.0
+      '@ethersproject/bignumber': 5.3.0
       '@ethersproject/providers': 5.3.1
+      '@ethersproject/units': 5.3.0
       '@hookform/resolvers': 2.8.3_react-hook-form@7.20.2
       '@mui/icons-material': 5.1.1_4af286b00c162bf28c2d6aca57b14910
       '@mui/lab': 5.0.0-alpha.55_27ae667737a8d8e099a48c0b2e18bc3c
