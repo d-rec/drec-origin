@@ -32,6 +32,7 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
 
               return {
                   id: `${certificate.id};${index}`,
+                  certificateId: certificate.id,
                   fuelCode: getFuelNameFromCode(deviceGroup?.fuelCode, allFuelTypes),
                   country: deviceGroup?.countryCode,
                   capacityRange: deviceGroup?.capacityRange,
@@ -48,8 +49,7 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
                   redemptionDate: formatDate(certificate.claimData.periodStartDate),
                   certifiedEnergy: EnergyFormatter.getMegawattsFromWatts(
                       certificate.value
-                  ).toString(),
-                  certificateId: certificate.id
+                  ).toString()
               };
           })
         : ([] as TFormatRedemptionsReportReturnData);
@@ -66,6 +66,7 @@ export const useLogicRedemptionsReport: TUseLogicRedemptionsReport = ({
 
     return {
         header: {
+            certificateId: 'Certificate ID',
             fuelCode: 'Fuel Code',
             country: 'Country',
             capacityRange: 'Capacity Range',
@@ -76,8 +77,7 @@ export const useLogicRedemptionsReport: TUseLogicRedemptionsReport = ({
             standardCompliance: 'Standard Compliance',
             compliance: 'Compliance',
             redemptionDate: 'Redemption Date',
-            certifiedEnergy: `Certified Energy (${EnergyFormatter.displayUnit})`,
-            certificateId: 'Certificate ID'
+            certifiedEnergy: `Certified Energy (${EnergyFormatter.displayUnit})`
         },
         pageSize: 10,
         loading,
