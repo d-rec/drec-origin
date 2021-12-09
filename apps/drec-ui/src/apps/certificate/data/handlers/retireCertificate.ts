@@ -35,7 +35,6 @@ export const useRetireCertificateHandler = (
             const formattedAmount = BigNumber.from(
                 PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount))
             );
-            console.log('Ammount: ', amount, formattedAmount.toString());
             const claimData: IClaimData = {
                 beneficiary: selectedBeneficiary.name,
                 location: selectedBeneficiary.address,
