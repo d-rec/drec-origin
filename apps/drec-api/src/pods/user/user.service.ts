@@ -162,9 +162,10 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email, telephone }: UpdateUserProfileDTO,
+    { title, firstName, lastName, email, telephone }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
+      title,
       firstName,
       lastName,
       email,

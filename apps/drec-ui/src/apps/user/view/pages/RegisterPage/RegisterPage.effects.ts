@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 import { useApiRegisterUser } from 'apps/user/data';
 import { UserModalsActionsEnum, useUserModalsDispatch } from '../../context';
+import { TITLE_OPTIONS } from '../../../../../utils';
 
 export type TUserSignInFormValues = {
     title: string;
@@ -21,8 +22,6 @@ const INITIAL_FORM_VALUES: TUserSignInFormValues = {
     password: ''
 };
 
-const TITLES = ['Dr', 'Mr', 'Mrs', 'Ms', 'Other'];
-
 export const useRegisterPageEffects = () => {
     const dispatchModals = useUserModalsDispatch();
 
@@ -41,10 +40,6 @@ export const useRegisterPageEffects = () => {
 export const useUserSignInFormConfig = (
     formSubmitHandler: GenericFormProps<TUserSignInFormValues>['submitHandler']
 ): GenericFormProps<TUserSignInFormValues> => {
-    const TITLE_OPTIONS = TITLES.map((title) => ({
-        label: title,
-        value: title
-    }));
     return {
         buttonText: 'Register',
         fields: [
@@ -53,7 +48,6 @@ export const useUserSignInFormConfig = (
                 name: 'title',
                 select: true,
                 options: TITLE_OPTIONS,
-                required: true,
                 additionalInputProps: {
                     valueToOpen: 'Other',
                     name: 'titleInput',
@@ -78,8 +72,7 @@ export const useUserSignInFormConfig = (
             },
             {
                 label: 'Telephone',
-                name: 'telephone',
-                required: true
+                name: 'telephone'
             },
             {
                 type: 'password',
@@ -94,11 +87,10 @@ export const useUserSignInFormConfig = (
         submitHandler: formSubmitHandler,
         inputsVariant: 'filled',
         validationSchema: Yup.object().shape({
-            title: Yup.string().label('Title').required(),
+            title: Yup.string().label('Title'),
             firstName: Yup.string().label('First Name').required(),
             lastName: Yup.string().label('Last Name').required(),
             email: Yup.string().email().label('Email').required(),
-            telephone: Yup.string().min(10).label('Telephone').required(),
             password: Yup.string().min(6).label('Password').required()
         })
     };

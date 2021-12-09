@@ -112,6 +112,7 @@ describe('Users tests', () => {
 
   it('should update profile for user', async () => {
     const partialUser: UpdateUserProfileDTO = {
+      title: 'Mr',
       firstName: 'Updated first name',
       lastName: 'Updated last name',
       email: 'updated@mailinator.com',

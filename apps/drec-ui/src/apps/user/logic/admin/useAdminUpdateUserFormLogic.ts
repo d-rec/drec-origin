@@ -1,6 +1,7 @@
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 import * as Yup from 'yup';
+import { TITLE_OPTIONS } from '../../../../utils';
 import { USER_STATUS_OPTIONS } from './statusOptions';
 
 export type TAdminUpdateUserFormValues = {
@@ -31,7 +32,15 @@ export const useAdminUpdateUserFormLogic = (
         fields: [
             {
                 label: 'Title',
-                name: 'title'
+                name: 'title',
+                select: true,
+                options: TITLE_OPTIONS,
+                additionalInputProps: {
+                    valueToOpen: 'Other',
+                    name: 'titleInput',
+                    label: 'Title',
+                    required: true
+                }
             },
             {
                 label: 'First name',
@@ -64,7 +73,7 @@ export const useAdminUpdateUserFormLogic = (
             firstName: Yup.string().label('First name').required(),
             lastName: Yup.string().label('Last name').required(),
             email: Yup.string().email().label('Email').required(),
-            telephone: Yup.string().label('Telephone').required()
+            telephone: Yup.string().label('Telephone')
         })
     };
 };

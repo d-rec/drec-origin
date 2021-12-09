@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IFullOrganization, IUserProperties } from '../../../models';
+import { IFullOrganization, IUser } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
 import {
   IsBoolean,
@@ -14,14 +14,14 @@ import {
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
 
-export class UserDTO implements Omit<IUserProperties, 'password'> {
+export class UserDTO implements Omit<IUser, 'password'> {
   @ApiProperty({ type: Number })
   @IsNumber()
   @Expose()
   id: number;
 
   @ApiProperty({ type: String })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   title: string;
 
@@ -36,7 +36,7 @@ export class UserDTO implements Omit<IUserProperties, 'password'> {
   lastName: string;
 
   @ApiProperty({ type: String })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   telephone: string;
 
