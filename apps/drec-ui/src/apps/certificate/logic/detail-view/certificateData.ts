@@ -1,5 +1,7 @@
-import { EnergyFormatter, formatDate } from '@energyweb/origin-ui-utils';
+import { formatDate } from '@energyweb/origin-ui-utils';
+import { EnergyFormatter } from '../../../../utils';
 import { DetailedCertificate } from '../../types';
+
 export const useCertificateDataLogic = (certificate: DetailedCertificate) => {
     return {
         certificateId: {

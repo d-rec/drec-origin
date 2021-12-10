@@ -29,7 +29,7 @@ export const formatSelectedBlockchainItems: TFormatSelectedBlockchainItems = ({
             id: selectedId,
             icon,
             deviceName: matchingDeviceGroup?.name,
-            energy: PowerFormatter.formatDisplay(Number(certificate.energy.publicVolume), true),
+            energy: PowerFormatter.format(Number(certificate.energy.publicVolume), true),
             generationTime
         };
     });

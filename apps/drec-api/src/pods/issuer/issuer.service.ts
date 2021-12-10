@@ -107,13 +107,15 @@ export class IssuerService {
       return;
     }
 
+    const issueTotalReadValue = totalReadValueKw * 10 ** 3; // Issue certificate in watts
+
     const deviceGroup = {
       ...group,
       devices: [],
     };
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
-      energyValue: totalReadValueKw.toString(),
+      energyValue: issueTotalReadValue.toString(),
       fromTime: new Date(startDate.toString()),
       toTime: new Date(endDate.toString()),
       toAddress: org.blockchainAccountAddress,

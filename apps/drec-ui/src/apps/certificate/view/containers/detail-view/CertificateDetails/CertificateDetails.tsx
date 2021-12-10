@@ -17,7 +17,6 @@ export const CertificateDetails: FC<CertificateDetailsProps> = ({ certificate })
         creationDate,
         generationStartDate,
         generationEndDate,
-        blockhainTransactionsTitle,
         claimedEnergy,
         remainingEnergy,
         claimBeneficiaries
@@ -59,16 +58,6 @@ export const CertificateDetails: FC<CertificateDetailsProps> = ({ certificate })
                         )}
                     </Grid>
                 </Grid>
-            </Paper>
-            <Paper className={classes.paper}>
-                <Typography
-                    className={classes.eventsItem}
-                    variant="h4"
-                    align="center"
-                    margin="normal"
-                >
-                    {blockhainTransactionsTitle}
-                </Typography>
             </Paper>
         </>
     );
