@@ -17,11 +17,11 @@ export const useAdminUpdateUserFormLogic = (
     user: UserDTO
 ): Omit<GenericFormProps<TAdminUpdateUserFormValues>, 'submitHandler'> => {
     const initialFormData = {
-        title: user?.title,
+        title: user?.title || '',
         firstName: user?.firstName,
         lastName: user?.lastName,
         email: user?.email,
-        telephone: user?.telephone,
+        telephone: user?.telephone || '',
         status: user?.status
     };
 

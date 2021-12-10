@@ -17,13 +17,13 @@ export const useAdminUpdateOrganizationSignatoryInfoForm = (
     organization: OrganizationDTO
 ): Omit<GenericFormProps<TAdminUpdateOrganizationSignatoryInfoFormValues>, 'submitHandler'> => {
     const initialFormData = {
-        signatoryFullName: organization?.signatoryFullName,
-        signatoryAddress: organization?.signatoryAddress,
-        signatoryZipCode: organization?.signatoryZipCode,
-        signatoryCity: organization?.signatoryCity,
-        signatoryCountry: organization?.signatoryCountry,
-        signatoryEmail: organization?.signatoryEmail,
-        signatoryPhoneNumber: organization?.signatoryPhoneNumber
+        signatoryFullName: organization?.signatoryFullName || '',
+        signatoryAddress: organization?.signatoryAddress || '',
+        signatoryZipCode: organization?.signatoryZipCode || '',
+        signatoryCity: organization?.signatoryCity || '',
+        signatoryCountry: organization?.signatoryCountry || '',
+        signatoryEmail: organization?.signatoryEmail || '',
+        signatoryPhoneNumber: organization?.signatoryPhoneNumber || ''
     };
     return {
         formTitle: 'Authorized Signatory Information',
@@ -67,13 +67,13 @@ export const useAdminUpdateOrganizationSignatoryInfoForm = (
         acceptInitialValues: true,
         inputsVariant: 'filled',
         validationSchema: Yup.object().shape({
-            signatoryFullName: Yup.string().label('Signatory Name').nullable(),
-            signatoryAddress: Yup.string().label('Signatory Address').nullable(),
-            signatoryZipCode: Yup.string().label('Signatory Zip code').nullable(),
-            signatoryCity: Yup.string().label('Signatory City').nullable(),
-            signatoryCountry: Yup.string().label('Signatory Country').nullable(),
-            signatoryEmail: Yup.string().email().label('Signatory Email').nullable(),
-            signatoryPhoneNumber: Yup.string().label('Signatory phone number').nullable()
+            signatoryFullName: Yup.string().label('Signatory Name'),
+            signatoryAddress: Yup.string().label('Signatory Address'),
+            signatoryZipCode: Yup.string().label('Signatory Zip code'),
+            signatoryCity: Yup.string().label('Signatory City'),
+            signatoryCountry: Yup.string().label('Signatory Country'),
+            signatoryEmail: Yup.string().email().label('Signatory Email'),
+            signatoryPhoneNumber: Yup.string().label('Signatory phone number')
         })
     };
 };

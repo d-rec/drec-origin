@@ -17,10 +17,10 @@ export const useUpdateUserAccountDataFormConfig = (
 ): Omit<GenericFormProps<TUpdateUserDataFormValues>, 'submitHandler'> => {
     const { title, firstName, lastName, telephone, status, emailConfirmed } = user;
     const initialFormData: TUpdateUserDataFormValues = {
-        title,
+        title: title || '',
         firstName,
         lastName,
-        telephone,
+        telephone: telephone || '',
         status,
         emailConfirmed: emailConfirmed ? 'Yes' : 'No'
     };
