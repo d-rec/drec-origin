@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IFullOrganization, IUser } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
@@ -20,10 +20,10 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @Expose()
   id: number;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()
@@ -35,10 +35,10 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @IsString()
   lastName: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  telephone: string;
+  telephone?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()

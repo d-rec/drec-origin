@@ -73,37 +73,44 @@ export class Organization
   vatNumber: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryFullName: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryAddress: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryZipCode: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryCity: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsISO31661Alpha2()
   signatoryCountry: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryEmail: string;
 
   @ApiProperty({ type: String })
-  @Column()
+  @Column({ nullable: true })
+  @IsOptional()
   @IsString()
   signatoryPhoneNumber: string;
 

@@ -3,10 +3,10 @@ import { Role, UserStatus } from '../utils/enums';
 
 export interface IUserProperties {
   id: number;
-  title: string;
+  title?: string;
   firstName: string;
   lastName: string;
-  telephone: string;
+  telephone?: string;
   email: string;
   notifications: boolean;
   status: UserStatus;

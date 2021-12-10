@@ -17,13 +17,13 @@ export class IPublicOrganization {
 }
 
 export interface IFullOrganization extends IPublicOrganization {
-  signatoryFullName: string;
-  signatoryAddress: string;
-  signatoryZipCode: string;
-  signatoryCity: string;
-  signatoryCountry: string;
-  signatoryEmail: string;
-  signatoryPhoneNumber: string;
+  signatoryFullName?: string;
+  signatoryAddress?: string;
+  signatoryZipCode?: string;
+  signatoryCity?: string;
+  signatoryCountry?: string;
+  signatoryEmail?: string;
+  signatoryPhoneNumber?: string;
   signatoryDocumentIds?: string[];
   documentIds?: string[];
 }

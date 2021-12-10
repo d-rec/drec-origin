@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class UserRegistrationData {
   @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -20,7 +20,7 @@ export class UserRegistrationData {
 
   @IsOptional()
   @IsString()
-  telephone: string;
+  telephone?: string;
 
   @IsNotEmpty()
   @IsString()
