@@ -47,37 +47,37 @@ export class NewOrganizationDTO
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryFullName: string;
+  signatoryFullName?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryAddress: string;
+  signatoryAddress?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryZipCode: string;
+  signatoryZipCode?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryCity: string;
+  signatoryCity?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsISO31661Alpha2()
-  signatoryCountry: string;
+  signatoryCountry?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsEmail()
-  signatoryEmail: string;
+  signatoryEmail?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryPhoneNumber: string;
+  signatoryPhoneNumber?: string;
 
   @ApiPropertyOptional({ type: [String], required: false })
   @IsOptional()

@@ -3,7 +3,7 @@ import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role, UserStatus } from '../../utils/enums';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { IUser } from '../../models';
 import { Organization } from '../organization/organization.entity';
 
@@ -21,7 +21,6 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   title: string;
 
@@ -37,7 +36,6 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   telephone: string;
 

@@ -1,12 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import {
-  IsArray,
-  IsEnum,
-  IsISO31661Alpha2,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
 import { OrganizationStatus } from '../../utils/enums';
@@ -74,49 +68,41 @@ export class Organization
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryFullName: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryAddress: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryZipCode: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryCity: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsISO31661Alpha2()
   signatoryCountry: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryEmail: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
-  @IsOptional()
   @IsString()
   signatoryPhoneNumber: string;
 
   @ApiProperty({ type: () => [String] })
   @Column('simple-array', { nullable: true })
-  @IsOptional()
   @IsArray()
   signatoryDocumentIds: string[];
 
@@ -141,7 +127,6 @@ export class Organization
 
   @ApiProperty({ type: () => [String] })
   @Column('simple-array', { nullable: true })
-  @IsOptional()
   @IsArray()
   documentIds: string[];
 }
