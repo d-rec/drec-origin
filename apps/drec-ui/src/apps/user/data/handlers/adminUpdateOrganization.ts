@@ -5,7 +5,10 @@ import {
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
-import { TAdminUpdateOrganizationFormValues } from '../../logic';
+import {
+    TAdminUpdateOrganizationFormValues,
+    TAdminUpdateOrganizationSignatoryInfoFormValues
+} from '../../logic';
 
 export const useAdminUpdateOrganization = (id: string) => {
     const { mutate } = useAdminControllerUpdateOrganization();
@@ -15,7 +18,9 @@ export const useAdminUpdateOrganization = (id: string) => {
     const idAsNumber = parseInt(id);
     const currentOrganizationQueryKey = getAdminControllerGetOrganizationByIdQueryKey(idAsNumber);
 
-    const submitHandler = (values: TAdminUpdateOrganizationFormValues) => {
+    const submitHandler = (
+        values: TAdminUpdateOrganizationFormValues | TAdminUpdateOrganizationSignatoryInfoFormValues
+    ) => {
         mutate(
             { id: idAsNumber, data: values },
             {

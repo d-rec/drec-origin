@@ -16,52 +16,45 @@ export const createSignatoryInfoForm: TCreateSignatoryInfoForm = () => ({
         signatoryPhoneNumber: ''
     },
     validationSchema: yup.object().shape({
-        signatoryFullName: yup.string().required().label('Signatory Name'),
-        signatoryAddress: yup.string().required().label('Signatory Address'),
-        signatoryZipCode: yup.string().required().label('Zip code'),
-        signatoryCity: yup.string().required().label('City'),
-        signatoryCountry: yup.array().required().label('Country'),
-        signatoryEmail: yup.string().email().required().label('Signatory Email'),
-        signatoryPhoneNumber: yup.string().required().label('Signatory phone number')
+        signatoryFullName: yup.string().label('Signatory Name'),
+        signatoryAddress: yup.string().label('Signatory Address'),
+        signatoryZipCode: yup.string().label('Zip code'),
+        signatoryCity: yup.string().label('City'),
+        signatoryCountry: yup.array().label('Country'),
+        signatoryEmail: yup.string().email().label('Signatory Email'),
+        signatoryPhoneNumber: yup.string().label('Signatory phone number')
     }),
     fields: [
         {
             name: 'signatoryFullName',
-            label: 'Signatory Name',
-            required: true
+            label: 'Signatory Name'
         },
         {
             name: 'signatoryAddress',
-            label: 'Signatory Address',
-            required: true
+            label: 'Signatory Address'
         },
         {
             name: 'signatoryZipCode',
-            label: 'Zip code',
-            required: true
+            label: 'Zip code'
         },
         {
             name: 'signatoryCity',
-            label: 'City',
-            required: true
+            label: 'City'
         },
         {
             name: 'signatoryCountry',
             label: 'Country',
             select: true,
             autocomplete: true,
-            options: COUNTRY_OPTIONS_ISO,
-            required: true
+            options: COUNTRY_OPTIONS_ISO
         },
         {
             name: 'signatoryEmail',
-            label: 'Signatory Email',
-            required: true
+            label: 'Signatory Email'
         },
         {
             name: 'signatoryPhoneNumber',
-            label: 'Signatory phone number',
-            required: true
+            label: 'Signatory phone number'
         }
     ],
     buttonText: 'Next Step'

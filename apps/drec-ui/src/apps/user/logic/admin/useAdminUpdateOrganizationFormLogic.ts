@@ -18,24 +18,24 @@ export type TAdminUpdateOrganizationFormValues = {
 };
 
 export const useAdminUpdateOrganizationFormLogic = (
-    user: OrganizationDTO
+    organization: OrganizationDTO
 ): Omit<GenericFormProps<TAdminUpdateOrganizationFormValues>, 'submitHandler'> => {
     const initialFormData = {
-        name: user?.name,
-        address: user?.address,
-        zipCode: user?.zipCode,
-        city: user?.city,
-        country: user?.country,
-        businessType: user?.businessType,
-        tradeRegistryCompanyNumber: user?.tradeRegistryCompanyNumber,
-        vatNumber: user?.vatNumber,
-        status: user?.status
+        name: organization?.name,
+        address: organization?.address,
+        zipCode: organization?.zipCode,
+        city: organization?.city,
+        country: organization?.country,
+        businessType: organization?.businessType,
+        tradeRegistryCompanyNumber: organization?.tradeRegistryCompanyNumber,
+        vatNumber: organization?.vatNumber,
+        status: organization?.status
     };
 
     return {
         formTitle: 'Organization information',
         formTitleVariant: 'h5',
-        buttonText: 'Update',
+        buttonText: 'Save',
         fields: [
             {
                 label: 'Name',

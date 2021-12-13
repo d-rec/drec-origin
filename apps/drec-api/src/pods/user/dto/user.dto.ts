@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IFullOrganization, IUserProperties } from '../../../models';
+import { IFullOrganization, IUser } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
 import {
   IsBoolean,
@@ -14,16 +14,16 @@ import {
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
 
-export class UserDTO implements Omit<IUserProperties, 'password'> {
+export class UserDTO implements Omit<IUser, 'password'> {
   @ApiProperty({ type: Number })
   @IsNumber()
   @Expose()
   id: number;
 
-  @ApiProperty({ type: String })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()
@@ -35,10 +35,10 @@ export class UserDTO implements Omit<IUserProperties, 'password'> {
   @IsString()
   lastName: string;
 
-  @ApiProperty({ type: String })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  telephone: string;
+  telephone?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()

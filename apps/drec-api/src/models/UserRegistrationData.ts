@@ -1,10 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UserRegistrationData {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -18,9 +18,9 @@ export class UserRegistrationData {
   @Transform((value: string) => value.toLowerCase())
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  telephone: string;
+  telephone?: string;
 
   @IsNotEmpty()
   @IsString()

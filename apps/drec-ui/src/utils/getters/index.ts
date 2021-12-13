@@ -4,3 +4,4 @@ export * from './getMainFuelType';
 export * from './getTimeUnitOnWindow';
 export * from './getFuelName';
 export * from './getMwFromW';
+export * from './getUserTitles';

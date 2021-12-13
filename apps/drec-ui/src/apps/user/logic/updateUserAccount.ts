@@ -1,8 +1,10 @@
 import { UserDTO } from '@energyweb/origin-drec-api-client';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 import * as Yup from 'yup';
+import { TITLE_OPTIONS } from '../../../utils';
 
 type TUpdateUserDataFormValues = {
+    title: UserDTO['title'];
     firstName: UserDTO['firstName'];
     lastName: UserDTO['lastName'];
     telephone: UserDTO['telephone'];
@@ -13,17 +15,30 @@ type TUpdateUserDataFormValues = {
 export const useUpdateUserAccountDataFormConfig = (
     user: UserDTO
 ): Omit<GenericFormProps<TUpdateUserDataFormValues>, 'submitHandler'> => {
-    const { firstName, lastName, telephone, status, emailConfirmed } = user;
+    const { title, firstName, lastName, telephone, status, emailConfirmed } = user;
     const initialFormData: TUpdateUserDataFormValues = {
+        title: title || '',
         firstName,
         lastName,
-        telephone,
+        telephone: telephone || '',
         status,
         emailConfirmed: emailConfirmed ? 'Yes' : 'No'
     };
     return {
         buttonText: 'Save',
         fields: [
+            {
+                label: 'Title',
+                name: 'title',
+                select: true,
+                options: TITLE_OPTIONS,
+                additionalInputProps: {
+                    valueToOpen: 'Other',
+                    name: 'titleInput',
+                    label: 'Title',
+                    required: true
+                }
+            },
             {
                 label: 'First name',
                 name: 'firstName',
@@ -36,8 +51,7 @@ export const useUpdateUserAccountDataFormConfig = (
             },
             {
                 label: 'Telephone',
-                name: 'telephone',
-                required: true
+                name: 'telephone'
             },
             {
                 label: 'Status',
@@ -56,8 +70,7 @@ export const useUpdateUserAccountDataFormConfig = (
         inputsVariant: 'filled' as any,
         validationSchema: Yup.object().shape({
             firstName: Yup.string().label('First name').required(),
-            lastName: Yup.string().label('Last name').required(),
-            telephone: Yup.string().min(10).label('Telephone').required()
+            lastName: Yup.string().label('Last name').required()
         })
     };
 };

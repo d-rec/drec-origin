@@ -1,12 +1,6 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
-import {
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MaxLength } from 'class-validator';
 import { UserRegistrationData } from '../../../models';
 
 export class CreateUserDTO

@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsArray,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
 
 export class NewOrganizationDTO
@@ -44,40 +44,47 @@ export class NewOrganizationDTO
   @IsString()
   vatNumber: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  signatoryFullName: string;
+  signatoryFullName?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  signatoryAddress: string;
+  signatoryAddress?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  signatoryZipCode: string;
+  signatoryZipCode?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  signatoryCity: string;
+  signatoryCity?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsISO31661Alpha2()
-  signatoryCountry: string;
+  signatoryCountry?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsEmail()
-  signatoryEmail: string;
+  signatoryEmail?: string;
 
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsString()
-  signatoryPhoneNumber: string;
+  signatoryPhoneNumber?: string;
 
-  @ApiProperty({ type: [String], required: false })
+  @ApiPropertyOptional({ type: [String], required: false })
   @IsOptional()
   @IsArray()
   documentIds?: string[];
 
-  @ApiProperty({ type: [String], required: false })
+  @ApiPropertyOptional({ type: [String], required: false })
   @IsOptional()
   @IsArray()
   signatoryDocumentIds?: string[];

@@ -10,6 +10,7 @@ import {
 } from '@energyweb/origin-ui-core';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import cleanDeep from 'clean-deep';
 
 interface IUseOrganizationRegisterHandlerProps {
     openRoleChangedModal: () => void;
@@ -32,10 +33,27 @@ export const useOrganizationRegisterHandler = ({
     const userKey = getUserControllerMeQueryKey();
 
     const registerHandler = (values: OrgRegisterFormValues) => {
+        const signatoryInformation = cleanDeep({
+            signatoryFullName: values.signatoryFullName,
+            signatoryAddress: values.signatoryAddress,
+            signatoryZipCode: values.signatoryZipCode,
+            signatoryCity: values.signatoryCity,
+            signatoryCountry:
+                (values.signatoryCountry[0]?.value as string) ||
+                (values.country[0].value as string),
+            signatoryEmail: values.signatoryEmail,
+            signatoryPhoneNumber: values.signatoryPhoneNumber
+        });
         const formattedValues: NewOrganizationDTO = {
-            ...values,
+            name: values.name,
+            address: values.address,
+            zipCode: values.zipCode,
+            city: values.city,
             country: values.country[0].value as string,
-            signatoryCountry: values.signatoryCountry[0].value as string
+            businessType: values.businessType,
+            tradeRegistryCompanyNumber: values.tradeRegistryCompanyNumber,
+            vatNumber: values.vatNumber,
+            ...signatoryInformation
         };
         mutate(
             { data: formattedValues },
