@@ -71,8 +71,8 @@ export const App: FC<AppProps> = memo(
                                     <CertificateApp
                                         routesConfig={certificateRoutes}
                                         envVariables={{
-                                            googleMapsApiKey:
-                                                process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                                            blockchainExplorerUrl:
+                                                process.env.REACT_APP_BLOCKCHAIN_EXPLORER_URL
                                         }}
                                     />
                                 }
