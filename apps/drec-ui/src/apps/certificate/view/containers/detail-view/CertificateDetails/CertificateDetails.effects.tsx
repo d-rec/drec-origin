@@ -1,8 +1,14 @@
-import { useCertificateDataLogic } from '../../../../logic';
+import { useCertificateBlockchainEventsLogic, useCertificateDataLogic } from '../../../../logic';
 import { DetailedCertificate } from '../../../../types';
 
 export const useCertificateDetailsEffects = (certificate: DetailedCertificate) => {
     const certificateData = useCertificateDataLogic(certificate);
+    const eventsData = useCertificateBlockchainEventsLogic(certificate);
 
-    return certificateData;
+    const blockhainTransactionsTitle = 'Blockchain Transactions';
+    return {
+        ...certificateData,
+        eventsData,
+        blockhainTransactionsTitle
+    };
 };

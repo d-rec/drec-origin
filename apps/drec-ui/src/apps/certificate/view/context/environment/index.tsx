@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { FC } from 'react';
 
 export type CertificateEnvVariables = {
-    googleMapsApiKey: string;
+    blockchainExplorerUrl: string;
 };
 
 const CertificateAppEnv = createContext<CertificateEnvVariables>(null);
