@@ -79,13 +79,7 @@ export const CertificateActionContent: TCertificateActionContent = ({
             {children}
             <Button
                 fullWidth
-                disabled={
-                    selectedIds.length === 0 ||
-                    selectedIds.length > 1 ||
-                    buttonDisabled ||
-                    editMode ||
-                    loading
-                }
+                disabled={selectedIds.length === 0 || buttonDisabled || editMode || loading}
                 color="primary"
                 variant="contained"
                 onClick={handleSubmit}
@@ -101,13 +95,6 @@ export const CertificateActionContent: TCertificateActionContent = ({
                     </>
                 )}
             </Button>
-            {selectedIds.length > 1 && (
-                <Box mt={2}>
-                    <Typography align="center" color="textSecondary">
-                        {bulkActionsRestrictionsText}
-                    </Typography>
-                </Box>
-            )}
         </Paper>
     );
 };
