@@ -76,3 +76,10 @@ This repo has a script for easy Heroku deployments for UI And API project. Scrip
 ```
 HEROKU_API_KEY=<APIKEY> HEROKU_STABLE_APP_API=<APP_NAME> HEROKU_STABLE_APP_UI=<APP_NAME> rush deploy:heroku
 ```
+
+When starting containers and running the app rush start:dev (it immediately starts API and UI servers, which are accessible at ports that have to be mapped:
+
+| Application | Port  |
+| ----------- | ----- |
+| UI          | $PORT |
+| API         | 3040  |
