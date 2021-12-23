@@ -83,3 +83,22 @@ When starting containers and running the app rush start:dev (it immediately star
 | ----------- | ----- |
 | UI          | $PORT |
 | API         | 3040  |
+
+D-REC Integrators:
+
+## How to use
+
+Go inside integrators-scripts folder
+Create a .env, copy everything from .env.example and change the necessary variables depending on the environment
+
+```
+npm i
+npm run start
+```
+
+Before running the script, make sure:
+
+1. You have updated the DREC_BACKEND_URL in .env with local or heroku - also update the username and password for each integrator
+2. Post generated devices to Server - Bulk Devices
+3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
+4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
