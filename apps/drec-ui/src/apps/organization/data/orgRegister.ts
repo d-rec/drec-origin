@@ -40,7 +40,7 @@ export const useOrganizationRegisterHandler = ({
             signatoryCity: values.signatoryCity,
             signatoryCountry:
                 (values.signatoryCountry[0]?.value as string) ||
-                (values.country[0].value as string),
+                (values.country[0]?.value as string),
             signatoryEmail: values.signatoryEmail,
             signatoryPhoneNumber: values.signatoryPhoneNumber
         });

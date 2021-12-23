@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/js/src/index.js",
-  "author": "EnergyWeb DevHub GmbH;",
+  "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "nest start -p tsconfig.json",
