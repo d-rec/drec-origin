@@ -28,7 +28,10 @@ export const OrganizationApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
         <OrganizationModalsProvider>
             <Routes>
                 {showMyOrg && <Route path="my" element={<OrganizationViewPage />} />}
-                {showInvitations && <Route path="invitations" element={<InvitationsPage />} />}
+                <Route
+                    path="invitations"
+                    element={<InvitationsPage redirectToIndex={!showInvitations} />}
+                />
                 {showInvite && <Route path="invite" element={<InvitePage />} />}
                 {showMembers && <Route path="members" element={<MembersPage />} />}
                 {showRegisterOrg && <Route path="register" element={<RegisterPage />} />}

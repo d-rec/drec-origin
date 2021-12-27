@@ -9,10 +9,21 @@ import {
     useReceivedInvitationsTableLogic,
     useSentInvitationsTableLogic
 } from 'apps/organization/logic';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { showNotification } from '../../../../../shared';
 import { OrganizationModalsActionsEnum, useOrgModalsDispatch } from '../../context';
 
-export const useInvitationsPageEffects = () => {
+export const useInvitationsPageEffects = (redirectToIndex: boolean) => {
     const dispatchModals = useOrgModalsDispatch();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (redirectToIndex) {
+            navigate('/login');
+            showNotification('Please log in to view this page');
+        }
+    }, [redirectToIndex]);
 
     const { isLoading: isSentLoading, invitations: sentInvitations } = useSentOrgInvitationsData();
     const sentInvitationsTable = useSentInvitationsTableLogic(sentInvitations, isSentLoading);

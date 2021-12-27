@@ -3,7 +3,11 @@ import { Grid, Skeleton, Typography } from '@mui/material';
 import { FC } from 'react';
 import { useInvitationsPageEffects } from './InvitationsPage.effects';
 
-export const InvitationsPage: FC = () => {
+interface InvitationsPageProps {
+    redirectToIndex: boolean;
+}
+
+export const InvitationsPage: FC<InvitationsPageProps> = ({ redirectToIndex }) => {
     const {
         pageLoading,
         showSentTable,
@@ -12,7 +16,7 @@ export const InvitationsPage: FC = () => {
         noInvitationsText,
         sentInvitationsTable,
         receivedInvitationsTable
-    } = useInvitationsPageEffects();
+    } = useInvitationsPageEffects(redirectToIndex);
 
     if (pageLoading) {
         return (

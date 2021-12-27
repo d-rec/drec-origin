@@ -21,10 +21,14 @@ export const useUserLogin = () => {
             {
                 onSuccess: async ({ accessToken }) => {
                     setAuthenticationToken(accessToken);
-                    const user = await userControllerMe();
-                    queryClient.setQueryData(userQueryKey, user);
-
-                    navigate('/');
+                    try {
+                        const user = await userControllerMe();
+                        queryClient.setQueryData(userQueryKey, user);
+                        navigate('/');
+                        queryClient.resetQueries();
+                    } catch (error) {
+                        console.error(error);
+                    }
                 },
                 onError: () => {
                     showNotification(

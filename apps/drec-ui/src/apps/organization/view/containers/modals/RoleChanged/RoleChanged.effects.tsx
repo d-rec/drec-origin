@@ -1,4 +1,3 @@
-import { useUserControllerMe } from '@energyweb/origin-drec-api-client';
 import { useNavigate } from 'react-router';
 import { getRoleChangedLogic } from 'apps/organization/logic';
 import {
@@ -6,6 +5,7 @@ import {
     useOrgModalsDispatch,
     useOrgModalsStore
 } from '../../../context';
+import { useUser } from '../../../../data';
 
 export const useRoleChangedEffects = () => {
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ export const useRoleChangedEffects = () => {
     const { roleChanged: open } = useOrgModalsStore();
     const dispatchModals = useOrgModalsDispatch();
 
-    const { data: user } = useUserControllerMe();
+    const { user, userLoading } = useUser();
     const orgName = user?.organization?.name;
     const role = user?.role;
 
@@ -39,5 +39,5 @@ export const useRoleChangedEffects = () => {
         orgName
     });
 
-    return { open, ...modalLogic };
+    return { open, ...modalLogic, userLoading };
 };

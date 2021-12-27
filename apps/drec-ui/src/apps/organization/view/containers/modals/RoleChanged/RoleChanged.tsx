@@ -5,8 +5,11 @@ import { useRoleChangedEffects } from './RoleChanged.effects';
 import { useStyles } from './RoleChanged.styles';
 
 export const RoleChanged: FC = () => {
-    const { open, title, subtitle, roleDescriptions, buttons } = useRoleChangedEffects();
+    const { open, title, subtitle, roleDescriptions, buttons, userLoading } =
+        useRoleChangedEffects();
     const classes = useStyles();
+
+    if (userLoading) return null;
 
     return (
         <GenericModal

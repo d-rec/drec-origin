@@ -1,5 +1,7 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { getAuthenticationToken } from 'shared';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { getAuthenticationToken, removeAuthenticationToken } from 'shared';
+
+const isUnauthorized = (response: AxiosResponse) => response?.status === 401;
 
 export const useAxiosInterceptors = () => {
     axios.interceptors.request.use((config: AxiosRequestConfig): AxiosRequestConfig => {
@@ -10,8 +12,11 @@ export const useAxiosInterceptors = () => {
 
     axios.interceptors.response.use(
         (response) => response,
-        async (error) => {
-            return Promise.reject(error);
+        (error) => {
+            const authToken = getAuthenticationToken();
+            if (isUnauthorized(error?.response) && authToken) {
+                removeAuthenticationToken();
+            }
         }
     );
 };
