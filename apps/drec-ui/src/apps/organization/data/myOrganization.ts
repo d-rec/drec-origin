@@ -1,10 +1,8 @@
-import { useOrganizationControllerGetMyOrganization } from '@energyweb/origin-drec-api-client';
+import { useUser } from './user';
 
 export const useMyOrganizationData = () => {
-    const { data: organization, isLoading: organizationLoading } =
-        useOrganizationControllerGetMyOrganization();
-    return {
-        organization,
-        organizationLoading
-    };
+    const { user, userLoading } = useUser();
+
+    const organization = user?.organization;
+    return { organizationLoading: userLoading, organization };
 };

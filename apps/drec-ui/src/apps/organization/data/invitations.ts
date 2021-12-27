@@ -5,25 +5,29 @@ import {
     InvitationDTO,
     OrganizationInvitationStatus,
     getInvitationControllerGetInvitationsQueryKey,
-    getUserControllerMeQueryKey,
-    useUserControllerMe
+    getUserControllerMeQueryKey
 } from '@energyweb/origin-drec-api-client';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
+import { getAuthenticationToken } from '../../../shared';
+import { useUser } from './user';
 
 export const useSentOrgInvitationsData = () => {
-    const { data: user, isLoading: userLoading } = useUserControllerMe();
+    const { user, userLoading, isAuthenticated } = useUser();
 
     const { data: invitations, isLoading: invitationsLoading } =
         useOrganizationControllerGetInvitationsForOrganization(user?.organization?.id, {
-            query: { enabled: Boolean(user?.organization?.id) }
+            query: { enabled: isAuthenticated }
         });
 
     return { isLoading: userLoading || invitationsLoading, invitations };
 };
 
 export const useReceivedInvitationsData = () => {
-    const { isLoading, data: invitations } = useInvitationControllerGetInvitations();
+    const authTokenExists = !!getAuthenticationToken();
+    const { isLoading, data: invitations } = useInvitationControllerGetInvitations({
+        query: { enabled: authTokenExists }
+    });
 
     return { isLoading, invitations };
 };

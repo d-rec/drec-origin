@@ -45,6 +45,7 @@ export const useAppContainerEffects = () => {
     const userHasOrg = Boolean(user?.organization?.id);
     const userIsOrgAdmin = isRole(user?.role, Role.OrganizationAdmin);
     const userIsDeviceManagerOrAdmin = isRole(user?.role, Role.DeviceOwner, Role.OrganizationAdmin);
+    const userIsDeviceOwner = isRole(user?.role, Role.DeviceOwner);
     const userIsActive = user && user.status === UserStatus.Active;
     const userIsAdmin = isRole(user?.role, Role.Admin);
     const userIsOrgAdminOrAdmin = isRole(user?.role, Role.OrganizationAdmin, Role.Admin);
@@ -138,7 +139,7 @@ export const useAppContainerEffects = () => {
         () => ({
             showAllDeviceGroups: true,
             showMyDeviceGroups: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
-            showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,
+            showUngroupedDevices: userIsActive && userHasOrg && userIsDeviceOwner,
             showUnreserved: userIsActive && userHasOrg && userIsBuyer,
             showReserved: userIsActive && userHasOrg && userIsBuyer
         }),

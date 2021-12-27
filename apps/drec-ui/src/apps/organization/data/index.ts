@@ -6,3 +6,4 @@ export * from './organizationMembers';
 export * from './orgRegister';
 export * from './inviteHandler';
 export * from './invitations';
+export * from './user';

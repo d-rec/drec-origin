@@ -2,15 +2,15 @@ import {
     getAdminControllerGetAllOrganizationsQueryKey,
     Role,
     useOrganizationControllerChangeMemberRole,
-    UserDTO,
-    useUserControllerMe
+    UserDTO
 } from '@energyweb/origin-drec-api-client';
 import { useQueryClient } from 'react-query';
 import { NotificationTypeEnum, showNotification } from 'shared';
+import { useUser } from './user';
 
 export const useOrganizationMemberRoleUpdate = () => {
     const { mutate } = useOrganizationControllerChangeMemberRole();
-    const { data: userUpdating } = useUserControllerMe();
+    const { user: userUpdating } = useUser();
 
     const queryClient = useQueryClient();
     const membersKey = getAdminControllerGetAllOrganizationsQueryKey();
@@ -18,7 +18,7 @@ export const useOrganizationMemberRoleUpdate = () => {
     const updateRoleHandler = (userToUpdateId: UserDTO['id'], newRole: Role) => {
         mutate(
             {
-                id: userUpdating.organization.id,
+                id: userUpdating?.organization?.id,
                 userId: userToUpdateId,
                 data: {
                     role: newRole
