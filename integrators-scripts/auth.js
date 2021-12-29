@@ -54,7 +54,7 @@ const loginCandi = async () => {
 
 const loginBBOX = async () => {
     const username = process.env.BBOX_USERNAME;
-    const password = process.env.BBOX__PASSWORD;
+    const password = process.env.BBOX_PASSWORD;
     const apiToken = await login(username, password);
     return apiToken;
 };
