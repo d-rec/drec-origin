@@ -8,6 +8,7 @@ const engieProducts = require('./integrator-products/Engie-products.json');
 const distributedEnergyProducts = require('./integrator-products/Distributed-Energy-products.json');
 const nsrProducts = require('./integrator-products/NSR-products.json');
 const candiProducts = require('./integrator-products/Candi-products.json');
+const bboxProducts = require('./integrator-products/BBOX-products.json');
 
 const integrators = require('./integrators');
 
@@ -135,6 +136,31 @@ const getIntegratorDefaultValues = (obj, integrator) => {
                 yieldValue: 1500,
                 standardCompliance: 'REC'
             };
+        case integrators.Integrator.BBOX:
+            return {
+                externalId: obj.externalId,
+                projectName: obj.projectName,
+                latitude: Number(obj.latitude),
+                longitude: Number(obj.longitude),
+                countryCode: obj.countryCode,
+                capacity: parseInt(obj.capacity),
+                address: obj.address,
+                zipCode: `${obj.zipCode}`,
+                fuelCode: obj.fuelCode,
+                deviceTypeCode: obj.deviceTypeCode,
+                installationConfiguration: obj.installationConfiguration,
+                gridInterconnection: obj.gridInterconnection,
+                offTaker: obj.offTaker,
+                sector: obj.sector,
+                commissioningDate: DateTime.fromJSDate(new Date(obj.commissioningDate)).toFormat(
+                    'yyyy-MM-dd'
+                ),
+                yieldValue: obj.yieldValue,
+                standardCompliance: obj.standardCompliance,
+                // Default values
+                integrator: integrator,
+                status: 'Active'
+            };
     }
 };
 
@@ -160,6 +186,7 @@ const runGenerateIntegrators = () => {
     generateIntegratorDevices(distributedEnergyProducts, integrators.Integrator.DISTRIBUTED_ENERGY);
     generateIntegratorDevices(nsrProducts, integrators.Integrator.NSR);
     generateIntegratorDevices(candiProducts, integrators.Integrator.CANDI);
+    generateIntegratorDevices(bboxProducts, integrators.Integrator.BBOX);
 };
 
 module.exports = {

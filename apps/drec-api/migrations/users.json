@@ -206,5 +206,31 @@
     "status": "Active",
     "role": "DeviceOwner",
     "organizationId": 10
+  },
+  {
+    "id": 17,
+    "title": "Mr",
+    "firstName": "BBOXX Org",
+    "lastName": "Admin",
+    "telephone": "",
+    "email": "bboxx-org-admin@mailinator.com",
+    "password": "Bboxx123",
+    "notifications": true,
+    "status": "Active",
+    "role": "OrganizationAdmin",
+    "organizationId": 11
+  },
+  {
+    "id": 18,
+    "title": "Mr",
+    "firstName": "BBOXX Device",
+    "lastName": "Owner",
+    "telephone": "",
+    "email": "bboxx-device-owner@mailinator.com",
+    "password": "Bboxx123",
+    "notifications": true,
+    "status": "Active",
+    "role": "DeviceOwner",
+    "organizationId": 11
   }
 ]

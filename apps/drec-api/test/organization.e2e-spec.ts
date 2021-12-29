@@ -56,30 +56,6 @@ describe('Organization tests', () => {
     await databaseService.cleanUp();
   });
 
-  it('should delete an organization', async () => {
-    const loggedUser = {
-      email: 'admin2@mailinator.com',
-      password: 'Password123',
-    };
-    await loginUser(loggedUser);
-    const { body: organizations } = await requestAdminOrganization(
-      '',
-      HttpStatus.OK,
-    );
-    expect(organizations).to.be.instanceOf(Array);
-    expect(organizations).to.have.length(4);
-    await deleteOrganization(
-      organizations[organizations.length - 2].id.toString(),
-      HttpStatus.OK,
-    );
-    const { body: afterDeleteOrgs } = await requestAdminOrganization(
-      '',
-      HttpStatus.OK,
-    );
-    expect(afterDeleteOrgs).to.be.instanceOf(Array);
-    expect(afterDeleteOrgs).to.have.length(3);
-  });
-
   it('should receive forbidden when requestiong all organizations without appropiate role', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
@@ -184,6 +160,30 @@ describe('Organization tests', () => {
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
+  });
+
+  it('should delete an organization', async () => {
+    const loggedUser = {
+      email: 'admin2@mailinator.com',
+      password: 'Password123',
+    };
+    await loginUser(loggedUser);
+    const { body: organizations } = await requestAdminOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(organizations).to.be.instanceOf(Array);
+    expect(organizations).to.have.length(4);
+    await deleteOrganization(
+      organizations[organizations.length - 2].id.toString(),
+      HttpStatus.OK,
+    );
+    const { body: afterDeleteOrgs } = await requestAdminOrganization(
+      '',
+      HttpStatus.OK,
+    );
+    expect(afterDeleteOrgs).to.be.instanceOf(Array);
+    expect(afterDeleteOrgs).to.have.length(3);
   });
 
   const requestAdminOrganization = async (

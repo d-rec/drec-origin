@@ -188,5 +188,24 @@
     "signatoryCountry": "Nigeria",
     "signatoryEmail": "yinkao@nigeriasolar.com",
     "signatoryPhoneNumber": ""
+  },
+  {
+    "id": 11,
+    "name": "Bboxx Ltd",
+    "status": "Active",
+    "address": "Fifth Floor, 5 New Street Square, London, EC4A 3BF, United Kingdom",
+    "zipCode": "EC4A 3BF",
+    "city": "London",
+    "country": "England",
+    "businessType": "Registered incorporated body",
+    "tradeRegistryCompanyNumber": "07177839",
+    "vatNumber": "07177839",
+    "signatoryFullName": "",
+    "signatoryAddress": "",
+    "signatoryZipCode": "",
+    "signatoryCity": "",
+    "signatoryCountry": "",
+    "signatoryEmail": "",
+    "signatoryPhoneNumber": ""
   }
 ]
