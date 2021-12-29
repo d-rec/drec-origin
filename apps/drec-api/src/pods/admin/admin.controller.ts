@@ -40,6 +40,7 @@ import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
 import { ResponseSuccess } from '../../models';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
+import { SeedUserDTO } from './dto/seed-user.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
@@ -100,6 +101,55 @@ export class AdminController {
   })
   public async createUser(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
     return await this.userService.create(newUser);
+  }
+
+  @Post('/seed/users')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: 'Returns new created users',
+  })
+  public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
+    const users: UserDTO[] = [];
+    if (!newUsers || !newUsers.length) {
+      return users;
+    }
+    await Promise.all(
+      newUsers.map(async (newUser: SeedUserDTO) => {
+        const createdUser = await this.userService.seed(
+          newUser,
+          newUser.organizationId,
+          newUser.role,
+          newUser.status,
+        );
+        users.push(createdUser);
+      }),
+    );
+    return users;
+  }
+
+  @Post('/seed/organizations')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [OrganizationDTO],
+    description: 'Returns new created users',
+  })
+  public async seedOrgs(
+    @Body() newOrgs: OrganizationDTO[],
+  ): Promise<OrganizationDTO[]> {
+    const orgs: OrganizationDTO[] = [];
+    if (!newOrgs || !newOrgs.length) {
+      return orgs;
+    }
+    await Promise.all(
+      newOrgs.map(async (newOrg: OrganizationDTO) => {
+        const createdOrg = await this.organizationService.seed(newOrg);
+        orgs.push(createdOrg);
+      }),
+    );
+    return orgs;
   }
 
   @Put('/users/:id')

@@ -12,6 +12,7 @@ const engieDevices = require(`./integrator-devices/${integrators.Integrator.ENGI
 const distributedEnergyDevices = require(`./integrator-devices/${integrators.Integrator.DISTRIBUTED_ENERGY}-devices.json`);
 const nsrDevices = require(`./integrator-devices/${integrators.Integrator.NSR}-devices.json`);
 const candiDevices = require(`./integrator-devices/${integrators.Integrator.CANDI}-devices.json`);
+const bboxxDevices = require(`./integrator-devices/${integrators.Integrator.BBOX}-devices.json`);
 
 const postDevices = async (devices, token) => {
     const config = {
@@ -51,6 +52,11 @@ const postEngieDevices = async () => {
     return;
 };
 
+const postBBOXDevices = async () => {
+    const apiToken = await auth.loginBBOX();
+    return await postDevices(bboxxDevices, apiToken);
+};
+
 const postDistributedEnergyDevices = async () => {
     const apiToken = await auth.loginDistributedEnergy();
     return await postDevices(distributedEnergyDevices, apiToken);
@@ -66,5 +72,6 @@ module.exports = {
     postNSRDevices,
     postEngieDevices,
     postDistributedEnergyDevices,
-    postCandiDevices
+    postCandiDevices,
+    postBBOXDevices
 };

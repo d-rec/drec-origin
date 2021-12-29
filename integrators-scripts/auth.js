@@ -52,10 +52,18 @@ const loginCandi = async () => {
     return apiToken;
 };
 
+const loginBBOX = async () => {
+    const username = process.env.BBOX_USERNAME;
+    const password = process.env.BBOX__PASSWORD;
+    const apiToken = await login(username, password);
+    return apiToken;
+};
+
 module.exports = {
     loginOkra,
     loginNSR,
     loginEngie,
     loginDistributedEnergy,
-    loginCandi
+    loginCandi,
+    loginBBOX
 };
