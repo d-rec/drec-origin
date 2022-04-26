@@ -1,0 +1,86 @@
+[
+    {
+        "externalId": "null",
+        "latitude": 12.5,
+        "longitude": 12,
+        "countryCode": "null",
+        "capacity": 660
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.360229,
+        "longitude": 104.605608,
+        "countryCode": "null",
+        "capacity": 660
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.36008587,
+        "longitude": 104.60587196,
+        "countryCode": "null",
+        "capacity": 0
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.35991523,
+        "longitude": 1747,
+        "countryCode": "null",
+        "capacity": 0
+    },
+    {
+        "externalId": "EHeHEZa",
+        "latitude": 12.35982452,
+        "longitude": 104.60659482,
+        "countryCode": "KH",
+        "capacity": 300
+    },
+    {
+        "externalId": "pLrr3Ys",
+        "latitude": 12.35967255,
+        "longitude": 104.60667361,
+        "countryCode": "KH",
+        "capacity": 456
+    },
+    {
+        "externalId": "ve-GoD5",
+        "latitude": 12.359851,
+        "longitude": 104.606484,
+        "countryCode": "KH",
+        "capacity": 0
+    },
+    {
+        "externalId": "BJRxXOR",
+        "latitude": 12.360275,
+        "longitude": 104.605371,
+        "countryCode": "KH",
+        "capacity": 660
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.360359,
+        "longitude": 104.605307,
+        "countryCode": "null",
+        "capacity": 660
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.360397,
+        "longitude": 104.605219,
+        "countryCode": "KH",
+        "capacity": 660
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.36784893,
+        "longitude": 104.62269176,
+        "countryCode": "KH",
+        "capacity": 300
+    },
+    {
+        "externalId": "null",
+        "latitude": 12.3547,
+        "longitude": 14.6875,
+        "countryCode": "null",
+        "capacity": 300
+    }
+]

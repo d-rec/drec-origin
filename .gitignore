@@ -69,3 +69,4 @@ common/autoinstallers/*/.npmrc
 
 # IDE files
 .vscode
+apps/drec-api/bin/drec-api
