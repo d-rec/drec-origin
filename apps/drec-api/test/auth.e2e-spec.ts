@@ -47,7 +47,7 @@ describe('Authentication tests', () => {
   it('should be able to log a buyer into the system', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     expect(currentAccessToken).to.exist;

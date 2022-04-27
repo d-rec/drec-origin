@@ -41,7 +41,7 @@ export const testOrgs: OrganizationDTO[] = [
     address: 'Stet clita kasd gubergren',
     zipCode: 'Zip code',
     city: 'City',
-    country: 'DE',
+    country: 'null',
     businessType: 'Issuer',
     tradeRegistryCompanyNumber: '987654321',
     vatNumber: 'DE1000',
@@ -104,7 +104,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Williams',
     email: 'owner2@mailinator.com',
     telephone: 'telephone',
-    password: 'Password123',
+    password: '******123',
   },
   {
     title: 'Mr',
@@ -112,7 +112,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
     telephone: 'telephone',
-    password: 'Password123',
+    password: '******123',
   },
   {
     title: 'Mr',
@@ -120,7 +120,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Miller2',
     email: 'admin2@mailinator.com',
     telephone: 'telephone',
-    password: 'Password123',
+    password: '******123',
   },
   {
     title: 'Mrs',
@@ -128,7 +128,7 @@ export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
     lastName: 'Williams',
     email: 'owner3@mailinator.com',
     telephone: 'telephone',
-    password: 'Password123',
+    password: '******123',
   },
 ];
 

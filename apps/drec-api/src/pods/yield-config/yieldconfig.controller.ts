@@ -68,6 +68,7 @@ import {
   
     @Put('/update/:id')
     @Roles(Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @ApiBody({ type: UpdateYieldValueDTO })
     @ApiResponse({
       status: HttpStatus.OK,
@@ -77,14 +78,13 @@ import {
     public async updateyield(
       @Param('id', new ParseIntPipe()) id: number,
       @Body() body: UpdateYieldValueDTO,
-      // @UserDecorator() loggedUser: ILoggedInUser,
+      @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<YieldConfigDTO> {
       console.log("82con");
       console.log(id);
       console.log(body);
-     // console.log(loggedUser);
-      return this.yieldconfigService.update(1, body);
+      console.log(loggedUser);
+      return this.yieldconfigService.update(id, body,loggedUser);
     }
-   
   }
   

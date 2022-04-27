@@ -1,6 +1,21 @@
 # DB
 /influxdb-local
-
+# sAMPLE DATA FILE
+/integrators-scripts/integrator-devices/BBOX-devices.json
+/integrators-scripts/integrator-devices/Candi-devices.json
+/integrators-scripts/integrator-devices/Distributed Energy-devices.json
+/integrators-scripts/integrator-devices/Engie-devices.json
+/integrators-scripts/integrator-devices/NSR-devices.json
+/integrators-scripts/integrator-devices/Okra-devices.json
+/integrators-scripts/integrator-products/BBOX-products.json
+/integrators-scripts/integrator-products/Candi-products.json
+/integrators-scripts/integrator-products/Distributed-Energy-products.json
+/integrators-scripts/integrator-products/Engie-products.json
+/integrators-scripts/integrator-products/NSR-products.json
+/integrators-scripts/integrator-products/Okra-products.json
+/integrators-scripts/integrator-daily-csv/candi.csv
+/integrators-scripts/integrator-daily-csv/nsr.csv
+/integrators-scripts/integrator-daily-csv/okra.csv
 # Logs
 *.log
 npm-debug.log*

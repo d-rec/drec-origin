@@ -50,7 +50,7 @@ describe('Reads tests', () => {
   it('stores smart meter readings to a device', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
@@ -62,7 +62,7 @@ describe('Reads tests', () => {
   it('validates and stores some meter readings to a device', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);

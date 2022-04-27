@@ -83,7 +83,7 @@ export class YieldConfigService {
   async update(
     id: number,
     data: UpdateYieldValueDTO,
-    // user:any
+     user:ILoggedInUser
   ): Promise<ExtendedBaseEntity & IYieldConfig> {
   
     await this.findById(id);
@@ -101,7 +101,7 @@ export class YieldConfigService {
     await this.repository.update(id, {
       yieldValue: data.yieldValue,
       status: data.status,
-      
+      updated_By:user.id
     });
 
     return this.findOne({ id });
