@@ -6,4 +6,5 @@ export interface IYieldConfig {
     countryCode: string;
     yieldValue: number;
     status:YieldStatus;
+    
      }
