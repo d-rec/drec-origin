@@ -4,9 +4,10 @@ import {
   IsEmail,
   IsOptional,
   IsArray,
+  Matches, MaxLength,IsNotEmpty
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IFullOrganization } from '../../../models';
+import { IFullOrganization,IPublicOrganization,IPublicAddOrganization } from '../../../models';
 
 export class NewOrganizationDTO
   implements
@@ -33,51 +34,52 @@ export class NewOrganizationDTO
   country: string;
 
   @ApiProperty({ type: String })
-  @IsString()
-  businessType: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  tradeRegistryCompanyNumber: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  vatNumber: string;
-
-  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
-  signatoryFullName?: string;
+  organizationType: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  signatoryAddress?: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // tradeRegistryCompanyNumber: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  signatoryZipCode?: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // vatNumber: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  signatoryCity?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // signatoryFullName?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsISO31661Alpha2()
-  signatoryCountry?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // signatoryAddress?: string;
+
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // signatoryZipCode?: string;
+
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // signatoryCity?: string;
+
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsISO31661Alpha2()
+  // signatoryCountry?: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsEmail()
-  signatoryEmail?: string;
+  orgEmail?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  signatoryPhoneNumber?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // signatoryPhoneNumber?: string;
 
   @ApiPropertyOptional({ type: [String], required: false })
   @IsOptional()
@@ -88,4 +90,37 @@ export class NewOrganizationDTO
   @IsOptional()
   @IsArray()
   signatoryDocumentIds?: string[];
+}
+
+
+
+export class NewAddOrganizationDTO
+  implements
+    Omit<IPublicAddOrganization, 'id' | 'status'>
+{
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+ 
+  @ApiProperty({ type: String })
+  @MaxLength(6)
+  @Matches(/((?=.*[0-9])(?=.*[A-Z]).{6,})/, {
+    message:
+      'secret valye  must contain 6 characters (upper and/or lower case) and at least 1 digit',
+  })
+  @IsNotEmpty()
+  @IsString()
+  secretKey: string;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  organizationType: string;
+  
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  orgEmail: string;
+
 }

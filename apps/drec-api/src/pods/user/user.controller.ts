@@ -25,7 +25,7 @@ import {
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { CreateUserDTO,CreateUserORGDTO } from './dto/create-user.dto';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
@@ -81,6 +81,19 @@ export class UserController {
     @Body() userRegistrationData: CreateUserDTO,
   ): Promise<UserDTO> {
     return this.userService.create(userRegistrationData);
+  }
+
+   @Post('registerWithOrganziation')
+  @ApiBody({ type: CreateUserORGDTO })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserDTO,
+    description: 'Register a user',
+  })
+  public async newregister(
+    @Body() userRegistrationData: CreateUserORGDTO,
+  ): Promise<UserDTO> {
+    return this.userService.newcreate(userRegistrationData);
   }
 
   @Put()
