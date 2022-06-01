@@ -25,6 +25,11 @@ export class Organization
   @Column()
   @IsString()
   name: string;
+  
+  @ApiProperty({ type: String })
+  @Column()
+  @IsString()
+  secretKey: string;
 
   @ApiProperty({ type: String })
   @Column()
@@ -54,57 +59,57 @@ export class Organization
 
   @Column()
   @IsString()
-  businessType: string;
+  organizationType: string;
 
-  @ApiProperty({ type: String })
-  @Column()
-  @IsString()
-  tradeRegistryCompanyNumber: string;
+  // @ApiProperty({ type: String })
+  // @Column()
+  // @IsString()
+  // tradeRegistryCompanyNumber: string;
 
-  @ApiProperty({ type: String })
-  @Column()
-  @IsString()
-  vatNumber: string;
+  // @ApiProperty({ type: String })
+  // @Column()
+  // @IsString()
+  // vatNumber: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  signatoryFullName: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // signatoryFullName: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  signatoryAddress: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // signatoryAddress: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  signatoryZipCode: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // signatoryZipCode: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  signatoryCity: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // signatoryCity: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsISO31661Alpha2()
-  signatoryCountry: string;
-
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  signatoryEmail: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsISO31661Alpha2()
+  // signatoryCountry: string;
 
   @ApiProperty({ type: String })
   @Column({ nullable: true })
   @IsString()
-  signatoryPhoneNumber: string;
+  orgEmail: string;
 
-  @ApiProperty({ type: () => [String] })
-  @Column('simple-array', { nullable: true })
-  @IsArray()
-  signatoryDocumentIds: string[];
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // signatoryPhoneNumber: string;
+
+  // @ApiProperty({ type: () => [String] })
+  // @Column('simple-array', { nullable: true })
+  // @IsArray()
+  // signatoryDocumentIds: string[];
 
   @ApiProperty({ enum: OrganizationStatus, enumName: 'OrganizationStatus' })
   @Column({ default: OrganizationStatus.Submitted })

@@ -1,11 +1,13 @@
 import {
   ConflictException,
   Injectable,
+  Inject,
   Logger,
   UnprocessableEntityException,
   UnauthorizedException,
   NotFoundException,
   InternalServerErrorException,
+  forwardRef
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
@@ -17,7 +19,7 @@ import {
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { CreateUserDTO, CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
 
@@ -27,7 +29,7 @@ import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
-
+import { OrganizationService } from '../organization/organization.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -37,7 +39,8 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     private readonly emailConfirmationService: EmailConfirmationService,
-  ) {}
+    @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
+  ) { }
 
   public async seed(
     data: CreateUserDTO,
@@ -78,6 +81,79 @@ export class UserService {
 
     return new User(user);
   }
+  public async newcreate(data: CreateUserORGDTO): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
+    //  const isExistingorg = await this.organizationService.checkForExistingorg(data.email );
+   
+    var org_id;
+    if(data.secretKey!=null){
+      const orgdata = {
+        name: data.orgName,
+        organizationType: data.organizationType,
+        secretKey: data.secretKey,
+        orgEmail: data.email
+  
+      }
+
+      if (await this.organizationService.isNameAlreadyTaken(data.orgName) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {   
+        throw new ConflictException({
+          success: false,
+          message:`Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
+        });
+        //throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
+      }else{
+       
+        const org = await this.organizationService.newcreate(orgdata)
+        org_id = org.id;
+        this.logger.debug(
+         `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+       );
+      
+      
+      }
+      
+    }
+    this.logger.debug(
+      `Successfully registered a new organization with id ${ org_id}`,
+    );
+    var role;
+    if (data.organizationType === 'Buyer') {
+      role = Role.Buyer
+    } else {
+      role = Role.OrganizationAdmin
+    }
+    const user = await this.repository.save({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email.toLowerCase(),
+      password: this.hashPassword(data.password),
+      notifications: true,
+      status: UserStatus.Pending,
+      role: role,
+      organization:  org_id ? { id:  org_id } : {},
+
+    });
+    this.logger.debug(
+      `Successfully registered a new organization with id ${JSON.stringify(user)}`,
+    );
+    await this.emailConfirmationService.create(user);
+
+    return new User(user);
+  }
+
+  private async checkForExistingUser(email: string): Promise<void> {
+    const isExistingUser = await this.hasUser({ email });
+    if (isExistingUser) {
+      const message = `User with email ${email} already exists`;
+
+      this.logger.error(message);
+      throw new ConflictException({
+        success: false,
+        message,
+      });
+    }
+  }
+
 
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
@@ -117,6 +193,7 @@ export class UserService {
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
+     
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
     if (user) {
@@ -229,18 +306,6 @@ export class UserService {
     return this.findOne({ id: userId });
   }
 
-  private async checkForExistingUser(email: string): Promise<void> {
-    const isExistingUser = await this.hasUser({ email });
-    if (isExistingUser) {
-      const message = `User with email ${email} already exists`;
-
-      this.logger.error(message);
-      throw new ConflictException({
-        success: false,
-        message,
-      });
-    }
-  }
 
   async getPlatformAdmin(): Promise<IUser | undefined> {
     return this.findOne({ role: Role.Admin });

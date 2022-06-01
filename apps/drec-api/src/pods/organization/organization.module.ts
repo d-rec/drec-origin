@@ -12,6 +12,7 @@ import { FileModule } from '../file';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Organization]),
+   // UserModule,
     forwardRef(() => UserModule),
     BlockchainPropertiesModule,
     MailModule,

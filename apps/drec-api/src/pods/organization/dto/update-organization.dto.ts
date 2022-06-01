@@ -45,17 +45,17 @@ export class UpdateOrganizationDTO
   @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
-  businessType: string;
+  organizationType: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  tradeRegistryCompanyNumber: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsString()
+  // @IsOptional()
+  // tradeRegistryCompanyNumber: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  vatNumber: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsString()
+  // @IsOptional()
+  // vatNumber: string;
 
   @ApiPropertyOptional({
     enum: OrganizationStatus,
