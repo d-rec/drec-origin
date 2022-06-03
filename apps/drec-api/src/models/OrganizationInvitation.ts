@@ -1,7 +1,7 @@
 import { OrganizationInvitationStatus, Role } from '../utils/enums';
 import { IPublicOrganization } from './Organization';
 
-export type OrganizationRole = Role.DeviceOwner | Role.OrganizationAdmin;
+export type OrganizationRole = Role.DeviceOwner | Role.OrganizationAdmin | Role.User;
 
 export interface IOrganizationInvitationProperties {
   id: number;
@@ -28,7 +28,7 @@ export type OrganizationInviteUpdateData = Pick<
 >;
 
 export const ensureOrganizationRole = (role: Role): void => {
-  if (role !== Role.OrganizationAdmin && role !== Role.DeviceOwner) {
+  if (role !== Role.OrganizationAdmin && role !== Role.DeviceOwner && role !== Role.User) {
     throw new Error('Not an organization role');
   }
 };

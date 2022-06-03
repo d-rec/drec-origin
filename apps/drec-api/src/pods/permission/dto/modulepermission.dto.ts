@@ -38,7 +38,10 @@ export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
     @Column()
     @IsArray()
     permissions: string[];
-
+    
+    
+    @Column()
+    permissionValue: number;
     // @ApiProperty({ type: ACLModuleDTO })
     // @ValidateNested()
     // aclmodules: IACLModuleConfig;
@@ -64,7 +67,9 @@ export class NewPermissionDTO  {
   @ApiProperty({ type: [String] })
   @IsArray()
   permissions: string[];
-
+ 
+  @Column()
+  permissionValue: number;
 }
 export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
   
@@ -75,6 +80,7 @@ export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
     // @ApiProperty({ enum: EntityType, enumName: 'EntityType' })
     @Column()
     @IsEnum(EntityType)
+    @IsOptional()
     entityType: EntityType;
   
     // @ApiProperty({ type: Number })
@@ -85,5 +91,7 @@ export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
     @ApiProperty({ type: [String] })
     @IsArray()
     permissions: string[];
-  
+   
+    @Column()
+    permissionValue: number;
   }

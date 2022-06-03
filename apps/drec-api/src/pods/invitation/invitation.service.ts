@@ -15,7 +15,10 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-
+import { InviteDTO } from './dto/invite.dto';
+import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
+import {PermissionService} from '../permission/permission.service'
+import {PermissionDTO,NewPermissionDTO} from '../permission/dto/modulepermission.dto'
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
@@ -26,12 +29,16 @@ export class InvitationService {
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly mailService: MailService,
-  ) {}
+    private readonly PermissionService: PermissionService,
+  ) { }
 
   public async invite(
     user: ILoggedInUser,
     email: string,
     role: OrganizationRole,
+    firstName: string,
+    lastName: string,
+   // permission:NewPermissionDTO[],
   ): Promise<void> {
     const sender = await this.userService.findByEmail(user.email);
     const organization = await this.organizationService.findOne(
@@ -57,7 +64,25 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
+    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
 
+   var inviteuser: CreateUserORGDTO = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email.toLowerCase(),
+      password: randPassword,
+      orgName: '',
+      organizationType: '',
+     
+    }
+    //  await Promise.all(
+    //   permission.map(
+    //     async (permission: NewPermissionDTO) =>
+    //       await this.PermissionService.create(permission,user),
+    //   ),
+    // );
+  
+    await this.userService.newcreate(inviteuser);
     await this.sendInvitation(organization, lowerCaseEmail);
   }
 
@@ -73,7 +98,7 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-
+console.log(invitation)
     if (!invitation) {
       throw new BadRequestException('Requested invitation does not exist');
     }
@@ -125,13 +150,15 @@ export class InvitationService {
   private async sendInvitation(
     organization: OrganizationDTO,
     email: string,
+    
   ): Promise<void> {
     const url = `${process.env.UI_BASE_URL}/organization/invitations`;
 
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Organization invitation`,
-      html: `Organization ${organization.name} has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>`,
+      html: `Organization ${organization.name} has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>
+      `,
     });
 
     if (result) {

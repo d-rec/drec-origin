@@ -27,12 +27,7 @@ import { PermissionString } from '../../utils/enums';
 @Injectable()
 export class AccessControlLayerModuleServiceService {
 
-  addedPermissionList: any = {
-    Read: false,
-    Write: false,
-    Delete: false,
-    Update: false,
-  };
+ 
   private readonly logger = new Logger(AccessControlLayerModuleServiceService.name);
   constructor(
     @InjectRepository(AClModules) private readonly repository: Repository<AClModules>,
@@ -41,17 +36,23 @@ export class AccessControlLayerModuleServiceService {
 
 
   public async create(data: NewACLModuleDTO): Promise<ACLModuleDTO> {
-  
-    for (var key in this.addedPermissionList) {
+  console.log(data.permissions);
+ const addedPermissionList: any = {
+    Read: false,
+    Write: false,
+    Delete: false,
+    Update: false,
+  };
+    for (var key in addedPermissionList) {
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
-          this.addedPermissionList[key] = true;
+          addedPermissionList[key] = true;
         }
       })
      
     }
-  
-    const permissionValue = await this.Permissionvalue.computePermissions(this.addedPermissionList);
+  console.log(addedPermissionList)
+    var permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
    
     await this.checkForExistingmodule(data.name);
     const moduledata = new AClModules({
@@ -100,17 +101,23 @@ export class AccessControlLayerModuleServiceService {
     data: UpdateACLModuleDTO,
   ): Promise<ExtendedBaseEntity & IACLModuleConfig> {
     await this.findById(id);
-    for (var key in this.addedPermissionList) {
+    const addedPermissionList: any = {
+      Read: false,
+      Write: false,
+      Delete: false,
+      Update: false,
+    };
+    for (var key in addedPermissionList) {
     
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
-          this.addedPermissionList[key] = true;
+          addedPermissionList[key] = true;
         }
       })
       
     }
    
-    const permissionValue = await this.Permissionvalue.computePermissions(this.addedPermissionList);
+    const permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
     await this.repository.update(id, {
      permissions:data.permissions,
      permissionsValue:permissionValue,

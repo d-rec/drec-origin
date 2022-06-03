@@ -38,6 +38,10 @@ export declare type UserPasswordUpdate = {
   oldPassword: string;
   newPassword: string;
 };
+export declare type UserChangePasswordUpdate = {
+
+  newPassword: string;
+};
 export interface IFullUser extends IUser {
   password: string;
 }

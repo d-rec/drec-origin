@@ -57,12 +57,12 @@ export class CreateUserORGDTO
 
  @ApiProperty({ type: String })
   @Match('password')
-  confirmPassword: string;
+  confirmPassword?: string;
   
   @ApiProperty({ type: String })
   @IsString()
   @IsOptional()
-  orgName: string;
+  orgName?: string;
   
   @ApiProperty({ type: String })
   @MaxLength(6)
@@ -72,6 +72,6 @@ export class CreateUserORGDTO
   })
   @IsOptional()
   @IsString()
-  secretKey: string;
+  secretKey?: string;
  
 }

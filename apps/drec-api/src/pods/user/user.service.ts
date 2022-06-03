@@ -17,7 +17,7 @@ import {
   FindManyOptions,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ILoggedInUser, IUser, UserPasswordUpdate } from '../../models';
+import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO, CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -84,42 +84,43 @@ export class UserService {
   public async newcreate(data: CreateUserORGDTO): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     //  const isExistingorg = await this.organizationService.checkForExistingorg(data.email );
-   
+
     var org_id;
-    if(data.secretKey!=null){
+    if (data.secretKey != null) {
       const orgdata = {
-        name: data.orgName,
+        name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         secretKey: data.secretKey,
         orgEmail: data.email
-  
+
       }
 
-      if (await this.organizationService.isNameAlreadyTaken(data.orgName) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {   
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {
         throw new ConflictException({
           success: false,
-          message:`Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
+          message: `Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
         });
         //throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
-      }else{
-       
+      } else {
+
         const org = await this.organizationService.newcreate(orgdata)
         org_id = org.id;
         this.logger.debug(
-         `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-       );
-      
-      
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+
+
       }
-      
+
     }
     this.logger.debug(
-      `Successfully registered a new organization with id ${ org_id}`,
+      `Successfully registered a new organization with id ${org_id}`,
     );
     var role;
     if (data.organizationType === 'Buyer') {
       role = Role.Buyer
     } else {
+      // if()
       role = Role.OrganizationAdmin
     }
     const user = await this.repository.save({
@@ -130,7 +131,7 @@ export class UserService {
       notifications: true,
       status: UserStatus.Pending,
       role: role,
-      organization:  org_id ? { id:  org_id } : {},
+      organization: org_id ? { id: org_id } : {},
 
     });
     this.logger.debug(
@@ -193,7 +194,7 @@ export class UserService {
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
-     
+
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
     if (user) {
@@ -294,6 +295,39 @@ export class UserService {
     throw new ConflictException({
       success: false,
       errors: `Incorrect current password.`,
+    });
+  }
+
+
+  async updatechangePassword(
+    email: string,
+    user: UserChangePasswordUpdate,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const _user = await this.getUserAndPasswordByEmail(email);
+    console.log(_user)
+    if (_user) {
+      const updateEntity = new User({
+        password: this.hashPassword(user.newPassword),
+      });
+
+      const validationErrors = await validate(updateEntity, {
+        skipUndefinedProperties: true,
+      });
+
+      if (validationErrors.length > 0) {
+        throw new UnprocessableEntityException({
+          success: false,
+          errors: validationErrors,
+        });
+      }
+
+      await this.repository.update(_user.id, updateEntity);
+      return this.findOne({ id: _user.id });
+
+    }
+    throw new ConflictException({
+      success: false,
+      errors: `User Not exist .`,
     });
   }
 

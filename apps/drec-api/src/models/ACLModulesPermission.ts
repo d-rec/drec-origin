@@ -7,6 +7,7 @@ export interface IModulePermissionsConfig {
     entityType: EntityType;
     entityId: number;
     permissions: string[];
+    permissionValue: number;
 
 }
 export interface IACLmodulsPermissions extends IaddModulePermission {

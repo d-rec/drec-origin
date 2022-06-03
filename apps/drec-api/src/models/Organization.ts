@@ -4,9 +4,9 @@ import { OrganizationStatus, Role } from '../utils/enums';
 
 export class IPublicAddOrganization {
   id: number;
-  name: string;
+  name?: string='';
 
-  organizationType: string;
+  organizationType?: string;
   secretKey:string;
   status: OrganizationStatus;
 
