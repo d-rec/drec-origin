@@ -117,12 +117,15 @@ export class UserService {
       `Successfully registered a new organization with id ${org_id}`,
     );
     var role;
+    var roleId;
     if (data.organizationType === 'Buyer') {
       role = Role.Buyer
+      roleId = 4;
     } else {
-      // if()
       role = Role.OrganizationAdmin
+      roleId = 2;
     }
+
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -131,6 +134,7 @@ export class UserService {
       notifications: true,
       status: UserStatus.Pending,
       role: role,
+      roleId: roleId,
       organization: org_id ? { id: org_id } : {},
 
     });
@@ -300,10 +304,10 @@ export class UserService {
 
 
   async updatechangePassword(
-    email: string,
+    
     user: UserChangePasswordUpdate,
   ): Promise<ExtendedBaseEntity & IUser> {
-    const _user = await this.getUserAndPasswordByEmail(email);
+    const _user = await this.getUserAndPasswordByEmail(user.email);
     console.log(_user)
     if (_user) {
       const updateEntity = new User({
@@ -336,7 +340,13 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    await this.repository.update(userId, { role });
+   var roleId;
+    if(role=== Role.DeviceOwner){
+      roleId=3
+    }else{
+      roleId=5
+    }
+    await this.repository.update(userId, { role,roleId });
     return this.findOne({ id: userId });
   }
 

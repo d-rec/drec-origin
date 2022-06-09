@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { OrganizationModule } from '../pods/organization/organization.module';
 import { UserModule } from '../pods/user/user.module';
+import {PermissionModule} from '../pods/permission/permission.module'
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -14,6 +15,7 @@ import { LocalStrategy } from './local.strategy';
   imports: [
     UserModule,
     OrganizationModule,
+    PermissionModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({

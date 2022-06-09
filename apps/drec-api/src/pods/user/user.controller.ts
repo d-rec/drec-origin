@@ -151,7 +151,7 @@ export class UserController {
     return this.userService.updatePassword(email, body);
   }
   @Put('update/password')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+ 
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -159,10 +159,10 @@ export class UserController {
     description: `Update your own password`,
   })
   public async updatechangePassword(
-    @UserDecorator() { email }: ILoggedInUser,
+   
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    return this.userService.updatechangePassword(email, body);
+    return this.userService.updatechangePassword( body);
   }
   @Put('confirm-email/:token')
   @ApiResponse({

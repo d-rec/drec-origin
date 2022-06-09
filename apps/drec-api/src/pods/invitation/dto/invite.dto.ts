@@ -29,9 +29,9 @@ export class InviteDTO {
   role: OrganizationRole;
   
   
-  // @ApiProperty({ type: [NewPermissionDTO] })
-  // @IsArray()
-  // @IsOptional()
-  // permissions?: NewPermissionDTO[];
+  @ApiProperty({ type: [NewPermissionDTO] })
+  @IsArray()
+  @IsOptional()
+  permissions: NewPermissionDTO[];
   
 }

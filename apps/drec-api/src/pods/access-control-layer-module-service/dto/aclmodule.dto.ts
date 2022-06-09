@@ -75,7 +75,7 @@ export class UpdateACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
 
 
 
-    @ApiProperty({ type: String })
+    // @ApiProperty({ type: String })
     @Column()
     @IsOptional()
     @IsString()
@@ -86,14 +86,14 @@ export class UpdateACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
     @IsOptional()
     status: RoleStatus;
 
-    @ApiProperty({ type: String })
+    // @ApiProperty({ type: String })
     @Column()
     @IsOptional()
     description: string;
 
     @ApiProperty({ type: () => [String] })
     @Column('simple-array')
-    @IsOptional()
+  
     @IsArray()
     permissions: string[];
 

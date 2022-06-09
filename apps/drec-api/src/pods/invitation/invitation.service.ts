@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ConflictException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -17,8 +17,8 @@ import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
 import { InviteDTO } from './dto/invite.dto';
 import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
-import {PermissionService} from '../permission/permission.service'
-import {PermissionDTO,NewPermissionDTO} from '../permission/dto/modulepermission.dto'
+import { PermissionService } from '../permission/permission.service'
+import { PermissionDTO, NewPermissionDTO } from '../permission/dto/modulepermission.dto'
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
@@ -38,7 +38,7 @@ export class InvitationService {
     role: OrganizationRole,
     firstName: string,
     lastName: string,
-   // permission:NewPermissionDTO[],
+    permission: NewPermissionDTO[],
   ): Promise<void> {
     const sender = await this.userService.findByEmail(user.email);
     const organization = await this.organizationService.findOne(
@@ -50,11 +50,13 @@ export class InvitationService {
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      throw new AlreadyPartOfOrganizationError(lowerCaseEmail);
+      throw new ConflictException({
+        success: false,
+        message: `User ${lowerCaseEmail} is already part of the  organization`,
+      });
+      
     }
-
     this.ensureIsNotMember(lowerCaseEmail, organization);
-
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
       await this.invitationRepository.save({
         email: lowerCaseEmail,
@@ -65,24 +67,35 @@ export class InvitationService {
       });
     }
     var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
-
-   var inviteuser: CreateUserORGDTO = {
+    console.log(randPassword)
+    var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
       password: randPassword,
       orgName: '',
       organizationType: '',
-     
     }
-    //  await Promise.all(
-    //   permission.map(
-    //     async (permission: NewPermissionDTO) =>
-    //       await this.PermissionService.create(permission,user),
-    //   ),
-    // );
-  
-    await this.userService.newcreate(inviteuser);
+    const userid = await this.userService.newcreate(inviteuser);
+    console.log(userid)
+    const newpermission: any = [];
+  await permission.forEach((element) => {
+      newpermission.push({
+        aclmodulesId: element.aclmodulesId,
+        entityType:element.entityType,
+        entityId: userid.id,
+        permissions:element.permissions
+      })
+    })
+    console.log(newpermission)
+    await Promise.all(
+      newpermission.map(
+        async (newpermission: NewPermissionDTO) =>
+         await this.PermissionService.create(newpermission, user),
+      ),
+    );
+
+
     await this.sendInvitation(organization, lowerCaseEmail);
   }
 
@@ -98,7 +111,7 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-console.log(invitation)
+    console.log(invitation)
     if (!invitation) {
       throw new BadRequestException('Requested invitation does not exist');
     }
@@ -150,7 +163,7 @@ console.log(invitation)
   private async sendInvitation(
     organization: OrganizationDTO,
     email: string,
-    
+
   ): Promise<void> {
     const url = `${process.env.UI_BASE_URL}/organization/invitations`;
 
