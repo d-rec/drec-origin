@@ -15,6 +15,7 @@ export interface IOrganizationInvitation
   organization: IPublicOrganization;
   sender: string;
   createdAt: Date;
+  permissionId?:number[];
 }
 
 export type OrganizationInviteCreateData = {

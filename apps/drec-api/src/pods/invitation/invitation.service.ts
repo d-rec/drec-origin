@@ -18,7 +18,7 @@ import { MailService } from '../../mail/mail.service';
 import { InviteDTO } from './dto/invite.dto';
 import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
-import { PermissionDTO, NewPermissionDTO } from '../permission/dto/modulepermission.dto'
+import { PermissionDTO, NewPermissionDTO ,UpdatePermissionDTO} from '../permission/dto/modulepermission.dto'
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
@@ -54,11 +54,12 @@ export class InvitationService {
         success: false,
         message: `User ${lowerCaseEmail} is already part of the  organization`,
       });
-      
+
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
+    var saveinviteuser:any={};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
-      await this.invitationRepository.save({
+      saveinviteuser = await this.invitationRepository.save({
         email: lowerCaseEmail,
         organization,
         role,
@@ -67,7 +68,6 @@ export class InvitationService {
       });
     }
     var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
-    console.log(randPassword)
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
@@ -77,25 +77,27 @@ export class InvitationService {
       organizationType: '',
     }
     const userid = await this.userService.newcreate(inviteuser);
-    console.log(userid)
     const newpermission: any = [];
-  await permission.forEach((element) => {
+    await permission.forEach((element) => {
       newpermission.push({
         aclmodulesId: element.aclmodulesId,
-        entityType:element.entityType,
+        entityType: element.entityType,
         entityId: userid.id,
-        permissions:element.permissions
+        permissions: element.permissions,
+        status:0
       })
     })
-    console.log(newpermission)
+    var permissionId:any = [];
     await Promise.all(
       newpermission.map(
-        async (newpermission: NewPermissionDTO) =>
-         await this.PermissionService.create(newpermission, user),
-      ),
+        async (newpermission: NewPermissionDTO) => {
+          const perId = await this.PermissionService.create(newpermission, user)
+          permissionId.push(perId.id)
+        }),
     );
-
-
+    
+    await this.invitationRepository.update(saveinviteuser.id, { permissionId });
+   
     await this.sendInvitation(organization, lowerCaseEmail);
   }
 
@@ -131,6 +133,13 @@ export class InvitationService {
         invitation.organization.id,
       );
       await this.userService.changeRole(user.id, invitation.role);
+      const pre=invitation.permissionId;
+      console.log(pre);
+      await Promise.all(
+        pre.map(
+          async (pre:number) => 
+            await this.PermissionService.updatepermissionstatus(pre)),
+      );
     }
 
     invitation.status = status;

@@ -33,5 +33,11 @@ export class InviteDTO {
   @IsArray()
   @IsOptional()
   permissions: NewPermissionDTO[];
+ 
+  @IsOptional()
+  status?: string;
   
+}
+export class updateInviteStatusDTO {
+ 
 }

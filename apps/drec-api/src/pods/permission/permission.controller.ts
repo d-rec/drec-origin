@@ -59,7 +59,7 @@ export class PermissionController {
     @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
     @Roles(Role.Admin,Role.OrganizationAdmin)
     @Permission('Read')
-    @ACLModules('User_Add_Permission_CRDUL')
+    @ACLModules('Add_Permission_Module_CRUDL')
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
@@ -86,7 +86,7 @@ export class PermissionController {
     @Roles(Role.Admin,Role.OrganizationAdmin)
     @ApiBody({ type: NewPermissionDTO })
     @Permission('Write')
-    @ACLModules('User_Add_Permission_CRDUL')
+    @ACLModules('Add_Permission_Module_CRUDL')
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: PermissionDTO,

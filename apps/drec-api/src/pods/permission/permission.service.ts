@@ -74,6 +74,7 @@ export class PermissionService {
                     ...data,
                     permissionValue: permissionValue,
 
+
                 });
                 if (loginuser.role === Role.OrganizationAdmin && data.entityType != 'Role' || loginuser.role === Role.Admin) {
                     const modulepermission = await this.repository.save(aclpermission);
@@ -130,6 +131,7 @@ export class PermissionService {
             ],
 
         }));
+
         if (!userpermission) {
             throw new NotFoundException(`No module found `);
         }
@@ -187,25 +189,20 @@ export class PermissionService {
             Update: false,
         };
         for (var key in addedPermissionList) {
-
             data.permissions.map((myArr, index) => {
                 if (myArr === key) {
                     addedPermissionList[key] = true;
                 }
             })
-
         }
-        console.log(data);
         const userpermission = await (this.findOne({ id }));
-        console.log(userpermission);
-        console.log(addedPermissionList)
+
         var permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
         const checkdata = {
             aclmodulesId: userpermission.aclmodulesId,
             permissions: data.permissions
         };
         const permissionboolean = await this.checkForExistingmodulepermission(checkdata, permissionValue);
-        console.log(permissionboolean)
         if (permissionboolean) {
             await this.repository.update(id, {
                 permissions: data.permissions,
@@ -217,5 +214,12 @@ export class PermissionService {
             throw new NotFoundException(`This Permission not available in this module Name`);
         }
 
+    }
+    public async updatepermissionstatus(
+        id: number
+    ): Promise<ExtendedBaseEntity & UpdatePermissionDTO> {
+
+        await this.repository.update(id, { status: 1 });
+        return this.findOne({ id: id });
     }
 }

@@ -40,7 +40,11 @@ export class ACLModulePermissions extends ExtendedBaseEntity implements IaddModu
     @ApiProperty({ type: Number })
     @Column()
     permissionValue: number;
-    
+   
+    @ApiProperty({ type:Number })
+    @Column({ default: 1})
+    status: number;
+   
     @ManyToOne(() => AClModules, (aclmodule) => aclmodule.aclpermission, {
         onDelete: 'CASCADE',
     })

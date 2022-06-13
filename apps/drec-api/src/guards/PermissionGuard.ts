@@ -21,13 +21,10 @@ export class PermissionGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
 
     const permission = this.reflector.get<string[]>('permission', context.getHandler());
-    console.log("permission")
-    console.log(permission)
     const module = this.reflector.get<string[]>('acl_module', context.getHandler());
     if (!permission || !module) {
       return false;
     }
-    console.log(module)
     const request = context.switchToHttp().getRequest();
     const user = request.user as IUser;
    if(user.role==='Admin'){
@@ -35,8 +32,6 @@ export class PermissionGuard implements CanActivate {
    }
     var per:any = [];
     const userpermission1 = await this.userPermission.findById(user.roleId, user.id, module);
-    console.log("userpermission1");
-    console.log(userpermission1);
     userpermission1.forEach((e) => {
       e.permissions.forEach(element => {
         if (!per.includes(element)) {
@@ -49,10 +44,7 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     user.permissions=per;
-    console.log(per);
-    const loggedInUser = new LoggedInUser(user);
-    console.log("userpermission")
-    console.log(loggedInUser.permissions)
+    const loggedInUser = new LoggedInUser(user);   
     const hasPermission =() => loggedInUser.permissions.includes(permission[0]);
     console.log(hasPermission())
    
