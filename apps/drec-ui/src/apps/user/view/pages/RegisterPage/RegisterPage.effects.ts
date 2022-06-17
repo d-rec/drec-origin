@@ -2,24 +2,31 @@ import * as Yup from 'yup';
 import { GenericFormProps } from '@energyweb/origin-ui-core';
 import { useApiRegisterUser } from 'apps/user/data';
 import { UserModalsActionsEnum, useUserModalsDispatch } from '../../context';
-import { TITLE_OPTIONS } from '../../../../../utils';
+import { ORGTYPE_OPTIONS } from '../../../../../utils';
 
 export type TUserSignInFormValues = {
-    title: string;
+  
     firstName: string;
     lastName: string;
-    telephone: string;
+  
     email: string;
     password: string;
+    Cinfirmpassword:string;
+    orgtype:string,
+    orgname:string,
+    secretKey:string
 };
 
 const INITIAL_FORM_VALUES: TUserSignInFormValues = {
-    title: '',
+ 
     firstName: '',
-    lastName: '',
-    telephone: '',
+    lastName: '',  
     email: '',
-    password: ''
+    password: '',
+    Cinfirmpassword:'',
+    orgtype:'',
+    orgname:'',
+    secretKey:'',
 };
 
 export const useRegisterPageEffects = () => {
@@ -43,18 +50,7 @@ export const useUserSignInFormConfig = (
     return {
         buttonText: 'Register',
         fields: [
-            {
-                label: 'Title',
-                name: 'title',
-                select: true,
-                options: TITLE_OPTIONS,
-                additionalInputProps: {
-                    valueToOpen: 'Other',
-                    name: 'titleInput',
-                    label: 'Title',
-                    required: true
-                }
-            },
+           
             {
                 label: 'First Name',
                 name: 'firstName',
@@ -70,16 +66,43 @@ export const useUserSignInFormConfig = (
                 name: 'email',
                 required: true
             },
-            {
-                label: 'Telephone',
-                name: 'telephone'
-            },
+           
             {
                 type: 'password',
                 label: 'Password',
                 name: 'password',
                 required: true
-            }
+            },
+            {
+                type: 'password',
+                label: 'Cinfirm Password',
+                name: 'Cinfirmpassword',
+                required: true
+            },
+            {
+                label: 'Organization Type',
+                name: 'orgtype',
+                select: true,
+                options: ORGTYPE_OPTIONS,
+                additionalInputProps: {
+                    valueToOpen: 'Other',
+                    name: 'titleInput',
+                    label: 'Type',
+                    required: true
+                }
+            },
+            {
+                label: 'Organization Name',
+                name: 'orgname',
+               
+            },
+            {
+                // type: 'password',
+                label: 'Secret Key',
+                name: 'secretKey',
+               
+            },
+
         ],
         twoColumns: true,
         buttonWrapperProps: { justifyContent: 'flex-start' },
@@ -87,11 +110,22 @@ export const useUserSignInFormConfig = (
         submitHandler: formSubmitHandler,
         inputsVariant: 'filled',
         validationSchema: Yup.object().shape({
-            title: Yup.string().label('Title'),
+            
             firstName: Yup.string().label('First Name').required(),
             lastName: Yup.string().label('Last Name').required(),
             email: Yup.string().email().label('Email').required(),
-            password: Yup.string().min(6).label('Password').required()
+            password: Yup.string().min(6).label('Password').required(),
+            Cinfirmpassword: Yup.string()
+            .oneOf(
+                [Yup.ref('password'), null],
+                `Confirmed password doesn't match with new password`
+            )
+            .label('Confirm Password')
+            .required(),
+            orgtype: Yup.string().label('Organization Type'),
+            orgname: Yup.string().label('Organization Name'),
+
+            secretKey: Yup.string().max(6).label('Secret Key'),
         })
     };
 };

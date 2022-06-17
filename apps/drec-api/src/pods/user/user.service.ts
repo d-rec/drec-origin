@@ -235,6 +235,7 @@ export class UserService {
   ): Promise<void> {
     await this.repository.update(userId, {
       organization: { id: organizationId },
+      status:UserStatus.Active
     });
   }
 

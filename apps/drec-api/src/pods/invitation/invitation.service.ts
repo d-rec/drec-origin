@@ -18,7 +18,7 @@ import { MailService } from '../../mail/mail.service';
 import { InviteDTO } from './dto/invite.dto';
 import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
-import { PermissionDTO, NewPermissionDTO ,UpdatePermissionDTO} from '../permission/dto/modulepermission.dto'
+import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
@@ -57,7 +57,7 @@ export class InvitationService {
 
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
-    var saveinviteuser:any={};
+    var saveinviteuser: any = {};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
       saveinviteuser = await this.invitationRepository.save({
         email: lowerCaseEmail,
@@ -76,7 +76,13 @@ export class InvitationService {
       orgName: '',
       organizationType: '',
     }
-    const userid = await this.userService.newcreate(inviteuser);
+    var userid: any;
+    if (invitee) {
+      userid = invitee
+    } else {
+      userid = await this.userService.newcreate(inviteuser);
+    }
+
     const newpermission: any = [];
     await permission.forEach((element) => {
       newpermission.push({
@@ -84,20 +90,24 @@ export class InvitationService {
         entityType: element.entityType,
         entityId: userid.id,
         permissions: element.permissions,
-        status:0
+        status: 0
       })
     })
-    var permissionId:any = [];
+    var permissionId: any = [];
+    console.log("97lineSS")
     await Promise.all(
       newpermission.map(
         async (newpermission: NewPermissionDTO) => {
+          console.log(newpermission)
           const perId = await this.PermissionService.create(newpermission, user)
-          permissionId.push(perId.id)
+          console.log(perId);
+          permissionId.push(perId.id);
         }),
     );
-    
+console.log("107");
+console.log(permissionId);
     await this.invitationRepository.update(saveinviteuser.id, { permissionId });
-   
+
     await this.sendInvitation(organization, lowerCaseEmail);
   }
 
@@ -133,11 +143,11 @@ export class InvitationService {
         invitation.organization.id,
       );
       await this.userService.changeRole(user.id, invitation.role);
-      const pre=invitation.permissionId;
+      const pre = invitation.permissionId;
       console.log(pre);
       await Promise.all(
         pre.map(
-          async (pre:number) => 
+          async (pre: number) =>
             await this.PermissionService.updatepermissionstatus(pre)),
       );
     }

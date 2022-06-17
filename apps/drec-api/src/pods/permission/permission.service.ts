@@ -63,9 +63,11 @@ export class PermissionService {
 
         }
         console.log(addedPermissionList)
-        var permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
+        var permissionValue = ( this.Permissionvalue.computePermissions(addedPermissionList));
         console.log(permissionValue)
         const userpermission = await (this.findOne({ aclmodulesId: data.aclmodulesId, entityType: data.entityType, entityId: data.entityId }));
+        console.log("permission69");
+        console.log(userpermission);
         if (!userpermission) {
             const permissionboolean = await this.checkForExistingmodulepermission(data, permissionValue);
             console.log(permissionboolean)
@@ -94,10 +96,11 @@ export class PermissionService {
 
             }
         } else {
-            throw new ConflictException({
-                success: false,
-                message: `Permission For ModuleId  and Role already exist`,
-            });
+            // throw new ConflictException({
+            //     success: false,
+            //     message: `Permission For ModuleId  and Role already exist`,
+            // });
+            return userpermission;
             //throw new NotFoundException(`Permission For ModuleId  and Role already exist`);
         }
 
@@ -126,8 +129,9 @@ export class PermissionService {
                 {
                     entityId: roleId,
                     aclmodulesId: moduleId.id,
+                    status:1
                 },
-                { entityType: 'User', entityId: userId, aclmodulesId: moduleId.id }
+                { entityType: 'User', entityId: userId, aclmodulesId: moduleId.id ,status:1}
             ],
 
         }));

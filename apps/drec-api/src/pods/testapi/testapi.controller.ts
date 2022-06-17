@@ -43,7 +43,7 @@ export class TestapiController {
 
   @Post()
    @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-   @Roles(Role.Admin,Role.OrganizationAdmin)
+   @Roles(Role.Admin,Role.OrganizationAdmin,Role.DeviceOwner)
   @Permission('Write')
   @ACLModules('Test_CRDUL')
   create(@Body() createTestapiDto: CreateTestapiDto) {
@@ -52,7 +52,7 @@ export class TestapiController {
 
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin,Role.OrganizationAdmin)
+  @Roles(Role.Admin,Role.OrganizationAdmin,Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('Test_CRDUL')
   findAll() {
@@ -70,7 +70,7 @@ export class TestapiController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin,Role.OrganizationAdmin)
+  @Roles(Role.Admin,Role.OrganizationAdmin,Role.DeviceOwner)
   @Permission('Update')
   @ACLModules('Test_CRDUL')
   update(@Param('id') id: string, @Body() updateTestapiDto: UpdateTestapiDto) {
@@ -79,7 +79,7 @@ export class TestapiController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin,Role.OrganizationAdmin)
+  @Roles(Role.Admin,Role.OrganizationAdmin,Role.DeviceOwner)
   @Permission('Delete')
   @ACLModules('Test_CRDUL')
   remove(@Param('id') id: string) {

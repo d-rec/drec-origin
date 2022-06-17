@@ -7,7 +7,7 @@ const formatOrganizations: TFormatAllOrgs = ({ allOrganizations, actions }) => {
         id: org.id,
         name: org.name,
         country: Countries.find((country) => country.code === org.country)?.name,
-        tradeRegistryNumber: org.tradeRegistryCompanyNumber,
+        // tradeRegistryNumber: org.tradeRegistryCompanyNumber,
         status: org.status,
         actions: org.status === OrganizationStatus.Submitted ? actions : [actions[1]]
     }));
@@ -22,7 +22,7 @@ export const useAllOrganizationsTableLogic: TUseAllOrganizationsTableLogic = ({
         header: {
             name: 'Name',
             country: 'Country',
-            tradeRegistryNumber: 'Trade Registry Company Number',
+            // tradeRegistryNumber: 'Trade Registry Company Number',
             status: 'Status',
             actions: ''
         },
