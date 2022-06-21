@@ -98,9 +98,11 @@ export class DeviceGroupService {
         group.organization = {
           name: organization.name,
         };
+        console.log(group);
         return group;
       }),
     );
+    console.log(groupsWithOrganization);
     return groupsWithOrganization;
   }
 

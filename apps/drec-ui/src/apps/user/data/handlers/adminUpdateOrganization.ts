@@ -7,7 +7,7 @@ import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import {
     TAdminUpdateOrganizationFormValues,
-    TAdminUpdateOrganizationSignatoryInfoFormValues
+   // TAdminUpdateOrganizationSignatoryInfoFormValues
 } from '../../logic';
 
 export const useAdminUpdateOrganization = (id: string) => {
@@ -19,7 +19,7 @@ export const useAdminUpdateOrganization = (id: string) => {
     const currentOrganizationQueryKey = getAdminControllerGetOrganizationByIdQueryKey(idAsNumber);
 
     const submitHandler = (
-        values: TAdminUpdateOrganizationFormValues | TAdminUpdateOrganizationSignatoryInfoFormValues
+        values: TAdminUpdateOrganizationFormValues 
     ) => {
         mutate(
             { id: idAsNumber, data: values },

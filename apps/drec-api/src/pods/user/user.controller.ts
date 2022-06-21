@@ -25,13 +25,13 @@ import {
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { CreateUserDTO,CreateUserORGDTO } from './dto/create-user.dto';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO,UpdateChangePasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
@@ -81,6 +81,19 @@ export class UserController {
     @Body() userRegistrationData: CreateUserDTO,
   ): Promise<UserDTO> {
     return this.userService.create(userRegistrationData);
+  }
+// add new for adding user with organization
+   @Post('registerWithOrganziation')
+  @ApiBody({ type: CreateUserORGDTO })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserDTO,
+    description: 'Register a user',
+  })
+  public async newregister(
+    @Body() userRegistrationData: CreateUserORGDTO,
+  ): Promise<UserDTO> {
+    return this.userService.newcreate(userRegistrationData);
   }
 
   @Put()
@@ -137,7 +150,20 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
   }
-
+  @Put('update/password')
+ 
+  @ApiBody({ type: UpdateChangePasswordDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserDTO,
+    description: `Update your own password`,
+  })
+  public async updatechangePassword(
+   
+    @Body() body: UpdateChangePasswordDTO,
+  ): Promise<UserDTO> {
+    return this.userService.updatechangePassword( body);
+  }
   @Put('confirm-email/:token')
   @ApiResponse({
     status: HttpStatus.OK,

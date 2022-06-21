@@ -1,11 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { IsEmail, IsEnum, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsString, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { IOrganizationInvitation, OrganizationRole } from '../../models';
 import { Organization } from '../organization/organization.entity';
+import { BigNumber } from 'ethers';
 
 @Entity({ name: 'organization_invitation' })
 export class Invitation
@@ -43,4 +44,10 @@ export class Invitation
     onDelete: 'CASCADE',
   })
   organization: Organization;
+ 
+  @ApiProperty({ type: () => [Number] })
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  permissionId: number[];
+  
 }

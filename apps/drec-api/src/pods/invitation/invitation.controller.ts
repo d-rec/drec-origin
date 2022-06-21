@@ -105,7 +105,7 @@ export class InvitationController {
     description: 'Invites a user',
   })
   async invite(
-    @Body() { email, role }: InviteDTO,
+    @Body() { email, role,firstName,lastName,permissions }: InviteDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     if (!loggedUser.hasOrganization) {
@@ -123,7 +123,7 @@ export class InvitationController {
     }
 
     try {
-      await this.organizationInvitationService.invite(loggedUser, email, role);
+      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,permissions);
     } catch (error) {
       this.logger.error(error.toString());
 

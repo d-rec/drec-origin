@@ -6,6 +6,7 @@ import { UserModule } from '../user/user.module';
 import { InvitationController } from './invitation.controller';
 import { Invitation } from './invitation.entity';
 import { InvitationService } from './invitation.service';
+import {PermissionModule} from '../permission/permission.module'
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { InvitationService } from './invitation.service';
     UserModule,
     OrganizationModule,
     MailModule,
+    PermissionModule
   ],
   providers: [InvitationService],
   controllers: [InvitationController],

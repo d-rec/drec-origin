@@ -86,7 +86,7 @@ export class ReadsService {
     }
 
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-
+console.log(roundedMeasurements);
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
@@ -203,11 +203,9 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity; // W
-
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     const deviceAge =
@@ -217,13 +215,10 @@ export class ReadsService {
     this.logger.debug(`Current Date: ${DateTime.now()}`);
     this.logger.debug(`Current read: ${read.timestamp}`);
     this.logger.debug(`Last read: ${final.timestamp}`);
-
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
-
-    const margin = 0.2; // Margin for comparing read value with computed max energy
-
+   const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -234,10 +229,7 @@ export class ReadsService {
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(
-      `${
-        read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'
-      }, MaxEnergy: ${maxEnergy}`,
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed' }, MaxEnergy: ${maxEnergy}`,
     );
     return Math.round(read.value + margin * read.value) < maxEnergy;
   }

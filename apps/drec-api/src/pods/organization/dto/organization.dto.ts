@@ -14,40 +14,40 @@ export class OrganizationDTO
   extends PublicOrganizationInfoDTO
   implements IFullOrganization
 {
-  @ApiProperty({ type: String })
-  @IsString()
-  @Expose()
-  signatoryFullName: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @Expose()
+  // signatoryFullName: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @Expose()
-  signatoryAddress: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @Expose()
+  // signatoryAddress: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @Expose()
-  signatoryZipCode: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @Expose()
+  // signatoryZipCode: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @Expose()
-  signatoryCity: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @Expose()
+  // signatoryCity: string;
 
-  @ApiProperty({ type: String })
-  @IsISO31661Alpha2()
-  @Expose()
-  signatoryCountry: string;
+  // @ApiProperty({ type: String })
+  // @IsISO31661Alpha2()
+  // @Expose()
+  // signatoryCountry: string;
 
-  @ApiProperty({ type: String })
-  @IsEmail()
-  @Expose()
-  signatoryEmail: string;
+  // @ApiProperty({ type: String })
+  // @IsEmail()
+  // @Expose()
+  // signatoryEmail: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @Expose()
-  signatoryPhoneNumber: string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @Expose()
+  // signatoryPhoneNumber: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsArray()

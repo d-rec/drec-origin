@@ -58,6 +58,7 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number): Promise<Device[]> {
+    console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
     });
@@ -127,6 +128,7 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
+    console.log(orgCode);
     return await this.repository.save({
       ...newDevice,
       organizationId: orgCode,

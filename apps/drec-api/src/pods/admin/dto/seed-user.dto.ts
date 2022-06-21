@@ -6,8 +6,9 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { IUserSeed } from '../../../models';
+import { IModulePermissionsConfig, IUserSeed } from '../../../models';
 import { UserDTO } from '../../user/dto/user.dto';
+
 
 export class SeedUserDTO
   extends PickType(UserDTO, [
@@ -19,6 +20,7 @@ export class SeedUserDTO
     'notifications',
     'status',
     'role',
+    'organization'
   ] as const)
   implements Omit<IUserSeed, 'organization' | 'id'>
 {
@@ -32,7 +34,19 @@ export class SeedUserDTO
   @IsString()
   password: string;
 
+  @ApiProperty({ type: String })
+  @MaxLength(20)
+  @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
+    message:
+      'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
+  })
+ 
   @ApiProperty({ type: Number })
   @IsNumber()
   organizationId: number;
+
+ // permissions?: IModulePermissionsConfig;
+  moduleName: string;
+  roleId:number;
+
 }

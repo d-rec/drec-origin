@@ -32,13 +32,15 @@ import {
   DeviceGroupByDTO,
   GroupedDevicesDTO,
 } from './dto';
-import { Roles } from '../user/decorators/roles.decorator';
+
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
-import { UserDecorator } from '../user/decorators/user.decorator';
+import {PermissionGuard} from '../../guards/PermissionGuard'
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { ActiveUserGuard } from '../../guards';
+import { Roles } from '../user/decorators/roles.decorator';
+import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceGroupService } from '../device-group/device-group.service';
 
 @ApiTags('device')
@@ -62,7 +64,7 @@ export class DeviceController {
   }
 
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiOkResponse({
     type: [GroupedDevicesDTO],
@@ -101,7 +103,7 @@ export class DeviceController {
   }
 
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -126,7 +128,7 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,

@@ -16,9 +16,9 @@ export const AdminUpdateOrganizationPage = () => {
             <Paper className={classes.paper}>
                 <GenericForm {...formProps} />
             </Paper>
-            <Paper className={classes.paper}>
+            {/* <Paper className={classes.paper}>
                 <GenericForm {...signatoryFormProps} />
-            </Paper>
+            </Paper> */}
         </Box>
     );
 };

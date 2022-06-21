@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, Repository,FindConditions } from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -19,6 +19,7 @@ import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import {
   BindBlockchainAccountDTO,
   NewOrganizationDTO,
+  NewAddOrganizationDTO,
   UpdateOrganizationDTO,
 } from './dto';
 import { defaults } from 'lodash';
@@ -174,6 +175,55 @@ export class OrganizationService {
     return stored;
   }
 
+  async FindBysecretkey(secretKey:string)
+  : Promise<boolean> {
+    // const organization = await this.repository.findOne({secretKey:secretKey});
+    // if (!organization) {
+    //   throw new NotFoundException(`No organization found with secretKey ${secretKey}`);
+    // }
+    // return organization;
+
+    const organization = await this.repository
+      .createQueryBuilder()
+      .where({ secretKey })
+      .getCount();
+
+    return organization > 0;
+    
+  }
+  
+  public async newcreate(
+    organizationToRegister: NewAddOrganizationDTO, 
+  ): Promise<Organization> {
+    this.logger.debug(
+      ` requested organization registration ${JSON.stringify(
+        organizationToRegister,
+      )}`,
+    );   
+    const organization = await this.repository.findOne({secretKey:organizationToRegister.secretKey});
+    if (!organization) {
+      const organizationToCreate = new Organization({
+        ...organizationToRegister,
+  
+        status: OrganizationStatus.Submitted,
+       
+      });  
+      const stored = await this.repository.save(organizationToCreate);
+      this.logger.debug(
+        `Successfully registered a new organization with id ${organizationToRegister.name}`,
+      );  
+      this.logger.debug(
+        `successfully registered new organization with id ${stored.id}`,
+      ); 
+      return stored;   
+     }
+    else{
+    return organization;
+    }
+  
+  }
+ 
+ 
   private async generateBlockchainAddress(index: number): Promise<string> {
     const issuerAccount = Wallet.fromMnemonic(
       process.env.MNEMONIC!,
@@ -304,7 +354,7 @@ export class OrganizationService {
     return ResponseSuccess();
   }
 
-  private async isNameAlreadyTaken(name: string): Promise<boolean> {
+   async isNameAlreadyTaken(name: string): Promise<boolean> {
     const existingOrganizations = await this.repository
       .createQueryBuilder()
       .where('LOWER(name) = LOWER(:name)', { name })
@@ -337,4 +387,20 @@ export class OrganizationService {
     }
     return this.fileService.isOwner(user, documentIds);
   }
+
+  // private async checkForExistingorg(email: string): Promise<void> {
+  //   const isExistingUser = await this.hasorg({ email });
+  //   if (isExistingUser) {
+  //     const message = `User with email ${email} already exists`;
+
+  //     this.logger.error(message);
+  //     throw new ConflictException({
+  //       success: false,
+  //       message,
+  //     });
+  //   }
+  // }
+  // private async hasorg(conditions: FindConditions<Organization>) {
+  //   return Boolean(await this.findOne(conditions));
+  // }
 }

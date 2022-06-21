@@ -1,7 +1,7 @@
 import { useParams } from 'react-router';
 import {
     useAdminUpdateOrganizationFormLogic,
-    useAdminUpdateOrganizationSignatoryInfoForm
+  //  useAdminUpdateOrganizationSignatoryInfoForm
 } from 'apps/user/logic';
 import { useAdminGetOrganization, useAdminUpdateOrganization } from '../../../data';
 
@@ -11,7 +11,7 @@ export const useAdminUpdateOrganizationPageEffects = () => {
     const submitHandler = useAdminUpdateOrganization(id);
     const submitSignatoryHandler = useAdminUpdateOrganization(id);
     const formConfig = useAdminUpdateOrganizationFormLogic(organization);
-    const signatoryFormConfig = useAdminUpdateOrganizationSignatoryInfoForm(organization);
+    //const signatoryFormConfig = useAdminUpdateOrganizationSignatoryInfoForm(organization);
 
     const formProps = {
         ...formConfig,
@@ -19,7 +19,7 @@ export const useAdminUpdateOrganizationPageEffects = () => {
     };
 
     const signatoryFormProps = {
-        ...signatoryFormConfig,
+       // ...signatoryFormConfig,
         submitHandler: submitSignatoryHandler
     };
 
