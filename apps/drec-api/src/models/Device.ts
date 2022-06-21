@@ -35,7 +35,19 @@ export interface IDevice {
   data?: string;
   images?: string[];
   groupId?: number | null;
+  deviceDescription?: DeviceDescription;
   integrator?: Integrator;
+  energyStorage?: boolean;
+  energyStorageCapacity?: number;
+  qualityLabels?: string;
+}
+
+export enum DeviceDescription {
+  SolarLantern = 'Solar Lantern',
+  SolarHomeSystem = 'Solar Home System',
+  MiniGrid = 'Mini Grid',
+  RooftopSolar = 'Rooftop Solar',
+  GroundmountSolar = 'Ground Mount Solar',
 }
 
 export type DeviceKey =
@@ -54,7 +66,8 @@ export type DeviceKey =
   | 'offTaker'
   | 'sector'
   | 'standardCompliance'
-  | 'yieldValue';
+  | 'yieldValue'
+  | 'deviceDescription';
 
 export type DeviceSortTypeValuedKeys = { [K in DeviceOrderBy]?: DeviceKey };
 

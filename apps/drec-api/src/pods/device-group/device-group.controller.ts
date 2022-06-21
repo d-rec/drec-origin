@@ -22,6 +22,19 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
+import {
+  validate,
+  validateOrReject,
+  Contains,
+  IsInt,
+  Length,
+  IsEmail,
+  IsFQDN,
+  IsDate,
+  Min,
+  Max,
+} from 'class-validator';
+
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
@@ -31,20 +44,46 @@ import {
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
   ReserveGroupsDTO,
+  CSVBulkUploadDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/enums';
+import {
+  Installation,
+  OffTaker,
+  Role,
+  Sector,
+  StandardCompliance,
+} from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { ILoggedInUser } from '../../models';
+import { DeviceDescription, ILoggedInUser } from '../../models';
 import { NewDeviceDTO } from '../device/dto';
+import { File, FileService } from '../file';
+
+import { parse } from 'csv-parse';
+import * as fs from 'fs';
+import { Readable } from 'stream';
+
+import csv from 'csv-parser';
+import {
+  DeviceCsvFileProcessingJobsEntity,
+  StatusCSV,
+} from './device_csv_processing_jobs.entity';
 
 @ApiTags('device-group')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device-group')
 export class DeviceGroupController {
-  constructor(private readonly deviceGroupService: DeviceGroupService) {}
+  csvParser = csv({ separator: ',' });
+
+  parser = parse({
+    delimiter: ',',
+  });
+  constructor(
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly fileService: FileService,
+  ) {}
 
   @Get()
   @ApiOkResponse({
@@ -209,6 +248,34 @@ export class DeviceGroupController {
       organizationId,
       devicesToRegister,
     );
+  }
+
+  @Post('process-creation-bulk-devices-csv')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created devices from csv',
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV(
+    @UserDecorator() user: ILoggedInUser,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() fileToProcess: CSVBulkUploadDTO,
+  ): Promise<DeviceCsvFileProcessingJobsEntity> {
+    const response = await this.fileService.get(fileToProcess.fileName, user);
+    if (response == undefined) {
+      throw new Error('file not found');
+    }
+    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
+      user.id,
+      organizationId,
+      StatusCSV.Added,
+      response instanceof File ? response.id : '',
+    );
+
+    return jobCreated;
   }
 
   @Post('/add/:id')

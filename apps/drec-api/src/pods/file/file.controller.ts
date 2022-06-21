@@ -34,6 +34,9 @@ import { ILoggedInUser } from '../../models';
 const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 
+const supportedFiles = FILE_SUPPORTED_MIMETYPES;
+supportedFiles.push('text/csv');
+
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
@@ -47,7 +50,7 @@ export class FileController {
     FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
       storage: multer.memoryStorage(),
       fileFilter: (req: Request, file, callback) => {
-        if (!FILE_SUPPORTED_MIMETYPES.includes(file.mimetype)) {
+        if (!supportedFiles.includes(file.mimetype)) {
           callback(new Error('Unsupported file type'), false);
         }
 

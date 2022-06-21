@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, Repository, In } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -65,6 +65,15 @@ export class DeviceService {
     return devices;
   }
 
+  public async findForDevicesWithDeviceIdAndOrganizationId(
+    deviceIds: Array<number>,
+    organizationId: number,
+  ): Promise<Device[]> {
+    return this.repository.find({
+      where: { id: In(deviceIds), organizationId },
+    });
+  }
+
   public async findForGroup(groupId: number): Promise<Device[]> {
     return this.repository.find({
       where: { groupId },
@@ -89,6 +98,16 @@ export class DeviceService {
     return (
       (await this.repository.findOne({ where: { externalId: meterId } })) ??
       null
+    );
+  }
+
+  async findMultipleDevicesBasedExternalId(
+    meterIdList: Array<string>,
+  ): Promise<Array<DeviceDTO | null>> {
+    return (
+      (await this.repository.find({
+        where: { externalId: In(meterIdList) },
+      })) ?? null
     );
   }
 

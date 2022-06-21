@@ -26,6 +26,10 @@ import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';
 import { IntegratorsModule } from './pods/integrators/integrators.module';
+import { DeveloperScecificGroupingDeviceNotForBuyerReservationModule } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/develeoper-specific-grouping-devices-not-for-buyer-reservation.module';
+import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/developer_specific_group_device_only_for_managing_not_for_buyer_reservation.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
+import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -52,6 +56,9 @@ export const entities = [
   Device,
   DeviceGroup,
   File,
+  DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
+  DeviceCsvFileProcessingJobsEntity,
+  DeviceCsvProcessingFailedRowsEntity,
   ...IssuerEntities,
 ];
 
@@ -106,6 +113,7 @@ const QueueingModule = () => {
     EmailConfirmationModule,
     AdminModule,
     IntegratorsModule,
+    DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
   ],
 })
 export class DrecModule {}
