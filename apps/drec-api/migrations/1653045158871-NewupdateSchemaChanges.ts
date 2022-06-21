@@ -5,7 +5,7 @@ export class NewupdateSchemaChanges1653045158871 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
          
-            `CREATE TABLE "user_role" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "description" character varying , "status" AS ENUM('0','1') )`,
+            `CREATE TABLE "user_role" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "description" character varying , "status" boolean)`,
           );
          
           await queryRunner.query(
