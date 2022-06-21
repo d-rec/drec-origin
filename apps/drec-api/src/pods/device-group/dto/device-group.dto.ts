@@ -131,3 +131,9 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsNumber()
   leftoverReads: number;
 }
+
+export class CSVBulkUploadDTO {
+  @ApiProperty()
+  @IsString()
+  fileName: string;
+}

@@ -13,7 +13,7 @@ import {
   Sector,
   StandardCompliance,
 } from '../../../utils/enums';
-import { IDevice } from '../../../models';
+import { DeviceDescription, IDevice } from '../../../models';
 
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId'>
@@ -113,4 +113,33 @@ export class NewDeviceDTO
   @IsArray()
   @IsOptional()
   images: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(DeviceDescription, {
+    message:
+      'Valid Device Description are Solar Lantern, Solar Home System, Mini Grid, Rooftop Solar, Ground Mount Solar',
+  })
+  deviceDescription?: DeviceDescription;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  energyStorage: boolean;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  energyStorageCapacity: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  qualityLabels: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  groupId?: number | null;
 }

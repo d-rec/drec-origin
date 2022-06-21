@@ -15,7 +15,7 @@ import {
   IsNotEmpty,
   IsNumber,
 } from 'class-validator';
-import { IDevice } from '../../models';
+import { DeviceDescription, IDevice } from '../../models';
 
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
@@ -126,4 +126,17 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   @IsEnum(Integrator)
   integrator: Integrator;
+
+  @Column({ nullable: true })
+  @IsEnum(DeviceDescription)
+  deviceDescription?: DeviceDescription;
+
+  @Column({ type: 'boolean', nullable: true })
+  energyStorage: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  energyStorageCapacity: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  qualityLabels: string;
 }

@@ -25,13 +25,14 @@ import {
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { IDevice } from '../../models';
+import { DeviceDescription, IDevice } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
   OffTaker,
   Sector,
+  StandardCompliance,
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
@@ -41,15 +42,46 @@ import { OrganizationService } from '../organization/organization.service';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { nanoid } from 'nanoid';
 
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
+import {
+  DeviceCsvFileProcessingJobsEntity,
+  StatusCSV,
+} from './device_csv_processing_jobs.entity';
+import { Readable } from 'stream';
+import csv from 'csv-parser';
+
+import { File, FileService } from '../file';
+import { ILoggedInUser, LoggedInUser } from '../../models';
+
+import {
+  validate,
+  validateOrReject,
+  Contains,
+  IsInt,
+  Length,
+  IsEmail,
+  IsFQDN,
+  IsDate,
+  Min,
+  Max,
+} from 'class-validator';
+
 @Injectable()
 export class DeviceGroupService {
+  csvParser = csv({ separator: ',' });
   private readonly logger = new Logger(DeviceGroupService.name);
 
   constructor(
+    @InjectRepository(DeviceCsvProcessingFailedRowsEntity)
+    private readonly repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>,
+    @InjectRepository(DeviceCsvFileProcessingJobsEntity)
+    private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
+    private readonly fileService: FileService,
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -143,6 +175,34 @@ export class DeviceGroupService {
     return res;
   }
 
+  async createCSVJobForFile(
+    userId: number,
+    organizationId: number,
+    status: StatusCSV,
+    fileId: string,
+  ): Promise<DeviceCsvFileProcessingJobsEntity> {
+    return await this.repositoyCSVJobProcessing.save({
+      userId,
+      organizationId,
+      status,
+      fileId,
+    });
+  }
+
+  async createFailedRowDetailsForCSVJob(
+    jobId: number,
+    errorDetails: Array<any>,
+  ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
+    return await this.repositoryJobFailedRows.save({ jobId, errorDetails });
+  }
+
+  async getFailedRowDetailsForCSVJob(
+    jobId: number,
+  ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
+    return await this.repositoryJobFailedRows.findOne({
+      id: jobId,
+    });
+  }
   async reserveGroup(
     data: ReserveGroupsDTO,
     buyerId: number,
@@ -332,6 +392,47 @@ export class DeviceGroupService {
       }),
     );
     await this.repository.delete(id);
+  }
+
+  public async checkIfDeviceExisting(
+    newDevices: NewDeviceDTO[],
+  ): Promise<Array<string>> {
+    const allExternalIds: Array<string> = [];
+    const existingDeviceIds: Array<string> = [];
+    newDevices.forEach((singleDevice) =>
+      allExternalIds.push(singleDevice.externalId),
+    );
+    const existingDevices =
+      await this.deviceService.findMultipleDevicesBasedExternalId(
+        allExternalIds,
+      );
+    if (existingDevices && existingDevices.length > 0) {
+      //@ts-ignore
+      existingDevices.forEach((ele) => existingDeviceIds.push(ele?.externalId));
+    }
+    return existingDeviceIds;
+  }
+
+  public async registerCSVBulkDevices(
+    orgCode: number,
+    newDevices: NewDeviceDTO[],
+  ): Promise<
+    (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
+  > {
+    const devices: (
+      | DeviceDTO
+      | { isError: boolean; device: NewDeviceDTO; errorDetail: any }
+    )[] = await Promise.all(
+      newDevices.map(async (device: NewDeviceDTO) => {
+        try {
+          return await this.deviceService.register(orgCode, device);
+        } catch (e) {
+          console.log(e);
+          return { isError: true, device: device, errorDetail: e };
+        }
+      }),
+    );
+    return devices;
   }
 
   public async registerBulkDevices(
@@ -557,5 +658,243 @@ export class DeviceGroupService {
     return Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
       filterSectors: [filter],
     });
+  }
+
+  private async hasSingleAddedJobForCSVProcessing(): Promise<
+    DeviceCsvFileProcessingJobsEntity | undefined
+  > {
+    return await this.repositoyCSVJobProcessing.findOne({
+      status: StatusCSV.Added,
+    });
+  }
+
+  private async updateJobStatus(
+    jobId: number,
+    status: StatusCSV,
+  ): Promise<DeviceCsvFileProcessingJobsEntity> {
+    console.log('jobid', jobId, 'status', status);
+    //@ts-ignore
+    return await this.repositoyCSVJobProcessing.update(jobId, {
+      status: status,
+    });
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS) // Every day at 23:30 - Server Time
+  async getAddedCSVProcessingJobsAndStartProcessing() {
+    console.log('files cron job every 30 seconds check for files added ');
+    const filesAddedForProcessing =
+      await this.hasSingleAddedJobForCSVProcessing();
+    console.log(filesAddedForProcessing);
+    if (filesAddedForProcessing === undefined) {
+      return;
+    }
+    //@ts-ignore
+    const data = new LoggedInUser({
+      id: filesAddedForProcessing.userId,
+      organization: { id: filesAddedForProcessing.organizationId },
+    });
+    data.id = filesAddedForProcessing.userId;
+    data.organizationId = filesAddedForProcessing.organizationId;
+    const response = await this.fileService.get(
+      filesAddedForProcessing.fileId,
+      data,
+    );
+    if (response == undefined) {
+      console.log('file not found');
+      return;
+    } else {
+      this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
+      this.processCsvFileAnotherLibrary(
+        response,
+        filesAddedForProcessing.organizationId,
+        filesAddedForProcessing,
+      );
+    }
+  }
+
+  async processCsvFileAnotherLibrary(
+    file: File,
+    organizationId: number,
+    filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
+  ) {
+    console.log('other library');
+    const records: Array<NewDeviceDTO> = [];
+    const recordsErrors: Array<{ isError: boolean; errorsList: Array<any> }> =
+      [];
+    // setTimeout(()=>{
+    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
+    const readableStream = new Readable();
+    readableStream._read = () => {}; // _read is required but you can noop it
+
+    readableStream
+      .pipe(this.csvParser)
+      .on('data', (data) => {
+        console.log('receiving data');
+        console.log(data);
+
+        //data.generatorsIds =[];
+        //data.deviceDescription ='Solar Lantern';
+        data.images = [];
+        data.groupId = null;
+        const dataToStore = new NewDeviceDTO();
+
+        const dataKeyForValidation: NewDeviceDTO = {
+          externalId: '',
+          projectName: '',
+          address: '',
+          latitude: '',
+          longitude: '',
+          countryCode: '',
+          zipCode: '',
+          fuelCode: '',
+          deviceTypeCode: '',
+          installationConfiguration: Installation.StandAlone,
+          capacity: 0,
+          commissioningDate: '',
+          gridInterconnection: false,
+          offTaker: OffTaker.Commercial,
+          sector: Sector.Agriculture,
+          standardCompliance: StandardCompliance.REC,
+          yieldValue: 0,
+          generatorsIds: [],
+          labels: '',
+          impactStory: '',
+          data: '',
+          images: [],
+          deviceDescription: DeviceDescription.GroundmountSolar,
+          energyStorage: true,
+          energyStorageCapacity: 0,
+          qualityLabels: '',
+          groupId: 0,
+        };
+        for (const key in dataKeyForValidation) {
+          //@ts-ignore
+          if (typeof dataKeyForValidation[key] === 'string') {
+            //@ts-ignore
+            dataToStore[key] = data[key];
+          }
+          //@ts-ignore
+          else if (typeof dataKeyForValidation[key] === 'boolean') {
+            //@ts-ignore
+            dataToStore[key] =
+              data[key].toLowerCase() === 'true' ? true : false;
+          }
+          //@ts-ignore
+          else if (typeof dataKeyForValidation[key] === 'number') {
+            //@ts-ignore
+            dataToStore[key] =
+              parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
+          }
+          //@ts-ignore
+          else if (key === 'generatorsIds') {
+            if (data[key] === '') {
+              //@ts-ignore
+              dataToStore[key] = [];
+            } else {
+              //@ts-ignore
+              dataToStore[key] = data[key]
+                .split('|')
+                .map((ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)));
+              //@ts-ignore
+              dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
+            }
+          }
+        }
+
+        // validate(dataToStore).then((errors:any) => {
+        //   // errors is an array of validation errors
+        //   if (errors.length > 0) {
+        //     console.log('validation failed. errors: ', errors);
+        //   } else {
+        //     console.log('validation succeed');
+        //   }
+        // });
+
+        console.log('data tranasformed data');
+        console.log(dataToStore);
+
+        records.push(dataToStore);
+        recordsErrors.push({ isError: false, errorsList: [] });
+      })
+      .on('end', async () => {
+        console.log('************************************');
+        console.log('records', JSON.stringify(records));
+        records.forEach(async (singleRecord, index) => {
+          // validate(singleRecord).then((errors:any) => {
+          //   // errors is an array of validation errors
+          //   if (errors.length > 0) {
+          //     recordsErrors.push({ isError:true,errorsList: errors});
+          //     console.log('validation failed. errors: ', errors);
+          //   } else {
+          //     recordsErrors.push({ isError:false,errorsList:errors});
+          //     console.log('validation succeed');
+          //   }
+          // });
+          const errors = await validate(singleRecord);
+          // errors is an array of validation errors
+          if (errors.length > 0) {
+            recordsErrors[index] = { isError: true, errorsList: errors };
+            console.log('validation failed. errors: ', errors);
+          } else {
+            recordsErrors[index] = { isError: false, errorsList: errors };
+            console.log('validation succeed');
+          }
+        });
+
+        const noErrorRecords = records.filter(
+          (record, index) => recordsErrors[index].isError === false,
+        );
+
+        //if(noErrorRecords.length > 0)
+        //{
+        const listofExistingDevices = await this.checkIfDeviceExisting(records);
+        console.log('listofExistingDevices', listofExistingDevices);
+        if (listofExistingDevices.length > 0) {
+          records.forEach((singleRecord, index) => {
+            listofExistingDevices.find(
+              (ele) => ele === singleRecord.externalId,
+            );
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({
+              error: 'Record Already Exist',
+            });
+          });
+        }
+        //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
+        const devicesRegistered = await this.registerCSVBulkDevices(
+          organizationId,
+          records,
+        );
+        records.forEach((ele, index) => {
+          //@ts-ignore
+          if (devicesRegistered[index].isError) {
+            //@ts-ignore
+            //recordsErrors[index].errorsList.push(devicesRegistered[index].errorDetail);
+            //@ts-ignore
+            // recordsErrors[index].errorsList.push("Database error occured");
+            // recordsErrors[index].isError=true;
+          }
+        });
+        if (recordsErrors.find((ele) => ele.isError === true)) {
+          this.createFailedRowDetailsForCSVJob(
+            filesAddedForProcessing.jobId,
+            recordsErrors,
+          );
+        }
+
+        this.updateJobStatus(
+          filesAddedForProcessing.jobId,
+          StatusCSV.Completed,
+        );
+        //}
+        console.log('************************************');
+      });
+
+    //readableStream.push(file?.data.toString());
+    console.log('came sdsdsdsdsdsdsdsdsd here', file?.data.toString());
+    readableStream.emit('data', file?.data.toString());
+    readableStream.emit('end');
+
+    // },1);
   }
 }

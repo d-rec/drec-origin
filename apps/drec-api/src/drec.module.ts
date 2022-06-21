@@ -34,6 +34,11 @@ import {ACLModulePermissions} from './pods/permission/permission.entity';
 import {PermissionModule} from './pods/permission/permission.module';
 import { TestapiModule } from './pods/testapi/testapi.module';
 import {Testapi} from './pods/testapi/entities/testapi.entity'
+import { DeveloperScecificGroupingDeviceNotForBuyerReservationModule } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/develeoper-specific-grouping-devices-not-for-buyer-reservation.module';
+import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/developer_specific_group_device_only_for_managing_not_for_buyer_reservation.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
+import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -63,7 +68,9 @@ export const entities = [
   AClModules,
   ACLModulePermissions,
   Testapi,
-  
+  DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
+  DeviceCsvFileProcessingJobsEntity,
+  DeviceCsvProcessingFailedRowsEntity,
   ...IssuerEntities,
 
 
@@ -126,6 +133,7 @@ const QueueingModule = () => {
     AccessControlLayerModuleServiceModule,
     PermissionModule,
     TestapiModule
+    DeveloperScecificGroupingDeviceNotForBuyerReservationModule
   ],
 })
 export class DrecModule {}

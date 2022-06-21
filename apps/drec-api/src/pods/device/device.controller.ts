@@ -9,7 +9,9 @@ import {
   UseGuards,
   ValidationPipe,
   Query,
+  ConflictException,
 } from '@nestjs/common';
+
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -39,12 +41,17 @@ import { CodeNameDTO } from './dto/code-name.dto';
 import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
+import { DeviceGroupService } from '../device-group/device-group.service';
+
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device')
 export class DeviceController {
-  constructor(private readonly deviceService: DeviceService) {}
+  constructor(
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+  ) {}
 
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -122,7 +129,7 @@ export class DeviceController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
@@ -132,7 +139,61 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
-    return await this.deviceService.register(organizationId, deviceToRegister);
+    if (deviceToRegister.groupId) {
+      const response = await this.deviceGroupService.findById(
+        deviceToRegister.groupId,
+      );
+      if (response && response.buyerAddress) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:
+                'This Device Group already has buyer added device cannot be added to device group',
+            }),
+          );
+        });
+      }
+    }
+
+    // try
+    // {
+    return await this.deviceService
+      .register(organizationId, deviceToRegister)
+      .catch((error) => {
+        if (error && error.code && error.detail) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: error.detail,
+              }),
+            );
+          });
+        } else {
+          return new Promise((resolve, reject) => {
+            reject({ error: true });
+          });
+        }
+      });
+
+    //}
+    // catch(e)
+    // {
+    //   if(e && e.code && e.detail)
+    //   {
+    //     return new Promise((resolve,reject)=>{
+    //       reject(new ConflictException({
+    //         success: false,
+    //         message:e.detail}))
+    //     })
+    // }
+    // else
+    //   return new Promise((resolve,reject)=>{
+    //     reject({error:true});
+    //   })
+
+    // }
   }
 
   @Patch('/:id')
