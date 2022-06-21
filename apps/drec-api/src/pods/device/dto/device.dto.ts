@@ -15,7 +15,7 @@ import {
   StandardCompliance,
 } from '../../../utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { IDevice } from '../../../models';
+import { DeviceDescription, IDevice } from '../../../models';
 
 export class DeviceDTO implements IDevice {
   @ApiProperty()
@@ -129,4 +129,30 @@ export class DeviceDTO implements IDevice {
   @IsString()
   @IsOptional()
   integrator?: Integrator;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(DeviceDescription)
+  deviceDescription?: DeviceDescription;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  energyStorage: boolean;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  energyStorageCapacity: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  qualityLabels: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  groupId?: number | null;
 }
