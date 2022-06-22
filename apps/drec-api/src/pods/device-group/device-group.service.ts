@@ -688,9 +688,10 @@ export class DeviceGroupService {
     if (filesAddedForProcessing === undefined) {
       return;
     }
-    //@ts-ignore
+
     const data = new LoggedInUser({
       id: filesAddedForProcessing.userId,
+      //@ts-ignore
       organization: { id: filesAddedForProcessing.organizationId },
     });
     data.id = filesAddedForProcessing.userId;

@@ -109,9 +109,9 @@ export class Seed9999999999999 implements MigrationInterface {
       return;
     }
 
-    for (const [index, organization] of (
-      OrganizationsJSON as IFullOrganization[]
-    ).entries()) {
+    for (const [index, organization] of (OrganizationsJSON as Array<any>)
+      // OrganizationsJSON as IFullOrganization[]
+      .entries()) {
       const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
       const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
       const blockchainAccount = Wallet.fromMnemonic(
@@ -127,47 +127,47 @@ export class Seed9999999999999 implements MigrationInterface {
 
       await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 
-      await queryRunner.query(
-        `INSERT INTO public.organization (
-          "id",
-          "name",
-          "address",
-          "zipCode",
-          "city",
-          "country",
-          "businessType",
-          "tradeRegistryCompanyNumber",
-          "vatNumber",
-          status,
-          "blockchainAccountAddress",
-          "signatoryFullName",
-          "signatoryAddress",
-          "signatoryCity",
-          "signatoryZipCode",
-          "signatoryCountry",
-          "signatoryEmail",
-          "signatoryPhoneNumber"
-        ) VALUES (
-          '${organization.id}', 
-          '${organization.name}', 
-          '${organization.address}', 
-          '${organization.zipCode}', 
-          '${organization.city}', 
-          '${organization.country}', 
-          '${organization.businessType}', 
-          '${organization.tradeRegistryCompanyNumber}', 
-          '${organization.vatNumber}', 
-          '${organization.status}', 
-          '${blockchainAccount.address}', 
-          '${organization.signatoryFullName}', 
-          '${organization.signatoryAddress}', 
-          '${organization.signatoryCity}', 
-          '${organization.signatoryZipCode}', 
-          '${organization.signatoryCountry}', 
-          '${organization.signatoryEmail}', 
-          '${organization.signatoryPhoneNumber}'
-        )`,
-      );
+      // await queryRunner.query(
+      //   `INSERT INTO public.organization (
+      //     "id",
+      //     "name",
+      //     "address",
+      //     "zipCode",
+      //     "city",
+      //     "country",
+      //     "businessType",
+      //     "tradeRegistryCompanyNumber",
+      //     "vatNumber",
+      //     status,
+      //     "blockchainAccountAddress",
+      //     "signatoryFullName",
+      //     "signatoryAddress",
+      //     "signatoryCity",
+      //     "signatoryZipCode",
+      //     "signatoryCountry",
+      //     "signatoryEmail",
+      //     "signatoryPhoneNumber"
+      //   ) VALUES (
+      //     '${organization.id}',
+      //     '${organization.name}',
+      //     '${organization.address}',
+      //     '${organization.zipCode}',
+      //     '${organization.city}',
+      //     '${organization.country}',
+      //     '${organization.businessType}',
+      //     '${organization.tradeRegistryCompanyNumber}',
+      //     '${organization.vatNumber}',
+      //     '${organization.status}',
+      //     '${blockchainAccount.address}',
+      //     '${organization.signatoryFullName}',
+      //     '${organization.signatoryAddress}',
+      //     '${organization.signatoryCity}',
+      //     '${organization.signatoryZipCode}',
+      //     '${organization.signatoryCountry}',
+      //     '${organization.signatoryEmail}',
+      //     '${organization.signatoryPhoneNumber}'
+      //   )`,
+      // );
     }
   }
 
