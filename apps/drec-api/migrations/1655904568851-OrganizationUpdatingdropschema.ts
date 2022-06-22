@@ -18,6 +18,7 @@ export class OrganizationUpdatingdropschema1655904568851 implements MigrationInt
         await queryRunner.query(`ALTER TABLE "organization" DROP COLUMN "signatoryCity"`);
         await queryRunner.query(`ALTER TABLE "organization" DROP COLUMN "signatoryCountry"`);
         await queryRunner.query(`ALTER TABLE "organization" DROP COLUMN "signatoryPhoneNumber"`);
+        await queryRunner.query(`ALTER TABLE "organization" DROP COLUMN "signatoryEmail"`);
     }
 
 }
