@@ -17,14 +17,15 @@ export class SCHEMA1635443974235 implements MigrationInterface {
       `CREATE TABLE "device" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "drecID" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'Active', "organizationId" integer NOT NULL, "projectName" character varying NOT NULL, "address" character varying NOT NULL, "latitude" character varying NOT NULL, "longitude" character varying NOT NULL, "countryCode" character varying NOT NULL, "zipCode" integer, "fuelCode" character varying NOT NULL, "deviceTypeCode" character varying NOT NULL, "installationConfiguration" character varying NOT NULL, "capacity" integer NOT NULL, "commissioningDate" character varying NOT NULL, "gridInterconnection" boolean NOT NULL, "offTaker" character varying NOT NULL, "sector" character varying NOT NULL, "standardCompliance" character varying NOT NULL, "yieldValue" integer NOT NULL DEFAULT '1000', "generatorsIds" integer array, "labels" character varying, "impactStory" character varying, "data" character varying, "images" text, "groupId" integer, CONSTRAINT "UQ_a93bf3af71fa160724c7ae04a2e" UNIQUE ("drecID"), CONSTRAINT "PK_2dc10972aa4e27c01378dad2c72" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "organization_invitation" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "email" character varying NOT NULL, "role" character varying NOT NULL DEFAULT 'OrganizationUser', "status" character varying NOT NULL, "sender" character varying NOT NULL, "organizationId" integer, CONSTRAINT "PK_cc1ac752952740b92ead1ee9249" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "organization_invitation" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "email" character varying NOT NULL, "role" character varying NOT NULL DEFAULT 'OrganizationUser', "status" character varying NOT NULL, "sender" character varying NOT NULL, "organizationId" integer,"permissionId" character varying, CONSTRAINT "PK_cc1ac752952740b92ead1ee9249" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "organization" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "name" character varying NOT NULL, "address" character varying NOT NULL, "zipCode" character varying NOT NULL, "city" character varying NOT NULL, "country" character varying NOT NULL, "blockchainAccountAddress" character varying, "blockchainAccountSignedMessage" character varying, "businessType" character varying NOT NULL, "tradeRegistryCompanyNumber" character varying NOT NULL, "vatNumber" character varying NOT NULL, "signatoryFullName" character varying NOT NULL, "signatoryAddress" character varying NOT NULL, "signatoryZipCode" character varying NOT NULL, "signatoryCity" character varying NOT NULL, "signatoryCountry" character varying NOT NULL, "signatoryEmail" character varying NOT NULL, "signatoryPhoneNumber" character varying NOT NULL, "signatoryDocumentIds" text, "status" character varying NOT NULL DEFAULT 'Submitted', "documentIds" text, CONSTRAINT "UQ_bec683182179a2132591a2726b3" UNIQUE ("blockchainAccountAddress"), CONSTRAINT "PK_472c1f99a32def1b0abb219cd67" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "organization" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "name" character varying NOT NULL, "address" character varying NOT NULL, "zipCode" character varying NOT NULL, "city" character varying NOT NULL, "country" character varying NOT NULL, "blockchainAccountAddress" character varying, "blockchainAccountSignedMessage" character varying, "organizationType" character varying NOT NULL,"orgEmail" character varying NOT NULL, "tradeRegistryCompanyNumber" character varying NOT NULL, "vatNumber" character varying NOT NULL, "signatoryDocumentIds" text, "status" character varying NOT NULL DEFAULT 'Submitted', "documentIds" text,"secretKey" character varying(6), CONSTRAINT "UQ_bec683182179a2132591a2726b3" UNIQUE ("blockchainAccountAddress"), CONSTRAINT "PK_472c1f99a32def1b0abb219cd67" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "user" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "title" character varying NOT NULL, "firstName" character varying NOT NULL, "lastName" character varying NOT NULL, "telephone" character varying NOT NULL, "email" character varying NOT NULL, "password" character varying NOT NULL, "notifications" boolean, "status" character varying DEFAULT 'Pending', "role" character varying NOT NULL, "organizationId" integer, CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"), CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "user" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "title" character varying , "firstName" character varying, "lastName" character varying, "telephone" character varying , "email" character varying NOT NULL, "password" character varying , "notifications" boolean, "status" character varying DEFAULT 'Pending', "role" character varying NOT NULL, "organizationId" integer, "roleId" integer,CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"), CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`,
     );
+ 
     await queryRunner.query(
       `CREATE TABLE "email_confirmation" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "confirmed" boolean NOT NULL, "token" character varying NOT NULL, "expiryTimestamp" integer NOT NULL, "userId" integer, CONSTRAINT "REL_28d3d3fbd7503f3428b94fd18c" UNIQUE ("userId"), CONSTRAINT "PK_ff2b80a46c3992a0046b07c5456" PRIMARY KEY ("id"))`,
     );
@@ -39,6 +40,23 @@ export class SCHEMA1635443974235 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "email_confirmation" ADD CONSTRAINT "FK_28d3d3fbd7503f3428b94fd18cc" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+    );
+    // add new table Yieldconfig for all country is diffirent value
+    await queryRunner.query(
+      `CREATE TABLE "yieldconfig" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "countryName" character varying NOT NULL, "countryCode" character varying NOT NULL, "yieldValue" integer NOT NULL,"created_By" integer NOT NULL,"updated_By" integer,"status" character varying)`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "user_role" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "description" character varying , "status" boolean)`,
+    );
+
+    await queryRunner.query(
+      `CREATE TABLE "aclmodules" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),"updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),"id" SERIAL NOT NULL,"name" character varying NOT NULL,"description" character varying NOT NULL, "status" character varying NOT NULL,"permissions" character varying NOT NULL,"permissionValue" integer NOT NULL)`,
+    );
+    await queryRunner.query(
+      `CREATE TYPE "public"."aclmodulepermissions_entityType_enum" AS ENUM('Role', 'User')`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "aclmodulepermissions" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),"updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL,"aclmodulesId" integer,"entityId" integer,"entityType" "aclmodulepermissions_entityType_enum" NOT NULL,"permissions" character varying NOT NULL,"permissionValue" integer NOT NULL,"updatedBy" integer,"status" integer NOT NULL DEFAULT '0')`,
     );
   }
 
@@ -59,6 +77,7 @@ export class SCHEMA1635443974235 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "organization_invitation"`);
     await queryRunner.query(`DROP TABLE "device"`);
     await queryRunner.query(`DROP TABLE "device_group"`);
+    await queryRunner.query(`DROP TABLE "yieldconfig"`);
     await queryRunner.query(`DROP TYPE "device_group_capacityrange_enum"`);
     await queryRunner.query(`DROP TYPE "device_group_standardcompliance_enum"`);
   }
