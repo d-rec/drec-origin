@@ -34,15 +34,15 @@ export const useOrganizationRegisterHandler = ({
 
     const registerHandler = (values: OrgRegisterFormValues) => {
         const signatoryInformation = cleanDeep({
-            signatoryFullName: values.signatoryFullName,
-            signatoryAddress: values.signatoryAddress,
-            signatoryZipCode: values.signatoryZipCode,
-            signatoryCity: values.signatoryCity,
+            // signatoryFullName: values.signatoryFullName,
+            // signatoryAddress: values.signatoryAddress,
+            // signatoryZipCode: values.signatoryZipCode,
+            // signatoryCity: values.signatoryCity,
             signatoryCountry:
                 (values.signatoryCountry[0]?.value as string) ||
                 (values.country[0]?.value as string),
-            signatoryEmail: values.signatoryEmail,
-            signatoryPhoneNumber: values.signatoryPhoneNumber
+            // signatoryEmail: values.signatoryEmail,
+            // signatoryPhoneNumber: values.signatoryPhoneNumber
         });
         const formattedValues: NewOrganizationDTO = {
             name: values.name,
@@ -50,9 +50,9 @@ export const useOrganizationRegisterHandler = ({
             zipCode: values.zipCode,
             city: values.city,
             country: values.country[0].value as string,
-            businessType: values.businessType,
-            tradeRegistryCompanyNumber: values.tradeRegistryCompanyNumber,
-            vatNumber: values.vatNumber,
+            organizationType: values.organizationType,
+            // tradeRegistryCompanyNumber: values.tradeRegistryCompanyNumber,
+            // vatNumber: values.vatNumber,
             ...signatoryInformation
         };
         mutate(

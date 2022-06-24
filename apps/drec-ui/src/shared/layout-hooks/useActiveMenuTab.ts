@@ -7,7 +7,8 @@ enum ActiveMenuItem {
     Certificate = 3,
     Organization = 4,
     Admin = 5,
-    Account = 6
+    Account = 6,
+    YieldConfig = 7
 }
 
 const useGetActiveTabFromLocation = (): ActiveMenuItem => {
@@ -33,6 +34,9 @@ const useGetActiveTabFromLocation = (): ActiveMenuItem => {
                 return;
             case 'account':
                 setActiveTab(ActiveMenuItem.Account);
+                return;
+            case 'yieldvalue':
+                setActiveTab(ActiveMenuItem.YieldConfig);
         }
     }, [location]);
     return activeTab;
@@ -47,6 +51,7 @@ export const useActiveMenuTab = () => {
     const isOrganizationTabActive = activeTab === ActiveMenuItem.Organization;
     const isAdminTabAcive = activeTab === ActiveMenuItem.Admin;
     const isAccountTabActive = activeTab === ActiveMenuItem.Account;
+    const isyieldTabActive = activeTab === ActiveMenuItem.YieldConfig;
 
     return useMemo(
         () => ({
@@ -55,7 +60,8 @@ export const useActiveMenuTab = () => {
             isCertificateTabActive,
             isOrganizationTabActive,
             isAdminTabAcive,
-            isAccountTabActive
+            isAccountTabActive,
+            isyieldTabActive
         }),
         [activeTab]
     );
