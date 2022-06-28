@@ -33,7 +33,7 @@ import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
 import {Permission} from '../permission/decorators/permission.decorator';
 import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { PermissionGuard } from 'src/guards';
+import { PermissionGuard } from '../../guards';
 @ApiTags('TESTApi')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
