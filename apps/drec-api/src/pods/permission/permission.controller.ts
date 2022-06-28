@@ -37,7 +37,7 @@ import { ILoggedInUser } from '../../models';
 import {ACLModulePermissions} from './permission.entity'
 import {Permission} from './decorators/permission.decorator';
 import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator'
-import { PermissionGuard } from 'src/guards';
+import { PermissionGuard } from '../../guards';
 @ApiTags('permission')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
