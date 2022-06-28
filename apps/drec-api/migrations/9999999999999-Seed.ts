@@ -30,9 +30,9 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    await this.seedOrganizations(queryRunner, registry);
-    await this.seedUsers(queryRunner);
-    await this.seedDevices(queryRunner);
+    //await this.seedOrganizations(queryRunner, registry);
+    //await this.seedUsers(queryRunner);
+    //await this.seedDevices(queryRunner);
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
