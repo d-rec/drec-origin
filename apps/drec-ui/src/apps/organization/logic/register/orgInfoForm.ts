@@ -13,9 +13,9 @@ export const createOrgInfoForm: TCreateOrgInfoForm = () => ({
         zipCode: '',
         city: '',
         country: [],
-        businessType: '',
-        tradeRegistryCompanyNumber: '',
-        vatNumber: ''
+        organizationType: '',
+        // tradeRegistryCompanyNumber: '',
+        // vatNumber: ''
     },
     validationSchema: yup.object().shape({
         name: yup.string().required().label('Organization Name'),
@@ -23,9 +23,9 @@ export const createOrgInfoForm: TCreateOrgInfoForm = () => ({
         zipCode: yup.string().required().label('Zip code'),
         city: yup.string().required().label('City'),
         country: yup.array().required().label('Country'),
-        businessType: yup.string().required().label('Business Type'),
-        tradeRegistryCompanyNumber: yup.string().required().label('Trade Registry Company number'),
-        vatNumber: yup.string().required().label('VAT number')
+        organizationType: yup.string().required().label('Business Type'),
+        // tradeRegistryCompanyNumber: yup.string().required().label('Trade Registry Company number'),
+        // vatNumber: yup.string().required().label('VAT number')
     }),
     fields: [
         {
@@ -63,16 +63,16 @@ export const createOrgInfoForm: TCreateOrgInfoForm = () => ({
             options: BUSINESS_LEGAL_TYPE_OPTIONS,
             required: true
         },
-        {
-            name: 'tradeRegistryCompanyNumber',
-            label: 'Trade Registry Company number',
-            required: true
-        },
-        {
-            name: 'vatNumber',
-            label: 'VAT number',
-            required: true
-        }
+        // {
+        //     name: 'tradeRegistryCompanyNumber',
+        //     label: 'Trade Registry Company number',
+        //     required: true
+        // },
+        // {
+        //     name: 'vatNumber',
+        //     label: 'VAT number',
+        //     required: true
+        // }
     ],
     buttonText: 'Next Step'
 });

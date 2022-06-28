@@ -9,6 +9,7 @@ import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { OrganizationApp } from 'apps/organization';
 import { DeviceGroupApp } from 'apps/device-group/view/DeviceGroupApp';
+import {YieldConfigApp} from 'apps/yieldconfiguration/view/YieldConfigApp'
 
 import { RoutesConfig } from './AppContainer';
 
@@ -24,7 +25,7 @@ export interface AppProps {
 export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig, loading }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes } =
+        const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes ,yieldRoutes } =
             routesConfig;
         return (
             <>
@@ -84,6 +85,10 @@ export const App: FC<AppProps> = memo(
                             <Route
                                 path="admin/*"
                                 element={<AdminApp routesConfig={adminRoutes} />}
+                            />
+                             <Route
+                                path="yieldvalue/*"
+                                element={<YieldConfigApp routesConfig={yieldRoutes} />}
                             />
                             <Route
                                 path="auth/*"

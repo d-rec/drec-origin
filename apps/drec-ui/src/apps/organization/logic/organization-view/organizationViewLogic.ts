@@ -22,32 +22,32 @@ export const getOrganizationViewLogic: TOrganizationViewLogic = (organization) =
             },
             {
                 label: 'Business Type',
-                value: formatOrganizationBusinessType(organization.businessType)
+                value: formatOrganizationBusinessType(organization.organizationType)
             },
-            {
-                label: 'Trade Registry Company number',
-                value: organization.tradeRegistryCompanyNumber
-            },
-            {
-                label: 'VAT number',
-                value: organization.tradeRegistryCompanyNumber
-            },
-            {
-                label: 'Signatory Full Name',
-                value: organization.signatoryFullName
-            },
-            {
-                label: 'Signatory Address',
-                value: organization.signatoryAddress
-            },
-            {
-                label: 'Signatory Email',
-                value: organization.signatoryEmail
-            },
-            {
-                label: 'Signatory Phone',
-                value: organization.signatoryPhoneNumber
-            },
+            // {
+            //     label: 'Trade Registry Company number',
+            //     value: organization.tradeRegistryCompanyNumber
+            // },
+            // {
+            //     label: 'VAT number',
+            //     value: organization.tradeRegistryCompanyNumber
+            // },
+            // {
+            //     label: 'Signatory Full Name',
+            //     value: organization.signatoryFullName
+            // },
+            // {
+            //     label: 'Signatory Address',
+            //     value: organization.signatoryAddress
+            // },
+            // {
+            //     label: 'Signatory Email',
+            //     value: organization.signatoryEmail
+            // },
+            // {
+            //     label: 'Signatory Phone',
+            //     value: organization.signatoryPhoneNumber
+            // },
             {
                 label: 'Status',
                 value: organization.status
