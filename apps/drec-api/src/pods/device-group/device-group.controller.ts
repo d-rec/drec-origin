@@ -264,11 +264,11 @@ export class DeviceGroupController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() fileToProcess: CSVBulkUploadDTO,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    const response = await this.fileService.get(fileToProcess.fileName, user);
+    let response = await this.fileService.get(fileToProcess.fileName, user);
     if (response == undefined) {
       throw new Error('file not found');
     }
-    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
+    let jobCreated = await this.deviceGroupService.createCSVJobForFile(
       user.id,
       organizationId,
       StatusCSV.Added,

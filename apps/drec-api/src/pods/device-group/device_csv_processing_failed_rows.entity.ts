@@ -25,5 +25,5 @@ export class DeviceCsvProcessingFailedRowsEntity extends ExtendedBaseEntity {
 
   //@Column("json", { array: true })
   @Column('json')
-  errorDetails: Array<any>;
+  errorDetails: any;
 }

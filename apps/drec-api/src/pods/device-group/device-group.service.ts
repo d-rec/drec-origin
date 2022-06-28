@@ -193,7 +193,10 @@ export class DeviceGroupService {
     jobId: number,
     errorDetails: Array<any>,
   ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
-    return await this.repositoryJobFailedRows.save({ jobId, errorDetails });
+    return await this.repositoryJobFailedRows.save({
+      jobId,
+      errorDetails: { log: errorDetails },
+    });
   }
 
   async getFailedRowDetailsForCSVJob(
@@ -793,9 +796,10 @@ export class DeviceGroupService {
               dataToStore[key] = [];
             } else {
               //@ts-ignore
-              dataToStore[key] = data[key]
-                .split('|')
-                .map((ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)));
+              dataToStore[key] = data[key].split('|').map(
+                //@ts-ignore
+                (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
+              );
               //@ts-ignore
               dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
             }
