@@ -77,7 +77,8 @@ export class PermissionController {
         type: PermissionDTO,
         description: 'Get my user profile',
     })
-    user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
+    //user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
+    user( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[] | null> {
         return this.PermissionService.FindbyUser(id);
     }
 

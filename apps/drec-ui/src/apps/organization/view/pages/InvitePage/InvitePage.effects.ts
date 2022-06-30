@@ -10,11 +10,13 @@ export const useInvitePageEffects = () => {
 
     const pageLoading = apiLoading;
 
+
     const formData: GenericFormProps<InviteFormValues> = {
         fields,
         initialValues,
         validationSchema,
         buttonText,
+        //@ts-ignore
         submitHandler
     };
 

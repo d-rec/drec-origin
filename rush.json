@@ -363,15 +363,15 @@
         {
             "packageName": "@energyweb/origin-drec-api",
             "projectFolder": "apps/drec-api"
-        }
-        // {
-        //     "packageName": "@energyweb/origin-drec-api-client",
-        //     "projectFolder": "apps/drec-api-client"
-        // },
-        // {
-        //     "packageName": "@energyweb/origin-drec-ui",
-        //     "projectFolder": "apps/drec-ui"
-        // }
+        },
+         {
+             "packageName": "@energyweb/origin-drec-api-client",
+             "projectFolder": "apps/drec-api-client"
+         },
+         {
+             "packageName": "@energyweb/origin-drec-ui",
+             "projectFolder": "apps/drec-ui"
+         }
         // {
         //   /**
         //    * The NPM package name of the project (must match package.json)
