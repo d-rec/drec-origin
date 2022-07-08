@@ -11,11 +11,12 @@ import {
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
-import { IFullOrganization, IDevice, IUserSeed } from '../src/models';
+import { IFullOrganization, IDevice, IUserSeed,IRoleConfig } from '../src/models';
 
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
 import DevicesJSON from './devices.json';
+import RoleJSON from './user_role.json';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
@@ -30,9 +31,10 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    //await this.seedOrganizations(queryRunner, registry);
-    //await this.seedUsers(queryRunner);
-    //await this.seedDevices(queryRunner);
+    await this.seedOrganizations(queryRunner, registry);
+    await this.seedUsers(queryRunner);
+    await this.seedDevices(queryRunner);
+    await this.seedUsersRole(queryRunner);
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -248,6 +250,32 @@ export class Seed9999999999999 implements MigrationInterface {
     return contractsLookup;
   }
 
+  private async seedUsersRole(queryRunner: QueryRunner) {
+    const userTable = await queryRunner.getTable('public.user_role');
+
+    if (!userTable) {
+      console.log('user table does not exist.');
+      return;
+    }
+
+    await Promise.all(
+      (RoleJSON as unknown as IRoleConfig[]).map(async (role) => {
+        queryRunner.query(
+          `INSERT INTO public.user_role (
+            "id", 
+            "name", 
+            "description", 
+            "status" 
+            ) VALUES (
+              '${role.id}', 
+              '${role.name}', 
+              '${role.description}', 
+              '${role.status}'
+            )`,
+        );
+      }),
+    );
+  }
   private async deployContracts(
     deployer: Wallet,
     provider: providers.FallbackProvider,
