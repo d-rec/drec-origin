@@ -31,9 +31,9 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    await this.seedOrganizations(queryRunner, registry);
-    await this.seedUsers(queryRunner);
-    await this.seedDevices(queryRunner);
+    // await this.seedOrganizations(queryRunner, registry);
+    // await this.seedUsers(queryRunner);
+    // await this.seedDevices(queryRunner);
     await this.seedUsersRole(queryRunner);
     await queryRunner.query(
       `SELECT setval(
@@ -173,6 +173,7 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
 
+  /*
   private async seedDevices(queryRunner: QueryRunner) {
     const devicesTable = await queryRunner.getTable('public.device');
 
@@ -227,6 +228,7 @@ export class Seed9999999999999 implements MigrationInterface {
       ),
     );
   }
+  */
 
   private async seedBlockchain(
     queryRunner: QueryRunner,
