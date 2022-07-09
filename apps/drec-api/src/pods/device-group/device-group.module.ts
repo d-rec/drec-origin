@@ -8,6 +8,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { FileModule } from '../file';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
+import { YieldConfigModule } from '../yield-config/yieldconfig.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.
     ]),
     forwardRef(() => DeviceModule),
     OrganizationModule,
-    FileModule,
+    YieldConfigModule,
+    FileModule
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],

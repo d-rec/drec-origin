@@ -40,9 +40,9 @@ export class NewDeviceGroupDTO
   @IsString()
   fuelCode: string;
 
-  @ApiProperty()
-  @IsEnum(StandardCompliance)
-  standardCompliance: StandardCompliance;
+  // @ApiProperty()
+  // @IsEnum(StandardCompliance)
+  // standardCompliance: StandardCompliance;
 
   @ApiProperty({ type: [String] })
   @IsArray()
@@ -57,23 +57,23 @@ export class NewDeviceGroupDTO
   @IsNotEmpty()
   offTakers: OffTaker[];
 
-  @ApiProperty({
-    description: 'List of installations',
-    isArray: true,
-    enum: Installation,
-  })
-  @IsEnum(Installation, { each: true })
-  @IsNotEmpty()
-  installationConfigurations: Installation[];
+  // @ApiProperty({
+  //   description: 'List of installations',
+  //   isArray: true,
+  //   enum: Installation,
+  // })
+  // @IsEnum(Installation, { each: true })
+  // @IsNotEmpty()
+  // installationConfigurations: Installation[];
 
-  @ApiProperty({
-    description: 'List of sectors',
-    isArray: true,
-    enum: Sector,
-  })
-  @IsEnum(Sector, { each: true })
-  @IsNotEmpty()
-  sectors: Sector[];
+  // @ApiProperty({
+  //   description: 'List of sectors',
+  //   isArray: true,
+  //   enum: Sector,
+  // })
+  // @IsEnum(Sector, { each: true })
+  // @IsNotEmpty()
+  // sectors: Sector[];
 
   @ApiProperty()
   @IsBoolean()

@@ -201,6 +201,7 @@ export class DeviceService {
               const deviceKey: DeviceKey = DeviceSortPropertyMapper[
                 order
               ] as DeviceKey;
+              //@ts-ignore
               return item[deviceKey];
             }
           }),
@@ -246,6 +247,7 @@ export class DeviceService {
       if (deviceKey === 'deviceTypeCode') {
         return getDeviceTypeFromCode(devices[0][deviceKey]);
       }
+      //@ts-ignore
       return devices[0][deviceKey];
     })}`;
     return name;
@@ -255,13 +257,13 @@ export class DeviceService {
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
-      installationConfiguration: filter.installationConfiguration,
+      //installationConfiguration: filter.installationConfiguration,
       capacity: filter.capacity,
       gridInterconnection: filter.gridInterconnection,
       offTaker: filter.offTaker,
-      sector: filter.sector,
+      //sector: filter.sector,
       labels: filter.labels,
-      standardCompliance: filter.standardCompliance,
+      //standardCompliance: filter.standardCompliance,
       countryCode: filter.country && getCodeFromCountry(filter.country),
       commissioningDate:
         filter.start_date &&

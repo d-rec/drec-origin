@@ -16,13 +16,13 @@ export class FilterDTO {
   @ApiPropertyOptional({ type: String, description: 'Device Type Code' })
   deviceTypeCode: string;
 
-  @IsOptional()
-  @ApiPropertyOptional({
-    type: Installation,
-    description: 'Installation configuration',
-    enum: Installation,
-  })
-  installationConfiguration: Installation;
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: Installation,
+  //   description: 'Installation configuration',
+  //   enum: Installation,
+  // })
+  // installationConfiguration: Installation;
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -51,27 +51,30 @@ export class FilterDTO {
   })
   offTaker: OffTaker;
 
-  @IsOptional()
-  @ApiPropertyOptional({
-    type: Sector,
-    description: 'Off-takers sectors',
-    enum: Sector,
-  })
-  sector: Sector;
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: Sector,
+  //   description: 'Off-takers sectors',
+  //   enum: Sector,
+  // })
+  // sector: Sector;
 
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Labels' })
   labels: string;
 
-  @IsOptional()
-  @ApiPropertyOptional({
-    type: StandardCompliance,
-    description: 'Standard Compliance',
-    enum: StandardCompliance,
-  })
-  standardCompliance: StandardCompliance;
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: StandardCompliance,
+  //   description: 'Standard Compliance',
+  //   enum: StandardCompliance,
+  // })
+  // standardCompliance: StandardCompliance;
 
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Country' })
   country: string;
+
+  @IsOptional()
+  SDGBenefits?: number| undefined;
 }

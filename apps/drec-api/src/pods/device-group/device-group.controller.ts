@@ -35,6 +35,7 @@ import {
   Max,
 } from 'class-validator';
 
+
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
@@ -45,15 +46,10 @@ import {
   UpdateDeviceGroupDTO,
   ReserveGroupsDTO,
   CSVBulkUploadDTO,
+  JobFailedRowsDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import {
-  Installation,
-  OffTaker,
-  Role,
-  Sector,
-  StandardCompliance,
-} from '../../utils/enums';
+import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceDescription, ILoggedInUser } from '../../models';
@@ -64,11 +60,12 @@ import { parse } from 'csv-parse';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 
+
+
 import csv from 'csv-parser';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from './device_csv_processing_jobs.entity';
+
+
 
 @ApiTags('device-group')
 @ApiBearerAuth('access-token')
@@ -78,12 +75,9 @@ export class DeviceGroupController {
   csvParser = csv({ separator: ',' });
 
   parser = parse({
-    delimiter: ',',
+    delimiter: ','
   });
-  constructor(
-    private readonly deviceGroupService: DeviceGroupService,
-    private readonly fileService: FileService,
-  ) {}
+  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService:FileService) {}
 
   @Get()
   @ApiOkResponse({
@@ -250,33 +244,26 @@ export class DeviceGroupController {
     );
   }
 
-  @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created devices from csv',
-  })
-  @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() fileToProcess: CSVBulkUploadDTO,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    let response = await this.fileService.get(fileToProcess.fileName, user);
-    if (response == undefined) {
-      throw new Error('file not found');
-    }
-    let jobCreated = await this.deviceGroupService.createCSVJobForFile(
-      user.id,
-      organizationId,
-      StatusCSV.Added,
-      response instanceof File ? response.id : '',
-    );
+    @Post('process-creation-bulk-devices-csv')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+    @ApiResponse({
+      status: HttpStatus.OK,
+      type: [DeviceCsvFileProcessingJobsEntity],
+      description: 'Returns created devices from csv',
+    })
+    @ApiBody({ type: CSVBulkUploadDTO})
+    public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser,@UserDecorator() { organizationId }: ILoggedInUser,  @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+      let response =  await this.fileService.get(fileToProcess.fileName,user);
+      if(response == undefined)
+      {
+        throw new Error("file not found");
 
-    return jobCreated;
-  }
+      }
+      let jobCreated=await this.deviceGroupService.createCSVJobForFile(user.id,organizationId,StatusCSV.Added,response instanceof File? response.id:'');
+      
+      return jobCreated;
+    }
 
   @Post('/add/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -352,5 +339,21 @@ export class DeviceGroupController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     return await this.deviceGroupService.remove(id, organizationId);
+  }
+
+  @Get('/bulk-upload-status/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: JobFailedRowsDTO,
+    description: 'Returns status of job id for bulk upload',
+  })
+  public async getBulkUploadJobStatus(
+    @Param('id') jobId: number,
+    @UserDecorator() { organizationId }: ILoggedInUser
+  ): Promise<JobFailedRowsDTO | undefined> {
+    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
   }
 }

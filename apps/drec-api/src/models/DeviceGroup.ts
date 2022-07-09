@@ -15,12 +15,12 @@ export interface IDeviceGroup {
   organizationId: number;
   fuelCode: string;
   countryCode: string;
-  standardCompliance: StandardCompliance;
+  //standardCompliance: StandardCompliance;
 
   deviceTypeCodes: string[];
   offTakers: OffTaker[];
-  installationConfigurations: Installation[];
-  sectors: Sector[];
+  //installationConfigurations: Installation[];
+  //sectors: Sector[];
   gridInterconnection: boolean; // True - all devices have gridInterconnection true, if one has false, then this value is false
   aggregatedCapacity: number; // total capacity of all devices beloning to this group
 

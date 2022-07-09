@@ -31,7 +31,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   externalId: string;
 
-  @Column({ nullable: false, default: DeviceStatus.Active })
+  @Column({ nullable: true, default: DeviceStatus.Active })
   @IsNotEmpty()
   @IsEnum(DeviceStatus)
   status: DeviceStatus;
@@ -39,7 +39,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column()
   organizationId: number;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   projectName: string;
 
@@ -47,64 +47,68 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   latitude: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   longitude: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   countryCode: string;
 
-  @Column({ nullable: true })
-  @IsString()
-  zipCode: string;
+  // @Column({ nullable: true })
+  // @IsString()
+  // zipCode: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   fuelCode: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   deviceTypeCode: string;
 
-  @Column()
-  @IsEnum(Installation)
-  installationConfiguration: Installation;
+  // @Column()
+  // @IsEnum(Installation)
+  // installationConfiguration: Installation;
 
-  @Column()
+  @Column({ nullable: true })
   @IsNumber()
   capacity: number;
 
-  @Column()
+  @Column({ nullable: true })
+  @IsNumber()
+  SDGBenefits: number;
+
+  @Column({ nullable: true })
   @IsString()
   commissioningDate: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsBoolean()
   gridInterconnection: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   @IsEnum(OffTaker)
   offTaker: OffTaker;
 
-  @Column()
-  @IsEnum(Sector)
-  sector: Sector;
+  // @Column()
+  // @IsEnum(Sector)
+  // sector: Sector;
 
-  @Column()
-  @IsEnum(StandardCompliance)
-  standardCompliance: StandardCompliance;
+  // @Column()
+  // @IsEnum(StandardCompliance)
+  // standardCompliance: StandardCompliance;
 
   @Column({ default: 1500 })
   @IsNumber()
   yieldValue: number;
 
-  @Column('int', { nullable: true, array: true })
-  generatorsIds: number[];
+  // @Column('int', { nullable: true, array: true })
+  // generatorsIds: number[];
 
   @Column({ nullable: true })
   @IsString()

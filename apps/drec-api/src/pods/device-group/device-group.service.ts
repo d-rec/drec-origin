@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
+  Inject
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -17,6 +18,7 @@ import {
   AddGroupDTO,
   DeviceGroupDTO,
   DeviceIdsDTO,
+  JobFailedRowsDTO,
   NewDeviceGroupDTO,
   ReserveGroupsDTO,
   SelectableDeviceGroupDTO,
@@ -66,6 +68,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 @Injectable()
 export class DeviceGroupService {
@@ -79,9 +82,13 @@ export class DeviceGroupService {
     private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
-    private deviceService: DeviceService,
     private organizationService: OrganizationService,
+    //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
+    private deviceService: DeviceService,
     private readonly fileService: FileService,
+    private yieldConfigService:YieldConfigService
+
+    
   ) {}
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -98,11 +105,9 @@ export class DeviceGroupService {
         group.organization = {
           name: organization.name,
         };
-        console.log(group);
         return group;
       }),
     );
-    console.log(groupsWithOrganization);
     return groupsWithOrganization;
   }
 
@@ -201,7 +206,7 @@ export class DeviceGroupService {
 
   async getFailedRowDetailsForCSVJob(
     jobId: number,
-  ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
+  ): Promise<JobFailedRowsDTO | undefined> {
     return await this.repositoryJobFailedRows.findOne({
       id: jobId,
     });
@@ -430,7 +435,6 @@ export class DeviceGroupService {
         try {
           return await this.deviceService.register(orgCode, device);
         } catch (e) {
-          console.log(e);
           return { isError: true, device: device, errorDetail: e };
         }
       }),
@@ -457,8 +461,8 @@ export class DeviceGroupService {
           item['organizationId'],
           item['countryCode'],
           item['fuelCode'],
-          item['standardCompliance'],
-          item['installationConfiguration'],
+         // item['standardCompliance'],
+          //item['installationConfiguration'],
           item['offTaker'],
         ];
       },
@@ -524,8 +528,7 @@ export class DeviceGroupService {
       !initialDevice ||
       !deviceToCompare ||
       initialDevice.countryCode !== deviceToCompare.countryCode ||
-      initialDevice.fuelCode !== deviceToCompare.fuelCode ||
-      initialDevice.standardCompliance !== deviceToCompare.standardCompliance
+      initialDevice.fuelCode !== deviceToCompare.fuelCode
     ) {
       return false;
     }
@@ -566,9 +569,9 @@ export class DeviceGroupService {
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
-    const sectors = Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.sector)),
-    );
+    // const sectors = Array.from(
+    //   new Set(devices.map((device: DeviceDTO) => device.sector)),
+    // );
 
     const labels: string[] = [];
     devices.map((device: DeviceDTO) => {
@@ -589,17 +592,20 @@ export class DeviceGroupService {
         groupName ||
         `${integratorName}${devices[0].countryCode},${getFuelNameFromCode(
           devices[0].fuelCode,
+        )},${devices[0].offTaker}`
+/*        `${integratorName}${devices[0].countryCode},${getFuelNameFromCode(
+          devices[0].fuelCode,
         )},${devices[0].standardCompliance},${devices[0].offTaker},${
           devices[0].installationConfiguration
-        }`,
+        }`*/,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,
-      standardCompliance: devices[0].standardCompliance,
+      //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
       offTakers: [devices[0].offTaker],
-      installationConfigurations: [devices[0].installationConfiguration],
-      sectors,
+      //installationConfigurations: [devices[0].installationConfiguration],
+      //sectors,
       gridInterconnection,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
@@ -618,18 +624,18 @@ export class DeviceGroupService {
     const where: FindConditions<DeviceGroup> = cleanDeep({
       countryCode: filter.country,
       fuelCode: filter.fuelCode,
-      standardCompliance: filter.standardCompliance,
+      //standardCompliance: filter.standardCompliance,
       gridInterconnection: filter.gridInterconnection,
       capacityRange: filter.capacityRange,
     });
-    if (filter.sector) {
-      where.sectors = this.getRawFilter(filter.sector);
-    }
-    if (filter.installationConfiguration) {
-      where.installationConfigurations = this.getRawFilter(
-        filter.installationConfiguration,
-      );
-    }
+    // if (filter.sector) {
+    //   where.sectors = this.getRawFilter(filter.sector);
+    // }
+    // if (filter.installationConfiguration) {
+    //   where.installationConfigurations = this.getRawFilter(
+    //     filter.installationConfiguration,
+    //   );
+    //}
     if (filter.offTaker) {
       where.offTakers = this.getRawFilter(filter.offTaker);
     }
@@ -675,19 +681,16 @@ export class DeviceGroupService {
     jobId: number,
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    console.log('jobid', jobId, 'status', status);
     //@ts-ignore
     return await this.repositoyCSVJobProcessing.update(jobId, {
       status: status,
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS) // Every day at 23:30 - Server Time
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async getAddedCSVProcessingJobsAndStartProcessing() {
-    console.log('files cron job every 30 seconds check for files added ');
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
-    console.log(filesAddedForProcessing);
     if (filesAddedForProcessing === undefined) {
       return;
     }
@@ -704,7 +707,6 @@ export class DeviceGroupService {
       data,
     );
     if (response == undefined) {
-      console.log('file not found');
       return;
     } else {
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
@@ -721,23 +723,15 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    console.log('other library');
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ isError: boolean; errorsList: Array<any> }> =
       [];
-    // setTimeout(()=>{
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
     const readableStream = new Readable();
     readableStream._read = () => {}; // _read is required but you can noop it
-
     readableStream
       .pipe(this.csvParser)
-      .on('data', (data) => {
-        console.log('receiving data');
-        console.log(data);
-
-        //data.generatorsIds =[];
-        //data.deviceDescription ='Solar Lantern';
+      .on('data', async (data) => {
         data.images = [];
         data.groupId = null;
         const dataToStore = new NewDeviceDTO();
@@ -749,18 +743,13 @@ export class DeviceGroupService {
           latitude: '',
           longitude: '',
           countryCode: '',
-          zipCode: '',
           fuelCode: '',
           deviceTypeCode: '',
-          installationConfiguration: Installation.StandAlone,
           capacity: 0,
           commissioningDate: '',
           gridInterconnection: false,
           offTaker: OffTaker.Commercial,
-          sector: Sector.Agriculture,
-          standardCompliance: StandardCompliance.REC,
           yieldValue: 0,
-          generatorsIds: [],
           labels: '',
           impactStory: '',
           data: '',
@@ -769,7 +758,8 @@ export class DeviceGroupService {
           energyStorage: true,
           energyStorageCapacity: 0,
           qualityLabels: '',
-          groupId: 0,
+          SDGBenefits:0,
+          //groupId: 0,
         };
         for (const key in dataKeyForValidation) {
           //@ts-ignore
@@ -788,72 +778,61 @@ export class DeviceGroupService {
             //@ts-ignore
             dataToStore[key] =
               parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
+              //@ts-ignore
+           if(key == 'yieldValue' && dataToStore[key]===0)
+           {
+            dataToStore[key]=1500;
+           }
           }
-          //@ts-ignore
-          else if (key === 'generatorsIds') {
-            if (data[key] === '') {
+          if(key == 'yieldValue' && data.countryCode)
+          {
+            let yieldByCountryCode=await this.yieldConfigService.findByCountryCode(data.countryCode);
+            if(yieldByCountryCode)
+            {
               //@ts-ignore
-              dataToStore[key] = [];
-            } else {
-              //@ts-ignore
-              dataToStore[key] = data[key].split('|').map(
-                //@ts-ignore
-                (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
-              );
-              //@ts-ignore
-              dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
+              dataToStore.yieldValue=yieldByCountryCode.yieldValue;
             }
           }
+          // //@ts-ignore
+          // else if (key === 'generatorsIds') {
+          //   if (data[key] === '') {
+          //     //@ts-ignore
+          //     dataToStore[key] = [];
+          //   } else {
+          //     //@ts-ignore
+          //     dataToStore[key] = data[key].split('|').map(
+          //       //@ts-ignore
+          //       (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
+          //     );
+          //     //@ts-ignore
+          //     dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
+          //   }
+          // }
         }
-
-        // validate(dataToStore).then((errors:any) => {
-        //   // errors is an array of validation errors
-        //   if (errors.length > 0) {
-        //     console.log('validation failed. errors: ', errors);
-        //   } else {
-        //     console.log('validation succeed');
-        //   }
-        // });
-
-        console.log('data tranasformed data');
-        console.log(dataToStore);
+        for(let key in dataToStore)
+        {
+          //@ts-ignore
+          dataToStore[key] === ''?dataToStore[key]=null:'';
+        }
 
         records.push(dataToStore);
         recordsErrors.push({ isError: false, errorsList: [] });
       })
       .on('end', async () => {
-        console.log('************************************');
-        console.log('records', JSON.stringify(records));
         records.forEach(async (singleRecord, index) => {
-          // validate(singleRecord).then((errors:any) => {
-          //   // errors is an array of validation errors
-          //   if (errors.length > 0) {
-          //     recordsErrors.push({ isError:true,errorsList: errors});
-          //     console.log('validation failed. errors: ', errors);
-          //   } else {
-          //     recordsErrors.push({ isError:false,errorsList:errors});
-          //     console.log('validation succeed');
-          //   }
-          // });
           const errors = await validate(singleRecord);
           // errors is an array of validation errors
           if (errors.length > 0) {
             recordsErrors[index] = { isError: true, errorsList: errors };
-            console.log('validation failed. errors: ', errors);
           } else {
             recordsErrors[index] = { isError: false, errorsList: errors };
-            console.log('validation succeed');
           }
         });
 
         const noErrorRecords = records.filter(
           (record, index) => recordsErrors[index].isError === false,
         );
-
-        //if(noErrorRecords.length > 0)
-        //{
         const listofExistingDevices = await this.checkIfDeviceExisting(records);
-        console.log('listofExistingDevices', listofExistingDevices);
         if (listofExistingDevices.length > 0) {
           records.forEach((singleRecord, index) => {
             listofExistingDevices.find(
@@ -870,16 +849,7 @@ export class DeviceGroupService {
           organizationId,
           records,
         );
-        records.forEach((ele, index) => {
-          //@ts-ignore
-          if (devicesRegistered[index].isError) {
-            //@ts-ignore
-            //recordsErrors[index].errorsList.push(devicesRegistered[index].errorDetail);
-            //@ts-ignore
-            // recordsErrors[index].errorsList.push("Database error occured");
-            // recordsErrors[index].isError=true;
-          }
-        });
+       
         if (recordsErrors.find((ele) => ele.isError === true)) {
           this.createFailedRowDetailsForCSVJob(
             filesAddedForProcessing.jobId,
@@ -891,12 +861,8 @@ export class DeviceGroupService {
           filesAddedForProcessing.jobId,
           StatusCSV.Completed,
         );
-        //}
-        console.log('************************************');
-      });
 
-    //readableStream.push(file?.data.toString());
-    console.log('came sdsdsdsdsdsdsdsdsd here', file?.data.toString());
+      });
     readableStream.emit('data', file?.data.toString());
     readableStream.emit('end');
 
