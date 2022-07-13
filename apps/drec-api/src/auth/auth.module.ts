@@ -18,12 +18,16 @@ import { LocalStrategy } from './local.strategy';
     PermissionModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
-        },
-      }),
+      useFactory: async (configService: ConfigService) =>{
+        console.log("**secret: configService.get<string>('JWT_SECRET')", configService.get<string>('JWT_SECRET'));
+        console.log("**secret: configService.get<string>('JWT_EXPIRY_TIME')", configService.get<string>('JWT_EXPIRY_TIME'));
+        return ({
+          secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
+          },
+        })
+      } ,
       inject: [ConfigService],
     }),
   ],
