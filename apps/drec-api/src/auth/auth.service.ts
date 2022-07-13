@@ -38,6 +38,7 @@ export class AuthService {
       email: user.email.toLowerCase(),
       id: user.id,
     };
+    console.log("payload",payload);
 console.log(this.jwtService.sign(payload))
     return {
       accessToken: this.jwtService.sign(payload),
