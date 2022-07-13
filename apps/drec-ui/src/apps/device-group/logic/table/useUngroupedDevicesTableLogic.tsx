@@ -14,12 +14,12 @@ const prepareUngroupedDevicesData = (
     projectName: device.projectName,
     country: Countries.find((country) => country.code === device.countryCode)?.name,
     fuelCode: getFuelNameFromCode(device.fuelCode, allFuelTypes),
-    installation: device.installationConfiguration,
+    //installation: device.installationConfiguration,
     capacity: device.capacityRange,
     age: device.commissioningDateRange,
     offTaker: device.offTaker,
-    sector: device.sector,
-    standardCompliance: device.standardCompliance,
+    //sector: device.sector,
+    //standardCompliance: device.standardCompliance,
     actions: actions,
     checked: (
         <Checkbox
