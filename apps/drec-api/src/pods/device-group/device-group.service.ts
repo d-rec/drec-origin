@@ -417,7 +417,7 @@ export class DeviceGroupService {
       await this.deviceService.findMultipleDevicesBasedExternalId(
         allExternalIds,
       );
-      console.log("existingDevices",existingDevices);
+      //console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
       //@ts-ignore
       existingDevices.forEach((ele) => existingDeviceIds.push(ele?.externalId));
@@ -714,7 +714,7 @@ export class DeviceGroupService {
     if (response == undefined) {
       return;
     } else {
-      console.log("started job processing",filesAddedForProcessing.jobId);
+      //console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -730,7 +730,7 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    console.log("into method");
+    //console.log("into method");
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
       [];
@@ -825,19 +825,19 @@ export class DeviceGroupService {
           dataToStore[key] === ''?dataToStore[key]=null:'';
         }
 
-        console.log("records",JSON.stringify(records));
+        //console.log("records",JSON.stringify(records));
 
         records.push(dataToStore);
         recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
       })
       .on('end', async () => {
-        console.log("data end transmissiodsdddddddddddn",records);
+        //console.log("data end transmissiodsdddddddddddn",records);
         for(let index=0;index<records.length;index++)
         {
           let singleRecord = records[index];
-          console.log("waiting");
+          //console.log("waiting");
           const errors = await validate(singleRecord);
-          console.log("validation errors",errors);
+          //console.log("validation errors",errors);
           // errors is an array of validation errors
           if (errors.length > 0) {
             recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
@@ -861,14 +861,14 @@ export class DeviceGroupService {
             });
           });
         }
-        console.log("listofExistingDevices",listofExistingDevices);
+        //console.log("listofExistingDevices",listofExistingDevices);
         let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
         //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           records,
         );
-        console.log("devicesRegistered",devicesRegistered); 
+        //console.log("devicesRegistered",devicesRegistered); 
         //@ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           if(ele instanceof DeviceDTO)
@@ -876,10 +876,10 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
           }
         })
-        console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+        //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
        
         if (recordsErrors.find((ele) => ele.isError === true)) {
-          console.log("insie if ");
+          //console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
             filesAddedForProcessing.jobId,
             recordsErrors,
@@ -887,7 +887,7 @@ export class DeviceGroupService {
           );
         }
 
-        console.log("osdksnd if ");
+        //console.log("osdksnd if ");
 
         this.updateJobStatus(
           filesAddedForProcessing.jobId,
@@ -895,17 +895,17 @@ export class DeviceGroupService {
         );
 
       });
-    console.log("file?.data.toString()",file?.data.toString());
+    //console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
     
     csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
-      console.log("csvLine",csvLine);
+      //console.log("csvLine",csvLine);
     // csvLine =>  "1,2,3" and "4,5,6"
     })
 
     readableStream.emit('data', file?.data.toString());
     setTimeout(()=>{
-      console.log("data ending emission");
+      //console.log("data ending emission");
       readableStream.emit('end');
     },60000);
     
@@ -919,7 +919,7 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    console.log("into method");
+    //console.log("into method");
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
       [];
@@ -936,11 +936,11 @@ export class DeviceGroupService {
         
 
       });
-    console.log("file?.data.toString()",file?.data.toString());
+    //console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
     
     csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data:any,lineNumber:any)=>{ 
-      console.log("csvLine",data,"sdsds",lineNumber);
+      //console.log("csvLine",data,"sdsds",lineNumber);
       rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
@@ -1010,22 +1010,22 @@ export class DeviceGroupService {
           dataToStore[key] === ''?dataToStore[key]=null:'';
         }
 
-        console.log("records",JSON.stringify(records));
+        //console.log("records",JSON.stringify(records));
 
         records.push(dataToStore);
         recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
 
     // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done',async (error:any)=>{
-      console.log("completed");
-      console.log("error",error);
-      console.log("data end transmissiodsdddddddddddn",records);
+      //console.log("completed");
+      //console.log("error",error);
+      //console.log("data end transmissiodsdddddddddddn",records);
         for(let index=0;index<records.length;index++)
         {
           let singleRecord = records[index];
-          console.log("waiting");
+          //console.log("waiting");
           const errors = await validate(singleRecord);
-          console.log("validation errors",errors);
+          //console.log("validation errors",errors);
           // errors is an array of validation errors
           if (errors.length > 0) {
             recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
@@ -1051,23 +1051,23 @@ export class DeviceGroupService {
             }
           });
         }
-        console.log("listofExistingDevices",listofExistingDevices);
+        //console.log("listofExistingDevices",listofExistingDevices);
         let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
         //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           records,
         );
-        console.log("devicesRegistered",devicesRegistered); 
+        //console.log("devicesRegistered",devicesRegistered); 
         //@ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           //@ts-ignore
             successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
         })
-        console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+        //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
        
         if (recordsErrors.find((ele) => ele.isError === true)) {
-          console.log("insie if ");
+          //console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
             filesAddedForProcessing.jobId,
             recordsErrors,
@@ -1075,7 +1075,7 @@ export class DeviceGroupService {
           );
         }
 
-        console.log("osdksnd if ");
+        //console.log("osdksnd if ");
 
         this.updateJobStatus(
           filesAddedForProcessing.jobId,
@@ -1164,6 +1164,6 @@ for (let i = 1; i < array.length - 1; i++) {
   result.push(obj)
 }
  
-  console.log(result);
+  //console.log(result);
   }
 }
