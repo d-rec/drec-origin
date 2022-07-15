@@ -11,9 +11,9 @@ export type TUserSignInFormValues = {
   
     email: string;
     password: string;
-    Cinfirmpassword:string;
-    orgtype:string,
-    orgname:string,
+    confirmPassword:string;
+    organizationType:string,
+    orgName:string,
     secretKey:string
 };
 
@@ -23,9 +23,9 @@ const INITIAL_FORM_VALUES: TUserSignInFormValues = {
     lastName: '',  
     email: '',
     password: '',
-    Cinfirmpassword:'',
-    orgtype:'',
-    orgname:'',
+    confirmPassword:'',
+    organizationType:'',
+    orgName:'',
     secretKey:'',
 };
 
@@ -39,6 +39,7 @@ export const useRegisterPageEffects = () => {
         });
 
     const { submitHandler } = useApiRegisterUser(openUserRegisteredModal);
+    //@ts-ignore
     const formConfig = useUserSignInFormConfig(submitHandler);
 
     return { formConfig };
@@ -75,13 +76,13 @@ export const useUserSignInFormConfig = (
             },
             {
                 type: 'password',
-                label: 'Cinfirm Password',
-                name: 'Cinfirmpassword',
+                label: 'Confirm Password',
+                name: 'confirmPassword',
                 required: true
             },
             {
                 label: 'Organization Type',
-                name: 'orgtype',
+                name: 'organizationType',
                 select: true,
                 options: ORGTYPE_OPTIONS,
                 additionalInputProps: {
@@ -93,14 +94,12 @@ export const useUserSignInFormConfig = (
             },
             {
                 label: 'Organization Name',
-                name: 'orgname',
-               
+                name: 'orgName',      
             },
             {
-                // type: 'password',
                 label: 'Secret Key',
                 name: 'secretKey',
-               
+
             },
 
         ],
@@ -115,17 +114,17 @@ export const useUserSignInFormConfig = (
             lastName: Yup.string().label('Last Name').required(),
             email: Yup.string().email().label('Email').required(),
             password: Yup.string().min(6).label('Password').required(),
-            Cinfirmpassword: Yup.string()
+            confirmPassword: Yup.string()
             .oneOf(
                 [Yup.ref('password'), null],
                 `Confirmed password doesn't match with new password`
             )
             .label('Confirm Password')
             .required(),
-            orgtype: Yup.string().label('Organization Type'),
-            orgname: Yup.string().label('Organization Name'),
+            organizationType: Yup.string().label('Organization Type'),
+            orgName: Yup.string().label('Organization Name'),
 
-            secretKey: Yup.string().max(6).label('Secret Key'),
+            secretKey: Yup.string().max(6).label('Secret Key').matches(/(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}/g,{message:"Ex: A34233 , DS2DGF, 33113F 1. Should be of 6 characters length 2. Minimum one upper case(A-Z) and minimum one digit(0-9), and combination should include only A-Z upper case and 0-9 numbers. ",excludeEmptyString:true}),
         })
     };
 };

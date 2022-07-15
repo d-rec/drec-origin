@@ -1,4 +1,4 @@
-const OrganizationType = ['Developerr', 'Buyer', 'Intermediary','Other'];
+const OrganizationType = ['Developer', 'Buyer', 'Intermediary','Other'];
 
 export const ORGTYPE_OPTIONS = OrganizationType.map((type) => ({
     label: type,

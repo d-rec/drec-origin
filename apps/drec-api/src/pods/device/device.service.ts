@@ -105,6 +105,7 @@ export class DeviceService {
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
   ): Promise<Array<DeviceDTO | null>> {
+    console.log("meterIdList",meterIdList);
     return (
       (await this.repository.find({
         where: { externalId: In(meterIdList) },

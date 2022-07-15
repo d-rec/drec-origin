@@ -10,6 +10,7 @@ import {
   Delete,
   Query,
   ValidationPipe,
+  ConflictException
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -64,6 +65,9 @@ import { Readable } from 'stream';
 
 import csv from 'csv-parser';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from './device_csv_processing_jobs.entity';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { PermissionGuard } from '../../guards';
 
 
 
@@ -245,8 +249,10 @@ export class DeviceGroupController {
   }
 
     @Post('process-creation-bulk-devices-csv')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Write')
+    @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+    //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
     @ApiResponse({
       status: HttpStatus.OK,
       type: [DeviceCsvFileProcessingJobsEntity],
@@ -254,10 +260,33 @@ export class DeviceGroupController {
     })
     @ApiBody({ type: CSVBulkUploadDTO})
     public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser,@UserDecorator() { organizationId }: ILoggedInUser,  @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+      if(user.organizationId ===null || user.organizationId === undefined)
+      {
+        throw new ConflictException({
+          success: false,
+          message:
+            'User needs to have organization added' 
+        })
+      }
       let response =  await this.fileService.get(fileToProcess.fileName,user);
       if(response == undefined)
       {
-        throw new Error("file not found");
+        //throw new Error("file not found");
+        throw new ConflictException({
+          success: false,
+          message:
+            'File Not Found' 
+        })
+
+      }
+      if(!response.filename.endsWith('.csv'))
+      {
+        //throw new Error("file not found");
+        throw new ConflictException({
+          success: false,
+          message:
+            'Invalid file' 
+        })
 
       }
       let jobCreated=await this.deviceGroupService.createCSVJobForFile(user.id,organizationId,StatusCSV.Added,response instanceof File? response.id:'');
@@ -342,7 +371,9 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,

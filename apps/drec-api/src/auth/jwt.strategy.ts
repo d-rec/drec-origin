@@ -23,7 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: IJWTPayload): Promise<IUser | null> {
     const user = await this.userService.findByEmail(payload.email);
-    console.log(user);
     //const userpermission = await this.userPermission.findById(user?.id);
     //
 

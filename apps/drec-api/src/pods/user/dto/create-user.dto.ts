@@ -66,9 +66,10 @@ export class CreateUserORGDTO
   
   @ApiProperty({ type: String })
   @MaxLength(6)
-  @Matches(/(\b[A-Z0-9][A-Z0-9]+|\b[A-Z]\b)/g, {
+  //@Matches(/(\b[A-Z0-9][A-Z0-9]+|\b[A-Z]\b)/g, {
+  @Matches(/(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}/g, {
     message:
-      'Secret key should be of 6 characters length and consist of upper case and one digit, please enter valid secret key',
+      'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key',
   })
   @IsOptional()
   @IsString()
