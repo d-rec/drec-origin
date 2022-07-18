@@ -248,6 +248,9 @@ export class DeviceGroupController {
     );
   }
 
+
+  
+
     @Post('process-creation-bulk-devices-csv')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Write')
@@ -386,5 +389,30 @@ export class DeviceGroupController {
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
+  }
+
+  @Get('/bulk-upload/get-all-csv-jobs-of-organization')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
+  //@Permission('Read')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created jobs of an organization',
+  })
+  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser,@UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    console.log("user",user);
+    console.log("organization",organizationId);
+    
+    if(user.organizationId ===null || user.organizationId === undefined)
+    {
+      throw new ConflictException({
+        success: false,
+        message:
+          'User needs to have organization added' 
+      })
+    }
+    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 }

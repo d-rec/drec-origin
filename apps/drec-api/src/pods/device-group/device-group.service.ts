@@ -196,6 +196,16 @@ export class DeviceGroupService {
     });
   }
 
+  async getAllCSVJobsForOrganization(
+    organizationId: number,
+  ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    console.log(organizationId);
+    return await this.repositoyCSVJobProcessing.find({
+      organizationId,
+      status:StatusCSV.Completed
+    });
+  }
+
   async createFailedRowDetailsForCSVJob(
     jobId: number,
     errorDetails: Array<any>,
