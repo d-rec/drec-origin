@@ -64,10 +64,16 @@ export class CreateUserORGDTO
   @IsOptional()
   orgName?: string;
   
+  /*
+  note not to use g flag in regex nest 
+  https://github.com/typestack/class-validator/issues/484#issuecomment-595821457
+   https://stackoverflow.com/a/6739245
+
+   */
   @ApiProperty({ type: String })
   @MaxLength(6)
   //@Matches(/(\b[A-Z0-9][A-Z0-9]+|\b[A-Z]\b)/g, {
-  @Matches(/(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}/g, {
+  @Matches(/^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/, {
     message:
       'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key',
   })

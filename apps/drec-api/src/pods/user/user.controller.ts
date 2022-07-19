@@ -83,7 +83,7 @@ export class UserController {
     return this.userService.create(userRegistrationData);
   }
 // add new for adding user with organization
-   @Post('registerWithOrganziation')
+   @Post('registerWithOrganization')
   @ApiBody({ type: CreateUserORGDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,

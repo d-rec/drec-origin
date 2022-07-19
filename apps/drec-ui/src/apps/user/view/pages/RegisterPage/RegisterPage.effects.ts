@@ -124,7 +124,7 @@ export const useUserSignInFormConfig = (
             organizationType: Yup.string().label('Organization Type'),
             orgName: Yup.string().label('Organization Name'),
 
-            secretKey: Yup.string().max(6).label('Secret Key').matches(/(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}/g,{message:"Ex: A34233 , DS2DGF, 33113F 1. Should be of 6 characters length 2. Minimum one upper case(A-Z) and minimum one digit(0-9), and combination should include only A-Z upper case and 0-9 numbers. ",excludeEmptyString:true}),
+            secretKey: Yup.string().max(6).label('Secret Key').matches(/^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/,{message:"Ex: A34233 , DS2DGF, 33113F 1. Should be of 6 characters length 2. Minimum one upper case(A-Z) and minimum one digit(0-9), and combination should include only A-Z upper case and 0-9 numbers. ",excludeEmptyString:true}),
         })
     };
 };
