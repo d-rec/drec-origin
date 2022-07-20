@@ -42,7 +42,7 @@ export class AccessControlLayerModuleServiceController {
     @Get()
     @UseGuards(AuthGuard('jwt'), RolesGuard)
 
-    @Roles(Role.Admin)
+    //@Roles(Role.Admin)
     @ApiResponse({
         status: HttpStatus.OK,
         type: [ACLModuleDTO],

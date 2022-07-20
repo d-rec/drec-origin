@@ -201,8 +201,8 @@ export class DeviceGroupService {
   ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
     console.log(organizationId);
     return await this.repositoyCSVJobProcessing.find({
-      organizationId,
-      status:StatusCSV.Completed
+      organizationId
+      //status:StatusCSV.Completed
     });
   }
 
