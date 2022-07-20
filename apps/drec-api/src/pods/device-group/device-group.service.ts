@@ -221,7 +221,7 @@ export class DeviceGroupService {
     jobId: number,
   ): Promise<JobFailedRowsDTO | undefined> {
     return await this.repositoryJobFailedRows.findOne({
-      id: jobId,
+      jobId: jobId,
     });
   }
   async reserveGroup(
