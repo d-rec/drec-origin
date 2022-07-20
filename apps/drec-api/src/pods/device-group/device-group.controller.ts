@@ -386,6 +386,12 @@ export class DeviceGroupController {
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<JobFailedRowsDTO | undefined> {
+    console.log("jobId",jobId);
+
+    let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
+    console.log("data",data);
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
