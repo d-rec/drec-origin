@@ -375,8 +375,9 @@ export class DeviceGroupController {
 
   @Get('/bulk-upload-status/:id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@UseGuards(AuthGuard('jwt'))
+   @Permission('Read')
+   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
