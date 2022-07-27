@@ -63,7 +63,7 @@ export class UserService {
     });
   }
 
-  public async create(data: CreateUserDTO): Promise<UserDTO> {
+  public async create(data: CreateUserDTO ,status?: UserStatus): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     const user = await this.repository.save({
       title: data.title,
@@ -132,7 +132,7 @@ export class UserService {
       email: data.email.toLowerCase(),
       password: this.hashPassword(data.password),
       notifications: true,
-      status: UserStatus.Pending,
+       status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},

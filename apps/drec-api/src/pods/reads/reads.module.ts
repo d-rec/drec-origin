@@ -10,8 +10,10 @@ import { ReadsController } from './reads.controller';
 import { ReadsService } from './reads.service';
 import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
 import { DeviceGroupModule } from '../device-group/device-group.module';
-
-const baseReadServiceProvider = {
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {Intermediate_MeterRead} from './intermideate_meterread.entity';
+import {AggregateMeterRead } from './aggregate_readvalue.entity'
+ const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService) => {
     if (configService.get<string>('MODE') == 'CI') {
@@ -24,13 +26,16 @@ const baseReadServiceProvider = {
 };
 
 @Module({
+
   imports: [
+    TypeOrmModule.forFeature([Intermediate_MeterRead,AggregateMeterRead]),
     ConfigModule,
     CqrsModule,
     DeviceModule,
     DeviceGroupModule,
     UserModule,
     OrganizationModule,
+
   ],
   controllers: [ReadsController],
   providers: [baseReadServiceProvider, ReadsService],

@@ -80,7 +80,7 @@ export class InvitationService {
     if (invitee) {
       userid = invitee
     } else {
-      userid = await this.userService.newcreate(inviteuser);
+      userid = await this.userService.newcreate(inviteuser,UserStatus.Pending);
     }
 
     const newpermission: any = [];
