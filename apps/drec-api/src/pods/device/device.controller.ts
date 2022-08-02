@@ -42,6 +42,8 @@ import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceGroupService } from '../device-group/device-group.service';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -64,7 +66,7 @@ export class DeviceController {
   }
 
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiOkResponse({
     type: [GroupedDevicesDTO],
@@ -103,8 +105,10 @@ export class DeviceController {
   }
 
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -117,8 +121,10 @@ export class DeviceController {
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin)
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -128,8 +134,10 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
