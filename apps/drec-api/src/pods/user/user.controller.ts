@@ -150,20 +150,22 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
   }
-  @Put('update/password')
- 
+  
+  @Put('reset/password/:token')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
     description: `Update your own password`,
   })
+  @ApiParam({ name: 'token', type: String })
   public async updatechangePassword(
-   
+    @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    return this.userService.updatechangePassword( body);
+    return this.userService.updatechangePassword(token, body);
   }
+
   @Put('confirm-email/:token')
   @ApiResponse({
     status: HttpStatus.OK,

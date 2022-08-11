@@ -40,6 +40,8 @@ export interface IDevice {
   energyStorage?: boolean;
   energyStorageCapacity?: number;
   qualityLabels?: string;
+  meterReadtype?: string;
+  created?:Date;
 }
 
 export enum DeviceDescription {

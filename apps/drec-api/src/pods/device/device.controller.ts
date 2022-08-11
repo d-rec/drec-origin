@@ -31,6 +31,7 @@ import {
   DeviceDTO,
   DeviceGroupByDTO,
   GroupedDevicesDTO,
+  BuyerDeviceFilterDTO
 } from './dto';
 
 import { Role } from '../../utils/enums';
@@ -63,8 +64,17 @@ export class DeviceController {
     return this.deviceService.find(filterDto);
   }
 
+  @Get('/ungrouped/buyerreservation')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  async getAllDeviceForBuyer(
+    @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.finddeviceForBuyer(filterDto);
+  }
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @ApiOkResponse({
     type: [GroupedDevicesDTO],
@@ -103,7 +113,7 @@ export class DeviceController {
   }
 
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -128,7 +138,7 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,

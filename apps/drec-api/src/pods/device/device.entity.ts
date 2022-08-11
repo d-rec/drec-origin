@@ -139,4 +139,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  meterReadtype: string;
 }

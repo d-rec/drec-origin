@@ -155,4 +155,12 @@ export class DeviceDTO implements IDevice {
   @IsNumber()
   @IsOptional()
   groupId?: number | null;
+  
+  @IsString()
+  @IsOptional()
+  meterReadtype?: string;
+
+
+  @IsOptional()
+  createdAt: Date;
 }

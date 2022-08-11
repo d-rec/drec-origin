@@ -15,9 +15,9 @@ export class UpdatePasswordDTO implements UserPasswordUpdate {
 }
 
 export class UpdateChangePasswordDTO {
-  @ApiProperty({ type: String })
-  @IsEmail()
-  email: string;
+  // @ApiProperty({ type: String })
+  // @IsEmail()
+  // email: string;
  
 
 

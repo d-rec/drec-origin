@@ -24,7 +24,7 @@ export class IntermideatryTableFields1658924656241 implements MigrationInterface
                 "createdAt" timestamp with time zone,
                 "updatedAt" timestamp with time zone,
                 "unit" character varying,
-                "deviceId" integer,
+                "deviceId" character(20),
                 CONSTRAINT intermediate_meterread_pkey PRIMARY KEY (id)
             )`,
           );

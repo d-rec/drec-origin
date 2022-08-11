@@ -122,4 +122,9 @@ export class UpdateDeviceDTO
   @IsArray()
   @IsOptional()
   images: string[];
+  
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  meterReadtype: string;
 }

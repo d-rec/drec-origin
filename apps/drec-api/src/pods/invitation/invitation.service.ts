@@ -19,10 +19,11 @@ import { InviteDTO } from './dto/invite.dto';
 import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
+import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-
+inviteuseradd:Boolean=false;
   constructor(
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
@@ -75,12 +76,16 @@ export class InvitationService {
       password: randPassword,
       orgName: '',
       organizationType: '',
+     // orgAddress:''
+    
     }
     var userid: any;
     if (invitee) {
       userid = invitee
+      this.inviteuseradd=false;
     } else {
-      userid = await this.userService.newcreate(inviteuser,UserStatus.Pending);
+      userid = await this.userService.newcreate(inviteuser,UserStatus.Pending,true);
+      
     }
 
     const newpermission: any = [];
@@ -94,7 +99,7 @@ export class InvitationService {
       })
     })
     var permissionId: any = [];
-    console.log("97lineSS")
+   
     await Promise.all(
       newpermission.map(
         async (newpermission: NewPermissionDTO) => {
@@ -104,7 +109,7 @@ export class InvitationService {
           permissionId.push(perId.id);
         }),
     );
-console.log("107");
+
 console.log(permissionId);
     await this.invitationRepository.update(saveinviteuser.id, { permissionId });
 
