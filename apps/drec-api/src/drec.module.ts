@@ -39,6 +39,7 @@ import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerR
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 
+import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -71,6 +72,8 @@ export const entities = [
   DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
+
+  AggregateMeterRead,
   ...IssuerEntities,
 ];
 
