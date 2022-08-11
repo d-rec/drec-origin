@@ -95,6 +95,7 @@
     "swagger-ui-express": "4.1.6",
     "typeorm": "0.2.31",
     "uuid": "8.3.2",
+	"@influxdata/influxdb-client": "1.9.0",
     "csvtojson": "2.0.1"
   },
   "devDependencies": {
