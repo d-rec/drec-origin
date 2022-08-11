@@ -127,4 +127,9 @@ export class UpdateDeviceDTO
   @IsNumber()
   @IsOptional()
   SDGBenefits?: number| undefined;
+  
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  meterReadtype: string;
 }

@@ -55,6 +55,9 @@ export class UserORGRegistrationData {
   @IsString()
   @IsOptional()
   orgName?: string;
+  @IsString()
+  @IsOptional()
+  orgAddress?: string;
 
   @IsOptional()
   @IsString()

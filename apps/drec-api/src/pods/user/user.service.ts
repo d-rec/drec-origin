@@ -30,6 +30,7 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
+import { IEmailConfirmationToken } from '../../models';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -44,6 +45,7 @@ export class UserService {
 
   public async seed(
     data: CreateUserDTO,
+
     organizationId: number | null,
     role?: Role,
     status?: UserStatus,
@@ -81,17 +83,17 @@ export class UserService {
 
     return new User(user);
   }
-  public async newcreate(data: CreateUserORGDTO): Promise<UserDTO> {
+  public async newcreate(data: CreateUserORGDTO,
+    status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
-    //  const isExistingorg = await this.organizationService.checkForExistingorg(data.email );
-
     var org_id;
     if (data.secretKey != null) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         secretKey: data.secretKey,
-        orgEmail: data.email
+        orgEmail: data.email,
+        address: data.orgAddress
 
       }
 
@@ -100,7 +102,7 @@ export class UserService {
           success: false,
           message: `Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
         });
-        //throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
+
       } else {
 
         const org = await this.organizationService.newcreate(orgdata)
@@ -132,7 +134,7 @@ export class UserService {
       email: data.email.toLowerCase(),
       password: this.hashPassword(data.password),
       notifications: true,
-      status: UserStatus.Pending,
+      status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
@@ -141,7 +143,13 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new organization with id ${JSON.stringify(user)}`,
     );
-    await this.emailConfirmationService.create(user);
+    if(inviteuser){
+      await this.emailConfirmationService.create(user,true);
+    }else{
+      await this.emailConfirmationService.create(user,false);
+    }
+    
+
 
     return new User(user);
   }
@@ -235,7 +243,7 @@ export class UserService {
   ): Promise<void> {
     await this.repository.update(userId, {
       organization: { id: organizationId },
-      status:UserStatus.Active
+      status: UserStatus.Active
     });
   }
 
@@ -305,31 +313,36 @@ export class UserService {
 
 
   async updatechangePassword(
-    
+    token: IEmailConfirmationToken['token'],
     user: UserChangePasswordUpdate,
   ): Promise<ExtendedBaseEntity & IUser> {
-    const _user = await this.getUserAndPasswordByEmail(user.email);
-    console.log(_user)
-    if (_user) {
-      const updateEntity = new User({
-        password: this.hashPassword(user.newPassword),
-      });
-
-      const validationErrors = await validate(updateEntity, {
-        skipUndefinedProperties: true,
-      });
-
-      if (validationErrors.length > 0) {
-        throw new UnprocessableEntityException({
-          success: false,
-          errors: validationErrors,
+    const emailConfirmation = await this.emailConfirmationService.findOne({ token });
+    console.log("emailConfirmation")
+    console.log(emailConfirmation)
+   
+      //const _user = await this.findById(emailConfirmation.id);
+      console.log(emailConfirmation)
+      if (emailConfirmation) {
+        const updateEntity = new User({
+          password: this.hashPassword(user.newPassword),
         });
+
+        const validationErrors = await validate(updateEntity, {
+          skipUndefinedProperties: true,
+        });
+
+        if (validationErrors.length > 0) {
+          throw new UnprocessableEntityException({
+            success: false,
+            errors: validationErrors,
+          });
+        }
+
+        await this.repository.update(emailConfirmation.user.id, updateEntity);
+        return emailConfirmation.user;
+
       }
-
-      await this.repository.update(_user.id, updateEntity);
-      return this.findOne({ id: _user.id });
-
-    }
+    
     throw new ConflictException({
       success: false,
       errors: `User Not exist .`,
@@ -341,13 +354,13 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-   var roleId;
-    if(role=== Role.DeviceOwner){
-      roleId=3
-    }else{
-      roleId=5
+    var roleId;
+    if (role === Role.DeviceOwner) {
+      roleId = 3
+    } else {
+      roleId = 5
     }
-    await this.repository.update(userId, { role,roleId });
+    await this.repository.update(userId, { role, roleId });
     return this.findOne({ id: userId });
   }
 

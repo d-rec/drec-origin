@@ -78,3 +78,36 @@ export class FilterDTO {
   @IsOptional()
   SDGBenefits?: number| undefined;
 }
+export class BuyerDeviceFilterDTO {
+  @IsOptional()
+  @ApiPropertyOptional({ type: String, description: 'Country Code' })
+  country: string;
+  @IsOptional()
+  @ApiPropertyOptional({ type: String, description: 'Fuel Code' })
+  fuelCode: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: String, description: 'Device Type Code' })
+  deviceTypeCode: string;
+
+
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: Number,
+    description: 'Search number for target capacity',
+  })
+  capacity: number;
+
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: OffTaker,
+    description: 'Off-taker',
+    enum: OffTaker,
+  })
+  offTaker: OffTaker;
+
+ 
+  groupId?: number|null;
+}

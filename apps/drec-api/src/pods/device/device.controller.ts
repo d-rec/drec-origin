@@ -31,6 +31,7 @@ import {
   DeviceDTO,
   DeviceGroupByDTO,
   GroupedDevicesDTO,
+  BuyerDeviceFilterDTO
 } from './dto';
 
 import { Role } from '../../utils/enums';
@@ -65,6 +66,15 @@ export class DeviceController {
     return this.deviceService.find(filterDto);
   }
 
+  @Get('/ungrouped/buyerreservation')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  async getAllDeviceForBuyer(
+    @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.finddeviceForBuyer(filterDto);
+  }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)

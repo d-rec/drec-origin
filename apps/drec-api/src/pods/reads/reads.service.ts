@@ -1,4 +1,7 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { FindOneOptions, Repository, In, FindConditions, Any } from 'typeorm';
+
+import axios from 'axios';
 import {
   Aggregate,
   AggregatedReadDTO,
@@ -8,6 +11,7 @@ import {
   ReadsService as BaseReadService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
 import { DateTime } from 'luxon';
@@ -17,20 +21,33 @@ import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStor
 import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
+//import { Intermediate_MeterRead } from './intermideate_meterread.entity';
+import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
+import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
+import { Iintermediate, IAggregateintermediate } from '../../models'
+import { InjectRepository } from '@nestjs/typeorm';
+import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
+
+import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
+import { ReadStatus } from 'src/utils/enums';
+export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
 export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
 
   constructor(
+    @InjectRepository(AggregateMeterRead) private readonly repository: Repository<AggregateMeterRead>,
+  
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
-  ) {}
+
+  ) { }
 
   public async getGroupAggregatedReads(
     groupId: number,
@@ -78,7 +95,7 @@ export class ReadsService {
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-
+    console.log(measurements);
     const device = await this.deviceService.findReads(id);
 
     if (!device) {
@@ -86,15 +103,16 @@ export class ReadsService {
     }
 
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-console.log(roundedMeasurements);
+    console.log(roundedMeasurements);
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
-
+    console.log(filteredMeasurements);
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
+
 
   private async storeGenerationReading(
     id: string,
@@ -104,7 +122,7 @@ console.log(roundedMeasurements);
     const organization = await this.organizationService.findOne(
       device.organizationId,
     );
-
+    console.log('109')
     if (!organization) {
       throw new NotFoundException(
         `No organization found with device organization code ${device.organizationId}`,
@@ -132,6 +150,7 @@ console.log(roundedMeasurements);
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
+    console.log("137")
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -168,13 +187,14 @@ console.log(roundedMeasurements);
     const final = await this.getLatestRead(id);
     if (!final || !device) {
       return measurement;
+    } else {
+      return {
+        reads: measurement.reads.filter((read: ReadDTO) =>
+          this.validateEnergy(read, final, device),
+        ),
+        unit: measurement.unit,
+      };
     }
-    return {
-      reads: measurement.reads.filter((read: ReadDTO) =>
-        this.validateEnergy(read, final, device),
-      ),
-      unit: measurement.unit,
-    };
   }
 
   private async getLatestRead(meterId: string): Promise<ReadDTO | void> {
@@ -222,7 +242,7 @@ console.log(roundedMeasurements);
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
-   const margin = 0.2; // Margin for comparing read value with computed max energy
+    const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -233,9 +253,475 @@ console.log(roundedMeasurements);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed' }, MaxEnergy: ${maxEnergy}`,
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     return Math.round(read.value + margin * read.value) < maxEnergy;
+  }
+
+
+  public findlastRead(deviceId: string): Promise<AggregateMeterRead[]> {
+    return  this.repository.find({
+      where: { deviceId },
+      order: {
+        id: 'DESC',
+      },
+      take: 1
+    });
+    
+  }
+
+  // new meter read process
+  public async newstoreRead(
+    id: string,
+    measurements: NewIntmediateMeterReadDTO,
+  ): Promise<void> {
+    this.logger.debug('DREC is storing smart meter reads:');
+    this.logger.debug(JSON.stringify(measurements));
+    console.log(measurements);
+    const device = await this.deviceService.findReads(id);
+    if (!device) {
+      throw new NotFoundException(`No device found with external id ${id}`);
+    }
+  
+    const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
+   
+    const filteredMeasurements = await this.NewfilterMeasurements(
+      id,
+      roundedMeasurements,
+      device,
+    );
+    console.log(filteredMeasurements);
+    await this.newstoreGenerationReading(id, filteredMeasurements, device);
+  }
+
+
+  private NewroundMeasurementsToUnit(measurement: NewIntmediateMeterReadDTO): NewIntmediateMeterReadDTO {
+    const getMultiplier = (unit: Unit) => {
+      switch (unit) {
+        case Unit.Wh:
+          return 1;
+        case Unit.kWh:
+          return 10 ** 3;
+        case Unit.MWh:
+          return 10 ** 6;
+        case Unit.GWh:
+          return 10 ** 9;
+      }
+    };
+
+    const multiplier = getMultiplier(measurement.unit);
+
+    return {
+      reads: measurement.reads.map((r) => ({
+        starttimestamp: r.starttimestamp,
+        endtimestamp: r.endtimestamp,
+        value: Math.round(r.value * multiplier),
+      })),
+      unit: Unit.Wh,
+      type: measurement.type,
+
+    };
+  }
+
+  private async NewfilterMeasurements(
+    deviceId: string,
+    measurement: NewIntmediateMeterReadDTO,
+    device: DeviceDTO,
+  ): Promise<MeasurementDTO> {
+    const final = await this.NewfindLatestRead(deviceId,device.createdAt);
+   
+    let reads: any = [];
+ 
+    if (measurement.type === "History") {
+     
+      measurement.reads.forEach(async (element) => {
+        const currentstart = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
+        const currentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
+        const meteredTimePeriod = Math.abs(
+          currentstart.diff(currentend, ['hours']).toObject()?.hours || 0,
+        );
+        reads.push({
+          timestamp: new Date(element.endtimestamp),
+          value: element.value,
+          timeperiod: meteredTimePeriod
+        });
+
+      })
+
+
+    }
+    else if (measurement.type === 'Delta') {
+      
+      if (!final || !device) {
+
+        await this.deviceService.updatereadtype(deviceId, measurement.type);
+      } else {
+       
+        if (device?.meterReadtype != measurement.type) {
+          throw new NotFoundException(`This device not used for type  ${measurement.type}`);
+
+        }
+
+      }
+      measurement.reads.forEach((element) => {
+
+        reads.push({
+          timestamp: new Date(element.endtimestamp),
+          value: element.value
+        })
+
+      });
+    }
+    else if (measurement.type === 'Aggregate') {  
+      if (!final || !device) {
+        await new Promise((resolve, reject)=>{
+          measurement.reads.forEach(async (element,measurmentreadindex) => {
+            const lastvalue = await this.findlastRead(deviceId);
+          
+            var Delta;
+            if (lastvalue.length > 0) {
+              Delta = Math.abs(element.value - lastvalue[0].value);
+            } else {
+              Delta = element.value;
+            }
+            
+            reads.push({
+              timestamp: new Date(element.endtimestamp),
+              value: Delta
+            })
+            await this.repository.save({
+              value: element.value,
+              deltaValue: Delta,
+              deviceId: deviceId,
+              unit: measurement.unit,
+              datetime: element.endtimestamp.toString()
+    
+            });
+            if(measurmentreadindex== measurement.reads.length-1){
+             
+              resolve(true);
+            }
+          })
+        });
+        await this.deviceService.updatereadtype(deviceId, measurement.type);
+       
+      } else {
+        if (device?.meterReadtype != measurement.type&&device?.meterReadtype!=null) {
+          throw new NotFoundException(`This device not used for type  ${measurement.type}`);
+
+        }
+        
+        await new Promise((resolve, reject)=>{
+          measurement.reads.forEach(async (element,measurmentreadindex) => {
+            const lastvalue = await this.findlastRead(deviceId);
+          
+            var Delta;
+            if (lastvalue.length > 0) {
+              Delta = Math.abs(element.value - lastvalue[0].value);
+            } else {
+              Delta = element.value;
+            }
+              reads.push({
+                timestamp: new Date(element.endtimestamp),
+                value: Delta
+              })
+              await this.repository.save({
+                value: element.value,
+                deltaValue: Delta,
+                deviceId: deviceId,
+                unit: measurement.unit,
+                datetime: element.endtimestamp.toString()
+      
+              });         
+            if(measurmentreadindex== measurement.reads.length-1){
+             
+              resolve(true);
+            }
+          })
+        });
+       
+      }
+     
+    }
+    if (!final || !device) {
+      if (measurement.type === "History") {
+        return {
+          reads: reads.filter((read: any) =>
+            this.NewhistoryvalidateEnergy(read, device, read.timeperiod)
+          ),
+          unit: measurement.unit,
+
+        };
+      } else {
+       
+        return {
+          reads: reads.filter((read: ReadDTO) =>
+            this.firstvalidateEnergy(read, device),
+          ),
+          unit: measurement.unit
+        }
+      }
+    }
+    else {
+      if (measurement.type === "History") {
+
+        return {
+          reads: reads.filter((read: any) =>
+
+            this.NewhistoryvalidateEnergy(read, device, read.timeperiod)
+          ),
+          unit: measurement.unit,
+        };
+      } else {
+        return {
+          reads: reads.filter((read: ReadDTO) =>
+            this.NewvalidateEnergy(read, final, device),
+          ),
+          unit: measurement.unit,
+        };
+     }
+    }
+
+  }
+
+  // private async newgetLatestRead(meterId: string): Promise<ReadDTO | void> {
+  //   try {
+  //     return await this.baseReadsService.findLatestRead(meterId);
+  //   } catch (e) {
+  //     this.logger.warn(e.message);
+  //     return;
+  //   }
+  // }
+  private async NewfindLatestRead(meterId: string,deviceregisterdate:Date): Promise<ReadDTO | void> {
+    console.log("527")
+    console.log(deviceregisterdate)
+    //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
+   
+    const fluxQuery = `from(bucket: "energy/autogen")
+    |> range(start: ${deviceregisterdate}, stop: now())
+    |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+    |> last()`
+
+
+    // 'from(bucket:"energy/autogen") |> range(start: -1d,stop: now()) |> filter(fn: (r) => r._measurement == "read" )'
+
+    console.log('*** QUERY ROWS ***')
+    console.log(fluxQuery)
+    const reads = await this.execute(fluxQuery);
+    console.log("reads[0]")
+    console.log(reads[0])
+    // if (reads.length === 0) {
+    //   throw new NotFoundException(`Unable to get the latest reading. There are no readings yet for meter ${meterId}`);
+    // }
+    return reads[0];
+    // return this.execute(fluxQuery);
+
+  }
+  async execute(query: any) {
+   
+    const data = await this.dbReader.collectRows(query);
+    return data.map((record: any) => ({
+      timestamp: new Date(record._time),
+      value: Number(record._value),
+    }));
+  }
+  get dbReader() {
+    const url = 'http://localhost:8086';
+    const token = 'admin:admin'
+    const org = '';
+  
+    return new InfluxDB({ url, token }).getQueryApi(org)
+  }
+  private firstvalidateEnergy(
+    read: ReadDTO,
+    device: DeviceDTO,
+
+  ): boolean {
+    const computeMaxEnergy = (
+      capacity: number,
+      meteredTimePeriod: number,
+      deviceAge: number,
+      degradation: number,
+      yieldValue: number,
+    ) => {
+      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      return (
+        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+      );
+    };
+    console.log("newvalidateEnergy")
+    this.logger.debug(JSON.stringify(read))
+    const degradation = 0.5; // [%/year]
+    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const capacity = device.capacity; // W
+    const commissioningDate = DateTime.fromISO(device.commissioningDate);
+    const currentDate = DateTime.now();
+    const deviceAge =
+      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
+    const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+    const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
+    const meteredTimePeriod = Math.abs(
+      currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
+    ); // hours
+
+    // const currentRead = DateTime.fromISO(new Date(measurement.reads[0].endtimestamp).toISOString());
+    // const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+    if(currentRead<lastRead){
+      throw new NotFoundException(`The time value of this reding is lesser then from last read`);
+
+    }
+    const margin = 0.2; // Margin for comparing read value with computed max energy
+    const maxEnergy = computeMaxEnergy(
+      capacity,
+      meteredTimePeriod,
+      deviceAge,
+      degradation,
+      yieldValue,
+    );
+
+    this.logger.debug(
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+    );
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    );
+    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    return Math.round(read.value + margin * read.value) < maxEnergy;
+  }
+  private NewvalidateEnergy(
+    read: ReadDTO,
+    final: ReadDTO,
+    device: DeviceDTO,
+
+  ): boolean {
+    const computeMaxEnergy = (
+      capacity: number,
+      meteredTimePeriod: number,
+      deviceAge: number,
+      degradation: number,
+      yieldValue: number,
+    ) => {
+      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      return (
+        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+      );
+    };
+    console.log("newvalidateEnergy")
+
+    const degradation = 0.5; // [%/year]
+    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const capacity = device.capacity; // W
+    const commissioningDate = DateTime.fromISO(device.commissioningDate);
+    const currentDate = DateTime.now();
+    const deviceAge =
+      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
+    const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+    const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+   
+    const meteredTimePeriod = Math.abs(
+      currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
+    ); // hours
+
+    const margin = 0.2; // Margin for comparing read value with computed max energy
+    const maxEnergy = computeMaxEnergy(
+      capacity,
+      meteredTimePeriod,
+      deviceAge,
+      degradation,
+      yieldValue,
+    );
+
+    this.logger.debug(
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+    );
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    );
+    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    return Math.round(read.value + margin * read.value) < maxEnergy;
+  }
+
+  private NewhistoryvalidateEnergy(
+    read: ReadDTO,
+    device: DeviceDTO,
+    requestmeteredTimePeriod: number,
+
+  ): boolean {
+    const computeMaxEnergy = (
+      capacity: number,
+      meteredTimePeriod: number,
+      deviceAge: number,
+      degradation: number,
+      yieldValue: number,
+    ) => {
+      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      return (
+        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+      );
+    };
+    console.log("newvalidateEnergy")
+    this.logger.debug(JSON.stringify(read))
+    const degradation = 0.5; // [%/year]
+    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const capacity = device.capacity; // W
+    const commissioningDate = DateTime.fromISO(device.commissioningDate);
+    const currentDate = DateTime.now();
+    const deviceAge =
+      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
+    const meteredTimePeriod = requestmeteredTimePeriod;
+
+    const margin = 0.2; // Margin for comparing read value with computed max energy
+    const maxEnergy = computeMaxEnergy(
+      capacity,
+      meteredTimePeriod,
+      deviceAge,
+      degradation,
+      yieldValue,
+    );
+
+    this.logger.debug(
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+    );
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    );
+    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    return Math.round(read.value + margin * read.value) < maxEnergy;
+  }
+
+
+
+  private async newstoreGenerationReading(
+    id: string,
+    measurements: MeasurementDTO,
+    device: DeviceDTO,
+  ): Promise<void> {
+    const organization = await this.organizationService.findOne(
+      device.organizationId,
+    );
+
+    if (!organization) {
+      throw new NotFoundException(
+        `No organization found with device organization code ${device.organizationId}`,
+      );
+    }
+
+    console.log("new store")
+    await this.store(id, measurements);
+
+    for (const measurement of measurements.reads) {
+      const startTime = DateTime.fromJSDate(measurement.timestamp)
+        .minus({ minutes: 30 })
+        .toJSDate();
+      const endTime = DateTime.fromJSDate(measurement.timestamp).toJSDate();
+
+      this.eventBus.publish(
+        new GenerationReadingStoredEvent({
+          deviceId: id,
+          energyValue: BigNumber.from(measurement.value),
+          fromTime: startTime,
+          toTime: endTime,
+          organizationId: organization.id.toString(),
+        }),
+      );
+    }
   }
 
   private aggregateArray(aggregate: Aggregate, array: number[]): number {
@@ -247,3 +733,4 @@ console.log(roundedMeasurements);
     }
   }
 }
+

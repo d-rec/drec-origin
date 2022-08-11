@@ -12,3 +12,5 @@ export * from './YieldConfig';
 export * from './Roles';
 export * from './ACLModules';
 export * from './ACLModulesPermission';
+
+export * from './AggregateMetervalue';

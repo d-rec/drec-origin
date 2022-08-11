@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository } from 'typeorm';
+import { Repository,FindConditions, } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse } from '../../utils/enums';
@@ -25,7 +25,7 @@ export class EmailConfirmationService {
     private mailService: MailService,
   ) {}
 
-  public async create(user: User): Promise<EmailConfirmation> {
+  public async create(user: User,inviteuser?:Boolean): Promise<EmailConfirmation> {
     const exists = await this.repository.findOne({
       user: { email: user.email },
     });
@@ -45,7 +45,9 @@ export class EmailConfirmationService {
       token,
       expiryTimestamp,
     });
-
+if(inviteuser){
+  await this.sendResetPasswordRequest(user.email,token);
+}
     await this.sendConfirmationEmail(user.email);
 
     return emailConfirmation;
@@ -67,7 +69,16 @@ export class EmailConfirmationService {
         confirmation.user.email.toLowerCase() === email.toLowerCase(),
     );
   }
+  async findOne(conditions: FindConditions<EmailConfirmation>): Promise<EmailConfirmation | undefined> {
+    const user = await (this.repository.findOne(conditions, {
+      relations: ['user'],
 
+    }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
+
+
+
+    return user;
+  }
   async confirmEmail(
     token: IEmailConfirmationToken['token'],
   ): Promise<EmailConfirmationResponse> {
@@ -150,6 +161,22 @@ export class EmailConfirmationService {
     }
   }
 
+  private async sendResetPasswordRequest(
+    email: string,
+    token: string,
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}`;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Reset your Password`,
+      html: `Welcome to the marketplace! Please used token below to reset your Password: <br/> <br/> <h4>Token:${token}</h4> .`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
+    }
+  }
   generateEmailToken(): IEmailConfirmationToken {
     return {
       token: crypto.randomBytes(64).toString('hex'),

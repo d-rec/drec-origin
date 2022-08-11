@@ -41,6 +41,8 @@ export interface IDevice {
   energyStorageCapacity?: number;
   SDGBenefits?: number;
   qualityLabels?: string;
+  meterReadtype?: string;
+  created?:Date;
 }
 
 export enum DeviceDescription {
