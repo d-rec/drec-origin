@@ -93,6 +93,7 @@ specifiers:
   concurrently: 5.3.0
   csv-parse: ^5.1.0
   csv-parser: ^3.0.0
+  csvtojson: 2.0.1
   dayjs: 1.10.7
   dotenv: 8.2.0
   emotion-theming: 11.0.0
@@ -249,6 +250,7 @@ dependencies:
   concurrently: 5.3.0
   csv-parse: 5.2.0
   csv-parser: 3.0.0
+  csvtojson: 2.0.1
   dayjs: 1.10.7
   dotenv: 8.2.0
   emotion-theming: 11.0.0
@@ -11451,6 +11453,16 @@ packages:
       minimist: 1.2.5
     dev: false
 
+  /csvtojson/2.0.1:
+    resolution: {integrity: sha512-o7tHIvePiao5s0A7i+z8ry4CEFV+6RrbuheC2s4V+NTlowus7gXpNM043FRJSgl5l4Im+bfsl+zmy4d5BTBaXg==}
+    engines: {node: '>=4.0.0'}
+    hasBin: true
+    dependencies:
+      bluebird: 3.7.2
+      lodash: 4.17.21
+      strip-bom: 2.0.0
+    dev: false
+
   /cuid/2.1.8:
     resolution: {integrity: sha512-xiEMER6E7TlTPnDxrM4eRiC6TRgjNX9xzEZ5U/Se2YJKr7Mq4pJn/2XEHjl3STcSh96GmkHPcBXLES8M29wyyg==}
     dev: false
@@ -15315,7 +15327,6 @@ packages:
   /is-utf8/0.2.1:
     resolution: {integrity: sha512-rMYPYvCzsXywIsldgLaSoPlw5PfoB/ssr7hY4pLfcodrA5M/eArza1a9VmTiNIBNMjOGr1Ow9mTyU2o69U6U9Q==}
     dev: false
-    optional: true
 
   /is-weakref/1.0.2:
     resolution: {integrity: sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==}
@@ -22251,7 +22262,6 @@ packages:
     dependencies:
       is-utf8: 0.2.1
     dev: false
-    optional: true
 
   /strip-bom/3.0.0:
     resolution: {integrity: sha1-IzTBjpx1n3vdVv3vfprj1YjmjtM=}
@@ -24689,7 +24699,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-6GC9IdzqGlj5W8tyWfo/MkQDbLtrI97YmeyjOmZ9YqPRn4iyLSHKe0fsadNZwhVAy1udwHv6PPJmrHEPdwv9LA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-+hNk3zTR8s8s5mRkATcNZMwi++K8/ZS11/SM1NkXjCK/IAwLLg4PFl+cKCheBO9b+2fTv3lYhNbVh9XaBwpLQw==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24744,6 +24754,7 @@ packages:
       concurrently: 5.3.0
       csv-parse: 5.2.0
       csv-parser: 3.0.0
+      csvtojson: 2.0.1
       dotenv: 8.2.0
       eslint: 7.15.0
       eslint-config-airbnb-base: 14.2.1_00d09b02c6185f3347dd86516a55f6ae
