@@ -89,6 +89,10 @@ export class DeviceGroupController {
     description: 'Returns all Device groups',
   })
   async getAll(): Promise<DeviceGroupDTO[]> {
+    // return new Promise((resolve,reject)=>{
+    //   resolve([]);
+    // });
+    /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     return this.deviceGroupService.getAll();
   }
 
@@ -231,7 +235,7 @@ export class DeviceGroupController {
 
   @Post('bulk-devices')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
@@ -298,8 +302,8 @@ export class DeviceGroupController {
     }
 
   @Post('/add/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  //@Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,

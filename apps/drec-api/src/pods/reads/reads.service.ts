@@ -208,8 +208,12 @@ console.log(roundedMeasurements);
     const capacity = device.capacity; // W
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
-    const deviceAge =
+    let deviceAge =
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
+      if(deviceAge == 0)
+      {
+        deviceAge=1;
+      }
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
     this.logger.debug(`Current Date: ${DateTime.now()}`);

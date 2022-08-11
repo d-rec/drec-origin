@@ -35,7 +35,7 @@ export class IssuerService {
   ) {}
 
   // @Cron(CronExpression.EVERY_30_SECONDS)
-  @Cron('0 25 19 * * *') // Every day at 23:30 - Server Time
+  @Cron('0 02 21 * * *') // Every day at 23:30 - Server Time
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 

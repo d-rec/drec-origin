@@ -58,6 +58,7 @@ export const useRetireCertificateHandler = (
                 resetList();
             }
         } catch (error) {
+            console.error(error);
             showNotification('Error while redeeming certificate', NotificationTypeEnum.Error);
         }
     };

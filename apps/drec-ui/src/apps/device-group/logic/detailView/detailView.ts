@@ -23,7 +23,7 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
         specFields: [
             {
                 label: 'Standard Compliance',
-                value: deviceGroup?.standardCompliance
+                value: '',//deviceGroup?.standardCompliance
             },
             {
                 label: 'Aggregated Capacity',
@@ -39,11 +39,11 @@ export const useDeviceGroupDetailViewLogic: TUseDeviceGroupDetailViewLogic = ({
             },
             {
                 label: 'Sector',
-                value: deviceGroup?.sectors.join().replaceAll(',', ', ')
+                value: '',//deviceGroup?.sectors.join().replaceAll(',', ', ')
             },
             {
                 label: 'Installation Configuration',
-                value: deviceGroup?.installationConfigurations.join().replaceAll(',', ', ')
+                value: '',//deviceGroup?.installationConfigurations.join().replaceAll(',', ', ')
             },
             {
                 label: 'Commissioning date ranges',

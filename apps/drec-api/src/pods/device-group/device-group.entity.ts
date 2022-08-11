@@ -42,6 +42,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @Column({ type: 'enum', enum: StandardCompliance })
   @IsEnum(StandardCompliance)
+  @IsOptional()
   standardCompliance: StandardCompliance;
 
   @Column('text', { array: true })
@@ -51,9 +52,11 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   offTakers: OffTaker[];
 
   @Column('text', { array: true })
+  @IsOptional()
   installationConfigurations: Installation[];
 
   @Column('text', { array: true })
+  @IsOptional()
   sectors: Sector[];
 
   @Column('text', { array: true })
