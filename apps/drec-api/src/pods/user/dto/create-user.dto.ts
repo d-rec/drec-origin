@@ -70,6 +70,12 @@ export class CreateUserORGDTO
    https://stackoverflow.com/a/6739245
 
    */
+
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsOptional()
+  orgAddress?: string;
+
   @ApiProperty({ type: String })
   @MaxLength(6)
   //@Matches(/(\b[A-Z0-9][A-Z0-9]+|\b[A-Z]\b)/g, {

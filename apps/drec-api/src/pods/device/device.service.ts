@@ -16,10 +16,11 @@ import {
   GroupedDevicesDTO,
   UngroupedDeviceDTO,
   UpdateDeviceDTO,
+  BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceOrderBy, Integrator, Role } from '../../utils/enums';
-import { FindConditions, FindManyOptions, Between } from 'typeorm';
+import { FindConditions, FindManyOptions, Between,LessThanOrEqual  } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -42,7 +43,7 @@ export class DeviceService {
 
   constructor(
     @InjectRepository(Device) private readonly repository: Repository<Device>,
-  ) {}
+  ) { }
 
   public async find(filterDto: FilterDTO): Promise<Device[]> {
     const query = this.getFilteredQuery(filterDto);
@@ -145,10 +146,10 @@ export class DeviceService {
     const rule =
       role === Role.DeviceOwner
         ? {
-            where: {
-              organizationId,
-            },
-          }
+          where: {
+            organizationId,
+          },
+        }
         : undefined;
     let currentDevice = await this.findOne(id, rule);
     if (!currentDevice) {
@@ -270,6 +271,7 @@ export class DeviceService {
         filter.start_date &&
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
+
     });
     const query: FindManyOptions<Device> = {
       where,
@@ -342,5 +344,59 @@ export class DeviceService {
         groupId,
       },
     });
+  }
+  public async updatereadtype(
+    deviceId: string,
+    meterReadtype: string,
+  ): Promise<Device> {
+
+    const devicereadtype = await this.repository.findOne({
+      where: {
+        externalId: deviceId,
+      }
+    });
+    if (!devicereadtype) {
+      throw new NotFoundException(`No device found with id ${deviceId}`);
+    }
+    devicereadtype.meterReadtype = meterReadtype;
+
+    return await this.repository.save(devicereadtype);
+
+  }
+
+  //
+  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
+    const where: FindConditions<Device> = cleanDeep({
+     
+      fuelCode: filter.fuelCode,
+      deviceTypeCode: filter.deviceTypeCode,
+      capacity: filter.capacity && LessThanOrEqual(filter.capacity),
+      offTaker: filter.offTaker,
+      countryCode: filter.country && getCodeFromCountry(filter.country),
+     
+
+    });
+    console.log(where);
+    const query: FindManyOptions<Device> = {
+      where,
+      order: {
+        organizationId: 'ASC',
+      },
+    };
+    return query;
+  }
+  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise<Device[]> {
+    console.log(filterDto)
+    
+    let query = this.getBuyerFilteredQuery(filterDto);
+    console.log(query)
+    let where:any= query.where
+    console.log(where)
+    where = {...where, groupId:null};
+    console.log(where)
+    query.where=where;
+   
+   console.log(query)
+    return this.repository.find(query);
   }
 }

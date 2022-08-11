@@ -39,7 +39,7 @@ export declare type UserPasswordUpdate = {
   newPassword: string;
 };
 export declare type UserChangePasswordUpdate = {
-   email:string;  
+  
   newPassword: string;
 };
 export interface IFullUser extends IUser {

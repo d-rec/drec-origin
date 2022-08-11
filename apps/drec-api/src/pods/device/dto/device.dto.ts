@@ -173,4 +173,12 @@ export class DeviceDTO implements IDevice {
   @IsNumber()
   @IsOptional()
   SDGBenefits?: number| undefined;
+  
+  @IsString()
+  @IsOptional()
+  meterReadtype?: string;
+
+
+  @IsOptional()
+  createdAt: Date;
 }

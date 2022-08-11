@@ -25,7 +25,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
-
+import {NewIntmediateMeterReadDTO} from '../reads/dto/intermediate_meter_read.dto'
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -103,5 +103,19 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: MeasurementDTO,
   ): Promise<void> {
     return await this.internalReadsService.storeRead(id, measurements);
+  }
+  @Post('new/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'New meter reads for historical data, Delta readings and Aggregate Readings',
+    type: [NewIntmediateMeterReadDTO],
+  })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  public async newstoreRead(
+    @Param('id') id: string,
+    @Body() measurements: NewIntmediateMeterReadDTO,
+  ): Promise<void> {
+    return await this.internalReadsService.newstoreRead(id, measurements);
   }
 }
