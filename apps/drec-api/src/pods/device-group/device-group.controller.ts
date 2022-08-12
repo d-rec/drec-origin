@@ -162,7 +162,7 @@ export class DeviceGroupController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -170,12 +170,32 @@ export class DeviceGroupController {
   })
   public async createOne(
     @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
-    return await this.deviceGroupService.createOne(
-      organizationId,
-      deviceGroupToRegister,
-    );
+    console.log("user",user);
+    if(organizationId === null || organizationId === undefined)
+    {
+      throw new ConflictException({
+        success: false,
+        message:'User does not has organization associated',
+      });
+    }
+    if(user.blockchainAccountAddress!==null &&  user.blockchainAccountAddress!==undefined)
+    {
+      return await this.deviceGroupService.createOne(
+        organizationId,
+        deviceGroupToRegister,
+      );
+    }
+    else 
+    {
+      throw new ConflictException({
+        success: false,
+        message:'Blockchain address is not added for this organization',
+      });
+    }
+   
   }
 
   @Post('/reserve')
@@ -379,7 +399,6 @@ export class DeviceGroupController {
 
   @Get('/bulk-upload-status/:id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'))
    @Permission('Read')
    @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -426,4 +445,21 @@ export class DeviceGroupController {
     }
     return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
+
+
+//   @Post('/buyer-reservation')
+//   @UseGuards(AuthGuard('jwt'),PermissionGuard)
+//   @Permission('Write')
+//   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
+//   @ApiResponse({
+//    status: HttpStatus.OK,
+//    type: JobFailedRowsDTO,
+//    description: 'Returns status of job id for bulk upload',
+//  })
+//  public async createBuyerReservationGroups(
+//    @UserDecorator() { organizationId }: ILoggedInUser
+//  ): Promise<JobFailedRowsDTO | undefined> {
+   
+//  }
+
 }

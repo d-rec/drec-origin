@@ -328,6 +328,7 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
+    //@ts-ignore
     const final = await this.NewfindLatestRead(deviceId,device.createdAt);
    
     let reads: any = [];
@@ -559,6 +560,7 @@ export class ReadsService {
     const deviceAge =
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+    //@ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,

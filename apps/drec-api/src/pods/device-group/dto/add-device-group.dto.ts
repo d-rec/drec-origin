@@ -10,4 +10,15 @@ export class AddGroupDTO {
   @IsInt({ each: true })
   @Min(1, { each: true })
   deviceIds: number[];
+
+  @ApiProperty({ type: Number })
+  targetCapacityInMegaWattHour:number;
+
+  
+  @ApiProperty({ type: Date })
+  startDate:Date;
+
+  
+  @ApiProperty({ type: Date })
+  endDate:Date;
 }

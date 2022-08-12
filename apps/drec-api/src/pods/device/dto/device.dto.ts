@@ -180,5 +180,5 @@ export class DeviceDTO implements IDevice {
 
 
   @IsOptional()
-  createdAt: Date;
+  createdAt?: Date;
 }

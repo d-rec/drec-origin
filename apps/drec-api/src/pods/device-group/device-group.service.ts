@@ -1176,4 +1176,19 @@ for (let i = 1; i < array.length - 1; i++) {
  
   //console.log(result);
   }
+
+  async checkIfOrganizationHasBlockhainAddressAdded(organizationId:number):Promise<boolean>{
+    const organization = await this.organizationService.findOne(
+      organizationId,
+    );
+    if(organization.blockchainAccountAddress)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+
+  }
 }
