@@ -25,6 +25,7 @@ specifiers:
   '@ethersproject/units': 5.3.0
   '@ethersproject/wallet': 5.3.0
   '@hookform/resolvers': 2.8.3
+  '@influxdata/influxdb-client': 1.9.0
   '@mui/icons-material': 5.1.1
   '@mui/lab': 5.0.0-alpha.55
   '@mui/material': 5.1.1
@@ -182,6 +183,7 @@ dependencies:
   '@ethersproject/units': 5.3.0
   '@ethersproject/wallet': 5.3.0
   '@hookform/resolvers': 2.8.3_react-hook-form@7.20.2
+  '@influxdata/influxdb-client': 1.9.0
   '@mui/icons-material': 5.1.1_4af286b00c162bf28c2d6aca57b14910
   '@mui/lab': 5.0.0-alpha.55_27ae667737a8d8e099a48c0b2e18bc3c
   '@mui/material': 5.1.1_5a05306dab5b03b28b7ffc5905f23628
@@ -24699,7 +24701,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-+hNk3zTR8s8s5mRkATcNZMwi++K8/ZS11/SM1NkXjCK/IAwLLg4PFl+cKCheBO9b+2fTv3lYhNbVh9XaBwpLQw==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-0RePxZuRlknez9sEhcAwaDuYLHEWCm3bRtW56wE2pjAT7eSK71r0g0xq4vUKAa8dsqDMBJ7ZO4cGq0Pe+z7Ezg==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24712,6 +24714,7 @@ packages:
       '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
       '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
       '@energyweb/utils-general': 11.0.5-alpha.1634225870.0
+      '@influxdata/influxdb-client': 1.9.0
       '@nestjs-modules/mailer': 1.6.0_097df8ff0a33fac320d1aeead3b4bb09
       '@nestjs/axios': 0.0.3_d7cd252d64d37aa44636795684f471c1
       '@nestjs/bull': 0.4.2_482ecb7fc1344b7ddb92c74eaa880d5f
