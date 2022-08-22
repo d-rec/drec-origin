@@ -13,4 +13,3 @@ export  enum Unit {
   MWh = "MWh",
   GWh = "GWh"
 }
-

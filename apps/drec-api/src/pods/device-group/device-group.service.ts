@@ -50,6 +50,7 @@ import {
   DeviceCsvFileProcessingJobsEntity,
   StatusCSV,
 } from './device_csv_processing_jobs.entity';
+import { DeviceGroupIssueCertificate } from './device_group_issuecertificate.entity';
 import { Readable } from 'stream';
 import csv from 'csv-parser';
 
@@ -84,14 +85,16 @@ export class DeviceGroupService {
     private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
+    @InjectRepository(DeviceGroupIssueCertificate)
+    private readonly repositoryDeviceGroupcertificate: Repository<DeviceGroupIssueCertificate>,
     private organizationService: OrganizationService,
     //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
     private readonly fileService: FileService,
-    private yieldConfigService:YieldConfigService
+    private yieldConfigService: YieldConfigService
 
-    
-  ) {}
+
+  ) { }
 
   async getAll(): Promise<DeviceGroupDTO[]> {
     const groups = await this.repository.find({
@@ -209,11 +212,11 @@ export class DeviceGroupService {
   async createFailedRowDetailsForCSVJob(
     jobId: number,
     errorDetails: Array<any>,
-    successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>
+    successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }>
   ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
     return await this.repositoryJobFailedRows.save({
       jobId,
-      errorDetails: { log: {errorDetails,successfullyAddedRowsAndExternalIds }}
+      errorDetails: { log: { errorDetails, successfullyAddedRowsAndExternalIds } }
     });
   }
 
@@ -427,7 +430,7 @@ export class DeviceGroupService {
       await this.deviceService.findMultipleDevicesBasedExternalId(
         allExternalIds,
       );
-      //console.log("existingDevices",existingDevices);
+    //console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
       //@ts-ignore
       existingDevices.forEach((ele) => existingDeviceIds.push(ele?.externalId));
@@ -475,7 +478,7 @@ export class DeviceGroupService {
           item['organizationId'],
           item['countryCode'],
           item['fuelCode'],
-         // item['standardCompliance'],
+          // item['standardCompliance'],
           //item['installationConfiguration'],
           item['offTaker'],
         ];
@@ -931,249 +934,273 @@ export class DeviceGroupService {
   ) {
     //console.log("into method");
     const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
+    const recordsErrors: Array<{ rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
-      let rowsConvertedToCsvCount=0;
+    let rowsConvertedToCsvCount = 0;
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
     const readableStream = new Readable();
-    readableStream._read = () => {}; // _read is required but you can noop it
+    readableStream._read = () => { }; // _read is required but you can noop it
     readableStream
       .pipe(this.csvParser)
       .on('data', async (data) => {
-        
+
       })
       .on('end', async () => {
-        
+
 
       });
     //console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
-    
-    csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data:any,lineNumber:any)=>{ 
+
+    csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data: any, lineNumber: any) => {
       //console.log("csvLine",data,"sdsds",lineNumber);
       rowsConvertedToCsvCount++;
-        data.images = [];
-        data.groupId = null;
-        const dataToStore = new NewDeviceDTO();
+      data.images = [];
+      data.groupId = null;
+      const dataToStore = new NewDeviceDTO();
 
-        const dataKeyForValidation: NewDeviceDTO = {
-          externalId: '',
-          projectName: '',
-          address: '',
-          latitude: '',
-          longitude: '',
-          countryCode: '',
-          fuelCode: '',
-          deviceTypeCode: '',
-          capacity: 0,
-          commissioningDate: '',
-          gridInterconnection: false,
-          offTaker: OffTaker.Commercial,
-          yieldValue: 0,
-          labels: '',
-          impactStory: '',
-          data: '',
-          images: [],
-          deviceDescription: DeviceDescription.GroundmountSolar,
-          energyStorage: true,
-          energyStorageCapacity: 0,
-          qualityLabels: '',
-          SDGBenefits:0,
-          //groupId: 0,
-        };
-        for (const key in dataKeyForValidation) {
+      const dataKeyForValidation: NewDeviceDTO = {
+        externalId: '',
+        projectName: '',
+        address: '',
+        latitude: '',
+        longitude: '',
+        countryCode: '',
+        fuelCode: '',
+        deviceTypeCode: '',
+        capacity: 0,
+        commissioningDate: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.Commercial,
+        yieldValue: 0,
+        labels: '',
+        impactStory: '',
+        data: '',
+        images: [],
+        deviceDescription: DeviceDescription.GroundmountSolar,
+        energyStorage: true,
+        energyStorageCapacity: 0,
+        qualityLabels: '',
+        SDGBenefits: 0,
+        //groupId: 0,
+      };
+      for (const key in dataKeyForValidation) {
+        //@ts-ignore
+        if (typeof dataKeyForValidation[key] === 'string') {
           //@ts-ignore
-          if (typeof dataKeyForValidation[key] === 'string') {
-            //@ts-ignore
-            dataToStore[key] = data[key];
-          }
+          dataToStore[key] = data[key];
+        }
+        //@ts-ignore
+        else if (typeof dataKeyForValidation[key] === 'boolean') {
           //@ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'boolean') {
-            //@ts-ignore
-            dataToStore[key] =
-              data[key].toLowerCase() === 'true' ? true : false;
-          }
+          dataToStore[key] =
+            data[key].toLowerCase() === 'true' ? true : false;
+        }
+        //@ts-ignore
+        else if (typeof dataKeyForValidation[key] === 'number') {
           //@ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'number') {
-            //@ts-ignore
-            dataToStore[key] =
-              parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
-              //@ts-ignore
-           if(key == 'yieldValue' && dataToStore[key]===0)
-           {
-            dataToStore[key]=1500;
-           }
-          }
-          if(key == 'yieldValue' && data.countryCode)
-          {
-            let yieldByCountryCode=await this.yieldConfigService.findByCountryCode(data.countryCode);
-            if(yieldByCountryCode)
-            {
-              //@ts-ignore
-              dataToStore.yieldValue=yieldByCountryCode.yieldValue;
-            }
+          dataToStore[key] =
+            parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
+          //@ts-ignore
+          if (key == 'yieldValue' && dataToStore[key] === 0) {
+            dataToStore[key] = 1500;
           }
         }
-        for(let key in dataToStore)
-        {
-          //@ts-ignore
-          dataToStore[key] === ''?dataToStore[key]=null:'';
+        if (key == 'yieldValue' && data.countryCode) {
+          let yieldByCountryCode = await this.yieldConfigService.findByCountryCode(data.countryCode);
+          if (yieldByCountryCode) {
+            //@ts-ignore
+            dataToStore.yieldValue = yieldByCountryCode.yieldValue;
+          }
         }
+      }
+      for (let key in dataToStore) {
+        //@ts-ignore
+        dataToStore[key] === '' ? dataToStore[key] = null : '';
+      }
 
-        //console.log("records",JSON.stringify(records));
+      //console.log("records",JSON.stringify(records));
 
-        records.push(dataToStore);
-        recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
+      records.push(dataToStore);
+      recordsErrors.push({ rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
 
-    // csvLine =>  "1,2,3" and "4,5,6"
-    }).on('done',async (error:any)=>{
+      // csvLine =>  "1,2,3" and "4,5,6"
+    }).on('done', async (error: any) => {
       //console.log("completed");
       //console.log("error",error);
       //console.log("data end transmissiodsdddddddddddn",records);
-        for(let index=0;index<records.length;index++)
-        {
-          let singleRecord = records[index];
-          //console.log("waiting");
-          const errors = await validate(singleRecord);
-          //console.log("validation errors",errors);
-          // errors is an array of validation errors
-          if (errors.length > 0) {
-            recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
-          } else {
-            recordsErrors[index] = { rowNumber: index, isError: false, errorsList: errors };
+      for (let index = 0; index < records.length; index++) {
+        let singleRecord = records[index];
+        //console.log("waiting");
+        const errors = await validate(singleRecord);
+        //console.log("validation errors",errors);
+        // errors is an array of validation errors
+        if (errors.length > 0) {
+          recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
+        } else {
+          recordsErrors[index] = { rowNumber: index, isError: false, errorsList: errors };
+        }
+      }
+
+      const noErrorRecords = records.filter(
+        (record, index) => recordsErrors[index].isError === false,
+      );
+      const listofExistingDevices = await this.checkIfDeviceExisting(records);
+      if (listofExistingDevices.length > 0) {
+        records.forEach((singleRecord, index) => {
+          if (listofExistingDevices.find(
+            (ele) => ele === singleRecord.externalId,
+          )) {
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({
+              error: 'ExternalId already exist, cant add entry with same external id ',
+            });
           }
-        }
-
-        const noErrorRecords = records.filter(
-          (record, index) => recordsErrors[index].isError === false,
-        );
-        const listofExistingDevices = await this.checkIfDeviceExisting(records);
-        if (listofExistingDevices.length > 0) {
-          records.forEach((singleRecord, index) => {
-            if(listofExistingDevices.find(
-              (ele) => ele === singleRecord.externalId,
-            ))
-            {
-              recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({
-                error: 'ExternalId already exist, cant add entry with same external id ',
-              });
-            }
-          });
-        }
-        //console.log("listofExistingDevices",listofExistingDevices);
-        let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
-        //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-        const devicesRegistered = await this.registerCSVBulkDevices(
-          organizationId,
-          records,
-        );
-        //console.log("devicesRegistered",devicesRegistered); 
+        });
+      }
+      //console.log("listofExistingDevices",listofExistingDevices);
+      let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
+      //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
+      const devicesRegistered = await this.registerCSVBulkDevices(
+        organizationId,
+        records,
+      );
+      //console.log("devicesRegistered",devicesRegistered); 
+      //@ts-ignore
+      devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
-        devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
-          //@ts-ignore
-            successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
-        })
-        //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
-       
-        if (recordsErrors.find((ele) => ele.isError === true)) {
-          //console.log("insie if ");
-          this.createFailedRowDetailsForCSVJob(
-            filesAddedForProcessing.jobId,
-            recordsErrors,
-            successfullyAddedRowsAndExternalIds
-          );
-        }
+        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) + 1 });
+      })
+      //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
 
-        //console.log("osdksnd if ");
-
-        this.updateJobStatus(
+      if (recordsErrors.find((ele) => ele.isError === true)) {
+        //console.log("insie if ");
+        this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.jobId,
-          StatusCSV.Completed,
+          recordsErrors,
+          successfullyAddedRowsAndExternalIds
         );
+      }
+
+      //console.log("osdksnd if ");
+
+      this.updateJobStatus(
+        filesAddedForProcessing.jobId,
+        StatusCSV.Completed,
+      );
     })
 
-    
+
 
     // },1);
   }
 
-  csvStringToJSON(csvFileContentInString:string)
-  {
-     
-// Convert the data to String and
-// split it in an array
-var array = csvFileContentInString.split("\r");
- 
-// All the rows of the CSV will be
-// converted to JSON objects which
-// will be added to result in an array
-let result = [];
- 
-// The array[0] contains all the
-// header columns so we store them
-// in headers array
-let headers = array[0].split(", ")
- 
-// Since headers are separated, we
-// need to traverse remaining n-1 rows.
-for (let i = 1; i < array.length - 1; i++) {
-  let obj = {}
- 
-  // Create an empty object to later add
-  // values of the current row to it
-  // Declare string str as current array
-  // value to change the delimiter and
-  // store the generated string in a new
-  // string s
-  let str = array[i]
-  let s = ''
- 
-  // By Default, we get the comma separated
-  // values of a cell in quotes " " so we
-  // use flag to keep track of quotes and
-  // split the string accordingly
-  // If we encounter opening quote (")
-  // then we keep commas as it is otherwise
-  // we replace them with pipe |
-  // We keep adding the characters we
-  // traverse to a String s
-  let flag = 0
-  for (let ch of str) {
-    if (ch === '"' && flag === 0) {
-      flag = 1
+  csvStringToJSON(csvFileContentInString: string) {
+
+    // Convert the data to String and
+    // split it in an array
+    var array = csvFileContentInString.split("\r");
+
+    // All the rows of the CSV will be
+    // converted to JSON objects which
+    // will be added to result in an array
+    let result = [];
+
+    // The array[0] contains all the
+    // header columns so we store them
+    // in headers array
+    let headers = array[0].split(", ")
+
+    // Since headers are separated, we
+    // need to traverse remaining n-1 rows.
+    for (let i = 1; i < array.length - 1; i++) {
+      let obj = {}
+
+      // Create an empty object to later add
+      // values of the current row to it
+      // Declare string str as current array
+      // value to change the delimiter and
+      // store the generated string in a new
+      // string s
+      let str = array[i]
+      let s = ''
+
+      // By Default, we get the comma separated
+      // values of a cell in quotes " " so we
+      // use flag to keep track of quotes and
+      // split the string accordingly
+      // If we encounter opening quote (")
+      // then we keep commas as it is otherwise
+      // we replace them with pipe |
+      // We keep adding the characters we
+      // traverse to a String s
+      let flag = 0
+      for (let ch of str) {
+        if (ch === '"' && flag === 0) {
+          flag = 1
+        }
+        else if (ch === '"' && flag == 1) flag = 0
+        if (ch === ', ' && flag === 0) ch = '|'
+        if (ch !== '"') s += ch
+      }
+
+      // Split the string using pipe delimiter |
+      // and store the values in a properties array
+      let properties = s.split("|")
+
+      // For each header, if the value contains
+      // multiple comma separated data, then we
+      // store it in the form of array otherwise
+      // directly the value is stored
+      for (let j in headers) {
+        if (properties[j].includes(", ")) {
+          //@ts-ignore
+          obj[headers[j]] = properties[j]
+            .split(", ").map(item => item.trim())
+        }
+        else {
+          //@ts-ignore
+          obj[headers[j]] = properties[j];
+        }
+      }
+
+      // Add the generated object to our
+      // result array
+      result.push(obj)
     }
-    else if (ch === '"' && flag == 1) flag = 0
-    if (ch === ', ' && flag === 0) ch = '|'
-    if (ch !== '"') s += ch
+
+    //console.log(result);
   }
- 
-  // Split the string using pipe delimiter |
-  // and store the values in a properties array
-  let properties = s.split("|")
- 
-  // For each header, if the value contains
-  // multiple comma separated data, then we
-  // store it in the form of array otherwise
-  // directly the value is stored
-  for (let j in headers) {
-    if (properties[j].includes(", ")) {
-      //@ts-ignore
-      obj[headers[j]] = properties[j]
-        .split(", ").map(item => item.trim())
-    }
-    else 
-    {
-      //@ts-ignore
-      obj[headers[j]] = properties[j];
-    }
+
+  // async getGroupiCertificateIssueDate(
+  //   organizationId: number,
+  // ): Promise<DeviceGroupIssueCertificate{}> {
+  //   console.log(organizationId);
+  //   return await this.repositoryDeviceGroupcertificate.findByIds({
+  //     organizationId
+  //     //status:StatusCSV.Completed
+  //   });
+  // }
+  async getGroupiCertificateIssueDate(
+    conditions: FindConditions<DeviceGroupIssueCertificate>,
+  ): Promise<DeviceGroupIssueCertificate | null> {
+    return (await this.repositoryDeviceGroupcertificate.findOne(conditions)) ?? null;
   }
- 
-  // Add the generated object to our
-  // result array
-  result.push(obj)
-}
- 
-  //console.log(result);
+  async updatecertificateissuedate(
+    id: number,
+    startdate: string,
+    enddate: string,
+  ): Promise<DeviceGroupIssueCertificate> {
+    // await this.checkNameConflict(data.name);
+    const deviceGroupdate = await this.getGroupiCertificateIssueDate({ id: id });
+    let updatedissuedate = new DeviceGroupIssueCertificate();
+    if (deviceGroupdate) {
+      deviceGroupdate.start_date = startdate;
+      deviceGroupdate.end_date = enddate;
+      updatedissuedate = await this.repository.save(deviceGroupdate);
+
+
+    }
+    return updatedissuedate;
   }
 }

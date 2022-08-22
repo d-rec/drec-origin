@@ -65,7 +65,15 @@ export class DeviceController {
   ): Promise<DeviceDTO[]> {
     return this.deviceService.find(filterDto);
   }
-
+  @Get('/devicegroup')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  async getAllgroupdevcie(
+   
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.NewfindForGroup(1);
+  }
   @Get('/ungrouped/buyerreservation')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin)

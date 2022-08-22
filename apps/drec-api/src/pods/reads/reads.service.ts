@@ -495,26 +495,19 @@ export class ReadsService {
   private async NewfindLatestRead(meterId: string,deviceregisterdate:Date): Promise<ReadDTO | void> {
     console.log("527")
     console.log(deviceregisterdate)
-    //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
-   
     const fluxQuery = `from(bucket: "energy/autogen")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
-
-
-    // 'from(bucket:"energy/autogen") |> range(start: -1d,stop: now()) |> filter(fn: (r) => r._measurement == "read" )'
 
     console.log('*** QUERY ROWS ***')
     console.log(fluxQuery)
     const reads = await this.execute(fluxQuery);
     console.log("reads[0]")
     console.log(reads[0])
-    // if (reads.length === 0) {
-    //   throw new NotFoundException(`Unable to get the latest reading. There are no readings yet for meter ${meterId}`);
-    // }
+   
     return reads[0];
-    // return this.execute(fluxQuery);
+   
 
   }
   async execute(query: any) {
