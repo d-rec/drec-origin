@@ -538,7 +538,8 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     //@ts-ignore
     const org = process.env.INFLUXDB_ORG;
-  
+
+   //@ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org)
   }
   private firstvalidateEnergy(
