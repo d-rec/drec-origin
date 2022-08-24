@@ -499,7 +499,7 @@ export class ReadsService {
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
    
     //@ts-ignore
-    const fluxQuery = `from(bucket: '${process.env.INFLUXDB_BUCKET}')
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
