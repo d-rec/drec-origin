@@ -498,7 +498,8 @@ export class ReadsService {
     console.log(deviceregisterdate)
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
    
-    const fluxQuery = `from(bucket: "energy/autogen")
+    //@ts-ignore
+    const fluxQuery = `from(bucket: ${process.env.INFLUXDB_BUCKET})
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
@@ -527,9 +528,16 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-    const url = 'http://localhost:8086';
-    const token = 'admin:admin'
-    const org = '';
+    // const url = 'http://localhost:8086';
+    // const token = 'admin:admin'
+    // const org = '';
+
+    //@ts-ignore
+    const url =process.env.INFLUXDB_URL;
+    //@ts-ignore
+    const token = process.env.INFLUXDB_TOKEN;
+    //@ts-ignore
+    const org = process.env.INFLUXDB_ORG;
   
     return new InfluxDB({ url, token }).getQueryApi(org)
   }
