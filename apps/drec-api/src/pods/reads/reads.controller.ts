@@ -111,7 +111,7 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
