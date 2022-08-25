@@ -17,6 +17,7 @@ import {
   Post,
   Query,
   UseGuards,
+  ConflictException
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -26,12 +27,17 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
 import {NewIntmediateMeterReadDTO} from '../reads/dto/intermediate_meter_read.dto'
+import { Device, DeviceService } from '../device';
+
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
 export class ReadsController extends BaseReadsController {
   constructor(
     private internalReadsService: ReadsService,
+    private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
   ) {
@@ -115,7 +121,26 @@ export class ReadsController extends BaseReadsController {
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    return await this.internalReadsService.newstoreRead(id, measurements);
+      let device:Device|null = await this.deviceService.findOne(parseInt(id));
+
+      if(device === null)
+      {
+        const message = `Invalid device id`;
+        throw new ConflictException({
+          success: false,
+          message,
+        });
+      }
+      if(device && device.organizationId !== user.organizationId)
+      {
+        const message = `Device doesnt belongs to the requested users organization`;
+        throw new ConflictException({
+          success: false,
+          message,
+        });
+      }
+      return await this.internalReadsService.newstoreRead(id, measurements);
   }
 }
