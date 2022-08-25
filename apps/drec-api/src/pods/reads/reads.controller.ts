@@ -31,6 +31,7 @@ import { Device, DeviceService } from '../device';
 
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+import { DeviceDTO } from '../device/dto';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -123,22 +124,29 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-      let device:Device|null = await this.deviceService.findOne(parseInt(id));
+      let device:DeviceDTO|null = await this.deviceService.findReads(id);
 
       if(device === null)
       {
-        const message = `Invalid device id`;
-        throw new ConflictException({
-          success: false,
-          message,
+        
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Invalid device id`,
+            })
+          );
         });
       }
       if(device && device.organizationId !== user.organizationId)
       {
-        const message = `Device doesnt belongs to the requested users organization`;
-        throw new ConflictException({
-          success: false,
-          message,
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Device doesnt belongs to the requested users organization`,
+            })
+          );
         });
       }
       return await this.internalReadsService.newstoreRead(id, measurements);
