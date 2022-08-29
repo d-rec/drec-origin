@@ -308,6 +308,8 @@ export class DeviceGroupService {
   async createOne(
     organizationId: number,
     group: AddGroupDTO,
+    buyerId?:number,
+    buyerAddress?:string
   ): Promise<DeviceGroupDTO> {
     
     const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
@@ -340,8 +342,8 @@ export class DeviceGroupService {
     {
       let aggregatedCapacity=0;
       devices.forEach(ele=>aggregatedCapacity=ele.capacity+aggregatedCapacity);
-      let reservationStartDate = DateTime.fromISO(new Date(group.startDate).toISOString());
-      let reservationEndDate = DateTime.fromISO(new Date(group.endDate).toISOString());
+      let reservationStartDate = DateTime.fromISO(new Date(group.reservationStartDate).toISOString());
+      let reservationEndDate = DateTime.fromISO(new Date(group.reservationEndDate).toISOString());
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
       ); // hours
@@ -361,10 +363,22 @@ export class DeviceGroupService {
     }
 
     
-    
+    let deviceGroup:NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices,group.name);
+    deviceGroup['reservationStartDate']= group.reservationStartDate;
+    deviceGroup['reservationEndDate']= group.reservationEndDate;
+    deviceGroup['authorityToExceed'] = group.authorityToExceed;
+    deviceGroup['targetVolume'] = group.targetCapacityInMegaWattHour;
+    deviceGroup['targetVolumeCertificateGenerationFailed'] = 0;
+    deviceGroup['targetVolumeCertificateGenerationSucceeded'] = 0;
+    deviceGroup['frequency'] = group.frequency;
+    if(buyerId && buyerAddress)
+    {
+      deviceGroup['buyerId'] = buyerId;
+      deviceGroup['buyerAddress'] = buyerAddress;
+    }
     return await this.create(
       organizationId,
-      this.createDeviceGroupFromDevices(devices, group.name),
+      deviceGroup,
     );
   }
 

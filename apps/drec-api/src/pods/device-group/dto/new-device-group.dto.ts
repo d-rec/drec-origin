@@ -105,4 +105,42 @@ export class NewDeviceGroupDTO
   @IsArray()
   @IsOptional()
   labels: string[];
+
+
+  @ApiProperty({ type: String })
+  @IsOptional()
+  frequency?: string;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationStartDate?: Date;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationEndDate?: Date;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolume?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationSucceeded?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationFailed?: number;
+
+  @ApiProperty({ type: Boolean })
+  @IsOptional()
+  authorityToExceed?: boolean;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  buyerId?: number;
+
+  @ApiProperty({ type: String })
+  @IsOptional()
+  buyerAddress?: string | null | undefined;
+
 }

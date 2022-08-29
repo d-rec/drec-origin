@@ -379,6 +379,7 @@ export class ReadsService {
             console.log(new Date(element.endtimestamp).toLocaleDateString());
             console.log(new Date(Date.now()).toLocaleDateString());
           
+            //@ts-ignore
             if (element.endtimestamp.toISOString() < new Date(device.createdAt).toISOString()) {
               reject(
                 new ConflictException({

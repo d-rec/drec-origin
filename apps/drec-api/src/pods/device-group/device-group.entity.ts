@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn,CreateDateColumn } from 'typeorm';
 import {
   IsString,
   IsNotEmpty,
@@ -101,4 +101,42 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   devices?: Device[];
   organization?: Pick<IFullOrganization, 'name' | 'blockchainAccountAddress'>;
+
+  @Column({ type: 'text', nullable: true })
+  @IsString()
+  @IsOptional()
+  frequency: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolume: number ;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationSucceeded: number ;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationFailed: number ;
+
+  @Column({ type: 'boolean', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  authorityToExceed: boolean ;
+
+
+  @CreateDateColumn({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  reservationStartDate:Date;
+
+  @CreateDateColumn({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  reservationEndDate:Date;
 }

@@ -186,6 +186,8 @@ export class DeviceGroupController {
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
+        user.id,
+        user.blockchainAccountAddress
       );
     }
     else 

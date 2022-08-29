@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, Min,IsBoolean } from 'class-validator';
+import { IsInt, IsString, Min,IsBoolean,IsEnum } from 'class-validator';
+import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 
 export class AddGroupDTO {
   @ApiProperty()
@@ -16,11 +17,11 @@ export class AddGroupDTO {
 
   
   @ApiProperty({ type: Date })
-  startDate:Date;
+  reservationStartDate:Date;
 
   
   @ApiProperty({ type: Date })
-  endDate:Date;
+  reservationEndDate:Date;
 
   @ApiProperty({ type: Boolean })
   continueWithReservationIfOneOrMoreDevicesUnavailableForReservation:boolean;
@@ -30,4 +31,8 @@ export class AddGroupDTO {
 
   @ApiProperty({ type: Boolean })
   authorityToExceed:boolean;
+
+  @ApiProperty()
+  @IsEnum(BuyerReservationCertificateGenerationFrequency)
+  frequency:BuyerReservationCertificateGenerationFrequency;
 }

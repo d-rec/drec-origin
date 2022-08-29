@@ -9,6 +9,13 @@ import {
 import { DeviceDTO } from '../pods/device/dto';
 import { OrganizationDTO } from '../pods/organization/dto';
 
+export enum BuyerReservationCertificateGenerationFrequency {
+  hourly ='hourly',
+  weekly='weekly',
+  monhtly ='monthly',
+  quarterly ='quarterly'
+}
+
 export interface IDeviceGroup {
   id: number;
   name: string;
