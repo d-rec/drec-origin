@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, In } from 'typeorm';
+import { FindOneOptions, Repository, In,IsNull, Not  } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -87,6 +87,12 @@ export class DeviceService {
 
   public async findByIds(ids: number[]): Promise<Device[]> {
     return await this.repository.findByIds(ids);
+  }
+
+  public async findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(ids: number[]): Promise<Device[]> {
+    console.log("ids",ids)
+    return await this.repository.find({where:{id: In(ids),groupId: IsNull()
+    }});
   }
 
   async findOne(

@@ -72,6 +72,8 @@ import {
 } from 'class-validator';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
+import { DateTime } from 'luxon';
+
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -304,7 +306,59 @@ export class DeviceGroupService {
     organizationId: number,
     group: AddGroupDTO,
   ): Promise<DeviceGroupDTO> {
-    const devices = await this.deviceService.findByIds(group.deviceIds);
+    
+    const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    let allDevicesAvailableforBuyerReservation:boolean = true;
+    let unavailableDeviceIds:Array<number>=[];
+    group.deviceIds.forEach(ele=> {
+      if(!devices.find(deviceSingle=>deviceSingle.id === ele))
+      {
+        allDevicesAvailableforBuyerReservation= false;
+        unavailableDeviceIds.push(ele);
+
+      }
+    });
+
+    if(!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation)
+    {
+      if(!allDevicesAvailableforBuyerReservation)
+      {
+        return new Promise((resolve,reject)=>{
+          reject( new ConflictException({
+            success: false,
+            message:'One or more devices device Ids: '+unavailableDeviceIds.join(',') +' are already included in buyer reservation, please add other devices',
+          }))
+        })
+      }
+    }
+    
+
+    if(!group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration)
+    {
+      let aggregatedCapacity=0;
+      devices.forEach(ele=>aggregatedCapacity=ele.capacity+aggregatedCapacity);
+      let reservationStartDate = DateTime.fromISO(new Date(group.startDate).toISOString());
+      let reservationEndDate = DateTime.fromISO(new Date(group.endDate).toISOString());
+      const meteredTimePeriodInHours = Math.abs(
+        reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
+      ); // hours
+      console.log("meteredTimePeriodInHours",meteredTimePeriodInHours);
+      console.log("aggregatedCapacity*meteredTimePeriodInHours",aggregatedCapacity*meteredTimePeriodInHours," group.targetCapacityInMegaWattHour *1000",group.targetCapacityInMegaWattHour *1000);
+      let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour *1000;
+      if(aggregatedCapacity*meteredTimePeriodInHours < targetCapacityInKiloWattHour)
+      {
+        return new Promise((resolve,reject)=>{
+          reject( new ConflictException({
+            success: false,
+            message:'Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration',
+            details: {meteredTimePeriodInHours,targetCapacityInMegaWattHour:group.targetCapacityInMegaWattHour,probablyAchievableCapacityInMegaWattHour:aggregatedCapacity*meteredTimePeriodInHours*0.001}
+          }))
+        })
+      }
+    }
+
+    
+    
     return await this.create(
       organizationId,
       this.createDeviceGroupFromDevices(devices, group.name),
