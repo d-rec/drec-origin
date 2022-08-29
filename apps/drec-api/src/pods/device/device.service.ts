@@ -82,9 +82,35 @@ export class DeviceService {
       order: {
         createdAt: 'DESC',
       },
+      
     });
   }
-
+  public async NewfindForGroup(groupId: number): Promise<Device[]> {
+    const groupdevice= await this.repository.find({
+      where: { groupId },
+      order: {
+        createdAt: 'DESC',
+      },
+     
+      
+    });
+    console.log(groupdevice)
+    const deviceGroupedByCountry = await this.groupBy(groupdevice, 'countryCode');
+    console.log(deviceGroupedByCountry)
+    return deviceGroupedByCountry;
+  }
+  private groupBy(array:any, key:any)  {
+    console.log(array)
+  
+    return array.reduce((result:any, currentValue:any) => {
+    
+      (result[currentValue[key]] = result[currentValue[key]] || []).push(
+        currentValue
+      );
+    
+      return result;
+    }, {});
+  };
   public async findByIds(ids: number[]): Promise<Device[]> {
     return await this.repository.findByIds(ids);
   }

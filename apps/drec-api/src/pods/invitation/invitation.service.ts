@@ -68,9 +68,7 @@ inviteuseradd:Boolean=false;
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    //var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
-    //TODO will change password to setting password link before login for newly created users through invite
-    var randPassword ='pass@123';
+    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
@@ -84,7 +82,7 @@ inviteuseradd:Boolean=false;
     var userid: any;
     if (invitee) {
       userid = invitee
-      this.inviteuseradd=false;
+    
     } else {
       userid = await this.userService.newcreate(inviteuser,UserStatus.Pending,true);
       
