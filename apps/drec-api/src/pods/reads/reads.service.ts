@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { FindOneOptions, Repository, In, FindConditions, Any } from 'typeorm';
 
 import axios from 'axios';
@@ -39,7 +39,7 @@ export class ReadsService {
 
   constructor(
     @InjectRepository(AggregateMeterRead) private readonly repository: Repository<AggregateMeterRead>,
-  
+
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,
@@ -230,10 +230,9 @@ export class ReadsService {
     const currentDate = DateTime.now();
     let deviceAge =
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
-      if(deviceAge == 0)
-      {
-        deviceAge=1;
-      }
+    if (deviceAge == 0) {
+      deviceAge = 1;
+    }
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
     this.logger.debug(`Current Date: ${DateTime.now()}`);
@@ -260,14 +259,14 @@ export class ReadsService {
 
 
   public findlastRead(deviceId: string): Promise<AggregateMeterRead[]> {
-    return  this.repository.find({
+    return this.repository.find({
       where: { deviceId },
       order: {
         id: 'DESC',
       },
       take: 1
     });
-    
+
   }
 
   // new meter read process
@@ -282,9 +281,9 @@ export class ReadsService {
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
     }
-  
+
     const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
-   
+
     const filteredMeasurements = await this.NewfilterMeasurements(
       id,
       roundedMeasurements,
@@ -328,12 +327,12 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    const final = await this.NewfindLatestRead(deviceId,device.createdAt);
-   
+    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+
     let reads: any = [];
- 
+
     if (measurement.type === "History") {
-     
+
       measurement.reads.forEach(async (element) => {
         const currentstart = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
         const currentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
@@ -351,12 +350,12 @@ export class ReadsService {
 
     }
     else if (measurement.type === 'Delta') {
-      
+
       if (!final || !device) {
 
         await this.deviceService.updatereadtype(deviceId, measurement.type);
       } else {
-       
+
         if (device?.meterReadtype != measurement.type) {
           throw new NotFoundException(`This device not used for type  ${measurement.type}`);
 
@@ -372,19 +371,35 @@ export class ReadsService {
 
       });
     }
-    else if (measurement.type === 'Aggregate') {  
+    else if (measurement.type === 'Aggregate') {
       if (!final || !device) {
-        await new Promise((resolve, reject)=>{
-          measurement.reads.forEach(async (element,measurmentreadindex) => {
-            const lastvalue = await this.findlastRead(deviceId);
+        await new Promise((resolve, reject) => {
+          measurement.reads.forEach(async (element, measurmentreadindex) => {
+            console.log(new Date(element.endtimestamp).toLocaleDateString());
+            console.log(new Date(Date.now()).toLocaleDateString());
           
+            if (element.endtimestamp.toISOString() < new Date(device.createdAt).toISOString()) {
+              reject(
+                new ConflictException({
+                  success: false,
+                  message:
+                    'The datetime value of this reading is lesser then from device registration datetime'
+
+                }),
+              );
+
+            }
+
+            const lastvalue = await this.findlastRead(deviceId);
+
             var Delta;
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
+           
             } else {
               Delta = element.value;
             }
-            
+
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: Delta
@@ -395,53 +410,75 @@ export class ReadsService {
               deviceId: deviceId,
               unit: measurement.unit,
               datetime: element.endtimestamp.toString()
-    
+
             });
-            if(measurmentreadindex== measurement.reads.length-1){
-             
+            if (measurmentreadindex == measurement.reads.length - 1) {
+
               resolve(true);
             }
+
           })
         });
         await this.deviceService.updatereadtype(deviceId, measurement.type);
-       
+
       } else {
-        if (device?.meterReadtype != measurement.type&&device?.meterReadtype!=null) {
+        if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
           throw new NotFoundException(`This device not used for type  ${measurement.type}`);
 
         }
-        
-        await new Promise((resolve, reject)=>{
-          measurement.reads.forEach(async (element,measurmentreadindex) => {
-            const lastvalue = await this.findlastRead(deviceId);
-          
+
+        await new Promise((resolve, reject) => {
+          measurement.reads.forEach(async (element, measurmentreadindex) => {
+            if (new Date(element.endtimestamp).toLocaleDateString() != new Date(Date.now()).toLocaleDateString()) {
+              reject(
+                new ConflictException({
+                  success: false,
+                  message:
+                    'Previous date is only allowed in Historic Reads.'
+
+                }),
+              );
+
+            }
+           const lastvalue = await this.findlastRead(deviceId);
+
             var Delta;
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
+              if (Delta === 0) {
+                reject(
+                  new ConflictException({
+                    success: false,
+                    message:
+                      'Invaild Value,This read alredy added'
+
+                  }),
+                );
+              }
             } else {
               Delta = element.value;
             }
-              reads.push({
-                timestamp: new Date(element.endtimestamp),
-                value: Delta
-              })
-              await this.repository.save({
-                value: element.value,
-                deltaValue: Delta,
-                deviceId: deviceId,
-                unit: measurement.unit,
-                datetime: element.endtimestamp.toString()
-      
-              });         
-            if(measurmentreadindex== measurement.reads.length-1){
-             
+            reads.push({
+              timestamp: new Date(element.endtimestamp),
+              value: Delta
+            })
+            await this.repository.save({
+              value: element.value,
+              deltaValue: Delta,
+              deviceId: deviceId,
+              unit: measurement.unit,
+              datetime: element.endtimestamp.toString()
+
+            });
+            if (measurmentreadindex == measurement.reads.length - 1) {
+
               resolve(true);
             }
           })
         });
-       
+
       }
-     
+
     }
     if (!final || !device) {
       if (measurement.type === "History") {
@@ -453,7 +490,7 @@ export class ReadsService {
 
         };
       } else {
-       
+
         return {
           reads: reads.filter((read: ReadDTO) =>
             this.firstvalidateEnergy(read, device),
@@ -479,7 +516,7 @@ export class ReadsService {
           ),
           unit: measurement.unit,
         };
-     }
+      }
     }
 
   }
@@ -492,7 +529,7 @@ export class ReadsService {
   //     return;
   //   }
   // }
-  private async NewfindLatestRead(meterId: string,deviceregisterdate:Date): Promise<ReadDTO | void> {
+  private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
     console.log("527")
     console.log(deviceregisterdate)
     const fluxQuery = `from(bucket: "energy/autogen")
@@ -505,13 +542,13 @@ export class ReadsService {
     const reads = await this.execute(fluxQuery);
     console.log("reads[0]")
     console.log(reads[0])
-   
+
     return reads[0];
-   
+
 
   }
   async execute(query: any) {
-   
+
     const data = await this.dbReader.collectRows(query);
     return data.map((record: any) => ({
       timestamp: new Date(record._time),
@@ -520,9 +557,9 @@ export class ReadsService {
   }
   get dbReader() {
     const url = 'http://localhost:8086';
-    const token = 'admin:admin'
+    const token = process.env.INFLUXDB_TOKEN
     const org = '';
-  
+
     return new InfluxDB({ url, token }).getQueryApi(org)
   }
   private firstvalidateEnergy(
@@ -552,17 +589,15 @@ export class ReadsService {
     const deviceAge =
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+    console.log(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
+    console.log(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    // const currentRead = DateTime.fromISO(new Date(measurement.reads[0].endtimestamp).toISOString());
-    // const lastRead = DateTime.fromISO(final.timestamp.toISOString());
-    if(currentRead<lastRead){
-      throw new NotFoundException(`The time value of this reding is lesser then from last read`);
-
-    }
+   
+   
     const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
@@ -609,7 +644,7 @@ export class ReadsService {
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     const lastRead = DateTime.fromISO(final.timestamp.toISOString());
-   
+
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
