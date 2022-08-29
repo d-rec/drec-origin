@@ -327,8 +327,9 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
-
+    //@ts-ignore
+    const final = await this.NewfindLatestRead(deviceId,device.createdAt);
+   
     let reads: any = [];
 
     if (measurement.type === "History") {
@@ -532,7 +533,10 @@ export class ReadsService {
   private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
     console.log("527")
     console.log(deviceregisterdate)
-    const fluxQuery = `from(bucket: "energy/autogen")
+    //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
+   
+    //@ts-ignore
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
@@ -556,10 +560,18 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-    const url = 'http://localhost:8086';
-    const token = process.env.INFLUXDB_TOKEN
-    const org = '';
+    // const url = 'http://localhost:8086';
+    // const token = 'admin:admin'
+    // const org = '';
 
+    //@ts-ignore
+    const url =process.env.INFLUXDB_URL;
+    //@ts-ignore
+    const token = process.env.INFLUXDB_TOKEN;
+    //@ts-ignore
+    const org = process.env.INFLUXDB_ORG;
+
+   //@ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org)
   }
   private firstvalidateEnergy(
@@ -590,7 +602,9 @@ export class ReadsService {
       currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
     console.log(read.timestamp.toISOString());
+    //@ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
+     //@ts-ignore
     console.log(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,

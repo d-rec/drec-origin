@@ -17,6 +17,7 @@ import {
   Post,
   Query,
   UseGuards,
+  ConflictException
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -26,12 +27,18 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
 import {NewIntmediateMeterReadDTO} from '../reads/dto/intermediate_meter_read.dto'
+import { Device, DeviceService } from '../device';
+
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
+import { DeviceDTO } from '../device/dto';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
 export class ReadsController extends BaseReadsController {
   constructor(
     private internalReadsService: ReadsService,
+    private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
   ) {
@@ -111,11 +118,37 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    return await this.internalReadsService.newstoreRead(id, measurements);
+      let device:DeviceDTO|null = await this.deviceService.findReads(id);
+
+      if(device === null)
+      {
+        
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Invalid device id`,
+            })
+          );
+        });
+      }
+      if(device && device.organizationId !== user.organizationId)
+      {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Device doesnt belongs to the requested users organization`,
+            })
+          );
+        });
+      }
+      return await this.internalReadsService.newstoreRead(id, measurements);
   }
 }
