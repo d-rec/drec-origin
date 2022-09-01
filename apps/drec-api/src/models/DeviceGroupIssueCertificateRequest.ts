@@ -1,6 +1,6 @@
 
 
-export interface IDeviceGroupIssueCertificate {
+export interface IDeviceGroupNextIssueCertificate {
     id: number;
     groupId: number;
     start_date: string;

@@ -9,7 +9,7 @@ import { FileModule } from '../file';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { YieldConfigModule } from '../yield-config/yieldconfig.module';
-import {DeviceGroupIssueCertificate} from './device_group_issuecertificate.entity'
+import {DeviceGroupNextIssueCertificate} from './device_group_issuecertificate.entity'
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import {DeviceGroupIssueCertificate} from './device_group_issuecertificate.entit
       DeviceGroup,
       DeviceCsvFileProcessingJobsEntity,
       DeviceCsvProcessingFailedRowsEntity,
-      DeviceGroupIssueCertificate,
+      DeviceGroupNextIssueCertificate,
     ]),
     forwardRef(() => DeviceModule),
     OrganizationModule,

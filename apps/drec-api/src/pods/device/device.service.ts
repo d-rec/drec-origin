@@ -85,7 +85,7 @@ export class DeviceService {
       
     });
   }
-  public async NewfindForGroup(groupId: number): Promise<Device[]> {
+  public async NewfindForGroup(groupId: number):Promise<{[key:string]:Device[]}> {
     const groupdevice= await this.repository.find({
       where: { groupId },
       order: {
@@ -95,11 +95,13 @@ export class DeviceService {
       
     });
     console.log(groupdevice)
-    const deviceGroupedByCountry = await this.groupBy(groupdevice, 'countryCode');
-    console.log(deviceGroupedByCountry)
+   
+    const deviceGroupedByCountry =  this.groupBy(groupdevice, 'countryCode');
+    console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry;
   }
-  private groupBy(array:any, key:any)  {
+
+  private groupBy(array:any, key:any) :Promise<{[key:string]:Device[]}> {
     console.log(array)
   
     return array.reduce((result:any, currentValue:any) => {
@@ -418,17 +420,14 @@ export class DeviceService {
     return query;
   }
   public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise<Device[]> {
-    console.log(filterDto)
     
     let query = this.getBuyerFilteredQuery(filterDto);
-    console.log(query)
+  
     let where:any= query.where
-    console.log(where)
+    
     where = {...where, groupId:null};
-    console.log(where)
+  
     query.where=where;
-   
-   console.log(query)
     return this.repository.find(query);
   }
 }

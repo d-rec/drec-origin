@@ -328,26 +328,76 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     //@ts-ignore
-    const final = await this.NewfindLatestRead(deviceId,device.createdAt);
-   
+    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+
     let reads: any = [];
 
     if (measurement.type === "History") {
+      await new Promise((resolve, reject) => {
+        measurement.reads.forEach(async (element, measurmentreadindex) => {
 
-      measurement.reads.forEach(async (element) => {
-        const currentstart = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
-        const currentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
-        const meteredTimePeriod = Math.abs(
-          currentstart.diff(currentend, ['hours']).toObject()?.hours || 0,
-        );
-        reads.push({
-          timestamp: new Date(element.endtimestamp),
-          value: element.value,
-          timeperiod: meteredTimePeriod
-        });
+          const requeststartdate = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
+          const requestcurrentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
+          const meteredTimePeriod = Math.abs(
+            requeststartdate.diff(requestcurrentend, ['hours']).toObject()?.hours || 0,
+          );
+          //@ts-ignore
+          const historyAge = new Date(device.createdAt);
+          historyAge.setFullYear(historyAge.getFullYear() - 1);
+          console.log("historyAge");
+          console.log(historyAge);
+          console.log("createdAt");
+          //@ts-ignore
+          console.log(new Date(device?.createdAt));
+          console.log("starttimestamp");
+          console.log(new Date(element.starttimestamp));
+        
+          console.log("endtimestamp");
+          console.log(new Date(element.endtimestamp));
+        
+          //@ts-ignore
+          if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
+            reject(
+              new ConflictException({
+                success: false,
+                message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
 
-      })
+              }),
+            );
+            // throw new NotFoundException(`it can not bs added after devcie registration for ${measurement.type}`);
 
+          }
+          //@ts-ignore
+          if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
+            //@ts-ignore
+            requeststartdate >= DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
+            requestcurrentend <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
+            //@ts-ignore
+            requestcurrentend >= DateTime.fromISO(new Date(device?.createdAt).toISOString())) {
+
+            reject(
+              new ConflictException({
+                success: false,
+                //@ts-ignore
+                message: `For History Type Reads of devices start time and/or end time should be within 1 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
+
+              }),
+            );
+          }
+
+          reads.push({
+            timestamp: new Date(element.endtimestamp),
+            value: element.value,
+            timeperiod: meteredTimePeriod
+          });
+
+          if (measurmentreadindex == measurement.reads.length - 1) {
+
+            resolve(true);
+          }
+
+        })
+      });
 
     }
     else if (measurement.type === 'Delta') {
@@ -376,16 +426,17 @@ export class ReadsService {
       if (!final || !device) {
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
+            console.log(element.endtimestamp);
             console.log(new Date(element.endtimestamp).toLocaleDateString());
             console.log(new Date(Date.now()).toLocaleDateString());
-          
+            console.log(device.createdAt);
             //@ts-ignore
-            if (element.endtimestamp.toISOString() < new Date(device.createdAt).toISOString()) {
+            if (element.endtimestamp < device.createdAt) {
               reject(
                 new ConflictException({
                   success: false,
                   message:
-                    'The datetime value of this reading is lesser then from device registration datetime'
+                    'For Aggregate Type Reads of devices end time is lesser then from device onboarding'
 
                 }),
               );
@@ -397,7 +448,7 @@ export class ReadsService {
             var Delta;
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
-           
+
             } else {
               Delta = element.value;
             }
@@ -442,7 +493,7 @@ export class ReadsService {
               );
 
             }
-           const lastvalue = await this.findlastRead(deviceId);
+            const lastvalue = await this.findlastRead(deviceId);
 
             var Delta;
             if (lastvalue.length > 0) {
@@ -535,7 +586,7 @@ export class ReadsService {
     console.log("527")
     console.log(deviceregisterdate)
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
-   
+
     //@ts-ignore
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
@@ -566,13 +617,13 @@ export class ReadsService {
     // const org = '';
 
     //@ts-ignore
-    const url =process.env.INFLUXDB_URL;
+    const url = process.env.INFLUXDB_URL;
     //@ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
     //@ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
-   //@ts-ignore
+    //@ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org)
   }
   private firstvalidateEnergy(
@@ -605,14 +656,14 @@ export class ReadsService {
     console.log(read.timestamp.toISOString());
     //@ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
-     //@ts-ignore
+    //@ts-ignore
     console.log(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-   
-   
+
+
     const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
