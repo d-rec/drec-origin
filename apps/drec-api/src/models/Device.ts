@@ -42,7 +42,7 @@ export interface IDevice {
   SDGBenefits?: number;
   qualityLabels?: string;
   meterReadtype?: string;
-  created?:Date;
+  createdAt?:Date;
 }
 
 export enum DeviceDescription {

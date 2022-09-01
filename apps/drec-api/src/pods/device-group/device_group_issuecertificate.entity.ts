@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsDate
 } from 'class-validator';
-import { IDeviceGroupIssueCertificate, IFullOrganization } from '../../models';
+import { IDeviceGroupNextIssueCertificate, IFullOrganization } from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
@@ -20,8 +20,8 @@ import {
 } from '../../utils/enums';
 import { Device } from '../device';
 
-@Entity()
-export class DeviceGroupIssueCertificate extends ExtendedBaseEntity implements IDeviceGroupIssueCertificate {
+@Entity('next_issuance_date_log_for_device_group')
+export class DeviceGroupNextIssueCertificate extends ExtendedBaseEntity implements IDeviceGroupNextIssueCertificate {
   @PrimaryGeneratedColumn()
   id: number;
 

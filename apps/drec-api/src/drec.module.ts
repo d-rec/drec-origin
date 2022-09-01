@@ -38,7 +38,7 @@ import { DeveloperScecificGroupingDeviceNotForBuyerReservationModule } from './p
 import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/developer_specific_group_device_only_for_managing_not_for_buyer_reservation.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
-import {DeviceGroupIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
+import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
 import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -72,7 +72,7 @@ export const entities = [
   DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
-  DeviceGroupIssueCertificate,
+  DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
   ...IssuerEntities,
 ];

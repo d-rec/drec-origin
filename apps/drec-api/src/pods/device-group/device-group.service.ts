@@ -50,7 +50,7 @@ import {
   DeviceCsvFileProcessingJobsEntity,
   StatusCSV,
 } from './device_csv_processing_jobs.entity';
-import { DeviceGroupIssueCertificate } from './device_group_issuecertificate.entity';
+import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { Readable } from 'stream';
 import csv from 'csv-parser';
 
@@ -87,8 +87,8 @@ export class DeviceGroupService {
     private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
-    @InjectRepository(DeviceGroupIssueCertificate)
-    private readonly repositoryDeviceGroupcertificate: Repository<DeviceGroupIssueCertificate>,
+    @InjectRepository(DeviceGroupNextIssueCertificate)
+    private readonly repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
     //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
@@ -283,6 +283,26 @@ export class DeviceGroupService {
       organizationId,
       ...data,
       name: groupName,
+    });
+    let hours=1;
+
+     if(group.frequency==='daily'){
+      hours=1*24;
+    }else if(group.frequency==='Monthly'){
+      hours =30*24;
+    }else if(group.frequency==='weekly'){
+      hours =7*24;
+    }else if(group.frequency==='quarterly'){
+      hours =91*24;
+    }
+   //@ts-ignore
+    let startDate= new Date(data.reservationStartDate).toISOString()
+     //@ts-ignore
+    let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+    const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
+      start_date:startDate,
+      end_date:end_date,
+      groupId:group.id
     });
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
@@ -1259,22 +1279,22 @@ export class DeviceGroupService {
   //   });
   // }
   async getGroupiCertificateIssueDate(
-    conditions: FindConditions<DeviceGroupIssueCertificate>,
-  ): Promise<DeviceGroupIssueCertificate | null> {
-    return (await this.repositoryDeviceGroupcertificate.findOne(conditions)) ?? null;
+    conditions: FindConditions<DeviceGroupNextIssueCertificate>,
+  ): Promise<DeviceGroupNextIssueCertificate | null> {
+    return (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null;
   }
   async updatecertificateissuedate(
     id: number,
     startdate: string,
     enddate: string,
-  ): Promise<DeviceGroupIssueCertificate> {
+  ): Promise<DeviceGroupNextIssueCertificate> {
     // await this.checkNameConflict(data.name);
     const deviceGroupdate = await this.getGroupiCertificateIssueDate({ id: id });
-    let updatedissuedate = new DeviceGroupIssueCertificate();
+    let updatedissuedate = new DeviceGroupNextIssueCertificate();
     if (deviceGroupdate) {
       deviceGroupdate.start_date = startdate;
       deviceGroupdate.end_date = enddate;
-      updatedissuedate = await this.repository.save(deviceGroupdate);
+      updatedissuedate = await this.repositorynextDeviceGroupcertificate.save(deviceGroupdate);
 
 
     }
