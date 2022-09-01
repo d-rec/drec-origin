@@ -313,6 +313,15 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     
     const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    if(devices.length ===0)
+    {
+      return new Promise((resolve,reject)=>{
+        reject( new ConflictException({
+          success: false,
+          message:'All devices are unavailable for buyer reservation, please add other devices',
+        }))
+      })
+    }
     let allDevicesAvailableforBuyerReservation:boolean = true;
     let unavailableDeviceIds:Array<number>=[];
     group.deviceIds.forEach(ele=> {
@@ -323,7 +332,7 @@ export class DeviceGroupService {
 
       }
     });
-
+    
     if(!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation)
     {
       if(!allDevicesAvailableforBuyerReservation)
