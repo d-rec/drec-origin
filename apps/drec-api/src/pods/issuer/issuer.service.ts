@@ -261,21 +261,23 @@ export class IssuerService {
     const issuedCertificate = await this.issueCertificate(issuance);
     let start_date = endDate.toString();
     console.log(start_date);
-    let hours = 1;
+   
+    let hours=1;
+    if(group.frequency==='daily'){
+      hours=1*24;
+    }else if(group.frequency==='Monthly'){
+      hours =30*24;
+    }else if(group.frequency==='weekly'){
+      hours =7*24;
+    }else if(group.frequency==='quarterly'){
+      hours =91*24;
+    }
+    let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours* 3.6e+6))).toISOString()
     
-    // if(group.frequency==='daily'){
-    //   hours=1*24;
-    // }else if(group.frequency==='Monthly'){
-    //   hours =30*24;
-    // }else if(group.frequency==='weekly'){
-    //   hours =7*24;
-    // }else if(group.frequency==='quarterly'){
-    //   hours =91*24;
-    // }
-
-    let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
     console.log(end_date);
-    if (end_date <= "2022-12-18T03:49:31.902Z") {
+    console.log('284');
+    console.log(group.reservationEndDate);
+    if( new Date(end_date) < group.reservationEndDate){
       await this.groupService.updatecertificateissuedate(group.id, start_date, end_date);
     }
 
