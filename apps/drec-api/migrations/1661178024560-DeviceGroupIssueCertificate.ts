@@ -8,11 +8,11 @@ export class DeviceGroupIssueCertificate1661178024560 implements MigrationInterf
             (
                 id SERIAL NOT NULL,
                 "groupId" integer,
-                "start_date" date,
-                "end_date" date,
+                "start_date" character varying,
+                "end_date" character varying,
                 "unit" character varying,
-                "createdAt" timestamp with time zone,
-                "updatedAt" timestamp with time zone,
+                "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
+                "updatedAt" timestamp with time zone NOT NULL DEFAULT now(),
                 CONSTRAINT devicegroup_issue_certificate_pkey PRIMARY KEY (id)
             )
             `,

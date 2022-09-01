@@ -19,6 +19,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { IDevice } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
 
 @Injectable()
@@ -62,7 +63,7 @@ export class IssuerService {
   //     }),
   //   );
   // }
-  @Cron(' */2 * * * *') 
+  @Cron(' */2 * * * *')
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 
@@ -71,43 +72,82 @@ export class IssuerService {
 
     // this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
 
-    const groups = await this.groupService.getAll();
-    this.logger.debug(groups);
+    const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
+    this.logger.debug(groupsrequestall);
     await Promise.all(
-      groups.map(async (group: DeviceGroup) => {
-        this.logger.debug('78');
-
-        const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
-        //this.logger.debug(requestdate);
-
-        var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
-        this.logger.debug(countryDevicegroup);
-        const organization = await this.organizationService.findOne(
-          group.organizationId,
+      groupsrequestall.map(async (grouprequest: DeviceGroupNextIssueCertificate) => {
+        console.log("79");
+        console.log(new Date());
+        const group = await this.groupService.findOne(
+          { id: grouprequest.groupId }
         );
-        group.organization = {
-          name: organization.name,
-          blockchainAccountAddress: organization.blockchainAccountAddress,
-        };
-        if (requestdate != null) {
-          const startDate = DateTime.fromISO(requestdate.start_date);
-          const endDate = DateTime.fromISO(requestdate.end_date);
-          if (new Date(Date.now()).toLocaleDateString() === new Date(requestdate.end_date).toLocaleDateString()) {
-            for (let key in countryDevicegroup) {
-              console.log(`${key}: "${countryDevicegroup[key]}"`);
-              console.log('98');
-              group.devices = countryDevicegroup[key];
-              console.log('100');
-              return await this.newissueCertificateForGroup(group, startDate, endDate);
-            }           
-          }
-        }
+        console.log("84");
+        let start_date = new Date(grouprequest.end_date).toString();
+        console.log(start_date);
+        this.logger.debug('87');
+        let hours = 1;
+        if (group) {
+          // throw new NotFoundException(`No device found with id`);
 
+          if (group.frequency === 'daily') {
+            hours = 1 * 24;
+          } else if (group.frequency === 'Monthly') {
+            hours = 30 * 24;
+          } else if (group.frequency === 'weekly') {
+            hours = 7 * 24;
+          } else if (group.frequency === 'quarterly') {
+            hours = 91 * 24;
+          }
+          this.logger.debug('101');
+          let end_date = new Date((new Date(new Date(grouprequest.end_date.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+
+          console.log(end_date);
+          console.log('284');
+          console.log(group.reservationEndDate);
+
+
+        //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
+          //this.logger.debug(requestdate);
+
+          var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
+          this.logger.debug(countryDevicegroup);
+          const organization = await this.organizationService.findOne(
+            group.organizationId,
+          );
+          group.organization = {
+            name: organization.name,
+            blockchainAccountAddress: organization.blockchainAccountAddress,
+          };
+         
+            const startDate = DateTime.fromISO(grouprequest.start_date);
+            const endDate = DateTime.fromISO(grouprequest.end_date);
+            if (new Date(Date.now()).toLocaleDateString() === new Date(grouprequest.end_date).toLocaleDateString()) {
+              for (let key in countryDevicegroup) {
+                console.log(`${key}: "${countryDevicegroup[key]}"`);
+                console.log('98');
+                group.devices = countryDevicegroup[key];
+                console.log('100');
+                return await this.newissueCertificateForGroup(group, startDate, endDate);
+              }
+            }
+          
+        }
       }),
     );
   }
 
+  // private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
+  //   console.log(array)
 
+  //   return array.reduce((result: any, currentValue: any) => {
+
+  //     (result[currentValue[key]] = result[currentValue[key]] || []).push(
+  //       currentValue
+  //     );
+
+  //     return result;
+  //   }, {});
+  // };
   private async issueCertificateForGroup(
     group: DeviceGroup,
     startDate: DateTime,
@@ -259,25 +299,26 @@ export class IssuerService {
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
     const issuedCertificate = await this.issueCertificate(issuance);
+
     let start_date = endDate.toString();
     console.log(start_date);
-   
-    let hours=1;
-    if(group.frequency==='daily'){
-      hours=1*24;
-    }else if(group.frequency==='Monthly'){
-      hours =30*24;
-    }else if(group.frequency==='weekly'){
-      hours =7*24;
-    }else if(group.frequency==='quarterly'){
-      hours =91*24;
+
+    let hours = 1;
+    if (group.frequency === 'daily') {
+      hours = 1 * 24;
+    } else if (group.frequency === 'Monthly') {
+      hours = 30 * 24;
+    } else if (group.frequency === 'weekly') {
+      hours = 7 * 24;
+    } else if (group.frequency === 'quarterly') {
+      hours = 91 * 24;
     }
-    let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours* 3.6e+6))).toISOString()
-    
+    let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+
     console.log(end_date);
     console.log('284');
     console.log(group.reservationEndDate);
-    if( new Date(end_date) < group.reservationEndDate){
+    if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
       await this.groupService.updatecertificateissuedate(group.id, start_date, end_date);
     }
 

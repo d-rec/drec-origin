@@ -10,8 +10,8 @@ export class IntermideatryTableFields1658924656241 implements MigrationInterface
                 "value" integer,
                 "deltaValue" integer,
                 "unit" character varying, 
-                "createdAt" timestamp with time zone,
-                "updatedAt" timestamp with time zone,
+                "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
+                "updatedAt" timestamp with time zone NOT NULL DEFAULT now(),
                 "deviceId" character varying,
                 "datetime" character varying,
                 CONSTRAINT aggregate_meterread_pkey PRIMARY KEY (id)

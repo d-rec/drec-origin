@@ -12,6 +12,7 @@ import {
   FindManyOptions,
   FindOperator,
   Raw,
+  LessThan
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -158,7 +159,7 @@ export class DeviceGroupService {
 
   async findOne(
     conditions: FindConditions<DeviceGroup>,
-  ): Promise<DeviceGroupDTO | null> {
+  ): Promise<DeviceGroup | null> {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
@@ -333,15 +334,6 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     
     const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
-    if(devices.length ===0)
-    {
-      return new Promise((resolve,reject)=>{
-        reject( new ConflictException({
-          success: false,
-          message:'All devices are unavailable for buyer reservation, please add other devices',
-        }))
-      })
-    }
     let allDevicesAvailableforBuyerReservation:boolean = true;
     let unavailableDeviceIds:Array<number>=[];
     group.deviceIds.forEach(ele=> {
@@ -352,7 +344,7 @@ export class DeviceGroupService {
 
       }
     });
-    
+
     if(!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation)
     {
       if(!allDevicesAvailableforBuyerReservation)
@@ -1283,6 +1275,15 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     return (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null;
   }
+  async getAllNextrequestCertificate(
+  ): Promise<DeviceGroupNextIssueCertificate[]> {
+    const groupId = await this.repositorynextDeviceGroupcertificate.find({
+      where: {end_date: LessThan(new Date())},
+    });
+    console.log(groupId)
+    return groupId
+  }
+
   async updatecertificateissuedate(
     id: number,
     startdate: string,
