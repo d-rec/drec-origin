@@ -124,6 +124,7 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
+   
       let device:DeviceDTO|null = await this.deviceService.findReads(id);
 
       if(device === null)
@@ -137,6 +138,59 @@ export class ReadsController extends BaseReadsController {
             })
           );
         });
+      }
+
+      if(measurements.type ==="Aggregate" || measurements.type==="Delta")
+      {
+        let allDatesAreAfterCreatedAt:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+            if(new Date(ele.endtimestamp).getTime() < new Date(device.createdAt).getTime())
+            {
+              allDatesAreAfterCreatedAt = false;
+            }
+          }
+        })
+        if(!allDatesAreAfterCreatedAt)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`One or more measurements endtimestamp is less than device onboarding date${device?.createdAt}`,
+              })
+            );
+          });
+        }
+      }
+      if(measurements.type ==="History")
+      {
+        let allDatesAreBeforeCreatedAt:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+            if(new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime())
+            {
+              allDatesAreBeforeCreatedAt = false;
+            }
+            if(new Date(ele.starttimestamp).getTime() > new Date(device.createdAt).getTime())
+            {
+              allDatesAreBeforeCreatedAt = false;
+            }
+          }
+        })
+        if(!allDatesAreBeforeCreatedAt)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`For History reading starttimestamp and endtimestamp should be prior to device onboarding date. One or more measurements endtimestamp and or starttimestamp is greater than device onboarding date${device?.createdAt}`,
+              })
+            );
+          });
+        }
       }
       if(device && device.organizationId !== user.organizationId)
       {
