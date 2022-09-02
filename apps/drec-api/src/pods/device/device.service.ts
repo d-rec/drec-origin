@@ -316,6 +316,14 @@ export class DeviceService {
     return query;
   }
 
+  public async addGroupIdToDeviceForReserving(
+    currentDevice: Device,
+    groupId: number
+  ): Promise<Device> {
+    currentDevice.groupId = groupId;
+    return await this.repository.save(currentDevice);
+  }
+
   public async addToGroup(
     currentDevice: Device,
     groupId: number,

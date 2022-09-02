@@ -99,6 +99,12 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   leftoverReads: number;
 
+  @Column({
+    type: 'json'
+  })
+  @IsOptional()
+  leftoverReadsByCountryCode: any;
+
   devices?: Device[];
   organization?: Pick<IFullOrganization, 'name' | 'blockchainAccountAddress'>;
 

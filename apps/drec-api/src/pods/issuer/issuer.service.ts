@@ -81,6 +81,19 @@ export class IssuerService {
         const group = await this.groupService.findOne(
           { id: grouprequest.groupId }
         );
+        if(!group)
+        {
+          console.error("group is missing",grouprequest.groupId);
+          return;//if group is missing
+        }
+        if(group.leftoverReadsByCountryCode === null || group.leftoverReadsByCountryCode === undefined || group.leftoverReadsByCountryCode==='') 
+        {
+          group.leftoverReadsByCountryCode = {};
+        }
+        if(typeof group.leftoverReadsByCountryCode === 'string')
+        {
+          group.leftoverReadsByCountryCode = JSON.parse(group.leftoverReadsByCountryCode);
+        }
         console.log("84");
         let start_date = new Date(grouprequest.end_date).toString();
         console.log(start_date);
@@ -127,7 +140,7 @@ export class IssuerService {
                 console.log('98');
                 group.devices = countryDevicegroup[key];
                 console.log('100');
-                return await this.newissueCertificateForGroup(group, startDate, endDate);
+                return await this.newissueCertificateForGroup(group, startDate, endDate,key);
               }
             }
           
@@ -225,6 +238,7 @@ export class IssuerService {
     group: DeviceGroup,
     startDate: DateTime,
     endDate: DateTime,
+    countryCodeKey:string
   ): Promise<void> {
     const readsFilter: FilterDTO = {
       offset: 0,
@@ -259,9 +273,10 @@ export class IssuerService {
       return;
     }
 
-    const totalReadValueKw = await this.handleLeftoverReads(
+    const totalReadValueKw = await this.handleLeftoverReadsByCountryCode(
       group,
       totalReadValue,
+      countryCodeKey
     );
 
     if (!totalReadValueKw) {
@@ -346,6 +361,48 @@ export class IssuerService {
       energyValue: certificate.energy.publicVolume,
     };
     await this.certificateService.transfer(transferCommand);
+  }
+
+  private async handleLeftoverReadsByCountryCode(
+    group: DeviceGroup,
+    totalReadValueW: number,
+    countryCodeKey:string
+  ): Promise<number> {
+    // Logic
+    // 1. Get the accummulated read values from devices
+    // 2. Transform current value from watts to kw
+    // 3. Add any leftover value from group to the current total value
+    // 4. Separate all decimal values from the curent kw value and store it as leftover value to the device group
+    // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
+
+    const totalReadValueKw = group.leftoverReadsByCountryCode[countryCodeKey]
+      ? totalReadValueW / 10 ** 3 + group.leftoverReads
+      : totalReadValueW / 10 ** 3;
+    const { integralVal, decimalVal } =
+      this.separateIntegerAndDecimalByCountryCode(totalReadValueKw);
+    await this.groupService.updateLeftOverReadByCountryCode(group.id, decimalVal,countryCodeKey);
+
+    return integralVal;
+  }
+
+  private separateIntegerAndDecimalByCountryCode(num: number): {
+    integralVal: number;
+    decimalVal: number;
+  } {
+    if (!num) {
+      return { integralVal: 0, decimalVal: 0 };
+    }
+    const integralVal = Math.floor(num);
+    const decimalVal = this.roundDecimalNumberByCountryCode(num - integralVal);
+    return { integralVal, decimalVal };
+  }
+
+  private roundDecimalNumberByCountryCode(num: number): number {
+    if (num === 0) {
+      return num;
+    }
+    const precision = 2;
+    return Math.round(num * 10 ** precision) / 10 ** precision;
   }
 
   private async handleLeftoverReads(

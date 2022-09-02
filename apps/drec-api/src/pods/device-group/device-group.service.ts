@@ -308,18 +308,22 @@ export class DeviceGroupService {
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
-    const firstDevice = devices[0];
-    const ownerCode = devices[0].organizationId;
+    // const firstDevice = devices[0];
+    // const ownerCode = devices[0].organizationId;
     await Promise.all(
       devices.map(async (device: Device) => {
-        if (await this.compareDeviceForGrouping(firstDevice, device)) {
-          return await this.deviceService.addToGroup(
+        //if (await this.compareDeviceForGrouping(firstDevice, device)) {
+          return await this.deviceService.addGroupIdToDeviceForReserving(
             device,
-            group.id,
-            ownerCode,
+            group.id
           );
-        }
-        return;
+          // return await this.deviceService.addToGroup(
+          //   device,
+          //   group.id,
+          //   ownerCode,
+          // );
+        //}
+        //return;
       }),
     );
 
@@ -488,6 +492,26 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     const deviceGroup = await this.findById(id);
     deviceGroup.leftoverReads = leftOverRead;
+    const updatedGroup = await this.repository.save(deviceGroup);
+    return updatedGroup;
+  }
+
+  async updateLeftOverReadByCountryCode(
+    id: number,
+    leftOverRead: number,
+    countryCodeKey:string
+  ): Promise<DeviceGroupDTO> {
+    const deviceGroup = await this.findById(id);
+    if(deviceGroup.leftoverReadsByCountryCode === null || deviceGroup.leftoverReadsByCountryCode === undefined || deviceGroup.leftoverReadsByCountryCode==='') 
+    {
+      deviceGroup.leftoverReadsByCountryCode = {};
+    }
+    if(typeof deviceGroup.leftoverReadsByCountryCode === 'string')
+    {
+      deviceGroup.leftoverReadsByCountryCode = JSON.parse(deviceGroup.leftoverReadsByCountryCode);
+    }
+    deviceGroup.leftoverReadsByCountryCode[countryCodeKey] = leftOverRead;
+    deviceGroup.leftoverReadsByCountryCode = JSON.stringify(deviceGroup.leftoverReadsByCountryCode);
     const updatedGroup = await this.repository.save(deviceGroup);
     return updatedGroup;
   }
