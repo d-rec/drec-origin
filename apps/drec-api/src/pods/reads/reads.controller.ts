@@ -164,6 +164,31 @@ export class ReadsController extends BaseReadsController {
           });
         }
       }
+      if(measurements.type ==="Aggregate" || measurements.type==="Delta")
+      {
+        let allEndDatesAreBeforSystemDate:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+           
+            if(new Date(ele.endtimestamp).getTime() > new Date().getTime())
+            {
+              allEndDatesAreBeforSystemDate = false;
+            }
+          }
+        })
+        if(!allEndDatesAreBeforSystemDate)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`One or more measurements endtimestamp is greater than current date`,
+              })
+            );
+          });
+        }
+      }
       if(measurements.type ==="History")
       {
         let allDatesAreBeforeCreatedAt:boolean=true;
