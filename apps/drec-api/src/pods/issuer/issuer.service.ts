@@ -67,10 +67,10 @@ export class IssuerService {
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 
-    // const startDate = DateTime.now().minus({ days: 1 }).toUTC();
-    // const endDate = DateTime.now().minus({ minute: 1 }).toUTC();
+    const startDate1 = DateTime.now().minus({ days: 1 }).toUTC();
+    const endDate1 = DateTime.now().minus({ minute: 1 }).toUTC();
 
-    // this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
+    this.logger.debug(`Start date ${startDate1} - End date ${endDate1}`);
 
     const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
     this.logger.debug(groupsrequestall);
@@ -95,31 +95,11 @@ export class IssuerService {
           group.leftoverReadsByCountryCode = JSON.parse(group.leftoverReadsByCountryCode);
         }
         console.log("84");
-        let start_date = new Date(grouprequest.end_date).toString();
-        console.log(start_date);
         this.logger.debug('87');
-        let hours = 1;
-        if (group) {
           // throw new NotFoundException(`No device found with id`);
 
-          if (group.frequency === 'daily') {
-            hours = 1 * 24;
-          } else if (group.frequency === 'Monthly') {
-            hours = 30 * 24;
-          } else if (group.frequency === 'weekly') {
-            hours = 7 * 24;
-          } else if (group.frequency === 'quarterly') {
-            hours = 91 * 24;
-          }
-          this.logger.debug('101');
-          let end_date = new Date((new Date(new Date(grouprequest.end_date.toString())).getTime() + (hours * 3.6e+6))).toISOString()
 
-          console.log(end_date);
-          console.log('284');
-          console.log(group.reservationEndDate);
-
-
-        //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
+          //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
           //this.logger.debug(requestdate);
 
           var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
@@ -131,20 +111,37 @@ export class IssuerService {
             name: organization.name,
             blockchainAccountAddress: organization.blockchainAccountAddress,
           };
-         
-            const startDate = DateTime.fromISO(grouprequest.start_date);
-            const endDate = DateTime.fromISO(grouprequest.end_date);
-            if (new Date(Date.now()).toLocaleDateString() === new Date(grouprequest.end_date).toLocaleDateString()) {
-              for (let key in countryDevicegroup) {
-                console.log(`${key}: "${countryDevicegroup[key]}"`);
-                console.log('98');
-                group.devices = countryDevicegroup[key];
-                console.log('100');
-                return await this.newissueCertificateForGroup(group, startDate, endDate,key);
-              }
-            }
-          
-        }
+
+          const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
+          const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
+          let start_date = endDate.toString();
+          console.log(start_date);
+
+          let hours = 1;
+          if (group.frequency === 'daily') {
+            hours = 1 * 24;
+          } else if (group.frequency === 'Monthly') {
+            hours = 30 * 24;
+          } else if (group.frequency === 'weekly') {
+            hours = 7 * 24;
+          } else if (group.frequency === 'quarterly') {
+            hours = 91 * 24;
+          }
+          let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+          console.log(end_date);
+          console.log('284');
+          console.log(group.reservationEndDate);
+          if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
+            await this.groupService.updatecertificateissuedate(group.id, start_date, end_date);
+          }
+          this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
+          for (let key in countryDevicegroup) {
+            console.log(`${key}: "${countryDevicegroup[key]}"`);
+            console.log('98');
+            group.devices = countryDevicegroup[key];
+            console.log('100');
+            return await this.newissueCertificateForGroup(group, startDate, endDate,key);
+          }
       }),
     );
   }
@@ -246,7 +243,8 @@ export class IssuerService {
       start: startDate.toString(),
       end: endDate.toString(),
     };
-
+    console.log("240");
+    console.log(readsFilter);
     if (!group?.devices?.length) {
       return;
     }
@@ -264,6 +262,7 @@ export class IssuerService {
         ),
       ),
     );
+    console.log(groupReads);
     const totalReadValue = groupReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue,
       0,
@@ -315,27 +314,7 @@ export class IssuerService {
     );
     const issuedCertificate = await this.issueCertificate(issuance);
 
-    let start_date = endDate.toString();
-    console.log(start_date);
 
-    let hours = 1;
-    if (group.frequency === 'daily') {
-      hours = 1 * 24;
-    } else if (group.frequency === 'Monthly') {
-      hours = 30 * 24;
-    } else if (group.frequency === 'weekly') {
-      hours = 7 * 24;
-    } else if (group.frequency === 'quarterly') {
-      hours = 91 * 24;
-    }
-    let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
-
-    console.log(end_date);
-    console.log('284');
-    console.log(group.reservationEndDate);
-    if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
-      await this.groupService.updatecertificateissuedate(group.id, start_date, end_date);
-    }
 
     return;
   }
@@ -450,6 +429,7 @@ export class IssuerService {
     meterId: string,
     filter: FilterDTO,
   ): Promise<number> {
+    console.log("381")
     const allReads = await this.baseReadsService.find(meterId, filter);
     return allReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue.value,
