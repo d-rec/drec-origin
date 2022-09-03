@@ -48,6 +48,7 @@ import {
   ReserveGroupsDTO,
   CSVBulkUploadDTO,
   JobFailedRowsDTO,
+  EndResavationdateDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
@@ -81,7 +82,7 @@ export class DeviceGroupController {
   parser = parse({
     delimiter: ','
   });
-  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService:FileService) {}
+  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService) { }
 
   @Get()
   @ApiOkResponse({
@@ -162,7 +163,7 @@ export class DeviceGroupController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))//, RolesGuard)
- // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -173,16 +174,14 @@ export class DeviceGroupController {
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
-    console.log("user",user);
-    if(organizationId === null || organizationId === undefined)
-    {
+    console.log("user", user);
+    if (organizationId === null || organizationId === undefined) {
       throw new ConflictException({
         success: false,
-        message:'User does not has organization associated',
+        message: 'User does not has organization associated',
       });
     }
-    if(user.blockchainAccountAddress!==null &&  user.blockchainAccountAddress!==undefined)
-    {
+    if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
@@ -190,14 +189,13 @@ export class DeviceGroupController {
         user.blockchainAccountAddress
       );
     }
-    else 
-    {
+    else {
       throw new ConflictException({
         success: false,
-        message:'Blockchain address is not added for this organization',
+        message: 'Blockchain address is not added for this organization',
       });
     }
-   
+
   }
 
   @Post('/reserve')
@@ -275,53 +273,50 @@ export class DeviceGroupController {
   }
 
 
-  
 
-    @Post('process-creation-bulk-devices-csv')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
-    @Permission('Write')
-    @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-    //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
-    @ApiResponse({
-      status: HttpStatus.OK,
-      type: [DeviceCsvFileProcessingJobsEntity],
-      description: 'Returns created devices from csv',
-    })
-    @ApiBody({ type: CSVBulkUploadDTO})
-    public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser,@UserDecorator() { organizationId }: ILoggedInUser,  @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
-      if(user.organizationId ===null || user.organizationId === undefined)
-      {
-        throw new ConflictException({
-          success: false,
-          message:
-            'User needs to have organization added' 
-        })
-      }
-      let response =  await this.fileService.get(fileToProcess.fileName,user);
-      if(response == undefined)
-      {
-        //throw new Error("file not found");
-        throw new ConflictException({
-          success: false,
-          message:
-            'File Not Found' 
-        })
 
-      }
-      if(!response.filename.endsWith('.csv'))
-      {
-        //throw new Error("file not found");
-        throw new ConflictException({
-          success: false,
-          message:
-            'Invalid file' 
-        })
-
-      }
-      let jobCreated=await this.deviceGroupService.createCSVJobForFile(user.id,organizationId,StatusCSV.Added,response instanceof File? response.id:'');
-      
-      return jobCreated;
+  @Post('process-creation-bulk-devices-csv')
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created devices from csv',
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser, @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+    if (user.organizationId === null || user.organizationId === undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          'User needs to have organization added'
+      })
     }
+    let response = await this.fileService.get(fileToProcess.fileName, user);
+    if (response == undefined) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'File Not Found'
+      })
+
+    }
+    if (!response.filename.endsWith('.csv')) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'Invalid file'
+      })
+
+    }
+    let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, response instanceof File ? response.id : '');
+
+    return jobCreated;
+  }
 
   @Post('/add/:id')
   @UseGuards(AuthGuard('jwt'))
@@ -400,9 +395,9 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
-   @Permission('Read')
-   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
@@ -412,12 +407,12 @@ export class DeviceGroupController {
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<JobFailedRowsDTO | undefined> {
-    console.log("jobId",jobId);
+    console.log("jobId", jobId);
 
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
-    console.log("data",data);
+    console.log("data", data);
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
@@ -433,35 +428,49 @@ export class DeviceGroupController {
     type: [DeviceCsvFileProcessingJobsEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser,@UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log("user",user);
-    console.log("organization",organizationId);
-    
-    if(user.organizationId ===null || user.organizationId === undefined)
-    {
+  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    console.log("user", user);
+    console.log("organization", organizationId);
+
+    if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({
         success: false,
         message:
-          'User needs to have organization added' 
+          'User needs to have organization added'
       })
     }
     return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 
 
-//   @Post('/buyer-reservation')
-//   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-//   @Permission('Write')
-//   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
-//   @ApiResponse({
-//    status: HttpStatus.OK,
-//    type: JobFailedRowsDTO,
-//    description: 'Returns status of job id for bulk upload',
-//  })
-//  public async createBuyerReservationGroups(
-//    @UserDecorator() { organizationId }: ILoggedInUser
-//  ): Promise<JobFailedRowsDTO | undefined> {
-   
-//  }
+  //   @Post('/buyer-reservation')
+  //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  //   @Permission('Write')
+  //   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  //   @ApiResponse({
+  //    status: HttpStatus.OK,
+  //    type: JobFailedRowsDTO,
+  //    description: 'Returns status of job id for bulk upload',
+  //  })
+  //  public async createBuyerReservationGroups(
+  //    @UserDecorator() { organizationId }: ILoggedInUser
+  //  ): Promise<JobFailedRowsDTO | undefined> {
 
+  //  }
+  @Delete('endresavation/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.DeviceOwner, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: EndResavationdateDTO,
+    description: 'Reservation End',
+  })
+  @ApiNotFoundResponse({ description: `No  Reservation found` })
+  public async endresavation(
+    @Param('id') id: number,
+    @Body() endresavationdate: EndResavationdateDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<void> {
+    return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
+  }
 }
