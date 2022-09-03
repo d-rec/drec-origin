@@ -63,7 +63,8 @@ export class IssuerService {
   //     }),
   //   );
   // }
-  @Cron(' */2 * * * *')
+  //@Cron(' */2 * * * *')
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 
@@ -73,7 +74,7 @@ export class IssuerService {
     this.logger.debug(`Start date ${startDate1} - End date ${endDate1}`);
 
     const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
-    this.logger.debug(groupsrequestall);
+    //this.logger.debug("groupsrequestall",groupsrequestall);
     await Promise.all(
       groupsrequestall.map(async (grouprequest: DeviceGroupNextIssueCertificate) => {
         console.log("79");
@@ -127,20 +128,32 @@ export class IssuerService {
           } else if (group.frequency === 'quarterly') {
             hours = 91 * 24;
           }
-          let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+          let end_date = new Date(( new Date( new Date(endDate.toString()) ).getTime() + (hours * 3.6e+6))).toISOString()
           console.log(end_date);
           console.log('284');
+          console.log(typeof group.reservationEndDate);
           console.log(group.reservationEndDate);
+          console.log(group.reservationEndDate.toISOString());
+          let newEndDate:string='';
           if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
-            await this.groupService.updatecertificateissuedate(group.id, start_date, end_date);
+            newEndDate = end_date;
           }
+          else
+          {
+            newEndDate = group.reservationEndDate.toISOString();
+          }
+          console.log("came isnide updating next issuance date");
+          await this.groupService.updatecertificateissuedate(group.id, start_date, newEndDate);
           this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
           for (let key in countryDevicegroup) {
             console.log(`${key}: "${countryDevicegroup[key]}"`);
             console.log('98');
-            group.devices = countryDevicegroup[key];
+            //deep clone to avoid duplicates
+            let newGroup:DeviceGroup = JSON.parse(JSON.stringify(group));
+            newGroup.devices = countryDevicegroup[key];
+            console.log("154",newGroup);
             console.log('100');
-            return await this.newissueCertificateForGroup(group, startDate, endDate,key);
+            this.newissueCertificateForGroup(newGroup, startDate, endDate,key);
           }
       }),
     );
@@ -431,6 +444,7 @@ export class IssuerService {
   ): Promise<number> {
     console.log("381")
     const allReads = await this.baseReadsService.find(meterId, filter);
+    console.log(`allReads externalId:${meterId}`,allReads);
     return allReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue.value,
       0,

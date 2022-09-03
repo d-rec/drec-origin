@@ -280,12 +280,15 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     const groupName =
       (await this.checkNameConflict(data.name, fromBulk)) || data.name;
+      console.log("saving deive group info",data,groupName);
+
     const group = await this.repository.save({
       organizationId,
       ...data,
       name: groupName,
     });
     let hours=1;
+    console.log("saved deive group info",data,groupName);
 
      if(group.frequency==='daily'){
       hours=1*24;
@@ -299,12 +302,17 @@ export class DeviceGroupService {
    //@ts-ignore
     let startDate= new Date(data.reservationStartDate).toISOString()
      //@ts-ignore
-    let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+    let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString();
+
+    console.log("startDate savingd in log next issuance",startDate);
+    console.log("enddtae savingd in log next issuance",end_date);
     const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
       start_date:startDate,
       end_date:end_date,
       groupId:group.id
     });
+    console.log("saved next log",data,groupName);
+
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
@@ -338,6 +346,7 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     
     const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    console.log("devices 341",devices);
     let allDevicesAvailableforBuyerReservation:boolean = true;
     let unavailableDeviceIds:Array<number>=[];
     group.deviceIds.forEach(ele=> {
@@ -387,8 +396,8 @@ export class DeviceGroupService {
       }
     }
 
-    
     let deviceGroup:NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices,group.name);
+    console.log("deviceGroup",deviceGroup);
     deviceGroup['reservationStartDate']= group.reservationStartDate;
     deviceGroup['reservationEndDate']= group.reservationEndDate;
     deviceGroup['authorityToExceed'] = group.authorityToExceed;
@@ -401,6 +410,8 @@ export class DeviceGroupService {
       deviceGroup['buyerId'] = buyerId;
       deviceGroup['buyerAddress'] = buyerAddress;
     }
+    console.log("deviceGroup 408",deviceGroup);
+
     return await this.create(
       organizationId,
       deviceGroup,
@@ -1314,11 +1325,14 @@ export class DeviceGroupService {
     enddate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
     // await this.checkNameConflict(data.name);
-    const deviceGroupdate = await this.getGroupiCertificateIssueDate({ id: id });
+    const deviceGroupdate = await this.getGroupiCertificateIssueDate({ groupId: id });
+    console.log("1329 before updated  deviceGroupDate",deviceGroupdate);
+
     let updatedissuedate = new DeviceGroupNextIssueCertificate();
     if (deviceGroupdate) {
       deviceGroupdate.start_date = startdate;
       deviceGroupdate.end_date = enddate;
+      console.log("1335 updated deviceGroupDate",deviceGroupdate);
       updatedissuedate = await this.repositorynextDeviceGroupcertificate.save(deviceGroupdate);
 
 

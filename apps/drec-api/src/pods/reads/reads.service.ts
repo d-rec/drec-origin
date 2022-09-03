@@ -415,17 +415,22 @@ export class ReadsService {
       }
       await new Promise((resolve, reject) => {
         measurement.reads.forEach((element, measurmentreadindex) => {
-          //@ts-ignore
-          if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
-            reject(
-              new ConflictException({
-                success: false,
-                message:
-                  `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+          if(final)
+          {
+            console.log("final", final);
+                //@ts-ignore
+                if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
+                  reject(
+                    new ConflictException({
+                      success: false,
+                      //@ts-ignore
+                      message:`The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
 
-              }),
-            );
+                    }),
+                  );
+                }
           }
+         
           reads.push({
             timestamp: new Date(element.endtimestamp),
             value: element.value
@@ -479,8 +484,8 @@ export class ReadsService {
                 reject(
                   new ConflictException({
                     success: false,
-                    message:
-                      `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${lastvalue.datetime} `
+                    //@ts-ignore
+                    message:`The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${lastvalue.datetime} `
 
                   }),
                 );
@@ -545,8 +550,7 @@ export class ReadsService {
                   new ConflictException({
                     success: false,
                     //@ts-ignore
-                    message:
-                      `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${lastvalue.datetime}`
+                    message:`The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${lastvalue.datetime}`
 
                   }),
                 );
