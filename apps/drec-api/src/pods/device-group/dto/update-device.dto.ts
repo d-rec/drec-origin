@@ -8,7 +8,7 @@ export class UpdateDeviceGroupDTO {
   name: string;
 }
 
-export class EndResavationdateDTO {
+export class EndReservationdateDTO {
   @ApiProperty()
   @IsDate()
   endresavationdate: Date;

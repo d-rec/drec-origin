@@ -21,6 +21,7 @@ import { IDevice } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
+import { EndReservationdateDTO } from '../device-group/dto';
 
 @Injectable()
 export class IssuerService {
@@ -135,15 +136,29 @@ export class IssuerService {
           console.log(group.reservationEndDate);
           console.log(group.reservationEndDate.toISOString());
           let newEndDate:string='';
-          if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
-            newEndDate = end_date;
-          }
-          else
+          let skipUpdatingNextIssuanceLogTable:boolean= false;
+          if(new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime() )
           {
-            newEndDate = group.reservationEndDate.toISOString();
+            skipUpdatingNextIssuanceLogTable = true;
+            console.log("end time reached for buyer reservation",group);
+            let endDto =new EndReservationdateDTO();
+            endDto.endresavationdate = new Date(group.reservationEndDate);
+            this.groupService.EndReservationGroup(group.id,group.organizationId,endDto,group,grouprequest);
           }
-          console.log("came isnide updating next issuance date");
-          await this.groupService.updatecertificateissuedate(group.id, start_date, newEndDate);
+          if(!skipUpdatingNextIssuanceLogTable)
+          {
+            if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
+              newEndDate = end_date;
+            }
+            else
+            {
+              newEndDate = group.reservationEndDate.toISOString();
+            }
+            console.log("came isnide updating next issuance date");
+            console.log("start_date",start_date,"newEndDate",newEndDate);
+            await this.groupService.updatecertificateissuedate(grouprequest.id, start_date, newEndDate);
+          }
+          
           this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
           for (let key in countryDevicegroup) {
             console.log(`${key}: "${countryDevicegroup[key]}"`);
@@ -153,7 +168,7 @@ export class IssuerService {
             newGroup.devices = countryDevicegroup[key];
             console.log("154",newGroup);
             console.log('100');
-            this.newissueCertificateForGroup(newGroup, startDate, endDate,key);
+            this.newissueCertificateForGroup(newGroup,grouprequest, startDate, endDate,key);
           }
       }),
     );
@@ -246,6 +261,7 @@ export class IssuerService {
   }
   private async newissueCertificateForGroup(
     group: DeviceGroup,
+    grouprequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey:string
@@ -325,7 +341,21 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
+    let totalReadValueMegaWattHour=totalReadValueKw/10**3;
+    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id,group.organizationId,totalReadValueMegaWattHour);
+    if( group.authorityToExceed ===false && (group.targetVolumeCertificateGenerationRequestedInMegaWattHour + totalReadValueMegaWattHour) >= group.targetVolumeInMegaWattHour)
+    {
+      this.groupService.endReservationGroupIfTargetVolumeReached(group.id,group,grouprequest);
+    }
     const issuedCertificate = await this.issueCertificate(issuance);
+
+    // issuedCertificate.then(result=>{
+    //   console.log("353 in after issued certificate result",result);
+
+
+    // }).catch(error=>{
+    //       console.error("requesting for issuance failed",error);
+    // })
 
 
 

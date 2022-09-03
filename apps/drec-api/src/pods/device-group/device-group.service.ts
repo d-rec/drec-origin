@@ -12,7 +12,8 @@ import {
   FindManyOptions,
   FindOperator,
   Raw,
-  LessThan
+  LessThan,
+  In
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -25,7 +26,7 @@ import {
   SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
-  EndResavationdateDTO
+  EndReservationdateDTO
   
 } from './dto';
 import { DeviceGroup } from './device-group.entity';
@@ -258,6 +259,30 @@ export class DeviceGroupService {
     data: ReserveGroupsDTO,
     buyerId: number,
   ): Promise<DeviceGroupDTO[]> {
+    const deviceGroups = await this.repository.find({
+      where: { id: In(data.groupsIds), buyerId }
+    });
+    const updatedDeviceGroups: DeviceGroupDTO[] = [];
+
+    await Promise.all(
+      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+        if (deviceGroup.buyerId === buyerId) {
+          deviceGroup.buyerId = null;
+          deviceGroup.buyerAddress = null;
+          await this.repository.save(deviceGroup);
+        }
+        const updatedGroup = await this.repository.save(deviceGroup);
+        updatedDeviceGroups.push(updatedGroup);
+      }),
+    );
+    return updatedDeviceGroups;
+  }
+/*
+based on old implementation
+  async unreserveGroup(
+    data: ReserveGroupsDTO,
+    buyerId: number,
+  ): Promise<DeviceGroupDTO[]> {
     const deviceGroups = await this.repository.findByIds(data.groupsIds);
     const updatedDeviceGroups: DeviceGroupDTO[] = [];
 
@@ -274,6 +299,7 @@ export class DeviceGroupService {
     );
     return updatedDeviceGroups;
   }
+  */
 
   async create(
     organizationId: number,
@@ -389,9 +415,11 @@ export class DeviceGroupService {
     deviceGroup['reservationStartDate'] = group.reservationStartDate;
     deviceGroup['reservationEndDate'] = group.reservationEndDate;
     deviceGroup['authorityToExceed'] = group.authorityToExceed;
-    deviceGroup['targetVolume'] = group.targetCapacityInMegaWattHour;
-    deviceGroup['targetVolumeCertificateGenerationFailed'] = 0;
-    deviceGroup['targetVolumeCertificateGenerationSucceeded'] = 0;
+    deviceGroup['targetVolumeInMegaWattHour'] = group.targetCapacityInMegaWattHour;
+    deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
+    deviceGroup['targetVolumeCertificateGenerationSucceededInMegaWattHour'] = 0;
+    deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
+    deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
     deviceGroup['frequency'] = group.frequency;
     if (buyerId && buyerAddress) {
       deviceGroup['buyerId'] = buyerId;
@@ -480,6 +508,18 @@ export class DeviceGroupService {
       deviceGroup.id,
     );
     return updatedGroup;
+  }
+
+  async updateTotalReadingRequestedForCertificateIssuance(
+    groupId: number,
+    organizationId: number,
+    targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
+  ) {
+    const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
+
+    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour+targetVolumeCertificateGenerationRequestedInMegaWattHour;
+
+    const updatedGroup = await this.repository.save(deviceGroup);
   }
 
   async updateLeftOverRead(
@@ -1336,17 +1376,24 @@ export class DeviceGroupService {
   }
 
   async EndReservationGroup(
-    id: number,
+    groupId: number,
     organizationId: number,
-    reservationend: EndResavationdateDTO,
+    reservationend: EndReservationdateDTO,
+    group?:DeviceGroupDTO| DeviceGroup,
+    deviceGroupIssueNextDateDTO?:any,
   ): Promise<void> {
-    const group = await this.findDeviceGroupById(id, organizationId);
-    //@ts-ignore
-    if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()) {
-      const deviceGroupdate = await this.getGroupiCertificateIssueDate({ groupId: id });
+    if(!group)
+      group = await this.findDeviceGroupById(groupId, organizationId);
       //@ts-ignore
-      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupdate.id);
-      let devices = await this.deviceService.findForGroup(id);
+    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()","group?.reservationEndDate",group?.reservationEndDate,"reservationend",reservationend,"new Date(group?.reservationEndDate).getTime()",new Date(group?.reservationEndDate).getTime(),"new Date(reservationend).getTime()",new Date(reservationend).getTime(),new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
+    //@ts-ignore
+    if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
+      console.log("came inside ending reservation");
+      if(!deviceGroupIssueNextDateDTO)
+      deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
+      //@ts-ignore
+      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
+      let devices = await this.deviceService.findForGroup(groupId);
 
       if (!devices?.length) {
         return;
@@ -1354,13 +1401,36 @@ export class DeviceGroupService {
 
       await Promise.all(
         devices.map(async (device: any) => {
-          await this.deviceService.removeFromGroup(device.id, id);
+          await this.deviceService.removeFromGroup(device.id, groupId);
         }),
       );
 
 
       return;
     }
+
+  }
+
+  async endReservationGroupIfTargetVolumeReached(
+    groupId: number,
+    group: DeviceGroup,
+    deviceGroupIssueNextDateDTO:DeviceGroupNextIssueCertificate
+  ): Promise<void> {
+      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
+      let devices = await this.deviceService.findForGroup(groupId);
+
+      if (!devices?.length) {
+        return;
+      }
+
+      await Promise.all(
+        devices.map(async (device: any) => {
+          await this.deviceService.removeFromGroup(device.id, groupId);
+        }),
+      );
+
+
+      return;
 
   }
 

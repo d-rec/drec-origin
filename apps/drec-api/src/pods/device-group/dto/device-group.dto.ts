@@ -130,15 +130,20 @@ export class DeviceGroupDTO implements IDeviceGroup {
 
   @ApiProperty({ type: Number })
   @IsOptional()
-  targetVolume?: number;
+  targetVolumeInMegaWattHour?: number;
 
   @ApiProperty({ type: Number })
   @IsOptional()
-  targetVolumeCertificateGenerationSucceeded?: number;
+  targetVolumeCertificateGenerationSucceededInMegaWattHour?: number;
 
   @ApiProperty({ type: Number })
   @IsOptional()
-  targetVolumeCertificateGenerationFailed?: number;
+  targetVolumeCertificateGenerationRequestedInMegaWattHour?: number;
+
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationFailedInMegaWattHour?: number;
 
   @ApiProperty({ type: Boolean })
   @IsOptional()

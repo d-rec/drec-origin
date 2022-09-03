@@ -48,7 +48,7 @@ import {
   ReserveGroupsDTO,
   CSVBulkUploadDTO,
   JobFailedRowsDTO,
-  EndResavationdateDTO,
+  EndReservationdateDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
@@ -462,13 +462,13 @@ export class DeviceGroupController {
   @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: EndResavationdateDTO,
+    type: EndReservationdateDTO,
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
   public async endresavation(
     @Param('id') id: number,
-    @Body() endresavationdate: EndResavationdateDTO,
+    @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
