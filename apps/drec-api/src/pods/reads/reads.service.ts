@@ -414,7 +414,9 @@ export class ReadsService {
       }
       await new Promise((resolve, reject) => {
         measurement.reads.forEach((element, measurmentreadindex) => {
-          //@ts-ignore
+          if(final && final['timestamp'])
+          {
+            //@ts-ignore
           if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
             reject(
               new ConflictException({
@@ -426,7 +428,8 @@ export class ReadsService {
               }),
             );
           }
-         
+          }
+          
           reads.push({
             timestamp: new Date(element.endtimestamp),
             value: element.value

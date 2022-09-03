@@ -368,7 +368,7 @@ export class IssuerService {
     // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
 
     const totalReadValueKw = group.leftoverReadsByCountryCode[countryCodeKey]
-      ? totalReadValueW / 10 ** 3 + group.leftoverReads
+      ? totalReadValueW / 10 ** 3 + group.leftoverReadsByCountryCode[countryCodeKey]
       : totalReadValueW / 10 ** 3;
     const { integralVal, decimalVal } =
       this.separateIntegerAndDecimalByCountryCode(totalReadValueKw);
