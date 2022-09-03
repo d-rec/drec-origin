@@ -29,6 +29,7 @@ export class AggregateMeterRead extends ExtendedBaseEntity implements IAggregate
   unit: Unit;
   
   @ApiProperty({ type: String })
+  @Column()
   @IsString()
   datetime: string;
 
