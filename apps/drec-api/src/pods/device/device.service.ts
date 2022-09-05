@@ -316,6 +316,14 @@ export class DeviceService {
     return query;
   }
 
+  public async addGroupIdToDeviceForReserving(
+    currentDevice: Device,
+    groupId: number
+  ): Promise<Device> {
+    currentDevice.groupId = groupId;
+    return await this.repository.save(currentDevice);
+  }
+
   public async addToGroup(
     currentDevice: Device,
     groupId: number,
@@ -359,11 +367,12 @@ export class DeviceService {
   ): Promise<Device> {
     const currentDevice = await this.getDeviceForGroup(deviceId, groupId);
     if (!currentDevice) {
-      throw new NotFoundException(
-        `No device found with id ${deviceId} and groupId: ${groupId}`,
-      );
+      // throw new NotFoundException(
+      //   `No device found with id ${deviceId} and groupId: ${groupId}`,
+      // );
+      console.error(`in removeFromGroup 373 No device found with id ${deviceId} and groupId: ${groupId}`);
     }
-    currentDevice.groupId = null;
+    currentDevice? currentDevice.groupId = null:'';
 
     return await this.repository.save(currentDevice);
   }

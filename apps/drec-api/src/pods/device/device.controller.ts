@@ -75,8 +75,9 @@ export class DeviceController {
   //   return this.deviceService.NewfindForGroup(1);
   // }
   @Get('/ungrouped/buyerreservation')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,

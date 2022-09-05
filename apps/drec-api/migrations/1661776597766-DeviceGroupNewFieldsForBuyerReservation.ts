@@ -8,9 +8,10 @@ export class DeviceGroupNewFieldsForBuyerReservation1661776597766 implements Mig
         ADD "frequency" character varying,
         ADD "reservationStartDate" TIMESTAMP WITH TIME ZONE,
         ADD "reservationEndDate" TIMESTAMP WITH TIME ZONE, 
-        ADD "targetVolume" integer,
-        ADD "targetVolumeCertificateGenerationSucceeded" integer,
-        ADD "targetVolumeCertificateGenerationFailed" integer,
+        ADD "targetVolumeInMegaWattHour" integer NOT NULL DEFAULT 0,
+        ADD "targetVolumeCertificateGenerationRequestedInMegaWattHour" integer NOT NULL DEFAULT 0,
+        ADD "targetVolumeCertificateGenerationSucceededInMegaWattHour" integer NOT NULL DEFAULT 0,
+        ADD "targetVolumeCertificateGenerationFailedInMegaWattHour" integer NOT NULL DEFAULT 0,
         ADD "authorityToExceed" boolean,
         ADD "leftoverReadsByCountryCode" json
         `);

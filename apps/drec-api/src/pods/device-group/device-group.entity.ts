@@ -99,6 +99,12 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   leftoverReads: number;
 
+  @Column({
+    type: 'json'
+  })
+  @IsOptional()
+  leftoverReadsByCountryCode: any;
+
   devices?: Device[];
   organization?: Pick<IFullOrganization, 'name' | 'blockchainAccountAddress'>;
 
@@ -110,17 +116,22 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolume: number ;
+  targetVolumeInMegaWattHour: number ;
 
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolumeCertificateGenerationSucceeded: number ;
+  targetVolumeCertificateGenerationSucceededInMegaWattHour: number ;
 
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolumeCertificateGenerationFailed: number ;
+  targetVolumeCertificateGenerationRequestedInMegaWattHour: number;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationFailedInMegaWattHour: number ;
 
   @Column({ type: 'boolean', nullable: true })
   @IsNumber()

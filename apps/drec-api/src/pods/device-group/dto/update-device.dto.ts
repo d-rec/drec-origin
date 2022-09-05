@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString,IsDate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateDeviceGroupDTO {
@@ -6,4 +6,10 @@ export class UpdateDeviceGroupDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
+}
+
+export class EndReservationdateDTO {
+  @ApiProperty()
+  @IsDate()
+  endresavationdate: Date;
 }
