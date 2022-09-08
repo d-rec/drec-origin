@@ -36,13 +36,15 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
-
+import {CheckCertificateIssueDateLogForDeviceEntity} from './check_certificate_issue_date_log_for_device.entity'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
     @InjectRepository(Device) private readonly repository: Repository<Device>,
+    @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
+    private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
   ) { }
 
   public async find(filterDto: FilterDTO): Promise<Device[]> {
@@ -439,4 +441,35 @@ export class DeviceService {
     query.where=where;
     return this.repository.find(query);
   }
+
+
+  public async CheckCertificateIssueDateLogForDevice(params:CheckCertificateIssueDateLogForDeviceEntity
+    ): Promise<CheckCertificateIssueDateLogForDeviceEntity>{
+    return await this.checkdevcielogcertificaterepository.save({
+      ...params,
+     
+    });
+  }
+  // public async getCheckCertificateIssueDateLogForDevice(params:CheckCertificateIssueDateLogForDeviceEntity
+  //   ): Promise<CheckCertificateIssueDateLogForDeviceEntity>{
+  //     const groupId = await this.checkdevcielogcertificaterepository.find({
+  //       where: { deviceid:deviceId,
+  //        [
+  //         {
+  //           certificate_issuance_startdate:{
+            
+  //           Between(certificate_issuance_startdate,certificate_issuance_enddate)
+  //         },
+  //         certificate_issuance_enddate:{
+            
+  //           Between(certificate_issuance_startdate,certificate_issuance_enddate)
+  //         }
+  //        }
+         
+  //        ]
+          
+  //       },
+  //     });
+  //     return groupId
+  // }
 }
