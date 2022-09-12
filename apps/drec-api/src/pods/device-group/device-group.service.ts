@@ -26,9 +26,11 @@ import {
   SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
-  EndReservationdateDTO
-  
+  EndReservationdateDTO,
+  NewUpdateDeviceGroupDTO
+
 } from './dto';
+import { defaults } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { DeviceDescription, IDevice } from '../../models';
@@ -277,29 +279,29 @@ export class DeviceGroupService {
     );
     return updatedDeviceGroups;
   }
-/*
-based on old implementation
-  async unreserveGroup(
-    data: ReserveGroupsDTO,
-    buyerId: number,
-  ): Promise<DeviceGroupDTO[]> {
-    const deviceGroups = await this.repository.findByIds(data.groupsIds);
-    const updatedDeviceGroups: DeviceGroupDTO[] = [];
-
-    await Promise.all(
-      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        if (deviceGroup.buyerId === buyerId) {
-          deviceGroup.buyerId = null;
-          deviceGroup.buyerAddress = null;
-          await this.repository.save(deviceGroup);
-        }
-        const updatedGroup = await this.repository.save(deviceGroup);
-        updatedDeviceGroups.push(updatedGroup);
-      }),
-    );
-    return updatedDeviceGroups;
-  }
-  */
+  /*
+  based on old implementation
+    async unreserveGroup(
+      data: ReserveGroupsDTO,
+      buyerId: number,
+    ): Promise<DeviceGroupDTO[]> {
+      const deviceGroups = await this.repository.findByIds(data.groupsIds);
+      const updatedDeviceGroups: DeviceGroupDTO[] = [];
+  
+      await Promise.all(
+        deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+          if (deviceGroup.buyerId === buyerId) {
+            deviceGroup.buyerId = null;
+            deviceGroup.buyerAddress = null;
+            await this.repository.save(deviceGroup);
+          }
+          const updatedGroup = await this.repository.save(deviceGroup);
+          updatedDeviceGroups.push(updatedGroup);
+        }),
+      );
+      return updatedDeviceGroups;
+    }
+    */
 
   async create(
     organizationId: number,
@@ -314,14 +316,14 @@ based on old implementation
       name: groupName,
     });
     let hours = 1;
-
-    if (group.frequency === 'daily') {
+    const frequency = group.frequency.toLowerCase();
+    if (frequency === 'daily') {
       hours = 1 * 24;
-    } else if (group.frequency === 'Monthly') {
+    } else if (frequency === 'monthly') {
       hours = 30 * 24;
-    } else if (group.frequency === 'weekly') {
+    } else if (frequency === 'weekly') {
       hours = 7 * 24;
-    } else if (group.frequency === 'quarterly') {
+    } else if (frequency === 'quarterly') {
       hours = 91 * 24;
     }
     //@ts-ignore
@@ -366,9 +368,31 @@ based on old implementation
   ): Promise<DeviceGroupDTO> {
 
     const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    console.log(devices);
+    await new Promise((resolve, reject) => {
+      devices.forEach(async (ele, index)=> {
+     
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
+        console.log("certifieddevices")
+        console.log(certifieddevices);
+        if(certifieddevices.length>0){
+
+         return reject(new ConflictException({
+          success: false,
+          message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
+        }))
+        }
+        if (index == devices.length - 1) {
+          resolve(true);
+        }
+
+      })
+    });
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     group.deviceIds.forEach(ele => {
+
+
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
         unavailableDeviceIds.push(ele);
@@ -495,12 +519,12 @@ based on old implementation
   async update(
     id: number,
     organizationId: number,
-    data: UpdateDeviceGroupDTO,
+    data: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     await this.checkNameConflict(data.name);
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
-    deviceGroup.name = data.name;
+    deviceGroup.name = defaults(data.name, deviceGroup);
 
     const updatedGroup = await this.repository.save(deviceGroup);
 
@@ -516,8 +540,8 @@ based on old implementation
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
   ) {
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-
-    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour+targetVolumeCertificateGenerationRequestedInMegaWattHour;
+    //@ts-ignore
+    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
 
     const updatedGroup = await this.repository.save(deviceGroup);
   }
@@ -1379,18 +1403,18 @@ based on old implementation
     groupId: number,
     organizationId: number,
     reservationend: EndReservationdateDTO,
-    group?:DeviceGroupDTO| DeviceGroup,
-    deviceGroupIssueNextDateDTO?:any,
+    group?: DeviceGroupDTO | DeviceGroup,
+    deviceGroupIssueNextDateDTO?: any,
   ): Promise<void> {
-    if(!group)
+    if (!group)
       group = await this.findDeviceGroupById(groupId, organizationId);
-      //@ts-ignore
-    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()","group?.reservationEndDate",group?.reservationEndDate,"reservationend",reservationend,"new Date(group?.reservationEndDate).getTime()",new Date(group?.reservationEndDate).getTime(),"new Date(reservationend).getTime()",new Date(reservationend).getTime(),new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
+    //@ts-ignore
+    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
     //@ts-ignore
     if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
       console.log("came inside ending reservation");
-      if(!deviceGroupIssueNextDateDTO)
-      deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
+      if (!deviceGroupIssueNextDateDTO)
+        deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
       //@ts-ignore
       await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
       let devices = await this.deviceService.findForGroup(groupId);
@@ -1414,23 +1438,23 @@ based on old implementation
   async endReservationGroupIfTargetVolumeReached(
     groupId: number,
     group: DeviceGroup,
-    deviceGroupIssueNextDateDTO:DeviceGroupNextIssueCertificate
+    deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate
   ): Promise<void> {
-      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
-      let devices = await this.deviceService.findForGroup(groupId);
+    await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
+    let devices = await this.deviceService.findForGroup(groupId);
 
-      if (!devices?.length) {
-        return;
-      }
-
-      await Promise.all(
-        devices.map(async (device: any) => {
-          await this.deviceService.removeFromGroup(device.id, groupId);
-        }),
-      );
-
-
+    if (!devices?.length) {
       return;
+    }
+
+    await Promise.all(
+      devices.map(async (device: any) => {
+        await this.deviceService.removeFromGroup(device.id, groupId);
+      }),
+    );
+
+
+    return;
 
   }
 

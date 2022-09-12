@@ -64,8 +64,8 @@ export class IssuerService {
   //     }),
   //   );
   // }
-  //@Cron(' */2 * * * *')
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron('0 00 21 * * *')
+   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 
@@ -282,7 +282,7 @@ export class IssuerService {
       group.devices.map(async (device: IDevice) => {
         let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
         let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
-        devicecertificatelogDto.devcieId = device.externalId,
+        devicecertificatelogDto.deviceid = device.externalId,
           devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
           devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
           devicecertificatelogDto.status = 'request',
