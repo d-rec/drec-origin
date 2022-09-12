@@ -367,8 +367,10 @@ export class DeviceGroupService {
     buyerAddress?: string
   ): Promise<DeviceGroupDTO> {
 
-    const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
     console.log(devices);
+    let allDevicesAvailableforBuyerReservation: boolean = true;
+    let unavailableDeviceIds: Array<number> = [];
     await new Promise((resolve, reject) => {
       devices.forEach(async (ele, index)=> {
      
@@ -376,11 +378,12 @@ export class DeviceGroupService {
         console.log("certifieddevices")
         console.log(certifieddevices);
         if(certifieddevices.length>0){
-
-         return reject(new ConflictException({
-          success: false,
-          message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
-        }))
+        allDevicesAvailableforBuyerReservation = false;
+          unavailableDeviceIds.push(ele.id);
+        //  return reject(new ConflictException({
+        //   success: false,
+        //   message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
+        // }))
         }
         if (index == devices.length - 1) {
           resolve(true);
@@ -388,11 +391,10 @@ export class DeviceGroupService {
 
       })
     });
-    let allDevicesAvailableforBuyerReservation: boolean = true;
-    let unavailableDeviceIds: Array<number> = [];
+
+    devices= devices.filter(deviceSingle =>unavailableDeviceIds.find(unavailableid => deviceSingle.id===unavailableid )=== undefined ?true : false )
+    
     group.deviceIds.forEach(ele => {
-
-
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
         unavailableDeviceIds.push(ele);

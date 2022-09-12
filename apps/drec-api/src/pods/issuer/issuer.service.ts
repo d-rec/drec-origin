@@ -22,6 +22,7 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
+import {SingleDeviceIssuanceStatus} from '../../utils/enums'
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 @Injectable()
 export class IssuerService {
@@ -65,7 +66,7 @@ export class IssuerService {
   //   );
   // }
   //@Cron('0 00 21 * * *')
-   @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every day at 23:30 Server time');
 
@@ -278,22 +279,15 @@ export class IssuerService {
       );
     }
     const groupReads: number[] = [];
+
     await Promise.all(
-      group.devices.map(async (device: IDevice) => {
-        let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
-        let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
-        devicecertificatelogDto.deviceid = device.externalId,
-          devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
-          devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
-          devicecertificatelogDto.status = 'request',
-          devicecertificatelogDto.readvalue_watthour = devciereadvalue;
-        await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
+      group.devices.map(async (device: IDevice) =>
         groupReads.push(
-          devciereadvalue,
-        )
-      }
+          await this.getDeviceFullReads(device.externalId, readsFilter),
+        ),
       ),
     );
+
     console.log(groupReads);
     const totalReadValue = groupReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue,
@@ -350,7 +344,23 @@ export class IssuerService {
       this.groupService.endReservationGroupIfTargetVolumeReached(group.id, group, grouprequest);
     }
     const issuedCertificate = await this.issueCertificate(issuance);
+    console.log("generate Succesfull");
+    if (issuedCertificate) {
+      await Promise.all(
+        group.devices.map(async (device: IDevice) => {
+          let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
+          let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
+          devicecertificatelogDto.deviceid = device.externalId,
+            devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
+            devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
+            devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+            devicecertificatelogDto.readvalue_watthour = devciereadvalue;
+          await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
 
+        }
+        ),
+      );
+    }
     // issuedCertificate.then(result=>{
     //   console.log("353 in after issued certificate result",result);
 

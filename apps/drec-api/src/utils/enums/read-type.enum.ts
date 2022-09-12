@@ -10,3 +10,11 @@ export enum ReadType {
     Pending= 'Pending'
 
   }
+
+  export enum SingleDeviceIssuanceStatus{
+   Requested='Requested',
+   Failed='Failed',
+   Cancelled='Cancelled',
+   Succeeded='Succeeded',
+   Retry='Retry'
+  }

@@ -35,8 +35,9 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
-import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity'
-@Injectable()
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import {SingleDeviceIssuanceStatus} from '../../utils/enums'
+ @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
@@ -512,7 +513,8 @@ export class DeviceService {
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
     .createQueryBuilder("device").
-    where(`device.deviceid = '${deviceid}'`)
+    where("device.deviceid = :deviceid" ,{deviceid:deviceid})
+    .andWhere("device.status ="+SingleDeviceIssuanceStatus.Requested+" OR device.status ="+SingleDeviceIssuanceStatus.Succeeded+"")
     .andWhere(
       new Brackets((db) => {
         db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
