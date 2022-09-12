@@ -4,7 +4,7 @@ export class CheckcretificatelogforDeviceField1662610170745 implements Migration
     name = 'CheckcretificatelogforDeviceField1662610170745';
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `CREATE TABLE IF NOT EXISTS public.next_issuance_date_log_for_device_group
+            `CREATE TABLE IF NOT EXISTS public.check_certificate_issue_date_log_for_device
             (
                 id SERIAL NOT NULL,
                 "deviceid" character varying NOT NULL,
