@@ -370,7 +370,7 @@ export class DeviceGroupController {
   @ApiNotFoundResponse({ description: `No device group found` })
   public async update(
     @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() loggedUser: ILoggedInUser,
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
 
@@ -399,7 +399,7 @@ export class DeviceGroupController {
   
     return await this.deviceGroupService.update(
     id,
-    organizationId,
+    loggedUser,
     groupToUpdate,
   );
   }

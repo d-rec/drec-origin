@@ -15,7 +15,7 @@ export class CheckcretificatelogforDeviceField1662610170745 implements Migration
                 "status" character varying,
                 "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
                 "updatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-                CONSTRAINT devicegroup_issue_certificate_pkey PRIMARY KEY (id)
+                CONSTRAINT check_certificate_issue_date_log_for_device_pkey PRIMARY KEY (id)
             )
             `,
           );
