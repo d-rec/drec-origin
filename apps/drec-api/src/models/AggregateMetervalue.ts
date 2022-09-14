@@ -2,6 +2,7 @@ import {Unit} from '../utils/enums'
 import {
     IsDate,
       IsOptional,
+      IsPositive
       
     } from 'class-validator';
     import { ApiProperty } from '@nestjs/swagger';
@@ -15,6 +16,7 @@ import {
       endtimestamp:Date;
       
       @ApiProperty({ type: Number })
+      @IsPositive()
       value: number;
   }
   
