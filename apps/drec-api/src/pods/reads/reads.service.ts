@@ -406,7 +406,7 @@ export class ReadsService {
         await this.deviceService.updatereadtype(deviceId, measurement.type);
       } else {
 
-        if (device?.meterReadtype != measurement.type) {
+        if (device?.meterReadtype != measurement.type && device?.meterReadtype!=null) {
           throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
 
         }
