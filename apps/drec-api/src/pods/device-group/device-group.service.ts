@@ -65,7 +65,6 @@ import csvtojsonV2 from "csvtojson";
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
-
 import {
   validate,
   validateOrReject,
@@ -81,6 +80,7 @@ import {
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 import { DateTime } from 'luxon';
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
 
 @Injectable()
 export class DeviceGroupService {
@@ -100,8 +100,10 @@ export class DeviceGroupService {
     //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
     private readonly fileService: FileService,
-    private yieldConfigService: YieldConfigService
-
+    private yieldConfigService: YieldConfigService,
+    @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
+    private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
+ 
 
   ) { }
 
@@ -595,7 +597,7 @@ export class DeviceGroupService {
 
 
     await this.checkNameConflict(data.name);
-    const deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
+    let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
     if (User.id != deviceGroup.buyerId) {
 
       throw new UnauthorizedException({
@@ -605,8 +607,8 @@ export class DeviceGroupService {
 
     }
 
-    deviceGroup.name = defaults(data.name, deviceGroup);
-
+    deviceGroup = defaults(data, deviceGroup);
+    console.log(deviceGroup.name)
     const updatedGroup = await this.repository.save(deviceGroup);
 
     updatedGroup.devices = await this.deviceService.findForGroup(
@@ -1538,5 +1540,11 @@ export class DeviceGroupService {
     return;
 
   }
-
+  public async AddCertificateIssueDateLogForDeviceGroup(params: CheckCertificateIssueDateLogForDeviceGroupEntity
+    ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
+      return await this.checkdevciegrouplogcertificaterepository.save({
+        ...params,
+  
+      });
+    }
 }
