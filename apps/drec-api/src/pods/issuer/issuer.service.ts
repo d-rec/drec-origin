@@ -119,11 +119,14 @@ export class IssuerService {
 
         let hours = 1;
         const frequency = group.frequency.toLowerCase();
+        if (frequency === BuyerReservationCertificateGenerationFrequency.hourly) {
+          hours = 1 * 1;
+        }
         if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
           hours = 1 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
           hours = 30 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
           hours = 7 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 91 * 24;
