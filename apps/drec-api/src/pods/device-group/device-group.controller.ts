@@ -49,6 +49,7 @@ import {
   CSVBulkUploadDTO,
   JobFailedRowsDTO,
   EndReservationdateDTO,
+  NewUpdateDeviceGroupDTO
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
@@ -69,7 +70,7 @@ import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from './device_csv_proce
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
-
+import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 
 @ApiTags('device-group')
@@ -198,41 +199,7 @@ export class DeviceGroupController {
 
   }
 
-  @Post('/reserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns a new created Device group',
-  })
-  public async reserve(
-    @UserDecorator()
-    { id, blockchainAccountAddress }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.reserveGroup(
-      ids,
-      id,
-      blockchainAccountAddress,
-    );
-  }
 
-  @Post('/unreserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Unreserves device groups from buyer',
-  })
-  public async unreserve(
-    @UserDecorator()
-    { id }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.unreserveGroup(ids, id);
-  }
 
   @Post('multiple')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -317,7 +284,41 @@ export class DeviceGroupController {
 
     return jobCreated;
   }
+  @Post('/reserve')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Returns a new created Device group',
+  })
+  public async reserve(
+    @UserDecorator()
+    { id, blockchainAccountAddress }: ILoggedInUser,
+    @Body() ids: ReserveGroupsDTO,
+  ): Promise<DeviceGroupDTO[]> {
+    return await this.deviceGroupService.reserveGroup(
+      ids,
+      id,
+      blockchainAccountAddress,
+    );
+  }
 
+  @Post('/unreserve')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Unreserves device groups from buyer',
+  })
+  public async unreserve(
+    @UserDecorator()
+    { id }: ILoggedInUser,
+    @Body() ids: ReserveGroupsDTO,
+  ): Promise<DeviceGroupDTO[]> {
+    return await this.deviceGroupService.unreserveGroup(ids, id);
+  }
   @Post('/add/:id')
   @UseGuards(AuthGuard('jwt'))
   //@Roles(Role.Admin)
@@ -359,118 +360,142 @@ export class DeviceGroupController {
   }
 
   @Patch('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  // @Roles(Role.DeviceOwner, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UpdateDeviceGroupDTO,
+    type: NewUpdateDeviceGroupDTO,
     description: 'Returns an updated Device Group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
   public async update(
     @Param('id') id: number,
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() groupToUpdate: UpdateDeviceGroupDTO,
+    @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
+
+
+    let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({groupId:id});
+    if (devicenextissuence === null) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message:`This device groups reservation has already ended `,
+          })
+        );
+      });
+    }
+    if (new Date(groupToUpdate.reservationEndDate).getTime() < new Date(devicenextissuence.start_date).getTime()) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message:`Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+          })
+        );
+      });
+    }
+  
     return await this.deviceGroupService.update(
-      id,
-      organizationId,
-      groupToUpdate,
-    );
+    id,
+    organizationId,
+    groupToUpdate,
+  );
   }
 
-  @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Remove device group',
-  })
-  @ApiNotFoundResponse({ description: `No device group found` })
-  public async remove(
+@Delete('/:id')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(Role.DeviceOwner, Role.Admin)
+@ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Remove device group',
+})
+@ApiNotFoundResponse({ description: `No device group found` })
+public async remove(
     @Param('id') id: number,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<void> {
-    return await this.deviceGroupService.remove(id, organizationId);
-  }
+  ): Promise < void> {
+  return await this.deviceGroupService.remove(id, organizationId);
+}
 
-  @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: JobFailedRowsDTO,
-    description: 'Returns status of job id for bulk upload',
-  })
-  public async getBulkUploadJobStatus(
+@Get('/bulk-upload-status/:id')
+@UseGuards(AuthGuard('jwt'), PermissionGuard)
+@Permission('Read')
+@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+@ApiResponse({
+  status: HttpStatus.OK,
+  type: JobFailedRowsDTO,
+  description: 'Returns status of job id for bulk upload',
+})
+public async getBulkUploadJobStatus(
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
-  ): Promise<JobFailedRowsDTO | undefined> {
-    console.log("jobId", jobId);
+  ): Promise < JobFailedRowsDTO | undefined > {
+  console.log("jobId", jobId);
 
-    let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId
-    );
-    console.log("data", data);
-    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId
-    );
+  let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+    jobId
+  );
+  console.log("data", data);
+  return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+    jobId
+  );
+}
+
+@Get('/bulk-upload/get-all-csv-jobs-of-organization')
+@UseGuards(AuthGuard('jwt'))
+//@UseGuards(AuthGuard('jwt'),PermissionGuard)
+//@Permission('Read')
+//@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+@ApiResponse({
+  status: HttpStatus.OK,
+  type: [DeviceCsvFileProcessingJobsEntity],
+  description: 'Returns created jobs of an organization',
+})
+public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise < Array < DeviceCsvFileProcessingJobsEntity >> {
+  console.log("user", user);
+  console.log("organization", organizationId);
+
+  if(user.organizationId === null || user.organizationId === undefined) {
+  throw new ConflictException({
+    success: false,
+    message:
+      'User needs to have organization added'
+  })
+}
+return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 
-  @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard('jwt'))
-  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //@Permission('Read')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created jobs of an organization',
-  })
-  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log("user", user);
-    console.log("organization", organizationId);
 
-    if (user.organizationId === null || user.organizationId === undefined) {
-      throw new ConflictException({
-        success: false,
-        message:
-          'User needs to have organization added'
-      })
-    }
-    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
-  }
+//   @Post('/buyer-reservation')
+//   @UseGuards(AuthGuard('jwt'),PermissionGuard)
+//   @Permission('Write')
+//   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
+//   @ApiResponse({
+//    status: HttpStatus.OK,
+//    type: JobFailedRowsDTO,
+//    description: 'Returns status of job id for bulk upload',
+//  })
+//  public async createBuyerReservationGroups(
+//    @UserDecorator() { organizationId }: ILoggedInUser
+//  ): Promise<JobFailedRowsDTO | undefined> {
 
-
-  //   @Post('/buyer-reservation')
-  //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //   @Permission('Write')
-  //   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
-  //   @ApiResponse({
-  //    status: HttpStatus.OK,
-  //    type: JobFailedRowsDTO,
-  //    description: 'Returns status of job id for bulk upload',
-  //  })
-  //  public async createBuyerReservationGroups(
-  //    @UserDecorator() { organizationId }: ILoggedInUser
-  //  ): Promise<JobFailedRowsDTO | undefined> {
-
-  //  }
-  @Delete('endresavation/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: EndReservationdateDTO,
-    description: 'Reservation End',
-  })
-  @ApiNotFoundResponse({ description: `No  Reservation found` })
-  public async endresavation(
+//  }
+@Delete('endresavation/:id')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(Role.DeviceOwner, Role.Admin)
+@ApiResponse({
+  status: HttpStatus.OK,
+  type: EndReservationdateDTO,
+  description: 'Reservation End',
+})
+@ApiNotFoundResponse({ description: `No  Reservation found` })
+public async endresavation(
     @Param('id') id: number,
     @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<void> {
-    return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
-  }
+  ): Promise < void> {
+  return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
+}
 }

@@ -33,11 +33,12 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   readvalue_watthour: number;
   
   @Column()
-  @IsDate()
+  @IsString()
   status: string;
 
   @Column()
-  @IsDate()
-  devcieId: string;
+  @IsString()
+  deviceid: string;
+
 
 }

@@ -17,12 +17,12 @@ import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { IDevice } from '../../models';
+import { IDevice, BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
-import {SingleDeviceIssuanceStatus} from '../../utils/enums'
+import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 @Injectable()
 export class IssuerService {
@@ -118,13 +118,14 @@ export class IssuerService {
         console.log(start_date);
 
         let hours = 1;
-        if (group.frequency === 'daily') {
+        const frequency = group.frequency.toLowerCase();
+        if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
           hours = 1 * 24;
-        } else if (group.frequency === 'Monthly') {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
           hours = 30 * 24;
-        } else if (group.frequency === 'weekly') {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 7 * 24;
-        } else if (group.frequency === 'quarterly') {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 91 * 24;
         }
         let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
@@ -140,7 +141,7 @@ export class IssuerService {
           console.log("end time reached for buyer reservation", group);
           let endDto = new EndReservationdateDTO();
           endDto.endresavationdate = new Date(group.reservationEndDate);
-          this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
+          await this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
         }
         if (!skipUpdatingNextIssuanceLogTable) {
           if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
@@ -281,11 +282,18 @@ export class IssuerService {
     const groupReads: number[] = [];
 
     await Promise.all(
-      group.devices.map(async (device: IDevice) =>
-        groupReads.push(
-          await this.getDeviceFullReads(device.externalId, readsFilter),
-        ),
-      ),
+      group.devices.map(async (device: IDevice) => {
+
+        let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
+        let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
+        devicecertificatelogDto.deviceid = device.externalId,
+          devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
+          devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
+          devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+          devicecertificatelogDto.readvalue_watthour = devciereadvalue;
+        await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
+        groupReads.push(devciereadvalue)
+      }),
     );
 
     console.log(groupReads);
@@ -345,22 +353,15 @@ export class IssuerService {
     }
     const issuedCertificate = await this.issueCertificate(issuance);
     console.log("generate Succesfull");
-    if (issuedCertificate) {
-      await Promise.all(
-        group.devices.map(async (device: IDevice) => {
-          let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
-          let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
-          devicecertificatelogDto.deviceid = device.externalId,
-            devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
-            devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
-            devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
-            devicecertificatelogDto.readvalue_watthour = devciereadvalue;
-          await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
+    // if (issuedCertificate) {
+    //   await Promise.all(
+    //     group.devices.map(async (device: IDevice) => {
 
-        }
-        ),
-      );
-    }
+
+    //     }
+    //     ),
+    //   );
+    // }
     // issuedCertificate.then(result=>{
     //   console.log("353 in after issued certificate result",result);
 

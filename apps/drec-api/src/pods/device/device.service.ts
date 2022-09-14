@@ -514,7 +514,7 @@ export class DeviceService {
     const query = this.checkdevcielogcertificaterepository
     .createQueryBuilder("device").
     where("device.deviceid = :deviceid" ,{deviceid:deviceid})
-    .andWhere("device.status ="+SingleDeviceIssuanceStatus.Requested+" OR device.status ="+SingleDeviceIssuanceStatus.Succeeded+"")
+    .andWhere("device.status ='Requested' OR device.status ='Succeeded'")
     .andWhere(
       new Brackets((db) => {
         db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
@@ -524,7 +524,7 @@ export class DeviceService {
 
       }),
     )
-   
+   console.log(query.getQuery())
     return query;
   }
 }

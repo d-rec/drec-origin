@@ -118,7 +118,7 @@ export class DeviceGroupDTO implements IDeviceGroup {
 
   @ApiProperty({ type: String })
   @IsOptional()
-  frequency?: string;
+  frequency?: string | null;
 
   @ApiProperty({ type: Date })
   @IsOptional()

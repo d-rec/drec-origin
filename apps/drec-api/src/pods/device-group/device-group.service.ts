@@ -33,7 +33,7 @@ import {
 import { defaults } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { DeviceDescription, IDevice } from '../../models';
+import { DeviceDescription, IDevice,BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
@@ -317,19 +317,24 @@ export class DeviceGroupService {
     });
     let hours = 1;
     const frequency = group.frequency.toLowerCase();
-    if (frequency === 'daily') {
+    if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
       hours = 1 * 24;
-    } else if (frequency === 'monthly') {
+    } else if (frequency ===BuyerReservationCertificateGenerationFrequency.monhtly) {
       hours = 30 * 24;
-    } else if (frequency === 'weekly') {
+    } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
       hours = 7 * 24;
-    } else if (frequency === 'quarterly') {
+    } else if (frequency ===BuyerReservationCertificateGenerationFrequency.quarterly) {
       hours = 91 * 24;
     }
     //@ts-ignore
+    console.log(hours);
     let startDate = new Date(data.reservationStartDate).toISOString()
+    console.log("startDate");
+    console.log(startDate);
     //@ts-ignore
     let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+    console.log("end_date");
+    console.log(end_date);
     const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
       start_date: startDate,
       end_date: end_date,
@@ -377,7 +382,7 @@ export class DeviceGroupService {
         const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
         console.log("certifieddevices")
         console.log(certifieddevices);
-        if(certifieddevices.length>0){
+        if(certifieddevices.length>0 && certifieddevices!=undefined){
         allDevicesAvailableforBuyerReservation = false;
           unavailableDeviceIds.push(ele.id);
         //  return reject(new ConflictException({
@@ -482,10 +487,37 @@ export class DeviceGroupService {
     const ownerCode = (
       (await this.deviceService.findForGroup(id)) as Device[]
     )[0]?.organizationId;
-    const devices = await this.deviceService.findByIds(data.deviceIds);
-
+   // const devices = await this.deviceService.findByIds(data.deviceIds);
+    let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(data.deviceIds);
     if (!data?.deviceIds?.length) {
       return;
+    }
+    let allDevicesAvailableforBuyerReservation: boolean = true;
+    let unavailableDeviceIds: Array<number> = [];
+    await new Promise((resolve, reject) => {
+      devices.forEach(async (ele, index)=> {
+     
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, deviceGroup.reservationStartDate, deviceGroup.reservationEndDate);
+        console.log("certifieddevices")
+        console.log(certifieddevices);
+        if(certifieddevices.length>0 && certifieddevices!=undefined){
+          allDevicesAvailableforBuyerReservation=false;
+          unavailableDeviceIds.push(ele.id);
+        }
+        if (index == devices.length - 1) {
+          resolve(true);
+        }
+
+      })
+    });
+
+    if (!allDevicesAvailableforBuyerReservation) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + '  are already generated certificate , please add other devicess',
+        }))
+      })
     }
 
     await Promise.all(
