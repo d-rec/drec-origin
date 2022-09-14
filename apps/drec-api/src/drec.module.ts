@@ -41,6 +41,8 @@ import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_
 import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
 import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
 import {CheckCertificateIssueDateLogForDeviceEntity} from './pods/device/check_certificate_issue_date_log_for_device.entity'
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -76,6 +78,7 @@ export const entities = [
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
   CheckCertificateIssueDateLogForDeviceEntity,
+  CheckCertificateIssueDateLogForDeviceGroupEntity,
   ...IssuerEntities,
 ];
 
