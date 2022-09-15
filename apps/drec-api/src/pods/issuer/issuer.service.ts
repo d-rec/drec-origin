@@ -24,6 +24,7 @@ import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
+import {CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity'
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -119,14 +120,11 @@ export class IssuerService {
 
         let hours = 1;
         const frequency = group.frequency.toLowerCase();
-        if (frequency === BuyerReservationCertificateGenerationFrequency.hourly) {
-          hours = 1 * 1;
-        }
         if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
           hours = 1 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
           hours = 30 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 7 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 91 * 24;
@@ -354,6 +352,15 @@ export class IssuerService {
     if (group.authorityToExceed === false && (group.targetVolumeCertificateGenerationRequestedInMegaWattHour + totalReadValueMegaWattHour) >= group.targetVolumeInMegaWattHour) {
       this.groupService.endReservationGroupIfTargetVolumeReached(group.id, group, grouprequest);
     }
+    let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
+    devicegroupcertificatelogDto.groupid = group.id?.toString(),
+    devicegroupcertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
+    devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
+    devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+    devicegroupcertificatelogDto.readvalue_watthour =  issueTotalReadValue,
+    devicegroupcertificatelogDto.certificate_payload= issuance;
+await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto)
+
     const issuedCertificate = await this.issueCertificate(issuance);
     console.log("generate Succesfull");
     // if (issuedCertificate) {
