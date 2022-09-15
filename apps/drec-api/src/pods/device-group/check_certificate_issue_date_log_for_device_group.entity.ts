@@ -12,7 +12,7 @@ import {
 
 
 @Entity('check_certificate_issue_date_log_for_device_group')
-export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {
+export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
