@@ -42,7 +42,9 @@ import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_
 import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
 import {CheckCertificateIssueDateLogForDeviceEntity} from './pods/device/check_certificate_issue_date_log_for_device.entity'
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-
+import { CountrycodeModule}from './pods/countrycode/countrycode.module'
+import {SdgbenefitModule} from './pods/sdgbenefit/sdgbenefit.module';
+import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -79,6 +81,7 @@ export const entities = [
   AggregateMeterRead,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
+  SdgBenefit,
   ...IssuerEntities,
 ];
 
@@ -138,6 +141,8 @@ const QueueingModule = () => {
     PermissionModule,
     TestapiModule,
     DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
+    CountrycodeModule,
+    SdgbenefitModule
   ],
 })
 export class DrecModule {}

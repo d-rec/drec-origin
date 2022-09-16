@@ -36,8 +36,10 @@ import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import {SingleDeviceIssuanceStatus} from '../../utils/enums'
- @Injectable()
+import { SingleDeviceIssuanceStatus } from '../../utils/enums'
+
+import { FilterKeyDTO } from '../countrycode/dto';
+@Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
@@ -45,6 +47,7 @@ export class DeviceService {
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+
   ) { }
 
   public async find(filterDto: FilterDTO): Promise<Device[]> {
@@ -170,6 +173,11 @@ export class DeviceService {
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     console.log(orgCode);
+
+    const code = newDevice.countryCode.toUpperCase();
+    newDevice.countryCode = code;
+
+
     return await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
@@ -489,7 +497,7 @@ export class DeviceService {
     try {
 
       const device = await query.getRawMany();
-      const devices = device.map((s: any) => {     
+      const devices = device.map((s: any) => {
         const item: any = {
           certificate_issuance_startdate: s.device_certificate_issuance_startdate,
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
@@ -499,7 +507,7 @@ export class DeviceService {
         };
         return item;
       });
-    
+
       return devices;
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
@@ -512,46 +520,19 @@ export class DeviceService {
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
-    .createQueryBuilder("device").
-    where("device.deviceid = :deviceid" ,{deviceid:deviceid})
-    .andWhere(new Brackets((db) => {
-      db.where("device.status ='Requested' OR device.status ='Succeeded'")
-    })).andWhere(
-      new Brackets((db) => {
-        db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
-        .orWhere("device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
-        .orWhere(":startdateThirdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { startdateThirdWhere: startDate })
-        .orWhere(":enddateforthdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { enddateforthdWhere: endDate })
+      .createQueryBuilder("device").
+      where("device.deviceid = :deviceid", { deviceid: deviceid })
+      .andWhere("device.status ='Requested' OR device.status ='Succeeded'")
+      .andWhere(
+        new Brackets((db) => {
+          db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+            .orWhere("device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
+            .orWhere(":startdateThirdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { startdateThirdWhere: startDate })
+            .orWhere(":enddateforthdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { enddateforthdWhere: endDate })
 
-      }),
-    )
-   console.log(query.getQuery())
-
-   let [sql, params] = query.getQueryAndParameters();
-params.forEach((value, i) => {
-  const index = '$' + ( i + 1)
-  if (typeof value === 'string') {
-    sql = sql.replace(index, `"${value}"`);
-  }
-  if (typeof value === 'object') {
-    if (Array.isArray(value)) {
-      sql = sql.replace(
-        index,
-        value.map((element) => (typeof element === 'string' ? `"${element}"` : element)).join(','),
-      );
-    } else {
-      sql = sql.replace(index, value);
-    }
-  }
-  if (['number', 'boolean'].includes(typeof value)) {
-    sql = sql.replace(index, value.toString());
-  }
-});
-
-console.log(sql);
-
-
-
+        }),
+      )
+    console.log(query.getQuery())
     return query;
   }
 }

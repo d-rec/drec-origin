@@ -36,7 +36,7 @@ import {
 
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
-import {PermissionGuard} from '../../guards/PermissionGuard'
+import { PermissionGuard } from '../../guards/PermissionGuard'
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { ActiveUserGuard } from '../../guards';
@@ -45,6 +45,8 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { CountrycodeService } from '../countrycode/countrycode.service';
+import { countrCodesList } from '../../models/country-code'
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
@@ -54,7 +56,8 @@ export class DeviceController {
   constructor(
     private readonly deviceGroupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
-  ) {}
+    private countrycodeService: CountrycodeService,
+  ) { }
 
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -70,7 +73,7 @@ export class DeviceController {
   // @Roles(Role.Admin)
   // @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   // async getAllgroupdevcie(
-   
+
   // ): Promise<DeviceDTO[]> {
   //   return this.deviceService.NewfindForGroup(1);
   // }
@@ -182,9 +185,43 @@ export class DeviceController {
         });
       }
     }
-
-    // try
-    // {
+    // const code = deviceToRegister.countryCode.toUpperCase();
+    // let validcountrycode = await this.countrycodeService.getCountryCode({ searchKeyWord: code })
+    // console.log("validcountrycode")
+    // console.log(validcountrycode)
+    deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
+    if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
+      let countries = countrCodesList;
+      if (countries.find(ele => ele.countryCode === deviceToRegister.countryCode) === undefined) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            }),
+          );
+        });
+      }
+    } else {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+          }),
+        );
+      });
+    }
+    if(deviceToRegister.capacity<=0){
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid Capacity, it should be greater than 0',
+          }),
+        );
+      });
+    }
     return await this.deviceService
       .register(organizationId, deviceToRegister)
       .catch((error) => {
@@ -198,7 +235,7 @@ export class DeviceController {
             );
           });
         } else {
-          console.log("error",error);
+          console.log("error", error);
           return new Promise((resolve, reject) => {
             reject({ error: true });
           });

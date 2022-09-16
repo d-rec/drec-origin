@@ -23,8 +23,8 @@ import { Device } from '../device';
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
-
- @PrimaryGeneratedColumn('uuid')
+ 
+  @PrimaryGeneratedColumn('uuid')
   devicegroup_uid: string;
 
   @Column({ unique: true })
