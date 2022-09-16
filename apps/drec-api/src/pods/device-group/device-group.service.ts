@@ -320,9 +320,7 @@ export class DeviceGroupService {
     });
     let hours = 1;
     const frequency = group.frequency.toLowerCase();
-    if (frequency === BuyerReservationCertificateGenerationFrequency.hourly) {
-      hours = 1 * 1;
-    } else if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
+    if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
       hours = 1 * 24;
     } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
       hours = 30 * 24;
@@ -381,8 +379,6 @@ export class DeviceGroupService {
     console.log(devices);
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
-    let unavailableDeviceIdsDueToCertificateAlreadyIssuedInThoseDates: Array<number> = [];
-    let unavailableDeviceIdsDueToAlreadyInBuyerReservation: Array<number> = [];
     await new Promise((resolve, reject) => {
       devices.forEach(async (ele, index) => {
 
@@ -392,7 +388,6 @@ export class DeviceGroupService {
         if (certifieddevices.length > 0 && certifieddevices != undefined) {
           allDevicesAvailableforBuyerReservation = false;
           unavailableDeviceIds.push(ele.id);
-          unavailableDeviceIdsDueToCertificateAlreadyIssuedInThoseDates.push(ele.id);
           //  return reject(new ConflictException({
           //   success: false,
           //   message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
@@ -408,32 +403,19 @@ export class DeviceGroupService {
     devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false)
 
     group.deviceIds.forEach(ele => {
-      if(unavailableDeviceIds.find(unavailableID=>unavailableID ===ele))
-          return;
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
         unavailableDeviceIds.push(ele);
-        unavailableDeviceIdsDueToAlreadyInBuyerReservation.push(ele);
 
       }
     });
 
     if (!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation) {
       if (!allDevicesAvailableforBuyerReservation) {
-        let message='';
-        if(unavailableDeviceIdsDueToAlreadyInBuyerReservation.length > 0)
-        {
-          message = message+'Device Ids: ' + unavailableDeviceIdsDueToAlreadyInBuyerReservation.join(',') + ' are already included in buyer reservation, ';
-        }
-        if(unavailableDeviceIdsDueToCertificateAlreadyIssuedInThoseDates.length > 0)
-        {
-          message = message+'Device Ids: ' + unavailableDeviceIdsDueToCertificateAlreadyIssuedInThoseDates.join(',') + ' have been already issued certificates in the dates range given';
-        }
-        message = message +', please add other devices or change the dates range for those devices whose certificates are already issued';
         return new Promise((resolve, reject) => {
           reject(new ConflictException({
             success: false,
-            message: message //'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices',
+            message: 'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices',
           }))
         })
       }
@@ -1558,6 +1540,17 @@ export class DeviceGroupService {
     return;
 
   }
+
+  public async getDeviceGrouplog(
+    groupid: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | undefined> {
+    return this.checkdevciegrouplogcertificaterepository.find({
+      where: {
+       groupid,
+      },
+    });
+  }
+
   public async AddCertificateIssueDateLogForDeviceGroup(params: CheckCertificateIssueDateLogForDeviceGroupEntity
     ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
       return await this.checkdevciegrouplogcertificaterepository.save({

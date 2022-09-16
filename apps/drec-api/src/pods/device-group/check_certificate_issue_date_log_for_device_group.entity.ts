@@ -47,4 +47,7 @@ export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBa
   @IsNumber()
   issuer_certificate_id:number;
 
+  @Column()
+  @IsString()
+  countryCode: string;
 }

@@ -358,7 +358,8 @@ export class IssuerService {
     devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
     devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
     devicegroupcertificatelogDto.readvalue_watthour =  issueTotalReadValue,
-    devicegroupcertificatelogDto.certificate_payload= issuance;
+    devicegroupcertificatelogDto.certificate_payload= issuance,
+    devicegroupcertificatelogDto.countryCode=countryCodeKey;
 await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto)
 
     const issuedCertificate = await this.issueCertificate(issuance);

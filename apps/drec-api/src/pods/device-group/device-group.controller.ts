@@ -71,6 +71,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
 
 
 @ApiTags('device-group')
@@ -467,7 +468,15 @@ public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILogged
 return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 
-
+  @Get('certificatelog/:id')
+  @ApiOkResponse({
+    type: DeviceGroupDTO,
+    description: 'Returns a Device group',
+  })
+  @ApiNotFoundResponse({ description: `No device group found` })
+  async getdevciegrouplog(@Param('id') id: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
+    return this.deviceGroupService.getDeviceGrouplog(id);
+  }
 //   @Post('/buyer-reservation')
 //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
 //   @Permission('Write')
