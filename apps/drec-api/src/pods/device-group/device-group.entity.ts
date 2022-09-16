@@ -24,6 +24,9 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
 
+ @PrimaryGeneratedColumn('uuid')
+  devicegroup_uid: string;
+
   @Column({ unique: true })
   @IsNotEmpty()
   @IsString()
