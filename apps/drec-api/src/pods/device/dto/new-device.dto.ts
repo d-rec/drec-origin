@@ -5,7 +5,6 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
-  IsDateString
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -45,6 +44,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   countryCode: string;
 
   // @ApiProperty()
@@ -67,10 +67,13 @@ export class NewDeviceDTO
   // installationConfiguration: Installation;
 
   @ApiProperty()
-  @IsNumber()   
+  @IsNumber()
+  @IsOptional()
   capacity: number;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
   commissioningDate: string;
 
   @ApiProperty()

@@ -15,3 +15,4 @@ export * from './ACLModulesPermission';
 
 export * from './AggregateMetervalue';
 export * from './DeviceGroupIssueCertificateRequest';
+export * from './Sdgbenefit'
