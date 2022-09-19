@@ -176,7 +176,13 @@ export class DeviceGroupController {
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
-    console.log("user", user);
+    if(deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime())
+    {
+      throw new ConflictException({
+        success: false,
+        message: 'start date cannot be less than or same as end date',
+      });
+    }
     if (organizationId === null || organizationId === undefined) {
       throw new ConflictException({
         success: false,

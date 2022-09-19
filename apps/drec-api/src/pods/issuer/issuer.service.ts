@@ -22,7 +22,7 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
-import { SingleDeviceIssuanceStatus } from '../../utils/enums'
+import { CertificateType, SingleDeviceIssuanceStatus, StandardCompliance } from '../../utils/enums'
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import {CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity'
 @Injectable()
@@ -67,9 +67,11 @@ export class IssuerService {
   //   );
   // }
   //@Cron('0 00 21 * * *')
-  @Cron(CronExpression.EVERY_30_SECONDS)
+
+  //@Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron('0 59 * * * *')
   async handleCron(): Promise<void> {
-    this.logger.debug('Called every day at 23:30 Server time');
+    this.logger.debug('Called every hour to check for isssuance of certificates');
 
     const startDate1 = DateTime.now().minus({ days: 1 }).toUTC();
     const endDate1 = DateTime.now().minus({ minute: 1 }).toUTC();
@@ -244,6 +246,7 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
+        buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         deviceGroup,
         groupId: group.id?.toString() || null,
@@ -339,6 +342,10 @@ export class IssuerService {
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
+        buyerReservationId:group.devicegroup_uid,
+        isStandardIssuanceRequested:StandardCompliance.REC,
+        isStandardIssued:false,
+        type:CertificateType.CarbonCredit,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         deviceGroup,
         groupId: group.id?.toString() || null,
