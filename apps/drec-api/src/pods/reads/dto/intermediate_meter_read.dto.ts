@@ -5,7 +5,8 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
+  ValidateNested 
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Unit, ReadType } from '../../../utils/enums'
@@ -58,6 +59,7 @@ export class NewIntmediateMeterReadDTO
   
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
+  @ValidateNested()
   reads: NewReadDTO[];
 
 }
