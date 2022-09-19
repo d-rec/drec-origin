@@ -29,12 +29,12 @@ export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   @ApiProperty({ enum: Role, enumName: 'Role' })
   @IsEnum(Role)
   role: Role;
-roleId:number;
+  roleId: number;
   @ApiProperty({ type: String })
   password: string;
   // permissions: IModulePermissionsConfig;
   // moduleName: string;
-  
+
 }
 
 

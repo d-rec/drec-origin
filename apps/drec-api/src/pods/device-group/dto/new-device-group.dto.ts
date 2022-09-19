@@ -147,4 +147,8 @@ export class NewDeviceGroupDTO
   @IsOptional()
   buyerAddress?: string | null | undefined;
 
+  @ApiProperty({ type: String })
+  @IsOptional()
+  devicegroup_uid?: string | null | undefined;
+
 }

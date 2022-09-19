@@ -3,7 +3,8 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
-  Inject
+  Inject,
+  UnauthorizedException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -26,12 +27,14 @@ import {
   SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
-  EndReservationdateDTO
-  
+  EndReservationdateDTO,
+  NewUpdateDeviceGroupDTO
+
 } from './dto';
+import { defaults } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { DeviceDescription, IDevice } from '../../models';
+import { DeviceDescription, IDevice, BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
@@ -62,7 +65,6 @@ import csvtojsonV2 from "csvtojson";
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
-
 import {
   validate,
   validateOrReject,
@@ -78,6 +80,7 @@ import {
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 import { DateTime } from 'luxon';
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
 
 @Injectable()
 export class DeviceGroupService {
@@ -97,8 +100,10 @@ export class DeviceGroupService {
     //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
     private readonly fileService: FileService,
-    private yieldConfigService: YieldConfigService
-
+    private yieldConfigService: YieldConfigService,
+    @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
+    private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
+ 
 
   ) { }
 
@@ -277,29 +282,29 @@ export class DeviceGroupService {
     );
     return updatedDeviceGroups;
   }
-/*
-based on old implementation
-  async unreserveGroup(
-    data: ReserveGroupsDTO,
-    buyerId: number,
-  ): Promise<DeviceGroupDTO[]> {
-    const deviceGroups = await this.repository.findByIds(data.groupsIds);
-    const updatedDeviceGroups: DeviceGroupDTO[] = [];
-
-    await Promise.all(
-      deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-        if (deviceGroup.buyerId === buyerId) {
-          deviceGroup.buyerId = null;
-          deviceGroup.buyerAddress = null;
-          await this.repository.save(deviceGroup);
-        }
-        const updatedGroup = await this.repository.save(deviceGroup);
-        updatedDeviceGroups.push(updatedGroup);
-      }),
-    );
-    return updatedDeviceGroups;
-  }
-  */
+  /*
+  based on old implementation
+    async unreserveGroup(
+      data: ReserveGroupsDTO,
+      buyerId: number,
+    ): Promise<DeviceGroupDTO[]> {
+      const deviceGroups = await this.repository.findByIds(data.groupsIds);
+      const updatedDeviceGroups: DeviceGroupDTO[] = [];
+  
+      await Promise.all(
+        deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+          if (deviceGroup.buyerId === buyerId) {
+            deviceGroup.buyerId = null;
+            deviceGroup.buyerAddress = null;
+            await this.repository.save(deviceGroup);
+          }
+          const updatedGroup = await this.repository.save(deviceGroup);
+          updatedDeviceGroups.push(updatedGroup);
+        }),
+      );
+      return updatedDeviceGroups;
+    }
+    */
 
   async create(
     organizationId: number,
@@ -314,20 +319,25 @@ based on old implementation
       name: groupName,
     });
     let hours = 1;
-
-    if (group.frequency === 'daily') {
+    const frequency = group.frequency.toLowerCase();
+    if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
       hours = 1 * 24;
-    } else if (group.frequency === 'Monthly') {
+    } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
       hours = 30 * 24;
-    } else if (group.frequency === 'weekly') {
+    } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
       hours = 7 * 24;
-    } else if (group.frequency === 'quarterly') {
+    } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
       hours = 91 * 24;
     }
     //@ts-ignore
+    console.log(hours);
     let startDate = new Date(data.reservationStartDate).toISOString()
+    console.log("startDate");
+    console.log(startDate);
     //@ts-ignore
     let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+    console.log("end_date");
+    console.log(end_date);
     const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
       start_date: startDate,
       end_date: end_date,
@@ -365,9 +375,33 @@ based on old implementation
     buyerAddress?: string
   ): Promise<DeviceGroupDTO> {
 
-    const devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    console.log(devices);
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
+    await new Promise((resolve, reject) => {
+      devices.forEach(async (ele, index) => {
+
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
+        console.log("certifieddevices")
+        console.log(certifieddevices);
+        if (certifieddevices.length > 0 && certifieddevices != undefined) {
+          allDevicesAvailableforBuyerReservation = false;
+          unavailableDeviceIds.push(ele.id);
+          //  return reject(new ConflictException({
+          //   success: false,
+          //   message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
+          // }))
+        }
+        if (index == devices.length - 1) {
+          resolve(true);
+        }
+
+      })
+    });
+
+    devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false)
+
     group.deviceIds.forEach(ele => {
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
@@ -456,10 +490,37 @@ based on old implementation
     const ownerCode = (
       (await this.deviceService.findForGroup(id)) as Device[]
     )[0]?.organizationId;
-    const devices = await this.deviceService.findByIds(data.deviceIds);
-
+    // const devices = await this.deviceService.findByIds(data.deviceIds);
+    let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(data.deviceIds);
     if (!data?.deviceIds?.length) {
       return;
+    }
+    let allDevicesAvailableforBuyerReservation: boolean = true;
+    let unavailableDeviceIds: Array<number> = [];
+    await new Promise((resolve, reject) => {
+      devices.forEach(async (ele, index) => {
+
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, deviceGroup.reservationStartDate, deviceGroup.reservationEndDate);
+        console.log("certifieddevices")
+        console.log(certifieddevices);
+        if (certifieddevices.length > 0 && certifieddevices != undefined) {
+          allDevicesAvailableforBuyerReservation = false;
+          unavailableDeviceIds.push(ele.id);
+        }
+        if (index == devices.length - 1) {
+          resolve(true);
+        }
+
+      })
+    });
+
+    if (!allDevicesAvailableforBuyerReservation) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + '  are already generated certificate , please add other devicess',
+        }))
+      })
     }
 
     await Promise.all(
@@ -468,7 +529,25 @@ based on old implementation
       }),
     );
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-    return deviceGroup;
+
+    const aggregatedCapacity = Math.floor(
+      deviceGroup.devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.capacity,
+        0,
+      ),
+    );
+    deviceGroup.aggregatedCapacity = aggregatedCapacity;
+    const averageYieldValue = Math.floor(
+      deviceGroup.devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.yieldValue,
+        0,
+      ) / devices.length,
+    );
+    deviceGroup.yieldValue = averageYieldValue
+    const updatedGroup = await this.repository.save(deviceGroup);
+    return updatedGroup;
   }
 
   async removeDevices(
@@ -489,19 +568,47 @@ based on old implementation
     );
 
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-    return deviceGroup;
+
+    const aggregatedCapacity = Math.floor(
+      deviceGroup.devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.capacity,
+        0,
+      ),
+    );
+    deviceGroup.aggregatedCapacity = aggregatedCapacity;
+    const averageYieldValue = Math.floor(
+      deviceGroup.devices.reduce(
+        (accumulator, currentValue: DeviceDTO) =>
+          accumulator + currentValue.yieldValue,
+        0,
+      ),
+    );
+    deviceGroup.yieldValue = averageYieldValue
+    const updatedGroup = await this.repository.save(deviceGroup);
+    return updatedGroup;
   }
 
   async update(
     id: number,
-    organizationId: number,
-    data: UpdateDeviceGroupDTO,
+    User: ILoggedInUser,
+    data: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
+
+
     await this.checkNameConflict(data.name);
-    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
+    let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
+    if (User.id != deviceGroup.buyerId) {
 
-    deviceGroup.name = data.name;
+      throw new UnauthorizedException({
+        success: false,
+        message: `Unable to update data. Unauthorized.`,
+      });
 
+    }
+
+    deviceGroup = defaults(data, deviceGroup);
+    console.log(deviceGroup.name)
     const updatedGroup = await this.repository.save(deviceGroup);
 
     updatedGroup.devices = await this.deviceService.findForGroup(
@@ -516,8 +623,8 @@ based on old implementation
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
   ) {
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-
-    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour+targetVolumeCertificateGenerationRequestedInMegaWattHour;
+    //@ts-ignore
+    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
 
     const updatedGroup = await this.repository.save(deviceGroup);
   }
@@ -1379,18 +1486,18 @@ based on old implementation
     groupId: number,
     organizationId: number,
     reservationend: EndReservationdateDTO,
-    group?:DeviceGroupDTO| DeviceGroup,
-    deviceGroupIssueNextDateDTO?:any,
+    group?: DeviceGroupDTO | DeviceGroup,
+    deviceGroupIssueNextDateDTO?: any,
   ): Promise<void> {
-    if(!group)
+    if (!group)
       group = await this.findDeviceGroupById(groupId, organizationId);
-      //@ts-ignore
-    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()","group?.reservationEndDate",group?.reservationEndDate,"reservationend",reservationend,"new Date(group?.reservationEndDate).getTime()",new Date(group?.reservationEndDate).getTime(),"new Date(reservationend).getTime()",new Date(reservationend).getTime(),new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
+    //@ts-ignore
+    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
     //@ts-ignore
     if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
       console.log("came inside ending reservation");
-      if(!deviceGroupIssueNextDateDTO)
-      deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
+      if (!deviceGroupIssueNextDateDTO)
+        deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
       //@ts-ignore
       await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
       let devices = await this.deviceService.findForGroup(groupId);
@@ -1414,24 +1521,41 @@ based on old implementation
   async endReservationGroupIfTargetVolumeReached(
     groupId: number,
     group: DeviceGroup,
-    deviceGroupIssueNextDateDTO:DeviceGroupNextIssueCertificate
+    deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate
   ): Promise<void> {
-      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
-      let devices = await this.deviceService.findForGroup(groupId);
+    await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
+    let devices = await this.deviceService.findForGroup(groupId);
 
-      if (!devices?.length) {
-        return;
-      }
-
-      await Promise.all(
-        devices.map(async (device: any) => {
-          await this.deviceService.removeFromGroup(device.id, groupId);
-        }),
-      );
-
-
+    if (!devices?.length) {
       return;
+    }
+
+    await Promise.all(
+      devices.map(async (device: any) => {
+        await this.deviceService.removeFromGroup(device.id, groupId);
+      }),
+    );
+
+
+    return;
 
   }
 
+  public async getDeviceGrouplog(
+    groupid: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | undefined> {
+    return this.checkdevciegrouplogcertificaterepository.find({
+      where: {
+       groupid,
+      },
+    });
+  }
+
+  public async AddCertificateIssueDateLogForDeviceGroup(params: CheckCertificateIssueDateLogForDeviceGroupEntity
+    ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
+      return await this.checkdevciegrouplogcertificaterepository.save({
+        ...params,
+  
+      });
+    }
 }

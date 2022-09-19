@@ -11,6 +11,7 @@ import { OrganizationDTO } from '../pods/organization/dto';
 
 export enum BuyerReservationCertificateGenerationFrequency {
   hourly ='hourly',
+  daily='daily',
   weekly='weekly',
   monhtly ='monthly',
   quarterly ='quarterly'

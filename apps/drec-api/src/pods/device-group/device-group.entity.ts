@@ -23,6 +23,9 @@ import { Device } from '../device';
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
+ 
+  @PrimaryGeneratedColumn('uuid')
+  devicegroup_uid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -150,4 +153,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3
   })
   reservationEndDate:Date;
+
+  @Column('uuid')
+  devicegroup_uid:string;
 }

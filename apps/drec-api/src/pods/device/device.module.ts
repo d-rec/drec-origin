@@ -6,11 +6,13 @@ import { Device } from './device.entity';
 import {ACLModulePermissions} from '../permission/permission.entity'
 import { DeviceService } from './device.service';
 import {PermissionService} from '../permission/permission.service';
-
+import {CheckCertificateIssueDateLogForDeviceEntity} from './check_certificate_issue_date_log_for_device.entity'
+import {CountrycodeModule} from '../countrycode/countrycode.module'
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
-    TypeOrmModule.forFeature([Device,ACLModulePermissions]),
+    CountrycodeModule,
+    TypeOrmModule.forFeature([Device,ACLModulePermissions,CheckCertificateIssueDateLogForDeviceEntity]),
   ],
   providers: [DeviceService],
   exports: [DeviceService],

@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, In,IsNull, Not  } from 'typeorm';
+import { FindOneOptions, Repository, In, IsNull, Not, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -20,7 +20,6 @@ import {
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceOrderBy, Integrator, Role } from '../../utils/enums';
-import { FindConditions, FindManyOptions, Between,LessThanOrEqual  } from 'typeorm';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -36,13 +35,19 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 
+import { FilterKeyDTO } from '../countrycode/dto';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
     @InjectRepository(Device) private readonly repository: Repository<Device>,
+    @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
+    private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+
   ) { }
 
   public async find(filterDto: FilterDTO): Promise<Device[]> {
@@ -82,34 +87,34 @@ export class DeviceService {
       order: {
         createdAt: 'DESC',
       },
-      
+
     });
   }
-  public async NewfindForGroup(groupId: number):Promise<{[key:string]:Device[]}> {
-    const groupdevice= await this.repository.find({
+  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
+    const groupdevice = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
-     
-      
+
+
     });
     console.log(groupdevice)
-   
-    const deviceGroupedByCountry =  this.groupBy(groupdevice, 'countryCode');
+
+    const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
     console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry;
   }
 
-  private groupBy(array:any, key:any) :Promise<{[key:string]:Device[]}> {
+  private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
     console.log(array)
-  
-    return array.reduce((result:any, currentValue:any) => {
-    
+
+    return array.reduce((result: any, currentValue: any) => {
+
       (result[currentValue[key]] = result[currentValue[key]] || []).push(
         currentValue
       );
-    
+
       return result;
     }, {});
   };
@@ -118,9 +123,12 @@ export class DeviceService {
   }
 
   public async findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(ids: number[]): Promise<Device[]> {
-    console.log("ids",ids)
-    return await this.repository.find({where:{id: In(ids),groupId: IsNull()
-    }});
+    console.log("ids", ids)
+    return await this.repository.find({
+      where: {
+        id: In(ids), groupId: IsNull()
+      }
+    });
   }
 
   async findOne(
@@ -140,7 +148,7 @@ export class DeviceService {
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
   ): Promise<Array<DeviceDTO | null>> {
-    console.log("meterIdList",meterIdList);
+    console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
         where: { externalId: In(meterIdList) },
@@ -165,6 +173,11 @@ export class DeviceService {
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     console.log(orgCode);
+
+    const code = newDevice.countryCode.toUpperCase();
+    newDevice.countryCode = code;
+
+
     return await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
@@ -372,7 +385,7 @@ export class DeviceService {
       // );
       console.error(`in removeFromGroup 373 No device found with id ${deviceId} and groupId: ${groupId}`);
     }
-    currentDevice? currentDevice.groupId = null:'';
+    currentDevice ? currentDevice.groupId = null : '';
 
     return await this.repository.save(currentDevice);
   }
@@ -410,13 +423,13 @@ export class DeviceService {
   //
   private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
-     
+
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-     
+
 
     });
     console.log(where);
@@ -429,14 +442,97 @@ export class DeviceService {
     return query;
   }
   public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise<Device[]> {
-    
+
     let query = this.getBuyerFilteredQuery(filterDto);
-  
-    let where:any= query.where
-    
-    where = {...where, groupId:null};
-  
-    query.where=where;
+
+    let where: any = query.where
+
+    where = { ...where, groupId: null };
+
+    query.where = where;
     return this.repository.find(query);
+  }
+
+
+  public async AddCertificateIssueDateLogForDevice(params: CheckCertificateIssueDateLogForDeviceEntity
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+    return await this.checkdevcielogcertificaterepository.save({
+      ...params,
+
+    });
+  }
+  // public getCheckCertificateIssueDateLogForDevice(deviceid: string,
+  //   startDate: Date,
+  //   endDate: Date
+  // ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity[]> {
+  //   // const groupId = await this.checkdevcielogcertificaterepository.find({
+  //   //   where: {
+  //   //     deviceid: deviceId,
+  //   //     certificate_issuance_startdate: startDate && endDate && Between(startDate, endDate),
+  //   //     certificate_issuance_enddate: startDate && endDate && Between(startDate, endDate),
+  //   //   },
+  //   // });
+  //   console.log(deviceid)
+  //   const groupId = this.checkdevcielogcertificaterepository
+  //     .createQueryBuilder()
+  //     .where("deviceid = :deviceid", { deviceid: deviceid })
+  //     .andWhere(
+  //       new Brackets((db) => {
+  //         db.where("certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+  //           .orWhere("certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+  //           .orWhere(":startdateThirdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { startdateThirdWhere: startDate })
+  //           .orWhere(":enddateforthdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { enddateThirdWhere: endDate })
+
+  //       }),
+  //     ).getMany();
+  //   console.log(groupId);
+  //   return groupId
+  // }
+  public async getCheckCertificateIssueDateLogForDevice(deviceid: string,
+    startDate: Date,
+    endDate: Date): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    const query = this.getdevcielogFilteredQuery(deviceid,
+      startDate,
+      endDate);
+    try {
+
+      const device = await query.getRawMany();
+      const devices = device.map((s: any) => {
+        const item: any = {
+          certificate_issuance_startdate: s.device_certificate_issuance_startdate,
+          certificate_issuance_enddate: s.device_certificate_issuance_enddate,
+          readvalue_watthour: s.device_readvalue_watthour,
+          status: s.device_status,
+          deviceid: s.device_deviceid
+        };
+        return item;
+      });
+
+      return devices;
+    } catch (error) {
+      this.logger.error(`Failed to retrieve users`, error.stack);
+      //  throw new InternalServerErrorException('Failed to retrieve users');
+    }
+  }
+
+  private getdevcielogFilteredQuery(deviceid: string,
+    startDate: Date,
+    endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
+    //  const { organizationName, status } = filterDto;
+    const query = this.checkdevcielogcertificaterepository
+      .createQueryBuilder("device").
+      where("device.deviceid = :deviceid", { deviceid: deviceid })
+      .andWhere("device.status ='Requested' OR device.status ='Succeeded'")
+      .andWhere(
+        new Brackets((db) => {
+          db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+            .orWhere("device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
+            .orWhere(":startdateThirdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { startdateThirdWhere: startDate })
+            .orWhere(":enddateforthdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate", { enddateforthdWhere: endDate })
+
+        }),
+      )
+    console.log(query.getQuery())
+    return query;
   }
 }

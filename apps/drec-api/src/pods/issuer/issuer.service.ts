@@ -17,12 +17,14 @@ import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { IDevice } from '../../models';
+import { IDevice, BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity'
 import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
-
+import { CertificateType, SingleDeviceIssuanceStatus, StandardCompliance } from '../../utils/enums'
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
+import {CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity'
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -64,10 +66,12 @@ export class IssuerService {
   //     }),
   //   );
   // }
-  //@Cron(' */2 * * * *')
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron('0 00 21 * * *')
+
+  //@Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron('0 59 * * * *')
   async handleCron(): Promise<void> {
-    this.logger.debug('Called every day at 23:30 Server time');
+    this.logger.debug('Called every hour to check for isssuance of certificates');
 
     const startDate1 = DateTime.now().minus({ days: 1 }).toUTC();
     const endDate1 = DateTime.now().minus({ minute: 1 }).toUTC();
@@ -83,93 +87,88 @@ export class IssuerService {
         const group = await this.groupService.findOne(
           { id: grouprequest.groupId }
         );
-        if(!group)
-        {
-          console.error("group is missing",grouprequest.groupId);
+        if (!group) {
+          console.error("group is missing", grouprequest.groupId);
           return;//if group is missing
         }
-        if(group.leftoverReadsByCountryCode === null || group.leftoverReadsByCountryCode === undefined || group.leftoverReadsByCountryCode==='') 
-        {
+        if (group.leftoverReadsByCountryCode === null || group.leftoverReadsByCountryCode === undefined || group.leftoverReadsByCountryCode === '') {
           group.leftoverReadsByCountryCode = {};
         }
-        if(typeof group.leftoverReadsByCountryCode === 'string')
-        {
+        if (typeof group.leftoverReadsByCountryCode === 'string') {
           group.leftoverReadsByCountryCode = JSON.parse(group.leftoverReadsByCountryCode);
         }
         console.log("84");
         this.logger.debug('87');
-          // throw new NotFoundException(`No device found with id`);
+        // throw new NotFoundException(`No device found with id`);
 
 
-          //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
-          //this.logger.debug(requestdate);
+        //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
+        //this.logger.debug(requestdate);
 
-          var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
-          this.logger.debug(countryDevicegroup);
-          const organization = await this.organizationService.findOne(
-            group.organizationId,
-          );
-          group.organization = {
-            name: organization.name,
-            blockchainAccountAddress: organization.blockchainAccountAddress,
-          };
+        var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
+        this.logger.debug(countryDevicegroup);
+        const organization = await this.organizationService.findOne(
+          group.organizationId,
+        );
+        group.organization = {
+          name: organization.name,
+          blockchainAccountAddress: organization.blockchainAccountAddress,
+        };
 
-          const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
-          const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
-          let start_date = endDate.toString();
-          console.log(start_date);
+        const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
+        const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
+        let start_date = endDate.toString();
+        console.log(start_date);
 
-          let hours = 1;
-          if (group.frequency === 'daily') {
-            hours = 1 * 24;
-          } else if (group.frequency === 'Monthly') {
-            hours = 30 * 24;
-          } else if (group.frequency === 'weekly') {
-            hours = 7 * 24;
-          } else if (group.frequency === 'quarterly') {
-            hours = 91 * 24;
+        let hours = 1;
+        const frequency = group.frequency.toLowerCase();
+        if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
+          hours = 1 * 24;
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
+          hours = 30 * 24;
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+          hours = 7 * 24;
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+          hours = 91 * 24;
+        }
+        let end_date = new Date((new Date(new Date(endDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+        console.log(end_date);
+        console.log('284');
+        console.log(typeof group.reservationEndDate);
+        console.log(group.reservationEndDate);
+        console.log(group.reservationEndDate.toISOString());
+        let newEndDate: string = '';
+        let skipUpdatingNextIssuanceLogTable: boolean = false;
+        if (new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime()) {
+          skipUpdatingNextIssuanceLogTable = true;
+          console.log("end time reached for buyer reservation", group);
+          let endDto = new EndReservationdateDTO();
+          endDto.endresavationdate = new Date(group.reservationEndDate);
+          await this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
+        }
+        if (!skipUpdatingNextIssuanceLogTable) {
+          if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
+            newEndDate = end_date;
           }
-          let end_date = new Date(( new Date( new Date(endDate.toString()) ).getTime() + (hours * 3.6e+6))).toISOString()
-          console.log(end_date);
-          console.log('284');
-          console.log(typeof group.reservationEndDate);
-          console.log(group.reservationEndDate);
-          console.log(group.reservationEndDate.toISOString());
-          let newEndDate:string='';
-          let skipUpdatingNextIssuanceLogTable:boolean= false;
-          if(new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime() )
-          {
-            skipUpdatingNextIssuanceLogTable = true;
-            console.log("end time reached for buyer reservation",group);
-            let endDto =new EndReservationdateDTO();
-            endDto.endresavationdate = new Date(group.reservationEndDate);
-            this.groupService.EndReservationGroup(group.id,group.organizationId,endDto,group,grouprequest);
+          else {
+            newEndDate = group.reservationEndDate.toISOString();
           }
-          if(!skipUpdatingNextIssuanceLogTable)
-          {
-            if (new Date(end_date).getTime() < group.reservationEndDate.getTime()) {
-              newEndDate = end_date;
-            }
-            else
-            {
-              newEndDate = group.reservationEndDate.toISOString();
-            }
-            console.log("came isnide updating next issuance date");
-            console.log("start_date",start_date,"newEndDate",newEndDate);
-            await this.groupService.updatecertificateissuedate(grouprequest.id, start_date, newEndDate);
-          }
-          
-          this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
-          for (let key in countryDevicegroup) {
-            console.log(`${key}: "${countryDevicegroup[key]}"`);
-            console.log('98');
-            //deep clone to avoid duplicates
-            let newGroup:DeviceGroup = JSON.parse(JSON.stringify(group));
-            newGroup.devices = countryDevicegroup[key];
-            console.log("154",newGroup);
-            console.log('100');
-            this.newissueCertificateForGroup(newGroup,grouprequest, startDate, endDate,key);
-          }
+          console.log("came isnide updating next issuance date");
+          console.log("start_date", start_date, "newEndDate", newEndDate);
+          await this.groupService.updatecertificateissuedate(grouprequest.id, start_date, newEndDate);
+        }
+
+        this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
+        for (let key in countryDevicegroup) {
+          console.log(`${key}: "${countryDevicegroup[key]}"`);
+          console.log('98');
+          //deep clone to avoid duplicates
+          let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
+          newGroup.devices = countryDevicegroup[key];
+          console.log("154", newGroup);
+          console.log('100');
+          this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
+        }
       }),
     );
   }
@@ -247,6 +246,7 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
+        buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         deviceGroup,
         groupId: group.id?.toString() || null,
@@ -264,7 +264,7 @@ export class IssuerService {
     grouprequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
-    countryCodeKey:string
+    countryCodeKey: string
   ): Promise<void> {
     const readsFilter: FilterDTO = {
       offset: 0,
@@ -284,13 +284,22 @@ export class IssuerService {
       );
     }
     const groupReads: number[] = [];
+
     await Promise.all(
-      group.devices.map(async (device: IDevice) =>
-        groupReads.push(
-          await this.getDeviceFullReads(device.externalId, readsFilter),
-        ),
-      ),
+      group.devices.map(async (device: IDevice) => {
+
+        let devciereadvalue = await this.getDeviceFullReads(device.externalId, readsFilter);
+        let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
+        devicecertificatelogDto.deviceid = device.externalId,
+          devicecertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
+          devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
+          devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+          devicecertificatelogDto.readvalue_watthour = devciereadvalue;
+        await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
+        groupReads.push(devciereadvalue)
+      }),
     );
+
     console.log(groupReads);
     const totalReadValue = groupReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue,
@@ -333,6 +342,10 @@ export class IssuerService {
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
+        buyerReservationId:group.devicegroup_uid,
+        isStandardIssuanceRequested:StandardCompliance.REC,
+        isStandardIssued:false,
+        type:CertificateType.CarbonCredit,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         deviceGroup,
         groupId: group.id?.toString() || null,
@@ -341,14 +354,32 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    let totalReadValueMegaWattHour=totalReadValueKw/10**3;
-    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id,group.organizationId,totalReadValueMegaWattHour);
-    if( group.authorityToExceed ===false && (group.targetVolumeCertificateGenerationRequestedInMegaWattHour + totalReadValueMegaWattHour) >= group.targetVolumeInMegaWattHour)
-    {
-      this.groupService.endReservationGroupIfTargetVolumeReached(group.id,group,grouprequest);
+    let totalReadValueMegaWattHour = totalReadValueKw / 10 ** 3;
+    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+    if (group.authorityToExceed === false && (group.targetVolumeCertificateGenerationRequestedInMegaWattHour + totalReadValueMegaWattHour) >= group.targetVolumeInMegaWattHour) {
+      this.groupService.endReservationGroupIfTargetVolumeReached(group.id, group, grouprequest);
     }
-    const issuedCertificate = await this.issueCertificate(issuance);
+    let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
+    devicegroupcertificatelogDto.groupid = group.id?.toString(),
+    devicegroupcertificatelogDto.certificate_issuance_startdate = new Date(startDate.toString()),
+    devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
+    devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+    devicegroupcertificatelogDto.readvalue_watthour =  issueTotalReadValue,
+    devicegroupcertificatelogDto.certificate_payload= issuance,
+    devicegroupcertificatelogDto.countryCode=countryCodeKey;
+await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto)
 
+    const issuedCertificate = await this.issueCertificate(issuance);
+    console.log("generate Succesfull");
+    // if (issuedCertificate) {
+    //   await Promise.all(
+    //     group.devices.map(async (device: IDevice) => {
+
+
+    //     }
+    //     ),
+    //   );
+    // }
     // issuedCertificate.then(result=>{
     //   console.log("353 in after issued certificate result",result);
 
@@ -388,7 +419,7 @@ export class IssuerService {
   private async handleLeftoverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,
-    countryCodeKey:string
+    countryCodeKey: string
   ): Promise<number> {
     // Logic
     // 1. Get the accummulated read values from devices
@@ -402,7 +433,7 @@ export class IssuerService {
       : totalReadValueW / 10 ** 3;
     const { integralVal, decimalVal } =
       this.separateIntegerAndDecimalByCountryCode(totalReadValueKw);
-    await this.groupService.updateLeftOverReadByCountryCode(group.id, decimalVal,countryCodeKey);
+    await this.groupService.updateLeftOverReadByCountryCode(group.id, decimalVal, countryCodeKey);
 
     return integralVal;
   }
@@ -474,7 +505,7 @@ export class IssuerService {
   ): Promise<number> {
     console.log("381")
     const allReads = await this.baseReadsService.find(meterId, filter);
-    console.log(`allReads externalId:${meterId}`,allReads);
+    console.log(`allReads externalId:${meterId}`, allReads);
     return allReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue.value,
       0,

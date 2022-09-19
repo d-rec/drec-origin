@@ -357,7 +357,7 @@ export class ReadsService {
 
           //@ts-ignore
           if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
-            reject(
+           return reject(
               new ConflictException({
                 success: false,
                 message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
@@ -374,7 +374,7 @@ export class ReadsService {
             //@ts-ignore
             requestcurrentend >= DateTime.fromISO(new Date(device?.createdAt).toISOString())) {
 
-            reject(
+          return reject(
               new ConflictException({
                 success: false,
                 //@ts-ignore
@@ -406,7 +406,7 @@ export class ReadsService {
         await this.deviceService.updatereadtype(deviceId, measurement.type);
       } else {
 
-        if (device?.meterReadtype != measurement.type) {
+        if (device?.meterReadtype != measurement.type && device?.meterReadtype!=null) {
           throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
 
         }
@@ -418,7 +418,7 @@ export class ReadsService {
           {
             //@ts-ignore
           if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
-            reject(
+           return reject(
               new ConflictException({
                 success: false,
                 message:
@@ -450,7 +450,7 @@ export class ReadsService {
               Delta = Math.abs(element.value - lastvalue[0].value);
           
               if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-                reject(
+               return reject(
                   new ConflictException({
                     success: false,
                     message:
@@ -503,7 +503,7 @@ export class ReadsService {
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
               if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-                reject(
+              return  reject(
                   new ConflictException({
                     success: false,
                     message:
@@ -511,7 +511,7 @@ export class ReadsService {
 
                   }),
                 );
-              }else{
+              }
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
                   value: Delta
@@ -525,7 +525,7 @@ export class ReadsService {
                   datetime: element.endtimestamp
   
                 });
-              }
+              
              
             }
             if (measurmentreadindex == measurement.reads.length - 1) {
