@@ -19,12 +19,10 @@ import { LocalStrategy } from './local.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) =>{
-        console.log("**secret: configService.get<string>('JWT_SECRET')", configService.get<string>('JWT_SECRET'));
-        console.log("**secret: configService.get<string>('JWT_EXPIRY_TIME')", configService.get<string>('JWT_EXPIRY_TIME'));
         return ({
           secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
           signOptions: {
-            expiresIn: '30d' || configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
+            expiresIn: configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
           },
         })
       } ,
