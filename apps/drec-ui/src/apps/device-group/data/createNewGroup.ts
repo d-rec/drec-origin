@@ -16,12 +16,25 @@ export const useCreateNewGroup = (group: GroupedDevicesDTO, handleModalClose: ()
     const currentUngroupedDevicesQueryKey = getDeviceControllerGetAllUngroupedQueryKey();
 
     const submitHandler = (
-        values: { groupName: string },
+        values: { groupName: string ,targetCapacityInMegaWattHour:number;
+            reservationStartDate:string;
+            reservationEndDate:string;
+            continueWithReservationIfOneOrMoreDevicesUnavailableForReservation:boolean;
+            continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:boolean;
+            authorityToExceed:boolean;
+            frequency:string;},
         reset: UseFormReset<TCreateNewGroupFormValues>
     ) => {
         const data: AddGroupDTO = {
             name: values.groupName,
-            deviceIds: group.devices.map((device: UngroupedDeviceDTO) => device.id)
+            deviceIds: group.devices.map((device: UngroupedDeviceDTO) => device.id),
+            targetCapacityInMegaWattHour: values.targetCapacityInMegaWattHour,
+            reservationStartDate: values.reservationStartDate,
+            reservationEndDate: values.reservationEndDate,
+            continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: values.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation,
+            continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: values.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration,
+            authorityToExceed: values.authorityToExceed,
+            frequency: values.frequency
         };
         mutate(
             { data },

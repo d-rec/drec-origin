@@ -3,10 +3,12 @@ import { IsEmail, IsEnum, IsNumber, IsString ,IsDate,IsOptional} from 'class-val
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Unit,ReadType } from '../../utils/enums';
+import { ReadType } from '../../utils/enums';
 import { IAggregateintermediate } from '../../models';
 import { Organization } from '../organization/organization.entity';
-
+import {
+  Unit,
+} from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'aggregate_meterread' })
 export class AggregateMeterRead extends ExtendedBaseEntity implements IAggregateintermediate {
 
@@ -23,7 +25,7 @@ export class AggregateMeterRead extends ExtendedBaseEntity implements IAggregate
 //   @IsEnum(ReadType)
 //   type: ReadType;
 
-  @ApiProperty({ enum: Unit, enumName: 'unit' })
+  @ApiProperty({ enum: Unit})
   @Column()
   @IsEnum(Unit)
   unit: Unit;

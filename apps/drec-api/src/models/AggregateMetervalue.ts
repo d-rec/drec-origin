@@ -1,4 +1,6 @@
-import {Unit} from '../utils/enums'
+import {
+  Unit,
+} from '@energyweb/energy-api-influxdb';
 import {
     IsDate,
       IsOptional,

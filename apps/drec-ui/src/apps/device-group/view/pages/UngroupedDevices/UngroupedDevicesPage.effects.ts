@@ -87,7 +87,15 @@ export const useUngrouppedDevicesPageEffects = () => {
             name: groupedDevices.name,
             devices: groupedDevices.devices?.filter(
                 (device: UngroupedDeviceDTO) => device.selected === true
-            )
+            ),
+            targetCapacityInMegaWattHour: groupedDevices.targetCapacityInMegaWattHour,
+            reservationStartDate: groupedDevices.reservationStartDate,
+            reservationEndDate: groupedDevices.reservationEndDate,
+            continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: groupedDevices.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation,
+            continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: groupedDevices.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration,
+            authorityToExceed: groupedDevices.authorityToExceed,
+            frequency: groupedDevices.frequency
+
         };
         dispatchModals({
             type: DeviceGroupModalsActionsEnum.CREATE_NEW_GROUP,

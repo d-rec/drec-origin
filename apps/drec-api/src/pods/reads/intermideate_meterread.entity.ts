@@ -3,10 +3,12 @@ import { IsEmail, IsEnum, IsNumber, IsString ,IsDate,IsOptional} from 'class-val
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Unit,ReadType } from '../../utils/enums';
+import { ReadType } from '../../utils/enums';
 import { Iintermediate } from '../../models';
 import { Organization } from '../organization/organization.entity';
-
+import {
+  Unit,
+} from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'intermediate_meterread' })
 export class Intermediate_MeterRead extends ExtendedBaseEntity implements Iintermediate {
 
