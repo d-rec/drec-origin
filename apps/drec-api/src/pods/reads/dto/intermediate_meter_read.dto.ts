@@ -5,7 +5,8 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
+  ValidateNested 
 } from 'class-validator';
 import {
   Unit,
@@ -61,6 +62,7 @@ export class NewIntmediateMeterReadDTO
   
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
+  @ValidateNested()
   reads: NewReadDTO[];
 
 }
