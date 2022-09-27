@@ -80,6 +80,11 @@ export class YieldConfigService {
     }
     return user;
   }
+
+  async findByCountryCode(countryCode:string) {
+    return await this.repository.findOne({countryCode});
+  }
+
   async update(
     id: number,
     data: UpdateYieldValueDTO,

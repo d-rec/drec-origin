@@ -11,6 +11,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  Body
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -30,14 +31,20 @@ import { FileUploadDto } from './file-upload.dto';
 import { FileService } from './file.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+//import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
+//import { DeviceGroupService } from '../device-group/device-group.service';
 
 const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
+
+const supportedFiles = FILE_SUPPORTED_MIMETYPES;
+supportedFiles.push('text/csv');
 
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
+  //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) {}
 
   @Post()
@@ -47,7 +54,8 @@ export class FileController {
     FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
       storage: multer.memoryStorage(),
       fileFilter: (req: Request, file, callback) => {
-        if (!FILE_SUPPORTED_MIMETYPES.includes(file.mimetype)) {
+        console.log("file request",req);
+        if (!supportedFiles.includes(file.mimetype)) {
           callback(new Error('Unsupported file type'), false);
         }
 
@@ -65,13 +73,28 @@ export class FileController {
     type: [String],
     description: 'Upload a file',
   })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   type: [DeviceCsvFileProcessingJobsEntity],
+  //   description: 'Returns job status for csv processing',
+  // })
   async upload(
     @UserDecorator() user: ILoggedInUser,
+    @UserDecorator() { organizationId }: ILoggedInUser,
     @UploadedFiles()
     uploadedFiles: {
       files: Express.Multer.File[];
     },
+    @Body() fileUploadDto: FileUploadDto,
   ): Promise<string[]> {
+    // if(fileUploadDto.type!==undefined && fileUploadDto.type!==null && fileUploadDto.type==='csvDeviceBulkRegistration')
+    // {
+    //   let fileId = await this.fileService.store(user, uploadedFiles.files);
+    //   let response =  await this.fileService.get(fileId[0],user);
+    //   let jobCreated=await this.fileService.createCSVJobForFile(user.id,organizationId,StatusCSV.Added,response instanceof File? response.id:'');
+    //   //@ts-ignore
+    //   return jobCreated;
+    // }
     return this.fileService.store(user, uploadedFiles.files);
   }
 

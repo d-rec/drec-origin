@@ -24,7 +24,7 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
         },
         {
             label: 'Standard Compliance',
-            value: deviceGroup.standardCompliance
+            value: deviceGroup.standardCompliance ? deviceGroup.standardCompliance:''
         },
         {
             label: 'Offtakers',
@@ -32,11 +32,11 @@ export const useSpecsForAllDeviceGroupCard: TUseSpecsForAllDeviceGroupCard = ({
         },
         {
             label: 'Sector',
-            value: deviceGroup?.sectors.join().replaceAll(',', ', ')
+            value: deviceGroup?.sectors ? deviceGroup?.sectors.join().replaceAll(',', ', '): ""
         },
         {
             label: 'Installation Configurations',
-            value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
+            value: deviceGroup?.installationConfigurations ? deviceGroup.installationConfigurations.join().replaceAll(',', ', '):''
         }
     ];
     const { mainType, restType } = getMainFuelType(deviceGroup.fuelCode, allTypes);

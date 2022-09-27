@@ -9,7 +9,9 @@ import {
   UseGuards,
   ValidationPipe,
   Query,
+  ConflictException,
 } from '@nestjs/common';
+
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -29,21 +31,33 @@ import {
   DeviceDTO,
   DeviceGroupByDTO,
   GroupedDevicesDTO,
+  BuyerDeviceFilterDTO
 } from './dto';
-import { Roles } from '../user/decorators/roles.decorator';
+
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
-import { UserDecorator } from '../user/decorators/user.decorator';
+import { PermissionGuard } from '../../guards/PermissionGuard'
 import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { ActiveUserGuard } from '../../guards';
+import { Roles } from '../user/decorators/roles.decorator';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { CountrycodeService } from '../countrycode/countrycode.service';
+import { countrCodesList } from '../../models/country-code'
 
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device')
 export class DeviceController {
-  constructor(private readonly deviceService: DeviceService) {}
+  constructor(
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private countrycodeService: CountrycodeService,
+  ) { }
 
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -54,7 +68,25 @@ export class DeviceController {
   ): Promise<DeviceDTO[]> {
     return this.deviceService.find(filterDto);
   }
+  // @Get('/devicegroup')
+  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  // @Roles(Role.Admin)
+  // @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  // async getAllgroupdevcie(
 
+  // ): Promise<DeviceDTO[]> {
+  //   return this.deviceService.NewfindForGroup(1);
+  // }
+  @Get('/ungrouped/buyerreservation')
+  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  //@Roles(Role.Admin)
+  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  async getAllDeviceForBuyer(
+    @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
+  ): Promise<DeviceDTO[]> {
+    return this.deviceService.finddeviceForBuyer(filterDto);
+  }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
@@ -95,8 +127,10 @@ export class DeviceController {
   }
 
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -109,8 +143,10 @@ export class DeviceController {
   }
 
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin)
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -120,8 +156,10 @@ export class DeviceController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
@@ -131,7 +169,96 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
-    return await this.deviceService.register(organizationId, deviceToRegister);
+    if (deviceToRegister.groupId) {
+      const response = await this.deviceGroupService.findById(
+        deviceToRegister.groupId,
+      );
+      if (response && response.buyerAddress) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:
+                'This Device Group already has buyer added device cannot be added to device group',
+            }),
+          );
+        });
+      }
+    }
+    // const code = deviceToRegister.countryCode.toUpperCase();
+    // let validcountrycode = await this.countrycodeService.getCountryCode({ searchKeyWord: code })
+    // console.log("validcountrycode")
+    // console.log(validcountrycode)
+    deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
+    if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
+      let countries = countrCodesList;
+      if (countries.find(ele => ele.countryCode === deviceToRegister.countryCode) === undefined) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            }),
+          );
+        });
+      }
+    } else {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+          }),
+        );
+      });
+    }
+    if(deviceToRegister.capacity<=0){
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid Capacity, it should be greater than 0',
+          }),
+        );
+      });
+    }
+    return await this.deviceService
+      .register(organizationId, deviceToRegister)
+      .catch((error) => {
+        if (error && error.code && error.detail) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: error.detail,
+              }),
+            );
+          });
+        } else {
+          console.log("error", error);
+          return new Promise((resolve, reject) => {
+            reject({ error: true });
+          });
+        }
+      });
+
+    //}
+    // catch(e)
+    // {
+    //   if(e && e.code && e.detail)
+    //   {
+    //     return new Promise((resolve,reject)=>{
+    //       reject(new ConflictException({
+    //         success: false,
+    //         message:e.detail}))
+    //     })
+    // }
+    // else
+    //   return new Promise((resolve,reject)=>{
+    //     reject({error:true});
+    //   })
+
+    // }
   }
 
   @Patch('/:id')

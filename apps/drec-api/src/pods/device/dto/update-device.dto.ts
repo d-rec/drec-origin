@@ -43,10 +43,10 @@ export class UpdateDeviceDTO
   @IsString()
   countryCode: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  zipCode: string;
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsNumber()
+  // zipCode: string;
 
   @ApiProperty()
   @IsString()
@@ -58,10 +58,10 @@ export class UpdateDeviceDTO
   @IsOptional()
   deviceTypeCode: string;
 
-  @ApiProperty()
-  @IsEnum(Installation)
-  @IsOptional()
-  installationConfiguration: Installation;
+  // @ApiProperty()
+  // @IsEnum(Installation)
+  // @IsOptional()
+  // installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
@@ -83,25 +83,25 @@ export class UpdateDeviceDTO
   @IsOptional()
   offTaker: OffTaker;
 
-  @ApiProperty()
-  @IsEnum(Sector)
-  @IsOptional()
-  sector: Sector;
+  // @ApiProperty()
+  // @IsEnum(Sector)
+  // @IsOptional()
+  // sector: Sector;
 
-  @ApiProperty()
-  @IsEnum(StandardCompliance)
-  @IsOptional()
-  standardCompliance: StandardCompliance;
+  // @ApiProperty()
+  // @IsEnum(StandardCompliance)
+  // @IsOptional()
+  // standardCompliance: StandardCompliance;
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
   yieldValue: number;
 
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  generatorsIds: number[];
+  // @ApiProperty()
+  // @IsArray()
+  // @IsOptional()
+  // generatorsIds: number[];
 
   @ApiProperty()
   @IsString()
@@ -122,4 +122,14 @@ export class UpdateDeviceDTO
   @IsArray()
   @IsOptional()
   images: string[];
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  SDGBenefits?: number| undefined;
+  
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  meterReadtype: string;
 }

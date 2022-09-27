@@ -53,7 +53,7 @@ import {
     }
     @Post()
     @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.Admin)
+    //@Roles(Role.Admin)
     @ApiResponse({
       status: HttpStatus.OK,
       type: NewYieldConfigDTO,
@@ -80,10 +80,7 @@ import {
       @Body() body: UpdateYieldValueDTO,
       @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<YieldConfigDTO> {
-      console.log("82con");
-      console.log(id);
-      console.log(body);
-      console.log(loggedUser);
+    
       return this.yieldconfigService.update(id, body,loggedUser);
     }
   }

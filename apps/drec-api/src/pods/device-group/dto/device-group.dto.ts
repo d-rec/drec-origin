@@ -116,6 +116,45 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsOptional()
   organization?: Pick<OrganizationDTO, 'name'>;
 
+  @ApiProperty({ type: String })
+  @IsOptional()
+  frequency?: string | null;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationStartDate?: Date;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationEndDate?: Date;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeInMegaWattHour?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationSucceededInMegaWattHour?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationRequestedInMegaWattHour?: number;
+
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationFailedInMegaWattHour?: number;
+
+  @ApiProperty({ type: Boolean })
+  @IsOptional()
+  authorityToExceed?: boolean;
+
+
+  @ApiProperty()
+  @IsOptional()
+  leftoverReadsByCountryCode?: any;
+
+
   @IsOptional()
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
@@ -130,4 +169,10 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   leftoverReads: number;
+}
+
+export class CSVBulkUploadDTO {
+  @ApiProperty()
+  @IsString()
+  fileName: string;
 }

@@ -6,11 +6,12 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from '../pods/user/user.service';
 import { IJWTPayload } from './auth.service';
 import { IUser } from '../models';
-
+import { PermissionService } from '../pods/permission/permission.service'
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly userService: UserService,
+    private readonly userPermission: PermissionService,
     @Inject(ConfigService) configService: ConfigService,
   ) {
     super({
@@ -22,8 +23,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: IJWTPayload): Promise<IUser | null> {
     const user = await this.userService.findByEmail(payload.email);
+    //const userpermission = await this.userPermission.findById(user?.id);
+    //
+
 
     if (user) {
+     
       return user;
     }
 

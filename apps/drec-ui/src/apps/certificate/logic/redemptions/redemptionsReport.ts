@@ -36,11 +36,11 @@ const formatRedemptionsReportData: TFormatRedemptionsReportData = ({
                   fuelCode: getFuelNameFromCode(deviceGroup?.fuelCode, allFuelTypes),
                   country: deviceGroup?.countryCode,
                   capacityRange: deviceGroup?.capacityRange,
-                  installations: deviceGroup?.installationConfigurations
+                  installations: deviceGroup?.installationConfigurations ? deviceGroup?.installationConfigurations
                       .join()
-                      .replaceAll(',', ', '),
+                      .replaceAll(',', ', ') : '',
                   offTakers: deviceGroup?.offTakers.join().replaceAll(',', ', '),
-                  sectors: deviceGroup?.sectors.join().replaceAll(',', ', '),
+                  sectors: deviceGroup?.sectors ? deviceGroup?.sectors.join().replaceAll(',', ', '): '',
                   commissioningDateRange: deviceGroup?.commissioningDateRange
                       .join()
                       .replaceAll(',', ', '),

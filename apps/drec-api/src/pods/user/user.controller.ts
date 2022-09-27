@@ -31,7 +31,7 @@ import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO,UpdateChangePasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
@@ -81,6 +81,19 @@ export class UserController {
     @Body() userRegistrationData: CreateUserDTO,
   ): Promise<UserDTO> {
     return this.userService.create(userRegistrationData);
+  }
+// add new for adding user with organization
+   @Post('registerWithOrganization')
+  @ApiBody({ type: CreateUserORGDTO })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserDTO,
+    description: 'Register a user',
+  })
+  public async newregister(
+    @Body() userRegistrationData: CreateUserORGDTO,
+  ): Promise<UserDTO> {
+    return this.userService.newcreate(userRegistrationData);
   }
 
    @Post('registerWithOrganziation')
@@ -149,6 +162,21 @@ export class UserController {
     @Body() body: UpdatePasswordDTO,
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
+  }
+  
+  @Put('reset/password/:token')
+  @ApiBody({ type: UpdateChangePasswordDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserDTO,
+    description: `Update your own password`,
+  })
+  @ApiParam({ name: 'token', type: String })
+  public async updatechangePassword(
+    @Param('token') token: IEmailConfirmationToken['token'],
+    @Body() body: UpdateChangePasswordDTO,
+  ): Promise<UserDTO> {
+    return this.userService.updatechangePassword(token, body);
   }
 
   @Put('confirm-email/:token')

@@ -50,15 +50,18 @@ export class UserORGRegistrationData {
   password: string;
   @IsNotEmpty()
   @IsString()
-  confirmPassword: string;
+  confirmPassword?: string;
  
   @IsString()
   @IsOptional()
-  orgName: string;
+  orgName?: string;
+  @IsString()
+  @IsOptional()
+  orgAddress?: string;
 
   @IsOptional()
   @IsString()
-  secretKey: string;
+  secretKey?: string;
   
  
 

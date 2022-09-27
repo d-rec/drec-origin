@@ -11,11 +11,12 @@ import {
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
-import { IFullOrganization, IDevice, IUserSeed } from '../src/models';
+import { IFullOrganization, IDevice, IUserSeed,IRoleConfig } from '../src/models';
 
 import UsersJSON from './users.json';
 import OrganizationsJSON from './organizations.json';
 import DevicesJSON from './devices.json';
+import RoleJSON from './user_role.json';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
@@ -30,9 +31,10 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    await this.seedOrganizations(queryRunner, registry);
-    await this.seedUsers(queryRunner);
-    await this.seedDevices(queryRunner);
+    // await this.seedOrganizations(queryRunner, registry);
+    // await this.seedUsers(queryRunner);
+    // await this.seedDevices(queryRunner);
+    await this.seedUsersRole(queryRunner);
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -109,9 +111,9 @@ export class Seed9999999999999 implements MigrationInterface {
       return;
     }
 
-    for (const [index, organization] of (
-      OrganizationsJSON as IFullOrganization[]
-    ).entries()) {
+    for (const [index, organization] of (OrganizationsJSON as Array<any>)
+      // OrganizationsJSON as IFullOrganization[]
+      .entries()) {
       const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
       const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
       const blockchainAccount = Wallet.fromMnemonic(
@@ -127,50 +129,51 @@ export class Seed9999999999999 implements MigrationInterface {
 
       await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
 
-      await queryRunner.query(
-        `INSERT INTO public.organization (
-          "id",
-          "name",
-          "address",
-          "zipCode",
-          "city",
-          "country",
-          "businessType",
-          "tradeRegistryCompanyNumber",
-          "vatNumber",
-          status,
-          "blockchainAccountAddress",
-          "signatoryFullName",
-          "signatoryAddress",
-          "signatoryCity",
-          "signatoryZipCode",
-          "signatoryCountry",
-          "signatoryEmail",
-          "signatoryPhoneNumber"
-        ) VALUES (
-          '${organization.id}', 
-          '${organization.name}', 
-          '${organization.address}', 
-          '${organization.zipCode}', 
-          '${organization.city}', 
-          '${organization.country}', 
-          '${organization.businessType}', 
-          '${organization.tradeRegistryCompanyNumber}', 
-          '${organization.vatNumber}', 
-          '${organization.status}', 
-          '${blockchainAccount.address}', 
-          '${organization.signatoryFullName}', 
-          '${organization.signatoryAddress}', 
-          '${organization.signatoryCity}', 
-          '${organization.signatoryZipCode}', 
-          '${organization.signatoryCountry}', 
-          '${organization.signatoryEmail}', 
-          '${organization.signatoryPhoneNumber}'
-        )`,
-      );
+      // await queryRunner.query(
+      //   `INSERT INTO public.organization (
+      //     "id",
+      //     "name",
+      //     "address",
+      //     "zipCode",
+      //     "city",
+      //     "country",
+      //     "businessType",
+      //     "tradeRegistryCompanyNumber",
+      //     "vatNumber",
+      //     status,
+      //     "blockchainAccountAddress",
+      //     "signatoryFullName",
+      //     "signatoryAddress",
+      //     "signatoryCity",
+      //     "signatoryZipCode",
+      //     "signatoryCountry",
+      //     "signatoryEmail",
+      //     "signatoryPhoneNumber"
+      //   ) VALUES (
+      //     '${organization.id}',
+      //     '${organization.name}',
+      //     '${organization.address}',
+      //     '${organization.zipCode}',
+      //     '${organization.city}',
+      //     '${organization.country}',
+      //     '${organization.businessType}',
+      //     '${organization.tradeRegistryCompanyNumber}',
+      //     '${organization.vatNumber}',
+      //     '${organization.status}',
+      //     '${blockchainAccount.address}',
+      //     '${organization.signatoryFullName}',
+      //     '${organization.signatoryAddress}',
+      //     '${organization.signatoryCity}',
+      //     '${organization.signatoryZipCode}',
+      //     '${organization.signatoryCountry}',
+      //     '${organization.signatoryEmail}',
+      //     '${organization.signatoryPhoneNumber}'
+      //   )`,
+      // );
     }
   }
 
+  /*
   private async seedDevices(queryRunner: QueryRunner) {
     const devicesTable = await queryRunner.getTable('public.device');
 
@@ -225,6 +228,7 @@ export class Seed9999999999999 implements MigrationInterface {
       ),
     );
   }
+  */
 
   private async seedBlockchain(
     queryRunner: QueryRunner,
@@ -248,6 +252,32 @@ export class Seed9999999999999 implements MigrationInterface {
     return contractsLookup;
   }
 
+  private async seedUsersRole(queryRunner: QueryRunner) {
+    const userTable = await queryRunner.getTable('public.user_role');
+
+    if (!userTable) {
+      console.log('user table does not exist.');
+      return;
+    }
+
+    await Promise.all(
+      (RoleJSON as unknown as IRoleConfig[]).map(async (role) => {
+        queryRunner.query(
+          `INSERT INTO public.user_role (
+            "id", 
+            "name", 
+            "description", 
+            "status" 
+            ) VALUES (
+              '${role.id}', 
+              '${role.name}', 
+              '${role.description}', 
+              '${role.status}'
+            )`,
+        );
+      }),
+    );
+  }
   private async deployContracts(
     deployer: Wallet,
     provider: providers.FallbackProvider,

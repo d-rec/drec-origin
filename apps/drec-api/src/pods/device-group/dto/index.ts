@@ -7,3 +7,4 @@ export * from './add-device-group.dto';
 export * from './unreserved-filter.dto';
 export * from './selectable-device-group.dto';
 export * from './reserve-groups.dto';
+export * from './job-failed-rows.dto';

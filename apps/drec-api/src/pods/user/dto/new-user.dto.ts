@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IUserProperties } from '../../../models';
+import { IModulePermissionsConfig, IUserProperties } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
 import { IsEnum } from 'class-validator';
 
@@ -29,7 +29,13 @@ export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   @ApiProperty({ enum: Role, enumName: 'Role' })
   @IsEnum(Role)
   role: Role;
-
+  roleId: number;
   @ApiProperty({ type: String })
   password: string;
+  // permissions: IModulePermissionsConfig;
+  // moduleName: string;
+
 }
+
+
+

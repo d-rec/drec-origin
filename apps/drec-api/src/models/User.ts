@@ -1,6 +1,6 @@
 import { IEmailConfirmation, IFullOrganization } from '.';
-import { Role, UserStatus } from '../utils/enums';
-
+import { Role, UserStatus,PermissionString } from '../utils/enums';
+import {IModulePermissionsConfig} from './ACLModulesPermission'
 export interface IUserProperties {
   id: number;
   title?: string;
@@ -11,15 +11,21 @@ export interface IUserProperties {
   notifications: boolean;
   status: UserStatus;
   role: Role;
+  roleId?:number;
+  permissions?:PermissionString;
+ 
 }
 
 export interface IUserSeed extends IUser {
   password: string;
+
   organizationId: number;
 }
 
 export interface IUser extends IUserProperties {
   organization: IFullOrganization;
+ 
+  moduleName?:string;
   emailConfirmed?: IEmailConfirmation['confirmed'];
 }
 
@@ -32,6 +38,10 @@ export declare type UserPasswordUpdate = {
   oldPassword: string;
   newPassword: string;
 };
+export declare type UserChangePasswordUpdate = {
+  
+  newPassword: string;
+};
 export interface IFullUser extends IUser {
   password: string;
 }
@@ -40,3 +50,7 @@ export declare type UpdateUserResponseReturnType = IUser;
 
 export const isRole = (orgRole: Role, ...roles: Role[]): boolean =>
   roles.some((role) => role === orgRole);
+
+  export const isPermission = (userPermissions: PermissionString, ...permissions: PermissionString[]): boolean =>
+  permissions.some((permission) =>permission === userPermissions);
+  

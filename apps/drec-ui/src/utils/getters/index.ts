@@ -5,3 +5,5 @@ export * from './getTimeUnitOnWindow';
 export * from './getFuelName';
 export * from './getMwFromW';
 export * from './getUserTitles';
+export * from './getOrgType';
+export * from './getStatus';

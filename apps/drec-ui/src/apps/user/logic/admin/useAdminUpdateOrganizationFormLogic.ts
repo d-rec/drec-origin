@@ -11,9 +11,9 @@ export type TAdminUpdateOrganizationFormValues = {
     zipCode: OrganizationDTO['zipCode'];
     city: OrganizationDTO['city'];
     country: OrganizationDTO['country'];
-    businessType: OrganizationDTO['businessType'];
-    tradeRegistryCompanyNumber: OrganizationDTO['tradeRegistryCompanyNumber'];
-    vatNumber: OrganizationDTO['vatNumber'];
+    businessType: OrganizationDTO['organizationType'];
+    // tradeRegistryCompanyNumber: OrganizationDTO['tradeRegistryCompanyNumber'];
+    // vatNumber: OrganizationDTO['vatNumber'];
     status: OrganizationDTO['status'];
 };
 
@@ -26,9 +26,9 @@ export const useAdminUpdateOrganizationFormLogic = (
         zipCode: organization?.zipCode,
         city: organization?.city,
         country: organization?.country,
-        businessType: organization?.businessType,
-        tradeRegistryCompanyNumber: organization?.tradeRegistryCompanyNumber,
-        vatNumber: organization?.vatNumber,
+        businessType: organization?.organizationType,
+        // tradeRegistryCompanyNumber: organization?.tradeRegistryCompanyNumber,
+        // vatNumber: organization?.vatNumber,
         status: organization?.status
     };
 
@@ -71,16 +71,16 @@ export const useAdminUpdateOrganizationFormLogic = (
                 options: BUSINESS_LEGAL_TYPE_OPTIONS,
                 required: true
             },
-            {
-                label: 'Trade Registry Company Number',
-                name: 'tradeRegistryCompanyNumber',
-                required: true
-            },
-            {
-                label: 'VAT Number',
-                name: 'vatNumber',
-                required: true
-            },
+            // {
+            //     label: 'Trade Registry Company Number',
+            //     name: 'tradeRegistryCompanyNumber',
+            //     required: true
+            // },
+            // {
+            //     label: 'VAT Number',
+            //     name: 'vatNumber',
+            //     required: true
+            // },
             {
                 label: 'Status',
                 name: 'status',
@@ -99,11 +99,11 @@ export const useAdminUpdateOrganizationFormLogic = (
             zipCode: Yup.string().label('Email').required(),
             city: Yup.string().label('City').required(),
             country: Yup.string().label('Country').required(),
-            businessType: Yup.string().label('Business Type').required(),
-            tradeRegistryCompanyNumber: Yup.string()
-                .label('Trade Registry Company Number')
-                .required(),
-            vatNumber: Yup.string().label('VAT Number').required()
+            // businessType: Yup.string().label('Business Type').required(),
+            // tradeRegistryCompanyNumber: Yup.string()
+              //  .label('Trade Registry Company Number')
+              //  .required(),
+            //vatNumber: Yup.string().label('VAT Number').required()
         })
     };
 };

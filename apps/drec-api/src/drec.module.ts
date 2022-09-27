@@ -26,7 +26,25 @@ import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';
 import { IntegratorsModule } from './pods/integrators/integrators.module';
-
+import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
+import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
+import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
+import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
+import { ACLModulePermissions } from './pods/permission/permission.entity';
+import { PermissionModule } from './pods/permission/permission.module';
+import { TestapiModule } from './pods/testapi/testapi.module';
+import { Testapi } from './pods/testapi/entities/testapi.entity';
+import { DeveloperScecificGroupingDeviceNotForBuyerReservationModule } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/develeoper-specific-grouping-devices-not-for-buyer-reservation.module';
+import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/developer_specific_group_device_only_for_managing_not_for_buyer_reservation.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
+import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
+import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
+import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
+import {CheckCertificateIssueDateLogForDeviceEntity} from './pods/device/check_certificate_issue_date_log_for_device.entity'
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { CountrycodeModule}from './pods/countrycode/countrycode.module'
+import {SdgbenefitModule} from './pods/sdgbenefit/sdgbenefit.module';
+import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -52,6 +70,18 @@ export const entities = [
   Device,
   DeviceGroup,
   File,
+  YieldConfig,
+  AClModules,
+  ACLModulePermissions,
+  Testapi,
+  DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
+  DeviceCsvFileProcessingJobsEntity,
+  DeviceCsvProcessingFailedRowsEntity,
+  DeviceGroupNextIssueCertificate,
+  AggregateMeterRead,
+  CheckCertificateIssueDateLogForDeviceEntity,
+  CheckCertificateIssueDateLogForDeviceGroupEntity,
+  SdgBenefit,
   ...IssuerEntities,
 ];
 
@@ -106,6 +136,13 @@ const QueueingModule = () => {
     EmailConfirmationModule,
     AdminModule,
     IntegratorsModule,
+    YieldConfigModule,
+    AccessControlLayerModuleServiceModule,
+    PermissionModule,
+    TestapiModule,
+    DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
+    CountrycodeModule,
+    SdgbenefitModule
   ],
 })
 export class DrecModule {}

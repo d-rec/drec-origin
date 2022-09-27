@@ -7,8 +7,8 @@ export type OrganizationInfoFormValues = {
     city: string;
     zipCode: string;
     country: FormSelectOption[];
-    tradeRegistryCompanyNumber: string;
-    vatNumber: string;
+    // tradeRegistryCompanyNumber: string;
+    // vatNumber: string;
 };
 
 export type TCreateOrgInfoForm = () => MultiStepFormItem<OrganizationInfoFormValues>;

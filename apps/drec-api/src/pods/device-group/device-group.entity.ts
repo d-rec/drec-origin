@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn,CreateDateColumn } from 'typeorm';
 import {
   IsString,
   IsNotEmpty,
@@ -23,6 +23,9 @@ import { Device } from '../device';
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
+ 
+  @PrimaryGeneratedColumn('uuid')
+  devicegroup_uid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -42,6 +45,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @Column({ type: 'enum', enum: StandardCompliance })
   @IsEnum(StandardCompliance)
+  @IsOptional()
   standardCompliance: StandardCompliance;
 
   @Column('text', { array: true })
@@ -51,9 +55,11 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   offTakers: OffTaker[];
 
   @Column('text', { array: true })
+  @IsOptional()
   installationConfigurations: Installation[];
 
   @Column('text', { array: true })
+  @IsOptional()
   sectors: Sector[];
 
   @Column('text', { array: true })
@@ -96,6 +102,58 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsNumber()
   leftoverReads: number;
 
+  @Column({
+    type: 'json'
+  })
+  @IsOptional()
+  leftoverReadsByCountryCode: any;
+
   devices?: Device[];
   organization?: Pick<IFullOrganization, 'name' | 'blockchainAccountAddress'>;
+
+  @Column({ type: 'text', nullable: true })
+  @IsString()
+  @IsOptional()
+  frequency: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeInMegaWattHour: number ;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationSucceededInMegaWattHour: number ;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationRequestedInMegaWattHour: number;
+
+  @Column({ type: 'int', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  targetVolumeCertificateGenerationFailedInMegaWattHour: number ;
+
+  @Column({ type: 'boolean', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  authorityToExceed: boolean ;
+
+
+  @CreateDateColumn({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  reservationStartDate:Date;
+
+  @CreateDateColumn({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  reservationEndDate:Date;
+
+  @Column('uuid')
+  devicegroup_uid:string;
 }

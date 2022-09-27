@@ -17,7 +17,7 @@ import {
   FindManyOptions,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ILoggedInUser, IUser, UserPasswordUpdate } from '../../models';
+import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserDTO, CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -30,6 +30,7 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
+import { IEmailConfirmationToken } from '../../models';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -44,6 +45,7 @@ export class UserService {
 
   public async seed(
     data: CreateUserDTO,
+
     organizationId: number | null,
     role?: Role,
     status?: UserStatus,
@@ -81,62 +83,73 @@ export class UserService {
 
     return new User(user);
   }
-  public async newcreate(data: CreateUserORGDTO): Promise<UserDTO> {
+  public async newcreate(data: CreateUserORGDTO,
+    status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
-    //  const isExistingorg = await this.organizationService.checkForExistingorg(data.email );
-   
     var org_id;
-    if(data.secretKey!=null){
+    if (data.secretKey != null) {
       const orgdata = {
-        name: data.orgName,
+        name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         secretKey: data.secretKey,
-        orgEmail: data.email
-  
+        orgEmail: data.email,
+        address: data.orgAddress
+
       }
 
-      if (await this.organizationService.isNameAlreadyTaken(data.orgName) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {   
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {
         throw new ConflictException({
           success: false,
-          message:`Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
+          message: `Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
         });
-        //throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
-      }else{
-       
+
+      } else {
+
         const org = await this.organizationService.newcreate(orgdata)
         org_id = org.id;
         this.logger.debug(
-         `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-       );
-      
-      
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+
+
       }
-      
+
     }
     this.logger.debug(
-      `Successfully registered a new organization with id ${ org_id}`,
+      `Successfully registered a new organization with id ${org_id}`,
     );
     var role;
+    var roleId;
     if (data.organizationType === 'Buyer') {
       role = Role.Buyer
+      roleId = 4;
     } else {
       role = Role.OrganizationAdmin
+      roleId = 2;
     }
+
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email.toLowerCase(),
       password: this.hashPassword(data.password),
       notifications: true,
-      status: UserStatus.Pending,
+      status: status || UserStatus.Active,
       role: role,
-      organization:  org_id ? { id:  org_id } : {},
+      roleId: roleId,
+      organization: org_id ? { id: org_id } : {},
 
     });
     this.logger.debug(
       `Successfully registered a new organization with id ${JSON.stringify(user)}`,
     );
-    await this.emailConfirmationService.create(user);
+    if(inviteuser){
+      await this.emailConfirmationService.create(user,true);
+    }else{
+      await this.emailConfirmationService.create(user,false);
+    }
+    
+
 
     return new User(user);
   }
@@ -193,6 +206,7 @@ export class UserService {
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
+
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
     if (user) {
@@ -229,6 +243,7 @@ export class UserService {
   ): Promise<void> {
     await this.repository.update(userId, {
       organization: { id: organizationId },
+      status: UserStatus.Active
     });
   }
 
@@ -296,12 +311,56 @@ export class UserService {
     });
   }
 
+
+  async updatechangePassword(
+    token: IEmailConfirmationToken['token'],
+    user: UserChangePasswordUpdate,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const emailConfirmation = await this.emailConfirmationService.findOne({ token });
+    console.log("emailConfirmation")
+    console.log(emailConfirmation)
+   
+      //const _user = await this.findById(emailConfirmation.id);
+      console.log(emailConfirmation)
+      if (emailConfirmation) {
+        const updateEntity = new User({
+          password: this.hashPassword(user.newPassword),
+        });
+
+        const validationErrors = await validate(updateEntity, {
+          skipUndefinedProperties: true,
+        });
+
+        if (validationErrors.length > 0) {
+          throw new UnprocessableEntityException({
+            success: false,
+            errors: validationErrors,
+          });
+        }
+
+        await this.repository.update(emailConfirmation.user.id, updateEntity);
+        return emailConfirmation.user;
+
+      }
+    
+    throw new ConflictException({
+      success: false,
+      errors: `User Not exist .`,
+    });
+  }
+
   public async changeRole(
     userId: number,
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    await this.repository.update(userId, { role });
+    var roleId;
+    if (role === Role.DeviceOwner) {
+      roleId = 3
+    } else {
+      roleId = 5
+    }
+    await this.repository.update(userId, { role, roleId });
     return this.findOne({ id: userId });
   }
 

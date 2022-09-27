@@ -1,6 +1,6 @@
-import { isRole, IUser } from '.';
-import { Role } from '../utils/enums';
-
+import { isRole, IUser,isPermission } from '.';
+import { Role,PermissionString } from '../utils/enums';
+import { IModulePermissionsConfig } from './ACLModulesPermission'
 export interface ILoggedInUser {
   id: number;
   organizationId: number;
@@ -10,6 +10,8 @@ export interface ILoggedInUser {
   hasRole(...role: Role[]): boolean;
   ownerId: string;
   hasOrganization: boolean;
+  permissions: PermissionString,
+hasPermission(...permissions: PermissionString[]): boolean;
 }
 
 export class LoggedInUser implements ILoggedInUser {
@@ -19,6 +21,7 @@ export class LoggedInUser implements ILoggedInUser {
     this.email = user.email;
     this.blockchainAccountAddress = user.organization?.blockchainAccountAddress;
     this.role = user.role;
+    this.permissions = user.permissions;
   }
 
   id: number;
@@ -30,9 +33,19 @@ export class LoggedInUser implements ILoggedInUser {
   blockchainAccountAddress: string | undefined;
 
   role: Role;
-
+  permissions:any;
+ 
   hasRole(...role: Role[]): boolean {
+    console.log("39");
     return isRole(this.role, ...role);
+  }
+  hasPermission(...permissions: PermissionString[]): boolean {
+    console.log("42");
+    console.log(this.permissions);
+    console.log(...permissions);
+    console.log(isPermission(this.permissions, ...permissions));
+
+    return isPermission(this.permissions, ...permissions);
   }
 
   get ownerId(): string {

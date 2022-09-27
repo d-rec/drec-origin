@@ -17,6 +17,7 @@ import {
   Post,
   Query,
   UseGuards,
+  ConflictException
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -25,13 +26,19 @@ import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
+import {NewIntmediateMeterReadDTO} from '../reads/dto/intermediate_meter_read.dto'
+import { Device, DeviceService } from '../device';
 
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
+import { DeviceDTO } from '../device/dto';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
 export class ReadsController extends BaseReadsController {
   constructor(
     private internalReadsService: ReadsService,
+    private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
   ) {
@@ -97,11 +104,130 @@ export class ReadsController extends BaseReadsController {
 
   @Post('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   public async storeReads(
     @Param('id') id: string,
     @Body() measurements: MeasurementDTO,
   ): Promise<void> {
     return await this.internalReadsService.storeRead(id, measurements);
+  }
+  @Post('new/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'New meter reads for historical data, Delta readings and Aggregate Readings',
+    type: [NewIntmediateMeterReadDTO],
+  })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  public async newstoreRead(
+    @Param('id') id: string,
+    @Body() measurements: NewIntmediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<void> {
+   
+      let device:DeviceDTO|null = await this.deviceService.findReads(id);
+
+      if(device === null)
+      {
+        
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Invalid device id`,
+            })
+          );
+        });
+      }
+
+      if(measurements.type ==="Aggregate" || measurements.type==="Delta")
+      {
+        let allDatesAreAfterCreatedAt:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+            if(new Date(ele.endtimestamp).getTime() < new Date(device.createdAt).getTime())
+            {
+              allDatesAreAfterCreatedAt = false;
+            }
+          }
+        })
+        if(!allDatesAreAfterCreatedAt)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`One or more measurements endtimestamp is less than device onboarding date${device?.createdAt}`,
+              })
+            );
+          });
+        }
+      }
+      if(measurements.type ==="Aggregate" || measurements.type==="Delta")
+      {
+        let allEndDatesAreBeforSystemDate:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+           
+            if(new Date(ele.endtimestamp).getTime() > new Date().getTime())
+            {
+              allEndDatesAreBeforSystemDate = false;
+            }
+          }
+        })
+        if(!allEndDatesAreBeforSystemDate)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`One or more measurements endtimestamp is greater than current date`,
+              })
+            );
+          });
+        }
+      }
+      if(measurements.type ==="History")
+      {
+        let allDatesAreBeforeCreatedAt:boolean=true;
+        measurements.reads.forEach(ele=>{
+          if(device && device.createdAt)
+          {
+            if(new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime())
+            {
+              allDatesAreBeforeCreatedAt = false;
+            }
+            if(new Date(ele.starttimestamp).getTime() > new Date(device.createdAt).getTime())
+            {
+              allDatesAreBeforeCreatedAt = false;
+            }
+          }
+        })
+        if(!allDatesAreBeforeCreatedAt)
+        {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message:`For History reading starttimestamp and endtimestamp should be prior to device onboarding date. One or more measurements endtimestamp and or starttimestamp is greater than device onboarding date${device?.createdAt}`,
+              })
+            );
+          });
+        }
+      }
+      if(device && device.organizationId !== user.organizationId)
+      {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`Device doesnt belongs to the requested users organization`,
+            })
+          );
+        });
+      }
+      return await this.internalReadsService.newstoreRead(id, measurements);
   }
 }

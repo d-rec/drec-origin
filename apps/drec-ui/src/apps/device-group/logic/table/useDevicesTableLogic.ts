@@ -13,12 +13,12 @@ const prepareDevicesData = (
     externalId: device.externalId,
     status: device.status,
     address: device.address,
-    installation: device.installationConfiguration,
+    //installation: device.installationConfiguration,
     capacity: PowerFormatter.capacityFormatDisplay(device.capacity, true),
     age: device.commissioningDate,
     offTaker: device.offTaker,
-    sector: device.sector,
-    standardCompliance: device.standardCompliance,
+    //sector: device.sector,
+    //standardCompliance: device.standardCompliance,
     actions: actions
 });
 

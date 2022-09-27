@@ -8,3 +8,11 @@ export * from './LoggedInUser';
 export * from './General';
 export * from './OrganizationInvitation';
 export * from './Fuels';
+export * from './YieldConfig';
+export * from './Roles';
+export * from './ACLModules';
+export * from './ACLModulesPermission';
+
+export * from './AggregateMetervalue';
+export * from './DeviceGroupIssueCertificateRequest';
+export * from './Sdgbenefit'

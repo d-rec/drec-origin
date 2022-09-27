@@ -115,7 +115,7 @@
      * LTS schedule: https://nodejs.org/en/about/releases/
      * LTS versions: https://nodejs.org/en/download/releases/
      */
-    "nodeSupportedVersionRange": ">=12.13.0 <13.0.0 || >=14.15.0 <15.0.0",
+    "nodeSupportedVersionRange": ">=12.13.0 <13.0.0 || >=14.15.0 <17.0.0",
     /**
      * Odd-numbered major versions of Node.js are experimental.  Even-numbered releases
      * spend six months in a stabilization period before the first Long Term Support (LTS) version.
@@ -364,14 +364,14 @@
             "packageName": "@energyweb/origin-drec-api",
             "projectFolder": "apps/drec-api"
         },
-        {
-            "packageName": "@energyweb/origin-drec-api-client",
-            "projectFolder": "apps/drec-api-client"
-        },
-        {
-            "packageName": "@energyweb/origin-drec-ui",
-            "projectFolder": "apps/drec-ui"
-        }
+         {
+             "packageName": "@energyweb/origin-drec-api-client",
+             "projectFolder": "apps/drec-api-client"
+         },
+         {
+             "packageName": "@energyweb/origin-drec-ui",
+             "projectFolder": "apps/drec-ui"
+         }
         // {
         //   /**
         //    * The NPM package name of the project (must match package.json)

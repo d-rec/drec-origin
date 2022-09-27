@@ -1,5 +1,16 @@
 import { OrganizationStatus, Role } from '../utils/enums';
 
+
+
+export class IPublicAddOrganization {
+  id: number;
+  name?: string='';
+
+  organizationType?: string;
+  secretKey:string;
+  status: OrganizationStatus;
+
+}
 export class IPublicOrganization {
   id: number;
   name: string;
@@ -7,9 +18,8 @@ export class IPublicOrganization {
   zipCode: string;
   city: string;
   country: string;
-  businessType: string;
-  tradeRegistryCompanyNumber: string;
-  vatNumber: string;
+  organizationType: string;
+  
   status: OrganizationStatus;
 
   blockchainAccountAddress?: string;
@@ -17,13 +27,7 @@ export class IPublicOrganization {
 }
 
 export interface IFullOrganization extends IPublicOrganization {
-  signatoryFullName?: string;
-  signatoryAddress?: string;
-  signatoryZipCode?: string;
-  signatoryCity?: string;
-  signatoryCountry?: string;
-  signatoryEmail?: string;
-  signatoryPhoneNumber?: string;
+ 
   signatoryDocumentIds?: string[];
   documentIds?: string[];
 }

@@ -13,7 +13,7 @@ import {
   Sector,
   StandardCompliance,
 } from '../../../utils/enums';
-import { IDevice } from '../../../models';
+import { DeviceDescription, IDevice } from '../../../models';
 
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId'>
@@ -24,6 +24,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   projectName: string;
 
   @ApiProperty()
@@ -33,66 +34,75 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   latitude: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   longitude: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   countryCode: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  zipCode: string;
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsString()
+  // zipCode: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   fuelCode: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   deviceTypeCode: string;
 
-  @ApiProperty()
-  @IsEnum(Installation)
-  installationConfiguration: Installation;
+  // @ApiProperty()
+  // @IsEnum(Installation)
+  // installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
+  @IsOptional()
   capacity: number;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   commissioningDate: string;
 
   @ApiProperty()
   @IsBoolean()
+  @IsOptional()
   gridInterconnection: boolean;
 
   @ApiProperty()
   @IsEnum(OffTaker)
+  @IsOptional()
   offTaker: OffTaker;
 
-  @ApiProperty()
-  @IsEnum(Sector)
-  sector: Sector;
+  // @ApiProperty()
+  // @IsEnum(Sector)
+  // sector: Sector;
 
-  @ApiProperty()
-  @IsEnum(StandardCompliance)
-  standardCompliance: StandardCompliance;
+  // @ApiProperty()
+  // @IsEnum(StandardCompliance)
+  // standardCompliance: StandardCompliance;
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
   yieldValue: number;
 
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  generatorsIds: number[];
+  // @ApiProperty()
+  // @IsArray()
+  // @IsOptional()
+  // generatorsIds: number[];
 
   @ApiProperty()
   @IsString()
@@ -113,4 +123,40 @@ export class NewDeviceDTO
   @IsArray()
   @IsOptional()
   images: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(DeviceDescription, {
+    message:
+      'Valid Device Description are Solar Lantern, Solar Home System, Mini Grid, Rooftop Solar, Ground Mount Solar',
+  })
+  deviceDescription?: DeviceDescription;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  energyStorage: boolean;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  energyStorageCapacity: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  qualityLabels: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  groupId?: number | null;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  SDGBenefits?: number| undefined;
+
+
 }

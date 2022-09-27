@@ -16,6 +16,7 @@ import { FileModule } from '../file';
     forwardRef(() => UserModule),
     BlockchainPropertiesModule,
     MailModule,
+    forwardRef(() => UserModule),
     FileModule,
   ],
   providers: [OrganizationService],

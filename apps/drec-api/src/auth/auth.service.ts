@@ -38,7 +38,6 @@ export class AuthService {
       email: user.email.toLowerCase(),
       id: user.id,
     };
-
     return {
       accessToken: this.jwtService.sign(payload),
     };

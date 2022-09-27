@@ -5,6 +5,7 @@ import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
+//import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
 import { File } from './file.entity';
 
@@ -19,6 +20,8 @@ export class FileService {
 
   constructor(
     @InjectRepository(File) private readonly repository: Repository<File>,
+    // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
+    // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     private readonly connection: Connection,
   ) {}
 
@@ -156,4 +159,18 @@ export class FileService {
   private generateUniqueFilename(originalFilename: string) {
     return `${uuid()}.${path.extname(originalFilename)}`;
   }
+
+  // async createCSVJobForFile(
+  //   userId: number,
+  //   organizationId: number,
+  //   status: StatusCSV,
+  //   fileId: string,
+  // ): Promise<DeviceCsvFileProcessingJobsEntity> {
+  //   return await this.repositoyCSVJobProcessing.save({
+  //     userId,
+  //     organizationId,
+  //     status,
+  //     fileId,
+  //   });
+  // }
 }

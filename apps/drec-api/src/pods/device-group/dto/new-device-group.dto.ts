@@ -40,9 +40,9 @@ export class NewDeviceGroupDTO
   @IsString()
   fuelCode: string;
 
-  @ApiProperty()
-  @IsEnum(StandardCompliance)
-  standardCompliance: StandardCompliance;
+  // @ApiProperty()
+  // @IsEnum(StandardCompliance)
+  // standardCompliance: StandardCompliance;
 
   @ApiProperty({ type: [String] })
   @IsArray()
@@ -57,23 +57,23 @@ export class NewDeviceGroupDTO
   @IsNotEmpty()
   offTakers: OffTaker[];
 
-  @ApiProperty({
-    description: 'List of installations',
-    isArray: true,
-    enum: Installation,
-  })
-  @IsEnum(Installation, { each: true })
-  @IsNotEmpty()
-  installationConfigurations: Installation[];
+  // @ApiProperty({
+  //   description: 'List of installations',
+  //   isArray: true,
+  //   enum: Installation,
+  // })
+  // @IsEnum(Installation, { each: true })
+  // @IsNotEmpty()
+  // installationConfigurations: Installation[];
 
-  @ApiProperty({
-    description: 'List of sectors',
-    isArray: true,
-    enum: Sector,
-  })
-  @IsEnum(Sector, { each: true })
-  @IsNotEmpty()
-  sectors: Sector[];
+  // @ApiProperty({
+  //   description: 'List of sectors',
+  //   isArray: true,
+  //   enum: Sector,
+  // })
+  // @IsEnum(Sector, { each: true })
+  // @IsNotEmpty()
+  // sectors: Sector[];
 
   @ApiProperty()
   @IsBoolean()
@@ -105,4 +105,50 @@ export class NewDeviceGroupDTO
   @IsArray()
   @IsOptional()
   labels: string[];
+
+
+  @ApiProperty({ type: String })
+  @IsOptional()
+  frequency?: string;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationStartDate?: Date;
+
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  reservationEndDate?: Date;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeInMegaWattHour?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationSucceededInMegaWattHour?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationRequestedInMegaWattHour?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  targetVolumeCertificateGenerationFailedInMegaWattHour?: number;
+
+  @ApiProperty({ type: Boolean })
+  @IsOptional()
+  authorityToExceed?: boolean;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  buyerId?: number;
+
+  @ApiProperty({ type: String })
+  @IsOptional()
+  buyerAddress?: string | null | undefined;
+
+  @ApiProperty({ type: String })
+  @IsOptional()
+  devicegroup_uid?: string | null | undefined;
+
 }
