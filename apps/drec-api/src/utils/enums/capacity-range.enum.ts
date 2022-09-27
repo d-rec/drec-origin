@@ -7,9 +7,3 @@ export enum CapacityRange {
   Between_101kw_1mw = '100.001kW - 1MW',
   Above_1mw = '1.001MW+',
 }
-export  enum Unit {
-  Wh = "Wh",
-  kWh = "kWh",
-  MWh = "MWh",
-  GWh = "GWh"
-}

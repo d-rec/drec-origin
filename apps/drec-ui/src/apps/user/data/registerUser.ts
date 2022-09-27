@@ -15,6 +15,7 @@ type TRegisterUserFormValues = {
   password: string;
   confirmPassword: string;
   orgName: string;
+  orgAddress: string;
   secretKey: string;
 };
 
@@ -39,6 +40,7 @@ export const useApiRegisterUser = (showRegisteredModal: () => void) => {
             organizationType: values.organizationType,
             confirmPassword: values.confirmPassword,
             orgName: values.orgName,
+            orgAddress: values.orgAddress,
             secretKey: values.secretKey
         };
         mutate(

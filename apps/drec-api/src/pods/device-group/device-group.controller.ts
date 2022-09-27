@@ -514,9 +514,9 @@ return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
 //  ): Promise<JobFailedRowsDTO | undefined> {
 
 //  }
-@Delete('endresavation/:id')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(Role.DeviceOwner, Role.Admin)
+@Delete('endreservation/:id')
+@UseGuards(AuthGuard('jwt'))
+
 @ApiResponse({
   status: HttpStatus.OK,
   type: EndReservationdateDTO,

@@ -8,8 +8,11 @@ import {
   IsDate,
   ValidateNested 
 } from 'class-validator';
+import {
+  Unit,
+} from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
-import { Unit, ReadType } from '../../../utils/enums'
+import {ReadType } from '../../../utils/enums'
 import { Iintermediate, NewReadDTO } from '../../../models';
 import {
   YieldStatus,
@@ -29,7 +32,7 @@ export class IntmediateMeterReadDTO
   @IsEnum(ReadType)
   type: ReadType;
 
-  @ApiProperty({ enum: Unit, enumName: 'unit' })
+  @ApiProperty({ enum: Unit})
   @Column()
   @IsEnum(Unit)
   unit: Unit;
@@ -53,7 +56,7 @@ export class NewIntmediateMeterReadDTO
   @IsEnum(ReadType)
   type: ReadType;
 
-  @ApiProperty({ enum: Unit, enumName: 'unit' })
+  @ApiProperty({ enum: Unit })
   @IsEnum(Unit)
   unit: Unit;
   

@@ -19,7 +19,14 @@ export const useAutoSelectedGroups = (
     const autoSelectGroupsHandler = () => {
         const data: AddGroupDTO[] = selected.map((groupedDevice: GroupedDevicesDTO) => ({
             name: groupedDevice.name,
-            deviceIds: groupedDevice?.devices.map((device: UngroupedDeviceDTO) => device.id)
+            deviceIds: groupedDevice?.devices.map((device: UngroupedDeviceDTO) => device.id),
+            targetCapacityInMegaWattHour: groupedDevice.targetCapacityInMegaWattHour,
+            reservationStartDate: groupedDevice.reservationStartDate,
+            reservationEndDate: groupedDevice.reservationEndDate,
+            continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: groupedDevice.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation,
+            continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: groupedDevice.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration,
+            authorityToExceed: groupedDevice.authorityToExceed,
+            frequency: groupedDevice.frequency
         }));
         mutate(
             { data },

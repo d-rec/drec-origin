@@ -14,6 +14,7 @@ export type TUserSignInFormValues = {
     confirmPassword:string;
     organizationType:string,
     orgName:string,
+    orgAddress: string,
     secretKey:string
 };
 
@@ -26,6 +27,7 @@ const INITIAL_FORM_VALUES: TUserSignInFormValues = {
     confirmPassword:'',
     organizationType:'',
     orgName:'',
+    orgAddress: '',
     secretKey:'',
 };
 
@@ -97,6 +99,10 @@ export const useUserSignInFormConfig = (
                 name: 'orgName',      
             },
             {
+                label: 'Organization Address',
+                name: 'orgAddress',      
+            },
+            {
                 label: 'Secret Key',
                 name: 'secretKey',
 
@@ -123,7 +129,7 @@ export const useUserSignInFormConfig = (
             .required(),
             organizationType: Yup.string().label('Organization Type'),
             orgName: Yup.string().label('Organization Name'),
-
+            orgAddress: Yup.string().label('Organization Address'),
             secretKey: Yup.string().max(6).label('Secret Key').matches(/^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/,{message:"Ex: A34233 , DS2DGF, 33113F 1. Should be of 6 characters length 2. Minimum one upper case(A-Z) and minimum one digit(0-9), and combination should include only A-Z upper case and 0-9 numbers. ",excludeEmptyString:true}),
         })
     };
