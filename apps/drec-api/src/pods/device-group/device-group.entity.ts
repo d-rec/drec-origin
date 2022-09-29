@@ -154,6 +154,4 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   })
   reservationEndDate:Date;
 
-  @Column('uuid')
-  devicegroup_uid:string;
 }

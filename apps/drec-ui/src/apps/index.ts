@@ -3,3 +3,4 @@ export * from './device-group';
 export * from './organization';
 export * from './certificate';
 export * from './yieldconfiguration';
+export * from './sample';

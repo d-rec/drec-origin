@@ -10,9 +10,11 @@ import { getDeviceGroupMenu, TGetDeviceGroupMenuArgs } from 'apps/device-group';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from 'apps/user';
 import { useActiveMenuTab, getTopbarButtonList } from 'shared';
 import { getCertificateMenu, TGetCertificateMenuArgs } from 'apps/certificate/logic';
+import {getSampleconfigMenu,TGetSampleMenuArgs} from 'apps/sample'
 import { isRole } from 'utils';
 import { useNavigate } from 'react-router';
 import {getYieldconfigMenu,TGetYieldMenuArgs} from 'apps/yieldconfiguration';
+
 export type RoutesConfig = {
     orgRoutes: Omit<TGetOrganizationMenuArgs, 'isOpen' | 'showSection'>;
     deviceGroupRoutes: Omit<TGetDeviceGroupMenuArgs, 'isOpen' | 'showSection'>;
@@ -20,6 +22,7 @@ export type RoutesConfig = {
     accountRoutes: Omit<TGetAccountMenuArgs, 'isOpen' | 'showSection'>;
     adminRoutes: Omit<TGetAdminMenuArgs, 'isOpen' | 'showSection'>;
     yieldRoutes: Omit<TGetYieldMenuArgs, 'isOpen' | 'showSection'>;
+    sampleRoutes: Omit<TGetSampleMenuArgs, 'isOpen' | 'showSection'>;
 };
 
 export const useAppContainerEffects = () => {
@@ -38,7 +41,8 @@ export const useAppContainerEffects = () => {
         isDeviceGroupTabActive,
         isAccountTabActive,
         isAdminTabAcive,
-        isyieldTabActive
+        isyieldTabActive,
+        issampleTabActive
     } = useActiveMenuTab();
     const { data: userInvitations, isLoading: areInvitationsLoading } =
         useInvitationControllerGetInvitations({
@@ -172,9 +176,27 @@ export const useAppContainerEffects = () => {
             }),
         [isyieldTabActive, userIsAdmin, yieldRoutesConfig]
     );
+
+    const sampleRoutesConfig: RoutesConfig['sampleRoutes'] = useMemo(
+        () => ({
+            showaddForm: true , 
+            showTableList:true,      
+            
+        }),
+        [isAuthenticated, userIsActive, userIsAdmin]
+    );
+    const sampleMenu = useMemo(
+        () =>
+        getSampleconfigMenu({
+                isOpen: issampleTabActive,
+                showSection: true,
+                ...sampleRoutesConfig
+            }),
+        [issampleTabActive, userIsAdmin, sampleRoutesConfig]
+    );
     const menuSections = useMemo(
-        () => [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu],
-        [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu]
+        () => [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu,sampleMenu],
+        [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu,sampleMenu]
     );
 
     const routesConfig: RoutesConfig = useMemo(
@@ -185,6 +207,8 @@ export const useAppContainerEffects = () => {
             accountRoutes: accountRoutesConfig,
             adminRoutes: adminRoutesConfig,
             yieldRoutes:yieldRoutesConfig,
+            sampleRoutes:sampleRoutesConfig
+          
         }),
         [
             orgRoutesConfig,
@@ -192,7 +216,9 @@ export const useAppContainerEffects = () => {
             certificateRoutesConfig,
             accountRoutesConfig,
             adminRoutesConfig,
-            yieldRoutesConfig
+            yieldRoutesConfig,
+            sampleRoutesConfig
+          
         ]
     );
 

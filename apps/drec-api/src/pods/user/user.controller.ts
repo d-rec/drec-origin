@@ -83,18 +83,7 @@ export class UserController {
     return this.userService.create(userRegistrationData);
   }
 // add new for adding user with organization
-   @Post('registerWithOrganization')
-  @ApiBody({ type: CreateUserORGDTO })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: UserDTO,
-    description: 'Register a user',
-  })
-  public async newregister(
-    @Body() userRegistrationData: CreateUserORGDTO,
-  ): Promise<UserDTO> {
-    return this.userService.newcreate(userRegistrationData);
-  }
+  
 
    @Post('registerWithOrganziation')
   @ApiBody({ type: CreateUserORGDTO })
