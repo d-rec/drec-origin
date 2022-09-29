@@ -1,6 +1,8 @@
 import React, { FC,useState, useEffect } from 'react';
 import { useStyles } from './tableViewConfig.style';
 import { Paper } from '@mui/material';
+import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
+
 
 import axios from 'axios';
 // import { GenericForm } from '@energyweb/origin-ui-core';
@@ -17,11 +19,15 @@ export const AddSampleListViewPage: FC = () => {
       'http://127.0.0.1:3040/api/device-group'
     )
     setFetchedData(data)
+    showNotification(
+        'Data fetched successfully',
+        NotificationTypeEnum.Success
+    );
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+//   useEffect(() => {
+//     fetchData()
+//   }, [])
 
   const handleSubmit = (e:any) => {
     e.preventDefault()
@@ -42,7 +48,7 @@ export const AddSampleListViewPage: FC = () => {
         </div>
         <button onClick={handleSubmit}> Click Here TO make API Call</button>
 
-            <table>
+            {/* <table>
                 <tr>
                     <td>Cell 1</td>
                     <td>Cell 2</td>
@@ -53,7 +59,7 @@ export const AddSampleListViewPage: FC = () => {
                     <td>Cell 5</td>
                     <td>Cell 6</td>
                 </tr>
-            </table>
+            </table> */}
 
         </Paper>
 
