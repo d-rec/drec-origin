@@ -9,6 +9,7 @@ import { CertificateApp } from 'apps/certificate';
 import { AccountApp, AdminApp, AuthApp, ConfirmEmailApp, LoginApp } from 'apps/user';
 import { OrganizationApp } from 'apps/organization';
 import { DeviceGroupApp } from 'apps/device-group/view/DeviceGroupApp';
+import {DeviceConfigApp} from 'apps/device/view/deviceConfigApp'
 import {YieldConfigApp} from 'apps/yieldconfiguration/view/YieldConfigApp';
 
 import {SampleConfigApp} from 'apps/sample/view/sampleConfigApp';
@@ -26,7 +27,7 @@ export interface AppProps {
 export const App: FC<AppProps> = memo(
     ({ isAuthenticated, user, menuSections, topbarButtons, routesConfig, loading }) => {
         const { orgData, userData } = useUserAndOrgData(user);
-        const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes ,yieldRoutes,sampleRoutes } =
+        const { accountRoutes, adminRoutes, orgRoutes, certificateRoutes, deviceGroupRoutes, deviceRoutes ,yieldRoutes,sampleRoutes } =
             routesConfig;
         return (
             <>
@@ -64,6 +65,14 @@ export const App: FC<AppProps> = memo(
                                             googleMapsApiKey:
                                                 process.env.REACT_APP_GOOGLE_MAPS_API_KEY
                                         }}
+                                    />
+                                }
+                            />
+                              <Route
+                                path="device/*"
+                                element={
+                                    <DeviceConfigApp routesConfig={deviceRoutes}
+                                    
                                     />
                                 }
                             />
