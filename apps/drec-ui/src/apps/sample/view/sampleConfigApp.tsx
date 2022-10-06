@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Routes, Route } from 'react-router-dom';
 // import { yi } from './containers';
 //import { SampleValueModalsProvider } from './context';
-import { AddSampleformValuePage, AddSampleListViewPage } from './pages'
+import { AddSampleformValuePage, AddSampleGraphvaluePage, AddSampleListViewPage } from './pages'
 interface OrganizationAppProps {
     routesConfig: {
         showaddForm: boolean,
@@ -22,6 +22,8 @@ export const SampleConfigApp: FC<OrganizationAppProps> = ({ routesConfig }) => {
                
                
              <Route path="table" element={<AddSampleListViewPage/>} />
+
+             <Route path="bar-graph" element={<AddSampleGraphvaluePage/>} />
             
          </Routes>
 

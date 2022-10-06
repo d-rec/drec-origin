@@ -203,19 +203,19 @@ export const useAppContainerEffects = () => {
     const deviceRoutesConfig: RoutesConfig['deviceRoutes'] = useMemo(
         () => ({
             showaddForm: true , 
-            showTableList:userIsAdmin,      
+            showTableList:true,      
             
         }),
-        [userIsAdmin]
+        [true]
     );
     const deviceMenu = useMemo(
         () =>
         getDeviceconfigMenu({
                 isOpen: isDeviceTabActive,
-                showSection: userIsAdmin ,
+                showSection: true ,
                 ...deviceRoutesConfig
             }),
-        [isDeviceTabActive, userIsAdmin, sampleRoutesConfig]
+        [isDeviceTabActive, true, sampleRoutesConfig]
     );
     const menuSections = useMemo(
         () => [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu,sampleMenu,deviceMenu],

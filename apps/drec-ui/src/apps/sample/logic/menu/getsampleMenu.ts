@@ -37,6 +37,11 @@ export const getSampleconfigMenu: TUseSampleMenuFn = ({
                 label: 'Table List',
                 show: showTableList
             },
+            {
+                url: 'bar-graph',
+                label: 'Bar Graph View',
+                show: true
+            },
             // {
             //     url: 'graph',
             //     label: 'graph view',

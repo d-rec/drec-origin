@@ -1,3 +1,3 @@
 export * from './AddFromView';
 export * from './TableView';
-//export * from './graphViewConfig';
+export * from './AddFromGraph';
