@@ -1,6 +1,8 @@
- import React, { FC } from 'react';
+ import React, { FC,useEffect,useState } from 'react';
 import { useStyles } from './FromViewConfig.style';
  import { Paper } from '@mui/material';
+ import { CircularProgress, Grid } from '@mui/material';
+
 
  import {
     Chart as ChartJS,
@@ -12,6 +14,7 @@ import { useStyles } from './FromViewConfig.style';
     Legend,
   } from 'chart.js';
   import { Bar } from 'react-chartjs-2';
+import { getAllDevicesOfUserLoggedIn } from 'api';
 
   ChartJS.register(
     CategoryScale,
@@ -52,8 +55,31 @@ export const data:any = {
   ],
 };
 
+
+
 export const AddSampleGraphvaluePage: FC = () => {
    const classes= useStyles();
+   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+   let fetchData = ()=> {
+    console.log("isLoading",isLoading);
+    getAllDevicesOfUserLoggedIn().then(result=>{
+       //console.log("isLoading",isLoading);
+        setIsLoading(false);
+        console.log("result",result);
+        
+
+    });
+    
+  }
+
+   useEffect(()=>{
+    fetchData();
+   },[])
+
+   if (isLoading) {
+    return <CircularProgress />;
+   }
    
     return (
         <Paper className={classes.paper}>
