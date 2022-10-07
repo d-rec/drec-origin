@@ -28,6 +28,11 @@ export const getSampleconfigMenu: TUseSampleMenuFn = ({
         show: showSection,
         menuList: [
             {
+                url: 'simple-api',
+                label: 'Simple API CAll',
+                show: true
+            },
+            {
                 url: 'form',
                 label: 'Add Form',
                 show: showaddForm

@@ -1,67 +1,164 @@
-import React, { FC,useState, useEffect } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { useStyles } from './tableViewConfig.style';
 import { Paper } from '@mui/material';
+import Button from '@mui/material/Button';
+import Popover from '@mui/material/Popover';
+import { CircularProgress, Grid } from '@mui/material';
+
 import { NotificationTypeEnum, showNotification } from '@energyweb/origin-ui-core';
+import { TableComponent, TableActionData, TableComponentProps } from '@energyweb/origin-ui-core';
 
+import { DeviceDTO } from '@energyweb/origin-drec-api-client';
 
-import axios from 'axios';
-// import { GenericForm } from '@energyweb/origin-ui-core';
-// //import { usesamplePageEffects } from './FromViewConfig.effect';
+import { getAllDevicesOfUserLoggedIn } from 'api';
+
 
 export const AddSampleListViewPage: FC = () => {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const [keywords, setKeywords] = useState<any>()
-  const [fetchedData, setFetchedData] = useState<any>()
+  const [tableProps, setTableProps] = useState<TableComponentProps<DeviceDTO['id']>>({
+    header: {
+      externalId: "externalId",
+      status: "Status",
+      organizationId: "Organization ID",
+      countryCode: "Country Code",
+      fuelCode: "Fuel Code",
+      deviceTypeCode: "Device Type Code",
+      capacity: "Capacity",
+      commissioningDate: "Commissioning Date",
 
-  let fetchData = async ()=> {
-    const  data  = await axios.get(
-      'http://127.0.0.1:3040/api/device-group'
-    )
-    setFetchedData(data)
-    showNotification(
-        'Data fetched successfully',
-        NotificationTypeEnum.Success
-    );
+    },
+    loading: true,
+    pageSize: 25,
+    data: []
+  });
+
+  /*
+  TableComponentProps definition
+  {
+        header: {
+            no: 'No',
+            projectName: 'Project name',
+            externalId: 'External ID',
+            status: 'Status',
+            address: 'Address',
+            installation: 'Installation',
+            capacity: 'Capacity',
+            age: 'Age',
+            offTaker: 'Offtaker',
+            sector: 'Sector',
+            standardCompliance: 'Standard Compliance',
+            actions: 'Details'
+        },
+        loading,
+        pageSize: 25,
+        data: devices?.map((device, index) => prepareDevicesData(device, actions, index)) ?? []
+    };
+*/
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
+  let fetchData = () => {
+    console.log("isLoading", isLoading);
+    getAllDevicesOfUserLoggedIn().then(result => {
+      //console.log("isLoading",isLoading);
+      setIsLoading(false);
+      console.log("result", result);
+      result.data.forEach(ele => {
+        //@ts-ignore
+        ele.commissioningDate = <Button variant="contained">Hello World</Button>;
+      })
+
+      setTableProps({
+        header: {
+          externalId: "externalId",
+          status: "Status",
+          organizationId: "Organization ID",
+          projectName: "Project Name",
+          countryCode: "Country Code",
+          fuelCode: "Fuel Code",
+          deviceTypeCode: "Device Type Code",
+          capacity: "Capacity",
+          commissioningDate: "Commissioning Date",
+        },
+        loading: false,
+        pageSize: 25,
+        data: result.data
+      });
+
+
+    });
+
   }
 
-//   useEffect(() => {
-//     fetchData()
-//   }, [])
+  useEffect(() => {
+    fetchData();
+  }, [])
 
-  const handleSubmit = (e:any) => {
+  if (isLoading) {
+    return <CircularProgress />;
+  }
+
+  const handleSubmit = (e: any) => {
     e.preventDefault()
     fetchData()
   }
 
+  return (
+    <Paper className={classes.paper}>
 
+      <TableComponent {...tableProps} />
+
+    </Paper>
+
+  );
+  /* uncomment to check for popover
     return (
-        <Paper className={classes.paper}>
-
-        <div className="input-field">
-          <input
-            placeholder="Search whatever you wish"
-            type="text"
-            value={keywords}
-            onChange={e => setKeywords(e.target.value)}
-          />
-        </div>
-        <button onClick={handleSubmit}> Click Here TO make API Call</button>
-
-            {/* <table>
-                <tr>
-                    <td>Cell 1</td>
-                    <td>Cell 2</td>
-                    <td>Cell 3</td>
-                </tr>
-                <tr>
-                    <td>Cell 4</td>
-                    <td>Cell 5</td>
-                    <td>Cell 6</td>
-                </tr>
-            </table> */}
-
-        </Paper>
-
+      <Paper className={classes.paper}>
+  
+        <Button aria-describedby={id} variant="contained" onClick={handleClick}>
+          Open Popover
+        </Button>
+  
+  
+        <TableComponent {...tableProps} />
+  
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorReference="anchorPosition"
+          anchorPosition={{ top: 800, left: 400 }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+        >
+          The content of the Popover.
+        </Popover>
+  
+  
+      </Paper>
+  
     );
+  
+    */
 };
