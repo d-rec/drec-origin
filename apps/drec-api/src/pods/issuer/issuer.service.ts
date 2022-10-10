@@ -295,6 +295,7 @@ export class IssuerService {
           devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
           devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
           devicecertificatelogDto.readvalue_watthour = devciereadvalue;
+          devicecertificatelogDto.groupId = group.id;
         await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
         groupReads.push(devciereadvalue)
       }),
