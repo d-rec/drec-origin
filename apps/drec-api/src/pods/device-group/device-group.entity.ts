@@ -153,5 +153,4 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3
   })
   reservationEndDate:Date;
-
 }
