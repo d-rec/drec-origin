@@ -261,9 +261,11 @@ export class DeviceController {
     // }
   }
 
+ 
   @Patch('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Update')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateDeviceDTO,
@@ -275,6 +277,39 @@ export class DeviceController {
     @Param('id') id: number,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
+    deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
+    if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
+      let countries = countrCodesList;
+      if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            }),
+          );
+        });
+      }
+    } else {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+          }),
+        );
+      });
+    }
+    if(deviceToUpdate.capacity<=0){
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid Capacity, it should be greater than 0',
+          }),
+        );
+      });
+    }
     return await this.deviceService.update(
       user.organizationId,
       user.role,

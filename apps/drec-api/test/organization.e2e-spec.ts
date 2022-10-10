@@ -59,7 +59,7 @@ describe('Organization tests', () => {
   it('should receive forbidden when requestiong all organizations without appropiate role', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     await requestAdminOrganization('', HttpStatus.FORBIDDEN);
@@ -68,7 +68,7 @@ describe('Organization tests', () => {
   it('should retrieve all organizations', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: organizations } = await requestAdminOrganization(
@@ -82,7 +82,7 @@ describe('Organization tests', () => {
   it('should retrieve user`s organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: organization } = await requestOrganization(
@@ -95,7 +95,7 @@ describe('Organization tests', () => {
   it('should retrieve all users from an organizations', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: users } = await requestOrganization('users', HttpStatus.OK);
@@ -106,7 +106,7 @@ describe('Organization tests', () => {
   it('should update an organization', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     const partialOrg = {
       name: 'Device Owner - Update',
@@ -124,7 +124,7 @@ describe('Organization tests', () => {
   it('should return forbbidden when updating an organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     const orgCode = 'D0012';
     const partialOrg = {
@@ -139,7 +139,7 @@ describe('Organization tests', () => {
   it('should return forbbidden when creating an organization', async () => {
     const loggedUser = {
       email: 'buyer2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     const partialOrg: NewOrganizationDTO = {
       name: 'New Owner',
@@ -165,7 +165,7 @@ describe('Organization tests', () => {
   it('should delete an organization', async () => {
     const loggedUser = {
       email: 'admin2@mailinator.com',
-      password: 'Password123',
+      password: '******123',
     };
     await loginUser(loggedUser);
     const { body: organizations } = await requestAdminOrganization(

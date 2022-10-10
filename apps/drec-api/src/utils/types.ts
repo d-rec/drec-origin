@@ -4,7 +4,7 @@ import { StandardCompliance,CertificateType } from './enums';
 
 export interface ICertificateMetadata {
   deviceIds: number[];
-  deviceGroup: DeviceGroupDTO;
+  //deviceGroup: DeviceGroupDTO;
   groupId: null | string;
   buyerReservationId?:string;
   isStandardIssuanceRequested?:StandardCompliance;

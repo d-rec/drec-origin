@@ -248,7 +248,7 @@ export class IssuerService {
       metadata: {
         buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };
@@ -295,6 +295,7 @@ export class IssuerService {
           devicecertificatelogDto.certificate_issuance_enddate = new Date(endDate.toString()),
           devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
           devicecertificatelogDto.readvalue_watthour = devciereadvalue;
+          devicecertificatelogDto.groupId = group.id;
         await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
         groupReads.push(devciereadvalue)
       }),
@@ -345,9 +346,9 @@ export class IssuerService {
         buyerReservationId:group.devicegroup_uid,
         isStandardIssuanceRequested:StandardCompliance.REC,
         isStandardIssued:false,
-        type:CertificateType.CarbonCredit,
+        type:CertificateType.REC,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };

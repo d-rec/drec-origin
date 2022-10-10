@@ -1,0 +1,46 @@
+[
+    {
+        "externalId": "null",
+        "projectName": "null",
+        "latitude": -26.246213,
+        "longitude": 28.100683,
+        "countryCode": "ZA",
+        "capacity": 319000,
+        "address": "null",
+        "zipCode": "null",
+        "fuelCode": "null",
+        "deviceTypeCode": "TC120",
+        "installationConfiguration": "null",
+        "gridInterconnection": true,
+        "offTaker": "null",
+        "sector": "null",
+        "commissioningDate": "2021-01-08",
+        "integrator": "null",
+        "status": "Active",
+        "yieldValue": 1500,
+        "standardCompliance": "null"
+    },
+    {
+        "externalId": "null",
+        "projectName": "null",
+        "latitude": 16.611857,
+        "longitude": 74.374541,
+        "countryCode": "null",
+        "capacity": 349000,
+        "address": "null",
+        "zipCode": "null",
+        "fuelCode": "ES100",
+        "deviceTypeCode": "TC120",
+        "installationConfiguration": "StandAlone",
+        "gridInterconnection": true,
+        "offTaker": "null",
+        "sector": "null",
+        "commissioningDate": "2019-12-24",
+        "integrator": "null",
+        "status": "Active",
+        "yieldValue": 1500,
+        "standardCompliance": "null"
+    }
+
+  
+]

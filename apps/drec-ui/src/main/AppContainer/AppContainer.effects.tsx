@@ -10,16 +10,22 @@ import { getDeviceGroupMenu, TGetDeviceGroupMenuArgs } from 'apps/device-group';
 import { getAccountMenu, TGetAccountMenuArgs, getAdminMenu, TGetAdminMenuArgs } from 'apps/user';
 import { useActiveMenuTab, getTopbarButtonList } from 'shared';
 import { getCertificateMenu, TGetCertificateMenuArgs } from 'apps/certificate/logic';
+import {getSampleconfigMenu,TGetSampleMenuArgs} from 'apps/sample'
 import { isRole } from 'utils';
 import { useNavigate } from 'react-router';
 import {getYieldconfigMenu,TGetYieldMenuArgs} from 'apps/yieldconfiguration';
+import {getDeviceconfigMenu,TGetDeviceMenuArgs} from 'apps/device';
+
+
 export type RoutesConfig = {
     orgRoutes: Omit<TGetOrganizationMenuArgs, 'isOpen' | 'showSection'>;
     deviceGroupRoutes: Omit<TGetDeviceGroupMenuArgs, 'isOpen' | 'showSection'>;
+    deviceRoutes: Omit<TGetDeviceMenuArgs, 'isOpen' | 'showSection'>;
     certificateRoutes: Omit<TGetCertificateMenuArgs, 'isOpen' | 'showSection'>;
     accountRoutes: Omit<TGetAccountMenuArgs, 'isOpen' | 'showSection'>;
     adminRoutes: Omit<TGetAdminMenuArgs, 'isOpen' | 'showSection'>;
     yieldRoutes: Omit<TGetYieldMenuArgs, 'isOpen' | 'showSection'>;
+    sampleRoutes: Omit<TGetSampleMenuArgs, 'isOpen' | 'showSection'>;
 };
 
 export const useAppContainerEffects = () => {
@@ -38,7 +44,9 @@ export const useAppContainerEffects = () => {
         isDeviceGroupTabActive,
         isAccountTabActive,
         isAdminTabAcive,
-        isyieldTabActive
+        isyieldTabActive,
+        issampleTabActive,
+        isDeviceTabActive
     } = useActiveMenuTab();
     const { data: userInvitations, isLoading: areInvitationsLoading } =
         useInvitationControllerGetInvitations({
@@ -172,27 +180,70 @@ export const useAppContainerEffects = () => {
             }),
         [isyieldTabActive, userIsAdmin, yieldRoutesConfig]
     );
+    
+    const sampleRoutesConfig: RoutesConfig['sampleRoutes'] = useMemo(
+        () => ({
+            showaddForm: true , 
+            showTableList:true,      
+            
+        }),
+        [isAuthenticated, userIsActive, userIsAdmin]
+    );
+    const sampleMenu = useMemo(
+        () =>
+        getSampleconfigMenu({
+                isOpen: issampleTabActive,
+                showSection: true,
+                ...sampleRoutesConfig
+            }),
+        [issampleTabActive, userIsAdmin, sampleRoutesConfig]
+    );
+
+
+    const deviceRoutesConfig: RoutesConfig['deviceRoutes'] = useMemo(
+        () => ({
+            showaddForm: true , 
+            showTableList:true,      
+            
+        }),
+        [true]
+    );
+    const deviceMenu = useMemo(
+        () =>
+        getDeviceconfigMenu({
+                isOpen: isDeviceTabActive,
+                showSection: true ,
+                ...deviceRoutesConfig
+            }),
+        [isDeviceTabActive, true, sampleRoutesConfig]
+    );
     const menuSections = useMemo(
-        () => [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu],
-        [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu]
+        () => [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu,sampleMenu,deviceMenu],
+        [deviceGroupMenu, certificateMenu, orgMenu, accountMenu, adminMenu,yieldMenu,sampleMenu,deviceMenu]
     );
 
     const routesConfig: RoutesConfig = useMemo(
         () => ({
             orgRoutes: orgRoutesConfig,
             deviceGroupRoutes: deviceGroupRoutesConfig,
+            deviceRoutes: deviceRoutesConfig,
             certificateRoutes: certificateRoutesConfig,
             accountRoutes: accountRoutesConfig,
             adminRoutes: adminRoutesConfig,
             yieldRoutes:yieldRoutesConfig,
+            sampleRoutes:sampleRoutesConfig
+          
         }),
         [
             orgRoutesConfig,
             deviceGroupRoutesConfig,
+            deviceRoutesConfig,
             certificateRoutesConfig,
             accountRoutesConfig,
             adminRoutesConfig,
-            yieldRoutesConfig
+            yieldRoutesConfig,
+            sampleRoutesConfig
+          
         ]
     );
 

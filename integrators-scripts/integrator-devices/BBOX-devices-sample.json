@@ -1,0 +1,43 @@
+[
+    {
+        "externalId": "null",
+        "projectName": "null",
+        "latitude": 8.1147031,
+        "longitude": 1.1513303,
+        "countryCode": "TG",
+        "capacity": 20,
+        "zipCode": "undefined",
+        "fuelCode": "ES100",
+        "deviceTypeCode": "",
+        "installationConfiguration": "null",
+        "gridInterconnection": false,
+        "offTaker": "null",
+        "sector": "null",
+        "commissioningDate": "null",
+        "yieldValue": 1500,
+        "standardCompliance": "C",
+        "integrator": "null",
+        "status": "Active"
+    },
+    {
+        "externalId": "null",
+        "projectName": "null",
+        "latitude": 7.7593846,
+        "longitude": 1.1961276,
+        "countryCode": "TG",
+        "capacity": 20,
+        "zipCode": "undefined",
+        "fuelCode": "null",
+        "deviceTypeCode": "null",
+        "installationConfiguration": "StandAlone",
+        "gridInterconnection": false,
+        "offTaker": "Residential",
+        "sector": "",
+        "commissioningDate": "2021-01-06",
+        "yieldValue": 1500,
+        "standardCompliance": "I-REC",
+        "integrator": "null",
+        "status": "Active"
+    }
+   
+]
