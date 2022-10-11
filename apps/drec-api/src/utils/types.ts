@@ -3,6 +3,7 @@ import { DeviceGroupDTO } from '../pods/device-group/dto';
 import { StandardCompliance,CertificateType } from './enums';
 
 export interface ICertificateMetadata {
+  version:string;
   deviceIds: number[];
   //deviceGroup: DeviceGroupDTO;
   groupId: null | string;

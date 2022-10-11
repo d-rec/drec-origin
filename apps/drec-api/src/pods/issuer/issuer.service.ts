@@ -246,6 +246,7 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
+        version:"v1.0",
         buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         //deviceGroup,
@@ -343,6 +344,7 @@ export class IssuerService {
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
+        version:"v1.0",
         buyerReservationId:group.devicegroup_uid,
         isStandardIssuanceRequested:StandardCompliance.REC,
         isStandardIssued:false,
