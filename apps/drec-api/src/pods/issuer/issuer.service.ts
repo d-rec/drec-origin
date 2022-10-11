@@ -70,9 +70,9 @@ export class IssuerService {
 
   //@Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('0 59 * * * *')
-  @Cron('0 */5 * * * *')
+  @Cron('0 */10 * * * *')
   async handleCron(): Promise<void> {
-    this.logger.debug('Called every hour to check for isssuance of certificates');
+    this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
     const startDate1 = DateTime.now().minus({ days: 1 }).toUTC();
     const endDate1 = DateTime.now().minus({ minute: 1 }).toUTC();
