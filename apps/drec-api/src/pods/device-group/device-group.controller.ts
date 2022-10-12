@@ -176,12 +176,29 @@ export class DeviceGroupController {
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<DeviceGroupDTO | null> {
+    console.log("typeof deviceGroupToRegister.reservationStartDate", typeof deviceGroupToRegister.reservationStartDate);
+    if(typeof deviceGroupToRegister.reservationStartDate ==="string")
+    {
+      deviceGroupToRegister.reservationStartDate = new Date(deviceGroupToRegister.reservationStartDate);
+    }
+    if(typeof deviceGroupToRegister.reservationEndDate ==="string")
+    {
+      deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
+    }
     if(deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime())
     {
       throw new ConflictException({
         success: false,
         message: 'start date cannot be less than or same as end date',
       });
+    }
+    let maximumBackDateForReservation:Date = new Date(new Date().getTime() - 3.164e+10);
+    if(deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() &&  deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime())
+    {
+      throw new ConflictException({
+        success: false,
+        message: 'start date or end date cannot be less than 1 year from current date',
+      }); 
     }
     if (organizationId === null || organizationId === undefined) {
       throw new ConflictException({

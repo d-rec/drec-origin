@@ -248,7 +248,7 @@ export class IssuerService {
       metadata: {
         buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };
@@ -346,9 +346,9 @@ export class IssuerService {
         buyerReservationId:group.devicegroup_uid,
         isStandardIssuanceRequested:StandardCompliance.REC,
         isStandardIssued:false,
-        type:CertificateType.CarbonCredit,
+        type:CertificateType.REC,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };
