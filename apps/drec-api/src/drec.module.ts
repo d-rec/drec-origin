@@ -40,11 +40,13 @@ import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_cs
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
 import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
+import {Intermediate_MeterRead} from './pods/reads/history_intermideate_meterread.entity';
 import {CheckCertificateIssueDateLogForDeviceEntity} from './pods/device/check_certificate_issue_date_log_for_device.entity'
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { CountrycodeModule}from './pods/countrycode/countrycode.module'
 import {SdgbenefitModule} from './pods/sdgbenefit/sdgbenefit.module';
 import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
+import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -79,6 +81,7 @@ export const entities = [
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
+  Intermediate_MeterRead,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
@@ -142,7 +145,8 @@ const QueueingModule = () => {
     TestapiModule,
     DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
     CountrycodeModule,
-    SdgbenefitModule
+    SdgbenefitModule,
+    CertificateLogModule
   ],
 })
 export class DrecModule {}

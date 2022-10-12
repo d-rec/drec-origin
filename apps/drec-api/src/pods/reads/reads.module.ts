@@ -12,7 +12,8 @@ import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import {AggregateMeterRead } from './aggregate_readvalue.entity'
+import {AggregateMeterRead } from './aggregate_readvalue.entity';
+import {Intermediate_MeterRead} from './history_intermideate_meterread.entity'
  const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService) => {
@@ -28,7 +29,7 @@ import {AggregateMeterRead } from './aggregate_readvalue.entity'
 @Module({
 
   imports: [
-    TypeOrmModule.forFeature([AggregateMeterRead]),
+    TypeOrmModule.forFeature([AggregateMeterRead,Intermediate_MeterRead]),
     ConfigModule,
     CqrsModule,
     DeviceModule,
