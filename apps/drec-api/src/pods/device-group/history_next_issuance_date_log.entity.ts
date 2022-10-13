@@ -63,7 +63,7 @@ import {
 } from 'class-validator';
 
 
-@Entity('check_certificate_issue_date_log_for_device_group')
+@Entity('history_next_issueance_log')
 export class HistoryDeviceGroupNextIssueCertificate extends ExtendedBaseEntity {
   
   @PrimaryGeneratedColumn()
