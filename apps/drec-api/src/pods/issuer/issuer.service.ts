@@ -250,7 +250,7 @@ export class IssuerService {
         version:"v1.0",
         buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };
@@ -347,11 +347,10 @@ export class IssuerService {
       metadata: {
         version:"v1.0",
         buyerReservationId:group.devicegroup_uid,
-        isStandardIssuanceRequested:StandardCompliance.REC,
-        isStandardIssued:false,
-        type:CertificateType.CarbonCredit,
+        isStandardIssuanceRequested:StandardCompliance.IREC,
+        type:CertificateType.REC,
         deviceIds: group.devices.map((device: IDevice) => device.id),
-        deviceGroup,
+        //deviceGroup,
         groupId: group.id?.toString() || null,
       },
     };

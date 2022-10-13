@@ -10,7 +10,7 @@ export interface ICertificateMetadata {
   buyerReservationId?:string;
   isStandardIssuanceRequested?:StandardCompliance;
   type?:CertificateType;
-  isStandardIssued?:boolean;
+  //isStandardIssued?:boolean;
 }
 
 export type ICertificate = IOriginalCertificate<ICertificateMetadata>;
