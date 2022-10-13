@@ -363,7 +363,7 @@ export class DeviceGroupService {
     await Promise.all(
       devices.map(async (device: Device) => {
         console.log(typeof device.createdAt )
-        if( data.reservationStartDate< device.createdAt){
+        if( data.reservationStartDate.getTime()< device.createdAt.getTime()){
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
           
             groupId: group.id,
