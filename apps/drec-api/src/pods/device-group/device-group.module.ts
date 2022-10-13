@@ -10,8 +10,8 @@ import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_fai
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { YieldConfigModule } from '../yield-config/yieldconfig.module';
 import {DeviceGroupNextIssueCertificate} from './device_group_issuecertificate.entity';
-import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
-
+import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity';
+import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -19,7 +19,8 @@ import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certific
       DeviceCsvFileProcessingJobsEntity,
       DeviceCsvProcessingFailedRowsEntity,
       DeviceGroupNextIssueCertificate,
-      CheckCertificateIssueDateLogForDeviceGroupEntity
+      CheckCertificateIssueDateLogForDeviceGroupEntity,
+      HistoryDeviceGroupNextIssueCertificate
     ]),
     forwardRef(() => DeviceModule),
     OrganizationModule,
@@ -31,3 +32,4 @@ import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certific
   controllers: [DeviceGroupController],
 })
 export class DeviceGroupModule {}
+ 

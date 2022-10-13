@@ -522,9 +522,8 @@ export class DeviceService {
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
       where("device.deviceid = :deviceid", { deviceid: deviceid })
-      .andWhere(new Brackets((db) => {
-        db.where("device.status ='Requested' OR device.status ='Succeeded'")
-      })).andWhere(
+      .andWhere("device.status ='Requested' OR device.status ='Succeeded'")
+      .andWhere(
         new Brackets((db) => {
           db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
             .orWhere("device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
@@ -533,30 +532,7 @@ export class DeviceService {
 
         }),
       )
-    console.log(query.getQuery());
-
-    let [sql, params] = query.getQueryAndParameters();
-    params.forEach((value, i) => {
-      const index = '$' + ( i + 1)
-      if (typeof value === 'string') {
-        sql = sql.replace(index, `"${value}"`);
-      }
-      if (typeof value === 'object') {
-        if (Array.isArray(value)) {
-          sql = sql.replace(
-            index,
-            value.map((element) => (typeof element === 'string' ? `"${element}"` : element)).join(','),
-          );
-        } else {
-          sql = sql.replace(index, value);
-        }
-      }
-      if (['number', 'boolean'].includes(typeof value)) {
-        sql = sql.replace(index, value.toString());
-      }
-    });
-    
-    console.log(sql);
+    console.log(query.getQuery())
     return query;
   }
 }

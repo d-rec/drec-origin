@@ -146,4 +146,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true })
   meterReadtype: string;
+
+  @Column()
+  createdAt: Date;
 }

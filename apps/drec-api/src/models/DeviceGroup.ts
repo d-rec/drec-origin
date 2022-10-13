@@ -46,4 +46,5 @@ export interface IDeviceGroup {
 
   buyerId?: number | null;
   buyerAddress?: string | null;
+  type?:string | null;
 }

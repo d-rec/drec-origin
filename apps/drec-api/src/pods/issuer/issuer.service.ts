@@ -347,8 +347,7 @@ export class IssuerService {
       metadata: {
         version:"v1.0",
         buyerReservationId:group.devicegroup_uid,
-        isStandardIssuanceRequested:StandardCompliance.REC,
-        isStandardIssued:false,
+        isStandardIssuanceRequested:StandardCompliance.IREC,
         type:CertificateType.REC,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         //deviceGroup,

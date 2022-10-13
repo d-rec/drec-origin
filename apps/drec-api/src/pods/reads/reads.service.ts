@@ -21,7 +21,7 @@ import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStor
 import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
-//import { Intermediate_MeterRead } from './intermideate_meterread.entity';
+import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
@@ -39,7 +39,7 @@ export class ReadsService {
 
   constructor(
     @InjectRepository(AggregateMeterRead) private readonly repository: Repository<AggregateMeterRead>,
-
+    @InjectRepository(HistoryIntermediate_MeterRead) private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,
@@ -328,11 +328,12 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     //@ts-ignore
-    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+    const final = undefined;//await this.NewfindLatestRead(deviceId, device.createdAt);
 
     let reads: any = [];
 
     if (measurement.type === "History") {
+
       await new Promise((resolve, reject) => {
         measurement.reads.forEach(async (element, measurmentreadindex) => {
 
@@ -357,7 +358,7 @@ export class ReadsService {
 
           //@ts-ignore
           if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
-           return reject(
+            return reject(
               new ConflictException({
                 success: false,
                 message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
@@ -374,7 +375,7 @@ export class ReadsService {
             //@ts-ignore
             requestcurrentend >= DateTime.fromISO(new Date(device?.createdAt).toISOString())) {
 
-          return reject(
+            return reject(
               new ConflictException({
                 success: false,
                 //@ts-ignore
@@ -387,7 +388,9 @@ export class ReadsService {
           reads.push({
             timestamp: new Date(element.endtimestamp),
             value: element.value,
-            timeperiod: meteredTimePeriod
+            timeperiod: meteredTimePeriod,
+            startdate: requeststartdate,
+            enddate: requestcurrentend
           });
 
           if (measurmentreadindex == measurement.reads.length - 1) {
@@ -406,7 +409,7 @@ export class ReadsService {
         await this.deviceService.updatereadtype(deviceId, measurement.type);
       } else {
 
-        if (device?.meterReadtype != measurement.type && device?.meterReadtype!=null) {
+        if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
           throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
 
         }
@@ -414,22 +417,21 @@ export class ReadsService {
       }
       await new Promise((resolve, reject) => {
         measurement.reads.forEach((element, measurmentreadindex) => {
-          if(final && final['timestamp'])
-          {
+          if (final && final['timestamp']) {
             //@ts-ignore
-          if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
-           return reject(
-              new ConflictException({
-                success: false,
-                message:
-                  //@ts-ignore
-                  `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+            if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
+              return reject(
+                new ConflictException({
+                  success: false,
+                  message:
+                    //@ts-ignore
+                    `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
 
-              }),
-            );
+                }),
+              );
+            }
           }
-          }
-          
+
           reads.push({
             timestamp: new Date(element.endtimestamp),
             value: element.value
@@ -448,9 +450,9 @@ export class ReadsService {
             let Delta = 0;
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
-          
+
               if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-               return reject(
+                return reject(
                   new ConflictException({
                     success: false,
                     message:
@@ -492,7 +494,7 @@ export class ReadsService {
 
       } else {
         if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
-          throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);     
+          throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
         }
 
         await new Promise((resolve, reject) => {
@@ -503,7 +505,7 @@ export class ReadsService {
             if (lastvalue.length > 0) {
               Delta = Math.abs(element.value - lastvalue[0].value);
               if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-              return  reject(
+                return reject(
                   new ConflictException({
                     success: false,
                     message:
@@ -512,21 +514,21 @@ export class ReadsService {
                   }),
                 );
               }
-                reads.push({
-                  timestamp: new Date(element.endtimestamp),
-                  value: Delta
-                })
-                //@ts-ignore
-                await this.repository.save({
-                  value: element.value,
-                  deltaValue: Delta,
-                  deviceId: deviceId,
-                  unit: measurement.unit,
-                  datetime: element.endtimestamp
-  
-                });
-              
-             
+              reads.push({
+                timestamp: new Date(element.endtimestamp),
+                value: Delta
+              })
+              //@ts-ignore
+              await this.repository.save({
+                value: element.value,
+                deltaValue: Delta,
+                deviceId: deviceId,
+                unit: measurement.unit,
+                datetime: element.endtimestamp
+
+              });
+
+
             }
             if (measurmentreadindex == measurement.reads.length - 1) {
               resolve(true);
@@ -537,11 +539,16 @@ export class ReadsService {
       }
 
     }
+
+
+
+
+
     if (!final || !device) {
       if (measurement.type === "History") {
         return {
           reads: reads.filter((read: any) =>
-            this.NewhistoryvalidateEnergy(read, device, read.timeperiod)
+            this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
           ),
           unit: measurement.unit,
 
@@ -562,7 +569,8 @@ export class ReadsService {
         return {
           reads: reads.filter((read: any) =>
 
-            this.NewhistoryvalidateEnergy(read, device, read.timeperiod)
+            this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+
           ),
           unit: measurement.unit,
         };
@@ -748,7 +756,9 @@ export class ReadsService {
     read: ReadDTO,
     device: DeviceDTO,
     requestmeteredTimePeriod: number,
-
+    measurement: NewIntmediateMeterReadDTO,
+    startdate: Date,
+    enddate: Date
   ): boolean {
     const computeMaxEnergy = (
       capacity: number,
@@ -791,7 +801,24 @@ export class ReadsService {
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    return Math.round(read.value + margin * read.value) < maxEnergy;
+
+    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+      this.historyrepository.save({
+        type: measurement.type,
+        deviceId: device.externalId,
+        unit: measurement.unit,
+        readsvalue: read.value,
+        readsStartDate: startdate,
+        readsEndDate: enddate
+      })
+      return Math.round(read.value + margin * read.value) < maxEnergy;
+    } else {
+      throw new ConflictException({
+        success: false,
+        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+      });
+    }
+
   }
 
 

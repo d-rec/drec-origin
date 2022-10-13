@@ -9,8 +9,8 @@ import { Organization } from '../organization/organization.entity';
 import {
   Unit,
 } from '@energyweb/energy-api-influxdb';
-@Entity({ name: 'intermediate_meterread' })
-export class Intermediate_MeterRead extends ExtendedBaseEntity implements Iintermediate {
+@Entity({ name: 'history_intermediate_meteread' })
+export class HistoryIntermediate_MeterRead extends ExtendedBaseEntity implements Iintermediate {
 
   constructor(intermideatevalue?: Partial<Iintermediate>) {
     super();
@@ -31,29 +31,55 @@ export class Intermediate_MeterRead extends ExtendedBaseEntity implements Iinter
   @IsEnum(Unit)
   unit: Unit;
   
-  // @ApiProperty({ type: Date })
-  // @IsDate()
-  // @IsOptional()
-  // startdate: Date;
-
-  // @ApiProperty({ type: Date })
-  // @IsDate()
-  // @IsOptional()
-  // enddate: Date;
-
   
-  @ApiProperty({ type: Date })
   @IsDate()
   createdAt: Date;
- 
-  // @ApiProperty({ type: Number })
-  // @Column()
-  // @IsNumber()
-  // value: number;
- 
-  @ApiProperty({ type: String })
+
   @Column()
-  @IsString()
   deviceId: string;
+
+
+  @Column()
+  @IsNumber()
+  readsvalue: number;
+
+
+  @Column({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  readsStartDate: Date;
+  
+  @Column({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  readsEndDate: Date;
+
+  @Column()
+  @IsNumber()
+  groupId_certificate_issued_for: number;
+
+  @Column()
+  certificate_issued: boolean;
+
+  @Column()
+  @IsNumber()
+  issuer_certificate_id: number;
+
+  @Column({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  certificate_issuance_startdate:Date;
+
+  @Column({ 
+    type: 'timestamp', 
+    precision: 3
+  })
+  certificate_issuance_enddate:Date;
+
+  
+ 
 
 }
