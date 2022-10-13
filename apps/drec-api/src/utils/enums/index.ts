@@ -15,4 +15,5 @@ export * from './integrator.enum';
 export * from './yieldstatus.enum';
 export * from './read-type.enum';
 export * from './certificate-type.enum';
+export * from './history_next_issuance.enum'
 
