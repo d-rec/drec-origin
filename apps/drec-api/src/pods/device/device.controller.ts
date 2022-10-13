@@ -169,6 +169,10 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
+    if(deviceToRegister.groupId ===0 || deviceToRegister.groupId)
+    {
+      deviceToRegister.groupId = null;
+    }
     if (deviceToRegister.groupId) {
       const response = await this.deviceGroupService.findById(
         deviceToRegister.groupId,

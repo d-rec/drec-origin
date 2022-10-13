@@ -69,9 +69,10 @@ export class IssuerService {
   //@Cron('0 00 21 * * *')
 
   //@Cron(CronExpression.EVERY_30_SECONDS)
-  @Cron('0 59 * * * *')
+  //@Cron('0 59 * * * *')
+  @Cron('0 */10 * * * *')
   async handleCron(): Promise<void> {
-    this.logger.debug('Called every hour to check for isssuance of certificates');
+    this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
     const startDate1 = DateTime.now().minus({ days: 1 }).toUTC();
     const endDate1 = DateTime.now().minus({ minute: 1 }).toUTC();
@@ -246,6 +247,7 @@ export class IssuerService {
       toAddress: org.blockchainAccountAddress,
       userId: org.blockchainAccountAddress,
       metadata: {
+        version:"v1.0",
         buyerReservationId: group.devicegroup_uid,
         deviceIds: group.devices.map((device: IDevice) => device.id),
         deviceGroup,
@@ -343,6 +345,7 @@ export class IssuerService {
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
+        version:"v1.0",
         buyerReservationId:group.devicegroup_uid,
         isStandardIssuanceRequested:StandardCompliance.REC,
         isStandardIssued:false,

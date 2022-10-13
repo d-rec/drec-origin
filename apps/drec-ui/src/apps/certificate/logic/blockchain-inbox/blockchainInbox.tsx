@@ -52,8 +52,10 @@ export const useBlockchainInboxLogic: TUseBlockchainInboxLogic = ({
                 containerListItemProps: { style: { padding: 8 } },
                 itemListItemProps: { style: { padding: 8 } },
                 items: deviceGroupCertificates.map((certificate) => {
-                    const startDate = formatDate(certificate.generationStartTime * 1000);
-                    const endDate = formatDate(certificate.generationEndTime * 1000);
+                    // const startDate = formatDate(certificate.generationStartTime * 1000);
+                    // const endDate = formatDate(certificate.generationEndTime * 1000);
+                    const startDate = new Date(certificate.generationStartTime * 1000);
+                    const endDate = new Date(certificate.generationEndTime * 1000);
                     const generationTimeText = `${startDate} - ${endDate}`;
                     const formattedEnergy = PowerFormatter.format(
                         parseInt(certificate.energy.publicVolume),
