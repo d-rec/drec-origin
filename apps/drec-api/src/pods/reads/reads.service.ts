@@ -21,7 +21,7 @@ import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStor
 import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { Intermediate_MeterRead } from './history_intermideate_meterread.entity';
+import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
@@ -39,7 +39,7 @@ export class ReadsService {
 
   constructor(
     @InjectRepository(AggregateMeterRead) private readonly repository: Repository<AggregateMeterRead>,
-    @InjectRepository(Intermediate_MeterRead) private readonly historyrepository: Repository<Intermediate_MeterRead>,
+    @InjectRepository(HistoryIntermediate_MeterRead) private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,

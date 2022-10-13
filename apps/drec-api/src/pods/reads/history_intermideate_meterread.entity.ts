@@ -10,7 +10,7 @@ import {
   Unit,
 } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'history_intermediate_meteread' })
-export class Intermediate_MeterRead extends ExtendedBaseEntity implements Iintermediate {
+export class HistoryIntermediate_MeterRead extends ExtendedBaseEntity implements Iintermediate {
 
   constructor(intermideatevalue?: Partial<Iintermediate>) {
     super();

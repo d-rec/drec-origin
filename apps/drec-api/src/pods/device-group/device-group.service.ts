@@ -50,7 +50,7 @@ import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { nanoid } from 'nanoid';
-
+import {HistoryNextInssuanceStatus} from '../../utils/enums/history_next_issuance.enum'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
@@ -81,7 +81,7 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 import { DateTime } from 'luxon';
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
-
+import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -103,6 +103,8 @@ export class DeviceGroupService {
     private yieldConfigService: YieldConfigService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
+    @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
+    private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
  
 
   ) { }
@@ -318,7 +320,9 @@ export class DeviceGroupService {
       ...data,
       name: groupName,
     });
+
     let hours = 1;
+
     const frequency = group.frequency.toLowerCase();
     if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
       hours = 1 * 24;
@@ -331,11 +335,21 @@ export class DeviceGroupService {
     }
     //@ts-ignore
     console.log(hours);
+    console.log(typeof data.reservationStartDate )
+   
     let startDate = new Date(data.reservationStartDate).toISOString()
     console.log("startDate");
     console.log(startDate);
     //@ts-ignore
+    let newEndDate: string = '';
     let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
+    
+    // if (new Date(end_date).getTime() < data.reservationEndDate.getTime()) {
+    //   newEndDate = end_date;
+    // }
+    // else {
+    //   newEndDate = data.reservationEndDate.toISOString();
+    // }
     console.log("end_date");
     console.log(end_date);
     const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
@@ -345,23 +359,26 @@ export class DeviceGroupService {
     });
     // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
-
-    // const firstDevice = devices[0];
-    // const ownerCode = devices[0].organizationId;
+    
     await Promise.all(
       devices.map(async (device: Device) => {
-        //if (await this.compareDeviceForGrouping(firstDevice, device)) {
+        console.log(typeof device.createdAt )
+        if( data.reservationStartDate< device.createdAt){
+          const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
+          
+            groupId: group.id,
+            device_externalid:device.externalId,
+            reservationStartDate: data.reservationStartDate,
+            reservationEndDate: data.reservationEndDate,
+            device_createdAt:device.createdAt,
+            status:HistoryNextInssuanceStatus.Pending
+          });
+        }
+       
         return await this.deviceService.addGroupIdToDeviceForReserving(
           device,
           group.id
         );
-        // return await this.deviceService.addToGroup(
-        //   device,
-        //   group.id,
-        //   ownerCode,
-        // );
-        //}
-        //return;
       }),
     );
 
