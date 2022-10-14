@@ -19,7 +19,7 @@ export class HistoryIntermideateFirlds1665490980305 implements MigrationInterfac
                 "readsEndDate"  timestamp with time zone,
                 "deviceId" character varying,
                 "groupId_certificate_issued_for" integer,
-                "certificate_issued" boolean,
+                "certificate_issued" boolean DEFAULT true,
                 "issuer_certificate_id" integer,
                 certificate_issuance_startdate timestamp with time zone,
                 certificate_issuance_enddate timestamp with time zone,

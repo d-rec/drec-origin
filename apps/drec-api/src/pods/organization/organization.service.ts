@@ -205,7 +205,7 @@ export class OrganizationService {
       const organizationToCreate = new Organization({
         ...organizationToRegister,
   
-        status: OrganizationStatus.Submitted,
+        status: OrganizationStatus.Active,
        
       });  
       const stored = await this.repository.save(organizationToCreate);

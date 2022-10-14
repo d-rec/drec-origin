@@ -126,7 +126,9 @@ export class DeviceService {
     console.log("ids", ids)
     return await this.repository.find({
       where: {
-        id: In(ids), groupId: IsNull()
+        //id: In(ids), groupId: IsNull()
+        id: In(ids)
+        //, groupId: IsNull()
       }
     });
   }

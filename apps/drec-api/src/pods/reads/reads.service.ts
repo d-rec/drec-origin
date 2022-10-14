@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
-import { FindOneOptions, Repository, In, FindConditions, Any } from 'typeorm';
+import { FindOneOptions, Repository, Brackets, SelectQueryBuilder, In, FindConditions, Any } from 'typeorm';
 
 import axios from 'axios';
 import {
@@ -537,11 +537,7 @@ export class ReadsService {
         });
 
       }
-
     }
-
-
-
 
 
     if (!final || !device) {
@@ -866,6 +862,87 @@ export class ReadsService {
       case Aggregate.Sum:
         return Math.floor(sum(array));
     }
+  }
+  public async getCheckHistoryCertificateIssueDateLogForDevice(deviceid: string,
+    startDate: Date,
+    endDate: Date): Promise<HistoryIntermediate_MeterRead[]> {
+    const query = this.gethistorydevcielogFilteredQuery(deviceid,
+      startDate,
+      endDate);
+      console.log("devicequery");
+    try {
+
+      const device = await query.getRawMany();
+      console.log(device);
+      const devices = device.map((s: any) => {
+        const item: any = {
+          id:s.devicehistory_id,
+          readsStartDate: s.devicehistory_readsStartDate,
+          readsEndDate: s.devicehistory_readsEndDate,
+          readsvalue: s.devicehistory_readsvalue,
+          deviceId: s.devicehistory_deviceId
+        };
+        return item;
+      });
+
+      return devices;
+    } catch (error) {
+      console.log(error)
+      this.logger.error(`Failed to retrieve device`, error.stack);
+      //  throw new InternalServerErrorException('Failed to retrieve users');
+    }
+  }
+
+  private gethistorydevcielogFilteredQuery(deviceid: string,
+    startDate: Date,
+    endDate: Date): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+    //  const { organizationName, status } = filterDto;
+    const query = this.historyrepository
+      .createQueryBuilder("devicehistory").
+      where("devicehistory.deviceId = :deviceid", { deviceid: deviceid })
+      .andWhere(
+        new Brackets((db) => {
+          db.where(
+            new Brackets((db1) => {
+              db1.where("devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: startDate, reservationEndDate1: endDate })
+                .orWhere("devicehistory.readsStartDate = :reservationStartDate",{reservationStartDate:startDate})
+            })
+          )
+            .andWhere(
+              new Brackets((db2) => {
+                db2.where("devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: startDate, reservationEndDate2: endDate })
+                  .orWhere("devicehistory.readsEndDate = :reservationEndDate ",{reservationEndDate :endDate})
+              })
+            )
+
+        }),
+      )
+      .andWhere("devicehistory.certificate_issued != true")
+    console.log(query.getQuery())
+    return query;
+  }
+
+  async getDeviceHistoryCertificateIssueDate(
+    conditions: FindConditions<HistoryIntermediate_MeterRead>,
+  ): Promise<HistoryIntermediate_MeterRead | null> {
+    return (await this.historyrepository.findOne(conditions)) ?? null;
+  }
+  async updatehistorycertificateissuedate(
+    id: number,
+    startdate: Date,
+    enddate: Date,
+  ): Promise<HistoryIntermediate_MeterRead> {
+    // await this.checkNameConflict(data.name);
+    const historydevice = await this.getDeviceHistoryCertificateIssueDate({ id: id });
+    let updatedhistoryissue = new HistoryIntermediate_MeterRead();
+    if (historydevice) {
+
+      historydevice.certificate_issuance_startdate = startdate;
+      historydevice.certificate_issuance_enddate = enddate;
+      historydevice.certificate_issued=true;
+      updatedhistoryissue = await this.historyrepository.save(historydevice);
+    }
+    return updatedhistoryissue;
   }
 }
 

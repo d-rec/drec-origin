@@ -40,6 +40,6 @@ import {HistoryIntermediate_MeterRead} from './history_intermideate_meterread.en
   ],
   controllers: [ReadsController],
   providers: [baseReadServiceProvider, ReadsService],
-  exports: [baseReadServiceProvider],
+  exports: [baseReadServiceProvider,ReadsService],
 })
 export class ReadsModule {}
