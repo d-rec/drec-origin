@@ -876,6 +876,7 @@ export class ReadsService {
       console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
+          id:s.devicehistory_id,
           readsStartDate: s.devicehistory_readsStartDate,
           readsEndDate: s.devicehistory_readsEndDate,
           readsvalue: s.devicehistory_readsvalue,
@@ -916,8 +917,32 @@ export class ReadsService {
 
         }),
       )
+      .andWhere("devicehistory.certificate_issued != true")
     console.log(query.getQuery())
     return query;
+  }
+
+  async getDeviceHistoryCertificateIssueDate(
+    conditions: FindConditions<HistoryIntermediate_MeterRead>,
+  ): Promise<HistoryIntermediate_MeterRead | null> {
+    return (await this.historyrepository.findOne(conditions)) ?? null;
+  }
+  async updatehistorycertificateissuedate(
+    id: number,
+    startdate: Date,
+    enddate: Date,
+  ): Promise<HistoryIntermediate_MeterRead> {
+    // await this.checkNameConflict(data.name);
+    const historydevice = await this.getDeviceHistoryCertificateIssueDate({ id: id });
+    let updatedhistoryissue = new HistoryIntermediate_MeterRead();
+    if (historydevice) {
+
+      historydevice.certificate_issuance_startdate = startdate;
+      historydevice.certificate_issuance_enddate = enddate;
+      historydevice.certificate_issued=true;
+      updatedhistoryissue = await this.historyrepository.save(historydevice);
+    }
+    return updatedhistoryissue;
   }
 }
 
