@@ -81,7 +81,8 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 import { DateTime } from 'luxon';
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
-import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
+import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity';
+
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -1607,6 +1608,19 @@ export class DeviceGroupService {
       return await this.checkdevciegrouplogcertificaterepository.save({
         ...params,
   
+      });
+    }
+
+
+    public async getNextHistoryissuanceDevicelog(
+
+    ): Promise<HistoryDeviceGroupNextIssueCertificate[] | undefined> {
+      return this.historynextissuancedaterepository.find({
+        where: {
+         status:HistoryNextInssuanceStatus.Pending
+        },
+        order:{id:'DESC'},
+        take:10
       });
     }
 }

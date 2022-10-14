@@ -25,6 +25,8 @@ import { EndReservationdateDTO } from '../device-group/dto';
 import { CertificateType, SingleDeviceIssuanceStatus, StandardCompliance } from '../../utils/enums'
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import {CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity'
+import {HistoryDeviceGroupNextIssueCertificate} from '../device-group/history_next_issuance_date_log.entity'
+import {ReadsService} from '../reads/reads.service'
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -33,6 +35,7 @@ export class IssuerService {
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
+    private readservice: ReadsService,
     @Inject(CERTIFICATE_SERVICE_TOKEN)
     private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
@@ -186,6 +189,30 @@ export class IssuerService {
   //     return result;
   //   }, {});
   // };
+
+  @Cron(' * * * * *')
+  async handleCron1(): Promise<void> {
+
+    const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
+    console.log(historydevicerequestall);
+    await Promise.all(
+      historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate) => {
+        console.log("200");
+        console.log(historydevice);
+        const Histroryread = await this.readservice.getCheckHistoryCertificateIssueDateLogForDevice(
+          historydevice.device_externalid,
+          historydevice.reservationStartDate,
+          historydevice. reservationEndDate
+          
+        );
+        console.log("Histroryread",Histroryread);
+
+      }),
+    )
+  }
+
+
+
   private async issueCertificateForGroup(
     group: DeviceGroup,
     startDate: DateTime,
