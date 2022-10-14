@@ -347,7 +347,7 @@ export class DeviceGroupService {
       let startDate:string='';
       if(minimumDeviceCreatedAtDate.getTime() < new Date(data.reservationStartDate).getTime())
       {
-        
+        startDate = new Date(data.reservationStartDate).toISOString()
       }
       else
       {
