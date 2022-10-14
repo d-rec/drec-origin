@@ -880,7 +880,7 @@ export class ReadsService {
           readsStartDate: s.devicehistory_readsStartDate,
           readsEndDate: s.devicehistory_readsEndDate,
           readsvalue: s.devicehistory_readsvalue,
-          deviceid: s.devicehistory_deviceId
+          deviceId: s.devicehistory_deviceId
         };
         return item;
       });
