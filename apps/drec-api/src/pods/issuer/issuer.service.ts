@@ -73,9 +73,9 @@ export class IssuerService {
   // }
   //@Cron('0 00 21 * * *')
 
-  //@Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('0 59 * * * *')
-  @Cron('0 */10 * * * *')
+  //@Cron('0 */10 * * * *')
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -159,6 +159,37 @@ export class IssuerService {
           else {
             newEndDate = group.reservationEndDate.toISOString();
           }
+          let allDevicesOfGroup:Device[]= await this.deviceService.findForGroup(group.id);
+
+          try
+          {
+            //https://stackoverflow.com/a/10124053
+              allDevicesOfGroup.sort(function(a,b){
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                //@ts-ignore
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            })
+
+            let deviceOnBoardedWhichIsInBetweenNextIssuance:Device =allDevicesOfGroup.find(ele=>{
+                //returns first find which is minimum and between next frequency 
+                if( new Date(ele.createdAt).getTime() > new Date(start_date).getTime() && new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime() )
+                {
+                    return true;
+                }
+            })
+            if(deviceOnBoardedWhichIsInBetweenNextIssuance)
+            {
+              newEndDate = new Date(deviceOnBoardedWhichIsInBetweenNextIssuance.createdAt).toISOString();            
+            }
+          }
+          catch(e)
+          {
+            console.error("exception caught in inbetween device onboarding checking for createdAt");
+            console.error(e);
+          }
+
+          
           console.log("came isnide updating next issuance date");
           console.log("start_date", start_date, "newEndDate", newEndDate);
           await this.groupService.updatecertificateissuedate(grouprequest.id, start_date, newEndDate);
@@ -192,8 +223,8 @@ export class IssuerService {
   //   }, {});
   // };
 
-  @Cron(' * * * * *')
-  async handleCron1(): Promise<void> {
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
     console.log(historydevicerequestall);
