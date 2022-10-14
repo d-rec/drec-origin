@@ -458,8 +458,24 @@ export class DeviceGroupService {
     buyerAddress?: string
   ): Promise<DeviceGroupDTO> {
 
+    console.log("came here 461");
+
     let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
     console.log(devices);
+    //@ts-ignore
+    devices = devices.filter(ele=>ele.groupId===null);
+    console.log(devices);
+    console.log("came here 465");
+    if(devices.length ===0)
+    {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'All devices are already included in buyer reservation, please add other devices',
+        }))
+      })
+    }
+
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     await new Promise((resolve, reject) => {

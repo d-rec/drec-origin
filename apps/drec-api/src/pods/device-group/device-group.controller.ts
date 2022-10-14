@@ -185,6 +185,7 @@ export class DeviceGroupController {
     {
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
+    console.log("188");
     if(deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime())
     {
       throw new ConflictException({
@@ -195,18 +196,21 @@ export class DeviceGroupController {
     let maximumBackDateForReservation:Date = new Date(new Date().getTime() - 3.164e+10);
     if(deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() &&  deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime())
     {
+      console.log("198");
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 1 year from current date',
       }); 
     }
     if (organizationId === null || organizationId === undefined) {
+      console.log("206");
       throw new ConflictException({
         success: false,
         message: 'User does not has organization associated',
       });
     }
     if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
+      console.log("213");
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
@@ -215,6 +219,7 @@ export class DeviceGroupController {
       );
     }
     else {
+      console.log("222");
       throw new ConflictException({
         success: false,
         message: 'Blockchain address is not added for this organization',
