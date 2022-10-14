@@ -320,45 +320,79 @@ export class DeviceGroupService {
       ...data,
       name: groupName,
     });
-
-    let hours = 1;
-
-    const frequency = group.frequency.toLowerCase();
-    if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
-      hours = 1 * 24;
-    } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
-      hours = 30 * 24;
-    } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
-      hours = 7 * 24;
-    } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
-      hours = 91 * 24;
-    }
-    //@ts-ignore
-    console.log(hours);
-    console.log(typeof data.reservationStartDate )
-   
-    let startDate = new Date(data.reservationStartDate).toISOString()
-    console.log("startDate");
-    console.log(startDate);
-    //@ts-ignore
-    let newEndDate: string = '';
-    let end_date = new Date((new Date(new Date(data.reservationStartDate.toString())).getTime() + (hours * 3.6e+6))).toISOString()
-    
-    // if (new Date(end_date).getTime() < data.reservationEndDate.getTime()) {
-    //   newEndDate = end_date;
-    // }
-    // else {
-    //   newEndDate = data.reservationEndDate.toISOString();
-    // }
-    console.log("end_date");
-    console.log(end_date);
-    const nextgroupcrtifecateissue = await this.repositorynextDeviceGroupcertificate.save({
-      start_date: startDate,
-      end_date: end_date,
-      groupId: group.id
-    });
-    // For each device id, add the groupId but make sure they all belong to the same owner
     const devices = await this.deviceService.findByIds(data.deviceIds);
+    let reservationIsStartingInHistoryForAtleastOneDevice:boolean= false;
+    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance:boolean = false;
+    devices.filter(ele => {
+      if(  ( new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime() ) && ( new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime() ))
+      {
+        return true;
+      }
+    }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true): (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+
+    if(!allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
+    {
+      //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
+      //there will be single device which will have next issuance
+      let minimumDeviceCreatedAtDate:Date = new Date(2993430403962);// future date in 2064 just to find minimum
+      devices.forEach(ele => {
+      let eleDate=new Date(ele.createdAt)
+      if( eleDate.getTime() < minimumDeviceCreatedAtDate.getTime())
+      {
+        minimumDeviceCreatedAtDate = eleDate;
+      }
+      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
+      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
+      let startDate:string='';
+      if(minimumDeviceCreatedAtDate.getTime() < new Date(data.reservationStartDate).getTime())
+      {
+        
+      }
+      else
+      {
+        startDate = minimumDeviceCreatedAtDate.toISOString()
+      }
+
+      let hours = 1;
+
+      const frequency = group.frequency.toLowerCase();
+      if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
+        hours = 1 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
+        hours = 30 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        hours = 7 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        hours = 91 * 24;
+      }
+      //@ts-ignore
+      console.log(hours);
+      console.log(typeof data.reservationStartDate )
+      
+      console.log("startDate");
+      console.log(startDate);
+      //@ts-ignore
+      let newEndDate: string = '';
+      let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
+      
+      if (new Date(end_date).getTime() < new Date(data.reservationEndDate).getTime()) {
+        newEndDate = end_date;
+      }
+      else {
+        newEndDate = data.reservationEndDate.toISOString();
+      }
+      console.log("end_date");
+      console.log(end_date);
+
+      const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
+        start_date: startDate,
+        end_date: end_date,
+        groupId: group.id
+      });
+
+    });
+
+    }
     
     await Promise.all(
       devices.map(async (device: Device) => {
@@ -369,7 +403,7 @@ export class DeviceGroupService {
             groupId: group.id,
             device_externalid:device.externalId,
             reservationStartDate: data.reservationStartDate,
-            reservationEndDate: data.reservationEndDate,
+            reservationEndDate: new Date(data.reservationEndDate).getTime() < new Date(device.createdAt).getTime() ? data.reservationEndDate : device.createdAt,
             device_createdAt:device.createdAt,
             status:HistoryNextInssuanceStatus.Pending
           });
