@@ -1654,4 +1654,24 @@ export class DeviceGroupService {
         take:10
       });
     }
+
+    async getHistoryCertificateIssueDate(
+      conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
+    ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
+      return (await this.historynextissuancedaterepository.findOne(conditions)) ?? null;
+    }
+    async HistoryUpdatecertificateissuedate(
+      id: number,
+    ): Promise<HistoryDeviceGroupNextIssueCertificate> {
+      // await this.checkNameConflict(data.name);
+      const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
+      let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
+      if (historynextdate) {
+  
+        historynextdate.status=HistoryNextInssuanceStatus.Completed
+        updatedissuedatestatus = await this.historynextissuancedaterepository.save(historynextdate);
+
+      }
+      return updatedissuedatestatus;
+    }
 }
