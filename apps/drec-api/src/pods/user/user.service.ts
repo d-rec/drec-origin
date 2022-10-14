@@ -120,7 +120,7 @@ export class UserService {
     );
     var role;
     var roleId;
-    if (data.organizationType === 'Buyer') {
+    if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
       role = Role.Buyer
       roleId = 4;
     } else {
