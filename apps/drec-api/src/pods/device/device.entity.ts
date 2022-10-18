@@ -149,4 +149,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   createdAt: Date;
+
+  @Column({ type: 'varchar', nullable: true })
+  version: string;
 }

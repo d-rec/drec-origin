@@ -328,7 +328,7 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     //@ts-ignore
-    const final = undefined;//await this.NewfindLatestRead(deviceId, device.createdAt);
+    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
 
     let reads: any = [];
 
@@ -691,7 +691,15 @@ export class ReadsService {
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    return Math.round(read.value + margin * read.value) < maxEnergy;
+    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+
+      return Math.round(read.value + margin * read.value) < maxEnergy;
+    } else {
+      throw new ConflictException({
+        success: false,
+        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+      });
+    }
   }
   private NewvalidateEnergy(
     read: ReadDTO,
@@ -745,7 +753,17 @@ export class ReadsService {
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    return Math.round(read.value + margin * read.value) < maxEnergy;
+    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+
+      return Math.round(read.value + margin * read.value) < maxEnergy;
+    } else {
+      throw new ConflictException({
+        success: false,
+        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+      });
+    }
+
+    // return Math.round(read.value + margin * read.value) < maxEnergy;
   }
 
   private NewhistoryvalidateEnergy(
@@ -869,14 +887,14 @@ export class ReadsService {
     const query = this.gethistorydevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
-      console.log("devicequery");
+    console.log("devicequery");
     try {
 
       const device = await query.getRawMany();
       console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
-          id:s.devicehistory_id,
+          id: s.devicehistory_id,
           readsStartDate: s.devicehistory_readsStartDate,
           readsEndDate: s.devicehistory_readsEndDate,
           readsvalue: s.devicehistory_readsvalue,
@@ -905,13 +923,13 @@ export class ReadsService {
           db.where(
             new Brackets((db1) => {
               db1.where("devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: startDate, reservationEndDate1: endDate })
-                .orWhere("devicehistory.readsStartDate = :reservationStartDate",{reservationStartDate:startDate})
+                .orWhere("devicehistory.readsStartDate = :reservationStartDate", { reservationStartDate: startDate })
             })
           )
             .andWhere(
               new Brackets((db2) => {
                 db2.where("devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: startDate, reservationEndDate2: endDate })
-                  .orWhere("devicehistory.readsEndDate = :reservationEndDate ",{reservationEndDate :endDate})
+                  .orWhere("devicehistory.readsEndDate = :reservationEndDate ", { reservationEndDate: endDate })
               })
             )
 
@@ -939,7 +957,7 @@ export class ReadsService {
 
       historydevice.certificate_issuance_startdate = startdate;
       historydevice.certificate_issuance_enddate = enddate;
-      historydevice.certificate_issued=true;
+      historydevice.certificate_issued = true;
       updatedhistoryissue = await this.historyrepository.save(historydevice);
     }
     return updatedhistoryissue;

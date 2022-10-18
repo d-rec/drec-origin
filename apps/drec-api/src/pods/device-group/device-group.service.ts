@@ -1325,8 +1325,8 @@ export class DeviceGroupService {
         commissioningDate: '',
         gridInterconnection: false,
         offTaker: OffTaker.Commercial,
-        yieldValue: 0,
-        labels: '',
+        //yieldValue: 0,
+        //labels: '',
         impactStory: '',
         data: '',
         images: [],
@@ -1335,6 +1335,7 @@ export class DeviceGroupService {
         energyStorageCapacity: 0,
         qualityLabels: '',
         SDGBenefits: 0,
+        version:"1.0",
         //groupId: 0,
       };
       for (const key in dataKeyForValidation) {

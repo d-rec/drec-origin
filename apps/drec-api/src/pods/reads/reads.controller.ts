@@ -228,6 +228,17 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
+
+      if(measurements.reads.length>1){
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message:`can not allow multiple reads simultaneously `,
+            })
+          );
+        });
+      }
       return await this.internalReadsService.newstoreRead(id, measurements);
   }
 }
