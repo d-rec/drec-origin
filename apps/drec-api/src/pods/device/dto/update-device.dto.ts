@@ -16,7 +16,7 @@ import {
 import { IDevice } from '../../../models';
 
 export class UpdateDeviceDTO
-  implements Omit<IDevice, 'id' | 'externalId' | 'status' | 'organizationId'>
+  implements Omit<IDevice, 'id' | 'externalId' | 'status' | 'organizationId' | 'yieldValue' | 'labels'>
 {
   @ApiProperty()
   @IsString()

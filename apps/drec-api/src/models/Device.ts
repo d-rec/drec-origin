@@ -43,6 +43,7 @@ export interface IDevice {
   qualityLabels?: string;
   meterReadtype?: string;
   createdAt?:Date;
+  version?:string;
 }
 
 export enum DeviceDescription {

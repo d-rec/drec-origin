@@ -16,7 +16,7 @@ import {
 import { DeviceDescription, IDevice } from '../../../models';
 
 export class NewDeviceDTO
-  implements Omit<IDevice, 'id' | 'status' | 'organizationId'>
+  implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
   @ApiProperty()
   @IsString()
@@ -82,7 +82,10 @@ export class NewDeviceDTO
   gridInterconnection: boolean;
 
   @ApiProperty()
-  @IsEnum(OffTaker)
+  @IsEnum(OffTaker,{
+    message:
+      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector',
+  })
   @IsOptional()
   offTaker: OffTaker;
 
@@ -94,20 +97,20 @@ export class NewDeviceDTO
   // @IsEnum(StandardCompliance)
   // standardCompliance: StandardCompliance;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  yieldValue: number;
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsNumber()
+  // yieldValue: number;
 
   // @ApiProperty()
   // @IsArray()
   // @IsOptional()
   // generatorsIds: number[];
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  labels: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // labels: string;
 
   @ApiProperty()
   @IsString()
@@ -148,15 +151,20 @@ export class NewDeviceDTO
   @IsOptional()
   qualityLabels: string;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  groupId?: number | null;
+  // @ApiProperty()
+  // @IsNumber()
+  // @IsOptional()
+  // groupId?: number | null;
 
   @ApiProperty()
   @IsNumber()
   @IsOptional()
   SDGBenefits?: number| undefined;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  version: string;
 
 
 }

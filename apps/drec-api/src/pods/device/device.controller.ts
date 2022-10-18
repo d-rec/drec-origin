@@ -12,6 +12,8 @@ import {
   ConflictException,
 } from '@nestjs/common';
 
+import moment from 'moment';
+
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -169,30 +171,23 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
-    if(deviceToRegister.groupId ===0 || deviceToRegister.groupId)
+    var commissioningDate = moment(deviceToRegister.commissioningDate);
+    if(!commissioningDate.isValid())
     {
-      deviceToRegister.groupId = null;
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+          }),
+        );
+      });
     }
-    if (deviceToRegister.groupId) {
-      const response = await this.deviceGroupService.findById(
-        deviceToRegister.groupId,
-      );
-      if (response && response.buyerAddress) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                'This Device Group already has buyer added device cannot be added to device group',
-            }),
-          );
-        });
-      }
+
+    if(deviceToRegister['groupId'] ===0 || deviceToRegister['groupId'])
+    {
+      deviceToRegister['groupId'] = null;
     }
-    // const code = deviceToRegister.countryCode.toUpperCase();
-    // let validcountrycode = await this.countrycodeService.getCountryCode({ searchKeyWord: code })
-    // console.log("validcountrycode")
-    // console.log(validcountrycode)
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
     if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
       let countries = countrCodesList;
@@ -216,7 +211,17 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToRegister.capacity<=0){
+    if(isNaN(parseFloat(deviceToRegister.capacity.toString())) ){
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid Capacity',
+          }),
+        );
+      });
+    }
+    if(deviceToRegister.capacity<=0  ){
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
