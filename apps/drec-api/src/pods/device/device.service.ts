@@ -19,7 +19,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, Role } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -92,13 +92,15 @@ export class DeviceService {
   }
   public async NewfindForGroup(groupId: number,endDate:string): Promise<{ [key: string]: Device[] }> {
  
-    const groupdevice = await this.repository.find({
+    let groupdevice:Array<any> = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
     });
     console.log(groupdevice)
+
+    groupdevice = groupdevice.filter(ele=>ele.meterReadtype==ReadType.Delta || ele.meterReadtype==ReadType.ReadMeter) 
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
     console.log(deviceGroupedByCountry);
