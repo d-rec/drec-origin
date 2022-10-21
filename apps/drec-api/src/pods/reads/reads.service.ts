@@ -1025,7 +1025,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return updatedhistoryissue;
   }
 
-  async getAggregateMeterReadsFirstEntryOfDevice(meterId:string):Promise<AggregateMeterRead>{
+  async getAggregateMeterReadsFirstEntryOfDevice(meterId:string):Promise<AggregateMeterRead[]>{
 
     return this.repository.find({
       where: {

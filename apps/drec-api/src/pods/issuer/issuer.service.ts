@@ -508,13 +508,30 @@ export class IssuerService {
           }
           else if(device.meterReadtype=== ReadType.ReadMeter)
           {
-            let aggregateReadings = await this.readservice.getAggregateMeterReadsFirstEntryOfDevice(device.externalId);
-            console.log("aggregateReadings",aggregateReadings);
+            try{
+              let aggregateReadings = await this.readservice.getAggregateMeterReadsFirstEntryOfDevice(device.externalId);
+              if(aggregateReadings.length >0)
+              {
+                console.log("aggregateReadings[0].datetime",aggregateReadings[0].datetime);
+                
+                previousReading = [{timestamp:new Date(aggregateReadings[0].datetime),value:0}];
+              }
+              console.log("aggregateReadings",aggregateReadings);
+            }
+            catch(e)
+            {
+              console.error("error in getting aggregate read", e);
+            }
+
           }
         } 
         
         //change this to when was initial reading came for aggregate or else if delta then its the createdAt
-        allPreviousReadingsOfDevices.push(previousReading[0]);
+        if(previousReading.length >0)
+        {
+          allPreviousReadingsOfDevices.push(previousReading[0]);
+        }
+        
       }
       let devciereadvalue = allDevicesCompleteReadsBetweenTimeRange[index].reduce(
         (accumulator, currentValue) => accumulator + currentValue.value,
