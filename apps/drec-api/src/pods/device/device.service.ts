@@ -37,7 +37,7 @@ import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
-
+import { DateTime } from 'luxon';
 import { FilterKeyDTO } from '../countrycode/dto';
 @Injectable()
 export class DeviceService {
@@ -90,14 +90,13 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
+  public async NewfindForGroup(groupId: number,endDate:string): Promise<{ [key: string]: Device[] }> {
+ 
     const groupdevice = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
-
-
     });
     console.log(groupdevice)
 
@@ -534,6 +533,7 @@ export class DeviceService {
 
         }),
       )
+      console.log(query)
     console.log(query.getQuery())
     return query;
   }

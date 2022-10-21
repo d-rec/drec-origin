@@ -111,7 +111,8 @@ export class IssuerService {
         //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
         //this.logger.debug(requestdate);
 
-        var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
+          console.error("group is missing", grouprequest.groupId);
+          var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id,grouprequest.end_date);
         this.logger.debug(countryDevicegroup);
         const organization = await this.organizationService.findOne(
           group.organizationId,

@@ -657,8 +657,9 @@ export class ReadsService {
     try {
 
       const device = await query.getRawMany();
-      console.log(device);
-      return true;
+    
+      console.log(device.length>0);
+      return device.length>0;
     } catch (error) {
       console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
@@ -683,8 +684,7 @@ export class ReadsService {
 
         }),
       )
-      console.log('693')
-      console.log(query)
+      
     console.log(query.getQuery())
     return query;
   }
