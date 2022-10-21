@@ -328,7 +328,7 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     //@ts-ignore
-    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+    const final = undefined;//await this.NewfindLatestRead(deviceId, device.createdAt);
 
     let reads: any = [];
 
@@ -342,6 +342,9 @@ export class ReadsService {
           const meteredTimePeriod = Math.abs(
             requeststartdate.diff(requestcurrentend, ['hours']).toObject()?.hours || 0,
           );
+
+          const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
+        console.log(checkhistroyreading)
           //@ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 1);
@@ -355,7 +358,15 @@ export class ReadsService {
 
           console.log("endtimestamp");
           console.log(new Date(element.endtimestamp));
+          if(checkhistroyreading){
+            return reject(
+              new ConflictException({
+                success: false,
+                message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `
 
+              }),
+            );
+          }
           //@ts-ignore
           if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
             return reject(
@@ -608,8 +619,6 @@ export class ReadsService {
     console.log(reads[0])
 
     return reads[0];
-
-
   }
 
   async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date):Promise<Array<{timestamp:Date,value:number}>> {
@@ -641,6 +650,51 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     //@ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org)
+  }
+
+  private async checkhistoryreadexist(
+    deviceid: string,
+    startDate: Date,
+    endDate: Date
+
+  ): Promise<boolean> {
+    const query = this.getexisthistorydevcielogFilteredQuery(deviceid,
+      startDate,
+      endDate);
+    console.log("historyexistdevicequery");
+    try {
+
+      const device = await query.getRawMany();
+    
+      console.log(device.length>0);
+      return device.length>0;
+    } catch (error) {
+      console.log(error)
+      this.logger.error(`Failed to retrieve device`, error.stack);
+      //  throw new InternalServerErrorException('Failed to retrieve users');
+    }
+    
+  }
+  private getexisthistorydevcielogFilteredQuery(deviceid: string,
+    startDate: Date,
+    endDate: Date): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+    //  const { organizationName, status } = filterDto;
+    const query = this.historyrepository
+      .createQueryBuilder("devicehistory").
+      where("devicehistory.deviceId = :deviceid", { deviceid: deviceid })
+      .andWhere(
+       
+        new Brackets((db) => {
+          db.where("devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+            .orWhere("devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
+            .orWhere(":startdateThirdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate", { startdateThirdWhere: startDate })
+            .orWhere(":enddateforthdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate", { enddateforthdWhere: endDate })
+
+        }),
+      )
+      
+    console.log(query.getQuery())
+    return query;
   }
   private firstvalidateEnergy(
     read: ReadDTO,

@@ -111,7 +111,8 @@ export class IssuerService {
         //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
         //this.logger.debug(requestdate);
 
-        var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
+          console.error("group is missing", grouprequest.groupId);
+          var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id,grouprequest.end_date);
         this.logger.debug(countryDevicegroup);
         const organization = await this.organizationService.findOne(
           group.organizationId,
@@ -159,37 +160,33 @@ export class IssuerService {
           else {
             newEndDate = group.reservationEndDate.toISOString();
           }
-          let allDevicesOfGroup:Device[]= await this.deviceService.findForGroup(group.id);
+          let allDevicesOfGroup: Device[] = await this.deviceService.findForGroup(group.id);
 
-          try
-          {
+          try {
             //https://stackoverflow.com/a/10124053
-              allDevicesOfGroup.sort(function(a,b){
-                // Turn your strings into dates, and then subtract them
-                // to get a value that is either negative, positive, or zero.
-                //@ts-ignore
-                return new Date(b.createdAt) - new Date(a.createdAt);
+            allDevicesOfGroup.sort(function (a, b) {
+              // Turn your strings into dates, and then subtract them
+              // to get a value that is either negative, positive, or zero.
+              //@ts-ignore
+              return new Date(b.createdAt) - new Date(a.createdAt);
             })
 
-            let deviceOnBoardedWhichIsInBetweenNextIssuance:Device =allDevicesOfGroup.find(ele=>{
-                //returns first find which is minimum and between next frequency 
-                if( new Date(ele.createdAt).getTime() > new Date(start_date).getTime() && new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime() )
-                {
-                    return true;
-                }
+            let deviceOnBoardedWhichIsInBetweenNextIssuance: Device = allDevicesOfGroup.find(ele => {
+              //returns first find which is minimum and between next frequency 
+              if (new Date(ele.createdAt).getTime() > new Date(start_date).getTime() && new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()) {
+                return true;
+              }
             })
-            if(deviceOnBoardedWhichIsInBetweenNextIssuance)
-            {
-              newEndDate = new Date(deviceOnBoardedWhichIsInBetweenNextIssuance.createdAt).toISOString();            
+            if (deviceOnBoardedWhichIsInBetweenNextIssuance) {
+              newEndDate = new Date(deviceOnBoardedWhichIsInBetweenNextIssuance.createdAt).toISOString();
             }
           }
-          catch(e)
-          {
+          catch (e) {
             console.error("exception caught in inbetween device onboarding checking for createdAt");
             console.error(e);
           }
 
-          
+
           console.log("came isnide updating next issuance date");
           console.log("start_date", start_date, "newEndDate", newEndDate);
           await this.groupService.updatecertificateissuedate(grouprequest.id, start_date, newEndDate);
@@ -301,7 +298,7 @@ export class IssuerService {
               historydeviceread.deviceId,
             );
             console.log("Histroryread", historydevice);
-            this.newHistoryissueCertificateForDevice(group, historydeviceread,devcie);
+            this.newHistoryissueCertificateForDevice(group, historydeviceread, devcie);
           }),
         );
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id);
@@ -633,7 +630,7 @@ export class IssuerService {
   private async newHistoryissueCertificateForDevice(
     group: DeviceGroup,
     devicehistoryrequest: HistoryIntermediate_MeterRead,
-    devcie:IDevice
+    device: IDevice
   ): Promise<void> {
     if (
       !group.buyerAddress ||
@@ -642,7 +639,14 @@ export class IssuerService {
     ) {
       return;
     }
-
+    let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
+    devicecertificatelogDto.deviceid = device.externalId,
+      devicecertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),
+      devicecertificatelogDto.certificate_issuance_enddate = new Date(devicehistoryrequest.readsEndDate.toString()),
+      devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+      devicecertificatelogDto.readvalue_watthour = devicehistoryrequest.readsvalue;
+    devicecertificatelogDto.groupId = group.id;
+    await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: devicehistoryrequest.readsvalue.toString(),
@@ -655,7 +659,7 @@ export class IssuerService {
         buyerReservationId: group.devicegroup_uid,
         isStandardIssuanceRequested: StandardCompliance.IREC,
         type: CertificateType.REC,
-        deviceIds: [devcie.id],
+        deviceIds: [device.id],
         //deviceGroup,
         groupId: group.id?.toString() || null,
       },
