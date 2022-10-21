@@ -611,6 +611,14 @@ export class ReadsService {
 
 
   }
+
+  async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date):Promise<Array<{timestamp:Date,value:number}>> {
+const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+    |> range(start: ${startdate.toISOString()}, stop: ${enddate.toISOString()})
+    |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+    |> last()`
+    return await this.execute(fluxQuery);
+  }
   async execute(query: any) {
 
     const data = await this.dbReader.collectRows(query);
@@ -961,6 +969,18 @@ export class ReadsService {
       updatedhistoryissue = await this.historyrepository.save(historydevice);
     }
     return updatedhistoryissue;
+  }
+
+  async getAggregateMeterReadsFirstEntryOfDevice(meterId:string):Promise<AggregateMeterRead>{
+
+    return this.repository.find({
+      where: {
+        deviceId:meterId
+      },
+      take:1
+    })
+
+
   }
 }
 
