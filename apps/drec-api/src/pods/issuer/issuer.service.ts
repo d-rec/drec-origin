@@ -133,7 +133,7 @@ export class IssuerService {
           hours = 1 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
           hours = 30 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
           hours = 7 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 91 * 24;
@@ -224,7 +224,7 @@ export class IssuerService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async checkingReadsData(){
-   let meterId='AD42';
+   let meterId='New Logic device1';
    const readsFilter: FilterDTO = {
     offset: 0,
     limit: 1000,
@@ -235,21 +235,21 @@ export class IssuerService {
       console.log("sldkmalksmd")
       const allReads:Array<{timestamp:Date,value:number}> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(meterId,readsFilter);
       console.log(`allReads externalId:${meterId}`, allReads);
-      if(allReads.length>0)
-      {
-        const readsFilter: FilterDTO = {
-          offset: 0,
-          limit: 1000,
-          start: '2020-10-20T11:02:21.486Z',
-          end: '2022-01-02T19:22:05.614Z',
-        };
-        allReads[0].timestamp.toISOString()
+      // if(allReads.length>0)
+      // {
+      //   const readsFilter: FilterDTO = {
+      //     offset: 0,
+      //     limit: 1000,
+      //     start: '2020-10-20T11:02:21.486Z',
+      //     end: '2022-01-02T19:22:05.614Z',
+      //   };
+      //   allReads[0].timestamp.toISOString()
         
-      }
+      // }
 
-      let response = await this.readservice.findLastReadForMeterWithinRange(meterId,new Date('2020-10-20T11:02:21.486Z'),new Date(new Date('2022-01-02T19:22:05.614Z').getTime()-1));
+      // let response = await this.readservice.findLastReadForMeterWithinRange(meterId,new Date('2020-10-20T11:02:21.486Z'),new Date(new Date('2022-01-02T19:22:05.614Z').getTime()-1));
 
-      console.log("findLastReadForMeterWithinRange", response);
+      // console.log("findLastReadForMeterWithinRange", response);
       // console.log(typeof allReads[0].timestamp.getTime());
       // return allReads.reduce(
       //   (accumulator, currentValue) => accumulator + currentValue.value,
@@ -499,7 +499,7 @@ export class IssuerService {
       {
         let endTimestampToCheck =new Date(allDevicesCompleteReadsBetweenTimeRange[index][0].timestamp.getTime()-1);
         let startTimeToCheck = device.createdAt;
-        previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId,startTimeToCheck,endTimestampToCheck);
+        previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId,new Date(startTimeToCheck),endTimestampToCheck);
         if(previousReading.length ==0)
         {
           if(device.meterReadtype=== ReadType.Delta)
