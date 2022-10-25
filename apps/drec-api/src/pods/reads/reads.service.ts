@@ -328,7 +328,7 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     //@ts-ignore
-    const final = undefined;//await this.NewfindLatestRead(deviceId, device.createdAt);
+    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
 
     let reads: any = [];
 

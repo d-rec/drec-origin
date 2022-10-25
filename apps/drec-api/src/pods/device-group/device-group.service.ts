@@ -327,10 +327,11 @@ export class DeviceGroupService {
     devices.filter(ele => {
       if(  ( new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime() ) && ( new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime() ))
       {
+        console.log("device filter for history")
         return true;
       }
     }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true): (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
-
+    console.log(allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
     if(!allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
     {
         //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
@@ -345,6 +346,7 @@ export class DeviceGroupService {
           minimumDeviceCreatedAtIndex = index;
         }
         });
+        console.log(minimumDeviceCreatedAtDate)
         //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
         //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
         let startDate:string='';
@@ -356,7 +358,7 @@ export class DeviceGroupService {
         {
           startDate = minimumDeviceCreatedAtDate.toISOString()
         }
-
+        console.log(minimumDeviceCreatedAtDate)
         let hours = 1;
 
         const frequency = group.frequency.toLowerCase();
@@ -364,7 +366,7 @@ export class DeviceGroupService {
           hours = 1 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
           hours = 30 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
           hours = 7 * 24;
         } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
           hours = 91 * 24;
@@ -385,6 +387,7 @@ export class DeviceGroupService {
         else {
           newEndDate = data.reservationEndDate.toISOString();
         }
+        console.log("newEndDate",newEndDate)
         //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
         //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
         let nextMinimumCreatedWhichIsLessThanEndDate:boolean = false;
@@ -412,10 +415,23 @@ export class DeviceGroupService {
             }
           }
         })
+        console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
         if(nextMinimumCreatedWhichIsLessThanEndDate)
         {
-          newEndDate = nextMinimumCreatedAtString;
+
+          if(new Date (startDate).getTime() > new Date(nextMinimumCreatedAtString).getTime())
+          {
+            newEndDate = newEndDate;
+          }
+          else{
+            newEndDate = nextMinimumCreatedAtString;
+          }
+          
+          
         }
+
+
+
         console.log("end_date");
         console.log(end_date);
 
@@ -429,6 +445,8 @@ export class DeviceGroupService {
     await Promise.all(
       devices.map(async (device: Device) => {
         console.log(typeof device.createdAt )
+        console.log(data.reservationStartDate );
+        console.log(device.createdAt);
         if( new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()){
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
           
@@ -954,20 +972,12 @@ export class DeviceGroupService {
     const deviceTypeCodes = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode)),
     );
-    const integratorName = devices[0].integrator
-      ? `${devices[0].integrator}-`
-      : '';
+    // const integratorName = devices[0].integrator
+    //   ? `${devices[0].integrator}-`
+    //   : '';
     const deviceGroup: NewDeviceGroupDTO = {
       name:
-        groupName ||
-        `${integratorName}${devices[0].countryCode},${getFuelNameFromCode(
-          devices[0].fuelCode,
-        )},${devices[0].offTaker}`
-/*        `${integratorName}${devices[0].countryCode},${getFuelNameFromCode(
-          devices[0].fuelCode,
-        )},${devices[0].standardCompliance},${devices[0].offTaker},${
-          devices[0].installationConfiguration
-        }`*/,
+        groupName ,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices[0].fuelCode,
       countryCode: devices[0].countryCode,
