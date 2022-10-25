@@ -559,8 +559,10 @@ export class IssuerService {
       allPreviousReadingsOfDevices.sort(function(a,b){
         //@ts-ignore
         return a.timestamp - b.timestamp;
-      })
+      });
+      minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
+  
     
   let maximumEndDate:Date=new Date('1990-04-01T12:51:51.112Z');
   let checkMaximumEndDate:Date=new Date('1990-04-01T12:51:51.112Z');
