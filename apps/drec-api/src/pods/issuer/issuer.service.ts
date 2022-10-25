@@ -428,7 +428,7 @@ export class IssuerService {
         console.log(readsFilter);
 
         let allReadsForDeviceBetweenTimeRange:Array<{timestamp:Date,value:number}>= await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
-        allDevicesCompleteReadsBetweenTimeRange.push(allReadsForDeviceBetweenTimeRange);
+        allDevicesCompleteReadsBetweenTimeRange[index]=allReadsForDeviceBetweenTimeRange;
         let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -437,7 +437,7 @@ export class IssuerService {
         {
           filteredDevicesIndexesListIfMeterReadsNotAvailable.push(index);
         }
-        groupReads.push(devciereadvalue);
+        groupReads[index]=devciereadvalue;
       }),
     );
 
@@ -494,17 +494,20 @@ export class IssuerService {
 
     await Promise.all(
       group.devices.map(async (device: IDevice,index) => {
+        console.log("came inside previous readings check");
         let previousReading:Array<{timestamp:Date,value:number}> =[];
       if(allDevicesCompleteReadsBetweenTimeRange[index].length >0)
       {
         let endTimestampToCheck =new Date(allDevicesCompleteReadsBetweenTimeRange[index][0].timestamp.getTime()-1);
         let startTimeToCheck = device.createdAt;
         previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId,new Date(startTimeToCheck),endTimestampToCheck);
+        console.log("device previous reading",device.externalId,previousReading);
+        console.log("device.meterReadtype",device.meterReadtype);
         if(previousReading.length ==0)
         {
           if(device.meterReadtype=== ReadType.Delta)
           {
-            previousReading=[{timestamp:device.createdAt,value:0}];
+            previousReading=[{timestamp:new Date(device.createdAt),value:0}];
           }
           else if(device.meterReadtype=== ReadType.ReadMeter)
           {
@@ -524,12 +527,13 @@ export class IssuerService {
             }
 
           }
+          console.log("device previous reading",device.externalId,previousReading);
         } 
         
         //change this to when was initial reading came for aggregate or else if delta then its the createdAt
         if(previousReading.length >0)
         {
-          allPreviousReadingsOfDevices.push(previousReading[0]);
+          allPreviousReadingsOfDevices[index]=previousReading[0];
         }
         
       }
@@ -584,6 +588,9 @@ export class IssuerService {
   
     })
   }
+
+  console.log("minimumStartDate",minimumStartDate,"type", typeof minimumStartDate);
+  console.log("maximumEndDate",maximumEndDate,"type", typeof maximumEndDate);
 
   
 
