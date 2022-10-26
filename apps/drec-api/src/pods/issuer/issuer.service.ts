@@ -111,9 +111,8 @@ export class IssuerService {
         //  const requestdate = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id });
         //this.logger.debug(requestdate);
 
-          console.error("group is missing", grouprequest.groupId);
           var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id,grouprequest.end_date);
-        this.logger.debug(countryDevicegroup);
+        //this.logger.debug(countryDevicegroup);
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
@@ -543,7 +542,7 @@ export class IssuerService {
       );
       let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
         devicecertificatelogDto.deviceid = device.externalId,
-          devicecertificatelogDto.certificate_issuance_startdate = previousReading.length > 1? previousReading[0].timestamp : new Date(startDate.toString()),
+          devicecertificatelogDto.certificate_issuance_startdate = previousReading.length > 0? previousReading[0].timestamp : new Date(startDate.toString()),
           devicecertificatelogDto.certificate_issuance_enddate = allDevicesCompleteReadsBetweenTimeRange[index][allDevicesCompleteReadsBetweenTimeRange[index].length-1].timestamp,// new Date(endDate.toString()),
           devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
           devicecertificatelogDto.readvalue_watthour = devciereadvalue;
