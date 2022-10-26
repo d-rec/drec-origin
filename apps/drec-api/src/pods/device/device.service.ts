@@ -19,7 +19,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, Role } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -37,7 +37,7 @@ import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
-
+import { DateTime } from 'luxon';
 import { FilterKeyDTO } from '../countrycode/dto';
 @Injectable()
 export class DeviceService {
@@ -90,16 +90,17 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
-    const groupdevice = await this.repository.find({
+  public async NewfindForGroup(groupId: number,endDate:string): Promise<{ [key: string]: Device[] }> {
+ 
+    let groupdevice:Array<any> = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
-
-
     });
     console.log(groupdevice)
+
+    groupdevice = groupdevice.filter(ele=>ele.meterReadtype==ReadType.Delta || ele.meterReadtype==ReadType.ReadMeter) 
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
     console.log(deviceGroupedByCountry);
@@ -524,7 +525,10 @@ export class DeviceService {
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
       where("device.deviceid = :deviceid", { deviceid: deviceid })
-      .andWhere("device.status ='Requested' OR device.status ='Succeeded'")
+      .andWhere(
+        new Brackets((db) => {
+          db.where("device.status ='Requested' OR device.status ='Succeeded'")
+          }))
       .andWhere(
         new Brackets((db) => {
           db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
@@ -534,6 +538,7 @@ export class DeviceService {
 
         }),
       )
+      console.log(query)
     console.log(query.getQuery())
     return query;
   }
