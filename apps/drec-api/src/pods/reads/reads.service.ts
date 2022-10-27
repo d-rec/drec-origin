@@ -661,12 +661,12 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const query = this.getexisthistorydevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
-    console.log("historyexistdevicequery");
+    //console.log("historyexistdevicequery");
     try {
 
       const device = await query.getRawMany();
     
-      console.log(device.length>0);
+      //console.log(device.length>0);
       return device.length>0;
     } catch (error) {
       console.log(error)
@@ -949,11 +949,11 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const query = this.gethistorydevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
-    console.log("devicequery");
+    //console.log("devicequery");
     try {
 
       const device = await query.getRawMany();
-      console.log(device);
+      //console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
           id: s.devicehistory_id,
@@ -998,7 +998,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         }),
       )
       .andWhere("devicehistory.certificate_issued != true")
-    console.log(query.getQuery())
+    // console.log(query.getQuery())
     return query;
   }
 
