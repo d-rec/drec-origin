@@ -44,7 +44,6 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @IsOptional()
   countryCode: string;
 
   // @ApiProperty()
@@ -68,12 +67,10 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsNumber()
-  @IsOptional()
   capacity: number;
 
   @ApiProperty()
-  @IsString()
-  @IsOptional()
+  @IsString({message:'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z'})
   commissioningDate: string;
 
   @ApiProperty()
@@ -161,7 +158,7 @@ export class NewDeviceDTO
   @IsOptional()
   SDGBenefits?: number| undefined;
 
-  @ApiProperty()
+  @ApiProperty({ default: 1.0})
   @IsString()
   @IsOptional()
   version: string;

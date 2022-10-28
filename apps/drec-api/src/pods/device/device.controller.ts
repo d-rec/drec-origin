@@ -231,6 +231,9 @@ export class DeviceController {
         );
       });
     }
+    if(deviceToRegister.version === null || deviceToRegister.version === undefined){
+      deviceToRegister.version='1.0';
+    }
     return await this.deviceService
       .register(organizationId, deviceToRegister)
       .catch((error) => {

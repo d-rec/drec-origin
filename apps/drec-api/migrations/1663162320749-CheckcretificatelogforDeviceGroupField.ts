@@ -11,7 +11,7 @@ export class CheckcretificatelogforDeviceGroupField1663162320749 implements Migr
                 issuer_certificate_id integer,
                 certificate_issuance_startdate timestamp with time zone,
                 certificate_issuance_enddate timestamp with time zone,
-                readvalue_watthour integer,
+                readvalue_watthour DOUBLE PRECISION,
                 status character varying COLLATE pg_catalog."default",
                 certificate_payload json,
                 "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
