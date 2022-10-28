@@ -158,7 +158,7 @@ export class NewDeviceDTO
   @IsOptional()
   SDGBenefits?: number| undefined;
 
-  @ApiProperty({ default: 1.0})
+  @ApiProperty({ default: "1.0"})
   @IsString()
   @IsOptional()
   version: string;
