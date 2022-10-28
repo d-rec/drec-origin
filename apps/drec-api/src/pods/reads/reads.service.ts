@@ -322,6 +322,285 @@ export class ReadsService {
     };
   }
 
+  // private async NewfilterMeasurements(
+  //   deviceId: string,
+  //   measurement: NewIntmediateMeterReadDTO,
+  //   device: DeviceDTO,
+  // ): Promise<MeasurementDTO> {
+  //   //@ts-ignore
+  //   const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+
+  //   let reads: any = [];
+
+  //   if (measurement.type === "History") {
+
+  //     await new Promise((resolve, reject) => {
+  //       measurement.reads.forEach(async (element, measurmentreadindex) => {
+
+  //         const requeststartdate = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
+  //         const requestcurrentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
+  //         const meteredTimePeriod = Math.abs(
+  //           requeststartdate.diff(requestcurrentend, ['hours']).toObject()?.hours || 0,
+  //         );
+
+  //         const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
+  //       console.log(checkhistroyreading)
+  //         //@ts-ignore
+  //         const historyAge = new Date(device.createdAt);
+  //         historyAge.setFullYear(historyAge.getFullYear() - 1);
+  //         console.log("historyAge");
+  //         console.log(historyAge);
+  //         console.log("createdAt");
+  //         //@ts-ignore
+  //         console.log(new Date(device?.createdAt));
+  //         console.log("starttimestamp");
+  //         console.log(new Date(element.starttimestamp));
+
+  //         console.log("endtimestamp");
+  //         console.log(new Date(element.endtimestamp));
+  //         if(checkhistroyreading){
+  //           return reject(
+  //             new ConflictException({
+  //               success: false,
+  //               message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `
+
+  //             }),
+  //           );
+  //         }
+  //         //@ts-ignore
+  //         if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
+  //           return reject(
+  //             new ConflictException({
+  //               success: false,
+  //               message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
+
+  //             }),
+  //           );
+
+  //         }
+  //         //@ts-ignore
+  //         if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
+  //           //@ts-ignore
+  //           requeststartdate >= DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
+  //           requestcurrentend <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
+  //           //@ts-ignore
+  //           requestcurrentend >= DateTime.fromISO(new Date(device?.createdAt).toISOString())) {
+
+  //           return reject(
+  //             new ConflictException({
+  //               success: false,
+  //               //@ts-ignore
+  //               message: `For History Type Reads of devices start time and/or end time should be within 1 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
+
+  //             }),
+  //           );
+  //         }
+
+  //         reads.push({
+  //           timestamp: new Date(element.endtimestamp),
+  //           value: element.value,
+  //           timeperiod: meteredTimePeriod,
+  //           startdate: requeststartdate,
+  //           enddate: requestcurrentend
+  //         });
+
+  //         if (measurmentreadindex == measurement.reads.length - 1) {
+
+  //           resolve(true);
+  //         }
+
+  //       })
+  //     });
+
+  //   }
+  //   else if (measurement.type === 'Delta') {
+
+  //     if (!final) {
+
+  //       await this.deviceService.updatereadtype(deviceId, measurement.type);
+  //     } else {
+
+  //       if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
+  //         throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
+
+  //       }
+
+  //     }
+  //     await new Promise((resolve, reject) => {
+  //       measurement.reads.forEach((element, measurmentreadindex) => {
+  //         if (final && final['timestamp']) {
+  //           //@ts-ignore
+  //           if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
+  //             return reject(
+  //               new ConflictException({
+  //                 success: false,
+  //                 message:
+  //                   //@ts-ignore
+  //                   `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+
+  //               }),
+  //             );
+  //           }
+  //         }
+
+  //         reads.push({
+  //           timestamp: new Date(element.endtimestamp),
+  //           value: element.value
+  //         })
+  //         if (measurmentreadindex == measurement.reads.length - 1) {
+  //           resolve(true);
+  //         }
+  //       })
+  //     });
+  //   }
+  //   else if (measurement.type === 'Aggregate') {
+  //     if (!final) {
+  //       await new Promise((resolve, reject) => {
+  //         measurement.reads.forEach(async (element, measurmentreadindex) => {
+  //           const lastvalue = await this.findlastRead(deviceId);
+  //           let Delta = 0;
+  //           if (lastvalue.length > 0) {
+  //             Delta = Math.abs(element.value - lastvalue[0].value);
+
+  //             if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
+  //               return reject(
+  //                 new ConflictException({
+  //                   success: false,
+  //                   message:
+  //                     `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `
+
+  //                 }),
+  //               );
+  //             }
+  //             reads.push({
+  //               timestamp: new Date(element.endtimestamp),
+  //               value: Delta
+  //             })
+  //             await this.repository.save({
+  //               value: element.value,
+  //               deltaValue: Delta,
+  //               deviceId: deviceId,
+  //               unit: measurement.unit,
+  //               datetime: element.endtimestamp.toString()
+
+  //             });
+  //           }
+  //           else {
+  //             await this.repository.save({
+  //               value: element.value,
+  //               deltaValue: Delta,
+  //               deviceId: deviceId,
+  //               unit: measurement.unit,
+  //               datetime: element.endtimestamp.toString()
+
+  //             });
+  //           }
+  //           if (measurmentreadindex == measurement.reads.length - 1) {
+  //             resolve(true);
+  //           }
+
+  //         })
+  //       });
+  //       await this.deviceService.updatereadtype(deviceId, measurement.type);
+
+  //     } else {
+  //       if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
+  //         throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
+  //       }
+
+  //       await new Promise((resolve, reject) => {
+  //         measurement.reads.forEach(async (element, measurmentreadindex) => {
+
+  //           const lastvalue = await this.findlastRead(deviceId);
+  //           let Delta;
+  //           if (lastvalue.length > 0) {
+  //             Delta = Math.abs(element.value - lastvalue[0].value);
+  //             if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
+  //               return reject(
+  //                 new ConflictException({
+  //                   success: false,
+  //                   message:
+  //                     `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `
+
+  //                 }),
+  //               );
+  //             }
+  //             reads.push({
+  //               timestamp: new Date(element.endtimestamp),
+  //               value: Delta
+  //             })
+  //             //@ts-ignore
+  //             await this.repository.save({
+  //               value: element.value,
+  //               deltaValue: Delta,
+  //               deviceId: deviceId,
+  //               unit: measurement.unit,
+  //               datetime: element.endtimestamp
+
+  //             });
+
+
+  //           }
+  //           if (measurmentreadindex == measurement.reads.length - 1) {
+  //             resolve(true);
+  //           }
+  //         })
+  //       });
+
+  //     }
+  //   }
+
+
+  //   if (!final || !device) {
+  //     if (measurement.type === "History") {
+  //       return {
+  //         reads: reads.filter((read: any) =>
+  //           this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+  //         ),
+  //         unit: measurement.unit,
+
+  //       };
+  //     } else {
+
+  //       return {
+  //         reads: reads.filter((read: ReadDTO) =>
+  //           this.firstvalidateEnergy(read, device),
+  //         ),
+  //         unit: measurement.unit
+  //       }
+  //     }
+  //   }
+  //   else {
+  //     if (measurement.type === "History") {
+
+  //       return {
+  //         reads: reads.filter((read: any) =>
+
+  //           this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+
+  //         ),
+  //         unit: measurement.unit,
+  //       };
+  //     } else {
+  //       return {
+  //         reads: reads.filter((read: ReadDTO) =>
+  //           this.NewvalidateEnergy(read, final, device),
+  //         ),
+  //         unit: measurement.unit,
+  //       };
+  //     }
+  //   }
+
+  // }
+
+  // private async newgetLatestRead(meterId: string): Promise<ReadDTO | void> {
+  //   try {
+  //     return await this.baseReadsService.findLatestRead(meterId);
+  //   } catch (e) {
+  //     this.logger.warn(e.message);
+  //     return;
+  //   }
+  // }
   private async NewfilterMeasurements(
     deviceId: string,
     measurement: NewIntmediateMeterReadDTO,
@@ -344,7 +623,7 @@ export class ReadsService {
           );
 
           const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
-        console.log(checkhistroyreading)
+          console.log(checkhistroyreading)
           //@ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 1);
@@ -358,7 +637,7 @@ export class ReadsService {
 
           console.log("endtimestamp");
           console.log(new Date(element.endtimestamp));
-          if(checkhistroyreading){
+          if (checkhistroyreading) {
             return reject(
               new ConflictException({
                 success: false,
@@ -368,16 +647,20 @@ export class ReadsService {
             );
           }
           //@ts-ignore
-          if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
-            return reject(
-              new ConflictException({
-                success: false,
-                message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
+          // console.log(new Date(device?.createdAt).toLocaleDateString());
+          // console.log(new Date(element.starttimestamp).toLocaleDateString());
 
-              }),
-            );
+          // console.log(new Date(element.endtimestamp).toLocaleDateString())
+          // if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
+          //   return reject(
+          //     new ConflictException({
+          //       success: false,
+          //       message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
 
-          }
+          //     }),
+          //   );
+
+          // }
           //@ts-ignore
           if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
             //@ts-ignore
@@ -411,21 +694,15 @@ export class ReadsService {
 
         })
       });
+      return {
+        reads: reads.filter((read: any) =>
+          this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+        ),
+        unit: measurement.unit,
 
+      };
     }
     else if (measurement.type === 'Delta') {
-
-      if (!final || !device) {
-
-        await this.deviceService.updatereadtype(deviceId, measurement.type);
-      } else {
-
-        if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
-          throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
-
-        }
-
-      }
       await new Promise((resolve, reject) => {
         measurement.reads.forEach((element, measurmentreadindex) => {
           if (final && final['timestamp']) {
@@ -452,6 +729,31 @@ export class ReadsService {
           }
         })
       });
+      if (!final) {
+
+        await this.deviceService.updatereadtype(deviceId, measurement.type);
+        return {
+          reads: reads.filter((read: ReadDTO) =>
+            this.firstvalidateEnergy(read, device),
+          ),
+          unit: measurement.unit
+        }
+      } else {
+
+        if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
+          throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
+
+        } else {
+          return {
+            reads: reads.filter((read: ReadDTO) =>
+              this.NewvalidateEnergy(read, final, device),
+            ),
+            unit: measurement.unit,
+          };
+
+        }
+      }
+
     }
     else if (measurement.type === 'Aggregate') {
       if (!final) {
@@ -472,42 +774,59 @@ export class ReadsService {
                   }),
                 );
               }
-              reads.push({
+
+              let read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta
-              })
-              await this.repository.save({
-                value: element.value,
-                deltaValue: Delta,
-                deviceId: deviceId,
-                unit: measurement.unit,
-                datetime: element.endtimestamp.toString()
+              }
+              const firstvalidation = this.firstvalidateEnergy(read, device)
+              if (firstvalidation) {
+                await this.repository.save({
+                  value: element.value,
+                  deltaValue: Delta,
+                  deviceId: deviceId,
+                  unit: measurement.unit,
+                  datetime: element.endtimestamp.toString()
 
-              });
+                });
+                reads.push({
+                  timestamp: new Date(element.endtimestamp),
+                  value: Delta
+                })
+              }
             }
             else {
-              await this.repository.save({
-                value: element.value,
-                deltaValue: Delta,
-                deviceId: deviceId,
-                unit: measurement.unit,
-                datetime: element.endtimestamp.toString()
+              let read: ReadDTO = {
+                timestamp: new Date(element.endtimestamp),
+                value: element.value
+              }
+              const firstvalidation = this.firstvalidateEnergy(read, device)
+              if (firstvalidation) {
+                await this.repository.save({
+                  value: element.value,
+                  deltaValue: Delta,
+                  deviceId: deviceId,
+                  unit: measurement.unit,
+                  datetime: element.endtimestamp.toString()
 
-              });
+                });
+              }
             }
             if (measurmentreadindex == measurement.reads.length - 1) {
               resolve(true);
             }
-
           })
         });
         await this.deviceService.updatereadtype(deviceId, measurement.type);
+        return {
+          reads: reads,
+          unit: measurement.unit,
+        };
 
       } else {
         if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
           throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
         }
-
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
 
@@ -525,20 +844,27 @@ export class ReadsService {
                   }),
                 );
               }
-              reads.push({
+
+              //@ts-ignore
+              let read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta
-              })
-              //@ts-ignore
-              await this.repository.save({
-                value: element.value,
-                deltaValue: Delta,
-                deviceId: deviceId,
-                unit: measurement.unit,
-                datetime: element.endtimestamp
+              }
+              const newvalidation = this.NewvalidateEnergy(read, final, device);
+              if (newvalidation) {
+                reads.push({
+                  timestamp: new Date(element.endtimestamp),
+                  value: Delta
+                })
+                await this.repository.save({
+                  value: element.value,
+                  deltaValue: Delta,
+                  deviceId: deviceId,
+                  unit: measurement.unit,
+                  datetime:  element.endtimestamp.toString()
 
-              });
-
+                });
+              }
 
             }
             if (measurmentreadindex == measurement.reads.length - 1) {
@@ -547,60 +873,62 @@ export class ReadsService {
           })
         });
 
+        return {
+          reads: reads,
+          unit: measurement.unit,
+        };
+
       }
     }
 
 
-    if (!final || !device) {
-      if (measurement.type === "History") {
-        return {
-          reads: reads.filter((read: any) =>
-            this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-          ),
-          unit: measurement.unit,
+    // if (!final) {
+    //   if (measurement.type === "History") {
+    //     return {
+    //       reads: reads.filter((read: any) =>
+    //         this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+    //       ),
+    //       unit: measurement.unit,
 
-        };
-      } else {
+    //     };
+    //   } 
+    //   if (measurement.type === "History"){
 
-        return {
-          reads: reads.filter((read: ReadDTO) =>
-            this.firstvalidateEnergy(read, device),
-          ),
-          unit: measurement.unit
-        }
-      }
-    }
-    else {
-      if (measurement.type === "History") {
+    //   }
+    //   else {
 
-        return {
-          reads: reads.filter((read: any) =>
 
-            this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+    //     return {
+    //       reads: reads.filter((read: ReadDTO) =>
+    //         this.firstvalidateEnergy(read, device),
+    //       ),
+    //       unit: measurement.unit
+    //     }
+    //   }
+    // }
+    // else {
+    //   if (measurement.type === "History") {
 
-          ),
-          unit: measurement.unit,
-        };
-      } else {
-        return {
-          reads: reads.filter((read: ReadDTO) =>
-            this.NewvalidateEnergy(read, final, device),
-          ),
-          unit: measurement.unit,
-        };
-      }
-    }
+    //     return {
+    //       reads: reads.filter((read: any) =>
+
+    //         this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
+
+    //       ),
+    //       unit: measurement.unit,
+    //     };
+    //   } else {
+    //     return {
+    //       reads: reads.filter((read: ReadDTO) =>
+    //         this.NewvalidateEnergy(read, final, device),
+    //       ),
+    //       unit: measurement.unit,
+    //     };
+    //   }
+    // }
 
   }
 
-  // private async newgetLatestRead(meterId: string): Promise<ReadDTO | void> {
-  //   try {
-  //     return await this.baseReadsService.findLatestRead(meterId);
-  //   } catch (e) {
-  //     this.logger.warn(e.message);
-  //     return;
-  //   }
-  // }
   private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
     console.log("527")
     console.log(deviceregisterdate)
@@ -717,7 +1045,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity; // W
+    const capacity = device.capacity*1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =
@@ -785,7 +1113,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity; // W
+    const capacity = device.capacity *1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =
@@ -852,7 +1180,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity; // W
+    const capacity = device.capacity*1000; // capacity in KilloWatt and read in Wh so coverting in Watt 
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =

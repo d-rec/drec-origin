@@ -7,8 +7,8 @@ export class IntermideatryTableFields1658924656241 implements MigrationInterface
             `CREATE TABLE IF NOT EXISTS aggregate_meterread
             (
                 "id" SERIAL NOT NULL ,
-                "value" integer,
-                "deltaValue" integer,
+                "value" DOUBLE PRECISION,
+                "deltaValue" DOUBLE PRECISION,
                 "unit" character varying, 
                 "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
                 "updatedAt" timestamp with time zone NOT NULL DEFAULT now(),
