@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: drec-api
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: drec-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: drec-api
+    spec:
+      containers:
+      - image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-api:{{BUILD_NUMBER}}
+        imagePullPolicy: Always
+        name: drec-api
+        envFrom:
+        - secretRef:
+            name: drec-prod-env
+        ports:
+        - containerPort: 3040
+        resources:
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: drec-api-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 3040
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: drec-api
