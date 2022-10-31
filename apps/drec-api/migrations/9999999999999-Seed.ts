@@ -13,9 +13,13 @@ import { getProviderWithFallback } from '@energyweb/utils-general';
 
 import { IFullOrganization, IDevice, IUserSeed,IRoleConfig } from '../src/models';
 
-import UsersJSON from './users.json';
-import OrganizationsJSON from './organizations.json';
-import DevicesJSON from './devices.json';
+// import UsersJSON from './users.json';
+// import OrganizationsJSON from './organizations.json';
+// import DevicesJSON from './devices.json';
+let UsersJSON =[];
+let OrganizationsJSON =[];
+let DevicesJSON =[];
+
 import RoleJSON from './user_role.json';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
