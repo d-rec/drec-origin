@@ -95,7 +95,7 @@ export class BuyerDeviceFilterDTO {
   @IsOptional()
   @ApiPropertyOptional({
     type: Number,
-    description: 'Search number for target capacity',
+    description: 'Search number for target capacity in KiloWatts',
   })
   capacity: number;
 
