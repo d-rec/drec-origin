@@ -319,7 +319,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    
+
     if (measurements.type === ReadType.History) {
       let allDatesAreBeforeCreatedAt: boolean = true;
       let allStartDatesAreBeforeEnddate: boolean = true;
@@ -393,8 +393,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-
-
+// device organization and user organization validation
     if (device && device.organizationId !== user.organizationId) {
       return new Promise((resolve, reject) => {
         reject(
