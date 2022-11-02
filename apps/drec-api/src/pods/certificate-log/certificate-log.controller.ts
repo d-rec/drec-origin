@@ -23,7 +23,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {CheckCertificateIssueDateLogForDeviceEntity} from '../device/check_certificate_issue_date_log_for_device.entity'
 import {CertificateLogService} from './certificate-log.service'
-import {FilterDTO} from './dto/filter.dto'
+import {FilterDTO, GroupIDBasedFilteringDTO} from './dto/filter.dto'
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -37,10 +37,28 @@ export class CertificateLogController {
     @Get()
     @UseGuards(AuthGuard('jwt'))
  
-    @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns all Devices certificate log' })
+    @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns all individual devices certificate log' })
     async getAll(
-        @Query(ValidationPipe) filterDto: FilterDTO,
     ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-        return this.certificateLogService.Findcertificatelog(filterDto);
+        return this.certificateLogService.find();
+    }
+
+    @Get('/by-reservation-groupId')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns Certificate logs For individual devices based on groupId' })
+    async getByGroupId(
+        @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
+    ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+        if(parseInt(filterDto.groupId) === NaN)
+        {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                  success: false,
+                  message: 'Group Id is a number, invalid value was sent',
+                }))
+              })
+
+        }
+        return this.certificateLogService.findByGroupId(filterDto.groupId);
     }
 }
