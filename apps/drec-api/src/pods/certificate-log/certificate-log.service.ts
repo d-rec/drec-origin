@@ -11,7 +11,7 @@ import { getManager,FindOneOptions, Repository, In, IsNull, Not, Brackets, Selec
 import {FilterDTO} from './dto/filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import cleanDeep from 'clean-deep';
-import {Device} from '../device/device.entity'
+import {Device} from '../device/device.entity';
 @Injectable()
 export class CertificateLogService { 
     private readonly logger = new Logger(CertificateLogService.name);
@@ -20,10 +20,20 @@ export class CertificateLogService {
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity) private readonly repository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     ){}
    
-    public async find(filterDto: FilterDTO): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
    // const query = this.getFilteredQuery(filterDto);
     return this.repository.find();
   }
+
+
+  public async findByGroupId(groupId:string): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    // const query = this.getFilteredQuery(filterDto);
+     return this.repository.find({
+      where: {
+        groupId
+      },
+    });
+   }
 
 //   private getFilteredQuery(filter: FilterDTO): FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> {
 //     const where: FindConditions<CheckCertificateIssueDateLogForDeviceEntity> = cleanDeep({

@@ -8,7 +8,7 @@ import {
 } from '../../../utils/enums';
 
 export class FilterDTO {
- 
+
 
   @IsOptional()
   @ApiPropertyOptional({ description: 'Start date  filter' })
@@ -17,6 +17,15 @@ export class FilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ description: 'End date   filter' })
   end_date: string;
+
+  
+}
+
+export class GroupIDBasedFilteringDTO {
+
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'Group Id' })
+  groupId: string;
 
   
 }
