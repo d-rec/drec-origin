@@ -106,6 +106,9 @@ export class CertificateLogService {
 
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
+        certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime *1000).toISOString();
+        certifiedlist.certificateEndDate = new Date(certifiedlist.generationEndTime *1000).toISOString();
+        certifiedlist.perDeviceCertificateLog=[];
 
         try
         {
@@ -120,31 +123,42 @@ export class CertificateLogService {
 
         const obj = JSON.parse(certifiedlist.metadata);
         console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
-        const devicereadstartdate = new Date(certifiedlist.generationStartTime * 1000);
-        const devicereadenddate = new Date(certifiedlist.generationEndTime * 1000);
-        console.log("changegetdate", devicereadstartdate, devicereadenddate)
+        /* Please see note below regarding generationStartTime
+        node_modules\@energyweb\origin-247-certificate\dist\js\src\certificate.service.js
+            async issue(params) {
+            const command = {
+                ...params,
+                fromTime: Math.round(params.fromTime.getTime() / 1000),
+                toTime: Math.round(params.toTime.getTime() / 1000)
+            };
+            const job = await this.blockchainActionsQueue.add({
+                payload: command,
+                type: types_1.BlockchainActionType.Issuance
+            }, jobOptions);
+            const result = await this.waitForJobResult(job);
+            return this.mapCertificate(result);
+            }
+         */
+        const devicereadstartdate = new Date((certifiedlist.generationStartTime -1 ) * 1000);//as rounding when certificate is issued by EWFs package reference kept above and removing millseconds 
+        const devicereadenddate = new Date( (certifiedlist.generationEndTime +1) * 1000);//going back 1 second in start and going forward 1 second in end
+        //console.log("changegetdate", devicereadstartdate, devicereadenddate)
         await Promise.all(
           obj.deviceIds.map(async (deviceid: number) => {
-
             const device = await this.deviceService.findOne(deviceid);
-            const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate)
-            console.log(devicelog);
-            
-            certifiedlist.perDeviceCertificateLog=devicelog;
-            console.log(certifiedlist)
+            const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
+              devicelog.forEach(singleDeviceLogEle=>{
+                certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
+              });
+            //console.log(certifiedlist)
             return devicelog ;
-
           })
         );
-        console.log("perDeviceCertificateLog");
-       
+        //console.log("perDeviceCertificateLog");
         return certifiedlist;
-          
-        
       }),
     );
-    console.log("res")
-    console.log(res);
+  //  console.log("res")
+    //console.log(res);
     return res;
   }
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
@@ -205,7 +219,7 @@ export class CertificateLogService {
         }),
       )
       .andWhere("issuelog.groupId = :groupId", { groupId: groupId })
-    console.log(query.getQuery())
+    //console.log(query.getQuery())
     return query;
   }
 

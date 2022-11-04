@@ -7,6 +7,8 @@ export class CertificateWithPerdevicelog extends Certificate {
     deviceId: string;
     generationStartTime: number;
     generationEndTime: number;
+    certificateStartDate:string;
+    certificateEndDate:string;
     creationTime: number;
     perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity[];
     metadata:string;
