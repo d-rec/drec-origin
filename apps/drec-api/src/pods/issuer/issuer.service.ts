@@ -13,6 +13,10 @@ import {
   FilterDTO,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
+
+
+import {HttpService} from '@nestjs/axios';
+
 import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
@@ -29,6 +33,8 @@ import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_
 import { ReadsService } from '../reads/reads.service'
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
+
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -42,6 +48,7 @@ export class IssuerService {
     private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
+    private httpService: HttpService
   ) { }
 
   // @Cron(CronExpression.EVERY_30_SECONDS)
@@ -74,8 +81,27 @@ export class IssuerService {
   //@Cron('0 00 21 * * *')
 
   @Cron(CronExpression.EVERY_30_SECONDS)
-  //@Cron('0 59 * * * *')
+   //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
+  hitTheCronFromIssuerAPIOngoing()
+  {
+    // console.log("hitting issuer api");
+    this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`).subscribe(response=>{
+      // console.log("came here",response)
+    });
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron('0 59 * * * *')
+ //@Cron('0 */10 * * * *')
+ hitTheCronFromIssuerAPIHistory()
+ {
+   // console.log("hitting issuer api");
+   this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response=>{
+     // console.log("came here",response)
+   });
+ }
+ 
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -195,7 +221,7 @@ export class IssuerService {
 
 
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
