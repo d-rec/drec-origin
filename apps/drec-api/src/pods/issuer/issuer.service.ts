@@ -83,6 +83,7 @@ export class IssuerService {
   //@Cron(CronExpression.EVERY_30_SECONDS)
    //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   hitTheCronFromIssuerAPIOngoing()
   {
     // console.log("hitting issuer api");
@@ -91,9 +92,10 @@ export class IssuerService {
     });
   }
 
-  //@Cron(CronExpression.EVERY_30_SECONDS)
+
   //@Cron('0 59 * * * *')
  //@Cron('0 */10 * * * *')
+//  @Cron(CronExpression.EVERY_30_SECONDS)
  hitTheCronFromIssuerAPIHistory()
  {
    // console.log("hitting issuer api");
@@ -102,6 +104,7 @@ export class IssuerService {
    });
  }
  
+ @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -221,7 +224,7 @@ export class IssuerService {
 
 
 
-  //@Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
