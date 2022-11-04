@@ -610,6 +610,18 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
+    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue/ 10 ** 3;
+    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+
+    let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
+    devicegroupcertificatelogDto.groupid = group.id?.toString(),
+      devicegroupcertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),//new Date(startDate.toString()),
+      devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(devicehistoryrequest.readsEndDate.toString()),//new Date(endDate.toString()),
+      devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+      devicegroupcertificatelogDto.readvalue_watthour = devicehistoryrequest.readsvalue,
+      devicegroupcertificatelogDto.certificate_payload = issuance,
+      devicegroupcertificatelogDto.countryCode = device.countryCode;
+    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     const issuedCertificate = await this.issueCertificate(issuance);
 
     console.log("generate Succesfull");
