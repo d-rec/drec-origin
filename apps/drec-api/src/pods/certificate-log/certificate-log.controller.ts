@@ -70,33 +70,33 @@ export class CertificateLogController {
     @UseGuards(AuthGuard('jwt'))
     @ApiOkResponse({ type: [CertificateWithPerdevicelog], description: 'Returns issuer Certificate of groupId' })
     async getissueCertificate(
-        @Param('groupUid') groupId: string,
+        @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateWithPerdevicelog[]> {
-        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid:groupId})
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+        console.log(regexExp.test(groupuId));
+        if (groupuId === null || !regexExp.test(groupuId)) {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: ' Please Add the valid UID ,invalid group uid value was sent',
+                }))
+            })
+        }
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid:groupuId})
         console.log("devicegroup");
         console.log(devicegroup);
+
+       
         if(devicegroup==null||devicegroup.buyerId !=user.id){
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
-                    message: 'Group Id is not of this buyer, invalid value was sent',
+                    message: 'Group UId is not of this buyer, invalid value was sent',
                 }))
             })
-
         }
-
-        if (groupId === null) {
-            return new Promise((resolve, reject) => {
-                reject(new ConflictException({
-                    success: false,
-                    message: 'Group Id is a number, invalid value was sent',
-                }))
-            })
-
-        }
-
-
+       
         return this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
     }
 }

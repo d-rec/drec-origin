@@ -164,7 +164,7 @@ export class CertificateLogService {
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-    const query = this.getdevcielogFilteredQueryWithGroupID(groupId, deviceid,
+    const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
       startDate,
       endDate);
     // console.log(query);
@@ -194,7 +194,7 @@ export class CertificateLogService {
       //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
-  private getdevcielogFilteredQueryWithGroupID(groupId: number, deviceid: string,
+  private getdevicelogFilteredQueryWithGroupID(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     //  const { organizationName, status } = filterDto;
