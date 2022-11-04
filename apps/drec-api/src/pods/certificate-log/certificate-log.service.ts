@@ -107,6 +107,16 @@ export class CertificateLogService {
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
 
+        try
+        {
+          JSON.parse(certifiedlist.metadata);
+        }
+        catch(e)
+        {
+          console.error(e,"certificate doesnt contains valid metadta",certifiedlist);
+          return;
+        }
+
 
         const obj = JSON.parse(certifiedlist.metadata);
         console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
@@ -143,13 +153,13 @@ export class CertificateLogService {
     const query = this.getdevcielogFilteredQueryWithGroupID(groupId, deviceid,
       startDate,
       endDate);
-    console.log(query);
-    console.log("devicequery");
+    // console.log(query);
+    // console.log("devicequery");
     try {
 
       const devicelog = await query.getRawMany();
-      console.log("devicelog");
-      console.log(devicelog);
+      // console.log("devicelog");
+      // console.log(devicelog);
       const reservedevices = devicelog.map((s: any) => {
         const item: any = {
           id: s.issuelog_id,

@@ -80,7 +80,7 @@ export class IssuerService {
   // }
   //@Cron('0 00 21 * * *')
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
    //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
   hitTheCronFromIssuerAPIOngoing()
@@ -91,7 +91,7 @@ export class IssuerService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('0 59 * * * *')
  //@Cron('0 */10 * * * *')
  hitTheCronFromIssuerAPIHistory()
