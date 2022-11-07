@@ -28,7 +28,8 @@ import {
   UnreservedDeviceGroupsFilterDTO,
   UpdateDeviceGroupDTO,
   EndReservationdateDTO,
-  NewUpdateDeviceGroupDTO
+  NewUpdateDeviceGroupDTO,
+  ResponseDeviceGroupDTO
 
 } from './dto';
 import { defaults } from 'lodash';
@@ -474,11 +475,15 @@ export class DeviceGroupService {
     group: AddGroupDTO,
     buyerId?: number,
     buyerAddress?: string
-  ): Promise<DeviceGroupDTO> {
+  ): Promise<ResponseDeviceGroupDTO> {
+
+    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean:boolean= false;
 
     console.log("came here 461");
 
     let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
+    let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> = [];
+    devices.forEach(ele=>ele.groupId!=null? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id):"");
     console.log(devices);
     //@ts-ignore
     devices = devices.filter(ele=>ele.groupId===null);
@@ -486,38 +491,53 @@ export class DeviceGroupService {
     console.log("came here 465");
     if(devices.length ===0)
     {
+      smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
           success: false,
-          message: 'All devices are already included in buyer reservation, please add other devices',
+          message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
+        }))
+      })
+    }
+    console.log("came here 499");
+
+    let allDevicesAvailableforBuyerReservation: boolean = true;
+    let unavailableDeviceIds: Array<number> = [];
+    let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
+    await Promise.all(devices.map(async (ele, index) => {
+
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
+        if (certifieddevices.length > 0 && certifieddevices != undefined) {
+          allDevicesAvailableforBuyerReservation = false;
+          unavailableDeviceIds.push(ele.id);
+          unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
+        }
+        return ele;
+      })
+      );
+
+    devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
+
+    if(devices.length ===0)
+    {
+      smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean= true;
+      return new Promise((resolve, reject) => {
+        let message='';
+        if(unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length>0)
+        {
+          message = message+ `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
+        }
+        message = message+ `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
+
+
+        reject(new ConflictException({
+          success: false,
+          message: message
         }))
       })
     }
 
-    let allDevicesAvailableforBuyerReservation: boolean = true;
-    let unavailableDeviceIds: Array<number> = [];
-    await new Promise((resolve, reject) => {
-      devices.forEach(async (ele, index) => {
 
-        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
-        console.log("certifieddevices")
-        console.log(certifieddevices);
-        if (certifieddevices.length > 0 && certifieddevices != undefined) {
-          allDevicesAvailableforBuyerReservation = false;
-          unavailableDeviceIds.push(ele.id);
-          //  return reject(new ConflictException({
-          //   success: false,
-          //   message: 'One or more devices device Ids: ' + ele.externalId + ' are already generated certificate , please add other devices',
-          // }))
-        }
-        if (index == devices.length - 1) {
-          resolve(true);
-        }
-
-      })
-    });
-
-    devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false)
 
     group.deviceIds.forEach(ele => {
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
@@ -529,6 +549,7 @@ export class DeviceGroupService {
 
     if (!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation) {
       if (!allDevicesAvailableforBuyerReservation) {
+        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean= true;
         return new Promise((resolve, reject) => {
           reject(new ConflictException({
             success: false,
@@ -539,6 +560,7 @@ export class DeviceGroupService {
     }
 
 
+    
     if (!group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration) {
       let aggregatedCapacity = 0;
       devices.forEach(ele => aggregatedCapacity = ele.capacity + aggregatedCapacity);
@@ -551,6 +573,7 @@ export class DeviceGroupService {
       console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
       let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour * 1000;
       if (aggregatedCapacity * meteredTimePeriodInHours < targetCapacityInKiloWattHour) {
+        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
         return new Promise((resolve, reject) => {
           reject(new ConflictException({
             success: false,
@@ -561,25 +584,32 @@ export class DeviceGroupService {
       }
     }
 
-
-    let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices, group.name);
-    deviceGroup['reservationStartDate'] = group.reservationStartDate;
-    deviceGroup['reservationEndDate'] = group.reservationEndDate;
-    deviceGroup['authorityToExceed'] = group.authorityToExceed;
-    deviceGroup['targetVolumeInMegaWattHour'] = group.targetCapacityInMegaWattHour;
-    deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
-    deviceGroup['targetVolumeCertificateGenerationSucceededInMegaWattHour'] = 0;
-    deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
-    deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
-    deviceGroup['frequency'] = group.frequency;
-    if (buyerId && buyerAddress) {
-      deviceGroup['buyerId'] = buyerId;
-      deviceGroup['buyerAddress'] = buyerAddress;
+    if(smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean=== false)
+    {
+      let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices, group.name);
+      deviceGroup['reservationStartDate'] = group.reservationStartDate;
+      deviceGroup['reservationEndDate'] = group.reservationEndDate;
+      deviceGroup['authorityToExceed'] = group.authorityToExceed;
+      deviceGroup['targetVolumeInMegaWattHour'] = group.targetCapacityInMegaWattHour;
+      deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
+      deviceGroup['targetVolumeCertificateGenerationSucceededInMegaWattHour'] = 0;
+      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
+      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
+      deviceGroup['frequency'] = group.frequency;
+      if (buyerId && buyerAddress) {
+        deviceGroup['buyerId'] = buyerId;
+        deviceGroup['buyerAddress'] = buyerAddress;
+      }
+      let responseDeviceGroupDTO:ResponseDeviceGroupDTO = await this.create(
+        organizationId,
+        deviceGroup,
+      );
+      responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length>0 ?unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , '): '';
+      responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , '):'';
+      return responseDeviceGroupDTO;
     }
-    return await this.create(
-      organizationId,
-      deviceGroup,
-    );
+
+   
   }
 
   async createMultiple(

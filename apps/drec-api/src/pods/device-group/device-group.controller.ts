@@ -49,7 +49,8 @@ import {
   CSVBulkUploadDTO,
   JobFailedRowsDTO,
   EndReservationdateDTO,
-  NewUpdateDeviceGroupDTO
+  NewUpdateDeviceGroupDTO,
+  ResponseDeviceGroupDTO
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
@@ -175,7 +176,7 @@ export class DeviceGroupController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
-  ): Promise<DeviceGroupDTO | null> {
+  ): Promise<ResponseDeviceGroupDTO | null> {
     console.log("typeof deviceGroupToRegister.reservationStartDate", typeof deviceGroupToRegister.reservationStartDate);
     if(typeof deviceGroupToRegister.reservationStartDate ==="string")
     {
