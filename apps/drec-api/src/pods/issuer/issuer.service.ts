@@ -13,6 +13,10 @@ import {
   FilterDTO,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
+
+
+import {HttpService} from '@nestjs/axios';
+
 import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
 import { OrganizationService } from '../organization/organization.service';
@@ -29,6 +33,8 @@ import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_
 import { ReadsService } from '../reads/reads.service'
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
+
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -42,6 +48,7 @@ export class IssuerService {
     private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
+    private httpService: HttpService
   ) { }
 
   // @Cron(CronExpression.EVERY_30_SECONDS)
@@ -73,9 +80,31 @@ export class IssuerService {
   // }
   //@Cron('0 00 21 * * *')
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  //@Cron('0 59 * * * *')
+  //@Cron(CronExpression.EVERY_30_SECONDS)
+   //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  hitTheCronFromIssuerAPIOngoing()
+  {
+    // console.log("hitting issuer api");
+    this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`).subscribe(response=>{
+      // console.log("came here",response)
+    });
+  }
+
+
+  //@Cron('0 59 * * * *')
+ //@Cron('0 */10 * * * *')
+//  @Cron(CronExpression.EVERY_30_SECONDS)
+ hitTheCronFromIssuerAPIHistory()
+ {
+   // console.log("hitting issuer api");
+   this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response=>{
+     // console.log("came here",response)
+   });
+ }
+ 
+ @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -584,6 +613,18 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
+    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue/ 10 ** 3;
+    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+
+    let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
+    devicegroupcertificatelogDto.groupid = group.id?.toString(),
+      devicegroupcertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),//new Date(startDate.toString()),
+      devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(devicehistoryrequest.readsEndDate.toString()),//new Date(endDate.toString()),
+      devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
+      devicegroupcertificatelogDto.readvalue_watthour = devicehistoryrequest.readsvalue,
+      devicegroupcertificatelogDto.certificate_payload = issuance,
+      devicegroupcertificatelogDto.countryCode = device.countryCode;
+    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     const issuedCertificate = await this.issueCertificate(issuance);
 
     console.log("generate Succesfull");
