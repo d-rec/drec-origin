@@ -73,7 +73,7 @@ export class CertificateLogController {
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateWithPerdevicelog[]> {
-        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
             return new Promise((resolve, reject) => {
