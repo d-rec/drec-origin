@@ -378,7 +378,7 @@ export class ReadsController extends BaseReadsController {
 
       let readvalue: boolean = true;
       measurements.reads.forEach(ele => {
-        if (ele.value < 0) {
+        if (ele.value <= 0) {
           readvalue = false;
         }
       })
