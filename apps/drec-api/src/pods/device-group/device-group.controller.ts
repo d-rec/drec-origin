@@ -54,6 +54,7 @@ import {
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
+import { isValidUTCDateFormat} from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceDescription, ILoggedInUser } from '../../models';
@@ -177,13 +178,75 @@ export class DeviceGroupController {
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<ResponseDeviceGroupDTO | null> {
-    console.log("typeof deviceGroupToRegister.reservationStartDate", typeof deviceGroupToRegister.reservationStartDate);
+
+    //integer range which is for deviceId in device(id) table
+    //-2147483648 to +2147483647
+    //https://www.postgresql.org/docs/9.1/datatype-numeric.html
+
+    if(!Array.isArray(deviceGroupToRegister.deviceIds) || deviceGroupToRegister.deviceIds.filter(ele=>ele >= -2147483648 && ele <= 2147483647).length !== deviceGroupToRegister.deviceIds.length)
+    {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: 'One or more device ids are invalid',
+          }),
+        );
+      });
+    }
+    if(deviceGroupToRegister.deviceIds.length==0)
+    {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: 'Please provide devices for reservation, deviceIds is empty atleast one device is required',
+          }),
+        );
+      });
+
+    }
+
+    if(isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) || deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 || deviceGroupToRegister.targetCapacityInMegaWattHour == -0)
+    {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: 'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
+          }),
+        );
+      });
+    }
+    
     if(typeof deviceGroupToRegister.reservationStartDate ==="string")
     {
+      if(!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate))
+      {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
       deviceGroupToRegister.reservationStartDate = new Date(deviceGroupToRegister.reservationStartDate);
     }
     if(typeof deviceGroupToRegister.reservationEndDate ==="string")
     {
+      if(!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate))
+      {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
     console.log("188");
@@ -195,7 +258,7 @@ export class DeviceGroupController {
       });
     }
     let maximumBackDateForReservation:Date = new Date(new Date().getTime() - 3.164e+10);
-    if(deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() &&  deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime())
+    if(deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() ||  deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime())
     {
       console.log("198");
       throw new ConflictException({
