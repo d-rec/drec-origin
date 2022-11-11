@@ -203,16 +203,16 @@ export const useAppContainerEffects = () => {
     const deviceRoutesConfig: RoutesConfig['deviceRoutes'] = useMemo(
         () => ({
             showaddForm: true , 
-            showTableList:true,      
+            showTableList:userIsActive && userHasOrg && userIsDeviceManagerOrAdmin,      
             
         }),
-        [true]
+        [userIsActive, userHasOrg, userIsDeviceManagerOrAdmin]
     );
     const deviceMenu = useMemo(
         () =>
         getDeviceconfigMenu({
                 isOpen: isDeviceTabActive,
-                showSection: true ,
+                showSection: userIsActive && userHasOrg && userIsDeviceManagerOrAdmin ,
                 ...deviceRoutesConfig
             }),
         [isDeviceTabActive, true, sampleRoutesConfig]

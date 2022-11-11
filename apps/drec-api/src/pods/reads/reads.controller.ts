@@ -19,6 +19,7 @@ import {
   UseGuards,
   ConflictException
 } from '@nestjs/common';
+import { DateTime } from 'luxon';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
@@ -32,6 +33,7 @@ import moment from 'moment';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceDTO } from '../device/dto';
+import { ReadType } from '../../utils/enums'
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -139,7 +141,144 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    if (measurements.type === "Aggregate" || measurements.type === "Delta") {
+
+    //check for according to read type if start time stamp and end time stamps are sent
+    if (measurements.type === ReadType.History) {
+      let datesContainingNullOrEmptyValues: boolean = false;
+      measurements.reads.forEach(ele => {
+        //@ts-ignore
+        if (ele.starttimestamp === null || ele.starttimestamp === undefined || ele.starttimestamp === "" || ele.endtimestamp === null || ele.endtimestamp === undefined || ele.endtimestamp === "") {
+          datesContainingNullOrEmptyValues = true;
+        }
+      });
+
+
+
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: 'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
+            }),
+          );
+        });
+      }
+    }
+    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
+      let datesContainingNullOrEmptyValues: boolean = false;
+      measurements.reads.forEach(ele => {
+        //@ts-ignore
+        if (ele.endtimestamp === null || ele.endtimestamp === undefined || ele.endtimestamp === "") {
+          datesContainingNullOrEmptyValues = true;
+        }
+      });
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
+            }),
+          );
+        });
+      }
+    }
+    // Date format vaildation
+    if (measurements.type === ReadType.History) {
+
+      let datevalid1: boolean = true;
+      let datevalid2: boolean = true;
+      measurements.reads.forEach(ele => {
+        console.log("Date fornat vaildation");
+
+        let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
+        console.log(dateFormateToCheck);
+        //@ts-ignore
+        let startdateformate = dateFormateToCheck.test(ele.starttimestamp);
+        console.log("startdateformate");
+        console.log(startdateformate);
+        //@ts-ignore
+        let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
+        console.log(enddateformate);
+        if (!startdateformate || !enddateformate) {
+          datevalid1 = false;
+        }
+        // moment().format('YYYY-MM-DDTHH:mm:ssZ');
+
+        const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+        const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
+        const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
+        console.log(moment(fromDateFormat, dateFormat, true).isValid());
+        var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
+        console.log(reqstartDate);
+
+        var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
+        console.log(reqendtDate);
+        if (!reqstartDate || !reqendtDate) {
+          datevalid2 = false;
+        }
+
+      })
+
+      if (!datevalid1 || !datevalid2) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
+    }
+
+
+    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
+      let datevalid1: boolean = true;
+      let datevalid2: boolean = true;
+      measurements.reads.forEach(ele => {
+        console.log("Date fornat vaildation");
+
+        let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
+        console.log(dateFormateToCheck);
+
+        //@ts-ignore
+        let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
+        console.log(enddateformate);
+        if (!enddateformate) {
+          datevalid1 = false;
+        }
+        // moment().format('YYYY-MM-DDTHH:mm:ssZ');
+
+        const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+
+        const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
+
+
+
+        var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
+        console.log(reqendtDate);
+        if (!reqendtDate) {
+          datevalid2 = false;
+        }
+
+      })
+
+      if (!datevalid1 || !datevalid2) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
+
+    }
+    // Device onboarding and system date validation
+    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allDatesAreAfterCreatedAt: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
@@ -159,7 +298,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    if (measurements.type === "Aggregate" || measurements.type === "Delta") {
+    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allEndDatesAreBeforSystemDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
@@ -180,7 +319,8 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    if (measurements.type === "History") {
+
+    if (measurements.type === ReadType.History) {
       let allDatesAreBeforeCreatedAt: boolean = true;
       let allStartDatesAreBeforeEnddate: boolean = true;
       let readvalue: boolean = true;
@@ -206,7 +346,7 @@ export class ReadsController extends BaseReadsController {
           reject(
             new ConflictException({
               success: false,
-              message: ` starttimestamp  should be prior to endtimestamp. One or more measurements starttimestamp  is greater than endtimestamp `,
+              message: `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp `,
             })
           );
         });
@@ -234,11 +374,11 @@ export class ReadsController extends BaseReadsController {
       }
     }
     // negative value validation
-    if (measurements.type === "History" || measurements.type === "Delta") {
+    if (measurements.type === ReadType.History|| measurements.type === ReadType.Delta) {
 
       let readvalue: boolean = true;
       measurements.reads.forEach(ele => {
-        if (ele.value < 0) {
+        if (ele.value <= 0) {
           readvalue = false;
         }
       })
@@ -253,29 +393,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    // Date format vaildation
-    let datevalid: boolean = true;
-    measurements.reads.forEach(ele => {
-     console.log("Date fornat vaildation");
-        var reqstartDate = moment(ele.starttimestamp);
-        var reqendtDate = moment(ele.endtimestamp);
-        if (!reqstartDate.isValid() || !reqendtDate.isValid()) {
-          datevalid = false;
-        }
-      
-    })
-
-    if (!datevalid) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: ' Invalid Start date and End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-          }),
-        );
-      });
-    }
-
+// device organization and user organization validation
     if (device && device.organizationId !== user.organizationId) {
       return new Promise((resolve, reject) => {
         reject(

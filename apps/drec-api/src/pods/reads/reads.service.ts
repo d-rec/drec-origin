@@ -1326,7 +1326,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         }),
       )
       .andWhere("devicehistory.certificate_issued != true")
-    console.log(query.getQuery())
+    //console.log(query.getQuery())
     return query;
   }
 

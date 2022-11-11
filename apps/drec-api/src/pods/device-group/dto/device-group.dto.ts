@@ -176,3 +176,17 @@ export class CSVBulkUploadDTO {
   @IsString()
   fileName: string;
 }
+
+
+export class ResponseDeviceGroupDTO extends DeviceGroupDTO
+{
+  @IsOptional()
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange?: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  unavailableDeviceIDsDueToAreIncludedInBuyerReservation?: string;
+}

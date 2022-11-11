@@ -34,7 +34,7 @@ export const getDeviceconfigMenu: TUseDeviceMenuFn = ({
             // },
             {
                 url: 'list',
-                label: 'Table List',
+                label: 'Organization Devices',
                 show: showTableList
             },
             // {
