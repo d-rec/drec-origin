@@ -224,11 +224,11 @@ export class IssuerService {
 
 
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+ @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
-    console.log(historydevicerequestall);
+    //console.log(historydevicerequestall);
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate) => {
 
@@ -613,7 +613,7 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue/ 10 ** 3;
+    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue/ 10 ** 6;
     this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
 
     let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
@@ -770,4 +770,7 @@ export class IssuerService {
     this.logger.log(`Issued a certificate with ID ${issuedCertificate.id}`);
     return issuedCertificate;
   }
+
+
+ 
 }

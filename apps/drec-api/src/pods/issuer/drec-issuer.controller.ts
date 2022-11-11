@@ -40,6 +40,8 @@ export class DrecIssuerController {
     description: 'Simple Get For Issuer API',
   })
   async simpleGetCallForOngoing(){
+
+    console.log("got hit from cloudwatch ongoing");
   
 
     return new Promise((resolve, reject) => {
@@ -67,6 +69,8 @@ export class DrecIssuerController {
     description: 'Simple Get For Issuer API',
   })
   async simpleGetCallForHistory(){
+
+    console.log("got hit from cloudwatch history");
   
 
     return new Promise((resolve, reject) => {
