@@ -228,7 +228,7 @@ export class IssuerService {
   async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
-    console.log(historydevicerequestall);
+    //console.log(historydevicerequestall);
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate) => {
 
