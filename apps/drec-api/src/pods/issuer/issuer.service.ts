@@ -629,7 +629,13 @@ export class IssuerService {
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await this.issueCertificate(issuance);
     this.timerForHistoyIssuanceCounter++;
+    this.logger.log(
+      `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
+    );
     setTimeout(()=>{
+      this.logger.log(
+        `inside timeout new Date().toISOString: ${new Date().toISOString()}`,
+      );
       this.issueCertificate(issuance);
     },this.timerForHistoyIssuanceCounter*60000);
 
