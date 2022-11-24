@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsArray,
   IsOptional,
+  IsNotEmpty
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
@@ -14,10 +15,11 @@ export class OrganizationDTO
   extends PublicOrganizationInfoDTO
   implements IFullOrganization
 {
-  // @ApiProperty({ type: String })
+  // @ApiProperty({ type: String ,description: 'organizationType value should be Developer/Buyer'})
   // @IsString()
+  // @IsNotEmpty()
   // @Expose()
-  // signatoryFullName: string;
+  // organizationType: string;
 
   // @ApiProperty({ type: String })
   // @IsString()
