@@ -531,8 +531,6 @@ export class IssuerService {
       })
     }
 
-
-
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
@@ -568,6 +566,7 @@ export class IssuerService {
       devicegroupcertificatelogDto.countryCode = countryCodeKey;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     const issuedCertificate = await this.issueCertificate(issuance);
+    console.log(issuedCertificate);
     console.log("generate Succesfull");
     return;
   }
@@ -626,7 +625,7 @@ export class IssuerService {
       devicegroupcertificatelogDto.countryCode = device.countryCode;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     const issuedCertificate = await this.issueCertificate(issuance);
-
+    console.log(issuedCertificate);
     console.log("generate Succesfull");
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
 

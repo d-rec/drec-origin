@@ -88,7 +88,7 @@ export class CertificateLogController {
         console.log(devicegroup);
 
        
-        if(devicegroup==null||devicegroup.buyerId !=user.id){
+        if(devicegroup === null||devicegroup.buyerId !=user.id){
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,

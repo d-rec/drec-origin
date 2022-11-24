@@ -346,7 +346,10 @@ export class DeviceGroupController {
     description: 'Returns created devices from csv',
   })
   @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser, @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+  public async processCreationBulkFromCSV
+  (@UserDecorator() user: ILoggedInUser, 
+  @UserDecorator() { organizationId }: ILoggedInUser, 
+  @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({
         success: false,
