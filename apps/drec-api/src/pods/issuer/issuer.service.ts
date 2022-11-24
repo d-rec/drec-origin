@@ -571,6 +571,8 @@ export class IssuerService {
     return;
   }
 
+  timerForHistoyIssuanceCounter:number=0;
+
 
   private async newHistoryissueCertificateForDevice(
     group: DeviceGroup,
@@ -624,8 +626,18 @@ export class IssuerService {
       devicegroupcertificatelogDto.certificate_payload = issuance,
       devicegroupcertificatelogDto.countryCode = device.countryCode;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
-    const issuedCertificate = await this.issueCertificate(issuance);
-    console.log(issuedCertificate);
+    //const issuedCertificate = await this.issueCertificate(issuance);
+    this.timerForHistoyIssuanceCounter++;
+    this.logger.log(
+      `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
+    );
+    setTimeout(()=>{
+      this.logger.log(
+        `inside timeout new Date().toISOString: ${new Date().toISOString()}`,
+      );
+      this.issueCertificate(issuance);
+    },this.timerForHistoyIssuanceCounter*60000);
+
     console.log("generate Succesfull");
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
 
