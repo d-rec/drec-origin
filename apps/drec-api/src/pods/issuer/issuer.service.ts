@@ -344,8 +344,9 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    const issuedCertificate = await this.issueCertificate(issuance);
-    await this.transferCertificateToBuyer(group, issuedCertificate);
+    //const issuedCertificate = await 
+    this.issueCertificate(issuance);
+    //await this.transferCertificateToBuyer(group, issuedCertificate);
     return;
   }
   private async newissueCertificateForGroup(
@@ -565,8 +566,9 @@ export class IssuerService {
       devicegroupcertificatelogDto.certificate_payload = issuance,
       devicegroupcertificatelogDto.countryCode = countryCodeKey;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
-    const issuedCertificate = await this.issueCertificate(issuance);
-    console.log(issuedCertificate);
+    //const issuedCertificate = await 
+    this.issueCertificate(issuance);
+    //console.log(issuedCertificate);
     console.log("generate Succesfull");
     return;
   }
@@ -626,7 +628,8 @@ export class IssuerService {
       devicegroupcertificatelogDto.certificate_payload = issuance,
       devicegroupcertificatelogDto.countryCode = device.countryCode;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
-    const issuedCertificate = await this.issueCertificate(issuance);
+    //const issuedCertificate = await 
+    this.issueCertificate(issuance);
     // this.timerForHistoyIssuanceCounter++;
     // this.logger.log(
     //   `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
@@ -775,13 +778,22 @@ export class IssuerService {
     );
   }
 
-  private async issueCertificate(
+  // private async issueCertificate(
+  //   reading: IIssueCommandParams<ICertificateMetadata>,
+  // ): Promise<IIssuedCertificate<ICertificateMetadata>> {
+  //   this.logger.log(`Issuing a certificate for reading`);
+  //   const issuedCertificate = await this.certificateService.issue(reading);
+  //   this.logger.log(`Issued a certificate with ID ${issuedCertificate.id}`);
+  //   return issuedCertificate;
+  // }
+
+  //actual definition is up removing async
+
+  private issueCertificate(
     reading: IIssueCommandParams<ICertificateMetadata>,
-  ): Promise<IIssuedCertificate<ICertificateMetadata>> {
+  ) {
     this.logger.log(`Issuing a certificate for reading`);
-    const issuedCertificate = await this.certificateService.issue(reading);
-    this.logger.log(`Issued a certificate with ID ${issuedCertificate.id}`);
-    return issuedCertificate;
+    this.certificateService.issue(reading);
   }
 
 
