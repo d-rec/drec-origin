@@ -377,9 +377,6 @@ export class IssuerService {
         so limit 5000 is kept to be on safer side
          */
 
-        const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
-
-        console.log(FirstDeltaRead)
         const readsFilter: FilterDTO = {
           offset: 0,
           limit: 5000,
@@ -388,17 +385,8 @@ export class IssuerService {
         };
         let allReadsForDeviceBetweenTimeRange: Array<{ timestamp: Date, value: number }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
         if (device.meterReadtype === 'Delta') {
-          // allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(function (array_el) {
-          //   // return FirstDeltaRead.filter(function (anotherOne_el) {
-          //   //console.log(typeof anotherOne_el.readsEndDate);
-          //  console.log(FirstDeltaRead[0].readsEndDate.getTime());
-          //  console.log(FirstDeltaRead[0].readsEndDate.getTime() == array_el.timestamp.getTime());
-          //  console.log(FirstDeltaRead[0].readsEndDate.getTime() == array_el.timestamp.getTime());
-          //   return FirstDeltaRead[0].readsEndDate.getTime() == array_el.timestamp.getTime();
-          //   // }).length == 0
-          // });
-          //allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(itemX => itemX.timestamp!=yFilter.includes(itemX.val));
-        
+          const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
+
           allReadsForDeviceBetweenTimeRange= allReadsForDeviceBetweenTimeRange.filter(v=>!(
             FirstDeltaRead.some(e=>e.readsEndDate.getTime() === v.timestamp.getTime())))
         }

@@ -727,9 +727,9 @@ export class ReadsService {
               timestamp: new Date(element.endtimestamp),
               value: element.value
             }
-            const deltafirstvalidation = this.firstvalidateEnergy(read, device)
-            console.log("731", deltafirstvalidation);
-            if (deltafirstvalidation) {
+            // const deltafirstvalidation = this.firstvalidateEnergy(read, device)
+            // console.log("731", deltafirstvalidation);
+            // if (deltafirstvalidation) {
               reads.push({
                 timestamp: new Date(element.endtimestamp),
                 value: element.value
@@ -741,7 +741,7 @@ export class ReadsService {
                 readsEndDate: element.endtimestamp.toString()
 
               });
-            }
+            // }
 
             if (measurmentreadindex == measurement.reads.length - 1) {
               resolve(true);
