@@ -531,8 +531,6 @@ export class IssuerService {
       })
     }
 
-
-
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
@@ -568,6 +566,7 @@ export class IssuerService {
       devicegroupcertificatelogDto.countryCode = countryCodeKey;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     const issuedCertificate = await this.issueCertificate(issuance);
+    console.log(issuedCertificate);
     console.log("generate Succesfull");
     return;
   }
@@ -627,17 +626,19 @@ export class IssuerService {
       devicegroupcertificatelogDto.certificate_payload = issuance,
       devicegroupcertificatelogDto.countryCode = device.countryCode;
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
-    //const issuedCertificate = await this.issueCertificate(issuance);
-    this.timerForHistoyIssuanceCounter++;
-    this.logger.log(
-      `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
-    );
-    setTimeout(()=>{
-      this.logger.log(
-        `inside timeout new Date().toISOString: ${new Date().toISOString()}`,
-      );
-      this.issueCertificate(issuance);
-    },this.timerForHistoyIssuanceCounter*60000);
+    const issuedCertificate = await this.issueCertificate(issuance);
+    // this.timerForHistoyIssuanceCounter++;
+    // this.logger.log(
+    //   `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
+    // );
+    // setTimeout(()=>{
+    //
+    //
+    //   this.logger.log(
+    //     `inside timeout new Date().toISOString: ${new Date().toISOString()}`,
+    //   );
+    //   this.issueCertificate(issuance);
+    // },this.timerForHistoyIssuanceCounter*60000);
 
     console.log("generate Succesfull");
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
