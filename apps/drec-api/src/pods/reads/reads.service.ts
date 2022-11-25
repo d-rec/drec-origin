@@ -31,6 +31,7 @@ import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
 
 import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
 import { ReadStatus } from 'src/utils/enums';
+import { DeltaFirstRead } from './delta_firstread.entity'
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
@@ -40,6 +41,7 @@ export class ReadsService {
   constructor(
     @InjectRepository(AggregateMeterRead) private readonly repository: Repository<AggregateMeterRead>,
     @InjectRepository(HistoryIntermediate_MeterRead) private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
+    @InjectRepository(DeltaFirstRead) private readonly deltarepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadService,
     private readonly deviceService: DeviceService,
@@ -703,39 +705,52 @@ export class ReadsService {
       };
     }
     else if (measurement.type === 'Delta') {
-      await new Promise((resolve, reject) => {
-        measurement.reads.forEach((element, measurmentreadindex) => {
-          if (final && final['timestamp']) {
-            //@ts-ignore
-            if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
-              return reject(
-                new ConflictException({
-                  success: false,
-                  message:
-                    //@ts-ignore
-                    `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
 
-                }),
-              );
-            }
-          }
-
-          reads.push({
-            timestamp: new Date(element.endtimestamp),
-            value: element.value
-          })
-          if (measurmentreadindex == measurement.reads.length - 1) {
-            resolve(true);
-          }
-        })
-      });
       if (!final) {
+        await new Promise((resolve, reject) => {
+          measurement.reads.forEach(async (element, measurmentreadindex) => {
+            if (final && final['timestamp']) {
+              //@ts-ignore
+              if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message:
+                      //@ts-ignore
+                      `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
 
+                  }),
+                );
+              }
+            }
+            let read: ReadDTO = {
+              timestamp: new Date(element.endtimestamp),
+              value: element.value
+            }
+            const deltafirstvalidation = this.firstvalidateEnergy(read, device)
+            console.log("731", deltafirstvalidation);
+            if (deltafirstvalidation) {
+              reads.push({
+                timestamp: new Date(element.endtimestamp),
+                value: element.value
+              })
+              await this.deltarepository.save({
+                readsvalue: element.value,
+                deviceId: deviceId,
+                unit: measurement.unit,
+                readsEndDate: element.endtimestamp.toString()
+
+              });
+            }
+
+            if (measurmentreadindex == measurement.reads.length - 1) {
+              resolve(true);
+            }
+          })
+        });
         await this.deviceService.updatereadtype(deviceId, measurement.type);
         return {
-          reads: reads.filter((read: ReadDTO) =>
-            this.firstvalidateEnergy(read, device),
-          ),
+          reads: reads,
           unit: measurement.unit
         }
       } else {
@@ -744,6 +759,31 @@ export class ReadsService {
           throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
 
         } else {
+          await new Promise((resolve, reject) => {
+            measurement.reads.forEach((element, measurmentreadindex) => {
+              if (final && final['timestamp']) {
+                //@ts-ignore
+                if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
+                  return reject(
+                    new ConflictException({
+                      success: false,
+                      message:
+                        //@ts-ignore
+                        `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+
+                    }),
+                  );
+                }
+              }
+              reads.push({
+                timestamp: new Date(element.endtimestamp),
+                value: element.value
+              })
+              if (measurmentreadindex == measurement.reads.length - 1) {
+                resolve(true);
+              }
+            })
+          });
           return {
             reads: reads.filter((read: ReadDTO) =>
               this.NewvalidateEnergy(read, final, device),
@@ -861,7 +901,7 @@ export class ReadsService {
                   deltaValue: Delta,
                   deviceId: deviceId,
                   unit: measurement.unit,
-                  datetime:  element.endtimestamp.toString()
+                  datetime: element.endtimestamp.toString()
 
                 });
               }
@@ -949,8 +989,8 @@ export class ReadsService {
     return reads[0];
   }
 
-  async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date):Promise<Array<{timestamp:Date,value:number}>> {
-const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date): Promise<Array<{ timestamp: Date, value: number }>> {
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${startdate.toISOString()}, stop: ${enddate.toISOString()})
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
@@ -993,15 +1033,15 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     try {
 
       const device = await query.getRawMany();
-    
-      console.log(device.length>0);
-      return device.length>0;
+
+      console.log(device.length > 0);
+      return device.length > 0;
     } catch (error) {
       console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
       //  throw new InternalServerErrorException('Failed to retrieve users');
     }
-    
+
   }
   private getexisthistorydevcielogFilteredQuery(deviceid: string,
     startDate: Date,
@@ -1011,7 +1051,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
       .createQueryBuilder("devicehistory").
       where("devicehistory.deviceId = :deviceid", { deviceid: deviceid })
       .andWhere(
-       
+
         new Brackets((db) => {
           db.where("devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
             .orWhere("devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateSecondtWhere: startDate, endDateSecondWhere: endDate })
@@ -1020,7 +1060,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
         }),
       )
-      
+
     console.log(query.getQuery())
     return query;
   }
@@ -1045,7 +1085,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity*1000; // capacity in KilloWatt and read in Wh so coverting in Watt
+    const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =
@@ -1113,7 +1153,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity *1000; // capacity in KilloWatt and read in Wh so coverting in Watt
+    const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =
@@ -1180,7 +1220,7 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
-    const capacity = device.capacity*1000; // capacity in KilloWatt and read in Wh so coverting in Watt 
+    const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt 
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
     let deviceAge =
@@ -1353,15 +1393,27 @@ const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return updatedhistoryissue;
   }
 
-  async getAggregateMeterReadsFirstEntryOfDevice(meterId:string):Promise<AggregateMeterRead[]>{
+  async getAggregateMeterReadsFirstEntryOfDevice(meterId: string): Promise<AggregateMeterRead[]> {
 
     return this.repository.find({
       where: {
-        deviceId:meterId
+        deviceId: meterId
       },
-      take:1
+      take: 1
     })
 
+
+  }
+  // add new function for Delta firstread filter
+
+  async getDeltaMeterReadsFirstEntryOfDevice(meterId: string): Promise<DeltaFirstRead[]> {
+
+    return this.deltarepository.find({
+      where: {
+        deviceId: meterId
+      }
+
+    })
 
   }
 }
