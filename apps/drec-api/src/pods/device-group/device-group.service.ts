@@ -1706,9 +1706,7 @@ export class DeviceGroupService {
       return this.historynextissuancedaterepository.find({
         where: {
          status:HistoryNextInssuanceStatus.Pending
-        },
-        order:{id:'DESC'},
-        take:10
+        }
       });
     }
 
