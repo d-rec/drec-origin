@@ -1366,7 +1366,7 @@ export class ReadsService {
         }),
       )
       .andWhere("devicehistory.certificate_issued != true")
-    //console.log(query.getQuery())
+   // console.log(query.getQuery())
     return query;
   }
 

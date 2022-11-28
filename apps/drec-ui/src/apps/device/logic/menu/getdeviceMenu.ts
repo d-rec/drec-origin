@@ -27,11 +27,11 @@ export const getDeviceconfigMenu: TUseDeviceMenuFn = ({
         rootUrl: 'device',
         show: showSection,
         menuList: [
-            // {
-            //     url: 'form',
-            //     label: 'Add Form',
-            //     show: showaddForm
-            // },
+            {
+                url: 'form',
+                label: 'Add Device',
+                show: showaddForm
+            },
             {
                 url: 'list',
                 label: 'Organization Devices',
