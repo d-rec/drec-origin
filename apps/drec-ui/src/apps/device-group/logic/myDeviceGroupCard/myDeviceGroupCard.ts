@@ -20,10 +20,6 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
                 {
                     label: 'Standard Compliance',
                     value: deviceGroup.standardCompliance
-                },
-                {
-                    label: 'Installation Configurations',
-                    value: deviceGroup.installationConfigurations.join().replaceAll(',', ', ')
                 }
             ],
             [
@@ -45,10 +41,7 @@ export const useSpecsForMyDeviceGroupCard: TUseSpecsForMyDeviceGroupCard = ({
                 label: 'Offtakers',
                 value: deviceGroup.offTakers.join().replaceAll(',', ', ')
             },
-            {
-                label: 'Sector',
-                value: deviceGroup?.sectors.join().replaceAll(',', ', ')
-            },
+         
             {
                 label: 'Commissioning date ranges',
                 value: deviceGroup.commissioningDateRange.join().replaceAll(',', ', ')

@@ -5,6 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
+  IsNotEmpty
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -19,6 +20,7 @@ export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   externalId: string;
 
