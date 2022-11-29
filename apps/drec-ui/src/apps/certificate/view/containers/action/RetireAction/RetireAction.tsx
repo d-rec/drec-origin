@@ -94,5 +94,7 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
             </Box>
         </CertificateActionContent>
     );
+
+    
 };
 export const RetireAction = withMetamask(Component);
