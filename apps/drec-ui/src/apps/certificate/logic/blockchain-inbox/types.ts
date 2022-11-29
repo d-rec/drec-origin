@@ -62,6 +62,9 @@ export type TUseRetireActionLogic<Id> = (args: TUseRetireActionLogicArgs<Id>) =>
 };
 
 export type BeneficiaryFormValues = {
+    beneficiaryname:string,
+    beneficiaryaddress :string,
+    beneficiarycountrycode :string,
     startDate: Dayjs;
     endDate: Dayjs;
     purpose: string;

@@ -12,7 +12,7 @@ export * from './YieldConfig';
 export * from './Roles';
 export * from './ACLModules';
 export * from './ACLModulesPermission';
-
 export * from './AggregateMetervalue';
 export * from './DeviceGroupIssueCertificateRequest';
-export * from './Sdgbenefit'
+export * from './Sdgbenefit';
+export * from './Delta_firstread';

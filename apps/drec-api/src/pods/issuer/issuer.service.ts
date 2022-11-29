@@ -15,7 +15,7 @@ import {
 } from '@energyweb/energy-api-influxdb';
 
 
-import {HttpService} from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 
 import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/const';
@@ -81,30 +81,28 @@ export class IssuerService {
   //@Cron('0 00 21 * * *')
 
   //@Cron(CronExpression.EVERY_30_SECONDS)
-   //@Cron('0 59 * * * *')
+  //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
   // @Cron(CronExpression.EVERY_30_SECONDS)
-  hitTheCronFromIssuerAPIOngoing()
-  {
+  hitTheCronFromIssuerAPIOngoing() {
     // console.log("hitting issuer api");
-    this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`).subscribe(response=>{
+    this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`).subscribe(response => {
       // console.log("came here",response)
     });
   }
 
 
   //@Cron('0 59 * * * *')
- //@Cron('0 */10 * * * *')
-//  @Cron(CronExpression.EVERY_30_SECONDS)
- hitTheCronFromIssuerAPIHistory()
- {
-   // console.log("hitting issuer api");
-   this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response=>{
-     // console.log("came here",response)
-   });
- }
- 
- @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron('0 */10 * * * *')
+  //  @Cron(CronExpression.EVERY_30_SECONDS)
+  hitTheCronFromIssuerAPIHistory() {
+    // console.log("hitting issuer api");
+    this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response => {
+      // console.log("came here",response)
+    });
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -224,11 +222,11 @@ export class IssuerService {
 
 
 
- @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
 
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
-    //console.log(historydevicerequestall);
+    console.log(historydevicerequestall);
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate) => {
 
@@ -379,6 +377,7 @@ export class IssuerService {
         quarterly: issuance : max entrries  3 months: 31*3*24 = 2232
         so limit 5000 is kept to be on safer side
          */
+
         const readsFilter: FilterDTO = {
           offset: 0,
           limit: 5000,
@@ -386,6 +385,15 @@ export class IssuerService {
           end: endDate.toString(),
         };
         let allReadsForDeviceBetweenTimeRange: Array<{ timestamp: Date, value: number }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
+        if (device.meterReadtype === 'Delta') {
+          const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
+
+          allReadsForDeviceBetweenTimeRange= allReadsForDeviceBetweenTimeRange.filter(v=>!(
+            FirstDeltaRead.some(e=>e.readsEndDate.getTime() === v.timestamp.getTime())))
+        }
+
+        console.log("allReadsForDeviceBetweenTimeRange");
+        console.log(allReadsForDeviceBetweenTimeRange);
         allDevicesCompleteReadsBetweenTimeRange[index] = allReadsForDeviceBetweenTimeRange;
         let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
@@ -427,9 +435,7 @@ export class IssuerService {
     if (!totalReadValueKw) {
       return;
     }
-
     const issueTotalReadValue = totalReadValueKw * 10 ** 3; // Issue certificate in watts
-
     const deviceGroup = {
       ...group,
       devices: [],
@@ -573,7 +579,7 @@ export class IssuerService {
     return;
   }
 
-  timerForHistoyIssuanceCounter:number=0;
+  timerForHistoyIssuanceCounter: number = 0;
 
 
   private async newHistoryissueCertificateForDevice(
@@ -616,7 +622,7 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue/ 10 ** 6;
+    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue / 10 ** 6;
     this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
 
     let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
@@ -797,5 +803,5 @@ export class IssuerService {
   }
 
 
- 
+
 }
