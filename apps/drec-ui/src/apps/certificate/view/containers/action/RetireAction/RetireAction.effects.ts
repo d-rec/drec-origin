@@ -30,7 +30,7 @@ export const useRetireActionEffects = (
     });
     const { isValid, isDirty, errors } = formState;
 
-    const { beneficiaryname,beneficiaryaddress,startDate, endDate, purpose } = watch();
+    const { beneficiaryname,beneficiaryaddress,beneficiarycountrycode,startDate, endDate, purpose } = watch();
 
     const { organizationLoading, organization: selectedBeneficiary } = useMyOrganizationData();
 
@@ -39,6 +39,7 @@ export const useRetireActionEffects = (
         resetIds,
         beneficiaryname,
         beneficiaryaddress,
+        beneficiarycountrycode,
         startDate as Dayjs,
         endDate as Dayjs,
         purpose,

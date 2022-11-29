@@ -2,7 +2,7 @@ import { CertificateDTO } from '@energyweb/origin-drec-api-client';
 import * as yup from 'yup';
 import { formatSelectedBlockchainItems } from './formatSelectedBlockchain';
 import { SelectedItem, TUseBeneficiaryFormLogic, TUseRetireActionLogic } from './types';
-
+import {countryCodeList} from './country-code-list';
 export const useRetireActionLogic: TUseRetireActionLogic<CertificateDTO['id']> = ({
     selectedIds,
     blockchainCertificates,
@@ -30,6 +30,7 @@ export const useBeneficiaryFormLogic: TUseBeneficiaryFormLogic = () => {
         initialValues: {
             beneficiaryname:'',
             beneficiaryaddress :'',
+            beneficiarycountrycode :'',
             startDate: '',
             endDate: '',
             purpose: ''
@@ -37,6 +38,7 @@ export const useBeneficiaryFormLogic: TUseBeneficiaryFormLogic = () => {
         validationSchema: yup.object({
             beneficiaryname: yup.string().required().label('Beneficiary Name'),
             beneficiaryaddress: yup.string().required().label('Beneficiary Address'),
+            beneficiarycountrycode: yup.string().required().label('Beneficiary Country Code'),
             startDate: yup.string().required().label('Start date'),
             endDate: yup.string().required().label('End date'),
             purpose: yup.string().required().label('Purpose')
@@ -45,6 +47,7 @@ export const useBeneficiaryFormLogic: TUseBeneficiaryFormLogic = () => {
             {
                 name: 'beneficiaryname',
                 label: 'Beneficiary Name',
+                required:true,
                 textFieldProps: {
                     variant: 'filled' as any,
                     margin: 'none'
@@ -53,6 +56,17 @@ export const useBeneficiaryFormLogic: TUseBeneficiaryFormLogic = () => {
             {
                 name: 'beneficiaryaddress',
                 label: 'Beneficiary Address',
+                required:true,
+                textFieldProps: {
+                    variant: 'filled' as any,
+                    margin: 'none'
+                }
+            },
+            {
+                name: 'beneficiarycountrycode',
+                label: 'Beneficiary Country Code',
+                required:true,
+                options:countryCodeList,
                 textFieldProps: {
                     variant: 'filled' as any,
                     margin: 'none'

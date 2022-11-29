@@ -18,6 +18,7 @@ export const useRetireCertificateHandler = (
     resetList: () => void,
     beneficiaryname: string,
     beneficiaryaddress: string,
+    beneficiarycountrycode:string,
     startDate: Dayjs,
     endDate: Dayjs,
     purpose: string,
@@ -41,7 +42,7 @@ console.log(beneficiaryaddress);
             const claimData: IClaimData = {
                 beneficiary: beneficiaryname,
                 location: beneficiaryaddress,
-                countryCode: selectedBeneficiary.country,
+                countryCode: beneficiarycountrycode,
                 periodStartDate: startDate.toISOString(),
                 periodEndDate: endDate.toISOString(),
                 purpose
