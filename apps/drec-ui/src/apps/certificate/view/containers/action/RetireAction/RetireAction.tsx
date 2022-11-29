@@ -40,28 +40,46 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
         >
             <Grid container spacing={1} className={classes.mb}>
                 <Grid item xs={6}>
+                <FormInput
+                    register={register}
+                    field={fields[0]}
+                    errorExists={!isEmpty(errors[fields[2].name])}
+                    errorText={(errors[fields[0].name] as any)?.message ?? ''}
+                />
+                </Grid>
+                <Grid item xs={6}>
+                <FormInput
+                    register={register}
+                    field={fields[1]}
+                    errorExists={!isEmpty(errors[fields[2].name])}
+                    errorText={(errors[fields[1].name] as any)?.message ?? ''}
+                />
+                </Grid>
+            </Grid>
+            <Grid container spacing={1} className={classes.mb}>
+                <Grid item xs={6}>
                     <FormDatePicker
                         control={control}
-                        field={fields[0]}
+                        field={fields[2]}
                         errorExists={!isEmpty(errors[fields[0].name])}
-                        errorText={(errors[fields[0].name] as any)?.message ?? ''}
+                        errorText={(errors[fields[2].name] as any)?.message ?? ''}
                     />
                 </Grid>
                 <Grid item xs={6}>
                     <FormDatePicker
                         control={control}
-                        field={fields[1]}
+                        field={fields[3]}
                         errorExists={!isEmpty(errors[fields[1].name])}
-                        errorText={(errors[fields[1].name] as any)?.message ?? ''}
+                        errorText={(errors[fields[3].name] as any)?.message ?? ''}
                     />
                 </Grid>
             </Grid>
             <Box mb={2}>
                 <FormInput
                     register={register}
-                    field={fields[2]}
+                    field={fields[4]}
                     errorExists={!isEmpty(errors[fields[2].name])}
-                    errorText={(errors[fields[2].name] as any)?.message ?? ''}
+                    errorText={(errors[fields[4].name] as any)?.message ?? ''}
                 />
             </Box>
         </CertificateActionContent>
