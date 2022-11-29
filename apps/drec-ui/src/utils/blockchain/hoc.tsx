@@ -6,7 +6,7 @@ export const withMetamask = (Component: FC<any>) => {
     const ComponentWithMetamask = (props: any) => {
         const { account } = useWeb3React();
 
-        if (!account) return <ConnectMetamask />;
+       // if (!account) return <ConnectMetamask />;
 
         return <Component {...props} />;
     };

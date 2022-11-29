@@ -43,7 +43,7 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                 <FormInput
                     register={register}
                     field={fields[0]}
-                    errorExists={!isEmpty(errors[fields[2].name])}
+                    errorExists={!isEmpty(errors[fields[0].name])}
                     errorText={(errors[fields[0].name] as any)?.message ?? ''}
                 />
                 </Grid>
@@ -51,7 +51,7 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                 <FormInput
                     register={register}
                     field={fields[1]}
-                    errorExists={!isEmpty(errors[fields[2].name])}
+                    errorExists={!isEmpty(errors[fields[1].name])}
                     errorText={(errors[fields[1].name] as any)?.message ?? ''}
                 />
                 </Grid>
@@ -71,16 +71,16 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                     <FormDatePicker
                         control={control}
                         field={fields[3]}
-                        errorExists={!isEmpty(errors[fields[0].name])}
-                        errorText={(errors[fields[2].name] as any)?.message ?? ''}
+                        errorExists={!isEmpty(errors[fields[3].name])}
+                        errorText={(errors[fields[3].name] as any)?.message ?? ''}
                     />
                 </Grid>
                 <Grid item xs={6}>
                     <FormDatePicker
                         control={control}
                         field={fields[4]}
-                        errorExists={!isEmpty(errors[fields[1].name])}
-                        errorText={(errors[fields[3].name] as any)?.message ?? ''}
+                        errorExists={!isEmpty(errors[fields[4].name])}
+                        errorText={(errors[fields[4].name] as any)?.message ?? ''}
                     />
                 </Grid>
             </Grid>
@@ -88,8 +88,8 @@ const Component: TRetireAction = ({ selectedIds, resetIds }) => {
                 <FormInput
                     register={register}
                     field={fields[5]}
-                    errorExists={!isEmpty(errors[fields[2].name])}
-                    errorText={(errors[fields[4].name] as any)?.message ?? ''}
+                    errorExists={!isEmpty(errors[fields[5].name])}
+                    errorText={(errors[fields[5].name] as any)?.message ?? ''}
                 />
             </Box>
         </CertificateActionContent>
