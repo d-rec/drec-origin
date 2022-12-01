@@ -16,6 +16,9 @@ import { useGetBlockchainCertificateHandler } from '../fetching';
 export const useRetireCertificateHandler = (
     selectedBeneficiary: OrganizationDTO,
     resetList: () => void,
+    beneficiaryname: string,
+    beneficiaryaddress: string,
+    beneficiarycountrycode:string,
     startDate: Dayjs,
     endDate: Dayjs,
     purpose: string,
@@ -23,7 +26,8 @@ export const useRetireCertificateHandler = (
 ) => {
     const queryClient = useQueryClient();
     const blockchainCertificatesQueryKey = getCertificateControllerGetAllQueryKey();
-
+console.log(beneficiaryname);
+console.log(beneficiaryaddress);
     const { getBlockchainCertificate, isLoading: isGetBlockchainLoading } =
         useGetBlockchainCertificateHandler();
 
@@ -36,13 +40,14 @@ export const useRetireCertificateHandler = (
                 PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount))
             );
             const claimData: IClaimData = {
-                beneficiary: selectedBeneficiary.name,
-                location: selectedBeneficiary.address,
-                countryCode: selectedBeneficiary.country,
+                beneficiary: beneficiaryname,
+                location: beneficiaryaddress,
+                countryCode: beneficiarycountrycode,
                 periodStartDate: startDate.toISOString(),
                 periodEndDate: endDate.toISOString(),
                 purpose
             };
+            console.log(claimData);
             const transaction = await onChainCertificate.claim(claimData, formattedAmount);
             setTxPending(true);
             const receipt = await transaction.wait();
@@ -58,6 +63,7 @@ export const useRetireCertificateHandler = (
                 resetList();
             }
         } catch (error) {
+            console.error("error");
             console.error(error);
             showNotification('Error while redeeming certificate', NotificationTypeEnum.Error);
         }
