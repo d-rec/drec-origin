@@ -1718,6 +1718,7 @@ export class DeviceGroupService {
     async HistoryUpdatecertificateissuedate(
       id: number,
     ): Promise<HistoryDeviceGroupNextIssueCertificate> {
+      console.log("HistoryUpdatecertificateissuedate")
       // await this.checkNameConflict(data.name);
       const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
       let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();

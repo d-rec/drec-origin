@@ -254,9 +254,6 @@ export class ReadsController extends BaseReadsController {
         const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
 
         const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
-
-
-
         var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
         console.log(reqendtDate);
         if (!reqendtDate) {
@@ -374,7 +371,7 @@ export class ReadsController extends BaseReadsController {
       }
     }
     // negative value validation
-    if (measurements.type === ReadType.History|| measurements.type === ReadType.Delta) {
+    if (measurements.type === ReadType.History || measurements.type === ReadType.Delta) {
 
       let readvalue: boolean = true;
       measurements.reads.forEach(ele => {
@@ -393,7 +390,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-// device organization and user organization validation
+    // device organization and user organization validation
     if (device && device.organizationId !== user.organizationId) {
       return new Promise((resolve, reject) => {
         reject(

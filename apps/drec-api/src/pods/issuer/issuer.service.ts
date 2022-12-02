@@ -254,16 +254,20 @@ export class IssuerService {
         if (!Histroryread?.length) {
           return;
         }
+        const device = await this.deviceService.findReads(
+          historydevice.device_externalid,
+        );
         await Promise.all(
           Histroryread.map(async (historydeviceread: HistoryIntermediate_MeterRead) => {
-            const devcie = await this.deviceService.findReads(
-              historydeviceread.deviceId,
-            );
-            this.newHistoryissueCertificateForDevice(group, historydeviceread, devcie);
+
+            this.newHistoryissueCertificateForDevice(group, historydeviceread, device);
           }),
         );
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id);
 
+        if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {
+          await this.deviceService.removeFromGroup(device.id, group.id);
+        }
 
       }),
     )
@@ -354,7 +358,8 @@ export class IssuerService {
     endDate: DateTime,
     countryCodeKey: string
   ): Promise<void> {
-
+    console.log("DeviceGroupNextIssueCertificate");
+    console.log(grouprequest);
     if (!group?.devices?.length) {
       return;
     }
@@ -388,8 +393,8 @@ export class IssuerService {
         if (device.meterReadtype === 'Delta') {
           const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
 
-          allReadsForDeviceBetweenTimeRange= allReadsForDeviceBetweenTimeRange.filter(v=>!(
-            FirstDeltaRead.some(e=>e.readsEndDate.getTime() === v.timestamp.getTime())))
+          allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(v => !(
+            FirstDeltaRead.some(e => e.readsEndDate.getTime() === v.timestamp.getTime())))
         }
 
         console.log("allReadsForDeviceBetweenTimeRange");
@@ -587,6 +592,8 @@ export class IssuerService {
     devicehistoryrequest: HistoryIntermediate_MeterRead,
     device: IDevice
   ): Promise<void> {
+    console.log("HistoryIntermediate_MeterRead");
+    console.log(devicehistoryrequest);
     if (
       !group.buyerAddress ||
       !group.buyerId ||

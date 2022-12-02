@@ -171,6 +171,17 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
+    deviceToRegister.externalId= deviceToRegister.externalId.trim();
+    if(deviceToRegister.externalId.trim() === "" ){
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `externalId should not be empty`,
+          })
+        );
+      });
+    }
     var commissioningDate = moment(deviceToRegister.commissioningDate);
     if(!commissioningDate.isValid())
     {
