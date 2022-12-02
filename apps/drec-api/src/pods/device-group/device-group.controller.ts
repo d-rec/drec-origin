@@ -262,10 +262,12 @@ export class DeviceGroupController {
         message: 'User does not has organization associated',
       });
     }
-    deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-console.log(deviceGroupToRegister.blockchainAddress)
-    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined) {
+   
+    console.log(deviceGroupToRegister.blockchainAddress);
+    
+    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
       console.log("deviceGroupToRegister.blockchainAddress");
+      deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
       await this.organizationService.updateBlockchainAddress(organizationId, deviceGroupToRegister.blockchainAddress)
       console.log("deviceGroupToRegister.blockchainAddress");
       return await this.deviceGroupService.createOne(
@@ -287,7 +289,7 @@ console.log(deviceGroupToRegister.blockchainAddress)
         );
 
       } else {
-        
+
         throw new ConflictException({
           success: false,
           message: 'No blockchain address sent and no blockchain address attached to this account',
