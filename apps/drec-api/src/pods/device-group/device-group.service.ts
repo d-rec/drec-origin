@@ -1011,7 +1011,7 @@ export class DeviceGroupService {
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode :'').join(' , '),
       countryCode: devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode :'').join(' , '),
-      //standardCompliance: devices[0].standardCompliance,
+    //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
       //@ts-ignore
       offTakers: [devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker :'').join(' , ')],
