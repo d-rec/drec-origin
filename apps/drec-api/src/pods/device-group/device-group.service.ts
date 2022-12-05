@@ -1009,11 +1009,12 @@ export class DeviceGroupService {
       name:
         groupName ,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: devices[0].fuelCode,
-      countryCode: devices[0].countryCode,
+      fuelCode: devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode :'').join(' , '),
+      countryCode: devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode :'').join(' , '),
       //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
-      offTakers: [devices[0].offTaker],
+      //@ts-ignore
+      offTakers: [devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker :'').join(' , ')],
       //installationConfigurations: [devices[0].installationConfiguration],
       //sectors,
       gridInterconnection,
