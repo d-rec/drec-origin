@@ -477,7 +477,6 @@ export class DeviceGroupController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
 
-
     let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({ groupId: id });
     if (devicenextissuence === null) {
       return new Promise((resolve, reject) => {

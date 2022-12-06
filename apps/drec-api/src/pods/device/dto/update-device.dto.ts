@@ -79,7 +79,10 @@ export class UpdateDeviceDTO
   gridInterconnection: boolean;
 
   @ApiProperty()
-  @IsEnum(OffTaker)
+  @IsEnum(OffTaker,{
+    message:
+      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector',
+  })
   @IsOptional()
   offTaker: OffTaker;
 
@@ -127,9 +130,8 @@ export class UpdateDeviceDTO
   @IsNumber()
   @IsOptional()
   SDGBenefits?: number| undefined;
-  
-  @ApiProperty()
+ 
   @IsString()
   @IsOptional()
-  meterReadtype: string;
+  meterReadtype?: string;
 }
