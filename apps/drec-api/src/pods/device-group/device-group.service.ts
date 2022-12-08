@@ -43,6 +43,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuleCode,
+  DevicetypeCode
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
@@ -1360,8 +1362,8 @@ export class DeviceGroupService {
         latitude: '',
         longitude: '',
         countryCode: '',
-        fuelCode: '',
-        deviceTypeCode: '',
+        fuelCode: FuleCode.ES100,
+        deviceTypeCode: DevicetypeCode.TC150,
         capacity: 0,
         commissioningDate: '',
         gridInterconnection: false,

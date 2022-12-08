@@ -7,6 +7,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuleCode,
+  DevicetypeCode
 } from '../../utils/enums';
 import {
   IsEnum,
@@ -64,12 +66,13 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // zipCode: string;
 
   @Column({ nullable: true })
-  @IsString()
-  fuelCode: string;
+  @IsEnum(FuleCode)
+  fuelCode: FuleCode;
+
 
   @Column({ nullable: true })
-  @IsString()
-  deviceTypeCode: string;
+  @IsEnum(DevicetypeCode)
+  deviceTypeCode: DevicetypeCode;
 
   // @Column()
   // @IsEnum(Installation)

@@ -58,7 +58,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
-    return super.getReads(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReads(device.externalId, filter);
   }
 
   @Get('/:meter/difference')
@@ -73,7 +86,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
-    return super.getReadsDifference(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReadsDifference(device.externalId, filter);
   }
 
   @Get('group/:groupId/aggregate')
@@ -101,7 +127,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: AggregateFilterDTO,
   ): Promise<AggregatedReadDTO[]> {
-    return super.getReadsAggregates(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReadsAggregates(device.externalId, filter);
   }
 
   @Post('/:id')
