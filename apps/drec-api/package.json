@@ -50,6 +50,7 @@
     "@energyweb/origin-backend-core": "8.0.4-alpha.1634225870.0",
     "@energyweb/origin-backend-utils": "1.6.2-alpha.1634225870.0",
     "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
+    "@influxdata/influxdb-client": "1.9.0",
     "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/axios": "~0.0.3",
     "@nestjs/bull": "0.4.2",
@@ -63,6 +64,7 @@
     "@nestjs/schedule": "1.0.1",
     "@nestjs/swagger": "4.7.15",
     "@nestjs/typeorm": "7.1.5",
+    "aws-sdk": "^2.1272.0",
     "axios": "0.21.4",
     "bcryptjs": "2.4.3",
     "class-transformer": "0.3.1",
@@ -71,6 +73,7 @@
     "concurrently": "5.3.0",
     "csv-parse": "^5.1.0",
     "csv-parser": "^3.0.0",
+    "csvtojson": "2.0.1",
     "dotenv": "8.2.0",
     "ethers": "5.3.1",
     "form-data": "~4.0.0",
@@ -78,6 +81,7 @@
     "handlebars": "^4.7.7",
     "lodash": "4.17.21",
     "luxon": "1.27.0",
+    "moment": "2.29.4",
     "multer": "1.4.2",
     "nanoid": "~3.1.30",
     "nodemailer": "^6.6.3",
@@ -94,10 +98,7 @@
     "stream": "^0.0.2",
     "swagger-ui-express": "4.1.6",
     "typeorm": "0.2.31",
-    "uuid": "8.3.2",
-	"@influxdata/influxdb-client": "1.9.0",
-    "csvtojson": "2.0.1",
-    "moment":"2.29.4"
+    "uuid": "8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",

@@ -1,8 +1,16 @@
 import { CodeNameDTO } from '../pods/device/dto/code-name.dto';
 
 export const IREC_FUEL_TYPES: CodeNameDTO[] = [
-  { code: 'ES200', name: 'Wind' },
+
   { code: 'ES100', name: 'Solar' },
+
+  {
+    code: 'ES990',
+    name: 'Co-fired with fossil: Solar thermal concentration',
+  }
+  ,
+  { code: 'ES200', name: 'Wind' },
+ 
   { code: 'ES300', name: 'Hydro-electric' },
   { code: 'ES410', name: 'Marine Tidal' },
   { code: 'ES420', name: 'Marine Wave' },
@@ -71,10 +79,7 @@ export const IREC_FUEL_TYPES: CodeNameDTO[] = [
     code: 'ES980',
     name: 'Co-fired with fossil: Agricultural by-products & waste biomass fraction',
   },
-  {
-    code: 'ES990',
-    name: 'Co-fired with fossil: Solar thermal concentration',
-  },
+ 
   { code: 'ES510', name: 'Biomass Solid: Municipal Waste' },
   {
     code: 'ES570',
@@ -87,6 +92,8 @@ export const IREC_FUEL_TYPES: CodeNameDTO[] = [
 ];
 
 export const IREC_DEVICE_TYPES: CodeNameDTO[] = [
+  { code: 'TC150', name: 'Solar Thermal Concentration' },
+  
   { code: 'T020001', name: 'Wind: Onshore' },
   { code: 'TC110', name: 'PV Ground mounted' },
   {
@@ -95,7 +102,7 @@ export const IREC_DEVICE_TYPES: CodeNameDTO[] = [
   },
   { code: 'TC130', name: 'PV Floating' },
   { code: 'TC140', name: 'PV Aggregated' },
-  { code: 'TC150', name: 'Solar Thermal Concentration' },
+ 
   { code: 'TC210', name: 'Onshore' },
   { code: 'TC220', name: 'Offshore' },
   { code: 'TC310', name: 'Dam' },

@@ -12,6 +12,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 
@@ -49,14 +51,20 @@ export class UpdateDeviceDTO
   // zipCode: string;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(FuelCode,{
+    message:
+      'Valid FuelCode values are ES100,ES990 ',
+  })
   @IsOptional()
-  fuelCode: string;
+  fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(DevicetypeCode,{
+    message:
+      'Valid DeviceCode values are TC150 ',
+  })
   @IsOptional()
-  deviceTypeCode: string;
+  deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()
   // @IsEnum(Installation)
@@ -79,7 +87,10 @@ export class UpdateDeviceDTO
   gridInterconnection: boolean;
 
   @ApiProperty()
-  @IsEnum(OffTaker)
+  @IsEnum(OffTaker,{
+    message:
+      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector',
+  })
   @IsOptional()
   offTaker: OffTaker;
 
@@ -127,9 +138,8 @@ export class UpdateDeviceDTO
   @IsNumber()
   @IsOptional()
   SDGBenefits?: number| undefined;
-  
-  @ApiProperty()
+ 
   @IsString()
   @IsOptional()
-  meterReadtype: string;
+  meterReadtype?: string;
 }

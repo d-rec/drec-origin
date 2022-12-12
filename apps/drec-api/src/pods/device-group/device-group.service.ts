@@ -43,6 +43,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -1369,8 +1371,8 @@ export class DeviceGroupService {
         latitude: '',
         longitude: '',
         countryCode: '',
-        fuelCode: '',
-        deviceTypeCode: '',
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DevicetypeCode.TC150,
         capacity: 0,
         commissioningDate: '',
         gridInterconnection: false,
