@@ -13,6 +13,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 
@@ -54,14 +56,20 @@ export class NewDeviceDTO
   // zipCode: string;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(FuelCode,{
+    message:
+      'Valid FuelCode values are ES100,ES990 ',
+  })
   @IsOptional()
-  fuelCode: string;
+  fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(DevicetypeCode,{
+    message:
+      'Valid DeviceCode values are TC150 ',
+  })
   @IsOptional()
-  deviceTypeCode: string;
+  deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()
   // @IsEnum(Installation)
