@@ -268,8 +268,7 @@ export class DeviceGroupController {
     if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
       console.log("deviceGroupToRegister.blockchainAddress");
       deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-      await this.organizationService.updateBlockchainAddress(organizationId, deviceGroupToRegister.blockchainAddress)
-      console.log("deviceGroupToRegister.blockchainAddress");
+     
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
