@@ -55,7 +55,6 @@ export class FileController {
     FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
       storage: multer.memoryStorage(),
       fileFilter: (req: Request, file, callback) => {
-        console.log("file request", req);
         if (!supportedFiles.includes(file.mimetype)) {
           callback(new Error('Unsupported file type'), false);
         }

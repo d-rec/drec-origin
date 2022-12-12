@@ -163,15 +163,15 @@ export class NewDeviceDTO
   // @IsOptional()
   // groupId?: number | null;
 
-  @ApiProperty()
+  @ApiProperty({ default:0})
   @IsNumber()
   @IsOptional()
-  SDGBenefits?: number| undefined;
+  SDGBenefits?: number| undefined=0;
 
   @ApiProperty({ default: "1.0"})
   @IsString()
   @IsOptional()
-  version: string;
+  version: string="1.0";
 
 
 }
