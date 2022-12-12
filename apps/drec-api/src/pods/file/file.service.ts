@@ -5,6 +5,8 @@ import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
+import {S3} from 'aws-sdk';
+
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
 import { File } from './file.entity';
@@ -173,4 +175,42 @@ export class FileService {
   //     fileId,
   //   });
   // }
+
+
+
+async upload(file) {
+  const { originalname } = file;
+  const bucketS3 = 'dev-drec';
+  const result= await this.uploadS3(file.buffer, bucketS3, originalname);
+  console.log(result);
+  return result
+}
+
+async uploadS3(file, bucket, name) {
+  const s3 = this.getS3();
+  const params = {
+      Bucket: bucket,
+      Key: String(name),
+      Body: file,
+      ACL: 'public-read'
+  };
+  return new Promise((resolve, reject) => {
+      s3.upload(params, (err, data) => {
+      if (err) {
+          Logger.error(err);
+          reject(err.message);
+      }
+      console.log(data)
+      resolve( data
+        );
+      });
+  });
+}
+
+getS3() {
+  return new S3({
+      accessKeyId: 'AKIA5BDCGEG7TIO4VRTD',
+      secretAccessKey: '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',
+  });
+}
 }
