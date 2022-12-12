@@ -43,7 +43,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-  FuleCode,
+  FuelCode,
   DevicetypeCode
 } from '../../utils/enums';
 import { groupByProps } from '../../utils/group-by-properties';
@@ -1362,7 +1362,7 @@ export class DeviceGroupService {
         latitude: '',
         longitude: '',
         countryCode: '',
-        fuelCode: FuleCode.ES100,
+        fuelCode: FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC150,
         capacity: 0,
         commissioningDate: '',

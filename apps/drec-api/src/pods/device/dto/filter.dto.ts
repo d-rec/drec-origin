@@ -5,14 +5,14 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-  FuleCode,
+  FuelCode,
   DevicetypeCode
 } from '../../../utils/enums';
 
 export class FilterDTO {
   @IsOptional()
-  @ApiPropertyOptional({ type: FuleCode, description: 'Fuel Code',enum:FuleCode })
-  fuelCode: FuleCode;
+  @ApiPropertyOptional({ type: FuelCode, description: 'Fuel Code',enum:FuelCode })
+  fuelCode: FuelCode;
 
   @IsOptional()
   @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode })
@@ -86,8 +86,8 @@ export class BuyerDeviceFilterDTO {
   country: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: FuleCode, description: 'Fuel Code',enum:FuleCode })
-  fuelCode: FuleCode;
+  @ApiPropertyOptional({ type: FuelCode, description: 'Fuel Code',enum:FuelCode })
+  fuelCode: FuelCode;
 
   @IsOptional()
   @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode })

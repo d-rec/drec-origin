@@ -7,7 +7,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-  FuleCode,
+  FuelCode,
   DevicetypeCode
 } from '../../utils/enums';
 import {
@@ -66,8 +66,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // zipCode: string;
 
   @Column({ nullable: true })
-  @IsEnum(FuleCode)
-  fuelCode: FuleCode;
+  @IsEnum(FuelCode)
+  fuelCode: FuelCode;
 
 
   @Column({ nullable: true })

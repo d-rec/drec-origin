@@ -180,7 +180,7 @@ export class FileService {
 
 async upload(file) {
   const { originalname } = file;
-  const bucketS3 = 'dev-drec';
+  const bucketS3 = process.env.bucketname;
   const result= await this.uploadS3(file.buffer, bucketS3, originalname);
   console.log(result);
   return result
@@ -209,8 +209,8 @@ async uploadS3(file, bucket, name) {
 
 getS3() {
   return new S3({
-      accessKeyId: 'AKIA5BDCGEG7TIO4VRTD',
-      secretAccessKey: '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',
+      accessKeyId: process.env.accessKeyId,
+      secretAccessKey: process.env.secretAccessKey,
   });
 }
 }
