@@ -343,9 +343,10 @@ export class DeviceGroupController {
 
 
   @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
+  //@Permission('Write')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -523,9 +524,9 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
+  // @Permission('Read')
+  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,

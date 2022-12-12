@@ -1,4 +1,4 @@
-import { Paper, Typography } from '@mui/material';
+import { Paper, Table,TableBody,Typography, TableCell,TableContainer,TableHead,TableRow,Button,TablePagination} from '@mui/material';
 import { useStyles } from './FromViewConfig.style';
 import React, {useCallback,useEffect,useState} from 'react'
 import {useDropzone} from 'react-dropzone';
@@ -6,7 +6,72 @@ import { fileUploadHandler, getAllJobDetailsOfOrganization, getJobDetailsForJobI
 import { TableComponent,TableComponentProps, Requirements } from '@energyweb/origin-ui-core';
 import { getAuthenticationToken } from 'shared';
 
+
+
+// const useStyles = makeStyles({
+//   table: {
+//     minWidth: 650,
+//   },
+// });
+
+// function App() {
+  
+
+//   useEffect(() => {
+//     // async function fetchData() {
+//     //   const response = await fetch('https://your-api-endpoint.com/data');
+//     //   const json = await response.json();
+//     //   setData(json);
+//     }
+
+//     // fetchData();
+//   }, []);
+
+//   const handleRefreshClick = () => {
+//     // Fetch the data from the API again and update the data state variable
+//     async function fetchData() {
+//       const response = await fetch('https://your-api-endpoint.com/data');
+//       const json = await response.json();
+//       setData(json);
+//     }
+
+//     fetchData();
+//   };
+
+//   const handleChangePage = (event, newPage) => {
+//     setPage(newPage);
+//   };
+
+//   const handleChangeRowsPerPage = (event) => {
+//     setRowsPerPage(+event.target.value);
+//     setPage(0);
+//   };
+
 export const AddSampleformValuePage = () => {
+
+      const handleRefreshClick = () => {
+    // Fetch the data from the API again and update the data state variable
+    async function fetchData() {
+      const response = await fetch('https://your-api-endpoint.com/data');
+      const json = await response.json();
+      setData(json);
+    }
+
+    fetchData();
+  };
+
+  const handleChangePage = (event:any, newPage:any) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event:any) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+    const [data, setData] = useState([{id:1,name:'22',age:23}]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
 
     const [tableProps, setTableProps] = useState<TableComponentProps<any>>({
@@ -118,23 +183,9 @@ export const AddSampleformValuePage = () => {
        
       }, [jobListAdded]); // Only re-run the effect if count changes
       
-      
-
-    const noDeviceGroupTitle = 'Currently you don`t have any device groups';
-    const noDeviceGroupDescription =
-        'You can add new device groups to D-REC Origin by registering a new one.';
 
     return (
         <div>
-            {getAuthenticationToken() && <div>
-            {
-                tableProps.data.length>0 &&
-            
-            <Paper className={classes.paper}>
-              <TableComponent {...tableProps} />
-
-            </Paper>
-            }
             <Paper className={classes.paper}>
             <Typography textAlign="center" variant="h6">
             <div {...getRootProps()}>
@@ -147,13 +198,55 @@ export const AddSampleformValuePage = () => {
             </div>
             </Typography>
             </Paper>
-            </div>}
+            {getAuthenticationToken() && <div>
+            {
+                tableProps.data.length>0 &&
+            
             <Paper className={classes.paper}>
-            <Typography textAlign="center" variant="h6">
-                {noDeviceGroupTitle}
-            </Typography>
-            <Typography textAlign="center">{noDeviceGroupDescription}</Typography>
-        </Paper>
+              <TableComponent {...tableProps} />
+
+            </Paper>
+            }
+            
+            </div>}
+            
+            {/* <Button onClick={handleRefreshClick}>Refresh</Button>
+      <TableContainer component={Paper}>
+        <Table aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell align="right">Name</TableCell>
+              <TableCell align="right">Age</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map(item => (
+                <TableRow key={item.id}>
+                  <TableCell component="th" scope="row">
+                    {item.id}
+                  </TableCell>
+                  <TableCell align="right">{item.name}</TableCell>
+                  <TableCell align="right">{item.age}</TableCell>
+                  <TableCell align="right">
+                    <Button onClick={() => handleRefreshClick()}>
+                        Get Additional Data
+                    </Button>
+                    </TableCell>
+                  
+                </TableRow>))}
+            </TableBody>
+            </Table>
+            <TablePagination rowsPerPageOptions={[5, 10, 25]}
+                count={data.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            </TableContainer> */}
         </div>
        
     );
