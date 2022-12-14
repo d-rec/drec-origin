@@ -171,8 +171,8 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
-    deviceToRegister.externalId= deviceToRegister.externalId.trim();
-    if(deviceToRegister.externalId.trim() === "" ){
+    deviceToRegister.externalId = deviceToRegister.externalId.trim();
+    if(deviceToRegister.externalId.trim() === ""){
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -329,6 +329,18 @@ export class DeviceController {
           new ConflictException({
             success: false,
             message: ' Invalid Capacity, it should be greater than 0',
+          }),
+        );
+      });
+    }
+    var commissioningDate = moment(deviceToUpdate.commissioningDate);
+    if(!commissioningDate.isValid())
+    {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
           }),
         );
       });

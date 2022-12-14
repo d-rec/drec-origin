@@ -58,7 +58,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
-    return super.getReads(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReads(device.externalId, filter);
   }
 
   @Get('/:meter/difference')
@@ -73,7 +86,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
-    return super.getReadsDifference(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReadsDifference(device.externalId, filter);
   }
 
   @Get('group/:groupId/aggregate')
@@ -101,7 +127,20 @@ export class ReadsController extends BaseReadsController {
     @Param('meter') meterId: string,
     @Query() filter: AggregateFilterDTO,
   ): Promise<AggregatedReadDTO[]> {
-    return super.getReadsAggregates(meterId, filter);
+    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return super.getReadsAggregates(device.externalId, filter);
   }
 
   @Post('/:id')
@@ -126,7 +165,17 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-
+    if (id.trim() === "" && id.trim() === undefined) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `id should not be empty`,
+          })
+        );
+      });
+    }
+    id = id.trim();
     let device: DeviceDTO | null = await this.deviceService.findReads(id);
 
     if (device === null) {
@@ -140,7 +189,6 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-
 
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
@@ -232,8 +280,6 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-
-
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let datevalid1: boolean = true;
       let datevalid2: boolean = true;
@@ -412,6 +458,6 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    return await this.internalReadsService.newstoreRead(id, measurements);
+    return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
 }

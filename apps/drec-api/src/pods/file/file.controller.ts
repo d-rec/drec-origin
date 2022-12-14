@@ -11,10 +11,11 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  Body
+  Body,
+  UploadedFile
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -38,14 +39,14 @@ const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 
 const supportedFiles = FILE_SUPPORTED_MIMETYPES;
-supportedFiles.push('text/csv');
+supportedFiles.push('text/csv/jpeg/png');
 
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
-  constructor(private readonly fileService: FileService) {}
+  constructor(private readonly fileService: FileService) { }
 
   @Post()
   @ApiConsumes('multipart/form-data')
@@ -54,7 +55,6 @@ export class FileController {
     FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
       storage: multer.memoryStorage(),
       fileFilter: (req: Request, file, callback) => {
-        console.log("file request",req);
         if (!supportedFiles.includes(file.mimetype)) {
           callback(new Error('Unsupported file type'), false);
         }
@@ -95,6 +95,7 @@ export class FileController {
     //   //@ts-ignore
     //   return jobCreated;
     // }
+    console.log(uploadedFiles.files);
     return this.fileService.store(user, uploadedFiles.files);
   }
 
@@ -181,5 +182,15 @@ export class FileController {
     },
   ): Promise<string[]> {
     return this.fileService.store(user, uploadedFiles.files, true);
+  }
+
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploads(@UploadedFile() file) {
+    console.log(file)
+    if (!supportedFiles.includes(file.mimetype)) {
+     return new Error('Unsupported file type');
+    }
+    return await this.fileService.upload(file);
   }
 }

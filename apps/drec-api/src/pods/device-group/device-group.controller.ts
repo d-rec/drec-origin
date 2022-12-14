@@ -268,8 +268,7 @@ export class DeviceGroupController {
     if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
       console.log("deviceGroupToRegister.blockchainAddress");
       deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-      await this.organizationService.updateBlockchainAddress(organizationId, deviceGroupToRegister.blockchainAddress)
-      console.log("deviceGroupToRegister.blockchainAddress");
+     
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
@@ -343,9 +342,10 @@ export class DeviceGroupController {
 
 
   @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
+  //@Permission('Write')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -477,7 +477,6 @@ export class DeviceGroupController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
 
-
     let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({ groupId: id });
     if (devicenextissuence === null) {
       return new Promise((resolve, reject) => {
@@ -523,9 +522,9 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
+  // @Permission('Read')
+  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
