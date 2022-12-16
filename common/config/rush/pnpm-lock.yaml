@@ -117,6 +117,7 @@ specifiers:
   mobx-react-lite: ^3.2.0
   mocha: 8.2.1
   moment: 2.29.4
+  moment-timezone: 0.5.40
   multer: 1.4.2
   nanoid: ~3.1.30
   nodemailer: ^6.6.3
@@ -277,6 +278,7 @@ dependencies:
   mobx-react-lite: 3.4.0_ad00806c51d50438ab70e301416945aa
   mocha: 8.2.1
   moment: 2.29.4
+  moment-timezone: 0.5.40
   multer: 1.4.2
   nanoid: 3.1.30
   nodemailer: 6.7.1
@@ -17473,6 +17475,12 @@ packages:
       moment: 2.29.1
     dev: false
 
+  /moment-timezone/0.5.40:
+    resolution: {integrity: sha512-tWfmNkRYmBkPJz5mr9GVDn9vRlVZOTe6yqY92rFxiOdWXbjaR0+9LwQnZGGuNR63X456NqmEkbskte8tWL5ePg==}
+    dependencies:
+      moment: 2.29.4
+    dev: false
+
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: false
@@ -24828,7 +24836,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz_prettier@2.1.2:
-    resolution: {integrity: sha512-Fp+Nz5vSKOWdmNfC/9Blt8Oft1FTVQ1gWeJSlE8MgsTOooc9Uq6UMiwCHubEaT+ZWP+db6HKkr1Ylibq+03h1w==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-bQnrHPjw1ANpEYL8T11p8dMdTa56HY2UA5TN5V7Q5wFIKf9li1TK4gfPabGMm7ZrbI5Xxxwv9mRe6uruT0TiMg==, tarball: file:projects/origin-drec-api.tgz}
     id: file:projects/origin-drec-api.tgz
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
@@ -24901,6 +24909,7 @@ packages:
       luxon: 1.27.0
       mocha: 8.2.1
       moment: 2.29.4
+      moment-timezone: 0.5.40
       multer: 1.4.2
       nanoid: 3.1.30
       nodemailer: 6.7.1
