@@ -996,6 +996,7 @@ export class ReadsService {
     |> last()`
     return await this.execute(fluxQuery);
   }
+  
   async execute(query: any) {
 
     const data = await this.dbReader.collectRows(query);
