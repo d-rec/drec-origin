@@ -65,4 +65,16 @@ export class NewIntmediateMeterReadDTO
   @ValidateNested()
   reads: NewReadDTO[];
 
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  isUTC?:boolean;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  timezone?:string;
+
+
+
 }

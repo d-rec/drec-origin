@@ -20,7 +20,7 @@ import {
   ConflictException
 } from '@nestjs/common';
 import { DateTime } from 'luxon';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags,ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -33,7 +33,11 @@ import moment from 'moment';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceDTO } from '../device/dto';
-import { ReadType } from '../../utils/enums'
+import { ReadType } from '../../utils/enums';
+
+import * as momentTimeZone from 'moment-timezone';
+
+
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -46,6 +50,21 @@ export class ReadsController extends BaseReadsController {
   ) {
     super(baseReadsService);
   }
+
+  @Get('/time-zones')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns valid time-zones list',
+  })
+  getTimezones(
+    @Query('timezoneSearchKeyword') searchKeyword?: string): string[] {
+    if (searchKeyword) {
+      return momentTimeZone.tz.names().filter(timezone => timezone.includes(searchKeyword));
+    } else {
+      return momentTimeZone.tz.names();
+    }
+  }
+
 
   @Get('/:meter')
   @ApiResponse({
@@ -189,6 +208,119 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
+    
+    if(measurements.isUTC !==undefined && measurements.isUTC !==null && measurements.isUTC === false)
+    {
+      
+     if(measurements.timezone === null || measurements.timezone === undefined || measurements.timezone.toString().trim() ==='')
+     {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Timezone is required if time is not in UTC`,
+          })
+        );
+      });
+     }
+     measurements.timezone=measurements.timezone.toString().trim();
+     let allTimezoneNamesLowerCase:Array<string>=[];
+     //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
+     momentTimeZone.tz.names().forEach(ele=>allTimezoneNamesLowerCase.push(ele.toLowerCase()));
+     console.log(allTimezoneNamesLowerCase);
+     if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid time zone: ${measurements.timezone}`,
+          })
+        );
+      });
+    }
+    measurements.timezone=momentTimeZone.tz.names()[allTimezoneNamesLowerCase.findIndex(ele=>ele===measurements.timezone.toLowerCase())];
+      let dateInvalid: boolean = false;
+      measurements.reads.forEach(ele => {
+        for (let key in ele) {
+          
+          if (key === 'starttimestamp' || key === 'endtimestamp') {
+            if (ele[key]) {
+              const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
+              //@ts-ignore
+              if(ele[key].includes('.'))
+              {
+                //@ts-ignore
+                if(Number.isNaN(parseFloat(ele[key].substring(ele[key].indexOf('.'),ele[key].length)) ))
+                {
+                  
+                  throw new ConflictException({
+                    success: false,
+                    message: `Invalid date sent  ${ele[key]}`+` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                  })
+                }
+              }
+
+              //@ts-ignore
+              if (!dateTimeRegex.test(ele[key])) {       
+                dateInvalid = true;
+                throw new ConflictException({
+                  success: false,
+                  message: `Invalid date sent  ${ele[key]}`+` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                })
+              }
+              else {
+                
+                let dateTime;
+                  dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
+                if (!dateTime.isValid()) {
+                  dateInvalid = true;
+                  throw new ConflictException({
+                    success: false,
+                    message: `Invalid date sent  ${ele[key]}`,
+                  })
+                }
+                else
+                {
+                  let milliSeondsToAddSentInRequest:string='';
+                  //@ts-ignore
+                  if(ele[key].includes('.') && parseInt(ele[key].substring(ele[key].indexOf('.'),ele[key].length))!=NaN )
+                  {
+
+                    //@ts-ignore
+                    milliSeondsToAddSentInRequest=ele[key].substring(ele[key].indexOf('.'),ele[key].length);
+                  }
+                  let utcString:string=dateTime.clone().utc().format();
+                  
+                  if(milliSeondsToAddSentInRequest!='')
+                  {
+                      utcString = utcString.substring(0,utcString.length-1)+milliSeondsToAddSentInRequest+'Z';
+                  }
+                  else
+                  {
+                     utcString = utcString.substring(0,utcString.length-1)+'.000Z';
+                  }
+                     //@ts-ignore
+                      ele[key]= utcString;
+                }
+                
+              }
+            }
+          }
+        }
+      });
+      if(dateInvalid)
+      {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+            })
+          );
+        });
+      }
+      
+    }
 
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
@@ -238,17 +370,17 @@ export class ReadsController extends BaseReadsController {
       let datevalid1: boolean = true;
       let datevalid2: boolean = true;
       measurements.reads.forEach(ele => {
-        console.log("Date fornat vaildation");
+        
 
         let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
-        console.log(dateFormateToCheck);
+        
         //@ts-ignore
         let startdateformate = dateFormateToCheck.test(ele.starttimestamp);
-        console.log("startdateformate");
-        console.log(startdateformate);
+        
+        
         //@ts-ignore
         let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
-        console.log(enddateformate);
+        
         if (!startdateformate || !enddateformate) {
           datevalid1 = false;
         }
@@ -257,12 +389,12 @@ export class ReadsController extends BaseReadsController {
         const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
         const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
         const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
-        console.log(moment(fromDateFormat, dateFormat, true).isValid());
+        
         var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
-        console.log(reqstartDate);
+        
 
         var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
-        console.log(reqendtDate);
+        
         if (!reqstartDate || !reqendtDate) {
           datevalid2 = false;
         }
@@ -284,14 +416,14 @@ export class ReadsController extends BaseReadsController {
       let datevalid1: boolean = true;
       let datevalid2: boolean = true;
       measurements.reads.forEach(ele => {
-        console.log("Date fornat vaildation");
+        
 
         let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
-        console.log(dateFormateToCheck);
+        
 
         //@ts-ignore
         let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
-        console.log(enddateformate);
+        
         if (!enddateformate) {
           datevalid1 = false;
         }
@@ -301,7 +433,7 @@ export class ReadsController extends BaseReadsController {
 
         const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
         var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
-        console.log(reqendtDate);
+        
         if (!reqendtDate) {
           datevalid2 = false;
         }

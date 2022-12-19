@@ -12,7 +12,8 @@ import {
   UseGuards,
   UseInterceptors,
   Body,
-  UploadedFile
+  UploadedFile,
+  ConflictException
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
@@ -189,7 +190,15 @@ export class FileController {
   async uploads(@UploadedFile() file) {
     console.log(file)
     if (!supportedFiles.includes(file.mimetype)) {
-     return new Error('Unsupported file type');
+     // throw new Error('Unsupported file type');
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false, 
+            message: 'Unsupported file type',
+          }),
+        );
+      });
     }
     return await this.fileService.upload(file);
   }

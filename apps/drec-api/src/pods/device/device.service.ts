@@ -39,6 +39,7 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { DateTime } from 'luxon';
 import { FilterKeyDTO } from '../countrycode/dto';
+import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -68,9 +69,36 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { organizationId },
     });
-
+    // let totalamountofreads = [];
+    //     await Promise.all(
+    //       devices.map(async (device: Device) => {
+    
+    //         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
+    //           {
+    //             where: { deviceid: device.externalId }
+    //           }
+    //         )
+    //         const totalcertifiedReadValue = certifiedamountofread.reduce(
+    //           (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
+    //           0,
+    //         );
+    //         let totalamount= await this.getallread(device.externalId);
+    //         const totalReadValue = totalamount.reduce(
+    //           (accumulator, currentValue) => accumulator + currentValue.value,
+    //           0,
+    //         );
+    //         totalamountofreads.push({
+    //           devicename: device.externalId,
+    //           totalcertifiedReadValue: totalcertifiedReadValue,
+    //           totalReadValue:totalReadValue
+    //         })
+    
+    //       }))
+    
+    // console.log(totalamountofreads);
     return devices;
   }
+
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
     deviceIds: Array<number>,
@@ -90,9 +118,9 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number,endDate:string): Promise<{ [key: string]: Device[] }> {
- 
-    let groupdevice:Array<any> = await this.repository.find({
+  public async NewfindForGroup(groupId: number, endDate: string): Promise<{ [key: string]: Device[] }> {
+
+    let groupdevice: Array<any> = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
@@ -100,7 +128,7 @@ export class DeviceService {
     });
     //console.log(groupdevice)
 
-    groupdevice = groupdevice.filter(ele=>ele.meterReadtype==ReadType.Delta || ele.meterReadtype==ReadType.ReadMeter) 
+    groupdevice = groupdevice.filter(ele => ele.meterReadtype == ReadType.Delta || ele.meterReadtype == ReadType.ReadMeter)
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
     //console.log(deviceGroupedByCountry);
@@ -528,7 +556,7 @@ export class DeviceService {
       .andWhere(
         new Brackets((db) => {
           db.where("device.status ='Requested' OR device.status ='Succeeded'")
-          }))
+        }))
       .andWhere(
         new Brackets((db) => {
           db.where("device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
@@ -541,5 +569,71 @@ export class DeviceService {
     //   console.log(query)
     // console.log(query.getQuery())
     return query;
+  }
+
+  async getallread(meterId: string, ): Promise<Array<{ timestamp: Date, value: number }>> {
+    const fluxQuery =
+    `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      |> range(start: 0)
+      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`
+      return await this.execute(fluxQuery);
+   }
+  async execute(query: any) {
+
+    const data = await this.dbReader.collectRows(query);
+    return data.map((record: any) => ({
+      timestamp: new Date(record._time),
+      value: Number(record._value),
+    }));
+  }
+  get dbReader() {
+    // const url = 'http://localhost:8086';
+    // const token = 'admin:admin'
+    // const org = '';
+
+    //@ts-ignore
+    const url = process.env.INFLUXDB_URL;
+    //@ts-ignore
+    const token = process.env.INFLUXDB_TOKEN;
+    //@ts-ignore
+    const org = process.env.INFLUXDB_ORG;
+
+    //@ts-ignore
+    return new InfluxDB({ url, token }).getQueryApi(org)
+  }
+
+  async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
+    console.log(organizationId);
+    const devices = await this.repository.find({
+      where: { organizationId },
+    });
+    let totalamountofreads = [];
+        await Promise.all(
+          devices.map(async (device: Device) => {
+    
+            let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
+              {
+                where: { deviceid: device.externalId }
+              }
+            )
+            const totalcertifiedReadValue = certifiedamountofread.reduce(
+              (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
+              0,
+            );
+            let totalamount= await this.getallread(device.externalId);
+            const totalReadValue = totalamount.reduce(
+              (accumulator, currentValue) => accumulator + currentValue.value,
+              0,
+            );
+            totalamountofreads.push({
+              devicename: device.externalId,
+              totalcertifiedReadValue: totalcertifiedReadValue,
+              totalReadValue:totalReadValue
+            })
+    
+          }))
+    
+    console.log(totalamountofreads);
+    return totalamountofreads;
   }
 }

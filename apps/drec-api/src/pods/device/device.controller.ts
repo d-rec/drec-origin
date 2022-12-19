@@ -172,7 +172,7 @@ export class DeviceController {
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     deviceToRegister.externalId = deviceToRegister.externalId.trim();
-    if(deviceToRegister.externalId.trim() === ""){
+    if (deviceToRegister.externalId.trim() === "") {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -183,8 +183,7 @@ export class DeviceController {
       });
     }
     var commissioningDate = moment(deviceToRegister.commissioningDate);
-    if(!commissioningDate.isValid())
-    {
+    if (!commissioningDate.isValid()) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -194,9 +193,17 @@ export class DeviceController {
         );
       });
     }
-
-    if(deviceToRegister['groupId'] ===0 || deviceToRegister['groupId'])
-    {
+    if (new Date(deviceToRegister.commissioningDate).getTime() > new Date().getTime()) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ` Invalid commissioning date, commissioning is greater than current date`,
+          })
+        );
+      });
+    }
+    if (deviceToRegister['groupId'] === 0 || deviceToRegister['groupId']) {
       deviceToRegister['groupId'] = null;
     }
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
@@ -222,7 +229,7 @@ export class DeviceController {
         );
       });
     }
-    if(isNaN(parseFloat(deviceToRegister.capacity.toString())) ){
+    if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -232,7 +239,7 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToRegister.capacity<=0  ){
+    if (deviceToRegister.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -242,8 +249,8 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToRegister.version === null || deviceToRegister.version === undefined){
-      deviceToRegister.version='1.0';
+    if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
+      deviceToRegister.version = '1.0';
     }
     return await this.deviceService
       .register(organizationId, deviceToRegister)
@@ -284,7 +291,7 @@ export class DeviceController {
     // }
   }
 
- 
+
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
@@ -323,7 +330,7 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToUpdate.capacity<=0){
+    if (deviceToUpdate.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -334,8 +341,7 @@ export class DeviceController {
       });
     }
     var commissioningDate = moment(deviceToUpdate.commissioningDate);
-    if(!commissioningDate.isValid())
-    {
+    if (!commissioningDate.isValid()) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -351,5 +357,21 @@ export class DeviceController {
       id,
       deviceToUpdate,
     );
+  }
+
+  @Get('/my/totalamountread')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceDTO],
+    description: 'Returns my Devices',
+  })
+  async getMyDevicesTotal(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<DeviceDTO[]> {
+    return await this.deviceService.getOrganizationDevicesTotal(organizationId);
   }
 }
