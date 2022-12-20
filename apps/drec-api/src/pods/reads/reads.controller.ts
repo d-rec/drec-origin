@@ -59,7 +59,7 @@ export class ReadsController extends BaseReadsController {
   getTimezones(
     @Query('timezoneSearchKeyword') searchKeyword?: string): string[] {
     if (searchKeyword) {
-      return momentTimeZone.tz.names().filter(timezone => timezone.includes(searchKeyword));
+      return momentTimeZone.tz.names().filter(timezone => timezone.toLowerCase().includes(searchKeyword.toLowerCase()));
     } else {
       return momentTimeZone.tz.names();
     }
@@ -208,21 +208,8 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    
-    if(measurements.isUTC !==undefined && measurements.isUTC !==null && measurements.isUTC === false)
+   if(measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !=='')
     {
-      
-     if(measurements.timezone === null || measurements.timezone === undefined || measurements.timezone.toString().trim() ==='')
-     {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Timezone is required if time is not in UTC`,
-          })
-        );
-      });
-     }
      measurements.timezone=measurements.timezone.toString().trim();
      let allTimezoneNamesLowerCase:Array<string>=[];
      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
