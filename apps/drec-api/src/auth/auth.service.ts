@@ -5,10 +5,12 @@ import { IUser, UserLoginReturnData } from '@energyweb/origin-backend-core';
 
 import { UserService } from '../pods/user/user.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
+import {Role} form '../utils/enums/role.enum';
 
 export interface IJWTPayload {
   id: number;
   email: string;
+  role:Role;
 }
 
 @Injectable()
@@ -37,6 +39,7 @@ export class AuthService {
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,
+      role:user.role
     };
     return {
       accessToken: this.jwtService.sign(payload),
