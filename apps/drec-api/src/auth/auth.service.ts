@@ -5,7 +5,7 @@ import { IUser, UserLoginReturnData } from '@energyweb/origin-backend-core';
 
 import { UserService } from '../pods/user/user.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
-import {Role} form '../utils/enums/role.enum';
+import {Role} from '../utils/enums/role.enum';
 
 export interface IJWTPayload {
   id: number;
