@@ -49,7 +49,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countrCodesList } from '../../models/country-code'
-
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -182,8 +182,7 @@ export class DeviceController {
         );
       });
     }
-    var commissioningDate = moment(deviceToRegister.commissioningDate);
-    if (!commissioningDate.isValid()) {
+    if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -340,14 +339,24 @@ export class DeviceController {
         );
       });
     }
-    var commissioningDate = moment(deviceToUpdate.commissioningDate);
-    if (!commissioningDate.isValid()) {
+   // var commissioningDate = moment(deviceToUpdate.commissioningDate);
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
             message: ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
           }),
+        );
+      });
+    }
+    if (new Date(deviceToUpdate.commissioningDate).getTime() > new Date().getTime()) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ` Invalid commissioning date, commissioning is greater than current date`,
+          })
         );
       });
     }

@@ -179,9 +179,8 @@ export class DeviceDTO implements IDevice {
   groupId?: number | null;
 
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
-  SDGBenefits?: number| undefined;
+  SDGBenefits?: string[];
   
   @IsString()
   @IsOptional()

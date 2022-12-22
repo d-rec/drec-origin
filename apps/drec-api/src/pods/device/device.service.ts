@@ -39,7 +39,8 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { DateTime } from 'luxon';
 import { FilterKeyDTO } from '../countrycode/dto';
-import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
+import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
+import { SDGBenefits } from '../../models/Sdgbenefit'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -72,7 +73,7 @@ export class DeviceService {
     // let totalamountofreads = [];
     //     await Promise.all(
     //       devices.map(async (device: Device) => {
-    
+
     //         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
     //           {
     //             where: { deviceid: device.externalId }
@@ -92,9 +93,9 @@ export class DeviceService {
     //           totalcertifiedReadValue: totalcertifiedReadValue,
     //           totalReadValue:totalReadValue
     //         })
-    
+
     //       }))
-    
+
     // console.log(totalamountofreads);
     return devices;
   }
@@ -207,14 +208,31 @@ export class DeviceService {
 
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
-
-
+    let sdgbbenifitslist = SDGBenefits;
+    
+    //@ts-ignore
+    if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
+      newDevice.SDGBenefits = []
+    } else if (Array.isArray(newDevice.SDGBenefits)) {
+      newDevice.SDGBenefits.forEach(
+        (sdgbname: string, index: number) => {
+          let foundEle = sdgbbenifitslist.find(ele => ele.name.toLowerCase() === sdgbname.toString().toLowerCase());
+          if (foundEle) {
+            newDevice.SDGBenefits[index] = foundEle.value
+          }
+          else {
+            newDevice.SDGBenefits[index] = 'invalid';
+          }
+        });
+      newDevice.SDGBenefits = newDevice.SDGBenefits.filter(ele => ele !== 'invalid');
+    } else {
+      newDevice.SDGBenefits = []
+    }
     return await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
     });
   }
-
   async update(
     organizationId: number,
     role: Role,
@@ -571,13 +589,13 @@ export class DeviceService {
     return query;
   }
 
-  async getallread(meterId: string, ): Promise<Array<{ timestamp: Date, value: number }>> {
+  async getallread(meterId: string,): Promise<Array<{ timestamp: Date, value: number }>> {
     const fluxQuery =
-    `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      `from(bucket: "${process.env.INFLUXDB_BUCKET}")
       |> range(start: 0)
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`
-      return await this.execute(fluxQuery);
-   }
+    return await this.execute(fluxQuery);
+  }
   async execute(query: any) {
 
     const data = await this.dbReader.collectRows(query);
@@ -608,31 +626,31 @@ export class DeviceService {
       where: { organizationId },
     });
     let totalamountofreads = [];
-        await Promise.all(
-          devices.map(async (device: Device) => {
-    
-            let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
-              {
-                where: { deviceid: device.externalId }
-              }
-            )
-            const totalcertifiedReadValue = certifiedamountofread.reduce(
-              (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
-              0,
-            );
-            let totalamount= await this.getallread(device.externalId);
-            const totalReadValue = totalamount.reduce(
-              (accumulator, currentValue) => accumulator + currentValue.value,
-              0,
-            );
-            totalamountofreads.push({
-              devicename: device.externalId,
-              totalcertifiedReadValue: totalcertifiedReadValue,
-              totalReadValue:totalReadValue
-            })
-    
-          }))
-    
+    await Promise.all(
+      devices.map(async (device: Device) => {
+
+        let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
+          {
+            where: { deviceid: device.externalId }
+          }
+        )
+        const totalcertifiedReadValue = certifiedamountofread.reduce(
+          (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
+          0,
+        );
+        let totalamount = await this.getallread(device.externalId);
+        const totalReadValue = totalamount.reduce(
+          (accumulator, currentValue) => accumulator + currentValue.value,
+          0,
+        );
+        totalamountofreads.push({
+          devicename: device.externalId,
+          totalcertifiedReadValue: totalcertifiedReadValue,
+          totalReadValue: totalReadValue
+        })
+
+      }))
+
     console.log(totalamountofreads);
     return totalamountofreads;
   }

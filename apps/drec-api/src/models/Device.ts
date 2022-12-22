@@ -41,7 +41,7 @@ export interface IDevice {
   integrator?: Integrator;
   energyStorage?: boolean;
   energyStorageCapacity?: number;
-  SDGBenefits?: number;
+  SDGBenefits?: string[];
   qualityLabels?: string;
   meterReadtype?: string;
   createdAt?:Date;

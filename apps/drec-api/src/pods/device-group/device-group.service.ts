@@ -513,19 +513,19 @@ export class DeviceGroupService {
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
-    await Promise.all(devices.map(async (ele, index) => {
+    // await Promise.all(devices.map(async (ele, index) => {
 
-        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
-        if (certifieddevices.length > 0 && certifieddevices != undefined) {
-          allDevicesAvailableforBuyerReservation = false;
-          unavailableDeviceIds.push(ele.id);
-          unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
-        }
-        return ele;
-      })
-      );
+    //     const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
+    //     if (certifieddevices.length > 0 && certifieddevices != undefined) {
+    //       allDevicesAvailableforBuyerReservation = false;
+    //       unavailableDeviceIds.push(ele.id);
+    //       unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
+    //     }
+    //     return ele;
+    //   })
+    //   );
 
-    devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
+    // devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
 
     if(devices.length ===0)
     {
@@ -1361,7 +1361,7 @@ export class DeviceGroupService {
       data.images = [];
       data.groupId = null;
       const dataToStore = new NewDeviceDTO();
-      dataToStore.SDGBenefits=0;
+      dataToStore.SDGBenefits=[];
       dataToStore.version='1.0';
 
       const dataKeyForValidation: NewDeviceDTO = {
@@ -1386,7 +1386,7 @@ export class DeviceGroupService {
         energyStorage: true,
         energyStorageCapacity: 0,
         qualityLabels: '',
-        SDGBenefits: 0,
+        SDGBenefits: [],
         version:"1.0",
         //groupId: 0,
       };
@@ -1410,7 +1410,7 @@ export class DeviceGroupService {
         else if (typeof dataKeyForValidation[key] === 'number') {     
           //@ts-ignore
           dataToStore[key] =
-            parseFloat(data[key]) === NaN ? 0: parseFloat(data[key]);
+            Number.isNaN(data[key]) ? 0: parseFloat(data[key]);
           //@ts-ignore
           if (key == 'yieldValue' && dataToStore[key] === 0) {
             dataToStore[key] = 1500;

@@ -134,10 +134,10 @@ export class UpdateDeviceDTO
   @IsOptional()
   images: string[];
 
-  @ApiProperty()
-  @IsNumber()
+  @ApiProperty({ type: () => [String] })
+  @IsArray()
   @IsOptional()
-  SDGBenefits?: number| undefined;
+  SDGBenefits?: string[];
  
   @IsString()
   @IsOptional()

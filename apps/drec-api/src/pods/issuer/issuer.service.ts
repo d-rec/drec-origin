@@ -397,7 +397,35 @@ export class IssuerService {
             FirstDeltaRead.some(e => e.readsEndDate.getTime() === v.timestamp.getTime())))
         }
 
-        console.log("allReadsForDeviceBetweenTimeRange");
+        console.log(startDate.toString())
+        console.log("400")
+        console.log(endDate.toString())
+        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(device.externalId, new Date(startDate.toString()), new Date(endDate.toString()));
+        console.log("certifieddevices");
+        console.log(certifieddevices);
+        console.log("beforeallReadsForDeviceBetweenTimeRange");
+        console.log(allReadsForDeviceBetweenTimeRange);
+        if (certifieddevices.length > 0) {
+
+          allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(ele => {
+
+            let readingInBetween: boolean = false;
+            certifieddevices.forEach(certifieddevicesEle => {
+              if( ele.timestamp.getTime() >= new Date(certifieddevicesEle.certificate_issuance_startdate).getTime() && ele.timestamp.getTime() <= new Date(certifieddevicesEle.certificate_issuance_enddate).getTime() ){
+                readingInBetween = true;
+              }
+            });
+            if (readingInBetween) {
+              return false;
+            }
+            else {
+              return true;
+            }
+
+          });
+        }
+
+        console.log("afterallReadsForDeviceBetweenTimeRange");
         console.log(allReadsForDeviceBetweenTimeRange);
         allDevicesCompleteReadsBetweenTimeRange[index] = allReadsForDeviceBetweenTimeRange;
         let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
@@ -595,7 +623,7 @@ export class IssuerService {
     console.log(devicehistoryrequest);
     if (
       !group.buyerAddress ||
-      !group.buyerId 
+      !group.buyerId
     ) {
       return;
     }
