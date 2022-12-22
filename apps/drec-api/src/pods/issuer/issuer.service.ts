@@ -448,8 +448,7 @@ export class IssuerService {
     if (
 
       !group.buyerAddress ||
-      !group.buyerId ||
-      !group.organization?.blockchainAccountAddress
+      !group.buyerId
     ) {
       return;
     }
@@ -596,8 +595,7 @@ export class IssuerService {
     console.log(devicehistoryrequest);
     if (
       !group.buyerAddress ||
-      !group.buyerId ||
-      !group.organization?.blockchainAccountAddress
+      !group.buyerId 
     ) {
       return;
     }

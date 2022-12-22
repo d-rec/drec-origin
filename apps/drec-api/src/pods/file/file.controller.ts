@@ -40,7 +40,10 @@ const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
 
 const supportedFiles = FILE_SUPPORTED_MIMETYPES;
-supportedFiles.push('text/csv/jpeg/png');
+supportedFiles.push('text/csv');
+supportedFiles.push('image/jpeg');
+supportedFiles.push('image/png');
+
 
 @ApiTags('file')
 @ApiBearerAuth('access-token')
