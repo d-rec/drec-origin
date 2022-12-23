@@ -1,9 +1,7 @@
 export enum CapacityRange {
-  Between_0_50_w = '0 - 50W',
-  Between_51_500_w = '51 - 500W',
-  Between_501w_1kw = '501W - 1kW',
-  Between_1kw_50kw = '1.001kW - 50kW',
-  Between_50kw_100kw = '50.001kW - 100kW',
-  Between_101kw_1mw = '100.001kW - 1MW',
-  Above_1mw = '1.001MW+',
+  firstRange  ='0.1W - 1kW',
+  secondRange = '1.01kW - 50kW',
+  thirdRange = '51kW - 500kW',
+  fourthRange = '500kW - 5MW',
+  fifthRange =     '5MW+'
 }

@@ -16,6 +16,7 @@ import {
   IsString,
   IsNotEmpty,
   IsNumber,
+  IsArray
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../models';
 
@@ -82,9 +83,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsNumber()
   capacity: number;
 
-  @Column({ nullable: true })
-  @IsNumber()
-  SDGBenefits: number;
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  SDGBenefits?: string[];
+
 
   @Column({ nullable: true })
   @IsString()

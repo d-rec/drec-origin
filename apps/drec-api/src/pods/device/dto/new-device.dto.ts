@@ -66,7 +66,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsEnum(DevicetypeCode,{
     message:
-      'Valid DeviceCode values are TC150 ',
+      'Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
   @IsOptional()
   deviceTypeCode: DevicetypeCode;
@@ -162,11 +162,9 @@ export class NewDeviceDTO
   // @IsNumber()
   // @IsOptional()
   // groupId?: number | null;
-
-  @ApiProperty({ default:0})
-  @IsNumber()
+  @ApiProperty()
   @IsOptional()
-  SDGBenefits?: number| undefined=0;
+  SDGBenefits?: string[];
 
   @ApiProperty({ default: "1.0"})
   @IsString()
