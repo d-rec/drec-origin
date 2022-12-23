@@ -54,7 +54,7 @@ import {
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
-import { isValidUTCDateFormat} from '../../utils/checkForISOStringFormat';
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceDescription, ILoggedInUser } from '../../models';
@@ -65,16 +65,14 @@ import { parse } from 'csv-parse';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 
-
-
 import csv from 'csv-parser';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from './device_csv_processing_jobs.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
-import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
-
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
+import { OrganizationService } from '../organization/organization.service';
 
 @ApiTags('device-group')
 @ApiBearerAuth('access-token')
@@ -86,7 +84,7 @@ export class DeviceGroupController {
   parser = parse({
     delimiter: ','
   });
-  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService) { }
+  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService, private organizationService: OrganizationService) { }
 
   @Get()
   @ApiOkResponse({
@@ -183,8 +181,7 @@ export class DeviceGroupController {
     //-2147483648 to +2147483647
     //https://www.postgresql.org/docs/9.1/datatype-numeric.html
 
-    if(!Array.isArray(deviceGroupToRegister.deviceIds) || deviceGroupToRegister.deviceIds.filter(ele=>ele >= -2147483648 && ele <= 2147483647).length !== deviceGroupToRegister.deviceIds.length)
-    {
+    if (!Array.isArray(deviceGroupToRegister.deviceIds) || deviceGroupToRegister.deviceIds.filter(ele => ele >= -2147483648 && ele <= 2147483647).length !== deviceGroupToRegister.deviceIds.length) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -194,8 +191,7 @@ export class DeviceGroupController {
         );
       });
     }
-    if(deviceGroupToRegister.deviceIds.length==0)
-    {
+    if (deviceGroupToRegister.deviceIds.length == 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -207,8 +203,7 @@ export class DeviceGroupController {
 
     }
 
-    if(isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) || deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 || deviceGroupToRegister.targetCapacityInMegaWattHour == -0)
-    {
+    if (isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) || deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 || deviceGroupToRegister.targetCapacityInMegaWattHour == -0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -218,11 +213,9 @@ export class DeviceGroupController {
         );
       });
     }
-    
-    if(typeof deviceGroupToRegister.reservationStartDate ==="string")
-    {
-      if(!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate))
-      {
+
+    if (typeof deviceGroupToRegister.reservationStartDate === "string") {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate)) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -234,10 +227,8 @@ export class DeviceGroupController {
       }
       deviceGroupToRegister.reservationStartDate = new Date(deviceGroupToRegister.reservationStartDate);
     }
-    if(typeof deviceGroupToRegister.reservationEndDate ==="string")
-    {
-      if(!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate))
-      {
+    if (typeof deviceGroupToRegister.reservationEndDate === "string") {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate)) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -250,21 +241,19 @@ export class DeviceGroupController {
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
     console.log("188");
-    if(deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime())
-    {
+    if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       throw new ConflictException({
         success: false,
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation:Date = new Date(new Date().getTime() - 3.164e+10);
-    if(deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() ||  deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime())
-    {
+    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - 3.164e+10);
+    if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
       console.log("198");
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 1 year from current date',
-      }); 
+      });
     }
     if (organizationId === null || organizationId === undefined) {
       console.log("206");
@@ -273,21 +262,38 @@ export class DeviceGroupController {
         message: 'User does not has organization associated',
       });
     }
-    if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
-      console.log("213");
+   
+    console.log(deviceGroupToRegister.blockchainAddress);
+    
+    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
+      console.log("deviceGroupToRegister.blockchainAddress");
+      deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
+     
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
         user.id,
-        user.blockchainAccountAddress
+        deviceGroupToRegister.blockchainAddress
       );
-    }
-    else {
-      console.log("222");
-      throw new ConflictException({
-        success: false,
-        message: 'Blockchain address is not added for this organization',
-      });
+
+    } else {
+      console.log(user.blockchainAccountAddress);
+      if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
+        console.log("user.blockchainAddress")
+        return await this.deviceGroupService.createOne(
+          organizationId,
+          deviceGroupToRegister,
+          user.id,
+          user.blockchainAccountAddress
+        );
+
+      } else {
+
+        throw new ConflictException({
+          success: false,
+          message: 'No blockchain address sent and no blockchain address attached to this account',
+        });
+      }
     }
 
   }
@@ -336,9 +342,10 @@ export class DeviceGroupController {
 
 
   @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
+  //@Permission('Write')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -346,7 +353,10 @@ export class DeviceGroupController {
     description: 'Returns created devices from csv',
   })
   @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser, @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+  public async processCreationBulkFromCSV
+    (@UserDecorator() user: ILoggedInUser,
+      @UserDecorator() { organizationId }: ILoggedInUser,
+      @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({
         success: false,
@@ -467,14 +477,13 @@ export class DeviceGroupController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
 
-
-    let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({groupId:id});
+    let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({ groupId: id });
     if (devicenextissuence === null) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message:`This device groups reservation has already ended `,
+            message: `This device groups reservation has already ended `,
           })
         );
       });
@@ -484,80 +493,80 @@ export class DeviceGroupController {
         reject(
           new ConflictException({
             success: false,
-            message:`Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+            message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
           })
         );
       });
     }
-  
+
     return await this.deviceGroupService.update(
-    id,
-    loggedUser,
-    groupToUpdate,
-  );
+      id,
+      loggedUser,
+      groupToUpdate,
+    );
   }
 
-@Delete('/:id')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(Role.DeviceOwner, Role.Admin)
-@ApiResponse({
-  status: HttpStatus.OK,
-  description: 'Remove device group',
-})
-@ApiNotFoundResponse({ description: `No device group found` })
-public async remove(
+  @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.DeviceOwner, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Remove device group',
+  })
+  @ApiNotFoundResponse({ description: `No device group found` })
+  public async remove(
     @Param('id') id: number,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise < void> {
-  return await this.deviceGroupService.remove(id, organizationId);
-}
+  ): Promise<void> {
+    return await this.deviceGroupService.remove(id, organizationId);
+  }
 
-@Get('/bulk-upload-status/:id')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
-@Permission('Read')
-@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-@ApiResponse({
-  status: HttpStatus.OK,
-  type: JobFailedRowsDTO,
-  description: 'Returns status of job id for bulk upload',
-})
-public async getBulkUploadJobStatus(
+  @Get('/bulk-upload-status/:id')
+  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
+  // @Permission('Read')
+  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: JobFailedRowsDTO,
+    description: 'Returns status of job id for bulk upload',
+  })
+  public async getBulkUploadJobStatus(
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
-  ): Promise < JobFailedRowsDTO | undefined > {
-  console.log("jobId", jobId);
+  ): Promise<JobFailedRowsDTO | undefined> {
+    console.log("jobId", jobId);
 
-  let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-    jobId
-  );
-  console.log("data", data);
-  return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-    jobId
-  );
-}
+    let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
+    console.log("data", data);
+    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
+  }
 
-@Get('/bulk-upload/get-all-csv-jobs-of-organization')
-@UseGuards(AuthGuard('jwt'))
-//@UseGuards(AuthGuard('jwt'),PermissionGuard)
-//@Permission('Read')
-//@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-@ApiResponse({
-  status: HttpStatus.OK,
-  type: [DeviceCsvFileProcessingJobsEntity],
-  description: 'Returns created jobs of an organization',
-})
-public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise < Array < DeviceCsvFileProcessingJobsEntity >> {
-  console.log("user", user);
-  console.log("organization", organizationId);
-
-  if(user.organizationId === null || user.organizationId === undefined) {
-  throw new ConflictException({
-    success: false,
-    message:
-      'User needs to have organization added'
+  @Get('/bulk-upload/get-all-csv-jobs-of-organization')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
+  //@Permission('Read')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created jobs of an organization',
   })
-}
-return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
+  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    console.log("user", user);
+    console.log("organization", organizationId);
+
+    if (user.organizationId === null || user.organizationId === undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          'User needs to have organization added'
+      })
+    }
+    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 
   @Get('certificatelog/:id')
@@ -569,34 +578,34 @@ return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   async getdevciegrouplog(@Param('id') id: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
-//   @Post('/buyer-reservation')
-//   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-//   @Permission('Write')
-//   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
-//   @ApiResponse({
-//    status: HttpStatus.OK,
-//    type: JobFailedRowsDTO,
-//    description: 'Returns status of job id for bulk upload',
-//  })
-//  public async createBuyerReservationGroups(
-//    @UserDecorator() { organizationId }: ILoggedInUser
-//  ): Promise<JobFailedRowsDTO | undefined> {
+  //   @Post('/buyer-reservation')
+  //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  //   @Permission('Write')
+  //   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  //   @ApiResponse({
+  //    status: HttpStatus.OK,
+  //    type: JobFailedRowsDTO,
+  //    description: 'Returns status of job id for bulk upload',
+  //  })
+  //  public async createBuyerReservationGroups(
+  //    @UserDecorator() { organizationId }: ILoggedInUser
+  //  ): Promise<JobFailedRowsDTO | undefined> {
 
-//  }
-@Delete('endreservation/:id')
-@UseGuards(AuthGuard('jwt'))
+  //  }
+  @Delete('endreservation/:id')
+  @UseGuards(AuthGuard('jwt'))
 
-@ApiResponse({
-  status: HttpStatus.OK,
-  type: EndReservationdateDTO,
-  description: 'Reservation End',
-})
-@ApiNotFoundResponse({ description: `No  Reservation found` })
-public async endresavation(
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: EndReservationdateDTO,
+    description: 'Reservation End',
+  })
+  @ApiNotFoundResponse({ description: `No  Reservation found` })
+  public async endresavation(
     @Param('id') id: number,
     @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise < void> {
-  return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
-}
+  ): Promise<void> {
+    return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
+  }
 }

@@ -371,6 +371,10 @@
          {
              "packageName": "@energyweb/origin-drec-ui",
              "projectFolder": "apps/drec-ui"
+         },
+         {
+            "packageName": "@energyweb/origin-drec-angular-ui",
+            "projectFolder": "apps/drec-angular-ui"
          }
         // {
         //   /**

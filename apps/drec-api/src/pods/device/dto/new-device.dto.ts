@@ -5,6 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
+  IsNotEmpty
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -12,6 +13,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 
@@ -19,6 +22,7 @@ export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   externalId: string;
 
@@ -52,14 +56,20 @@ export class NewDeviceDTO
   // zipCode: string;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(FuelCode,{
+    message:
+      'Valid FuelCode values are ES100,ES990 ',
+  })
   @IsOptional()
-  fuelCode: string;
+  fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(DevicetypeCode,{
+    message:
+      'Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
+  })
   @IsOptional()
-  deviceTypeCode: string;
+  deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()
   // @IsEnum(Installation)
@@ -152,16 +162,14 @@ export class NewDeviceDTO
   // @IsNumber()
   // @IsOptional()
   // groupId?: number | null;
-
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
-  SDGBenefits?: number| undefined;
+  SDGBenefits?: string[];
 
   @ApiProperty({ default: "1.0"})
   @IsString()
   @IsOptional()
-  version: string;
+  version: string="1.0";
 
 
 }

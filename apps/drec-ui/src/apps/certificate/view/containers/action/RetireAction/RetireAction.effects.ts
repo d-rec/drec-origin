@@ -30,13 +30,16 @@ export const useRetireActionEffects = (
     });
     const { isValid, isDirty, errors } = formState;
 
-    const { startDate, endDate, purpose } = watch();
+    const { beneficiaryname,beneficiaryaddress,beneficiarycountrycode,startDate, endDate, purpose } = watch();
 
     const { organizationLoading, organization: selectedBeneficiary } = useMyOrganizationData();
 
     const { retireHandler, isLoading: isHandlerLoading } = useRetireCertificateHandler(
         selectedBeneficiary,
         resetIds,
+        beneficiaryname,
+        beneficiaryaddress,
+        beneficiarycountrycode,
         startDate as Dayjs,
         endDate as Dayjs,
         purpose,

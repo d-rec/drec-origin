@@ -52,6 +52,11 @@ export class NewIntmediateMeterReadDTO
   implements Omit<Iintermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
 {
 
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  timezone?:string;
+  
   @ApiProperty({ enum: ReadType, enumName: 'type' })
   @IsEnum(ReadType)
   type: ReadType;
@@ -64,5 +69,8 @@ export class NewIntmediateMeterReadDTO
   @IsArray()
   @ValidateNested()
   reads: NewReadDTO[];
+
+
+
 
 }

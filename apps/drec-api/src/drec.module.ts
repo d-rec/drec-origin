@@ -48,6 +48,8 @@ import {SdgbenefitModule} from './pods/sdgbenefit/sdgbenefit.module';
 import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
+import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -87,6 +89,7 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
+  DeltaFirstRead,
   ...IssuerEntities,
 ];
 

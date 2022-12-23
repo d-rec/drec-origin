@@ -6,6 +6,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../utils/enums';
 
 export interface IDevice {
@@ -19,8 +21,8 @@ export interface IDevice {
   longitude: string;
   countryCode: string;
   //zipCode?: string;
-  fuelCode: string;
-  deviceTypeCode: string;
+  fuelCode: FuelCode;
+  deviceTypeCode: DevicetypeCode;
   //installationConfiguration: Installation;
   capacity: number;
   commissioningDate: string;
@@ -39,7 +41,7 @@ export interface IDevice {
   integrator?: Integrator;
   energyStorage?: boolean;
   energyStorageCapacity?: number;
-  SDGBenefits?: number;
+  SDGBenefits?: string[];
   qualityLabels?: string;
   meterReadtype?: string;
   createdAt?:Date;

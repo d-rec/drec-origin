@@ -43,7 +43,12 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../utils/enums';
+
+import moment from 'moment';
+
 import { groupByProps } from '../../utils/group-by-properties';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
@@ -64,6 +69,8 @@ import csv from 'csv-parser';
 
 import csvtojsonV2 from "csvtojson";
 
+import { countrCodesList } from '../../models/country-code'
+
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
 import {
@@ -83,6 +90,8 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { DateTime } from 'luxon';
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
 import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity';
+import { SdgBenefit } from '../sdgbenefit/sdgbenefit.entity';
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 
 @Injectable()
 export class DeviceGroupService {
@@ -217,7 +226,7 @@ export class DeviceGroupService {
   async getAllCSVJobsForOrganization(
     organizationId: number,
   ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log(organizationId);
+    //console.log(organizationId);
     return await this.repositoyCSVJobProcessing.find({
       organizationId
       //status:StatusCSV.Completed
@@ -328,11 +337,11 @@ export class DeviceGroupService {
     devices.filter(ele => {
       if(  ( new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime() ) && ( new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime() ))
       {
-        console.log("device filter for history")
+        //console.log("device filter for history")
         return true;
       }
     }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true): (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
-    console.log(allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
+    //console.log(allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
     if(!allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
     {
         //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
@@ -347,7 +356,7 @@ export class DeviceGroupService {
           minimumDeviceCreatedAtIndex = index;
         }
         });
-        console.log(minimumDeviceCreatedAtDate)
+        //console.log(minimumDeviceCreatedAtDate)
         //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
         //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
         let startDate:string='';
@@ -359,7 +368,7 @@ export class DeviceGroupService {
         {
           startDate = minimumDeviceCreatedAtDate.toISOString()
         }
-        console.log(minimumDeviceCreatedAtDate)
+        //console.log(minimumDeviceCreatedAtDate)
         let hours = 1;
 
         const frequency = group.frequency.toLowerCase();
@@ -373,11 +382,11 @@ export class DeviceGroupService {
           hours = 91 * 24;
         }
         //@ts-ignore
-        console.log(hours);
-        console.log(typeof data.reservationStartDate )
+        //console.log(hours);
+        //console.log(typeof data.reservationStartDate )
         
-        console.log("startDate");
-        console.log(startDate);
+        //console.log("startDate");
+        //console.log(startDate);
         //@ts-ignore
         let newEndDate: string = '';
         let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
@@ -388,7 +397,7 @@ export class DeviceGroupService {
         else {
           newEndDate = data.reservationEndDate.toISOString();
         }
-        console.log("newEndDate",newEndDate)
+        //console.log("newEndDate",newEndDate)
         //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
         //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
         let nextMinimumCreatedWhichIsLessThanEndDate:boolean = false;
@@ -416,7 +425,7 @@ export class DeviceGroupService {
             }
           }
         })
-        console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
+        //console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
         if(nextMinimumCreatedWhichIsLessThanEndDate)
         {
 
@@ -433,8 +442,8 @@ export class DeviceGroupService {
 
 
 
-        console.log("end_date");
-        console.log(end_date);
+        //console.log("end_date");
+        //console.log(end_date);
 
         const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
           start_date: startDate,
@@ -445,9 +454,9 @@ export class DeviceGroupService {
 
     await Promise.all(
       devices.map(async (device: Device) => {
-        console.log(typeof device.createdAt )
-        console.log(data.reservationStartDate );
-        console.log(device.createdAt);
+        //console.log(typeof device.createdAt )
+        //console.log(data.reservationStartDate );
+        //console.log(device.createdAt);
         if( new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()){
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
           
@@ -479,16 +488,16 @@ export class DeviceGroupService {
 
     let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean:boolean= false;
 
-    console.log("came here 461");
+    //console.log("came here 461");
 
     let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
     let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> = [];
     devices.forEach(ele=>ele.groupId!=null? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id):"");
-    console.log(devices);
+    //console.log(devices);
     //@ts-ignore
     devices = devices.filter(ele=>ele.groupId===null);
-    console.log(devices);
-    console.log("came here 465");
+    //console.log(devices);
+    //console.log("came here 465");
     if(devices.length ===0)
     {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
@@ -499,24 +508,24 @@ export class DeviceGroupService {
         }))
       })
     }
-    console.log("came here 499");
+    //console.log("came here 499");
 
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
-    await Promise.all(devices.map(async (ele, index) => {
+    // await Promise.all(devices.map(async (ele, index) => {
 
-        const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
-        if (certifieddevices.length > 0 && certifieddevices != undefined) {
-          allDevicesAvailableforBuyerReservation = false;
-          unavailableDeviceIds.push(ele.id);
-          unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
-        }
-        return ele;
-      })
-      );
+    //     const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
+    //     if (certifieddevices.length > 0 && certifieddevices != undefined) {
+    //       allDevicesAvailableforBuyerReservation = false;
+    //       unavailableDeviceIds.push(ele.id);
+    //       unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
+    //     }
+    //     return ele;
+    //   })
+    //   );
 
-    devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
+    // devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
 
     if(devices.length ===0)
     {
@@ -569,8 +578,8 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
       ); // hours
-      console.log("meteredTimePeriodInHours", meteredTimePeriodInHours);
-      console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
+      //console.log("meteredTimePeriodInHours", meteredTimePeriodInHours);
+      //console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
       let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour * 1000;
       if (aggregatedCapacity * meteredTimePeriodInHours < targetCapacityInKiloWattHour) {
         smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
@@ -648,8 +657,8 @@ export class DeviceGroupService {
       devices.forEach(async (ele, index) => {
 
         const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, deviceGroup.reservationStartDate, deviceGroup.reservationEndDate);
-        console.log("certifieddevices")
-        console.log(certifieddevices);
+        //console.log("certifieddevices")
+        //console.log(certifieddevices);
         if (certifieddevices.length > 0 && certifieddevices != undefined) {
           allDevicesAvailableforBuyerReservation = false;
           unavailableDeviceIds.push(ele.id);
@@ -755,7 +764,7 @@ export class DeviceGroupService {
     }
 
     deviceGroup = defaults(data, deviceGroup);
-    console.log(deviceGroup.name)
+    //console.log(deviceGroup.name)
     const updatedGroup = await this.repository.save(deviceGroup);
 
     updatedGroup.devices = await this.deviceService.findForGroup(
@@ -831,7 +840,7 @@ export class DeviceGroupService {
       await this.deviceService.findMultipleDevicesBasedExternalId(
         allExternalIds,
       );
-    //console.log("existingDevices",existingDevices);
+    ////console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
       //@ts-ignore
       existingDevices.forEach((ele) => existingDeviceIds.push(ele?.externalId));
@@ -1009,11 +1018,12 @@ export class DeviceGroupService {
       name:
         groupName ,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: devices[0].fuelCode,
-      countryCode: devices[0].countryCode,
-      //standardCompliance: devices[0].standardCompliance,
+      fuelCode: devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode :'').join(' , '),
+      countryCode: devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode :'').join(' , '),
+    //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
-      offTakers: [devices[0].offTaker],
+      //@ts-ignore
+      offTakers: [devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker :'').join(' , ')],
       //installationConfigurations: [devices[0].installationConfiguration],
       //sectors,
       gridInterconnection,
@@ -1120,7 +1130,7 @@ export class DeviceGroupService {
     if (response == undefined) {
       return;
     } else {
-      //console.log("started job processing",filesAddedForProcessing.jobId);
+      ////console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -1136,7 +1146,7 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    //console.log("into method");
+    ////console.log("into method");
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1231,19 +1241,19 @@ export class DeviceGroupService {
           dataToStore[key] === ''?dataToStore[key]=null:'';
         }
 
-        //console.log("records",JSON.stringify(records));
+        ////console.log("records",JSON.stringify(records));
 
         records.push(dataToStore);
         recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
       })
       .on('end', async () => {
-        //console.log("data end transmissiodsdddddddddddn",records);
+        ////console.log("data end transmissiodsdddddddddddn",records);
         for(let index=0;index<records.length;index++)
         {
           let singleRecord = records[index];
-          //console.log("waiting");
+          ////console.log("waiting");
           const errors = await validate(singleRecord);
-          //console.log("validation errors",errors);
+          ////console.log("validation errors",errors);
           // errors is an array of validation errors
           if (errors.length > 0) {
             recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
@@ -1267,14 +1277,14 @@ export class DeviceGroupService {
             });
           });
         }
-        //console.log("listofExistingDevices",listofExistingDevices);
+        ////console.log("listofExistingDevices",listofExistingDevices);
         let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
         //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           records,
         );
-        //console.log("devicesRegistered",devicesRegistered); 
+        ////console.log("devicesRegistered",devicesRegistered); 
         //@ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           if(ele instanceof DeviceDTO)
@@ -1282,10 +1292,10 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
           }
         })
-        //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+        ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
        
         if (recordsErrors.find((ele) => ele.isError === true)) {
-          //console.log("insie if ");
+          ////console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
             filesAddedForProcessing.jobId,
             recordsErrors,
@@ -1293,7 +1303,7 @@ export class DeviceGroupService {
           );
         }
 
-        //console.log("osdksnd if ");
+        ////console.log("osdksnd if ");
 
         this.updateJobStatus(
           filesAddedForProcessing.jobId,
@@ -1301,17 +1311,17 @@ export class DeviceGroupService {
         );
 
       });
-    //console.log("file?.data.toString()",file?.data.toString());
+    ////console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
     
     csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
-      //console.log("csvLine",csvLine);
+      ////console.log("csvLine",csvLine);
     // csvLine =>  "1,2,3" and "4,5,6"
     })
 
     readableStream.emit('data', file?.data.toString());
     setTimeout(()=>{
-      //console.log("data ending emission");
+      ////console.log("data ending emission");
       readableStream.emit('end');
     },60000);
     
@@ -1325,9 +1335,9 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    //console.log("into method");
+    ////console.log("into method");
     const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ rowNumber: number; isError: boolean; errorsList: Array<any> }> =
+    const recordsErrors: Array<{ externalId:string;rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
     let rowsConvertedToCsvCount = 0;
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
@@ -1342,15 +1352,17 @@ export class DeviceGroupService {
 
 
       });
-    //console.log("file?.data.toString()",file?.data.toString());
+    ////console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
 
     csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data: any, lineNumber: any) => {
-      //console.log("csvLine",data,"sdsds",lineNumber);
+      ////console.log("csvLine",data,"sdsds",lineNumber);
       rowsConvertedToCsvCount++;
       data.images = [];
       data.groupId = null;
       const dataToStore = new NewDeviceDTO();
+      dataToStore.SDGBenefits=[];
+      dataToStore.version='1.0';
 
       const dataKeyForValidation: NewDeviceDTO = {
         externalId: '',
@@ -1359,8 +1371,8 @@ export class DeviceGroupService {
         latitude: '',
         longitude: '',
         countryCode: '',
-        fuelCode: '',
-        deviceTypeCode: '',
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DevicetypeCode.TC150,
         capacity: 0,
         commissioningDate: '',
         gridInterconnection: false,
@@ -1374,11 +1386,15 @@ export class DeviceGroupService {
         energyStorage: true,
         energyStorageCapacity: 0,
         qualityLabels: '',
-        SDGBenefits: 0,
+        SDGBenefits: [],
         version:"1.0",
         //groupId: 0,
       };
       for (const key in dataKeyForValidation) {
+        if(key ==="SDGBenefits" || key === "version")
+        {
+          continue;
+        }
         //@ts-ignore
         if (typeof dataKeyForValidation[key] === 'string') {
           //@ts-ignore
@@ -1391,13 +1407,19 @@ export class DeviceGroupService {
             data[key].toLowerCase() === 'true' ? true : false;
         }
         //@ts-ignore
-        else if (typeof dataKeyForValidation[key] === 'number') {
+        else if (typeof dataKeyForValidation[key] === 'number') {     
           //@ts-ignore
           dataToStore[key] =
-            parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
+            Number.isNaN(data[key]) ? 0: parseFloat(data[key]);
           //@ts-ignore
           if (key == 'yieldValue' && dataToStore[key] === 0) {
             dataToStore[key] = 1500;
+          }
+
+          if(key === "SdgBenefits")
+          {
+            //console.log("data[key]",data[key]);
+            //console.log("dataToStore[key]",dataToStore[key]);
           }
         }
         if (key == 'yieldValue' && data.countryCode) {
@@ -1413,28 +1435,57 @@ export class DeviceGroupService {
         dataToStore[key] === '' ? dataToStore[key] = null : '';
       }
 
-      //console.log("records",JSON.stringify(records));
+      ////console.log("records",JSON.stringify(records));
 
       records.push(dataToStore);
-      recordsErrors.push({ rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
+      recordsErrors.push({ externalId:'',rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
-      //console.log("completed");
-      //console.log("error",error);
-      //console.log("data end transmissiodsdddddddddddn",records);
+      ////console.log("completed");
+      ////console.log("error",error);
+      ////console.log("data end transmissiodsdddddddddddn",records);
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
-        //console.log("waiting");
+        if(records[index].externalId)
+        {
+          records[index].externalId = records[index].externalId.trim();
+        } 
+        ////console.log("waiting");
         const errors = await validate(singleRecord);
-        //console.log("validation errors",errors);
+        ////console.log("validation errors",errors);
         // errors is an array of validation errors
         if (errors.length > 0) {
-          recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
+          
+          errors.forEach(ele=>{
+            delete ele.target;
+            delete ele.children;
+          })
+          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: true, errorsList: errors };
         } else {
-          recordsErrors[index] = { rowNumber: index, isError: false, errorsList: errors };
+          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: false, errorsList: errors };
+        }
+        if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
+          if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+            recordsErrors[index].errorsList.push({value:singleRecord.countryCode, property:"countryCode",constraints:{invalidCountryCode:"Invalid countryCode"}}) 
+          }
+        }
+        if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
+            if(!isValidUTCDateFormat(singleRecord.commissioningDate))
+            {
+                recordsErrors[index].errorsList.push({value:singleRecord.commissioningDate, property:"commissioningDate",constraints:{invalidDate:"Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z"}}) 
+            }
+        }
+        if (singleRecord.capacity <=0) {
+                recordsErrors[index].errorsList.push({value:singleRecord.capacity, property:"capacity",constraints:{greaterThanZero:"Capacity should be greater than 0"}}) 
         }
       }
+
+      records.forEach((singleRecord, index) => {
+          recordsErrors[index].errorsList.forEach(error=>{
+            singleRecord[error.property]= null;//making null field if it has any validation issue 
+          })
+      });
 
       const noErrorRecords = records.filter(
         (record, index) => recordsErrors[index].isError === false,
@@ -1446,29 +1497,44 @@ export class DeviceGroupService {
             (ele) => ele === singleRecord.externalId,
           )) {
             recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              error: 'ExternalId already exist, cant add entry with same external id ',
-            });
+            recordsErrors[index].errorsList.push(
+              {value:singleRecord.externalId, property:"externalId",constraints:{externalIdExists:"ExternalId already exist, cant add entry with same external id"}}
+             );
           }
         });
       }
-      //console.log("listofExistingDevices",listofExistingDevices);
+      ////console.log("listofExistingDevices",listofExistingDevices);
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
+      let recordsToRegister = records.filter((ele,index)=>{
+        if(recordsErrors[index].errorsList.length >0)
+        {
+          //these are required fields and if one is having error we cannot try to insert the record
+          if(recordsErrors[index].errorsList.find(errorRec=>errorRec.property === "externalId" || errorRec.property === "commissioningDate" || errorRec.property === "capacity" || errorRec.property === "countryCode"))
+          {
+            return false;
+          }
+          else
+          {
+            return true;
+          }
+        }
+        else
+           return true;
+      })
       const devicesRegistered = await this.registerCSVBulkDevices(
         organizationId,
-        records,
-      );
-      //console.log("devicesRegistered",devicesRegistered); 
+        recordsToRegister,
+      ); 
       //@ts-ignore
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
         successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) + 1 });
       })
-      //console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+      ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
 
       if (recordsErrors.find((ele) => ele.isError === true)) {
-        //console.log("insie if ");
+        ////console.log("insie if ");
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.jobId,
           recordsErrors,
@@ -1476,7 +1542,7 @@ export class DeviceGroupService {
         );
       }
 
-      //console.log("osdksnd if ");
+      ////console.log("osdksnd if ");
 
       this.updateJobStatus(
         filesAddedForProcessing.jobId,
@@ -1563,13 +1629,13 @@ export class DeviceGroupService {
       result.push(obj)
     }
 
-    //console.log(result);
+    ////console.log(result);
   }
 
   // async getGroupiCertificateIssueDate(
   //   organizationId: number,
   // ): Promise<DeviceGroupIssueCertificate{}> {
-  //   console.log(organizationId);
+  //   //console.log(organizationId);
   //   return await this.repositoryDeviceGroupcertificate.findByIds({
   //     organizationId
   //     //status:StatusCSV.Completed
@@ -1599,7 +1665,7 @@ export class DeviceGroupService {
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
       where: { end_date: LessThan(new Date()) },
     });
-    console.log(groupId)
+    //console.log(groupId)
     return groupId
   }
 
@@ -1632,10 +1698,10 @@ export class DeviceGroupService {
     if (!group)
       group = await this.findDeviceGroupById(groupId, organizationId);
     //@ts-ignore
-    console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
+    //console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
     //@ts-ignore
     if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
-      console.log("came inside ending reservation");
+      //console.log("came inside ending reservation");
       if (!deviceGroupIssueNextDateDTO)
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
       //@ts-ignore
@@ -1706,9 +1772,7 @@ export class DeviceGroupService {
       return this.historynextissuancedaterepository.find({
         where: {
          status:HistoryNextInssuanceStatus.Pending
-        },
-        order:{id:'DESC'},
-        take:10
+        }
       });
     }
 
@@ -1720,6 +1784,7 @@ export class DeviceGroupService {
     async HistoryUpdatecertificateissuedate(
       id: number,
     ): Promise<HistoryDeviceGroupNextIssueCertificate> {
+      //console.log("HistoryUpdatecertificateissuedate")
       // await this.checkNameConflict(data.name);
       const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
       let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();

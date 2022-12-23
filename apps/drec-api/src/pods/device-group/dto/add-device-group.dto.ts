@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, Min,IsBoolean,IsEnum } from 'class-validator';
+import { ApiProperty ,ApiPropertyOptional} from '@nestjs/swagger';
+import { IsInt, IsString,IsOptional, Min,IsBoolean,IsEnum } from 'class-validator';
 import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 
 export class AddGroupDTO {
@@ -11,6 +11,8 @@ export class AddGroupDTO {
   @IsInt({ each: true })
   @Min(1, { each: true })
   deviceIds: number[];
+
+
 
   @ApiProperty({ type: Number })
   targetCapacityInMegaWattHour:number;
@@ -35,4 +37,9 @@ export class AddGroupDTO {
   @ApiProperty()
   @IsEnum(BuyerReservationCertificateGenerationFrequency)
   frequency:BuyerReservationCertificateGenerationFrequency;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsOptional()
+  blockchainAddress?: string;
 }

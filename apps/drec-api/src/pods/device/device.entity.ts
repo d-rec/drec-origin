@@ -7,6 +7,8 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  DevicetypeCode
 } from '../../utils/enums';
 import {
   IsEnum,
@@ -14,6 +16,7 @@ import {
   IsString,
   IsNotEmpty,
   IsNumber,
+  IsArray
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../models';
 
@@ -64,12 +67,13 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // zipCode: string;
 
   @Column({ nullable: true })
-  @IsString()
-  fuelCode: string;
+  @IsEnum(FuelCode)
+  fuelCode: FuelCode;
+
 
   @Column({ nullable: true })
-  @IsString()
-  deviceTypeCode: string;
+  @IsEnum(DevicetypeCode)
+  deviceTypeCode: DevicetypeCode;
 
   // @Column()
   // @IsEnum(Installation)
@@ -79,9 +83,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsNumber()
   capacity: number;
 
-  @Column({ nullable: true })
-  @IsNumber()
-  SDGBenefits: number;
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  SDGBenefits?: string[];
+
 
   @Column({ nullable: true })
   @IsString()

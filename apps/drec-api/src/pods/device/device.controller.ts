@@ -49,7 +49,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countrCodesList } from '../../models/country-code'
-
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -171,9 +171,18 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
-    var commissioningDate = moment(deviceToRegister.commissioningDate);
-    if(!commissioningDate.isValid())
-    {
+    deviceToRegister.externalId = deviceToRegister.externalId.trim();
+    if (deviceToRegister.externalId.trim() === "") {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `externalId should not be empty`,
+          })
+        );
+      });
+    }
+    if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -183,9 +192,17 @@ export class DeviceController {
         );
       });
     }
-
-    if(deviceToRegister['groupId'] ===0 || deviceToRegister['groupId'])
-    {
+    if (new Date(deviceToRegister.commissioningDate).getTime() > new Date().getTime()) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ` Invalid commissioning date, commissioning is greater than current date`,
+          })
+        );
+      });
+    }
+    if (deviceToRegister['groupId'] === 0 || deviceToRegister['groupId']) {
       deviceToRegister['groupId'] = null;
     }
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
@@ -211,7 +228,7 @@ export class DeviceController {
         );
       });
     }
-    if(isNaN(parseFloat(deviceToRegister.capacity.toString())) ){
+    if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -221,7 +238,7 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToRegister.capacity<=0  ){
+    if (deviceToRegister.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -231,8 +248,8 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToRegister.version === null || deviceToRegister.version === undefined){
-      deviceToRegister.version='1.0';
+    if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
+      deviceToRegister.version = '1.0';
     }
     return await this.deviceService
       .register(organizationId, deviceToRegister)
@@ -273,7 +290,7 @@ export class DeviceController {
     // }
   }
 
- 
+
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
@@ -312,7 +329,7 @@ export class DeviceController {
         );
       });
     }
-    if(deviceToUpdate.capacity<=0){
+    if (deviceToUpdate.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -322,11 +339,48 @@ export class DeviceController {
         );
       });
     }
+   // var commissioningDate = moment(deviceToUpdate.commissioningDate);
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate)) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+          }),
+        );
+      });
+    }
+    if (new Date(deviceToUpdate.commissioningDate).getTime() > new Date().getTime()) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: ` Invalid commissioning date, commissioning is greater than current date`,
+          })
+        );
+      });
+    }
     return await this.deviceService.update(
       user.organizationId,
       user.role,
       id,
       deviceToUpdate,
     );
+  }
+
+  @Get('/my/totalamountread')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceDTO],
+    description: 'Returns my Devices',
+  })
+  async getMyDevicesTotal(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<DeviceDTO[]> {
+    return await this.deviceService.getOrganizationDevicesTotal(organizationId);
   }
 }
