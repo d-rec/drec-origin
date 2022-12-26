@@ -1,6 +1,6 @@
 
 
-<!-- <div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center">
+<div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center">
   <mat-card class="box">
     <mat-card-header>
       <mat-card-title>Log in</mat-card-title>
@@ -17,61 +17,4 @@
       <button mat-stroked-button color="accent" type="submit" class="btn-block">Log in</button>
     </form>
   </mat-card>
-</div> -->
-
-
-<div class="login-container">
-  <div class="login-content">
-    <mat-toolbar class="login-toolbar" color="primary">Recipe Book</mat-toolbar>
-    <mat-card>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field>
-          <mat-icon matPrefix>person_outline</mat-icon>
-          <input autofocus type="text" matInput placeholder="Username" formControlName="email">
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-icon matPrefix>lock_outline</mat-icon>
-          <input type="password" autocomplete="false" matInput placeholder="Password"  formControlName="password">
-        </mat-form-field>
-
-        <button type="submit" mat-raised-button color="primary">LOGIN</button>
-      </form>
-       <!-- <mat-toolbar class="login-toolbar" style="background-color:white">login with</mat-toolbar>
-         <div class="socialMediaFlex">
-          <button mat-fab color="primary"><i class="fab fa-facebook-f"></i></button>
-          <button mat-fab color="accent"><i class="fab fa-google"></i></button>
-        </div> -->
-        <br>
-        <span> If You don't have a account yet please <a routerLink ='/register'>REGISTER HERE</a></span>
-
-
-
-      
-    </mat-card>
-  </div>
 </div>
-<!-- 
-<mat-card>
-  <mat-card-content>
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
-      <h2>Log In</h2>
-      <mat-error *ngIf="!loginValid">
-        The username and password were not recognized
-      </mat-error>
-      <mat-form-field>
-        <input matInput placeholder="Email" formControlName="username" name="username" required>
-        <mat-error>
-          Please provide a valid email address
-        </mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="password" placeholder="Password" formControlName="password" name="password" required>
-        <mat-error>
-          Please provide a valid password
-        </mat-error>
-      </mat-form-field>
-      <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid">Login</button>
-    </form>
-  </mat-card-content>
-</mat-card> -->

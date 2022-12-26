@@ -4,105 +4,67 @@
     margin: 100px 0px;
    
   }
-  // .mat-card {
-  //   width: 500px;
-  //   min-width: 500px;
-  // }
+  .mat-card {
+    width: 500px;
+    min-width: 500px;
+  }
  
-//   .mat-card {
-//     max-width: 400px;
-//     margin: 2em auto;
-//     text-align: center;
-//   }
-//   .mat-form-field {
-//     width: 100%;
-//     min-width: 500px;
-//   }
-//   // .mat-form-field {
-//   //   display: block;
-//   // }
-//   .mat-card-title
-//  .mat-card-content {
-//     display: flex;
-//     justify-content: center;
-//   }
-
-//   .error {
-//     padding: 16px;
-//     width: 500px;
-//     color: white;
-//     background-color: red;
-//   }
-
-//   .button {
-//     display: flex;
-//     justify-content: flex-end;
-//   }
-  // .login-wrapper .example-form {
-  //   min-width: 100%;
-  //   max-width: 300px;
-  //   width: 100%;
-  // }
-  // .login-wrapper .example-full-width,
-  // .login-wrapper .btn-block {
-  //   width: 100%;
-  // }
-  // .login-wrapper mat-card-header {
-  //   text-align: center;
-  //   width: 100%;
-  //   display: block;
-  //   font-weight: 700;
-  // }
-  // .login-wrapper mat-card-header mat-card-title {
-  //   font-size: 30px;
-  //   margin: 0;
-  // }
-  // .login-wrapper .mat-card {
-  //   padding: 40px 70px 50px;
-  // }
-  // .login-wrapper .mat-stroked-button {
-  //   border: 1px solid currentColor;
-  //   line-height: 54px;
-  //   background: #FFF7FA;
-  // }
-  // .login-wrapper .mat-form-field-appearance-legacy .mat-form-field-infix {
-  //   padding: 0.8375em 0;
-  // }
-//new login
-  .login-container {
-    margin-top: 50px;
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    display: flex;
+  .mat-card {
+    max-width: 400px;
+    margin: 2em auto;
+    text-align: center;
   }
-  
-  form {
-    width: 100%;
-  }
-  
-  .login-content {
-    width: 400px;
-    display: block;
-    margin: 0 auto;
-  }
-  
-  .login-toolbar {
-    justify-content: center;
-  }
-  
   .mat-form-field {
     width: 100%;
-    display: block;
+    min-width: 500px;
   }
-  
-  .mat-raised-button {
+  // .mat-form-field {
+  //   display: block;
+  // }
+  .mat-card-title
+ .mat-card-content {
+    display: flex;
+    justify-content: center;
+  }
+
+  .error {
+    padding: 16px;
+    width: 500px;
+    color: white;
+    background-color: red;
+  }
+
+  .button {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .login-wrapper .example-form {
+    min-width: 100%;
+    max-width: 300px;
     width: 100%;
-    height: 60px;
-    margin-top: 15px;
   }
-  .socialMediaFlex{
-   
-    display:flex;
-    justify-content: space-around;
+  .login-wrapper .example-full-width,
+  .login-wrapper .btn-block {
+    width: 100%;
+  }
+  .login-wrapper mat-card-header {
+    text-align: center;
+    width: 100%;
+    display: block;
+    font-weight: 700;
+  }
+  .login-wrapper mat-card-header mat-card-title {
+    font-size: 30px;
+    margin: 0;
+  }
+  .login-wrapper .mat-card {
+    padding: 40px 70px 50px;
+  }
+  .login-wrapper .mat-stroked-button {
+    border: 1px solid currentColor;
+    line-height: 54px;
+    background: #FFF7FA;
+  }
+  .login-wrapper .mat-form-field-appearance-legacy .mat-form-field-infix {
+    padding: 0.8375em 0;
   }
