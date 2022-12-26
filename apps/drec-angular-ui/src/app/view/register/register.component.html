@@ -1,0 +1,45 @@
+<div class="login-container">
+    <div class="login-content">
+        <mat-toolbar class="login-toolbar" color="primary">REGISTER</mat-toolbar>
+        <mat-card>
+
+            <form [formGroup]="registerForm" #formDirective="ngForm" (ngSubmit)="onSubmit(registerForm, formDirective)">
+                <mat-form-field>
+                    <mat-icon matPrefix>email</mat-icon>
+                    <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
+                    <mat-error *ngIf="checkValidation('email')">
+                        {{ emaiErrors() }}
+
+                    </mat-error>
+                </mat-form-field>
+
+
+                <mat-form-field>
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input autofocus type="text" matInput placeholder="Username *" formControlName="username">
+                    <mat-error *ngIf="checkValidation('username')">
+                        {{ fieldRequired }}
+                    </mat-error>
+                </mat-form-field>
+
+
+                <mat-form-field>
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input type="password" autocomplete="false" matInput placeholder="Password *"
+                        formControlName="password">
+                    <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
+                        number</mat-hint>
+                    <mat-error *ngIf="checkValidation('password')">
+                        {{ getErrorPassword() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <hr>
+                <div class="socialMediaFlex">
+                    <button style="width:50%" [disabled]="registerForm.invalid" type="submit" mat-raised-button
+                        color="primary">Submit</button>
+                </div>
+            </form>
+        </mat-card>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+
+<mat-card class="example-card">
+	<mat-card-header>
+		<mat-card-title>All Certificate</mat-card-title>
+	</mat-card-header><mat-card-content>
+	<ng-container *ngFor="let item of data">
+		
+		<mat-card  class="innermat-card example-card1" >
+			<mat-card-header>
+			  <mat-card-title>groupId:{{group_uid}}</mat-card-title>
+			</mat-card-header>
+		  
+			<mat-card-content>
+				
+				<div class='content'>
+				<div class='column' >
+					<div class='row'><p><b>generation StartDate</b>:{{item.generationStartTime+'000'| date:'EEE d MMMM y'}}</p></div>
+				  </div>
+				  <div class='column' >
+					<div class='row'><p><b>generation EndDate</b>:{{item.generationEndTime+'000'| date:'EEE d MMMM y'}}</p></div>
+				  </div>
+				  <div class='column'>
+					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue">Amount of Read:{{item1.value}}</p></div>
+				  </div>
+			</div>
+			 <h3>Group Devices</h3>
+			 <table mat-table [dataSource]="item.perDeviceCertificateLog">
+				<ng-container matColumnDef="certificate_issuance_startdate">
+				  <th mat-header-cell *matHeaderCellDef>StartDate </th>
+				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_startdate| date:'EEE d MMMM y'}} </td>
+				</ng-container>
+			  
+				<ng-container matColumnDef="certificate_issuance_enddate">
+				  <th mat-header-cell *matHeaderCellDef> EndDate</th>
+				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_enddate| date:'EEE d MMMM y hh:ss'}} </td>
+				</ng-container>
+			  
+				<ng-container matColumnDef="deviceid">
+				  <th mat-header-cell *matHeaderCellDef> Device formControlName </th>
+				  <td mat-cell *matCellDef="let element"> {{element.deviceid }} </td>
+				</ng-container>
+				<ng-container matColumnDef="readvalue_watthour">
+					<th mat-header-cell *matHeaderCellDef> Read Value </th>
+					<td mat-cell *matCellDef="let element"> {{element.readvalue_watthour }} </td>
+				  </ng-container>
+				
+			  
+				<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
+			  </table>
+			</mat-card-content>
+		  </mat-card>
+		
+		</ng-container>
+	</mat-card-content>
+</mat-card>

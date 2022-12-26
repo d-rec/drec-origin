@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start:dev":"ng serve",
+    "start:dev": "ng serve",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -24,7 +24,7 @@
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0",
-    "ngx-toastr":"16.0.1"
+    "ngx-toastr": "16.0.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
