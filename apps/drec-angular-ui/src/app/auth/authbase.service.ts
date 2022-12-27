@@ -4,7 +4,7 @@ import { HttpClient,HttpHeaders, HttpErrorResponse} from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthbaseService {
-  url: String = 'http://localhost:3040/api/';
+  url: String = 'https://dev-api.drecs.org/api/';
   constructor(private httpClient:HttpClient) { }
 
 //   lohinhttpOptions() {
