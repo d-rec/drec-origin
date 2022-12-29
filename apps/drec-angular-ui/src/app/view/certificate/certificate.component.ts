@@ -85,6 +85,7 @@ export class CertificateComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   data:any;
   group_uid: string;
+  energyurl:any;
   constructor(private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
@@ -93,6 +94,7 @@ export class CertificateComponent implements OnInit {
   });
    }
   ngOnInit() {
+    this.energyurl="https://explorer.energyweb.org/tx/";
     console.log("myreservation");
     this.DisplayList()
   }

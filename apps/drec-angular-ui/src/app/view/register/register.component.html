@@ -114,22 +114,57 @@
             <mat-card-content>
                 <mat-form-field>
                     <mat-icon matPrefix>email</mat-icon>
+                    <input autofocus type="text" matInput placeholder="first Name*" formControlName="first">
+                    <mat-error  class="py-3" *ngIf="checkValidation('first')">
+                        {{ emaiErrors() }}
+
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-icon matPrefix>email</mat-icon>
+                    <input autofocus type="text" matInput placeholder="lastname *" formControlName="lastname">
+                    <mat-error  class="py-3" *ngIf="checkValidation('lastname')">
+                        {{ emaiErrors() }}
+
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-icon matPrefix>email</mat-icon>
                     <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
                     <mat-error  class="py-3" *ngIf="checkValidation('email')">
                         {{ emaiErrors() }}
 
                     </mat-error>
                 </mat-form-field>
-
-
                 <mat-form-field>
                     <mat-icon matPrefix>person_outline</mat-icon>
-                    <input autofocus type="text" matInput placeholder="Username *" formControlName="username">
-                    <mat-error class="py-3" *ngIf="checkValidation('username')">
+                    <input autofocus type="text" matInput placeholder="organizationType *" formControlName="organizationType">
+                    <mat-error class="py-3" *ngIf="checkValidation('organizationType')">
                         {{ fieldRequired }}
                     </mat-error>
                 </mat-form-field>
-
+                <mat-form-field>
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input autofocus type="text" matInput placeholder="orgName *" formControlName="orgName">
+                    <mat-error class="py-3" *ngIf="checkValidation('orgName')">
+                        {{ fieldRequired }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input autofocus type="text" matInput placeholder="orgAddress *" formControlName="orgAddress">
+                    <mat-error class="py-3" *ngIf="checkValidation('orgAddress')">
+                        {{ fieldRequired }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                    <input autofocus type="text" matInput placeholder="secretKey *" formControlName="secretKey">
+                    <mat-error class="py-3" *ngIf="checkValidation('secretKey')">
+                        {{ fieldRequired }}
+                    </mat-error>
+                </mat-form-field>
 
                 <mat-form-field class="mb-5">
                     <mat-icon matPrefix>lock_outline</mat-icon>
@@ -138,6 +173,16 @@
                     <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
                         number</mat-hint>
                     <mat-error  class="py-3" *ngIf="checkValidation('password')">
+                        {{ getErrorPassword() }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="mb-5">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input type="password" autocomplete="false" matInput placeholder="confirm Password *"
+                        formControlName="confirmPassword">
+                    <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
+                        number</mat-hint>
+                    <mat-error  class="py-3" *ngIf="checkValidation('confirmPassword')">
                         {{ getErrorPassword() }}
                     </mat-error>
                 </mat-form-field>

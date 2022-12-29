@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MaterialModule} from './material/material.module';
 import {AuthInterceptor} from './auth/auth.interceptor';
@@ -31,7 +32,8 @@ import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutlog
     MyreservationComponent,
     CertificateDetailsComponent,
     WithloginlayoutComponent,
-    WithoutloginlayoutComponent
+    WithoutloginlayoutComponent,
+    
   ],
   imports: [
     BrowserModule,
@@ -40,7 +42,12 @@ import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutlog
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    ToastrModule.forRoot({
+      closeButton: true,
+      timeOut: 15000, // 15 seconds
+      progressBar: true,
+    }),
 
   ],
   providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },],
