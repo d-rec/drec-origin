@@ -1,3 +1,4 @@
+<div class="bg-solar"></div>
 <div
   class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login">
   <mat-card class="box">
@@ -112,12 +113,13 @@
           <input matInput placeholder="Password" type="password" formControlName="password" required>
         </mat-form-field>
       </mat-card-content>
-      <div class="p-3 pb-4 mb-2">
+      <div class="p-3">
         <button type="submit" class="btn-primary btn   btn-block">Login</button>
       </div>
-      
-      <p>Don't have an account?</p>
-      <p>  <a routerLink="/register" style="color: #f2be1a;">Register</a></p>
+      <div class="d-flex justify-content-between pb-4 mb-2 px-3">
+        <p class="mb-0 pb-0">Don't have an account?</p>
+        <p class="mb-0 pb-0"><a routerLink="/register" class="text-warning">Register</a></p>
+      </div>
     </form>
   </mat-card>
 </div>
