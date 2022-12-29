@@ -57,6 +57,7 @@ font-weight: 600;
 
 
 // Mat Input
+
 .mdc-text-field--no-label:not(.mdc-text-field--textarea) .mat-mdc-form-field-input-control.mdc-text-field__input, .mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control, .mat-mdc-form-field-icon-prefix, [dir=rtl] .mat-mdc-form-field-icon-suffix
 {
     font-size: $f-14;
@@ -80,4 +81,8 @@ font-weight: 600;
 .mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-line-ripple::after
 {
     border-bottom-color:$danger!important;
+}
+.mat-drawer-inner-container
+{
+  background-color: $white!important;
 }
