@@ -39,15 +39,16 @@ export class MyreservationComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   data:any;
+  pageSize:number = 20;
   constructor(private authService: AuthbaseService, private router: Router,) { }
   ngOnInit() {
     console.log("myreservation");
     this.DisplayList()
   }
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  // ngAfterViewInit() {
+  //   this.dataSource.paginator = this.paginator;
+  //   this.dataSource.sort = this.sort;
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -64,7 +65,8 @@ export class MyreservationComponent implements OnInit {
         console.log(data)
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
       }
     )
   }
