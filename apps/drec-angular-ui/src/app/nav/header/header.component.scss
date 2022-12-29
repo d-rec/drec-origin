@@ -1,6 +1,15 @@
+$primary: #f2be1a;
+$secondary: #010101;
+$tritary: #3f3f3f;
+$gray: #3f3f3f;
+$white: #fff;
+$danger: #f44336;
+
+
+
 .example-header {
     position: fixed;
-    background: #004a9f;
+    background: $white;
     color: white;
     top: 0;
     left: 0;
@@ -10,3 +19,14 @@
   .spacer {
     flex: 1 1 auto;
   }
+
+
+
+  .custom-header
+  {
+    .mat-mdc-button:not(:disabled)
+    {
+      color: $secondary;
+    }
+  }
+

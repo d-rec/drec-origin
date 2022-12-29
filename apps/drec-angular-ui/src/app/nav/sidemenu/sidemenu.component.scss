@@ -1,3 +1,9 @@
+$primary: #f2be1a;
+$secondary: #010101;
+$tritary: #3f3f3f;
+$gray: #3f3f3f;
+$white: #fff;
+$danger: #f44336;
 
 .example-container {
     position: absolute;
@@ -47,3 +53,14 @@
     margin-bottom: 16px;
     background-color: rgba(255, 255, 255, 0.5);
   }
+
+  .menu-button
+  {
+    height: 50px!important;
+    &.active
+    {
+    background-color: $primary!important;
+    border-radius: 0px;
+    padding: 20px inherit!important;
+    }
+    }
