@@ -186,6 +186,16 @@
                         {{ getErrorPassword() }}
                     </mat-error>
                 </mat-form-field>
+                <mat-form-field class="mb-5">
+                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <input type="password" autocomplete="false" matInput placeholder="confirm Password *"
+                        formControlName="confirmPassword">
+                    <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
+                        number</mat-hint>
+                    <mat-error  class="py-3" *ngIf="checkValidation('confirmPassword')">
+                        {{ getErrorPassword() }}
+                    </mat-error>
+                </mat-form-field>
             </mat-card-content>
         </div>
             <div class="p-3 pb-4 mb-2">

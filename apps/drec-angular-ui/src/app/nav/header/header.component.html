@@ -106,8 +106,8 @@
     <!--  <span>HOME</span> -->
     <!-- <span><a href="/">HOME</a></span> -->
     <span class="spacer"></span>
-    <a mat-button routerLink="/register">Register</a>
-    <a mat-button routerLink="/login" *ngIf="!isLoggedIn">Login</a>
+    <!-- <a mat-button routerLink="/register">Register</a>
+    <a mat-button routerLink="/login" *ngIf="!isLoggedIn">Login</a> -->
     <a mat-button (click)="logout()" *ngIf="isLoggedIn"><mat-icon>power_settings_new</mat-icon>Logout</a>
   </mat-toolbar-row>
 
