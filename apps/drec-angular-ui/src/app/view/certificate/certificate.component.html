@@ -1,11 +1,15 @@
-
+<div class="body-bg">
 <mat-card class="example-card">
 	<mat-card-header>
-		<mat-card-title>All Certificate</mat-card-title>
-	</mat-card-header><mat-card-content>
+		<mat-card-title>
+			<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
+		</mat-card-title>
+	</mat-card-header>
+	<hr>
+	<mat-card-content>
 	<ng-container *ngFor="let item of data">
 		
-		<mat-card  class="innermat-card example-card1" >
+		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
 			  <mat-card-title>groupId:{{group_uid}}
 				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank">EWF Detals</a>
@@ -57,3 +61,4 @@
 		</ng-container>
 	</mat-card-content>
 </mat-card>
+</div>

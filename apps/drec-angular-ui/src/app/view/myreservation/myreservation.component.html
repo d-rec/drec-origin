@@ -2,9 +2,10 @@
     <mat-card>
         <mat-card-header>
             <mat-card-title>
-                <h1>list</h1>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">list</h2>
             </mat-card-title>
         </mat-card-header>
+        <hr>
         <mat-card-content>
             <mat-form-field>
                 <mat-label>Filter</mat-label>
@@ -71,7 +72,7 @@
                         <th mat-header-cell *matHeaderCellDef>Action</th>
                         <td mat-cell *matCellDef="let row; let i=index;" >
                             <!-- <button>certificate</button> -->
-                            <button class="btn btn-info" [routerLink]="['/certificate']"
+                            <button class="btn-primary btn btn-sm" [routerLink]="['/certificate']"
                                 [queryParams]="{id: row.devicegroup_uid}" target="_blank">certificate</button>
                         
                         </td>
