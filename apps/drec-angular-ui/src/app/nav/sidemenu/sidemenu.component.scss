@@ -57,10 +57,22 @@ $danger: #f44336;
   .menu-button
   {
     height: 50px!important;
+    font-size: 14px;
     &.active
     {
     background-color: $primary!important;
     border-radius: 0px;
     padding: 20px inherit!important;
     }
+    }
+
+    .example-sidenav
+    {
+      box-shadow: 3px 0px 33px rgba(0,0,0,0.1);
+      border: none!important;
+    }
+
+    .mat-mdc-button.mat-unthemed
+    {
+      color: $secondary!important;
     }

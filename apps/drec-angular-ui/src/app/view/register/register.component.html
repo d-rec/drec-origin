@@ -1,14 +1,7 @@
-<div class="bg-solar">
-    
-</div>
-
-<div
-    class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login">
-
-    <mat-card class="box">
-
+<div class="bg-solar"></div>
+<div class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login">
+    <mat-card class="box py-5">
         <mat-card-header>
-
             <!-- logo -->
             <div class="py-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="151" height="48" viewBox="0 0 151 48">
@@ -115,68 +108,81 @@
 
         <form [formGroup]="registerForm" #formDirective="ngForm" (ngSubmit)="onSubmit(registerForm, formDirective)"
             class="px-3 example-form ">
+            <div class="form-scroll">
             <mat-card-content>
                 <mat-form-field>
-                    <mat-icon matPrefix>email</mat-icon>
-                    <input autofocus type="text" matInput placeholder="first Name*" formControlName="first">
-                    <mat-error  class="py-3" *ngIf="checkValidation('first')">
+                    <!-- <mat-icon matPrefix>email</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="First Name*" formControlName="first">
+                    <mat-error class="py-3" *ngIf="checkValidation('first')">
                         {{ emaiErrors() }}
 
                     </mat-error>
                 </mat-form-field>
 
                 <mat-form-field>
-                    <mat-icon matPrefix>email</mat-icon>
-                    <input autofocus type="text" matInput placeholder="lastname *" formControlName="lastname">
-                    <mat-error  class="py-3" *ngIf="checkValidation('lastname')">
+                    <!-- <mat-icon matPrefix>email</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="Last Name *" formControlName="lastname">
+                    <mat-error class="py-3" *ngIf="checkValidation('lastname')">
                         {{ emaiErrors() }}
 
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-icon matPrefix>email</mat-icon>
+                    <!-- <mat-icon matPrefix>email</mat-icon> -->
                     <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
-                    <mat-error  class="py-3" *ngIf="checkValidation('email')">
+                    <mat-error class="py-3" *ngIf="checkValidation('email')">
                         {{ emaiErrors() }}
 
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-icon matPrefix>person_outline</mat-icon>
-                    <input autofocus type="text" matInput placeholder="organizationType *" formControlName="organizationType">
+                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="Organization Type *"
+                        formControlName="organizationType">
                     <mat-error class="py-3" *ngIf="checkValidation('organizationType')">
                         {{ fieldRequired }}
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-icon matPrefix>person_outline</mat-icon>
-                    <input autofocus type="text" matInput placeholder="orgName *" formControlName="orgName">
+                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="OrgName *" formControlName="orgName">
                     <mat-error class="py-3" *ngIf="checkValidation('orgName')">
                         {{ fieldRequired }}
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-icon matPrefix>person_outline</mat-icon>
-                    <input autofocus type="text" matInput placeholder="orgAddress *" formControlName="orgAddress">
+                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="OrgAddress *" formControlName="orgAddress">
                     <mat-error class="py-3" *ngIf="checkValidation('orgAddress')">
                         {{ fieldRequired }}
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-icon matPrefix>person_outline</mat-icon>
-                    <input autofocus type="text" matInput placeholder="secretKey *" formControlName="secretKey">
+                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                    <input autofocus type="text" matInput placeholder="Secret Key *" formControlName="secretKey">
                     <mat-error class="py-3" *ngIf="checkValidation('secretKey')">
                         {{ fieldRequired }}
                     </mat-error>
                 </mat-form-field>
 
                 <mat-form-field class="mb-5">
-                    <mat-icon matPrefix>lock_outline</mat-icon>
+                    <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
                     <input type="password" autocomplete="false" matInput placeholder="Password *"
                         formControlName="password">
                     <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
                         number</mat-hint>
-                    <mat-error  class="py-3" *ngIf="checkValidation('password')">
+                    <mat-error class="py-3 " *ngIf="checkValidation('password')">
+                        {{ getErrorPassword() }}
+                    </mat-error>
+                    <br>
+                </mat-form-field>
+                <mat-form-field class="mb-5">
+                    <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
+                    <input type="password" autocomplete="false" matInput placeholder="confirm Password *"
+                        formControlName="confirmPassword">
+                    <mat-hint>Choose a password of at least eight characters, one uppercase letter and one
+                        number</mat-hint>
+                    <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
                         {{ getErrorPassword() }}
                     </mat-error>
                 </mat-form-field>
@@ -191,9 +197,11 @@
                     </mat-error>
                 </mat-form-field>
             </mat-card-content>
+        </div>
             <div class="p-3 pb-4 mb-2">
                 <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button>
             </div>
         </form>
     </mat-card>
 </div>
+
