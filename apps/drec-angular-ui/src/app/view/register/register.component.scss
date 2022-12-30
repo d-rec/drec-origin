@@ -42,7 +42,7 @@
 
 .login-wrapper .example-form {
   min-width: 100%;
-width: 400px;
+  width: 400px;
   // width: 100%;
 }
 
@@ -90,6 +90,18 @@ width: 400px;
   overflow: hidden;
 }
 
+.bg-solar {
+  background-image: url("../../../assets/images/solar-bg.png");
+  background-size: 900px;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  opacity: 0.1;
+  height: 100vh;
+}
+
 .h-100vh {
   height: 100vh;
 }
@@ -98,10 +110,12 @@ width: 400px;
 
   .mat-mdc-card {
     border-radius: 10px !important;
-    box-shadow: 0 6px 15px  rgba(0,0,0,0.1);;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    ;
   }
 
-  .form-content input, .form-content .dropdown-toggle.btn-default {
+  .form-content input,
+  .form-content .dropdown-toggle.btn-default {
     width: 100%;
     padding: 9px 20px;
     text-align: left;
@@ -115,18 +129,20 @@ width: 400px;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
     margin-bottom: 14px;
-}
+  }
 
-.form-content input:hover, .form-content input:focus, .form-content .dropdown-toggle.btn-default:hover, .form-content .dropdown-toggle.btn-default:focus {
+  .form-content input:hover,
+  .form-content input:focus,
+  .form-content .dropdown-toggle.btn-default:hover,
+  .form-content .dropdown-toggle.btn-default:focus {
     border: 0;
     background-color: #ebeff8;
     color: #8D8D8D;
-}
+  }
 
 
 }
 
-.mat-mdc-form-field
-{
-  display: block!important;
+.mat-mdc-form-field {
+  display: block !important;
 }
