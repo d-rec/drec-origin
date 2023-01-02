@@ -137,14 +137,14 @@
 }
 
 .bg-solar {
-  background-image: url("../../../assets/images/solar-bg.png");
-  background-size: 1000px;
+  background-image: url("../../../assets/images/solar-image.jpg");
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: bottom center;
   position: absolute;
   top: 0px;
   width: 100%;
-  opacity: 0.1;
+  opacity: 0.2;
   height: 100vh;
 }
 

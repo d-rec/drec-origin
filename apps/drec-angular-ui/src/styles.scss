@@ -120,3 +120,9 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row
 {
     height: 34px!important;
 }
+
+.mat-mdc-form-field-hint-wrapper, .mat-mdc-form-field-error-wrapper
+{
+    padding-right: 0px!important;
+    padding-left: 0px!important;
+}
