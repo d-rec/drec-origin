@@ -127,3 +127,8 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row
     padding-right: 0px!important;
     padding-left: 0px!important;
 }
+.mat-mdc-card-header-text {
+    a {
+        color: $primary;
+    }
+}
