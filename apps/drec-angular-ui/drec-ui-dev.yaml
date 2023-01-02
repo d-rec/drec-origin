@@ -36,3 +36,4 @@ spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: drec-ui
+    
