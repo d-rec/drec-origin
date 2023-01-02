@@ -10,6 +10,7 @@ $primary: #f2be1a;
 $secondary: #010101;
 $tritary: #3f3f3f;
 $gray: #3f3f3f;
+$lightgray: #e6e6e6;
 $white: #fff;
 $danger: #f44336;
 
@@ -103,12 +104,12 @@ font-weight: 600;
 // All tables
 tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row
 {
-    background: $tritary;
-    color: $white;
+    background: $lightgray;
+    // color: $white;
     box-shadow: 0px 13px 5px rgba(0,0,0,0.1);
     th
     {
-        color: $white;
+        // color: $white;
     }
 }
 
