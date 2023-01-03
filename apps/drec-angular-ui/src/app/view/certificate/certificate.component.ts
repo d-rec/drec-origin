@@ -12,11 +12,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router,ActivatedRoute, Params } from '@angular/router';
 
-
-
-
-
-
 export interface Student {
   firstName: string;
   lastName: string;
@@ -39,44 +34,6 @@ export interface Student {
 })
 export class CertificateComponent implements OnInit {
 
-  // @ViewChild('outerSort', { static: true }) sort: MatSort;
-  // @ViewChildren('innerSort') innerSort: QueryList<MatSort>;
-  // @ViewChildren('innerTables') innerTables: QueryList<MatTable<Devicelog>>;
-  // public dataSource = new MatTableDataSource<CetificateElement>();
-  // //public dataSource: MatTableDataSource<User>;
-  // usersData: CetificateElement[] = [];
-  // columnsToDisplay = ['serialno','certificateStartDate', 'certificateEndDate','owners'];
-  
-  // columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
-  // innerDisplayedColumns = ['deviceid', 'readvalue_watthour'];
-
-  // public expandedElement: CetificateElement | null;
-  // constructor(
-  //   private cd: ChangeDetectorRef
-  // ) { }
-  // ngOnInit() {
-  //   //call this method on component load
-
-  //   Certificate.forEach(user => {
-  //     if (user.perDeviceCertificateLog && Array.isArray(user.perDeviceCertificateLog) && user.perDeviceCertificateLog.length) {
-  //       this.usersData = [...this.usersData, { ...user, perDeviceCertificateLog: new MatTableDataSource(user.perDeviceCertificateLog) }];
-  //     } else {
-  //       this.usersData = [...this.usersData, user];
-  //     }
-  //   });
-  //   this.dataSource = new MatTableDataSource(this.usersData);
-  //   this.dataSource.sort = this.sort;
-  // }
-
-  // toggleRow(element: CetificateElement) {
-  //   element.perDeviceCertificateLog && (element.perDeviceCertificateLog as MatTableDataSource<Devicelog>).data.length ? (this.expandedElement = this.expandedElement === element ? null : element) : null;
-  //   this.cd.detectChanges();
-  //   this.innerTables.forEach((table, index) => (table.dataSource as MatTableDataSource<Devicelog>).sort = this.innerSort.toArray()[index]);
-  // }
-
-  // applyFilter(filterValue: string) {
-  //   this.innerTables.forEach((table, index) => (table.dataSource as MatTableDataSource<Devicelog>).filter = filterValue.trim().toLowerCase());
-  // }
 
   displayedColumns = ['serialno','certificateStartDate', 'certificateEndDate','owners'];
    innerDisplayedColumns = ['certificate_issuance_startdate','certificate_issuance_enddate','deviceid', 'readvalue_watthour'];
@@ -86,15 +43,18 @@ export class CertificateComponent implements OnInit {
   data:any;
   group_uid: string;
   energyurl:any;
+  group_name:any;
+  
   constructor(private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
       this.group_uid = params['id'];
+      this.group_name = params['name'];
      
   });
    }
   ngOnInit() {
-    this.energyurl="https://explorer.energyweb.org/tx/";
+    this.energyurl="https://volta-explorer.energyweb.org/tx/";
     console.log("myreservation");
     this.DisplayList()
   }

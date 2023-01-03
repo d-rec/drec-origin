@@ -10,6 +10,11 @@ import { Router } from '@angular/router';
 export class RegisterComponent implements OnInit{
   registerForm: FormGroup;
   fieldRequired: string = "This field is required"
+  foods: any[] = [
+    {value: 'steak-0', viewValue: 'Steak'},
+    {value: 'pizza-1', viewValue: 'Pizza'},
+    {value: 'tacos-2', viewValue: 'Tacos'},
+  ];
    constructor(private auth: AuthbaseService) { }
  
    ngOnInit() {
@@ -26,7 +31,7 @@ export class RegisterComponent implements OnInit{
        'email': new FormControl(null,[Validators.required, Validators.pattern(emailregex)]),
        'password': new FormControl(null, [Validators.required, this.checkPassword]),
        'confirmPassword': new FormControl(null, [Validators.required, this.checkPassword]),
-       'secretKey': new FormControl(null,[Validators.required]),
+       'secretKey': new FormControl(null,[Validators.required,this.checksecretKey]),
       }
      )
    
@@ -42,10 +47,20 @@ export class RegisterComponent implements OnInit{
      let passwordCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/;
      return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'requirements': true } : null;
    }
+  
    getErrorPassword() {
-     return this.registerForm.get('password')?.hasError('required') ? 'This field is required (The password must be at least six characters, one uppercase letter and one number)' :
-       this.registerForm.get('password')?.hasError('requirements') ? 'Password needs to be at least six characters, one uppercase letter and one number' : '';
+     return this.registerForm.get('password')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+       this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
    }
+   checksecretKey(control:any) {
+    let enteredsecretKey = control.value
+    let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
+    return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'requirements': true } : null;
+  }
+  getErrorsecretKey() {
+    return this.registerForm.get('secretKey')?.hasError('required') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' :
+      this.registerForm.get('secretKey')?.hasError('requirements') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' : '';
+  }
    checkValidation(input: string){
      const validation = this.registerForm.get(input)?.invalid && (this.registerForm.get(input)?.dirty || this.registerForm.get(input)?.touched)
      return validation;

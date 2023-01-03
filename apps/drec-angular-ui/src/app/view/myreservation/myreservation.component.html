@@ -53,12 +53,12 @@
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationStartDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Start </th>
-                        <td mat-cell *matCellDef="let row"> {{row.reservationStartDate| date:'EEE d MMMM y'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.reservationStartDate| date:'EEE d MMM y'}} </td>
                     </ng-container>
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationEndDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> End </th>
-                        <td mat-cell *matCellDef="let row"> {{row.reservationEndDate| date:'EEE d MMMM y'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.reservationEndDate| date:'EEE d MMM y'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="targetVolumeInMegaWattHour">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Target </th>
@@ -73,7 +73,7 @@
                         <td mat-cell *matCellDef="let row; let i=index;" >
                             <!-- <button>certificate</button> -->
                             <button class="btn-primary btn btn-sm" [routerLink]="['/certificate']"
-                                [queryParams]="{id: row.devicegroup_uid}" target="_blank">certificate</button>
+                                [queryParams]="{id: row.devicegroup_uid,name:row.name}" target="_blank">certificate</button>
                         
                         </td>
                       </ng-container> 
