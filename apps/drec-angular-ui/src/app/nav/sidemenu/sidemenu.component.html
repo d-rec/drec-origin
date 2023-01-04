@@ -1,0 +1,54 @@
+<mat-sidenav-container class="example-container">
+  <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
+    <!-- {{options.value.fixed ? 'Fixed' : 'Non-fixed'}} Sidenav -->
+
+    <button mat-button class="menu-button " routerLinkActive="active"routerLink="/AllDevices" *ngIf="loginuser.role ==='Admin'">
+      <mat-icon>list</mat-icon>
+      <span>All Devices</span>
+    </button>
+    <button mat-button class="menu-button" routerLinkActive="active"routerLink="/AllDevices" *ngIf="loginuser.role ==='OrganizationAdmin'">
+      <mat-icon>list</mat-icon>
+      <span>My Devices</span>
+    </button>
+    <button mat-button class="menu-button"  routerLinkActive="active" routerLink="/adddevice" *ngIf="loginuser.role ==='OrganizationAdmin'">
+      <mat-icon>list</mat-icon>
+      <span>Add Devices</span>
+    </button>
+    <button mat-button class="menu-button active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
+      <mat-icon>list</mat-icon>
+      <span>My Reservation</span>
+    </button>
+    <button mat-button class="menu-button" routerLinkActive="active"routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
+      <mat-icon>add_circle</mat-icon>
+      <span>Add Reservation</span>
+    </button>
+    <button mat-button class="menu-button"  routerLinkActive="active"*ngIf="loginuser.role ==='Buyer'">
+      <mat-icon>account_circle</mat-icon>
+      <span>Account</span>
+    </button>
+    <!-- <button mat-button class="menu-button" routerLink="/certificate">
+        <mat-icon>list</mat-icon>
+      <span>Certificate</span>
+    </button> 
+    <button mat-button class="menu-button" routerLink="/login">
+      <mat-icon>login</mat-icon>
+      <span>Login</span>
+    </button>
+    <button mat-button class="menu-button">
+      <mat-icon>info</mat-icon>
+      <span>About</span>
+    </button>-->
+
+    <mat-divider></mat-divider>
+    <!-- 
+    <button mat-button class="menu-button">
+      <mat-icon>help</mat-icon>
+      <span>Help</span>
+    </button> -->
+    <button class="menu-button" mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon>Logout</button>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
