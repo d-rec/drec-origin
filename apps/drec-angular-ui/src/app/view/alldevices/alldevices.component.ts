@@ -52,6 +52,7 @@ export class AlldevicesComponent {
   data: any;
   loginuser: any
   deviceurl: any;
+  pageSize:number = 20;
   constructor(private authService: AuthbaseService, private router: Router,) {
 
     this.loginuser = sessionStorage.getItem('loginuser');
@@ -61,10 +62,10 @@ export class AlldevicesComponent {
     console.log("myreservation");
     this.DisplayList()
   }
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  // ngAfterViewInit() {
+  //   this.dataSource.paginator = this.paginator;
+  //   this.dataSource.sort = this.sort;
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

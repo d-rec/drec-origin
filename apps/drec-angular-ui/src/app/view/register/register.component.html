@@ -1,6 +1,6 @@
 <div class="bg-solar"></div>
 <div class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login">
-    <mat-card class="box py-4">
+    <mat-card class="box">
         <mat-card-header>
             <!-- logo -->
             <div class="py-4">
@@ -108,96 +108,128 @@
 
         <form [formGroup]="registerForm" #formDirective="ngForm" (ngSubmit)="onSubmit(registerForm, formDirective)"
             class="px-3 example-form ">
-            <div class="form-scroll">
+            <!-- <div class="form-scroll"> -->
             <mat-card-content>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>email</mat-icon> -->
-                    <input autofocus type="text" matInput placeholder="First Name*" formControlName="first">
-                    <mat-error class="py-3" *ngIf="checkValidation('first')">
-                        {{ emaiErrors() }}
-
-                    </mat-error>
-                </mat-form-field>
-
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>email</mat-icon> -->
-                    <input autofocus type="text" matInput placeholder="Last Name *" formControlName="lastname">
-                    <mat-error class="py-3" *ngIf="checkValidation('lastname')">
-                        {{ emaiErrors() }}
-
-                    </mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>email</mat-icon> -->
-                    <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
-                    <mat-error class="py-3" *ngIf="checkValidation('email')">
-                        {{ emaiErrors() }}
-
-                    </mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
-                    <!-- <input autofocus type="text" matInput placeholder="Organization Type *"
-                        formControlName="organizationType"> -->
-                        <mat-select>
-                            <mat-option *ngFor="let food of foods" [value]="food.value"  formControlName="organizationType">
-                              {{food.viewValue}}
-                            </mat-option>
-                          </mat-select>
-                    <mat-error class="py-3" *ngIf="checkValidation('organizationType')">
-                        {{ fieldRequired }}
-                    </mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
-                    <input autofocus type="text" matInput placeholder="OrgName *" formControlName="orgName">
-                    <mat-error class="py-3" *ngIf="checkValidation('orgName')">
-                        {{ fieldRequired }}
-                    </mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
-                    <input autofocus type="text" matInput placeholder="OrgAddress" formControlName="orgAddress">
-                    <mat-error class="py-3" *ngIf="checkValidation('orgAddress')">
-                        {{ fieldRequired }}
-                    </mat-error>
-                </mat-form-field>
+                <mat-stepper orientation="horizontal">
+                    <mat-step>
+                      <!-- <ng-template matStepLabel></ng-template> -->
+                      <ng-template matStepContent>
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>email</mat-icon> -->
+                            <input autofocus type="text" matInput placeholder="First Name*" formControlName="first">
+                            <mat-error class="py-3" *ngIf="checkValidation('first')">
+                                {{ emaiErrors() }}
+        
+                            </mat-error>
+                        </mat-form-field>
+        
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>email</mat-icon> -->
+                            <input autofocus type="text" matInput placeholder="Last Name*" formControlName="lastname">
+                            <mat-error class="py-3" *ngIf="checkValidation('lastname')">
+                                {{ emaiErrors() }}
+        
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>email</mat-icon> -->
+                            <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
+                            <mat-error class="py-3" *ngIf="checkValidation('email')">
+                                {{ emaiErrors() }}
+        
+                            </mat-error>
+                        </mat-form-field>
+                        <button mat-button matStepperNext>Next</button>
+                      </ng-template>
+                    </mat-step>
+                    <mat-step>
+                      <ng-template matStepLabel></ng-template>
+                      <ng-template matStepContent>
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                            <!-- <input autofocus type="text" matInput placeholder="Organization Type *"
+                                formControlName="organizationType"> -->
+                                <mat-select formControlName="organizationType">
+                                    <mat-option *ngFor="let food of foods" [value]="food.value"  >
+                                      {{food.viewValue}}
+                                    </mat-option>
+                                  </mat-select>
+                            <mat-error class="py-3" *ngIf="checkValidation('organizationType')">
+                                {{ fieldRequired }}
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                            <input autofocus type="text" matInput placeholder="OrgName *" formControlName="orgName">
+                            <mat-error class="py-3" *ngIf="checkValidation('orgName')">
+                                {{ fieldRequired }}
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                            <input autofocus type="text" matInput placeholder="OrgAddress" formControlName="orgAddress">
+                            <mat-error class="py-3" *ngIf="checkValidation('orgAddress')">
+                                {{ fieldRequired }}
+                            </mat-error>
+                        </mat-form-field>
+                        <button mat-button matStepperPrevious>Back</button>
+                        <button mat-button matStepperNext>Next</button>
+                      </ng-template>
+                    </mat-step>
+                    <mat-step>
+                      <ng-template matStepLabel></ng-template>
+                      <mat-form-field class="mb-4">
+                        <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
+                        <input type="password" autocomplete="false" matInput placeholder="Password *"
+                            formControlName="password">
+                        <mat-hint>Choose a password of at max 6 characters (upper and/or lower case) and one
+                            number</mat-hint>
+                        <mat-error class="py-3 " *ngIf="checkValidation('password')">
+                            {{ getErrorPassword() }}
+                        </mat-error>
+                        <br>
+                    </mat-form-field>
+                    <mat-form-field class="mb-4">
+                        <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
+                        <input type="password" autocomplete="false" matInput placeholder="confirm Password *"
+                            formControlName="confirmPassword">
+                        <mat-hint>Choose a password of at max 6 characters (upper and/or lower case) and one
+                            number</mat-hint>
+                        <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
+                            {{ getErrorPassword() }}
+                        </mat-error>
+                    </mat-form-field>
+                      <button mat-button matStepperPrevious>Back</button>
+                      <button mat-button matStepperNext>Next</button>
+                    </mat-step>
+                    <mat-step>
+                        <ng-template matStepLabel></ng-template>
+                        <mat-form-field class="mb-5">
+                            <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
+                            <input autofocus type="text" matInput placeholder="Secret Key *" formControlName="secretKey">
+                            <mat-hint>Secret key should be of 6 characters length  and combination should include only A-Z upper case and 0-9 numbers.</mat-hint>
+                            <mat-error class="py-3" *ngIf="checkValidation('secretKey')">
+                                {{ getErrorsecretKey() }}
+                            </mat-error>
+                            <br>
+                        </mat-form-field>
+                     
+                        <button mat-button matStepperPrevious>Back</button>
+                        <button mat-button [disabled]="registerForm.invalid">Next</button>
+                        <!-- <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button> -->
+                      </mat-step>
+                  </mat-stepper>
+               
+               
                
 
-                <mat-form-field class="mb-5">
-                    <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
-                    <input type="password" autocomplete="false" matInput placeholder="Password *"
-                        formControlName="password">
-                    <mat-hint>Choose a password of at max 6 characters(upper and/or lower case) and one
-                        number</mat-hint>
-                    <mat-error class="py-3 " *ngIf="checkValidation('password')">
-                        {{ getErrorPassword() }}
-                    </mat-error>
-                    <br>
-                </mat-form-field>
-                <mat-form-field class="mb-5">
-                    <!-- <mat-icon matPrefix>lock_outline</mat-icon> -->
-                    <input type="password" autocomplete="false" matInput placeholder="confirm Password *"
-                        formControlName="confirmPassword">
-                    <mat-hint>Choose a password of at max 6 characters(upper and/or lower case) and one
-                        number</mat-hint>
-                    <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
-                        {{ getErrorPassword() }}
-                    </mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                    <!-- <mat-icon matPrefix>person_outline</mat-icon> -->
-                    <input autofocus type="text" matInput placeholder="Secret Key *" formControlName="secretKey">
-                    <mat-hint>Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key</mat-hint>
-                    <mat-error class="py-3" *ngIf="checkValidation('secretKey')">
-                        {{ getErrorsecretKey() }}
-                    </mat-error>
-                </mat-form-field>
+              
+              
             </mat-card-content>
-        </div>
-            <div class="p-3 mb-2">
+        <!-- </div> -->
+            <!-- <div class="p-3 mb-2">
                 <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button>
-            </div>
+            </div> -->
             
             <div class="d-flex justify-content-between mb-2 px-3">
                 <p class="mb-0 pb-0">have an account?</p>
