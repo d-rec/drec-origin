@@ -14,15 +14,19 @@
       <mat-icon>list</mat-icon>
       <span>Add Devices</span>
     </button>
+    <button mat-button class="menu-button"  routerLinkActive="active" routerLink="/organization/information" *ngIf="loginuser.role ==='OrganizationAdmin'">
+      <mat-icon>list</mat-icon>
+      <span>Organization</span>
+    </button>
     <button mat-button class="menu-button active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
       <mat-icon>list</mat-icon>
       <span>My Reservation</span>
     </button>
-    <button mat-button class="menu-button" routerLinkActive="active"routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
       <mat-icon>add_circle</mat-icon>
       <span>Add Reservation</span>
     </button>
-    <button mat-button class="menu-button"  routerLinkActive="active"*ngIf="loginuser.role ==='Buyer'">
+    <button mat-button class="menu-button"  routerLinkActive="active" *ngIf="loginuser.role ==='Buyer'">
       <mat-icon>account_circle</mat-icon>
       <span>Account</span>
     </button>

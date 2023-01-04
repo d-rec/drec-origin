@@ -6,7 +6,7 @@ import { AlldevicesComponent } from './view/alldevices/alldevices.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
-import {AddDevicesComponent} from './view/add-devices/add-devices.component'
+import { AddDevicesComponent } from './view/add-devices/add-devices.component'
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
@@ -30,9 +30,14 @@ const routes: Routes = [
       { path: '', redirectTo: 'AllDevices', pathMatch: 'full' },
       { path: 'AllDevices', component: AlldevicesComponent },
       { path: 'certificate', component: CertificateComponent },
-       { path: 'certificate/:id/:name', component: CertificateComponent },
+      { path: 'certificate/:id/:name', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
       { path: 'adddevice', component: AddDevicesComponent },
+      {
+        path: 'organization',
+        loadChildren: () =>
+          import('./view/organization/organization.module').then((m) => m.OrganizationModule),
+      },
     ]
   }
 ];

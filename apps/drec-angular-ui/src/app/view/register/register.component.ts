@@ -1,11 +1,18 @@
 import { Component,OnInit } from '@angular/core';
-import { FormGroup , FormControl,Validators,FormGroupDirective} from '@angular/forms';
+import { FormGroup , FormControl,FormBuilder,Validators,FormGroupDirective} from '@angular/forms';
 import {AuthbaseService} from '../../auth/authbase.service';
 import { Router } from '@angular/router';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
+  providers: [
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: {showError: true},
+    },
+  ],
 })
 export class RegisterComponent implements OnInit{
   registerForm: FormGroup;
@@ -15,23 +22,24 @@ export class RegisterComponent implements OnInit{
     {value: 'pizza-1', viewValue: 'Pizza'},
     {value: 'tacos-2', viewValue: 'Tacos'},
   ];
-   constructor(private auth: AuthbaseService) { }
- 
+  emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+   constructor(private authService: AuthbaseService,private _formBuilder: FormBuilder) { }
+  
    ngOnInit() {
      this.createForm();
    }
    createForm(){
-       let emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      
      this.registerForm = new FormGroup(
-       {'first': new FormControl(null,[Validators.required]),
-       'lastname': new FormControl(null,[Validators.required]),
-       'orgName': new FormControl(null,[Validators.required]),
-       'organizationType': new FormControl(null),
-       'orgAddress': new FormControl(null),
-       'email': new FormControl(null,[Validators.required, Validators.pattern(emailregex)]),
-       'password': new FormControl(null, [Validators.required, this.checkPassword]),
-       'confirmPassword': new FormControl(null, [Validators.required, this.checkPassword]),
-       'secretKey': new FormControl(null,[Validators.required,this.checksecretKey]),
+       {first: new FormControl(null,[Validators.required]),
+       lastname: new FormControl(null,[Validators.required]),
+       orgName: new FormControl(null,[Validators.required]),
+       organizationType: new FormControl(null),
+       orgAddress: new FormControl(null),
+       email: new FormControl(null,[Validators.required, Validators.pattern(this.emailregex)]),
+       password: new FormControl(null, [Validators.required, this.checkPassword]),
+       confirmPassword: new FormControl(null, [Validators.required, this.checkPassword]),
+       secretKey: new FormControl(null,[Validators.required,this.checksecretKey]),
       }
      )
    
@@ -67,10 +75,19 @@ export class RegisterComponent implements OnInit{
    }
    onSubmit(formData: FormGroup, formDirective: FormGroupDirective): void {
    
-    const email = formData.value.email;
-    const password = formData.value.password;
-    const username = formData.value.username;
+    // const email = formData.value.email;
+    // const password = formData.value.password;
+    // const username = formData.value.username;
     //this.auth.post(email, password, username);
+    this.authService.PostAuth('user/registerWithOrganization', formData).subscribe({
+      next: data => {
+        console.log(data)
+      },
+      error: err => {                          //Error callback
+        console.error('error caught in component', err)
+        // this.toastrService.error('login!', 'check your credentials !!');
+      }
+    });
      formDirective.resetForm();
     this.registerForm.reset();
 }
