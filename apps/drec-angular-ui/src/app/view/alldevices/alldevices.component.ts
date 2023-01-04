@@ -81,7 +81,7 @@ export class AlldevicesComponent {
     } else {
       this.deviceurl = 'device/my';
     }
-    this.authService.GetAllProducts(this.deviceurl).subscribe(
+    this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
         // display list in the console 
         console.log(data)

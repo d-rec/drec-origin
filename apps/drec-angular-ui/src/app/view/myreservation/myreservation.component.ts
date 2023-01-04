@@ -59,7 +59,7 @@ export class MyreservationComponent implements OnInit {
     }
   }
   DisplayList() {
-    this.authService.GetAllProducts('device-group/my').subscribe(
+    this.authService.GetMethod('device-group/my').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)

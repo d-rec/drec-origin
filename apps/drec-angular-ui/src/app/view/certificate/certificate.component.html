@@ -15,7 +15,7 @@
 		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
 			  <mat-card-title>
-				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank">EWF Detals</a>
+				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank">Certificate On Blockchain Explorer</a>
 			  </mat-card-title>
 
 			</mat-card-header>
@@ -24,25 +24,25 @@
 				
 				<div class='content'>
 				<div class='column' >
-					<div class='row'><p><b>generation StartDate</b>:&nbsp;{{item.generationStartTime+'000'| date:'EEE d MMMM y'}}</p></div>
+					<div class='row'><p><b>Generation Start Date</b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:--> {{item.generationStartTimeinUTC}}</p></div>
 				  </div>
 				  <div class='column' >
-					<div class='row'><p><b>generation EndDate</b>:&nbsp;{{item.generationEndTime+'000'| date:'EEE d MMMM y'}}</p></div>
+					<div class='row'><p><b>Generation End Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:--> {{item.generationEndTimeinUTC}}</p></div>
 				  </div>
 				  <div class='column'>
 					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Amount of Read</b>: &nbsp;{{item1.value}}</p></div>
 				  </div>
 			</div>
-			 <h3>Group Devices</h3>
+			 <h3>Per Single Device Contribution For Certificate</h3>
 			 <table mat-table [dataSource]="item.perDeviceCertificateLog">
 				<ng-container matColumnDef="certificate_issuance_startdate">
 				  <th mat-header-cell *matHeaderCellDef>StartDate </th>
-				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_startdate| date:'EEE d MMMM y'}} </td>
+				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_startdate}}</td>
 				</ng-container>
 			  
 				<ng-container matColumnDef="certificate_issuance_enddate">
 				  <th mat-header-cell *matHeaderCellDef> EndDate</th>
-				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_enddate| date:'EEE d MMMM y hh:ss'}} </td>
+				  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_enddate}}</td>
 				</ng-container>
 			  
 				<ng-container matColumnDef="deviceid">

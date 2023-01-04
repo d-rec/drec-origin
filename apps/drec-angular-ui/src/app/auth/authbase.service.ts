@@ -22,20 +22,9 @@ export class AuthbaseService {
 }
 
 
-// getMethod(routePath: string) {
-//   return this.http.get(this.url + urlExtension).pipe(map(res => {
-//       return res;
-//   })).catch((error) => {
-//       if (error.status == "401") {
-//           this.router.navigate(['/login']);
-//       } else {
-//           return throwError(error.message || 'Internal Server error')
 
-//       }
-//   })
-// }
 
-  GetAllProducts(routePath: string){
+  GetMethod(routePath: string){
     return this.httpClient.get(this.url + routePath)
   }
 

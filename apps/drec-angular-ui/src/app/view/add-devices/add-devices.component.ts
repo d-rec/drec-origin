@@ -138,7 +138,7 @@ export class AddDevicesComponent {
   }
   DisplayList() {
 
-    this.authService.GetAllProducts('countrycode/list').subscribe(
+    this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -149,7 +149,7 @@ export class AddDevicesComponent {
   }
   DisplaySDGBList() {
 
-    this.authService.GetAllProducts('sdgbenefit/code').subscribe(
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -160,7 +160,7 @@ export class AddDevicesComponent {
   }
   DisplayfuelList() {
 
-    this.authService.GetAllProducts('device/fuel-type').subscribe(
+    this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -171,7 +171,7 @@ export class AddDevicesComponent {
   }
   DisplaytypeList() {
 
-    this.authService.GetAllProducts('device/device-type').subscribe(
+    this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
