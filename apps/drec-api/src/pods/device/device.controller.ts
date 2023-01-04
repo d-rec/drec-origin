@@ -157,6 +157,16 @@ export class DeviceController {
     return this.deviceService.findOne(id);
   }
 
+  @Get('externalId/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
+  @ApiNotFoundResponse({
+    description: `The device with the code doesn't exist`,
+  })
+  async getByExternalId(@Param('id') id: string): Promise<DeviceDTO | null> {
+    return this.deviceService.findReads(id);
+  }
+
   @Post()
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
