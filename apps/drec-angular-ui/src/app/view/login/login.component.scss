@@ -1,5 +1,10 @@
 // Colors
-
+$primary: #f2be1a;
+$secondary: #010101;
+$tritary: #3f3f3f;
+$gray: #3f3f3f;
+$white: #fff;
+$danger: #f44336;
 
 // :host {
 //     display: flex;
@@ -130,16 +135,22 @@
     background-color: #ebeff8;
     color: #8D8D8D;
   }
+}
 
-  .bg-solar {
-    background-image: url("../../../assets/images/solar-bg.png");
-    background-size: 900px;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    position: absolute;
-    top: 0px;
-    width: 100%;
-    opacity: 0.1;
-    height: 100vh;
-  }
+
+.bg-solar {
+  background-image: url("../../../assets/images/solar-image.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  opacity: 0.2;
+  height: 100vh;
+}
+
+.text-warning
+{
+  color: $primary;
 }

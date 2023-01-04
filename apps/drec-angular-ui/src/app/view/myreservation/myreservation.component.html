@@ -1,11 +1,12 @@
-<div style="padding: 40px 30px 40px 30px;">
-    <!-- <mat-card>
+<div class="body-bg">
+    <mat-card>
         <mat-card-header>
             <mat-card-title>
-                <h1>list</h1>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">list</h2>
             </mat-card-title>
         </mat-card-header>
-        <mat-card-content> -->
+        <hr>
+        <mat-card-content>
             <mat-form-field>
                 <mat-label>Filter</mat-label>
                 <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
@@ -52,12 +53,12 @@
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationStartDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Start </th>
-                        <td mat-cell *matCellDef="let row"> {{row.reservationStartDate| date:'EEE d MMMM y'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.reservationStartDate| date:'EEE d MMM y'}} </td>
                     </ng-container>
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationEndDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> End </th>
-                        <td mat-cell *matCellDef="let row"> {{row.reservationEndDate| date:'EEE d MMMM y'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.reservationEndDate| date:'EEE d MMM y'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="targetVolumeInMegaWattHour">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Target </th>
@@ -71,8 +72,8 @@
                         <th mat-header-cell *matHeaderCellDef>Action</th>
                         <td mat-cell *matCellDef="let row; let i=index;" >
                             <!-- <button>certificate</button> -->
-                            <button class="btn btn-info" [routerLink]="['/certificate']"
-                                [queryParams]="{id: row.devicegroup_uid}" target="_blank">certificate</button>
+                            <button class="btn-primary btn btn-sm" [routerLink]="['/certificate']"
+                                [queryParams]="{id: row.devicegroup_uid,name:row.name}" target="_blank">certificate</button>
                         
                         </td>
                       </ng-container> 
@@ -87,7 +88,7 @@
 
                 <mat-paginator [pageSize]="pageSize"  aria-label="Select page of users"></mat-paginator>
             <!-- </div> -->
-        <!-- </mat-card-content>
+        </mat-card-content>
         <mat-card-footer></mat-card-footer>
-    </mat-card> -->
+    </mat-card>
 </div>

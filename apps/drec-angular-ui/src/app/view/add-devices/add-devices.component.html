@@ -1,0 +1,204 @@
+<div class="body-bg">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration
+                    <button style="float:right;" class="btn" mat-raised-button color="primary" (click)="adddevice()">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                </h2>
+
+            </mat-card-title>
+        </mat-card-header>
+        <hr>
+        <form [formGroup]="myform" (ngSubmit)="onSubmit()">
+            <mat-card-content>
+
+                <div formArrayName='devices'>
+                    <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i">
+                        <mat-card>
+                            <mat-card-header>
+                                <mat-card-title>
+                                    <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device &nbsp;{{1+i}}
+                                        <button mat-raised-button color="warn" (click)='deletePhone(i)'><mat-icon>delete</mat-icon></button>
+                                    </h2>
+                                </mat-card-title>
+                            </mat-card-header>
+                            <hr>
+                            <mat-card-content>
+                                <div class="example-container1">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>projectName</mat-label>
+                                        <input matInput placeholder="projectName" formControlName='projectName'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>ExternalId</mat-label>
+                                        <input matInput placeholder="name" formControlName='externalId'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Select countryCode</mat-label>
+                                        <mat-select formControlName='countryCode'>
+
+                                            <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
+                                                {{code.country}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>commissioningDate</mat-label>
+                                        <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                                            formControlName="commissioningDate" [max]="maxDate">
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                                        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                            [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                            [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                        </ngx-mat-datetime-picker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="example-container1">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>capacity</mat-label>
+                                        <input matInput placeholder="capacity" type= "number" formControlName='capacity'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>offTaker</mat-label>
+                                       
+                                        <mat-select formControlName='offTaker' placeholder="offTaker">
+
+                                            <mat-option *ngFor="let code of offteker" [value]="code">
+                                                {{code}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>fuelCode</mat-label>
+
+                                        <mat-select formControlName='fuelCode' placeholder="fuelCode">
+
+                                            <mat-option *ngFor="let code of fuellist" [value]="code.code">
+                                                {{code.name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>deviceTypeCode</mat-label>
+
+                                        <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode">
+
+                                            <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
+                                                {{code.name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="example-container1">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>impactStory</mat-label>
+                                        <input matInput placeholder="impactStory" formControlName='impactStory'>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>qualityLabels</mat-label>
+                                        <input matInput placeholder="qualityLabels" formControlName='qualityLabels'>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>SDGBenefits</mat-label>
+
+                                        <mat-select formControlName="SDGBenefits" multiple>
+
+                                            <mat-option *ngFor="let sdgb of sdgblist"
+                                                [value]="sdgb.name">{{sdgb.value}}</mat-option>
+
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <!-- <mat-form-field appearance="outline">
+                                        <mat-label>Version</mat-label>
+                                        <input matInput placeholder="version" formControlName='version'>
+                                    </mat-form-field> -->
+
+                                    <button style="float:right;" class="addbtn" mat-raised-button color="primary"
+                                        (click)="addmore(i)" *ngIf="showaddmore[i]">add more details
+                                    </button>&nbsp;
+                                    <button style="float:right;" class="addbtn" mat-raised-button color="warn"
+                                        (click)="nomore(i)" *ngIf="shownomore[i]">No more
+                                    </button>
+
+
+                                </div>
+                                <div class="example-container1" *ngIf="addmoredetals[i]">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Address</mat-label>
+                                        <input matInput placeholder="address" formControlName='address'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Latitude</mat-label>
+                                        <input matInput placeholder="latitude" formControlName='latitude'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>longitude</mat-label>
+                                        <input matInput placeholder="longitude" formControlName='longitude'>
+                                        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                        <!-- <mat-hint>Hint</mat-hint> -->
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>deviceDescription</mat-label>
+                                        <input matInput placeholder="deviceDescription"
+                                            formControlName='deviceDescription'>
+                                    </mat-form-field>
+
+                                </div>
+
+
+                                <div class="example-container1" *ngIf="addmoredetals[i]">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>gridInterconnection</mat-label>
+                                        <input matInput placeholder="gridInterconnection"
+                                            formControlName='gridInterconnection'>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>data</mat-label>
+                                        <input matInput placeholder="data" formControlName='data'>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>energyStorage</mat-label>
+                                        <input matInput placeholder="energyStorage" formControlName='energyStorage'>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>energyStorageCapacity</mat-label>
+                                        <input matInput placeholder="energyStorageCapacity"
+                                            formControlName='energyStorageCapacity'>
+                                    </mat-form-field>
+                                </div>
+
+                            </mat-card-content>
+                            <!-- <mat-card-footer></mat-card-footer> -->
+                        </mat-card>
+                    </div>
+                </div>
+            </mat-card-content>
+            <mat-card-footer>
+                <div class="example-container">
+                    <button type="submit" class="btn-primary btn   btn-block" [disabled]="myform.invalid">submit</button>
+                </div>
+                
+            </mat-card-footer>
+        </form>
+    </mat-card>
+</div>

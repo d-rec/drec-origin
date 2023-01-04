@@ -28,8 +28,8 @@ export class MyreservationComponent implements OnInit {
     // 'buyerAddress',
     'capacityRange',
     'frequency',
-    'reservationEndDate',
     'reservationStartDate',
+    'reservationEndDate',
     'targetVolumeInMegaWattHour',
     'fuelCode',
     

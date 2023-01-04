@@ -19,6 +19,7 @@ import { MyreservationComponent } from './view/myreservation/myreservation.compo
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
+import { AddDevicesComponent } from './view/add-devices/add-devices.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -33,6 +34,7 @@ import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutlog
     CertificateDetailsComponent,
     WithloginlayoutComponent,
     WithoutloginlayoutComponent,
+    AddDevicesComponent,
     
   ],
   imports: [

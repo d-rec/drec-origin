@@ -41,7 +41,7 @@ export class LoginComponent {
           //sessionStorage.setItem('loginuser', jwtObj);
           sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
 //var obj = JSON.parse(sessionStorage.loginuser);
-          console.log(JSON.parse(sessionStorage.getItem('loginuser')!));
+        
           if (jwtObj.role === 'Buyer') {
             this.router.navigate(['/myreservation']);
           } else {

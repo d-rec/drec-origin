@@ -1,13 +1,20 @@
-
+<div class="body-bg">
 <mat-card class="example-card">
 	<mat-card-header>
-		<mat-card-title>All Certificate</mat-card-title>
-	</mat-card-header><mat-card-content>
+		<mat-card-title>
+			<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
+		</mat-card-title>
+	</mat-card-header>
+	<hr>
+	<mat-card-content>
+		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
+		<samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
+		
 	<ng-container *ngFor="let item of data">
 		
-		<mat-card  class="innermat-card example-card1" >
+		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
-			  <mat-card-title>groupId:{{group_uid}}
+			  <mat-card-title>
 				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank">EWF Detals</a>
 			  </mat-card-title>
 
@@ -17,13 +24,13 @@
 				
 				<div class='content'>
 				<div class='column' >
-					<div class='row'><p><b>generation StartDate</b>:{{item.generationStartTime+'000'| date:'EEE d MMMM y'}}</p></div>
+					<div class='row'><p><b>generation StartDate</b>:&nbsp;{{item.generationStartTime+'000'| date:'EEE d MMMM y'}}</p></div>
 				  </div>
 				  <div class='column' >
-					<div class='row'><p><b>generation EndDate</b>:{{item.generationEndTime+'000'| date:'EEE d MMMM y'}}</p></div>
+					<div class='row'><p><b>generation EndDate</b>:&nbsp;{{item.generationEndTime+'000'| date:'EEE d MMMM y'}}</p></div>
 				  </div>
 				  <div class='column'>
-					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue">Amount of Read:{{item1.value}}</p></div>
+					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Amount of Read</b>: &nbsp;{{item1.value}}</p></div>
 				  </div>
 			</div>
 			 <h3>Group Devices</h3>
@@ -39,7 +46,7 @@
 				</ng-container>
 			  
 				<ng-container matColumnDef="deviceid">
-				  <th mat-header-cell *matHeaderCellDef> Device formControlName </th>
+				  <th mat-header-cell *matHeaderCellDef> Device Name </th>
 				  <td mat-cell *matCellDef="let element"> {{element.deviceid }} </td>
 				</ng-container>
 				<ng-container matColumnDef="readvalue_watthour">
@@ -53,7 +60,8 @@
 			  </table>
 			</mat-card-content>
 		  </mat-card>
-		
+		<br>
 		</ng-container>
 	</mat-card-content>
 </mat-card>
+</div>

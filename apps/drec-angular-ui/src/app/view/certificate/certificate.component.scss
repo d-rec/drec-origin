@@ -1,3 +1,22 @@
+// Colors
+$primary: #f2be1a;
+$secondary: #010101;
+$tritary: #3f3f3f;
+$gray: #3f3f3f;
+$white: #fff;
+$danger: #f44336;
+
+.body-bg
+{
+    padding: 35px 30px 35px 30px;
+    background: #f2f2f2;
+    .mat-mdc-card
+    {
+        box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
+        // border: none!important;
+    }
+}
+
 table {
     width: 100%;
   }
@@ -54,11 +73,7 @@ table {
     margin-top: 15px;
     width: 100%;
   }
-  .example-card {
-    max-width:1000px;
-    margin: 20px;
-    padding: 10px;
-  }
+
   .example-card1 {
   
     width: 100%;
@@ -72,14 +87,14 @@ table {
   
  
   .innermat-card{
-    border: 1px black solid;
+    border: 1px $gray solid;
     padding: 0px;
   } 
-  mat-card-header{
-    background: #12121212;
-    padding: 10px 5px;
-    color:rgb(228, 67, 67);
-  } 
+  // mat-card-header{
+  //   background: #12121212;
+  //   padding: 10px 5px;
+  //   color:rgb(228, 67, 67);
+  // } 
   mat-card-content{
     padding: 10px;
   }
@@ -106,3 +121,5 @@ table {
   //   justify-content: center;
   //   display: flex;
   // }
+
+  
