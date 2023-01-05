@@ -84,7 +84,30 @@ export class CertificateComponent implements OnInit {
           })
        // this.dataSource = new MatTableDataSource(this.data);
         //this.dataSource.paginator = this.paginator
+
+        let deviceExternalIdinCertificates:any =[];
+        //@ts-ignore
+        this.data.forEach(ele=>{
+            if(ele.perDeviceCertificateLog && ele.perDeviceCertificateLog.length> 0)
+            {
+              //@ts-ignore
+                ele.perDeviceCertificateLog.forEach(ele=>{
+                  //@ts-ignore
+                    if(!deviceExternalIdinCertificates.find(de=>de===ele.deviceid))
+                    {
+                      this.authService.GetMethod('device/externalId/'+ele.deviceid).subscribe(
+                        (data) => {
+                          console.log(data)
+                        deviceExternalIdinCertificates.push(ele.deviceid);
+                      }
+
+                      )
+                    }
+                })
+            }
+        })
       }
+
     )
   }
 

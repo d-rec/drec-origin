@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  API_URL:"https://stage-api.drecs.org/api",
+  API_URL:"https://stage-api.drecs.org/api/",
   Explorer_URL:"https://volta-explorer.energyweb.org"
 
 };

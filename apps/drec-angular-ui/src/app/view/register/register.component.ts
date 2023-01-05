@@ -3,6 +3,8 @@ import { FormGroup , FormControl,FormBuilder,Validators,FormGroupDirective} from
 import {AuthbaseService} from '../../auth/authbase.service';
 import { Router } from '@angular/router';
 import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -17,13 +19,19 @@ import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 export class RegisterComponent implements OnInit{
   registerForm: FormGroup;
   fieldRequired: string = "This field is required"
-  foods: any[] = [
-    {value: 'steak-0', viewValue: 'Steak'},
-    {value: 'pizza-1', viewValue: 'Pizza'},
-    {value: 'tacos-2', viewValue: 'Tacos'},
+  orgtype: any[] = [
+    {value: 'Developer', viewValue: 'Developer'},
+    {value: 'Buyer', viewValue: 'Buyer'}
   ];
+  hide = true;
+
+  
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-   constructor(private authService: AuthbaseService,private _formBuilder: FormBuilder) { }
+   constructor(private authService: AuthbaseService,private _formBuilder: FormBuilder,
+    private toastrService:ToastrService, ) { 
+      
+  }
+    
   
    ngOnInit() {
      this.createForm();
@@ -31,8 +39,8 @@ export class RegisterComponent implements OnInit{
    createForm(){
       
      this.registerForm = new FormGroup(
-       {first: new FormControl(null,[Validators.required]),
-       lastname: new FormControl(null,[Validators.required]),
+       {firstName: new FormControl(null,[Validators.required]),
+        lastName: new FormControl(null,[Validators.required]),
        orgName: new FormControl(null,[Validators.required]),
        organizationType: new FormControl(null),
        orgAddress: new FormControl(null),
@@ -52,7 +60,7 @@ export class RegisterComponent implements OnInit{
    }
  checkPassword(control:any) {
      let enteredPassword = control.value
-     let passwordCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/;
+     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
      return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'requirements': true } : null;
    }
   
@@ -73,22 +81,24 @@ export class RegisterComponent implements OnInit{
      const validation = this.registerForm.get(input)?.invalid && (this.registerForm.get(input)?.dirty || this.registerForm.get(input)?.touched)
      return validation;
    }
-   onSubmit(formData: FormGroup, formDirective: FormGroupDirective): void {
-   
+   onSubmit(formData: FormGroup): void {
+   console.log(this.registerForm.value)
     // const email = formData.value.email;
     // const password = formData.value.password;
     // const username = formData.value.username;
     //this.auth.post(email, password, username);
-    this.authService.PostAuth('user/registerWithOrganization', formData).subscribe({
+    this.authService.PostAuth('user/registerWithOrganization',  this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
+        this.registerForm.reset();
+        this.toastrService.success('Successfully!','Rgistration!!');
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)
-        // this.toastrService.error('login!', 'check your credentials !!');
+         this.toastrService.error('error!', err);
       }
     });
-     formDirective.resetForm();
-    this.registerForm.reset();
+    // formDirective.resetForm();
+    
 }
 }

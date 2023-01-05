@@ -2,6 +2,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 //import * as moment from 'moment';
 @Component({
   selector: 'app-add-devices',
@@ -32,7 +33,7 @@ export class AddDevicesComponent {
   public stepSecond = 1;
   //public color: ThemePalette = 'primary';
   offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector']
-  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router) { }
+  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
 
   ngOnInit() {
 
@@ -116,7 +117,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])
       ],
-      version: [1.0]
+      version: ["1.0"]
     })
     this.deviceForms.push(device);
     console.log(this.deviceForms.length);
@@ -188,10 +189,11 @@ export class AddDevicesComponent {
       this.authService.PostAuth('device', element).subscribe({
         next: data => {
           console.log(data)
+          this.toastrService.success('Device!'+element.externalId, 'Add Successfully !!');
         },
         error: err => {                          //Error callback
-          console.error('error caught in component', err)
-          // this.toastrService.error('login!', 'check your credentials !!');
+          console.error('error caught in component', err.error.message)
+           this.toastrService.error('Device!' +element.externalId, 'some error accure in add due to'+err);
         }
       });
     })
