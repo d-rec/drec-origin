@@ -13,5 +13,30 @@ import {MatTableDataSource} from '@angular/material/table';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
- 
+
+  constructor()
+  {
+    
+         this.connectWallet();
+  }
+
+  getWindowEthereumProperty()
+  {
+    //@ts-ignore
+    return window.ethereum;
+  }
+  async connectWallet() {
+
+    if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
+      try {
+        /* MetaMask is installed */
+        const accounts = await this.getWindowEthereumProperty().request({
+          method: "eth_requestAccounts",
+        });
+        console.log(accounts);
+      } catch (err) {
+
+      }
+    }
+  }
 }
