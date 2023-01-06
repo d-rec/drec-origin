@@ -8,7 +8,7 @@
             </div>
             <div>
                 <button class="btn btn-dark justify-content-end px-4" (click)="adddevice()">
-                    <mat-icon class="align-middle">add_circle</mat-icon> Add Device
+                    <mat-icon class="align-middle">add_circle</mat-icon> Add More Device
                 </button>
             </div>
 
@@ -128,7 +128,7 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">device Type Code</mat-label>
+                                            <mat-label class="text-capitalize">Device Type Code</mat-label>
 
                                             <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode">
 
@@ -176,7 +176,7 @@
                                         <button
                                             class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="addmore(i)" *ngIf="showaddmore[i]">
-                                            show more details <mat-icon
+                                            Add more details <mat-icon
                                                 class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                         </button>
 
@@ -220,10 +220,16 @@
                                     </div>
 
                                     <div class="col-md-3">
+                                       
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">device Description</mat-label>
-                                            <input matInput placeholder="deviceDescription"
-                                                formControlName='deviceDescription'>
+
+                                            <mat-select formControlName='deviceDescription' placeholder="deviceDescription">
+
+                                                <mat-option *ngFor="let code of devicediscription" [value]="code">
+                                                    {{code}}
+                                                </mat-option>
+                                            </mat-select>
                                         </mat-form-field>
                                     </div>
 
@@ -247,16 +253,20 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">energy Storage</mat-label>
+                                        <!-- <mat-form-field appearance="outline">
+                                            <mat-label class="text-capitalize">Energy Storage</mat-label>
                                             <input matInput placeholder="energyStorage" formControlName='energyStorage'>
-                                        </mat-form-field>
+                                        </mat-form-field> -->
+                                        <mat-radio-group aria-label="Select an option" formControlName='energyStorage'>
+                                            <mat-radio-button value="true">True</mat-radio-button>
+                                            <mat-radio-button value="false">False</mat-radio-button>
+                                          </mat-radio-group>
                                     </div>
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">energy Storage Capacity</mat-label>
-                                            <input matInput placeholder="energyStorageCapacity"
+                                            <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
+                                            <input matInput placeholder="energyStorageCapacity" type="number"
                                                 formControlName='energyStorageCapacity'>
                                         </mat-form-field>
                                     </div>

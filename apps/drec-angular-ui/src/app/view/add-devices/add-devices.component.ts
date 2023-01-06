@@ -33,6 +33,7 @@ export class AddDevicesComponent {
   public stepSecond = 1;
   //public color: ThemePalette = 'primary';
   offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector']
+  devicediscription=['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
 
   ngOnInit() {
@@ -189,11 +190,13 @@ export class AddDevicesComponent {
       this.authService.PostAuth('device', element).subscribe({
         next: data => {
           console.log(data)
-          this.toastrService.success('Device!'+element.externalId, 'Add Successfully !!');
+         // this.deviceForms.reset();
+          this.toastrService.success('Add Successfully !!','Device! '+element.externalId);
+
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)
-           this.toastrService.error('Device!' +element.externalId, 'some error accure in add due to'+err);
+           this.toastrService.error( 'some error occurred in add due to '+err.error.message,'Device!' +element.externalId,);
         }
       });
     })
