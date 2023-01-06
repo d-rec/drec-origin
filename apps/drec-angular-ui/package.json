@@ -1,9 +1,8 @@
 {
   "name": "@energyweb/origin-drec-angular-ui",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start:dev":"ng serve",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -11,6 +10,8 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-material-components/datetime-picker": "^9.0.0",
+    "@angular-material-components/moment-adapter": "^9.0.0",
     "@angular/animations": "^15.0.0",
     "@angular/cdk": "^15.0.2",
     "@angular/common": "^15.0.0",
@@ -18,13 +19,15 @@
     "@angular/core": "^15.0.0",
     "@angular/forms": "^15.0.0",
     "@angular/material": "^15.0.2",
+    "@angular/material-moment-adapter": "^15.0.3",
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
+    "bootstrap": "^5.2.3",
+    "ngx-toastr": "^16.0.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.12.0",
-    "ngx-toastr":"16.0.1"
+    "zone.js": "~0.12.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
