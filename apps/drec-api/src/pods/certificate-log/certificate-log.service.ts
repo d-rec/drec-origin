@@ -16,6 +16,8 @@ import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
 import { DateTime } from 'luxon';
 import { CertificateWithPerdevicelog } from './dto'
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupDTO } from '../device-group/dto'
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
 }
@@ -28,6 +30,7 @@ export class CertificateLogService {
 
     @InjectRepository(Certificate) private readonly certificaterrepository: Repository<Certificate>,
     private deviceService: DeviceService,
+    private devicegroupService: DeviceGroupService,
   ) { }
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
@@ -106,17 +109,15 @@ export class CertificateLogService {
 
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
-        certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime *1000).toISOString();
-        certifiedlist.certificateEndDate = new Date(certifiedlist.generationEndTime *1000).toISOString();
-        certifiedlist.perDeviceCertificateLog=[];
+        certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
+        certifiedlist.certificateEndDate = new Date(certifiedlist.generationEndTime * 1000).toISOString();
+        certifiedlist.perDeviceCertificateLog = [];
 
-        try
-        {
+        try {
           JSON.parse(certifiedlist.metadata);
         }
-        catch(e)
-        {
-          console.error(e,"certificate doesnt contains valid metadta",certifiedlist);
+        catch (e) {
+          console.error(e, "certificate doesnt contains valid metadta", certifiedlist);
           return;
         }
 
@@ -139,25 +140,25 @@ export class CertificateLogService {
             return this.mapCertificate(result);
             }
          */
-        const devicereadstartdate = new Date((certifiedlist.generationStartTime -1 ) * 1000);//as rounding when certificate is issued by EWFs package reference kept above and removing millseconds 
-        const devicereadenddate = new Date( (certifiedlist.generationEndTime +1) * 1000);//going back 1 second in start and going forward 1 second in end
+        const devicereadstartdate = new Date((certifiedlist.generationStartTime - 1) * 1000);//as rounding when certificate is issued by EWFs package reference kept above and removing millseconds 
+        const devicereadenddate = new Date((certifiedlist.generationEndTime + 1) * 1000);//going back 1 second in start and going forward 1 second in end
         //console.log("changegetdate", devicereadstartdate, devicereadenddate)
         await Promise.all(
           obj.deviceIds.map(async (deviceid: number) => {
             const device = await this.deviceService.findOne(deviceid);
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
-              devicelog.forEach(singleDeviceLogEle=>{
-                certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
-              });
+            devicelog.forEach(singleDeviceLogEle => {
+              certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
+            });
             //console.log(certifiedlist)
-            return devicelog ;
+            return devicelog;
           })
         );
         //console.log("perDeviceCertificateLog");
         return certifiedlist;
       }),
     );
-  //  console.log("res")
+    //  console.log("res")
     //console.log(res);
     return res;
   }
@@ -177,12 +178,12 @@ export class CertificateLogService {
       const reservedevices = devicelog.map((s: any) => {
         const item: any = {
           id: s.issuelog_id,
-          certificate_issuance_startdate:s.issuelog_certificate_issuance_startdate,
-          certificate_issuance_enddate:s.issuelog_certificate_issuance_enddate,
-          readvalue_watthour:s.issuelog_readvalue_watthour,       
-          status: s.issuelog_status,        
-          deviceid: s.issuelog_deviceid,    
-          groupId:s.issuelog_groupId
+          certificate_issuance_startdate: s.issuelog_certificate_issuance_startdate,
+          certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
+          readvalue_watthour: s.issuelog_readvalue_watthour,
+          status: s.issuelog_status,
+          deviceid: s.issuelog_deviceid,
+          groupId: s.issuelog_groupId
         };
         return item;
       });
@@ -221,6 +222,91 @@ export class CertificateLogService {
       .andWhere("issuelog.groupId = :groupId", { groupId: groupId })
     //console.log(query.getQuery())
     return query;
+  }
+  async getCertificaterForRedemptionRepot(groupid: string): Promise<CertificateWithPerdevicelog[]> {
+    const certifiedreservation = await this.certificaterrepository.find(
+      {
+        where: {
+          deviceId: groupid,
+          claims: !null
+
+        }
+      })
+   
+    const res = await Promise.all(
+      certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
+        certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
+        certifiedlist.certificateEndDate = new Date(certifiedlist.generationEndTime * 1000).toISOString();
+        certifiedlist.perDeviceCertificateLog = [];
+
+        try {
+          JSON.parse(certifiedlist.metadata);
+        }
+        catch (e) {
+          console.error(e, "certificate doesnt contains valid metadta", certifiedlist);
+          return;
+        }
+        const obj = JSON.parse(certifiedlist.metadata);
+        console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
+
+        const devicereadstartdate = new Date((certifiedlist.generationStartTime - 1) * 1000);//as rounding when certificate is issued by EWFs package reference kept above and removing millseconds 
+        const devicereadenddate = new Date((certifiedlist.generationEndTime + 1) * 1000);//going back 1 second in start and going forward 1 second in end
+        //console.log("changegetdate", devicereadstartdate, devicereadenddate)
+        await Promise.all(
+          obj.deviceIds.map(async (deviceid: number) => {
+            const device = await this.deviceService.findOne(deviceid);
+            const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
+            devicelog.forEach(singleDeviceLogEle => {
+              certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
+            });
+            //console.log(certifiedlist)
+            return devicelog;
+          })
+        );
+        //console.log("perDeviceCertificateLog");
+        return certifiedlist;
+      }),
+    );
+    //  console.log("res")
+    //console.log(res);
+    return res;
+  }
+  async getCertificateRedemptionReport(buyerId: number) {
+    const devicegroups = await this.devicegroupService.getBuyerDeviceGroups(buyerId);
+    const myredme = [];
+    const res = await Promise.all(
+      devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
+        const cert = await this.getCertificaterForRedemptionRepot(devicegroup.id.toString());
+
+        const res1 = await Promise.all(
+          cert.map(async (claimcertificate: Certificate) => {
+            const res2 = await Promise.all(
+              claimcertificate.claims.map(async (claims: any) => {
+
+                myredme.push({
+                  compliance: 'I-REC',
+                  certificateId: claimcertificate.id,
+                  fuelCode: devicegroup?.fuelCode,
+                  country: devicegroup?.countryCode,
+                  capacityRange: devicegroup?.capacityRange,
+                  installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
+                  offTakers: devicegroup?.offTakers.join(),
+                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', '),
+                  commissioningDateRange: devicegroup?.commissioningDateRange
+                    .join().replace(',', ', '),
+                  standardCompliance: devicegroup?.standardCompliance,
+
+                  redemptionDate: claims.claimData.periodStartDate,
+                  certifiedEnergy: claimcertificate.value
+                });
+              }),
+            );
+          }),
+        );
+
+      }),
+    );
+    return myredme;
   }
 
 }
