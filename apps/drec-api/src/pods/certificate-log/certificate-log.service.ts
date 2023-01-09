@@ -232,7 +232,7 @@ export class CertificateLogService {
 
         }
       })
-   
+
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
         certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
@@ -271,13 +271,16 @@ export class CertificateLogService {
     //console.log(res);
     return res;
   }
-  async getCertificateRedemptionReport(buyerId: number) {
+  async getCertificateRedemptionReport(buyerId: number) : Promise<any[]>{
     const devicegroups = await this.devicegroupService.getBuyerDeviceGroups(buyerId);
+    console.log(devicegroups);
     const myredme = [];
     const res = await Promise.all(
       devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
-        const cert = await this.getCertificaterForRedemptionRepot(devicegroup.id.toString());
+        console.log(devicegroup.id.toString());
 
+        const cert = await this.getCertificaterForRedemptionRepot(devicegroup.id.toString());
+        console.log(cert)
         const res1 = await Promise.all(
           cert.map(async (claimcertificate: Certificate) => {
             const res2 = await Promise.all(
@@ -291,7 +294,7 @@ export class CertificateLogService {
                   capacityRange: devicegroup?.capacityRange,
                   installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
                   offTakers: devicegroup?.offTakers.join(),
-                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', '):'',
+                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join().replace(',', ', '),
                   standardCompliance: devicegroup?.standardCompliance,
@@ -306,6 +309,7 @@ export class CertificateLogService {
 
       }),
     );
+    console.log(res);
     return myredme;
   }
 
