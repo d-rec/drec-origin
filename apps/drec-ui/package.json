@@ -6,7 +6,7 @@
     "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
     "license": "GPL-3.0-or-later",
     "scripts": {
-        "start:dev": "react-scripts start",
+        "start:dev": "PORT=3006 react-scripts start",
         "build": "yarn config-env && react-scripts build",
         "test": "react-scripts test",
         "test:ui": "react-scripts test --watchAll=false",
