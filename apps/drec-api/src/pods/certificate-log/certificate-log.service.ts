@@ -291,13 +291,13 @@ export class CertificateLogService {
                   capacityRange: devicegroup?.capacityRange,
                   installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
                   offTakers: devicegroup?.offTakers.join(),
-                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', '),
+                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', '):'',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join().replace(',', ', '),
                   standardCompliance: devicegroup?.standardCompliance,
 
                   redemptionDate: claims.claimData.periodStartDate,
-                  certifiedEnergy: claimcertificate.value
+                  certifiedEnergy: claims.value
                 });
               }),
             );
