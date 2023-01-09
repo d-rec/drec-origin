@@ -2,6 +2,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 //import * as moment from 'moment';
 @Component({
   selector: 'app-add-devices',
@@ -32,7 +33,8 @@ export class AddDevicesComponent {
   public stepSecond = 1;
   //public color: ThemePalette = 'primary';
   offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector']
-  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router) { }
+  devicediscription=['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
+  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
 
   ngOnInit() {
 
@@ -116,7 +118,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])
       ],
-      version: [1.0]
+      version: ["1.0"]
     })
     this.deviceForms.push(device);
     console.log(this.deviceForms.length);
@@ -138,7 +140,7 @@ export class AddDevicesComponent {
   }
   DisplayList() {
 
-    this.authService.GetAllProducts('countrycode/list').subscribe(
+    this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -149,7 +151,7 @@ export class AddDevicesComponent {
   }
   DisplaySDGBList() {
 
-    this.authService.GetAllProducts('sdgbenefit/code').subscribe(
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -160,7 +162,7 @@ export class AddDevicesComponent {
   }
   DisplayfuelList() {
 
-    this.authService.GetAllProducts('device/fuel-type').subscribe(
+    this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -171,7 +173,7 @@ export class AddDevicesComponent {
   }
   DisplaytypeList() {
 
-    this.authService.GetAllProducts('device/device-type').subscribe(
+    this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
@@ -188,10 +190,13 @@ export class AddDevicesComponent {
       this.authService.PostAuth('device', element).subscribe({
         next: data => {
           console.log(data)
+         // this.deviceForms.reset();
+          this.toastrService.success('Add Successfully !!','Device! '+element.externalId);
+
         },
         error: err => {                          //Error callback
-          console.error('error caught in component', err)
-          // this.toastrService.error('login!', 'check your credentials !!');
+          console.error('error caught in component', err.error.message)
+           this.toastrService.error( 'some error occurred in add due to '+err.error.message,'Device!' +element.externalId,);
         }
       });
     })

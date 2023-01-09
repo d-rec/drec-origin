@@ -11,7 +11,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router,ActivatedRoute, Params } from '@angular/router';
-
+import {environment} from '../../../environments/environment';
 export interface Student {
   firstName: string;
   lastName: string;
@@ -54,7 +54,7 @@ export class CertificateComponent implements OnInit {
   });
    }
   ngOnInit() {
-    this.energyurl="https://volta-explorer.energyweb.org/tx/";
+    this.energyurl=environment.Explorer_URL+'/block/';
     console.log("myreservation");
     this.DisplayList()
   }
@@ -72,15 +72,45 @@ export class CertificateComponent implements OnInit {
     }
   }
   DisplayList() {
-    this.authService.GetAllProducts('certificate-log/issuer/certified/'+this.group_uid).subscribe(
+    this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data) => {
         // display list in the console 
         console.log(data)
         this.data = data;
+        //@ts-ignore
+        this.data.forEach(ele=>{
+          ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime *1000).toISOString();
+          ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime *1000).toISOString()
+          })
        // this.dataSource = new MatTableDataSource(this.data);
         //this.dataSource.paginator = this.paginator
+
+        let deviceExternalIdinCertificates:any =[];
+        //@ts-ignore
+        this.data.forEach(ele=>{
+            if(ele.perDeviceCertificateLog && ele.perDeviceCertificateLog.length> 0)
+            {
+              //@ts-ignore
+                ele.perDeviceCertificateLog.forEach(ele=>{
+                  //@ts-ignore
+                    if(!deviceExternalIdinCertificates.find(de=>de===ele.deviceid))
+                    {
+                      this.authService.GetMethod('device/externalId/'+ele.deviceid).subscribe(
+                        (data) => {
+                          console.log(data)
+                        deviceExternalIdinCertificates.push(ele.deviceid);
+                      }
+
+                      )
+                    }
+                })
+            }
+        })
       }
+
     )
   }
+
+ 
 }
 

@@ -1,51 +1,116 @@
+.body-bg {
+  padding: 35px 30px 35px 30px;
+  background: #f2f2f2;
 
-.body-bg
-{
-    padding: 35px 30px 35px 30px;
-    background: #f2f2f2;
-    .mat-mdc-card
-    {
-        box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
-        border: none!important;
-    }
+  .mat-mdc-card {
+    box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+  }
 }
+
 p {
-    font-family: Lato;
+  font-family: Lato;
+}
+
+.output {
+  background-color: rgb(253, 253, 253);
+  padding: 0px 10px 10px 10px;
+  margin-bottom: 40px;
+  margin-top: 20px;
+
+  box-shadow: 2px 2px 2px #000;
+}
+
+.example-container {
+  background-color: white;
+  padding: 10px 20px 20px 20px;
+
+}
+
+.example-container1 mat-form-field+mat-form-field {
+  margin-left: 8px;
+  padding: 10px 0px 0px 0px;
+}
+
+.example-right-align {
+  text-align: right;
+}
+
+.addbtn {
+  width: 200px;
+  margin: 20px 50px 20px 20px;
+}
+
+input.example-right-align::-webkit-outer-spin-button,
+input.example-right-align::-webkit-inner-spin-button {
+  display: none;
+}
+
+input.example-right-align {
+  -moz-appearance: textfield;
+}
+.danger-btn
+{
+  border-radius: 50px!important;
+  padding: 5px;
+  font-size: 10px!important;
+}
+.cursor-pointer
+{
+  cursor: pointer;
+}
+
+
+@-webkit-keyframes scroll-inner {
+  from {
+    position: relative;
+    top: 5%;
   }
-  .output {
-    background-color: rgb(253, 253, 253);
-   padding: 0px 10px 10px 10px;
-   margin-bottom: 40px;
-   margin-top: 20px;
-   
-    box-shadow: 2px 2px 2px #000;
+  to {
+    position: relative;
+    top: 10%;
   }
-  .example-container {
-    background-color: white;
-    padding:10px 20px 20px 20px;
-   
+}
+@keyframes scroll-inner {
+  from {
+    position: relative;
+    top:5%;
   }
-  .btn {
-    width:150px;
-    margin:auto;
+  to {
+    position: relative;
+    top: 10%;
   }
-  .example-container1 mat-form-field + mat-form-field {
-    margin-left: 8px;
-    padding:10px 0px 0px 0px;
+}
+@-webkit-keyframes scroll-mouse {
+  from {
+    position: relative;
+    top: 0;
   }
-  
-  .example-right-align {
-    text-align: right;
+  to {
+    position: relative;
+    top: 15px;
   }
-  .addbtn {
-    width:200px;
-    margin:20px 50px 20px 20px;
+}
+@keyframes scroll-mouse {
+  from {
+    position: relative;
+    top: 0;
   }
-  input.example-right-align::-webkit-outer-spin-button,
-  input.example-right-align::-webkit-inner-spin-button {
-    display: none;
+  to {
+     position: relative;
+    top: 15px;
   }
-  
-  input.example-right-align {
-    -moz-appearance: textfield;
+}
+
+
+
+
+  .scroll-down {
+
+    -webkit-animation: scroll-inner 1.5s;
+    animation: scroll-inner 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease;
+    animation-timing-function: ease;
   }

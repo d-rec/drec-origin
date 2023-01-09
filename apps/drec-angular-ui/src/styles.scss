@@ -1,7 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
- html, body, .mat-mdc-card-title, .mdc-button, h1,h2,h3,h4,h5, h6, p { 
-  font-family: 'Montserrat', sans-serif!important;
+
+html,
+body,
+.mat-mdc-card-title,
+.mdc-button,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 // Variables
@@ -16,119 +27,177 @@ $danger: #f44336;
 
 
 // Fonts
-$f-12:12px;
-$f-14:14px;
-$f-16:16px;
+$f-12: 12px;
+$f-14: 14px;
+$f-16: 16px;
 
-html, body
-{
+html,
+body {
     height: 100%;
 }
+
 // body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-.drec-login 
-{
-.mdc-text-field--filled:not(.mdc-text-field--disabled)
-{
-  background-color: #F7F7F7!important;
-  border-radius: 6px!important;
-}
+.drec-login {
+    .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+        background-color: #F7F7F7 !important;
+        border-radius: 6px !important;
+    }
 }
 
 
 
 // Colors 
 
-.btn-primary
-{
-background-color: $primary;
-border: 1px solid $primary;
-color: $gray;
-font-weight: 600;
-&:hover, &:active, &:link, &:focus
-{
-    box-shadow: 0px 3px 5px rgba(0,0,0,0.1);
+.btn-primary {
     background-color: $primary;
     border: 1px solid $primary;
     color: $gray;
+    font-weight: 600;
+
+    &:hover,
+    &:active,
+    &:link,
+    &:focus {
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+        background-color: $primary;
+        border: 1px solid $primary;
+        color: $gray;
+    }
 }
-}
-.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show, .btn:disabled, .btn.disabled, fieldset:disabled .btn
-{
+
+.btn-check:checked+.btn.btn-primary,
+:not(.btn-check)+.btn.btn-primary:active,
+.btn.btn-primary:first-child:active,
+.btn.btn-primary.active,
+.btn.btn-primary.show,
+.btn.btn-primary:disabled,
+.btn.btn-primary.disabled,
+fieldset:disabled .btn.btn-primary {
     @extend .btn-primary
 }
 
 
 // Mat Input
 
-.mdc-text-field--no-label:not(.mdc-text-field--textarea) .mat-mdc-form-field-input-control.mdc-text-field__input, .mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control, .mat-mdc-form-field-icon-prefix, [dir=rtl] .mat-mdc-form-field-icon-suffix
-{
+.mdc-text-field--no-label:not(.mdc-text-field--textarea) .mat-mdc-form-field-input-control.mdc-text-field__input,
+.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control,
+.mat-mdc-form-field-icon-prefix,
+[dir=rtl] .mat-mdc-form-field-icon-suffix {
     font-size: $f-14;
     top: -5px;
     position: relative;
 }
 
-.mdc-text-field--filled:not(.mdc-text-field--disabled):hover .mdc-line-ripple::before, .mdc-text-field--filled .mdc-line-ripple::after
-{
-    border-bottom-color:$primary!important;
-    border-radius: 6px!important;;
+.mdc-text-field--filled:not(.mdc-text-field--disabled):hover .mdc-line-ripple::before,
+.mdc-text-field--filled .mdc-line-ripple::after {
+    border-bottom-color: $primary !important;
+    border-radius: 6px !important;
+    ;
 }
-.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before
-{
-    border-bottom-color:$gray!important;
-    border-radius: 6px!important;;
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {
+    border-bottom-color: $gray !important;
+    border-radius: 6px !important;
+    ;
 }
+
 .mdc-text-field--filled {
-    height: 45px!important;
+    height: 45px !important;
 }
-.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-line-ripple::after
-{
-    border-bottom-color:$danger!important;
+
+.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-line-ripple::after {
+    border-bottom-color: $danger !important;
 }
-.mat-drawer-inner-container
-{
-  background-color: $white!important;
+
+.mat-drawer-inner-container {
+    background-color: $white !important;
 }
 
 
-.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control
-{
-    font-size: $f-12!important;
+.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {
+    font-size: $f-12 !important;
 }
-.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label
-{
-    font-size: $f-14!important;
-    top: 25px!important;
+
+.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+    font-size: $f-14 !important;
+    top: 25px !important;
 }
 
 
 // All tables
-tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row
-{
+tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
     background: $lightgray;
     // color: $white;
-    box-shadow: 0px 13px 5px rgba(0,0,0,0.1);
-    th
-    {
+    box-shadow: 0px 13px 5px rgba(0, 0, 0, 0.1);
+
+    th {
         // color: $white;
     }
 }
 
-.mat-sort-header-arrow
-{
-    color: $gray!important;
-}
-.mat-mdc-table .mdc-data-table__row
-{
-    height: 34px!important;
+
+
+// Mat Styles Overiding
+.mat-sort-header-arrow {
+    color: $gray !important;
 }
 
-.mat-mdc-form-field-hint-wrapper, .mat-mdc-form-field-error-wrapper
-{
-    padding-right: 0px!important;
-    padding-left: 0px!important;
+.mat-mdc-table .mdc-data-table__row {
+    height: 34px !important;
 }
+
+.mat-mdc-form-field-hint-wrapper,
+.mat-mdc-form-field-error-wrapper {
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+}
+
 .mat-mdc-card-header-text {
     a {
         color: $primary;
     }
+}
+
+// Steps Register
+.mat-step-header .mat-step-icon-selected,
+.mat-step-header .mat-step-icon-state-done,
+.mat-step-header .mat-step-icon-state-edit {
+    background-color: $primary !important;
+}
+
+.mat-step-header.cdk-keyboard-focused,
+.mat-step-header.cdk-program-focused,
+.mat-step-header:hover:not([aria-disabled]),
+.mat-step-header:hover[aria-disabled=false] {
+    background-color: none !important;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+    color: $secondary !important;
+}
+
+// Temp'/
+.mat-crd-hide {
+    .mat-mdc-card-header-text {
+        display: none !important;
+    }
+}
+
+// Input Outlines
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading, .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch, .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing
+{
+border-color:$primary!important ;
+border-left-color:$primary!important ;
+}
+
+// Input width
+.mat-mdc-form-field
+{
+    width: 100%;
+}
+
+.mat-calendar-body-selected
+{
+    background-color: $primary;
+    color: $secondary;
 }

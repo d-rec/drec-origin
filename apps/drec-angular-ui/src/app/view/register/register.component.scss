@@ -42,7 +42,7 @@
 
 .login-wrapper .example-form {
   min-width: 100%;
-  width: 400px;
+  width: 300px;
   // width: 100%;
 }
 
@@ -153,5 +153,11 @@
   height: 200px;
   overflow-y:scroll ;
 }
+.example-stepper {
+  margin-top: 8px;
+}
 
+.mat-mdc-form-field {
+  margin-top: 16px;
+}
 
