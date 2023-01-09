@@ -210,8 +210,8 @@
                         </mat-form-field>
                         <mat-form-field class="mb-4">
                             <mat-label>Enter your confirmPassword</mat-label>
-                            <input type="password" [type]="hide ? 'password' : 'text'" matInput
-                                placeholder="confirm Password *" formControlName="confirmPassword">
+                            <input type="password" [type]="hide ? 'confirmPassword' : 'text'" matInput
+                                placeholder="confirm Password *" formControlName="confirmPassword"  >
                             <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                                 [attr.aria-pressed]="hide">
                                 <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -219,8 +219,13 @@
                             <mat-hint>Choose a password of at max 6 characters (upper and/or lower case) and one
                                 number</mat-hint>
                             <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
-                                {{ getErrorPassword() }}
+                                {{ getErrorcheckconfirmPassword() }}
                             </mat-error>
+                            <!-- <mat-error class="py-3"
+                            *ngIf="registerForm.get('confirmPassword')?.hasError('notSame')"
+                          >
+                             Password Doesn't match
+                          </mat-error> -->
                         </mat-form-field>
                         <button mat-button matStepperPrevious>Back</button>
                         <button mat-button matStepperNext>Next</button>

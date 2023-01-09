@@ -20,6 +20,7 @@ import { CertificateDetailsComponent } from './view/certificate-details/certific
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
 import { AddDevicesComponent } from './view/add-devices/add-devices.component';
+import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,6 +36,7 @@ import { AddDevicesComponent } from './view/add-devices/add-devices.component';
     WithloginlayoutComponent,
     WithoutloginlayoutComponent,
     AddDevicesComponent,
+    RedemptionReportComponent,
     
   ],
   imports: [
