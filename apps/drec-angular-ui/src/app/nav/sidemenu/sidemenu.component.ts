@@ -12,9 +12,9 @@ export class SidemenuComponent implements OnInit{
 
    }
    ngOnInit(){
-    console.log(JSON.parse(sessionStorage.getItem('loginuser')!));
+   
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    console.log(this.loginuser);
+   
    }
   logout(){
   

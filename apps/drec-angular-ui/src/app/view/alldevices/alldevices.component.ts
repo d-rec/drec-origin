@@ -53,7 +53,7 @@ export class AlldevicesComponent {
   loginuser: any
   deviceurl: any;
   pageSize:number = 20;
-  constructor(private authService: AuthbaseService, private router: Router,) {
+  constructor(private authService: AuthbaseService, private router: Router) {
 
     this.loginuser = sessionStorage.getItem('loginuser');
   }
@@ -84,7 +84,7 @@ export class AlldevicesComponent {
     this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+   
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator

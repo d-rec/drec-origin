@@ -69,7 +69,7 @@ export class AddDevicesComponent {
       data: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: true,
+      energyStorage: [true],
       energyStorageCapacity: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])

@@ -6,7 +6,8 @@ import { AlldevicesComponent } from './view/alldevices/alldevices.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
-import { AddDevicesComponent } from './view/add-devices/add-devices.component'
+import { AddDevicesComponent } from './view/add-devices/add-devices.component';
+import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component'
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
@@ -38,6 +39,9 @@ const routes: Routes = [
         loadChildren: () =>
           import('./view/organization/organization.module').then((m) => m.OrganizationModule),
       },
+      {
+        path: 'redemption-report', component:RedemptionReportComponent
+      }
     ]
   }
 ];
