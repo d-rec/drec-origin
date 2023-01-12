@@ -305,3 +305,10 @@ border-left-color:$primary!important ;
 //         font-size: 10px !important;
 //     }
 // }
+.mat-mdc-radio-button.mat-accent{
+    --mdc-radio-selected-focus-icon-color:#f2be1a;
+    --mdc-radio-selected-hover-icon-color:#f2be1a;
+    --mdc-radio-selected-icon-color: #f2be1a;
+    --mdc-radio-selected-pressed-icon-color: #f2be1a;
+    --mat-mdc-radio-checked-ripple-color: #f2be1a;
+}
