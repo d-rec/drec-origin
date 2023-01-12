@@ -1,17 +1,39 @@
 <div class="body-bg">
   <mat-card>
-    <mat-card-header>
+    <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center ">
+
+      <div>
+        <mat-card-title>
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">List
+          </h2>
+      </mat-card-title>
+      </div>
+      <div class="filter-cont pb-0 mb-0" >
+        <mat-form-field class="mat-form-filte pb-0 mb-0 " >
+          <mat-label class="filter-box pb-0 mb-0 ">Filter</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input class="filetr-desc pb-0 mb-0">
+        </mat-form-field>
+      </div>
+      
+
+
+  </mat-card-header>
+  <hr class="mt-0 pt-0">
+    <!-- <mat-card-header>
       <mat-card-title>
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">list</h2>
       </mat-card-title>
-    </mat-card-header>
-    <hr>
-    <mat-card-content>
-      <mat-form-field>
+      <mat-form-field class="mat-form-filte">
+        <mat-label class="filter-box">Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input class="filetr-desc">
+      </mat-form-field>
+    </mat-card-header> -->
+    <mat-card-content class="mat-body-cont text-center">
+      <!-- <mat-form-field>
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
-      </mat-form-field>
-      <div class="content mat-elevation-z8">
+      </mat-form-field> -->
+      <div class="content mat-elevation-z8 text-center">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
           <!-- Checkbox Column -->
@@ -65,7 +87,7 @@
             <th mat-header-cell *matHeaderCellDef>Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
               <!-- <button>certificate</button> -->
-              <button class="btn-primary btn btn-sm" target="_blank">Edit</button>
+              <button class="btn-primary btn btn-sm but-cont " target="_blank">Edit</button>
 
             </td>
           </ng-container>
