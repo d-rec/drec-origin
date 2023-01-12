@@ -8,8 +8,8 @@
 	<hr>
 	<mat-card-content>
 		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
-		<samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
-		
+		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
+		 -->
 	<ng-container *ngFor="let item of data">
 		
 		<mat-card  class="innermat-card example-card1 border" >
@@ -30,7 +30,7 @@
 					<div class='row'><p><b>Generation End Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:--> {{item.generationEndTimeinUTC}}</p></div>
 				  </div>
 				  <div class='column'>
-					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Amount of Read</b>: &nbsp;{{item1.value}}</p></div>
+					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}</p></div>
 				  </div>
 			</div>
 			 <h3>Per Single Device Contribution For Certificate</h3>

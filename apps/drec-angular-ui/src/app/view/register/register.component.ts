@@ -24,6 +24,7 @@ export class RegisterComponent implements OnInit {
     { value: 'Buyer', viewValue: 'Buyer' }
   ];
   hide = true;
+  hide1 = true;
   matchconfirm: boolean = false;
 
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
