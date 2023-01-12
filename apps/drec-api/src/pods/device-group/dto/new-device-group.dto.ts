@@ -151,6 +151,9 @@ export class NewDeviceGroupDTO
   @IsOptional()
   devicegroup_uid?: string | null | undefined;
 
+ 
+
+
   // @ApiProperty({ type: String })
   // @IsOptional()
   // type?: string;

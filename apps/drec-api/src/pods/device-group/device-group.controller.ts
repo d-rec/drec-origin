@@ -247,7 +247,7 @@ export class DeviceGroupController {
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - 3.164e+10);
+    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10*3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
       console.log("198");
       throw new ConflictException({
