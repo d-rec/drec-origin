@@ -40,7 +40,7 @@ const routes: Routes = [
           import('./view/organization/organization.module').then((m) => m.OrganizationModule),
       },
       {
-        path: 'organization',
+        path: 'device',
         loadChildren: () =>
           import('./view/device/device.module').then((m) => m.DeviceModule),
       },
