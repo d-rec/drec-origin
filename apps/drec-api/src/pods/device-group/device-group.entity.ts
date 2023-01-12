@@ -7,6 +7,7 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
+  IsArray
 } from 'class-validator';
 import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
@@ -141,6 +142,9 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsOptional()
   authorityToExceed: boolean ;
 
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  deviceIds?: number[];
 
   @CreateDateColumn({ 
     type: 'timestamp', 

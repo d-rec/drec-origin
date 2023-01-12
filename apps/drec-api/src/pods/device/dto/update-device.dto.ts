@@ -49,7 +49,6 @@ export class UpdateDeviceDTO
   // @IsOptional()
   // @IsNumber()
   // zipCode: string;
-
   @ApiProperty()
   @IsEnum(FuelCode,{
     message:
@@ -61,7 +60,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(DevicetypeCode,{
     message:
-      'Valid DeviceCode values are TC150 ',
+      'Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
   @IsOptional()
   deviceTypeCode: DevicetypeCode;

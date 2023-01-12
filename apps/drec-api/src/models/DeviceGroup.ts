@@ -43,7 +43,7 @@ export interface IDeviceGroup {
 
   devices?: DeviceDTO[];
   organization?: Pick<OrganizationDTO, 'name'>;
-
+  deviceIds?: number[];
   buyerId?: number | null;
   buyerAddress?: string | null;
   type?:string | null;

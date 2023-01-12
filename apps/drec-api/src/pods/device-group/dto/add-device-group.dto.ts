@@ -42,4 +42,7 @@ export class AddGroupDTO {
   @IsString()
   @IsOptional()
   blockchainAddress?: string;
+
+ 
+
 }

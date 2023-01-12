@@ -316,6 +316,7 @@ export class DeviceController {
     @Param('id') id: number,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
+    console.log(deviceToUpdate);
     deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
     if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
       let countries = countrCodesList;
@@ -350,7 +351,8 @@ export class DeviceController {
       });
     }
    // var commissioningDate = moment(deviceToUpdate.commissioningDate);
-    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate)) {
+  
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate) && deviceToUpdate.commissioningDate!== undefined) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
