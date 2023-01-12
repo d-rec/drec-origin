@@ -6,5 +6,23 @@
     {
         box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
         border: none!important;
+        position: relative;
     }
+}.mat-form-filte{
+    padding: 0px 10px;
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    width: fit-content;
+    // margin-top: -50px !important;
+    .filetr-desc{
+       
+    }
+}
+.mat-body-cont{
+    padding: 0px 16px 23px !important;
+
+}
+.but-cont{
+    padding: 0px 16px !important;
 }
