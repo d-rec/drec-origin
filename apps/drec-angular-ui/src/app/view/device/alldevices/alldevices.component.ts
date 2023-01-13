@@ -9,7 +9,7 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { AuthbaseService } from '../../auth/authbase.service';
+import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
 
 export interface PeriodicElement {
@@ -53,7 +53,7 @@ export class AlldevicesComponent {
   loginuser: any
   deviceurl: any;
   pageSize:number = 20;
-  constructor(private authService: AuthbaseService, private router: Router,) {
+  constructor(private authService: AuthbaseService, private router: Router) {
 
     this.loginuser = sessionStorage.getItem('loginuser');
   }
@@ -84,7 +84,7 @@ export class AlldevicesComponent {
     this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+   
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator

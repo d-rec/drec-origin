@@ -115,7 +115,7 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">fuel Code</mat-label>
+                                            <mat-label class="text-capitalize">Fuel Code</mat-label>
 
                                             <mat-select formControlName='fuelCode' placeholder="fuelCode">
 
@@ -149,9 +149,17 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">quality Labels</mat-label>
-                                            <input matInput placeholder="qualityLabels" formControlName='qualityLabels'>
+                                            <mat-label class="text-capitalize">Device Description</mat-label>
+
+                                            <mat-select formControlName='deviceDescription'
+                                                placeholder="deviceDescription">
+
+                                                <mat-option *ngFor="let code of devicediscription" [value]="code">
+                                                    {{code}}
+                                                </mat-option>
+                                            </mat-select>
                                         </mat-form-field>
+
                                     </div>
 
                                     <div class="col-md-3">
@@ -220,16 +228,10 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                       
+
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">device Description</mat-label>
-
-                                            <mat-select formControlName='deviceDescription' placeholder="deviceDescription">
-
-                                                <mat-option *ngFor="let code of devicediscription" [value]="code">
-                                                    {{code}}
-                                                </mat-option>
-                                            </mat-select>
+                                            <mat-label class="text-capitalize">Quality Labels</mat-label>
+                                            <input matInput placeholder="qualityLabels" formControlName='qualityLabels'>
                                         </mat-form-field>
                                     </div>
 
@@ -247,20 +249,25 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">data</mat-label>
+                                            <mat-label class="text-capitalize">Data</mat-label>
                                             <input matInput placeholder="data" formControlName='data'>
                                         </mat-form-field>
                                     </div>
 
                                     <div class="col-md-3">
-                                        <!-- <mat-form-field appearance="outline">
+                                        <!--  <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage</mat-label>
-                                            <input matInput placeholder="energyStorage" formControlName='energyStorage'>
-                                        </mat-form-field> -->
-                                        <mat-radio-group aria-label="Select an option" formControlName='energyStorage'>
-                                            <mat-radio-button value="true">True</mat-radio-button>
-                                            <mat-radio-button value="false">False</mat-radio-button>
-                                          </mat-radio-group>
+                                           <input matInput placeholder="energyStorage" formControlName='energyStorage'> -->
+                                         
+                                           <mat-radio-group  formControlName='energyStorage'>
+                                            <span >Energy Storage:</span>
+
+                                            <mat-radio-button [value]=true checked>True</mat-radio-button>
+                                                <mat-radio-button [value]=false>False</mat-radio-button>
+                                            </mat-radio-group>
+                                        <!-- </mat-form-field>
+                                         -->
+                                        
                                     </div>
 
                                     <div class="col-md-3">
@@ -281,7 +288,8 @@
             <mat-card-footer>
                 <div class="example-container row">
                     <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="myform.invalid">submit</button>
+                        <button type="submit" class="btn-primary btn text-capitalize px-4"
+                            [disabled]="myform.invalid">submit</button>
                     </div>
                 </div>
             </mat-card-footer>

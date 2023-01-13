@@ -2,15 +2,15 @@
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
     <!-- {{options.value.fixed ? 'Fixed' : 'Non-fixed'}} Sidenav -->
 
-    <button mat-button class="menu-button " routerLinkActive="active"routerLink="/AllDevices" *ngIf="loginuser.role ==='Admin'">
+    <button mat-button class="menu-button " routerLinkActive="active"routerLink="device/AllList" *ngIf="loginuser.role ==='Admin'">
       <mat-icon>list</mat-icon>
       <span>All Devices</span>
     </button>
-    <button mat-button class="menu-button" routerLinkActive="active"routerLink="/AllDevices" *ngIf="loginuser.role ==='OrganizationAdmin'">
+    <button mat-button class="menu-button" routerLinkActive="active"routerLink="device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
       <mat-icon>list</mat-icon>
       <span>My Devices</span>
     </button>
-    <button mat-button class="menu-button"  routerLinkActive="active" routerLink="/adddevice" *ngIf="loginuser.role ==='OrganizationAdmin'">
+    <button mat-button class="menu-button"  routerLinkActive="active" routerLink="device/add" *ngIf="loginuser.role ==='OrganizationAdmin'">
       <mat-icon>list</mat-icon>
       <span>Add Devices</span>
     </button>
@@ -18,11 +18,15 @@
       <mat-icon>list</mat-icon>
       <span>Organization</span>
     </button>
-    <button mat-button class="menu-button active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
       <mat-icon>list</mat-icon>
       <span>My Reservation</span>
     </button>
-    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation" *ngIf="loginuser.role ==='Buyer'">
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/redemption-report" *ngIf="loginuser.role ==='Buyer'">
+      <mat-icon>list</mat-icon>
+      <span>Redemption Report</span>
+    </button>
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add" *ngIf="loginuser.role ==='Buyer'">
       <mat-icon>add_circle</mat-icon>
       <span>Add Reservation</span>
     </button>
