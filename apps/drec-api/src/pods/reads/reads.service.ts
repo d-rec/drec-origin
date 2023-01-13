@@ -675,7 +675,7 @@ export class ReadsService {
               new ConflictException({
                 success: false,
                 //@ts-ignore
-                message: `For History Type Reads of devices start time and/or end time should be within 1 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
+                message: `For History Type Reads of devices start time and/or end time should be within 3 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
 
               }),
             );
