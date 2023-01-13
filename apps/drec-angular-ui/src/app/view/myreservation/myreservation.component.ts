@@ -62,12 +62,12 @@ export class MyreservationComponent implements OnInit {
   DisplayList() {
     this.authService.GetMethod('device-group/my').subscribe(
       (data) => {
-        // display list in the console 
-        console.log(data)
+        this.showdevicesinfo= false;
+      
         this.data = data;
           //@ts-ignore
         this.data.forEach(ele=>{
-          console.log(ele.deviceIds);
+        
           if(ele.deviceIds!=null){
             ele['numberOfdevices'] = ele.deviceIds.length;
           }else{
@@ -85,14 +85,13 @@ export class MyreservationComponent implements OnInit {
   }
 DevicesList:any=[];
   DisplayDeviceList(deviceid:number[]) {
-console.log(deviceid);
+
 this.showdevicesinfo= true;
 
 deviceid.forEach(ele=>{
     this.authService.GetMethod('device/'+ele).subscribe(
       (data) => {
-        // display list in the console 
-        console.log(data)
+      
         this.data = data;
          
         this.DevicesList.push(data)
