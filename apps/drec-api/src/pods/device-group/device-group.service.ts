@@ -605,6 +605,7 @@ export class DeviceGroupService {
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
       deviceGroup['frequency'] = group.frequency;
+     
       if (buyerId && buyerAddress) {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
@@ -750,7 +751,6 @@ export class DeviceGroupService {
     User: ILoggedInUser,
     data: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
-
 
     await this.checkNameConflict(data.name);
     let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
@@ -1001,6 +1001,7 @@ export class DeviceGroupService {
     // );
 
     const labels: string[] = [];
+   
     devices.map((device: DeviceDTO) => {
       if (!device.labels) {
         return;
@@ -1011,6 +1012,10 @@ export class DeviceGroupService {
     const deviceTypeCodes = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode)),
     );
+    const devicesIds = Array.from(
+      new Set(devices.map((device: DeviceDTO) =>device.id)),
+    );
+    
     // const integratorName = devices[0].integrator
     //   ? `${devices[0].integrator}-`
     //   : '';
@@ -1032,6 +1037,7 @@ export class DeviceGroupService {
       commissioningDateRange: this.getCommissioningDateRange(devices),
       yieldValue: averageYieldValue,
       labels: labels ?? [],
+      //devicesIds: devicesIds
     };
 
     return deviceGroup;

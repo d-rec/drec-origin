@@ -628,7 +628,7 @@ export class ReadsService {
           console.log(checkhistroyreading)
           //@ts-ignore
           const historyAge = new Date(device.createdAt);
-          historyAge.setFullYear(historyAge.getFullYear() - 1);
+          historyAge.setFullYear(historyAge.getFullYear() - 3);
           console.log("historyAge");
           console.log(historyAge);
           console.log("createdAt");

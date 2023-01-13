@@ -83,12 +83,12 @@ export class CertificateLogController {
                 }))
             })
         }
-        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid:groupuId})
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
         console.log("devicegroup");
         console.log(devicegroup);
 
-       
-        if(devicegroup === null||devicegroup.buyerId !=user.id){
+
+        if (devicegroup === null || devicegroup.buyerId != user.id) {
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -96,7 +96,20 @@ export class CertificateLogController {
                 }))
             })
         }
-       
+
         return this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
+    }
+
+    @Get('/redemption-report')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse
+        ({
+            status: HttpStatus.OK,
+            description: 'Returns a new created Device id'
+        })
+    async getRedemptionReport(
+        @UserDecorator() { id }: ILoggedInUser,
+    ): Promise<any[]> {
+       return this.certificateLogService.getCertificateRedemptionReport(id);
     }
 }

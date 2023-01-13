@@ -18,8 +18,9 @@ import {
     ApiSecurity,
     ApiOkResponse
   } from '@nestjs/swagger';
-import {SdgBenefitDTO} from './dto/add_sdgbenefit.dto'
-  import {SdgbenefitService} from './sdgbenefit.service'
+  import {SdgBenefitDTO,SDGBCodeNameDTO} from './dto/add_sdgbenefit.dto'
+  import {SdgbenefitService} from './sdgbenefit.service';
+  import { plainToClass } from 'class-transformer';
 @ApiTags('SdgBenefit')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -39,5 +40,14 @@ export class SdgbenefitController {
  findAll() {
    return this.SdgbenefitService.findAll();
  }
-
+ @Get('/code')
+ @ApiResponse({
+   status: HttpStatus.OK,
+   type: [SDGBCodeNameDTO],
+   description: 'Returns all IREC fuel types',
+ })
+ getFuelTypes(): SDGBCodeNameDTO[] {
+   const sdgbcode = this.SdgbenefitService.getSDGBCode();
+   return sdgbcode.map((fuelType) => plainToClass(SDGBCodeNameDTO, fuelType));
+ }
 }

@@ -141,6 +141,7 @@ specifiers:
   moment-timezone: 0.5.40
   multer: 1.4.2
   nanoid: ~3.1.30
+  ngx-toastr: ^16.0.1
   nodemailer: ^6.6.3
   orval: 5.5.9
   passport: 0.4.1
@@ -322,6 +323,7 @@ dependencies:
   moment-timezone: 0.5.40
   multer: 1.4.2
   nanoid: 3.1.30
+  ngx-toastr: 16.0.1_296ccc26ddd732d448d2a406290f1980
   nodemailer: 6.7.1
   orval: 5.5.9
   passport: 0.4.1
@@ -22987,6 +22989,19 @@ packages:
     resolution: {integrity: sha512-mc/caHeUcdjnC/boPWJefDr4KUIWQNv+tlnFnJd38QMou86QtxQzBJfxgGRzvx8jazYRqrVlaHarfO72uNxPOg==}
     dev: false
 
+  /ngx-toastr/16.0.1_296ccc26ddd732d448d2a406290f1980:
+    resolution: {integrity: sha512-GpGPQcNqB2m2i5yhH73CkGV6D6DlCJ0+aXZvUoR7OMxlJTlM+73FUePVYUnpWUHXR2IVMS+1ce8WwcTXJzGJxA==}
+    peerDependencies:
+      '@angular/common': '>=14.0.0-0'
+      '@angular/core': '>=14.0.0-0'
+      '@angular/platform-browser': '>=14.0.0-0'
+    dependencies:
+      '@angular/common': 15.0.4_@angular+core@15.0.4
+      '@angular/core': 15.0.4_zone.js@0.12.0
+      '@angular/platform-browser': 15.0.4_0dacf5c1be2a9acdc88cc30b05d6dd0b
+      tslib: 2.4.1
+    dev: false
+
   /nice-napi/1.0.2:
     resolution: {integrity: sha512-px/KnJAJZf5RuBGcfD+Sp2pAKq0ytz8j+1NehvgIGFkvtvFrDM3T8E4x/JJODXK9WZow8RRGrbA9QQ3hs+pDhA==}
     os: ['!win32']
@@ -31234,7 +31249,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-angular-ui.tgz:
-    resolution: {integrity: sha512-z4xKMhpBGgdMS9YSx3f71gDI2yD/0FbTCvcsoJ2FaJxvVHDY47lzpgyKs6mckCy9Od6YHZudjXjvLZofxyYTzA==, tarball: file:projects/origin-drec-angular-ui.tgz}
+    resolution: {integrity: sha512-ynmVYVa1yAPh+Fwzv2LqhI1mGOxCVmUC5ExO0Bp21DhVchnOOCIBF25vNj4O+FNF9HiwpdMaGck3eDjnNiDmEg==, tarball: file:projects/origin-drec-angular-ui.tgz}
     name: '@rush-temp/origin-drec-angular-ui'
     version: 0.0.0
     dependencies:
@@ -31258,6 +31273,7 @@ packages:
       karma-coverage: 2.2.0
       karma-jasmine: 5.1.0_karma@6.4.1
       karma-jasmine-html-reporter: 2.0.0_a2bcbe746b92563934a66817c74ce6c4
+      ngx-toastr: 16.0.1_296ccc26ddd732d448d2a406290f1980
       rxjs: 7.5.5
       tslib: 2.4.1
       typescript: 4.8.4

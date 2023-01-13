@@ -1,0 +1,143 @@
+// Colors
+$primary: #f2be1a;
+$secondary: #010101;
+$tritary: #3f3f3f;
+$gray: #3f3f3f;
+$white: #fff;
+$danger: #f44336;
+
+.body-bg
+{
+    padding: 35px 30px 35px 30px;
+    background: #f2f2f2;
+    .mat-mdc-card
+    {
+        box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
+        // border: none!important;
+    }
+}
+
+table {
+    width: 100%;
+  }
+  
+  tr.example-detail-row {
+    height: 0;
+  }
+  
+  tr.example-element-row:not(.example-expanded-row):hover {
+    background: #777;
+  }
+  
+  tr.example-element-row:not(.example-expanded-row):active {
+    background: #efefef;
+  }
+  
+  .example-element-row td {
+    border-bottom-width: 0;
+  }
+  
+  .example-element-detail {
+    overflow: hidden;
+    display: flex;
+  }
+  
+  .example-element-diagram {
+    min-width: 80px;
+    border: 2px solid black;
+    padding: 8px;
+    font-weight: lighter;
+    margin: 8px 0;
+    height: 104px;
+  }
+  
+  .example-element-symbol {
+    font-weight: bold;
+    font-size: 40px;
+    line-height: normal;
+  }
+  
+  .example-element-description {
+    padding: 16px;
+  }
+  
+  .example-element-description-attribution {
+    opacity: 0.5;
+  }
+  
+  .inner-table {
+    width: 100%;
+  }
+  
+  .inner-table mat-form-field {
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  .example-card1 {
+  
+    width: 100%;
+  }
+  
+  .example-header-image {
+    background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+    background-size: cover;
+  }
+  
+  
+ 
+  .innermat-card{
+    border: 1px $gray solid;
+    padding: 0px;
+  } 
+  // mat-card-header{
+  //   background: #12121212;
+  //   padding: 10px 5px;
+  //   color:rgb(228, 67, 67);
+  // } 
+  mat-card-content{
+    padding: 10px;
+  }
+  .content {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    p{
+      font-size: 13px;
+    }
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 5px;
+  }
+  .fs-text{
+    font-size: 13px;
+    margin-left: 4px ;
+  }
+  // mat-card-subtitle {
+  //   font-size: 18px;
+  // }
+    
+  // mat-card-title {
+  //   color: green;
+  //   font-size: 55px;
+  //   justify-content: center;
+  //   display: flex;
+  // }
+  .group-name{
+    color: #f2be1a;
+    text-align: center !important;
+  }
+  .group-id{
+    display: flex;
+    justify-content: center;
+
+  }
+  .certificate-text{
+
+  }
+  

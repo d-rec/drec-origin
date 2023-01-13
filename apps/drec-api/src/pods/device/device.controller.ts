@@ -157,6 +157,16 @@ export class DeviceController {
     return this.deviceService.findOne(id);
   }
 
+  @Get('externalId/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
+  @ApiNotFoundResponse({
+    description: `The device with the code doesn't exist`,
+  })
+  async getByExternalId(@Param('id') id: string): Promise<DeviceDTO | null> {
+    return this.deviceService.findReads(id);
+  }
+
   @Post()
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
@@ -306,6 +316,7 @@ export class DeviceController {
     @Param('id') id: number,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
+    console.log(deviceToUpdate);
     deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
     if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
       let countries = countrCodesList;
@@ -340,7 +351,8 @@ export class DeviceController {
       });
     }
    // var commissioningDate = moment(deviceToUpdate.commissioningDate);
-    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate)) {
+  
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate) && deviceToUpdate.commissioningDate!== undefined) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
