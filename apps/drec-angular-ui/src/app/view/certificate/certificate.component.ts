@@ -75,7 +75,7 @@ export class CertificateComponent implements OnInit {
     this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+       
         this.data = data;
         //@ts-ignore
         this.data.forEach(ele=>{

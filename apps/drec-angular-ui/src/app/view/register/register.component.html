@@ -170,14 +170,14 @@
                             <mat-form-field appearance="fill" class="mt-0">
                                 <mat-label class="mat-labels-cont">OrganizationName</mat-label>
                                 <input autofocus type="text" matInput placeholder="OrganizationName *" formControlName="orgName">
-                                <mat-error class="pb-1" *ngIf="checkValidation('organizationName')">
+                                <mat-error class="pb-1" *ngIf="checkValidation('orgName')">
                                     {{ fieldRequired }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-form-field appearance="fill" class="mt-0">
                                 <mat-label class="mat-labels-cont">OrganizationAddress</mat-label>
                                 <input autofocus type="text" matInput placeholder="OrganizationAddress"
-                                    formControlName="organizationAddress">
+                                    formControlName="orgAddress">
                                 <mat-error class="pb-3" *ngIf="checkValidation('orgAddress')">
                                     {{ fieldRequired }}
                                 </mat-error>
