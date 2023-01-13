@@ -26,3 +26,23 @@
 .but-cont{
     padding: 0px 16px !important;
 }
+.content {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    p{
+      font-size: 13px;
+    }
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 5px;
+  }
+  .fs-text{
+    font-size: 13px;
+    margin-left: 4px ;
+  }

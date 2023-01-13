@@ -252,7 +252,7 @@ export class DeviceGroupController {
       console.log("198");
       throw new ConflictException({
         success: false,
-        message: 'start date or end date cannot be less than 1 year from current date',
+        message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {
