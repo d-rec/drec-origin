@@ -62,6 +62,7 @@ export class MyreservationComponent implements OnInit {
   DisplayList() {
     this.authService.GetMethod('device-group/my').subscribe(
       (data) => {
+        this.showdevicesinfo= false;
         // display list in the console 
         console.log(data)
         this.data = data;

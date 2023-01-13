@@ -230,7 +230,7 @@
                         </mat-form-field>
                         <div class="d-flex mt-2">
                             <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                            <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block">Next</button>
+                            <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
                         </div>
                         
                     </form>
