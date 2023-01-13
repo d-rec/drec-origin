@@ -211,11 +211,11 @@
                         </mat-form-field>
                         <mat-form-field class="mb-4">
                             <mat-label>Enter your confirmPassword</mat-label>
-                            <input type="password" [type]="hide ? 'confirmPassword' : 'text'" matInput
+                            <input  [type]="hide1 ? 'password' : 'text'" matInput
                                 placeholder="confirm Password *" formControlName="confirmPassword"  >
-                            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                                [attr.aria-pressed]="hide" class="icon-eye">
-                                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            <button mat-icon-button matSuffix (click)="hide1 = !hide1" [attr.aria-label]="'Hide password'"
+                                [attr.aria-pressed]="hide1">
+                                <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
                             </button>
                             <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or lower case) and one
                                 number</mat-hint>
@@ -230,7 +230,7 @@
                         </mat-form-field>
                         <div class="d-flex mt-2">
                             <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                            <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block">Next</button>
+                            <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
                         </div>
                         
                     </form>
