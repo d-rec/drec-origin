@@ -247,12 +247,12 @@ export class DeviceGroupController {
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - 3.164e+10);
+    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10*3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
       console.log("198");
       throw new ConflictException({
         success: false,
-        message: 'start date or end date cannot be less than 1 year from current date',
+        message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {

@@ -13,13 +13,12 @@ import { FooterComponent } from './nav/footer/footer.component';
 import { SidemenuComponent } from './nav/sidemenu/sidemenu.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
-import { AlldevicesComponent } from './view/alldevices/alldevices.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
-import { AddDevicesComponent } from './view/add-devices/add-devices.component';
+import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -28,13 +27,12 @@ import { AddDevicesComponent } from './view/add-devices/add-devices.component';
     SidemenuComponent,
     LoginComponent,
     RegisterComponent,
-    AlldevicesComponent,
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
     WithloginlayoutComponent,
     WithoutloginlayoutComponent,
-    AddDevicesComponent,
+    RedemptionReportComponent,
     
   ],
   imports: [
