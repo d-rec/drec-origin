@@ -34,7 +34,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
-
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import * as momentTimeZone from 'moment-timezone';
 
 
@@ -354,41 +354,40 @@ export class ReadsController extends BaseReadsController {
     // Date format vaildation
     if (measurements.type === ReadType.History) {
 
-      let datevalid1: boolean = true;
-      let datevalid2: boolean = true;
+      let datevalid: boolean = true;
+     
       measurements.reads.forEach(ele => {
         
 
-        let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
+        //@ts-ignore
+        let startdateformate = isValidUTCDateFormat(ele.starttimestamp)
+        //dateFormateToCheck.test(ele.starttimestamp);
+        
         
         //@ts-ignore
-        let startdateformate = dateFormateToCheck.test(ele.starttimestamp);
-        
-        
-        //@ts-ignore
-        let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
+        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
         
         if (!startdateformate || !enddateformate) {
-          datevalid1 = false;
+          datevalid = false;
         }
         // moment().format('YYYY-MM-DDTHH:mm:ssZ');
 
-        const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
-        const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
-        const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
+        // const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+        // const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
+        // const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
         
-        var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
+        // var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
         
 
-        var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
+        // var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
         
-        if (!reqstartDate || !reqendtDate) {
-          datevalid2 = false;
-        }
+        // if (!reqstartDate || !reqendtDate) {
+        //   datevalid2 = false;
+        // }
 
       })
 
-      if (!datevalid1 || !datevalid2) {
+      if (!datevalid ) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -401,33 +400,20 @@ export class ReadsController extends BaseReadsController {
     }
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let datevalid1: boolean = true;
-      let datevalid2: boolean = true;
+    
       measurements.reads.forEach(ele => {
         
-
-        let dateFormateToCheck = new RegExp(/\d\d\d\d\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d{1,}Z/);
-        
-
-        //@ts-ignore
-        let enddateformate = dateFormateToCheck.test(ele.endtimestamp);
+//@ts-ignore
+        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
         
         if (!enddateformate) {
           datevalid1 = false;
         }
-        // moment().format('YYYY-MM-DDTHH:mm:ssZ');
-
-        const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
-
-        const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
-        var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
-        
-        if (!reqendtDate) {
-          datevalid2 = false;
-        }
+      
 
       })
 
-      if (!datevalid1 || !datevalid2) {
+      if (!datevalid1 ) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({

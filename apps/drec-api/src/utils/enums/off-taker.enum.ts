@@ -5,4 +5,5 @@ export enum OffTaker {
   Commercial = 'Commercial',
   Industrial = 'Industrial',
   PublicSector = 'PublicSector',
+  Agriculture='Agriculture'
 }

@@ -5,6 +5,6 @@ export const isValidUTCDateFormat =(dateInput:string) =>{
       ;
     const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
     const momentDateFormatToCheck = moment(dateInput).format(dateFormat);
-
+  
     return dateFormateToCheck.test(dateInput) && moment(momentDateFormatToCheck, dateFormat, true).isValid();
 }
