@@ -88,7 +88,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector',
+      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector,Agriculture',
   })
   @IsOptional()
   offTaker: OffTaker;
