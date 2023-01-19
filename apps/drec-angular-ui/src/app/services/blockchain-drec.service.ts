@@ -2,18 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { BlockchainProperties } from '../models/blockchain-properties.model';
 import { OrganizationInformation } from '../models/organization.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class OrganizationService {
+export class BlockchainDrecService {
 
   constructor(private httpClient:HttpClient) { }
 
 
-  getOrganizationInformation():Observable<OrganizationInformation>
+  getBlockchainProperties():Observable<BlockchainProperties>
   {
-    return this.httpClient.get<OrganizationInformation>(environment.API_URL+'Organization/me')
+    return this.httpClient.get<BlockchainProperties>(environment.API_URL+'blockchain-properties')
   }
 }

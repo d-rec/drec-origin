@@ -27,13 +27,18 @@
     "ngx-toastr": "^16.0.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.12.0"
+    "zone.js": "~0.12.0",
+    "@energyweb/issuer": "4.1.1-alpha.1634225870.0",
+    "ethers": "^5.7.2",
+    "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
+    "web3": "^1.8.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
     "@angular/cli": "~15.0.3",
     "@angular/compiler-cli": "^15.0.0",
     "@types/jasmine": "~4.3.0",
+    "@types/react": "^18.0.26",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",
