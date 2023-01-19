@@ -18,7 +18,6 @@ import { MyreservationComponent } from './view/myreservation/myreservation.compo
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
-
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 @NgModule({
   declarations: [
