@@ -41,6 +41,7 @@ export class MyreservationComponent implements OnInit {
   data:any;
   pageSize:number = 20;
   showdevicesinfo :boolean=false;
+  DevicesList:any;
   constructor(private authService: AuthbaseService, private router: Router,) { }
   ngOnInit() {
     console.log("myreservation");
@@ -83,11 +84,11 @@ export class MyreservationComponent implements OnInit {
       }
     )
   }
-DevicesList:any=[];
+
   DisplayDeviceList(deviceid:number[]) {
 
 this.showdevicesinfo= true;
-
+this.DevicesList=[];
 deviceid.forEach(ele=>{
     this.authService.GetMethod('device/'+ele).subscribe(
       (data) => {
