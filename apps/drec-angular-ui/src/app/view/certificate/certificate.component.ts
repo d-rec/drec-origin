@@ -44,7 +44,7 @@ export class CertificateComponent implements OnInit {
   group_uid: string;
   energyurl:any;
   group_name:any;
-  
+  panelOpenState = false;
   constructor(private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
