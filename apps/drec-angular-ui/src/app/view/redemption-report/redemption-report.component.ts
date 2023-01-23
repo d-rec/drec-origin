@@ -3,7 +3,7 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { AuthbaseService } from '../../auth/authbase.service';
+import { ReservationService } from '../../auth//services/reservation.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-redemption-report',
@@ -54,25 +54,44 @@ data :any=[
 ]
 displayedColumns = [
   'certificateId',
-  'fuelCode',
+  'redemptionDate',
+  'certifiedEnergy',
+  'compliance',
   'country',
+  'fuelCode', 
+  'commissioningDateRange',
+  "beneficiary",
+  "beneficiary_address",
+  "claimCoiuntryCode",
   'capacityRange',
-  'installations',
+  "purpose",
   'offTakers',
   'sectors',
-  'commissioningDateRange',
   'standardCompliance',
-  'redemptionDate',
-  'certifiedEnergy'
+  'installations'
+ 
 ];
 pageSize:number = 20;
 @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
-constructor(private authService: AuthbaseService, private router: Router,){
+constructor(private ReservationService: ReservationService, private router: Router,){
 
 }
 ngOnInit(): void {
   this.dataSource = new MatTableDataSource(this.data.claims);
+  this.DisplayRedemptionList()
+}
+DisplayRedemptionList() {
+  this.ReservationService.GetMethod().subscribe(
+    (data) => {
+      // display list in the console 
+      console.log(data)
+      this.data = data;
+      this.dataSource = new MatTableDataSource(this.data);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
+  )
 }
 }

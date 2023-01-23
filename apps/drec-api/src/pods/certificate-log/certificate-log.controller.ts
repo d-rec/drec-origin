@@ -129,7 +129,7 @@ export class CertificateLogController {
         })
     async getRedemptionReport(
         @UserDecorator() { id }: ILoggedInUser,
-    ): Promise<any> {
-        this.certificateLogService.getCertificateRedemptionReport(id);
+    ): Promise<any[]> {
+       return this.certificateLogService.getCertificateRedemptionReport(id);
     }
 }

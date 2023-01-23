@@ -45,7 +45,7 @@ export class LoginComponent {
           if (jwtObj.role === 'Buyer') {
             this.router.navigate(['/myreservation']);
           } else {
-            this.router.navigate(['/AllDevices']);
+            this.router.navigate(['/device/AllList']);
           }
           this.toastrService.success('login Success!', 'login user ' + jwtObj.email);
         } else {

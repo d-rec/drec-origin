@@ -103,6 +103,9 @@ table {
     flex-direction: row;
     height: 100%;
     width: 100%;
+    p{
+      font-size: 13px;
+    }
   }
   
   .column {
@@ -110,6 +113,10 @@ table {
     flex-direction: column;
     flex-grow: 1;
     padding: 5px;
+  }
+  .fs-text{
+    font-size: 13px;
+    margin-left: 4px ;
   }
   // mat-card-subtitle {
   //   font-size: 18px;
@@ -121,5 +128,29 @@ table {
   //   justify-content: center;
   //   display: flex;
   // }
+  // .group-name{
+  //   color: #f2be1a;
+  //   text-align: center !important;
+  // }
+  .group-id{
+    display: flex;
+    justify-content: center;
 
+  }
+  .certificate-text{
+    color: #1a0dab !important;
+    font-size: 14px !important;
+    mat-icon{
+      color: #ffc400;
+    }
+
+  }
+  .group-name-text{
+    color: #ffc400 !important;
+    text-align: center !important;
+    font-family: serif !important;
+    font-size: 25px;
+    font-weight: bold;
+
+  }
   

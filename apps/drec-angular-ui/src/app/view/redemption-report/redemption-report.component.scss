@@ -1,0 +1,28 @@
+.body-bg
+{
+    padding: 35px 30px 35px 30px;
+    background: #f2f2f2;
+    // width: fit-content;
+    // position: fixed;
+    .mat-mdc-card
+    {
+        box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
+        border: none!important;
+        // overflow-x: scroll;
+        overflow: hidden;
+        // overflow: scroll;
+        padding: 15px 0px;
+    }
+    .mat-elevation-z8{
+        // overflow-x: scroll;
+        // width: fit-content;
+        overflow: scroll;
+        min-width: 100% !important;
+    }
+    table {
+        width: 100%;
+      }
+    .mat-mdc-paginator{
+        display: initial !important;
+    }
+}

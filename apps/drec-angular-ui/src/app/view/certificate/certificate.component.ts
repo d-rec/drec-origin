@@ -44,7 +44,7 @@ export class CertificateComponent implements OnInit {
   group_uid: string;
   energyurl:any;
   group_name:any;
-  
+  panelOpenState = false;
   constructor(private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
@@ -75,7 +75,7 @@ export class CertificateComponent implements OnInit {
     this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+       
         this.data = data;
         //@ts-ignore
         this.data.forEach(ele=>{
@@ -84,7 +84,7 @@ export class CertificateComponent implements OnInit {
           })
        // this.dataSource = new MatTableDataSource(this.data);
         //this.dataSource.paginator = this.paginator
-
+        console.log(data);
         let deviceExternalIdinCertificates:any =[];
         //@ts-ignore
         this.data.forEach(ele=>{
@@ -96,8 +96,8 @@ export class CertificateComponent implements OnInit {
                     if(!deviceExternalIdinCertificates.find(de=>de===ele.deviceid))
                     {
                       this.authService.GetMethod('device/externalId/'+ele.deviceid).subscribe(
-                        (data) => {
-                          console.log(data)
+                        (data1) => {
+                          console.log(data1);
                         deviceExternalIdinCertificates.push(ele.deviceid);
                       }
 

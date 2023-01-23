@@ -46,24 +46,50 @@ body {
 
 
 
+
 // Colors 
 
 .btn-primary {
-    background-color: $primary;
-    border: 1px solid $primary;
-    color: $gray;
-    font-weight: 600;
+    background-color: $primary !important;
+    border: 1px solid $primary !important;
+    color: $gray !important;
+    font-weight: 600 !important;
 
     &:hover,
     &:active,
     &:link,
     &:focus {
-        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
-        background-color: $primary;
-        border: 1px solid $primary;
-        color: $gray;
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1) !important;
+        background-color: $primary ;
+        border: 1px solid $primary ;
+        color: $gray ;
     }
 }
+//   this is for back button
+.btn-content-back{
+    background-color: $secondary !important;
+    color: $white !important;
+    font-weight: 600;
+    border: 1px solid $secondary;
+
+
+    &:hover,
+    &:active,
+    &:link,
+    &:focus {
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1) !important;
+        background-color: $secondary !important;
+        border: 1px solid $secondary !important;
+        color: $white !important;
+    }
+   
+}
+.btn-content-back.btn.btn-content-back:first-child:active{
+    background-color: #010101 !important;
+    color: $white !important;
+}
+
+
 
 .btn-check:checked+.btn.btn-primary,
 :not(.btn-check)+.btn.btn-primary:active,
@@ -169,8 +195,25 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 .mat-step-header.cdk-program-focused,
 .mat-step-header:hover:not([aria-disabled]),
 .mat-step-header:hover[aria-disabled=false] {
-    background-color: none !important;
+    background-color: white !important;
 }
+// .mat-step-header:visited{
+//     background-color: #f2be1a !important;
+// }
+// .mat-step-header:visited:not([aria-disabled]){
+//     background-color: #f2be1a !important;
+// }
+// .mat-step-header:visited[aria-disabled=false]{
+//     background-color: #f2be1a !important;
+// }
+// .mat-step-header:active[aria-disabled=false],
+// .mat-step-header:active:not([aria-disabled]),
+// .mat-step-header:active,
+// .mat-step-header.cdk-keyboard-focused,
+// .mat-step-header.cdk-program-focused
+// {
+//     background-color: #f2be1a !important;
+// }
 
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
     color: $secondary !important;
@@ -200,4 +243,72 @@ border-left-color:$primary!important ;
 {
     background-color: $primary;
     color: $secondary;
+}
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: white !important;
+    // height: 15px !important;
+    // margin-top: 38px;
+}
+.filter-cont{
+    .mdc-text-field{
+        padding: 0px 5px 0px  !important;
+    }
+}
+// .mat-mdc-form-field-flex{
+//     height: 10px !important;
+// }
+// .mat-mdc-form-field-subscript-wrapper{
+//     height:0px !important;
+// }
+.mdc-button:hover{
+    background: #ffc3009e;
+    border-radius: 0px !important;
+}
+// .mat-mdc-form-field-subscript-wrapper{
+//     height: 0px;
+// }
+.mat-horizontal-stepper-header{
+    flex-direction: column !important;
+}
+.mat-mdc-form-field-error{
+    font-size: 10px !important;
+}
+.mat-step-text-label {
+    font-size: 12px !important;
+    margin-top: 5px;
+}
+.mat-stepper-horizontal-line{
+    margin-top: 8px !important;
+}
+.btn.btn-primary:disabled{
+    background-color: #f5db87 !important;
+    border: 1px solid #f5db87;
+}
+
+// this is for next button content 
+// .btn-content{
+//     background-color: #f2be1a !important;
+//     border: 1px solid #f2be1a;
+//     color: #3f3f3f !important;
+//     font-weight: 600;
+//   }
+
+
+.value-fs{
+    .mat-mdc-select-value-text{
+        font-size: 14px !important;
+    }
+ 
+}
+// mat-select{
+//     ::-webkit-input-placeholder{
+//         font-size: 10px !important;
+//     }
+// }
+.mat-mdc-radio-button.mat-accent{
+    --mdc-radio-selected-focus-icon-color:#f2be1a;
+    --mdc-radio-selected-hover-icon-color:#f2be1a;
+    --mdc-radio-selected-icon-color: #f2be1a;
+    --mdc-radio-selected-pressed-icon-color: #f2be1a;
+    --mat-mdc-radio-checked-ripple-color: #f2be1a;
 }

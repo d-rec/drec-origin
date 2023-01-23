@@ -24,6 +24,7 @@ export class RegisterComponent implements OnInit {
     { value: 'Buyer', viewValue: 'Buyer' }
   ];
   hide = true;
+  hide1 = true;
   matchconfirm: boolean = false;
 
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -52,7 +53,7 @@ export class RegisterComponent implements OnInit {
       },
       {
         validators: (control) => {
-          console.log(control)
+         
           if (control.value.password !== control.value.confirmPassword) {
             //@ts-ignore
             control.get("confirmPassword").setErrors({ notSame: true });
@@ -80,10 +81,9 @@ export class RegisterComponent implements OnInit {
   }
   checkconfirmPassword(control: any) {
    // console.log(this.registerForm.value)
-    console.log(control)
+   
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    console.log(enteredPassword);
    // console.log(this.registerForm.value.password);
    //this.registerForm.value.password = this.registerForm.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
