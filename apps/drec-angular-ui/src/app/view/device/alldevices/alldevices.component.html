@@ -1,5 +1,5 @@
 <div class="body-bg">
-  <button class="btn-primary btn btn-sm but-cont" routerLink="/device/add">Add New Devices</button>
+  
   <mat-card>
     <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
 
@@ -9,12 +9,16 @@
           </h2>
       </mat-card-title>
       </div>
-      <div class="filter-cont pb-0 mb-0" >
+      <div>
+        <button class="btn btn-dark justify-content-end px-4" routerLink="/device/add">
+          <mat-icon class="align-middle pe-2">add_circle</mat-icon>Add New Devices</button>
+      </div>
+      <!-- <div class="filter-cont pb-0 mb-0" >
         <mat-form-field class="mat-form-filte pb-0 mb-0 " >
           <mat-label class="filter-box pb-0 mb-0 ">Filter</mat-label>
           <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input class="filetr-desc pb-0 mb-0">
         </mat-form-field>
-      </div>
+      </div> -->
       
 
 
@@ -30,10 +34,10 @@
       </mat-form-field>
     </mat-card-header> -->
     <mat-card-content class="mat-body-cont text-center">
-      <!-- <mat-form-field>
+      <mat-form-field>
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
-      </mat-form-field> -->
+      </mat-form-field>
       <div class="content mat-elevation-z8 text-center">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 

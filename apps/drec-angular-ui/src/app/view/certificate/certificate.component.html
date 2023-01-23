@@ -7,7 +7,7 @@
 	</mat-card-header>
 	<hr>
 	<mat-card-content>
-		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
+		<h2 class="text-capitalize group-name-text"><b>{{group_name}}</b></h2>
 		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
 	<ng-container *ngFor="let item of data">
@@ -15,7 +15,9 @@
 		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
 			  <mat-card-title>
-				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text text-capitalize">Certificate On Blockchain Explorer</a>
+				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">Link to Certificate 
+					<mat-icon class="mt-1">card_membership</mat-icon></a>
+				
 			  </mat-card-title>
 
 			</mat-card-header>
@@ -23,16 +25,25 @@
 			<mat-card-content>
 				
 				<div class='content'>
-				<div class='column' >
-					<div class='row '><p><b>Generation Start Date</b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:--> {{item.generationStartTimeinUTC}}</p></div>
-				  </div>
-				  <div class='column' >
-					<div class='row'><p><b>Generation End Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:--> {{item.generationEndTimeinUTC}}</p></div>
-				  </div>
-				  <div class='column'>
-					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}</p></div>
-				  </div>
-			</div>
+					<div class='column'>
+						<div class='row '>
+							<div class="col-4 ">
+								<p><b>Generation Start
+										Date</b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+									{{item.generationStartTimeinUTC}}</p>
+							</div>
+							<div class="col-4">
+								<p><b>Generation End
+										Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+									{{item.generationEndTimeinUTC}}</p>
+							</div>
+							<div class="col-4">
+								<p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}</p>
+							</div>
+				
+						</div>
+					</div>
+				</div>
 			 <h3 class="fs-text">Per Single Device Contribution For Certificate</h3>
 			 <table mat-table [dataSource]="item.perDeviceCertificateLog">
 				<ng-container matColumnDef="certificate_issuance_startdate">
