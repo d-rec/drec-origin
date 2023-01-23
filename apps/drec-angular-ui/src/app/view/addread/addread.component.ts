@@ -31,7 +31,7 @@ export class AddreadComponent implements OnInit {
     private router: Router, private toastrService: ToastrService) { }
   ngOnInit() {
     this.readForm = this.fb.group({
-      timezone: new FormControl(''),
+      timezone: new FormControl(),
       externalId: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
@@ -98,7 +98,7 @@ export class AddreadComponent implements OnInit {
     return this.timezonedata.filter((option: string) => option.toLowerCase().includes(filterValue));
   }
   getErrorcheckconfirmPassword() {
-    return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+    return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
       this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
   }
   checkValidation(input: string) {

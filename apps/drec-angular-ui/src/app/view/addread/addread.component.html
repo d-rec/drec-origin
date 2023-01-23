@@ -112,9 +112,9 @@
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                         [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                     </ngx-mat-datetime-picker>
-                                    <mat-error class="py-3" *ngIf="checkValidation('endtimestamp')">
-                                        {{ getErrorcheckconfirmPassword() }}
-                                    </mat-error>
+                                    <mat-error *ngIf="addreads.get('endtimestamp')?.errors?.['notSame']">
+                                       <b> Invalid end date.</b>
+                                      </mat-error>
                                 </mat-form-field>
                             </div>
 
@@ -126,7 +126,7 @@
             <mat-card-footer>
                 <div class="example-container row">
                     <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
+                        <button type="submit" [disabled]="readForm.invalid"class="btn-primary btn text-capitalize px-4">submit</button>
                     </div>
                 </div>
             </mat-card-footer>
