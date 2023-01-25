@@ -44,7 +44,8 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
+  SingleDeviceIssuanceStatus
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -1343,7 +1344,7 @@ export class DeviceGroupService {
   ) {
     ////console.log("into method");
     const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ externalId:string;rowNumber: number; isError: boolean; errorsList: Array<any> }> =
+    const recordsErrors: Array<{ externalId:string;rowNumber: number; isError: boolean;status:string; errorsList: Array<any> }> =
       [];
     let rowsConvertedToCsvCount = 0;
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
@@ -1444,7 +1445,7 @@ export class DeviceGroupService {
       ////console.log("records",JSON.stringify(records));
 
       records.push(dataToStore);
-      recordsErrors.push({ externalId:'',rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
+      recordsErrors.push({ externalId:'',rowNumber: rowsConvertedToCsvCount, isError: false,status:"Success", errorsList: [] });
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
@@ -1467,9 +1468,9 @@ export class DeviceGroupService {
             delete ele.target;
             delete ele.children;
           })
-          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: true, errorsList: errors };
+          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: true,status:"Failure", errorsList: errors };
         } else {
-          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: false, errorsList: errors };
+          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: false,status:"Success", errorsList: errors };
         }
         if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
           if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
@@ -1522,6 +1523,7 @@ export class DeviceGroupService {
           }
           else
           {
+            recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: true,status:"Success with some validation errors.Please update those fields", errorsList:recordsErrors[index].errorsList };
             return true;
           }
         }
@@ -1535,7 +1537,7 @@ export class DeviceGroupService {
       //@ts-ignore
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
-        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) + 1 });
+        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) });
       })
       ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
 
