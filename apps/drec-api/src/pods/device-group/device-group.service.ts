@@ -44,7 +44,8 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
+  SingleDeviceIssuanceStatus
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -56,7 +57,7 @@ import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { nanoid } from 'nanoid';
-import {HistoryNextInssuanceStatus} from '../../utils/enums/history_next_issuance.enum'
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
@@ -88,8 +89,8 @@ import {
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 
 import { DateTime } from 'luxon';
-import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity'
-import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
+import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { SdgBenefit } from '../sdgbenefit/sdgbenefit.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 
@@ -116,7 +117,7 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
- 
+
 
   ) { }
 
@@ -332,124 +333,112 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let reservationIsStartingInHistoryForAtleastOneDevice:boolean= false;
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance:boolean = false;
+    let reservationIsStartingInHistoryForAtleastOneDevice: boolean = false;
+    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance: boolean = false;
     devices.filter(ele => {
-      if(  ( new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime() ) && ( new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime() ))
-      {
+      if ((new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime()) && (new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime())) {
         //console.log("device filter for history")
         return true;
       }
-    }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true): (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+    }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true) : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
     //console.log(allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
-    if(!allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
-    {
-        //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
-        //there will be single device which will have next issuance
-        let minimumDeviceCreatedAtDate:Date = new Date(2993430403962);// future date in 2064 just to find minimum
-        let minimumDeviceCreatedAtIndex:number = 0;
-        devices.forEach((ele,index) => {
-        let eleDate=new Date(ele.createdAt)
-        if( eleDate.getTime() < minimumDeviceCreatedAtDate.getTime())
-        {
+    if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
+      //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
+      //there will be single device which will have next issuance
+      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962);// future date in 2064 just to find minimum
+      let minimumDeviceCreatedAtIndex: number = 0;
+      devices.forEach((ele, index) => {
+        let eleDate = new Date(ele.createdAt)
+        if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
           minimumDeviceCreatedAtDate = eleDate;
           minimumDeviceCreatedAtIndex = index;
         }
-        });
-        //console.log(minimumDeviceCreatedAtDate)
-        //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
-        //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
-        let startDate:string='';
-        if(minimumDeviceCreatedAtDate.getTime() < new Date(data.reservationStartDate).getTime())
-        {
-          startDate = new Date(data.reservationStartDate).toISOString()
-        }
-        else
-        {
-          startDate = minimumDeviceCreatedAtDate.toISOString()
-        }
-        //console.log(minimumDeviceCreatedAtDate)
-        let hours = 1;
+      });
+      //console.log(minimumDeviceCreatedAtDate)
+      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
+      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
+      let startDate: string = '';
+      if (minimumDeviceCreatedAtDate.getTime() < new Date(data.reservationStartDate).getTime()) {
+        startDate = new Date(data.reservationStartDate).toISOString()
+      }
+      else {
+        startDate = minimumDeviceCreatedAtDate.toISOString()
+      }
+      //console.log(minimumDeviceCreatedAtDate)
+      let hours = 1;
 
-        const frequency = group.frequency.toLowerCase();
-        if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
-          hours = 1 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
-          hours = 30 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
-          hours = 7 * 24;
-        } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
-          hours = 91 * 24;
+      const frequency = group.frequency.toLowerCase();
+      if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
+        hours = 1 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
+        hours = 30 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
+        hours = 7 * 24;
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+        hours = 91 * 24;
+      }
+      //@ts-ignore
+      //console.log(hours);
+      //console.log(typeof data.reservationStartDate )
+
+      //console.log("startDate");
+      //console.log(startDate);
+      //@ts-ignore
+      let newEndDate: string = '';
+      let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
+
+      if (new Date(end_date).getTime() < new Date(data.reservationEndDate).getTime()) {
+        newEndDate = end_date;
+      }
+      else {
+        newEndDate = data.reservationEndDate.toISOString();
+      }
+      //console.log("newEndDate",newEndDate)
+      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
+      //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
+      let nextMinimumCreatedWhichIsLessThanEndDate: boolean = false;
+      let nextMinimumCreatedAtString: string = '';
+      devices.forEach((ele, index) => {
+        if (index != minimumDeviceCreatedAtIndex) {
+          if (new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()) {
+            nextMinimumCreatedWhichIsLessThanEndDate = true;
+            if (nextMinimumCreatedAtString === '') {
+              //newEndDate
+              nextMinimumCreatedAtString = new Date(ele.createdAt).toISOString();
+            }
+            else {
+              //check if nextMinimum is not minimum then change else leave it 
+              if (new Date(ele.createdAt).getTime() < new Date(nextMinimumCreatedAtString).getTime()) {
+                nextMinimumCreatedAtString = new Date(ele.createdAt).toISOString();
+              }
+            }
+
+          }
         }
-        //@ts-ignore
-        //console.log(hours);
-        //console.log(typeof data.reservationStartDate )
-        
-        //console.log("startDate");
-        //console.log(startDate);
-        //@ts-ignore
-        let newEndDate: string = '';
-        let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
-        
-        if (new Date(end_date).getTime() < new Date(data.reservationEndDate).getTime()) {
-          newEndDate = end_date;
+      })
+      //console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
+      if (nextMinimumCreatedWhichIsLessThanEndDate) {
+
+        if (new Date(startDate).getTime() > new Date(nextMinimumCreatedAtString).getTime()) {
+          newEndDate = newEndDate;
         }
         else {
-          newEndDate = data.reservationEndDate.toISOString();
-        }
-        //console.log("newEndDate",newEndDate)
-        //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
-        //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-        let nextMinimumCreatedWhichIsLessThanEndDate:boolean = false;
-        let nextMinimumCreatedAtString:string = '';
-        devices.forEach((ele,index)=>{
-          if(index!=minimumDeviceCreatedAtIndex)
-          {
-            if(new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime())
-            {
-              nextMinimumCreatedWhichIsLessThanEndDate = true;
-              if(nextMinimumCreatedAtString==='')
-              {
-                //newEndDate
-                 nextMinimumCreatedAtString= new Date(ele.createdAt).toISOString();
-              }
-              else
-              {
-                //check if nextMinimum is not minimum then change else leave it 
-                if(new Date(ele.createdAt).getTime() < new Date(nextMinimumCreatedAtString).getTime())
-                {
-                  nextMinimumCreatedAtString= new Date(ele.createdAt).toISOString(); 
-                }
-              }
-              
-            }
-          }
-        })
-        //console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
-        if(nextMinimumCreatedWhichIsLessThanEndDate)
-        {
-
-          if(new Date (startDate).getTime() > new Date(nextMinimumCreatedAtString).getTime())
-          {
-            newEndDate = newEndDate;
-          }
-          else{
-            newEndDate = nextMinimumCreatedAtString;
-          }
-          
-          
+          newEndDate = nextMinimumCreatedAtString;
         }
 
 
+      }
 
-        //console.log("end_date");
-        //console.log(end_date);
 
-        const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
-          start_date: startDate,
-          end_date: newEndDate,
-          groupId: group.id
-        });
+
+      //console.log("end_date");
+      //console.log(end_date);
+
+      const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
+        start_date: startDate,
+        end_date: newEndDate,
+        groupId: group.id
+      });
     }
 
     await Promise.all(
@@ -457,18 +446,18 @@ export class DeviceGroupService {
         //console.log(typeof device.createdAt )
         //console.log(data.reservationStartDate );
         //console.log(device.createdAt);
-        if( new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()){
+        if (new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()) {
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
-          
+
             groupId: group.id,
-            device_externalid:device.externalId,
+            device_externalid: device.externalId,
             reservationStartDate: data.reservationStartDate,
             reservationEndDate: new Date(data.reservationEndDate).getTime() < new Date(device.createdAt).getTime() ? data.reservationEndDate : device.createdAt,
-            device_createdAt:device.createdAt,
-            status:HistoryNextInssuanceStatus.Pending
+            device_createdAt: device.createdAt,
+            status: HistoryNextInssuanceStatus.Pending
           });
         }
-       
+
         return await this.deviceService.addGroupIdToDeviceForReserving(
           device,
           group.id
@@ -486,20 +475,19 @@ export class DeviceGroupService {
     buyerAddress?: string
   ): Promise<ResponseDeviceGroupDTO> {
 
-    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean:boolean= false;
+    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean: boolean = false;
 
     //console.log("came here 461");
 
     let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
     let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> = [];
-    devices.forEach(ele=>ele.groupId!=null? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id):"");
+    devices.forEach(ele => ele.groupId != null ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id) : "");
     //console.log(devices);
     //@ts-ignore
-    devices = devices.filter(ele=>ele.groupId===null);
+    devices = devices.filter(ele => ele.groupId === null);
     //console.log(devices);
     //console.log("came here 465");
-    if(devices.length ===0)
-    {
+    if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -527,16 +515,14 @@ export class DeviceGroupService {
 
     // devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
 
-    if(devices.length ===0)
-    {
-      smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean= true;
+    if (devices.length === 0) {
+      smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
-        let message='';
-        if(unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length>0)
-        {
-          message = message+ `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
+        let message = '';
+        if (unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0) {
+          message = message + `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
         }
-        message = message+ `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
+        message = message + `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
 
 
         reject(new ConflictException({
@@ -558,7 +544,7 @@ export class DeviceGroupService {
 
     if (!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation) {
       if (!allDevicesAvailableforBuyerReservation) {
-        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean= true;
+        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
         return new Promise((resolve, reject) => {
           reject(new ConflictException({
             success: false,
@@ -569,7 +555,7 @@ export class DeviceGroupService {
     }
 
 
-    
+
     if (!group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration) {
       let aggregatedCapacity = 0;
       devices.forEach(ele => aggregatedCapacity = ele.capacity + aggregatedCapacity);
@@ -593,8 +579,7 @@ export class DeviceGroupService {
       }
     }
 
-    if(smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean=== false)
-    {
+    if (smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean === false) {
       let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices, group.name);
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
       deviceGroup['reservationEndDate'] = group.reservationEndDate;
@@ -605,21 +590,21 @@ export class DeviceGroupService {
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
       deviceGroup['frequency'] = group.frequency;
-     
+
       if (buyerId && buyerAddress) {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
       }
-      let responseDeviceGroupDTO:ResponseDeviceGroupDTO = await this.create(
+      let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,
       );
-      responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length>0 ?unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , '): '';
-      responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , '):'';
+      responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0 ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ') : '';
+      responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0 ? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ') : '';
       return responseDeviceGroupDTO;
     }
 
-   
+
   }
 
   async createMultiple(
@@ -1001,7 +986,7 @@ export class DeviceGroupService {
     // );
 
     const labels: string[] = [];
-   
+
     devices.map((device: DeviceDTO) => {
       if (!device.labels) {
         return;
@@ -1013,22 +998,22 @@ export class DeviceGroupService {
       new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode)),
     );
     const devicesIds = Array.from(
-      new Set(devices.map((device: DeviceDTO) =>device.id)),
+      new Set(devices.map((device: DeviceDTO) => device.id)),
     );
-    
+
     // const integratorName = devices[0].integrator
     //   ? `${devices[0].integrator}-`
     //   : '';
     const deviceGroup: NewDeviceGroupDTO = {
       name:
-        groupName ,
+        groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode :'').join(' , '),
-      countryCode: devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode :'').join(' , '),
-    //standardCompliance: devices[0].standardCompliance,
+      fuelCode: devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode : '').join(' , '),
+      countryCode: devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , '),
+      //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
       //@ts-ignore
-      offTakers: [devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker :'').join(' , ')],
+      offTakers: [devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker : '').join(' , ')],
       //installationConfigurations: [devices[0].installationConfiguration],
       //sectors,
       gridInterconnection,
@@ -1343,7 +1328,7 @@ export class DeviceGroupService {
   ) {
     ////console.log("into method");
     const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ externalId:string;rowNumber: number; isError: boolean; errorsList: Array<any> }> =
+    const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
     let rowsConvertedToCsvCount = 0;
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
@@ -1367,8 +1352,8 @@ export class DeviceGroupService {
       data.images = [];
       data.groupId = null;
       const dataToStore = new NewDeviceDTO();
-      dataToStore.SDGBenefits=[];
-      dataToStore.version='1.0';
+      dataToStore.SDGBenefits = [];
+      dataToStore.version = '1.0';
 
       const dataKeyForValidation: NewDeviceDTO = {
         externalId: '',
@@ -1393,12 +1378,11 @@ export class DeviceGroupService {
         energyStorageCapacity: 0,
         qualityLabels: '',
         SDGBenefits: [],
-        version:"1.0",
+        version: "1.0",
         //groupId: 0,
       };
       for (const key in dataKeyForValidation) {
-        if(key ==="SDGBenefits" || key === "version")
-        {
+        if (key === "SDGBenefits" || key === "version") {
           continue;
         }
         //@ts-ignore
@@ -1413,17 +1397,16 @@ export class DeviceGroupService {
             data[key].toLowerCase() === 'true' ? true : false;
         }
         //@ts-ignore
-        else if (typeof dataKeyForValidation[key] === 'number') {     
+        else if (typeof dataKeyForValidation[key] === 'number') {
           //@ts-ignore
           dataToStore[key] =
-            Number.isNaN(data[key]) ? 0: parseFloat(data[key]);
+            Number.isNaN(data[key]) ? 0 : parseFloat(data[key]);
           //@ts-ignore
           if (key == 'yieldValue' && dataToStore[key] === 0) {
             dataToStore[key] = 1500;
           }
 
-          if(key === "SdgBenefits")
-          {
+          if (key === "SdgBenefits") {
             //console.log("data[key]",data[key]);
             //console.log("dataToStore[key]",dataToStore[key]);
           }
@@ -1444,7 +1427,7 @@ export class DeviceGroupService {
       ////console.log("records",JSON.stringify(records));
 
       records.push(dataToStore);
-      recordsErrors.push({ externalId:'',rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
+      recordsErrors.push({ externalId: '', rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
@@ -1453,44 +1436,42 @@ export class DeviceGroupService {
       ////console.log("data end transmissiodsdddddddddddn",records);
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
-        if(records[index].externalId)
-        {
+        if (records[index].externalId) {
           records[index].externalId = records[index].externalId.trim();
-        } 
+        }
         ////console.log("waiting");
         const errors = await validate(singleRecord);
         ////console.log("validation errors",errors);
         // errors is an array of validation errors
         if (errors.length > 0) {
-          
-          errors.forEach(ele=>{
+
+          errors.forEach(ele => {
             delete ele.target;
             delete ele.children;
           })
-          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: true, errorsList: errors };
+          recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: true, errorsList: errors };
         } else {
-          recordsErrors[index] = { externalId:records[index].externalId,rowNumber: index, isError: false, errorsList: errors };
+          recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
         }
         if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
           if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
-            recordsErrors[index].errorsList.push({value:singleRecord.countryCode, property:"countryCode",constraints:{invalidCountryCode:"Invalid countryCode"}}) 
+            recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
           }
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
-            if(!isValidUTCDateFormat(singleRecord.commissioningDate))
-            {
-                recordsErrors[index].errorsList.push({value:singleRecord.commissioningDate, property:"commissioningDate",constraints:{invalidDate:"Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z"}}) 
-            }
+          if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
+            recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
+          }
         }
-        if (singleRecord.capacity <=0) {
-                recordsErrors[index].errorsList.push({value:singleRecord.capacity, property:"capacity",constraints:{greaterThanZero:"Capacity should be greater than 0"}}) 
+        if (singleRecord.capacity <= 0) {
+          recordsErrors[index].errorsList.push({ value: singleRecord.capacity, property: "capacity", constraints: { greaterThanZero: "Capacity should be greater than 0" } })
         }
       }
 
       records.forEach((singleRecord, index) => {
-          recordsErrors[index].errorsList.forEach(error=>{
-            singleRecord[error.property]= null;//making null field if it has any validation issue 
-          })
+        recordsErrors[index].errorsList.forEach(error => {
+          singleRecord[error.property] = null;//making null field if it has any validation issue 
+        })
       });
 
       const noErrorRecords = records.filter(
@@ -1504,49 +1485,56 @@ export class DeviceGroupService {
           )) {
             recordsErrors[index].isError = true;
             recordsErrors[index].errorsList.push(
-              {value:singleRecord.externalId, property:"externalId",constraints:{externalIdExists:"ExternalId already exist, cant add entry with same external id"}}
-             );
+              { value: singleRecord.externalId, property: "externalId", constraints: { externalIdExists: "ExternalId already exist, cant add entry with same external id" } }
+            );
           }
         });
       }
       ////console.log("listofExistingDevices",listofExistingDevices);
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-      let recordsToRegister = records.filter((ele,index)=>{
-        if(recordsErrors[index].errorsList.length >0)
-        {
+      let recordsToRegister = records.filter((ele, index) => {
+        if (recordsErrors[index].errorsList.length > 0) {
           //these are required fields and if one is having error we cannot try to insert the record
-          if(recordsErrors[index].errorsList.find(errorRec=>errorRec.property === "externalId" || errorRec.property === "commissioningDate" || errorRec.property === "capacity" || errorRec.property === "countryCode"))
-          {
+          if (recordsErrors[index].errorsList.find(errorRec => errorRec.property === "externalId" || errorRec.property === "commissioningDate" || errorRec.property === "capacity" || errorRec.property === "countryCode")) {
             return false;
           }
-          else
-          {
+          else {
             return true;
           }
         }
         else
-           return true;
+          return true;
       })
       const devicesRegistered = await this.registerCSVBulkDevices(
         organizationId,
         recordsToRegister,
-      ); 
+      );
       //@ts-ignore
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
-        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) + 1 });
+        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) });
       })
       ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
 
-      if (recordsErrors.find((ele) => ele.isError === true)) {
-        ////console.log("insie if ");
-        this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.jobId,
-          recordsErrors,
-          successfullyAddedRowsAndExternalIds
-        );
-      }
+      // if (recordsErrors.find((ele) => ele.isError === true)) {
+      ////console.log("insie if ");
+      recordsErrors.forEach(ele => {
+        if (ele.isError === false) { ele["status"]= 'Success'; }
+        else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => successEle.externalId == ele.externalId)) {
+          ele['status'] = 'Success with validation errors, please update fields';
+        }
+        else {
+          ele['status'] = 'Failed';
+        }
+      });
+      console.log(recordsErrors);
+      this.createFailedRowDetailsForCSVJob(
+        filesAddedForProcessing.jobId,
+        recordsErrors,
+        successfullyAddedRowsAndExternalIds
+      );
+      // }
 
       ////console.log("osdksnd if ");
 
@@ -1758,48 +1746,48 @@ export class DeviceGroupService {
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | undefined> {
     return this.checkdevciegrouplogcertificaterepository.find({
       where: {
-       groupid,
+        groupid,
       },
     });
   }
 
   public async AddCertificateIssueDateLogForDeviceGroup(params: CheckCertificateIssueDateLogForDeviceGroupEntity
-    ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
-      return await this.checkdevciegrouplogcertificaterepository.save({
-        ...params,
-  
-      });
-    }
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
+    return await this.checkdevciegrouplogcertificaterepository.save({
+      ...params,
+
+    });
+  }
 
 
-    public async getNextHistoryissuanceDevicelog(
+  public async getNextHistoryissuanceDevicelog(
 
-    ): Promise<HistoryDeviceGroupNextIssueCertificate[] | undefined> {
-      return this.historynextissuancedaterepository.find({
-        where: {
-         status:HistoryNextInssuanceStatus.Pending
-        }
-      });
-    }
-
-    async getHistoryCertificateIssueDate(
-      conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
-    ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
-      return (await this.historynextissuancedaterepository.findOne(conditions)) ?? null;
-    }
-    async HistoryUpdatecertificateissuedate(
-      id: number,
-    ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-      //console.log("HistoryUpdatecertificateissuedate")
-      // await this.checkNameConflict(data.name);
-      const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
-      let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
-      if (historynextdate) {
-  
-        historynextdate.status=HistoryNextInssuanceStatus.Completed
-        updatedissuedatestatus = await this.historynextissuancedaterepository.save(historynextdate);
-
+  ): Promise<HistoryDeviceGroupNextIssueCertificate[] | undefined> {
+    return this.historynextissuancedaterepository.find({
+      where: {
+        status: HistoryNextInssuanceStatus.Pending
       }
-      return updatedissuedatestatus;
+    });
+  }
+
+  async getHistoryCertificateIssueDate(
+    conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
+  ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
+    return (await this.historynextissuancedaterepository.findOne(conditions)) ?? null;
+  }
+  async HistoryUpdatecertificateissuedate(
+    id: number,
+  ): Promise<HistoryDeviceGroupNextIssueCertificate> {
+    //console.log("HistoryUpdatecertificateissuedate")
+    // await this.checkNameConflict(data.name);
+    const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
+    let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
+    if (historynextdate) {
+
+      historynextdate.status = HistoryNextInssuanceStatus.Completed
+      updatedissuedatestatus = await this.historynextissuancedaterepository.save(historynextdate);
+
     }
+    return updatedissuedatestatus;
+  }
 }
