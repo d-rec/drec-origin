@@ -13,30 +13,15 @@
         <button class="btn btn-dark justify-content-end px-4" routerLink="/device/add">
           <mat-icon class="align-middle pe-2">add_circle</mat-icon>Add New Devices</button>
       </div>
-      <!-- <div class="filter-cont pb-0 mb-0" >
-        <mat-form-field class="mat-form-filte pb-0 mb-0 " >
-          <mat-label class="filter-box pb-0 mb-0 ">Filter</mat-label>
-          <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input class="filetr-desc pb-0 mb-0">
-        </mat-form-field>
-      </div> -->
-      
-
+    
 
   </mat-card-header>
   <hr class="mt-0 pt-0">
-    <!-- <mat-card-header>
-      <mat-card-title>
-        <h2 class="pb-0 mb-0 fw-bold text-capitalize">list</h2>
-      </mat-card-title>
-      <mat-form-field class="mat-form-filte">
-        <mat-label class="filter-box">Filter</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input class="filetr-desc">
-      </mat-form-field>
-    </mat-card-header> -->
+    
     <mat-card-content class="mat-body-cont text-center">
       <mat-form-field>
         <mat-label>Filter</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
       </mat-form-field>
       <div class="content mat-elevation-z8 text-center">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>

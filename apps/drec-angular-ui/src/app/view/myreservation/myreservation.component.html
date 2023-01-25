@@ -12,7 +12,7 @@
             <div class="filter-cont pb-0 mb-0">
                 <mat-form-field class="mat-form-filte pb-0 mb-0 ">
                     <mat-label class="filter-box pb-0 mb-0 ">Filter</mat-label>
-                    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input
+                    <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input
                         class="filetr-desc pb-0 mb-0">
                 </mat-form-field>
             </div>
@@ -22,10 +22,7 @@
         </mat-card-header>
         <hr>
         <mat-card-content>
-            <!-- <mat-form-field>
-                <mat-label>Filter</mat-label>
-                <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
-            </mat-form-field> -->
+           
 
             <!-- <div class="mat-elevation-z8"> -->
             <table mat-table [dataSource]="dataSource" matSort>

@@ -69,6 +69,7 @@ export class AddBulkDeviceComponent implements OnInit {
             next: (data: any) => {
               console.log(data)
               this.DisplayList();
+             // this.selectFile()
               // this.readForm.reset();
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
             },
