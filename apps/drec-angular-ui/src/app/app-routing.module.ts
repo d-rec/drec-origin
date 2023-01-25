@@ -2,12 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
-
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
-
-import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component'
+import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component';
+import {AddreadComponent} from './view/addread/addread.component'
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
@@ -28,12 +27,13 @@ const routes: Routes = [
   {
     path: '', component: WithloginlayoutComponent,
     children: [
-      { path: '', redirectTo: 'AllDevices', pathMatch: 'full' },
+      { path: '', redirectTo: 'device', pathMatch: 'full' },
     
       { path: 'certificate', component: CertificateComponent },
       { path: 'certificate/:id/:name', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
-    
+   
+      { path: 'add/read', component: AddreadComponent },
       {
         path: 'organization',
         loadChildren: () =>
