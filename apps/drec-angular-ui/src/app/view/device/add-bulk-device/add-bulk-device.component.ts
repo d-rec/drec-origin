@@ -21,7 +21,7 @@ export class AddBulkDeviceComponent implements OnInit {
   fileInfos?: Observable<any>;
   showdevicesinfo: boolean = false;
   DevicestatusList: any = [];
-
+  objectKeys = Object.keys;
   displayedColumns = [
     "serialno",
     "createdAt",
@@ -33,6 +33,7 @@ export class AddBulkDeviceComponent implements OnInit {
     "serialno",
     "externalId",
     "errorsList",
+    "Status"
   ];
   constructor(private uploadService: FileuploadService, private toastrService: ToastrService) { }
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -67,6 +68,7 @@ export class AddBulkDeviceComponent implements OnInit {
           this.uploadService.addbulkDevices(obj).subscribe({
             next: (data: any) => {
               console.log(data)
+              this.DisplayList();
               // this.readForm.reset();
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
             },
@@ -80,7 +82,7 @@ export class AddBulkDeviceComponent implements OnInit {
           // } else if (event instanceof HttpResponse) {
           //   this.message = event.body.message;
 
-          this.DisplayList();
+          
           // }
         },
         (err: any) => {
