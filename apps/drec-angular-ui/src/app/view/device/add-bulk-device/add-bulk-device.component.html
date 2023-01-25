@@ -150,10 +150,24 @@
             <!-- Name Column -->
             <ng-container matColumnDef="errorsList">
               <th mat-header-cell *matHeaderCellDef> errorsList </th>
-              <td mat-cell *matCellDef="let element"><p *ngFor="let errors of element.errorsList">{{errors.property}}-{{errors.value}}</p> </td>
+              <td mat-cell *matCellDef="let element">
+                <div *ngIf="!element.errorsList.length"><p>No Error</p></div>
+                <div *ngFor="let errors of element.errorsList">
+                  <p *ngFor="let item of errors.constraints | keyvalue">
+                     {{item.value}}
+                 
+              </p> </div>
+                
+            </td>
             </ng-container>
 
-           
+            <ng-container matColumnDef="Status">
+              <th mat-header-cell *matHeaderCellDef> Status </th>
+              <td mat-cell *matCellDef="let element"> 
+              {{element.status}}
+               
+              </td>
+            </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns1;">
             </tr>
