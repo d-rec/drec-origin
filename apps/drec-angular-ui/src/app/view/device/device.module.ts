@@ -5,9 +5,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { DeviceRoutingModule } from './device-routing.module';
 import { AlldevicesComponent } from './alldevices/alldevices.component';
 import { AddDevicesComponent } from './add-devices/add-devices.component';
+import { AddBulkDeviceComponent } from './add-bulk-device/add-bulk-device.component';
 @NgModule({
   declarations: [AlldevicesComponent,
-    AddDevicesComponent
+    AddDevicesComponent,
+    AddBulkDeviceComponent
   ],
   imports: [
     CommonModule,

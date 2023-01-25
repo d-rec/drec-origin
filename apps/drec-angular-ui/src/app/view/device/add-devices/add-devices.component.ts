@@ -165,7 +165,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+        
         this.fuellist = data;
 
       }
@@ -176,7 +176,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+      
         this.devicetypelist = data;
 
       }
