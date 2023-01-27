@@ -6,11 +6,14 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class DeviceService {
-
+export class MeterReadService {
   url: String = environment.API_URL;
   constructor(private httpClient: HttpClient) { }
-  GetMyDevices() : Observable<any>{
-    return this.httpClient.get(this.url+'device/my')
+  GetMethod() : Observable<any>{
+    return this.httpClient.get(this.url+'certificate-log/redemption-report')
+  }
+  PostRead(exterenalId:string,data: any): Observable<any> {
+    return this.httpClient.post<any>(this.url + 'meter-reads/new/'+exterenalId, data)
+
   }
 }

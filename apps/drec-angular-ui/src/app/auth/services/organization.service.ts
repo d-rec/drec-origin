@@ -12,8 +12,8 @@ export class OrganizationService {
   constructor(private httpClient:HttpClient) { }
 
 
-  getOrganizationInformation():Observable<OrganizationInformation>
+  getOrganizationInformation():Observable<OrganizationModule>
   {
-    return this.httpClient.get<OrganizationInformation>(environment.API_URL+'Organization/me')
+    return this.httpClient.get<OrganizationModule>(environment.API_URL+'Organization/me')
   }
 }

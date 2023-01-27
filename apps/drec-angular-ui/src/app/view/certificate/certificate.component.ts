@@ -1,9 +1,8 @@
 
 
-import { FormBuilder } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, ViewChildren, QueryList, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ViewChild, TemplateRef,ViewChildren, QueryList, ChangeDetectorRef, OnInit } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -28,6 +27,11 @@ export interface Student {
   yearOfStudy: number;
 
 }
+import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import * as moment from 'moment';
 @Component({
   selector: 'app-certificate',
   templateUrl: './certificate.component.html',
@@ -41,8 +45,7 @@ export interface Student {
   ],
 })
 export class CertificateComponent implements OnInit {
-
-
+  @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno','certificateStartDate', 'certificateEndDate','owners'];
    innerDisplayedColumns = ['certificate_issuance_startdate','certificate_issuance_enddate','deviceid', 'readvalue_watthour'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -52,9 +55,16 @@ export class CertificateComponent implements OnInit {
   group_uid: string;
   energyurl:any;
   group_name:any;
-  
-  constructor(private blockchainDRECService:BlockchainDrecService ,private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService:ToastrService) {
+  panelOpenState = false;
+  claimData: FormGroup;
+  countrylist:any;
+  maxDate = new Date();
+  filteredOptions: Observable<any>;
 
+  constructor(private blockchainDRECService:BlockchainDrecService ,private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService:ToastrService,private bottomSheet: MatBottomSheet,
+    private fb: FormBuilder) {
+
+ 
     this.activatedRoute.queryParams.subscribe(params => {
       this.group_uid = params['id'];
       this.group_name = params['name'];
@@ -62,10 +72,47 @@ export class CertificateComponent implements OnInit {
   });
    }
   ngOnInit() {
+    this.claimData = this.fb.group({
+      beneficiary: [null, Validators.required],//"claim from angular smart contract", // ui text field
+      location: [null, Validators.required],//"angular chrome", // ui text field
+      countryCode: [null, Validators.required],//"IND", // country code drodpown
+      periodStartDate: [new Date(), Validators.required], // date picker
+      periodEndDate: [new Date(), Validators.required], // date picker
+      purpose: [null, Validators.required],//"claim testing from new UI" // ui text field
+    })
     this.energyurl=environment.Explorer_URL+'/block/';
     console.log("myreservation");
-    this.DisplayList()
+    this.DisplayList();
     this.getBlockchainProperties();
+    this.AllCountryList();
+    this.claimData.controls['countryCode'];
+    this.filteredOptions = this.claimData.controls['countryCode'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+  }
+  openTemplateSheetMenu() {
+    this.bottomSheet.open(this.TemplateBottomSheet);
+  }
+
+  closeTemplateSheetMenu() {
+    this.bottomSheet.dismiss();
+  }
+  AllCountryList() {
+
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data) => {
+        // display list in the console 
+        console.log(data)
+        this.countrylist = data;
+
+      }
+    )
+  }
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    //((u) => isRole(u.role, Role.DeviceOwner));
+    return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -268,6 +315,8 @@ export class CertificateComponent implements OnInit {
     return ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);
 }
 
+  onSubmit(): void {}
+  
  
 }
 

@@ -1,11 +1,14 @@
+$primary-blue: #004a9f;
+$example-footer-rgba-005:rgba(0, 0, 0, 0.5);
+$white: #fff;
 .example-footer {
     position: fixed;
-    background: #004a9f;
-    color: white;
+    background: $primary-blue;
+    color: $white;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 20px 0px;
-    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 2px 3px $example-footer-rgba-005;
   }
   

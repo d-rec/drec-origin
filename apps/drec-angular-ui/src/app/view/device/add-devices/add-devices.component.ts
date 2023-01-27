@@ -32,7 +32,7 @@ export class AddDevicesComponent {
   public stepMinute = 1;
   public stepSecond = 1;
   //public color: ThemePalette = 'primary';
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector']
+  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector','Agriculture']
   devicediscription=['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
 
@@ -165,7 +165,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+        
         this.fuellist = data;
 
       }
@@ -176,7 +176,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+      
         this.devicetypelist = data;
 
       }
