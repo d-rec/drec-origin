@@ -32,9 +32,9 @@ export class AddDevicesComponent {
   public stepMinute = 1;
   public stepSecond = 1;
   //public color: ThemePalette = 'primary';
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector','Agriculture']
-  devicediscription=['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
-  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
+  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
+  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router, private toastrService: ToastrService) { }
 
   ngOnInit() {
 
@@ -48,6 +48,7 @@ export class AddDevicesComponent {
       devices: this.fb.array([
       ])
     })
+    this.showinput[0] = true;
     this.addmoredetals[0] = false;
     this.showaddmore[0] = true;
     this.shownomore[0] = false;
@@ -123,6 +124,7 @@ export class AddDevicesComponent {
     this.deviceForms.push(device);
     console.log(this.deviceForms.length);
     this.showaddmore[this.deviceForms.length - 1] = true;
+    this.showinput[this.deviceForms.length - 1] = true;
   }
 
   addmore(i: number) {
@@ -134,6 +136,15 @@ export class AddDevicesComponent {
     this.addmoredetals[i] = false;
     this.showaddmore[i] = true;
     this.shownomore[i] = false;
+  }
+  showinput: any[] = [];
+  showenergycapacity_input(i: number, event: any) {
+    console.log(event)
+    if (event) {
+      this.showinput[i] = true;
+    } else {
+      this.showinput[i] = false;
+    }
   }
   deletePhone(i: number) {
     this.deviceForms.removeAt(i)
@@ -165,7 +176,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
-        
+
         this.fuellist = data;
 
       }
@@ -176,7 +187,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
-      
+
         this.devicetypelist = data;
 
       }
@@ -184,19 +195,19 @@ export class AddDevicesComponent {
   }
   onSubmit() {
     console.log(this.deviceForms);
-   
+
     this.deviceForms.value.forEach((element: any) => {
       console.log(element);
       this.authService.PostAuth('device', element).subscribe({
         next: data => {
           console.log(data)
-         // this.deviceForms.reset();
-          this.toastrService.success('Add Successfully !!','Device! '+element.externalId);
+          // this.deviceForms.reset();
+          this.toastrService.success('Add Successfully !!', 'Device! ' + element.externalId);
 
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)
-           this.toastrService.error( 'some error occurred in add due to '+err.error.message,'Device!' +element.externalId,);
+          this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + element.externalId,);
         }
       });
     })

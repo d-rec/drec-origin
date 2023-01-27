@@ -9,7 +9,7 @@
         <span>Organization</span>
       </button>
 
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='OrganizationAdmin'">
         <mat-expansion-panel-header>
           Device
         </mat-expansion-panel-header>
