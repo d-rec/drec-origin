@@ -12,7 +12,10 @@
 	</mat-card-header>
 	<hr>
 	<mat-card-content>
-		<h2 class="text-capitalize group-name-text"><b>{{group_name}}</b></h2>
+		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
+		<h2 style="text-align: center;color:#f2be1a;"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button (click)="selectAccountAddressFromMetamask()"> Click here</button> </b></h2>
+		<h6 style="text-align: center;color:#f2be1a;"><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
+
 		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
 	<ng-container *ngFor="let item of data">
@@ -20,6 +23,9 @@
 		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
 			  <mat-card-title>
+				<button  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
+				<div style="background-color: red;" *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then<button (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
+				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text text-capitalize">Certificate On Blockchain Explorer</a>
 				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">Link to Certificate 
 					<mat-icon class="mt-1">card_membership</mat-icon></a>
 				
@@ -82,6 +88,7 @@
 		
 			</mat-card-content>
 		  </mat-card>
+		  
 		<br>
 		</ng-container>
 		<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
