@@ -259,7 +259,7 @@
                                             <mat-label class="text-capitalize">Energy Storage</mat-label>
                                            <input matInput placeholder="energyStorage" formControlName='energyStorage'> -->
                                          
-                                           <mat-radio-group  formControlName='energyStorage'>
+                                           <mat-radio-group  formControlName='energyStorage' (ngModelChange)="showenergycapacity_input(i,$event)">
                                             <span >Energy Storage:</span>
 
                                             <mat-radio-button [value]=true checked>True</mat-radio-button>
@@ -270,7 +270,7 @@
                                         
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-3" *ngIf="showinput[i]">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
                                             <input matInput placeholder="energyStorageCapacity" type="number"

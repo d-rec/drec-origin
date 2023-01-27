@@ -5,15 +5,12 @@
 			<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
 			
 		</mat-card-title>
-		<div class="d-flex justify-content-end">
-			<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
-			(click)="openTemplateSheetMenu()">Certiifcate claim</button>
-		</div>
+		
 	</mat-card-header>
 	<hr>
 	<mat-card-content>
 		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
-		<h2 style="text-align: center;color:#f2be1a;"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button (click)="selectAccountAddressFromMetamask()"> Click here</button> </b></h2>
+		<h2 style="text-align: center;color:#f2be1a;"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button   *ngIf="!checkMetamaskConnected()" (click)="selectAccountAddressFromMetamask()"> Click here</button> </b></h2>
 		<h6 style="text-align: center;color:#f2be1a;"><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
 
 		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
@@ -23,14 +20,30 @@
 		<mat-card  class="innermat-card example-card1 border" >
 			<mat-card-header>
 			  <mat-card-title>
-				<button  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
-				<div style="background-color: red;" *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then<button (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
-				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text text-capitalize">Certificate On Blockchain Explorer</a>
-				<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">Link to Certificate 
-					<mat-icon class="mt-1">card_membership</mat-icon></a>
+				
+				
+				
 				
 			  </mat-card-title>
 
+			</mat-card-header>
+			<mat-card-header class="d-flex justify-content-between  align-items-center">
+				<mat-card-title class="d-flex justify-content-between">
+					<div>
+						<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
+							<mat-icon class="mt-1" >card_membership</mat-icon></a>
+						<div style="background-color: red;" *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then
+							<button (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
+		
+					</div>
+				</mat-card-title>
+	
+				<div class="d-flex justify-content-end">
+					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
+						
+				</div>
+	
+	
 			</mat-card-header>
 		  
 			<mat-card-content>
@@ -110,7 +123,7 @@
 
         </mat-card-header>
         <hr class="mb-0 pb-0">
-        <form [formGroup]="claimData" (ngSubmit)="onSubmit()">
+        <form [formGroup]="claimData" (ngSubmit)="claimUsingEtherJS()">
             <mat-card-content>
                 <div class="example-container1 row">
                     <div class="col-md-3">                       
@@ -150,7 +163,7 @@
                         </mat-form-field>
                     </div>
                 </div>
-				<div class="example-container1 row">
+				<!-- <div class="example-container1 row">
 				<div class="col-md-3" >
 					<mat-form-field appearance="outline">
 						<mat-label class="text-capitalize">periodStartDate </mat-label>
@@ -173,19 +186,19 @@
 							[stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
 							[enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
 						</ngx-mat-datetime-picker>
-						<!-- <mat-error class="py-3" *ngIf="addreads.errors?.['outofstartdateRang'] === true">
+						<mat-error class="py-3" *ngIf="addreads.errors?.['outofstartdateRang'] === true">
 							Please add a valid endtimestamp
-						</mat-error> -->
+						</mat-error> 
 					</mat-form-field>
 				</div>
 				</div>
-              
+               -->
             </mat-card-content>
 
             <mat-card-footer>
                 <div class="example-container row">
                     <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
+                        <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="claimData.invalid">submit</button>
                     </div>
                 </div>
             </mat-card-footer>

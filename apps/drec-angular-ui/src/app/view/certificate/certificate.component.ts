@@ -90,6 +90,7 @@ export class CertificateComponent implements OnInit {
       startWith(''),
       map(value => this._filter(value || '')),
     );
+    this.selectAccountAddressFromMetamask();
   }
   openTemplateSheetMenu() {
     this.bottomSheet.open(this.TemplateBottomSheet);
@@ -241,7 +242,11 @@ export class CertificateComponent implements OnInit {
         {
           this.toastrService.error('No Blockchain account selected please connect metamask account')
         }
-      })
+      }).catch((error:any)=>{
+        console.log('Metamask is not connected, please first connect metamask then click this button to select account');
+        console.log(error);
+        this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');   
+      });      
     }
     else
     {
@@ -261,12 +266,14 @@ export class CertificateComponent implements OnInit {
   }
   getAmountForClaim(blockchainAccountAddress:string)
   {
+    // this.selectedCertificateForClaim.owners[blockchainAccountAddress]="10998";
     if(this.selectedCertificateForClaim.owners[blockchainAccountAddress] && parseFloat(this.selectedCertificateForClaim.owners[blockchainAccountAddress]) > 0)
-    {
+   {
       let convertingWattsToKiloWatts = Math.floor(parseFloat(this.selectedCertificateForClaim.owners[blockchainAccountAddress])/1000);
       this.blockchainDRECService.convertClaimAmountToHex(convertingWattsToKiloWatts).subscribe(response=>{
         this.formattedClaimAmount = response;
-        this.claimUsingEtherJS();
+       // this.claimUsingEtherJS();
+       this.openTemplateSheetMenu();
       },
       error=>{
         this.toastrService.error(`Some error occured while requesting for claim+ ${JSON.stringify(error)}`);
@@ -297,14 +304,15 @@ export class CertificateComponent implements OnInit {
     const daiWithSigner = daiContract.connect(signer);
     
     let claimData={
-      beneficiary: "claim from angular smart contract",
-      location: "angular chrome",
-      countryCode: "IND",
+      beneficiary: this.claimData.value.beneficiary,
+      location: this.claimData.value.location,
+      countryCode: this.claimData.value.countryCode,
       periodStartDate: new Date(this.selectedCertificateForClaim.generationStartTime*1000).toISOString(),
       periodEndDate: new Date(this.selectedCertificateForClaim.generationEndTime*1000).toISOString(),
-      purpose: "claim testing from new UI"
+      purpose: this.claimData.value.purpose
     }
     daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount,this.selectedBlockchainAccount,this.selectedCertificateForClaim.id,this.formattedClaimAmount,this.encodeClaimData(claimData),this.encodeClaimData(claimData));
+ 
   }
   
 
@@ -315,7 +323,7 @@ export class CertificateComponent implements OnInit {
     return ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);
 }
 
-  onSubmit(): void {}
+  
   
  
 }
