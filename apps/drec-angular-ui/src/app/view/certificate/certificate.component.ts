@@ -258,6 +258,7 @@ export class CertificateComponent implements OnInit {
   {
     if(this.selectedBlockchainAccount === '')
     {
+      this.openTemplateSheetMenu();
       this.toastrService.error('No account is connected currently, please connect metamask account'); 
       return;
     }

@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
 
 export class MyreservationComponent implements OnInit {
   displayedColumns = [
-    'serialno',
+
     'name',
     'aggregatedCapacity',
     // 'buyerAddress',
@@ -31,17 +31,32 @@ export class MyreservationComponent implements OnInit {
     'reservationStartDate',
     'reservationEndDate',
     'targetVolumeInMegaWattHour',
-   //'fuelCode',
-   'number Of Device',
+    //'fuelCode',
+    'number Of Devices',
     'actions',
+  ];
+  displayedColumns1 = [
+    'projectName',
+    'countryCode',
+    'capacity',
+    'createdAt',
+    'offTaker',
+    'deviceTypeCode',
+    'fuelCode',
+    'commissioningDate',
+    // 'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator1: MatPaginator;
+  @ViewChild(MatSort) sort1: MatSort;
   dataSource: MatTableDataSource<any>;
-  data:any;
-  pageSize:number = 20;
-  showdevicesinfo :boolean=false;
-  DevicesList:any;
+  dataSource1: MatTableDataSource<any>;
+  data: any;
+  pageSize: number = 20;
+  showdevicesinfo: boolean = false;
+  DevicesList: any;
+  isLoadingResults = false;
   constructor(private authService: AuthbaseService, private router: Router,) { }
   ngOnInit() {
     console.log("myreservation");
@@ -63,43 +78,57 @@ export class MyreservationComponent implements OnInit {
   DisplayList() {
     this.authService.GetMethod('device-group/my').subscribe(
       (data) => {
-        this.showdevicesinfo= false;
-      
+        this.showdevicesinfo = false;
+
         this.data = data;
-          //@ts-ignore
-        this.data.forEach(ele=>{
-        
-          if(ele.deviceIds!=null){
+        //@ts-ignore
+        this.data.forEach(ele => {
+
+          if (ele.deviceIds != null) {
             ele['numberOfdevices'] = ele.deviceIds.length;
-          }else{
+          } else {
             ele['numberOfdevices'] = 0;
           }
-          
-         
-          })
+
+
+        })
         this.dataSource = new MatTableDataSource(this.data);
-      
+        console.log(this.dataSource);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }
     )
   }
 
-  DisplayDeviceList(deviceid:number[]) {
+  DisplayDeviceList(deviceid: number[]) {
 
-this.showdevicesinfo= true;
-this.DevicesList=[];
-deviceid.forEach(ele=>{
-    this.authService.GetMethod('device/'+ele).subscribe(
-      (data) => {
-      
-        this.data = data;
-         
-        this.DevicesList.push(data)
-       
+    this.showdevicesinfo = true;
+    this.DevicesList = [];
+    deviceid.forEach(ele => {
+      this.authService.GetMethod('device/' + ele).subscribe(
+        (data) => {
+
+          this.data = data;
+
+          this.DevicesList.push(data)
+          this.dataSource1 = new MatTableDataSource(this.DevicesList);
         })
-       
-      });
+
+    });
+   
+    console.log(this.dataSource1);
+    //this.dataSource1.paginator = this.paginator1;
+    //this.dataSource1.sort = this.sort1;
+    // this.DevicesList.forEach(ele => {
+
+    //   if (ele.deviceIds != null) {
+    //     ele['numberOfdevices'] = ele.deviceIds.length;
+    //   } else {
+    //     ele['numberOfdevices'] = 0;
+    //   }
+
+
+    // })
 
   }
 

@@ -4,6 +4,7 @@
 		<mat-card-title>
 			<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
 			
+
 		</mat-card-title>
 		
 	</mat-card-header>
@@ -22,7 +23,10 @@
 			  <mat-card-title>
 				
 				
-				
+				<div class="d-flex justify-content-end">
+					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  (click)="selectCertificateForClaim(item)">Claim</button>
+						
+				</div>
 				
 			  </mat-card-title>
 
@@ -30,7 +34,8 @@
 			<mat-card-header class="d-flex justify-content-between  align-items-center">
 				<mat-card-title class="d-flex justify-content-between">
 					<div>
-						<a style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
+						<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
+						aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
 							<mat-icon class="mt-1" >card_membership</mat-icon></a>
 						<div style="background-color: red;" *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then
 							<button (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
@@ -38,11 +43,11 @@
 					</div>
 				</mat-card-title>
 	
-				<div class="d-flex justify-content-end">
+				<!-- <div class="d-flex justify-content-end">
 					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
 						
 				</div>
-	
+	 -->
 	
 			</mat-card-header>
 		  
