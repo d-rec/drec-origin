@@ -37,8 +37,12 @@
                     Upload
                   </button>
                 </mat-toolbar>
+                <div class="d-flex justify-content-center">
+                  <input type="file" id="fileInput" (change)="selectFile($event)" name="fileInput" />
 
-                <input type="file" id="fileInput" (change)="selectFile($event)" name="fileInput" />
+                </div>
+
+                
               </div>
             </mat-form-field>
           </div>
