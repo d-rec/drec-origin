@@ -13,7 +13,12 @@ import * as moment from 'moment';
   styleUrls: ['./addread.component.scss']
 })
 export class AddreadComponent implements OnInit {
-  maxDate = new Date();
+  startmaxDate = new Date();
+  startminDate = new Date();
+  endminDate=new Date();
+  endmaxdate:any;
+  historyAge:any;
+  devicecreateddate:any;
   readForm: FormGroup;
   public stepHour = 1;
   public stepMinute = 1;
@@ -84,11 +89,31 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
+  onChangeDateEvent(event:any){
+    console.log(event);
+    this.devicecreateddate=event.createdAt;
+    this.historyAge = new Date(this.devicecreateddate);
+    this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
+    //  2022-11-04T08:20:37.140Z
+   
+      console.log(this.historyAge);
+
+      
+
+
+  }
   onChangeEvent(event: any) {
     console.log(event);
     if (event === 'Delta' || event === 'Aggregate') {
+      this.endmaxdate=new Date();
+      this.endminDate=this.devicecreateddate;
       this.hidestarttime = false;
+
     } else {
+      this.startminDate= this.historyAge;
+      this.startmaxDate=this.devicecreateddate;
+      this.endmaxdate=this.devicecreateddate;
+      this.endminDate=this.historyAge;
       this.hidestarttime = true;
     }
   }
@@ -122,6 +147,7 @@ export class AddreadComponent implements OnInit {
       })
       myobj['reads'] = reads
     } else if(this.readForm.value.timezone != null && this.readForm.value.type!= 'History'){
+      myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
       let newreads:any = []

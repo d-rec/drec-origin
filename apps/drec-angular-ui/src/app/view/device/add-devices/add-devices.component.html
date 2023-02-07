@@ -50,7 +50,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">project Name</mat-label>
-                                            <input matInput placeholder="projectName" formControlName='projectName'>
+                                            <input matInput autocomplete="off" placeholder="projectName" formControlName='projectName'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -73,6 +73,17 @@
                                                 </mat-option>
                                             </mat-select>
                                         </mat-form-field>
+                                        <!-- <mat-form-field>
+                                            <mat-select formControlName='countryCode' placeholder="Bank" #singleSelect>
+                                              <mat-option>
+                                                <ngx-mat-select-search [formControl]="bankFilterCtrl"></ngx-mat-select-search>
+                                              </mat-option>
+                                        
+                                              <mat-option *ngFor="let code of countrylist | async" [value]="code.alpha3">
+                                                {{code.country}}
+                                              </mat-option>
+                                            </mat-select>
+                                          </mat-form-field> -->
                                     </div>
 
                                     <div class="col-md-3">
@@ -203,7 +214,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Address</mat-label>
-                                            <input matInput placeholder="address" formControlName='address'>
+                                            <input autocomplete="off" matInput placeholder="address" formControlName='address'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -212,7 +223,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Latitude</mat-label>
-                                            <input matInput placeholder="latitude" formControlName='latitude'>
+                                            <input matInput placeholder="latitude" formControlName='latitude' pattern="[0-9]+">
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -221,7 +232,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">longitude</mat-label>
-                                            <input matInput placeholder="longitude" formControlName='longitude'>
+                                            <input matInput placeholder="longitude" formControlName='longitude' pattern="[0-9]+(\.[0-9]*){0,1}">
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -273,7 +284,7 @@
                                     <div class="col-md-3" *ngIf="showinput[i]">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                                            <input matInput placeholder="energyStorageCapacity" type="number"
+                                            <input matInput autocomplete="off" placeholder="energyStorageCapacity" type="number"
                                                 formControlName='energyStorageCapacity'>
                                         </mat-form-field>
                                     </div>

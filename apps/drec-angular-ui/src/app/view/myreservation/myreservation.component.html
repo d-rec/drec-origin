@@ -22,16 +22,8 @@
         </mat-card-header>
         <hr>
         <mat-card-content>
-           
-
             <!-- <div class="mat-elevation-z8"> -->
             <table mat-table [dataSource]="dataSource" matSort>
-
-                <!-- ID Column -->
-                <ng-container matColumnDef="serialno">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-                    <td mat-cell *matCellDef="let row;let i=index"> {{i+1}} </td>
-                </ng-container>
 
                 <!-- Progress Column -->
                 <ng-container matColumnDef="name">
@@ -58,7 +50,7 @@
 
                 <!-- Name Column -->
                 <ng-container matColumnDef="frequency">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Frequency </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Issuance Frequency </th>
                     <td mat-cell *matCellDef="let row"> {{row.frequency}} </td>
                 </ng-container>
 
@@ -80,21 +72,27 @@
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> FuelCode </th>
                         <td mat-cell *matCellDef="let row"> {{row.fuelCode}} </td>
                     </ng-container> -->
-                <ng-container matColumnDef="number Of Device">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> number Of Device </th>
+                <ng-container matColumnDef="number Of Devices">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Number Of Devices </th>
                     <td mat-cell *matCellDef="let row"> {{row.numberOfdevices}} </td>
                 </ng-container>
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef>Action</th>
                     <td mat-cell *matCellDef="let row; let i=index;">
                         <tr class="d-flex">
-                            <button class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
+                            <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
                                 [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}"
-                                target="_blank"><mat-icon class="fs-6 mt-2">visibility</mat-icon>Certificate</button>
-                            <br>
-                            <button class="btn-primary d-flex align-items-center btn-pad btn btn-sm"
+                                target="_blank"><mat-icon class="fs-6 mt-2" matTooltip="Certificate"  [matTooltipPosition]="'right'"
+                                aria-label="Button that displays a tooltip when focused or hovered over">visibility</mat-icon></a> -->
+                            <a matTooltip="Certificate" [matTooltipPosition]="'left'"
+                                aria-label="Button that displays a tooltip when focused or hovered over"
+                                [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}">
+                                <mat-icon class="fs-6 mt-2">visibility</mat-icon></a>
+                            &nbsp;&nbsp;
+                            <a matTooltip="Devices" [matTooltipPosition]="'above'"
+                                aria-label="Button that displays a tooltip when focused or hovered over"
                                 (click)="DisplayDeviceList(row.deviceIds)"><mat-icon
-                                    class="fs-6 mt-2">visibility</mat-icon> Devices</button>
+                                    class="fs-6 mt-2">visibility</mat-icon> </a>
                         </tr>
                         <!-- <button>certificate</button> -->
 
@@ -137,130 +135,51 @@
 
             <!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
              -->
-            <ng-container *ngFor="let item of DevicesList">
+            <!-- <ng-container *ngFor="let item of DevicesList">
 
-                <mat-card class="innermat-card example-card1 border">
-                    <mat-card-header>
-                        <mat-card-title>
-                            <h2 style="text-align: center;color:#f2be1a;"><b>{{item.externalId}}</b></h2>
-                        </mat-card-title>
+              
+            </ng-container> -->
 
-                    </mat-card-header>
+            <table mat-table [dataSource]="dataSource1" matSort>
+                <ng-container matColumnDef="projectName">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Project Name </th>
+                    <td mat-cell *matCellDef="let row"> {{row.projectName}} </td>
+                </ng-container>
+                <ng-container matColumnDef="countryCode">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> country</th>
+                    <td mat-cell *matCellDef="let row"> {{row.countryCode}} </td>
+                </ng-container>
 
-                    <mat-card-content>
+                <ng-container matColumnDef="capacity">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Capacity(kW) </th>
+                    <td mat-cell *matCellDef="let row"> {{row.capacity}} </td>
+                </ng-container>
 
-                        <div class='content'>
-                            <div class='column'>
-                                <div class='row '>
-                                    <div class="col-3 card card-rad border border-end-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>projectName
-                                            </b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->{{item.projectName}}
-                                        </p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border border-end-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>countryCode</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                                {{item.countryCode}}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border border-end-0">
-                                        <div class="card-body d-flex align-items-center"><p><b>Capacity</b>: &nbsp;{{item.capacity}}</p></div>
-                                        
-                                    </div>
-                                    <div class="col-3 card  card-rad border-end ">
-                                        <div class="card-body">
-                                            <p><b>createdAt</b>: &nbsp;{{item.createdAt|date:'EEE d MMMM y hh:ss'}}</p>
-                                        </div>
-                                        
-                                    </div>
-                        
-                                </div>
-                                <div class='row'>
-                                    <div class="col-3 card card-rad border border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>offTaker</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                                {{
-                                                item.offTaker
-                                                }}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>deviceTypeCode</b>: &nbsp;{{item.deviceTypeCode}}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>fuelCode</b>: &nbsp;{{
-                                                item.fuelCode
-                                                }}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>commissioningDate
-                                            </b>:&nbsp;{{ item.commissioningDatedate| date:'EEE d MMMM y hh:ss'}}
-                                        </p>
-                                        </div>
-                                        
-                                    </div>
-                        
-                                </div>
-                                <div class='row'>
-                                    <div class="col-3 card card-rad border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>deviceDescription
-                                            </b>:&nbsp;{{ item.deviceDescription}}
-                                        </p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>meterReadtype</b>: &nbsp;{{item.meterReadtype}}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end-0 border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>version</b>: &nbsp;{{item.version}}</p>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-3 card card-rad border-end border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>Status</b>: &nbsp;{{item.status}}</p>
-                                        </div>
-                                        
-                                    </div>
-                        
-                                </div>
-                                <div class='row'>
-                                    <div class="col-3 card card-rad  border border-top-0">
-                                        <div class="card-body d-flex align-items-center">
-                                            <p><b>SDGBenefits</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                                {{
-                                                item.SDGBenefits
-                                                }}</p>
-                                        </div>
-                                      
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-                <br>
-            </ng-container>
+                <!-- Fruit Column -->
+                <ng-container matColumnDef="createdAt">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> On Boarding Date </th>
+                    <td mat-cell *matCellDef="let row"> {{row.createdAt| date:'EEE d MMM y'}} </td>
+                </ng-container>
+                <!-- Fruit Column -->
+                <ng-container matColumnDef="commissioningDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> commissioningDate </th>
+                    <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE d MMM y'}} </td>
+                </ng-container>
+                <ng-container matColumnDef="offTaker">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> offTaker </th>
+                    <td mat-cell *matCellDef="let row"> {{row.offTaker}} </td>
+                </ng-container>
+                <ng-container matColumnDef="fuelCode">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> FuelCode </th>
+                        <td mat-cell *matCellDef="let row"> {{row.fuelCode}} </td>
+                    </ng-container>
+                <ng-container matColumnDef="deviceTypeCode">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> deviceTypeCode </th>
+                    <td mat-cell *matCellDef="let row"> {{row.deviceTypeCode}} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
+            </table>
         </mat-card-content>
         <mat-card-footer></mat-card-footer>
     </mat-card>
