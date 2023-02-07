@@ -10,39 +10,31 @@
 	</mat-card-header>
 	<hr>
 	<mat-card-content>
-		<h2 style="text-align: center;color:#f2be1a;"><b>{{group_name}}</b></h2>
-		<h2 style="text-align: center;color:#f2be1a;"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button   *ngIf="!checkMetamaskConnected()" (click)="selectAccountAddressFromMetamask()"> Click here</button> </b></h2>
-		<h6 style="text-align: center;color:#f2be1a;"><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
+		<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>{{group_name}}</b></h2>
+		<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-0 pb-0"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button   *ngIf="!checkMetamaskConnected()" (click)="selectAccountAddressFromMetamask()" class="btn-sm button-click-here text-info"> Click here</button> </b></h2>
+		<h6 class="text-capitalize please-note text-danger" ><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
 
 		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
 	<ng-container *ngFor="let item of data">
 		
 		<mat-card  class="innermat-card example-card1 border" >
-			<mat-card-header>
-			  <mat-card-title>
-				
-				
-				<div class="d-flex justify-content-end">
-					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  (click)="selectCertificateForClaim(item)">Claim</button>
-						
+			<mat-card-header class="">
+				<div class="col-12">
+					<mat-card-title class=" d-flex justify-content-between align-items-center">
+						<div>
+							<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
+							aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
+								<mat-icon class="mt-1" >card_membership</mat-icon></a>
+						</div>
+						<div class=" ">
+							<button class=" btn-content-back btn d-flex justify-content-end btn-sm"  (click)="selectCertificateForClaim(item)">Claim</button>
+								
+						</div>
+					</mat-card-title>
+
 				</div>
 				
-			  </mat-card-title>
-
-			</mat-card-header>
-			<mat-card-header class="d-flex justify-content-between  align-items-center">
-				<mat-card-title class="d-flex justify-content-between">
-					<div>
-						<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
-						aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
-							<mat-icon class="mt-1" >card_membership</mat-icon></a>
-						<div style="background-color: red;" *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then
-							<button (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
-		
-					</div>
-				</mat-card-title>
-	
 				<!-- <div class="d-flex justify-content-end">
 					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
 						
@@ -52,6 +44,8 @@
 			</mat-card-header>
 		  
 			<mat-card-content>
+				<div class="text-center text-danger mt-0 mb-2 pt-0 " *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then
+					<button class="button-click-here mt-0 pt-0" (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
 				
 				<div class='content'>
 				<div class='column' >
@@ -70,30 +64,30 @@
 									 (closed)="panelOpenState = false">
 				  <mat-expansion-panel-header>
 					<mat-panel-title>
-						<h3 class="fs-text">Per Single Device Contribution For Certificate</h3>
+						<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
 					</mat-panel-title>
 					<!-- <mat-panel-description>
 					  Currently I am {{panelOpenState ? 'open' : 'closed'}}
 					</mat-panel-description> -->
 				  </mat-expansion-panel-header>
-				  <table mat-table [dataSource]="item.perDeviceCertificateLog">
+				  <table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
 					<ng-container matColumnDef="certificate_issuance_startdate">
 					  <th mat-header-cell *matHeaderCellDef>StartDate </th>
-					  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_startdate}}</td>
+					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.certificate_issuance_startdate}}</td>
 					</ng-container>
 				  
 					<ng-container matColumnDef="certificate_issuance_enddate">
 					  <th mat-header-cell *matHeaderCellDef> EndDate</th>
-					  <td mat-cell *matCellDef="let element"> {{element.certificate_issuance_enddate}}</td>
+					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.certificate_issuance_enddate}}</td>
 					</ng-container>
 				  
 					<ng-container matColumnDef="deviceid">
 					  <th mat-header-cell *matHeaderCellDef> Device Name </th>
-					  <td mat-cell *matCellDef="let element"> {{element.deviceid }} </td>
+					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.deviceid }} </td>
 					</ng-container>
 					<ng-container matColumnDef="readvalue_watthour">
 						<th mat-header-cell *matHeaderCellDef> Read Value </th>
-						<td mat-cell *matCellDef="let element"> {{element.readvalue_watthour }} </td>
+						<td mat-cell *matCellDef="let element" class="table-data"> {{element.readvalue_watthour }} </td>
 					  </ng-container>
 					
 				  
@@ -122,7 +116,7 @@
                 </h2>
             </div>
             <div>
-				<button (click)="closeTemplateSheetMenu()"><mat-icon>close</mat-icon></button>
+				<button class="border-0 bg-white" (click)="closeTemplateSheetMenu()"><mat-icon>close</mat-icon></button>
             </div>
 
 
@@ -202,7 +196,7 @@
 
             <mat-card-footer>
                 <div class="example-container row">
-                    <div class="col-12 d-flex justify-content-end">
+                    <div class="col-12 d-flex px-4 py-2 justify-content-end">
                         <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="claimData.invalid">submit</button>
                     </div>
                 </div>
