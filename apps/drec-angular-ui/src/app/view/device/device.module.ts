@@ -6,10 +6,12 @@ import { DeviceRoutingModule } from './device-routing.module';
 import { AlldevicesComponent } from './alldevices/alldevices.component';
 import { AddDevicesComponent } from './add-devices/add-devices.component';
 import { AddBulkDeviceComponent } from './add-bulk-device/add-bulk-device.component';
+import { EditDeviceComponent } from './edit-device/edit-device.component';
 @NgModule({
   declarations: [AlldevicesComponent,
     AddDevicesComponent,
-    AddBulkDeviceComponent
+    AddBulkDeviceComponent,
+    EditDeviceComponent
   ],
   imports: [
     CommonModule,

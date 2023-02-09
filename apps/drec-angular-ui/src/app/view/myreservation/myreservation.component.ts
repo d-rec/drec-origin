@@ -44,6 +44,7 @@ export class MyreservationComponent implements OnInit {
     'deviceTypeCode',
     'fuelCode',
     'commissioningDate',
+    'SDGBenefits',
     // 'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -57,10 +58,16 @@ export class MyreservationComponent implements OnInit {
   showdevicesinfo: boolean = false;
   DevicesList: any;
   isLoadingResults = false;
+  countrylist: any;
+  fuellist: any;
+  devicetypelist: any;
   constructor(private authService: AuthbaseService, private router: Router,) { }
   ngOnInit() {
     console.log("myreservation");
     this.DisplayList()
+    this.DisplayfuelList();
+    this.DisplaytypeList();
+    this.DisplaycountryList();
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -74,6 +81,39 @@ export class MyreservationComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+  DisplayfuelList() {
+
+    this.authService.GetMethod('device/fuel-type').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.fuellist = data;
+
+      }
+    )
+  }
+  DisplaytypeList() {
+
+    this.authService.GetMethod('device/device-type').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.devicetypelist = data;
+
+      }
+    )
+  }
+  DisplaycountryList() {
+
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data) => {
+        // display list in the console 
+        // console.log(data)
+        this.countrylist = data;
+
+      }
+    )
   }
   DisplayList() {
     this.authService.GetMethod('device-group/my').subscribe(
@@ -109,13 +149,21 @@ export class MyreservationComponent implements OnInit {
         (data) => {
 
           this.data = data;
-
+          // this.data.forEach(ele => {
+            //@ts-ignore
+            this.data['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.data.fuelCode,)?.name;
+            //@ts-ignore
+            this.data['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.data.deviceTypeCode)?.name;
+            //@ts-ignore
+            this.data['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.data.countryCode)?.country;
+          // })
           this.DevicesList.push(data)
           this.dataSource1 = new MatTableDataSource(this.DevicesList);
         })
 
     });
    
+    
     console.log(this.dataSource1);
     //this.dataSource1.paginator = this.paginator1;
     //this.dataSource1.sort = this.sort1;

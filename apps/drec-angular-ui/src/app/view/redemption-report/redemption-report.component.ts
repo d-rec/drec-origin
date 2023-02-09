@@ -59,16 +59,16 @@ displayedColumns = [
   'compliance',
   'country',
   'fuelCode', 
-  'commissioningDateRange',
+  // 'commissioningDateRange',
   "beneficiary",
   "beneficiary_address",
   "claimCoiuntryCode",
   'capacityRange',
   "purpose",
   'offTakers',
-  'sectors',
-  'standardCompliance',
-  'installations'
+  // 'sectors',
+  // 'standardCompliance',
+  // 'installations'
  
 ];
 pageSize:number = 20;

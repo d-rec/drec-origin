@@ -39,9 +39,9 @@ const ELEMENT_DATA: PeriodicElement[] = [
 export class AlldevicesComponent {
   displayedColumns = [
     'serialno',
+    'projectName',
     'externalId',
     'countryCode',
-    'projectName',
     'fuelCode',
     'status',
     'actions',
@@ -52,7 +52,10 @@ export class AlldevicesComponent {
   data: any;
   loginuser: any
   deviceurl: any;
-  pageSize:number = 20;
+  pageSize: number = 20;
+  countrylist: any;
+  fuellist: any;
+  devicetypelist: any;
   constructor(private authService: AuthbaseService, private router: Router) {
 
     this.loginuser = sessionStorage.getItem('loginuser');
@@ -60,7 +63,11 @@ export class AlldevicesComponent {
   ngOnInit() {
 
     console.log("myreservation");
+    this.DisplayfuelList();
+    this.DisplaytypeList();
+    this.DisplaycountryList();
     this.DisplayList()
+
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -75,6 +82,39 @@ export class AlldevicesComponent {
       this.dataSource.paginator.firstPage();
     }
   }
+  DisplayfuelList() {
+
+    this.authService.GetMethod('device/fuel-type').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.fuellist = data;
+
+      }
+    )
+  }
+  DisplaytypeList() {
+
+    this.authService.GetMethod('device/device-type').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.devicetypelist = data;
+
+      }
+    )
+  }
+  DisplaycountryList() {
+
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data) => {
+        // display list in the console 
+        // console.log(data)
+        this.countrylist = data;
+
+      }
+    )
+  }
   DisplayList() {
     if (this.loginuser.role === 'Admin') {
       this.deviceurl = 'device';
@@ -84,8 +124,18 @@ export class AlldevicesComponent {
     this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
         // display list in the console 
-   
+
         this.data = data;
+        //@ts-ignore
+        this.data.forEach(ele => {
+          //@ts-ignore
+          ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
+          //@ts-ignore
+          ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
+          //@ts-ignore
+          ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
+        })
+        console.log(this.data)
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator
       }
