@@ -656,7 +656,9 @@ export class IssuerService {
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
     let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue / 10 ** 6;
-    this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+    console.log("totalReadValueMegaWattHour");
+    console.log(totalReadValueMegaWattHour);
+    await this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
 
     let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
     devicegroupcertificatelogDto.groupid = group.id?.toString(),

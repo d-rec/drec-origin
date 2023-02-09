@@ -101,8 +101,8 @@ export class CertificateLogService {
     const certifiedreservation = await this.certificaterrepository.find(
       {
         where: {
-          deviceId: groupid
-
+          deviceId: groupid,
+         // claims:IsNull()
         }
       })
     //console.log(certifiedreservation);

@@ -765,8 +765,12 @@ export class DeviceGroupService {
   ) {
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
     //@ts-ignore
+    console.log("updatetargetmwh")
+    console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
+    console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
-
+    console.log("afterupdatetargetmwh")
+    console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
     const updatedGroup = await this.repository.save(deviceGroup);
   }
 

@@ -66,7 +66,7 @@ export class ReadsController extends BaseReadsController {
   }
 
 
-  @Get('/:meter')
+  @Get('/:externalId')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -74,7 +74,7 @@ export class ReadsController extends BaseReadsController {
   })
   @UseGuards(AuthGuard('jwt'))
   public async getReads(
-    @Param('meter') meterId: string,
+    @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
     let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
@@ -93,84 +93,84 @@ export class ReadsController extends BaseReadsController {
     return super.getReads(device.externalId, filter);
   }
 
-  @Get('/:meter/difference')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [ReadDTO],
-    description:
-      'Returns time-series of difference between subsequent meter reads',
-  })
-  @UseGuards(AuthGuard('jwt'))
-  public async getReadsDifference(
-    @Param('meter') meterId: string,
-    @Query() filter: FilterDTO,
-  ): Promise<ReadDTO[]> {
-    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+  // @Get('/:meter/difference')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [ReadDTO],
+  //   description:
+  //     'Returns time-series of difference between subsequent meter reads',
+  // })
+  // @UseGuards(AuthGuard('jwt'))
+  // public async getReadsDifference(
+  //   @Param('meter') meterId: string,
+  //   @Query() filter: FilterDTO,
+  // ): Promise<ReadDTO[]> {
+  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
-    if (device === null) {
+  //   if (device === null) {
 
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Invalid device id`,
-          })
-        );
-      });
-    }
-    return super.getReadsDifference(device.externalId, filter);
-  }
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `Invalid device id`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsDifference(device.externalId, filter);
+  // }
 
-  @Get('group/:groupId/aggregate')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [AggregatedReadDTO],
-    description:
-      'Returns aggregated time-series of difference between subsequent meter reads',
-  })
-  public async getGroupAggregatedReads(
-    @Param('groupId') groupId: number,
-    @Query() filter: AggregateFilterDTO,
-  ): Promise<AggregatedReadDTO[]> {
-    return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
-  }
+  // @Get('group/:groupId/aggregate')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     'Returns aggregated time-series of difference between subsequent meter reads',
+  // })
+  // public async getGroupAggregatedReads(
+  //   @Param('groupId') groupId: number,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise<AggregatedReadDTO[]> {
+  //   return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
+  // }
 
-  @Get('/:meter/aggregate')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [AggregatedReadDTO],
-    description:
-      'Returns aggregated time-series of difference between subsequent meter reads',
-  })
-  public async getReadsAggregates(
-    @Param('meter') meterId: string,
-    @Query() filter: AggregateFilterDTO,
-  ): Promise<AggregatedReadDTO[]> {
-    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+  // @Get('/:meter/aggregate')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     'Returns aggregated time-series of difference between subsequent meter reads',
+  // })
+  // public async getReadsAggregates(
+  //   @Param('meter') meterId: string,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise<AggregatedReadDTO[]> {
+  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
-    if (device === null) {
+  //   if (device === null) {
 
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Invalid device id`,
-          })
-        );
-      });
-    }
-    return super.getReadsAggregates(device.externalId, filter);
-  }
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `Invalid device id`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsAggregates(device.externalId, filter);
+  // }
 
-  @Post('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
-  public async storeReads(
-    @Param('id') id: string,
-    @Body() measurements: MeasurementDTO,
-  ): Promise<void> {
-    return await this.internalReadsService.storeRead(id, measurements);
-  }
+  // @Post('/:id')
+  // @UseGuards(AuthGuard('jwt'), RolesGuard)
+  // @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  // public async storeReads(
+  //   @Param('id') id: string,
+  //   @Body() measurements: MeasurementDTO,
+  // ): Promise<void> {
+  //   return await this.internalReadsService.storeRead(id, measurements);
+  // }
   @Post('new/:id')
   @ApiResponse({
     status: HttpStatus.OK,
