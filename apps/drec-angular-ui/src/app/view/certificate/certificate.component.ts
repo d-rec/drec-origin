@@ -136,6 +136,7 @@ export class CertificateComponent implements OnInit {
       this.dataSource.paginator.firstPage();
     }
   }
+ // CertificateClaimed:boolean=false;
   DisplayList() {
     this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data) => {
@@ -144,15 +145,22 @@ export class CertificateComponent implements OnInit {
         this.data = data;
         //@ts-ignore
         this.data.forEach(ele=>{
+          console.log(ele);
           ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime *1000).toISOString();
           ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime *1000).toISOString();
           //converting blockchain address to lower case
+          if(ele.claims!=null&&(ele.claims.length>0)){
+          ele['CertificateClaimed']=true;
+          }
           for(let key in ele.owners)
           {
             if(key !== key.toLowerCase())
             {
               ele.owners[key.toLowerCase()] = ele.owners[key];
               delete ele.owners[key];
+              // if(ele.owner[key].value=0){
+
+              // }
             }
           }
           })

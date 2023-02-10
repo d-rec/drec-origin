@@ -28,7 +28,8 @@
 								<mat-icon class="mt-1" >card_membership</mat-icon></a>
 						</div>
 						<div class=" ">
-							<button class=" btn-content-back btn d-flex justify-content-end btn-sm"  (click)="selectCertificateForClaim(item)">Claim</button>
+							<button class=" btn-content-back btn d-flex justify-content-end btn-sm" *ngIf="!item.CertificateClaimed" (click)="selectCertificateForClaim(item)">Claim</button>
+							<button class=" btn-content-back btn d-flex justify-content-end btn-sm"  *ngIf="item.CertificateClaimed">Claimed</button>
 								
 						</div>
 					</mat-card-title>
@@ -55,7 +56,7 @@
 					<div class='row'><p><b>Generation End Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:--> {{item.generationEndTimeinUTC}}</p></div>
 				  </div>
 				  <div class='column'>
-					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}</p></div>
+					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}-(Wh)</p></div>
 				  </div>
 			</div>
 			<mat-accordion>

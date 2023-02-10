@@ -38,7 +38,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class AlldevicesComponent {
   displayedColumns = [
-    'serialno',
+    'onboarding_date',
     'projectName',
     'externalId',
     'countryCode',
@@ -137,7 +137,8 @@ export class AlldevicesComponent {
         })
         console.log(this.data)
         this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
       }
     )
   }

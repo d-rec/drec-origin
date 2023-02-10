@@ -122,7 +122,7 @@ export class AddreadComponent implements OnInit {
 
     return this.timezonedata.filter((option: string) => option.toLowerCase().includes(filterValue));
   }
-  getErrorcheckconfirmPassword() {
+  getErrorcheckdatavalidation() {
     return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
       this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
   }
