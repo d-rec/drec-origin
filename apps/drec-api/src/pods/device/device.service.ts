@@ -251,6 +251,29 @@ export class DeviceService {
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${id}`);
     }
+
+    const code = updateDeviceDTO.countryCode.toUpperCase();
+    updateDeviceDTO.countryCode = code;
+    let sdgbbenifitslist = SDGBenefits;
+    
+    //@ts-ignore
+    if (updateDeviceDTO.SDGBenefits === 0 || updateDeviceDTO.SDGBenefits === 1) {
+      updateDeviceDTO.SDGBenefits = []
+    } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
+      updateDeviceDTO.SDGBenefits.forEach(
+        (sdgbname: string, index: number) => {
+          let foundEle = sdgbbenifitslist.find(ele => ele.name.toLowerCase() === sdgbname.toString().toLowerCase());
+          if (foundEle) {
+            updateDeviceDTO.SDGBenefits[index] = foundEle.value
+          }
+          else {
+            updateDeviceDTO.SDGBenefits[index] = 'invalid';
+          }
+        });
+        updateDeviceDTO.SDGBenefits = updateDeviceDTO.SDGBenefits.filter(ele => ele !== 'invalid');
+    } else {
+      updateDeviceDTO.SDGBenefits = []
+    }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
     return await this.repository.save(currentDevice);
