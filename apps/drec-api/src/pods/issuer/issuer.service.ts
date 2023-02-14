@@ -224,11 +224,10 @@ export class IssuerService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
-
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
     console.log(historydevicerequestall);
     await Promise.all(
-      historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate) => {
+      historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate, historydevicerequestindex: number) => {
 
         const group = await this.groupService.findOne(
           { id: historydevice.groupId }
@@ -259,10 +258,32 @@ export class IssuerService {
         );
         await Promise.all(
           Histroryread.map(async (historydeviceread: HistoryIntermediate_MeterRead) => {
-
             this.newHistoryissueCertificateForDevice(group, historydeviceread, device);
           }),
         );
+
+        let totalhistoryreadforsingledevices = 0;
+        Histroryread.forEach((historydeviceread: HistoryIntermediate_MeterRead) => {
+          if (
+            !group.buyerAddress ||
+            !group.buyerId
+          ) {
+            return;
+          }
+          // minimum value of certificate should be 1 Kw =1000W.
+          if (historydeviceread.readsvalue < 1000) {
+            return;
+          }
+          totalhistoryreadforsingledevices = totalhistoryreadforsingledevices + historydeviceread.readsvalue;
+        });
+        let totalReadValueMegaWattHour = totalhistoryreadforsingledevices / 10 ** 6;
+
+        if (totalReadValueMegaWattHour != 0) {
+          setTimeout(() => {
+            this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+          }, 1000 * (historydevicerequestindex + 1));
+
+        }
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id);
 
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {
@@ -411,7 +432,7 @@ export class IssuerService {
 
             let readingInBetween: boolean = false;
             certifieddevices.forEach(certifieddevicesEle => {
-              if( ele.timestamp.getTime() >= new Date(certifieddevicesEle.certificate_issuance_startdate).getTime() && ele.timestamp.getTime() <= new Date(certifieddevicesEle.certificate_issuance_enddate).getTime() ){
+              if (ele.timestamp.getTime() >= new Date(certifieddevicesEle.certificate_issuance_startdate).getTime() && ele.timestamp.getTime() <= new Date(certifieddevicesEle.certificate_issuance_enddate).getTime()) {
                 readingInBetween = true;
               }
             });
@@ -627,6 +648,10 @@ export class IssuerService {
     ) {
       return;
     }
+    // minimum value of certificate should be 1 Kw =1000W.
+    if (devicehistoryrequest.readsvalue < 1000) {
+      return;
+    }
     let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
     devicecertificatelogDto.deviceid = device.externalId,
       devicecertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),
@@ -655,10 +680,10 @@ export class IssuerService {
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
-    let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue / 10 ** 6;
-    console.log("totalReadValueMegaWattHour");
-    console.log(totalReadValueMegaWattHour);
-    await this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
+    // let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue / 10 ** 6;
+    // console.log("totalReadValueMegaWattHour");
+    // console.log(totalReadValueMegaWattHour);
+    // await this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
 
     let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
     devicegroupcertificatelogDto.groupid = group.id?.toString(),
@@ -671,23 +696,9 @@ export class IssuerService {
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await 
     this.issueCertificate(issuance);
-    // this.timerForHistoyIssuanceCounter++;
-    // this.logger.log(
-    //   `this.timerForHistoyIssuanceCounter: ${this.timerForHistoyIssuanceCounter}`,
-    // );
-    // setTimeout(()=>{
-    //
-    //
-    //   this.logger.log(
-    //     `inside timeout new Date().toISOString: ${new Date().toISOString()}`,
-    //   );
-    //   this.issueCertificate(issuance);
-    // },this.timerForHistoyIssuanceCounter*60000);
 
     console.log("generate Succesfull");
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
-
-
     return;
   }
 
