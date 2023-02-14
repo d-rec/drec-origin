@@ -87,12 +87,12 @@
                             <a matTooltip="Certificate" [matTooltipPosition]="'left'"
                                 aria-label="Button that displays a tooltip when focused or hovered over"
                                 [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}">
-                                <mat-icon class="fs-6 mt-2">visibility</mat-icon></a>
+                                <mat-icon class="fs-6 mt-2">card_membership</mat-icon></a>
                             &nbsp;&nbsp;
                             <a matTooltip="Devices" [matTooltipPosition]="'above'"
                                 aria-label="Button that displays a tooltip when focused or hovered over"
                                 (click)="DisplayDeviceList(row.deviceIds)"><mat-icon
-                                    class="fs-6 mt-2">visibility</mat-icon> </a>
+                                    class="fs-6 mt-2">devices</mat-icon> </a>
                         </tr>
                         <!-- <button>certificate</button> -->
 

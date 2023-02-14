@@ -95,7 +95,7 @@ export class AddreadComponent implements OnInit {
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //  2022-11-04T08:20:37.140Z
-   
+    //this.readForm.controls["externalId"]=event.externalId;
       console.log(this.historyAge);
 
       
@@ -108,6 +108,7 @@ export class AddreadComponent implements OnInit {
       this.endmaxdate=new Date();
       this.endminDate=this.devicecreateddate;
       this.hidestarttime = false;
+     
 
     } else {
       this.startminDate= this.historyAge;
@@ -131,7 +132,9 @@ export class AddreadComponent implements OnInit {
     return validation;
   }
   onSubmit(): void {
-    let externalId = this.readForm.value.externalId;   
+
+    let externalId = this.readForm.value.externalId.externalId;  
+    console.log(externalId);
     const myobj: any = {}
     if (this.readForm.value.timezone != null && this.readForm.value.type === 'History') {
       myobj['timezone'] = this.readForm.value.timezone

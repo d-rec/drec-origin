@@ -57,15 +57,15 @@ export class AlldevicesComponent {
   fuellist: any;
   devicetypelist: any;
   constructor(private authService: AuthbaseService, private router: Router) {
-
+    this.DisplayfuelList();
+    this.DisplaytypeList();
+    this.DisplaycountryList();
     this.loginuser = sessionStorage.getItem('loginuser');
   }
   ngOnInit() {
 
     console.log("myreservation");
-    this.DisplayfuelList();
-    this.DisplaytypeList();
-    this.DisplaycountryList();
+    
     this.DisplayList()
 
   }
