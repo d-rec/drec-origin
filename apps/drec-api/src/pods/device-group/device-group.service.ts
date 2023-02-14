@@ -758,12 +758,13 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
-  async updateTotalReadingRequestedForCertificateIssuance(
+   async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
   ) {
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
+    console.log(deviceGroup);
     //@ts-ignore
     console.log("updatetargetmwh")
     console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
@@ -771,7 +772,9 @@ export class DeviceGroupService {
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
     console.log("afterupdatetargetmwh")
     console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    const updatedGroup = await this.repository.save(deviceGroup);
+    const updatedGroup =  await this.repository.save(deviceGroup);
+    console.log(updatedGroup);
+    return updatedGroup;
   }
 
   async updateLeftOverRead(
