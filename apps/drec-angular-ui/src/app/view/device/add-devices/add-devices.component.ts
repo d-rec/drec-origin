@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { AuthbaseService } from '../../../auth/authbase.service';
+import {  AuthbaseService} from '../../../auth/authbase.service';
+import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 //import * as moment from 'moment';
@@ -31,10 +32,11 @@ export class AddDevicesComponent {
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
+ numberregex: RegExp =/[0-9]+(\.[0-9]*){0,1}/
   //public color: ThemePalette = 'primary';
   offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
-  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router, private toastrService: ToastrService) { }
+  constructor(private fb: FormBuilder, private authService: AuthbaseService,private deviceService: DeviceService, private router: Router, private toastrService: ToastrService) { }
 
   ngOnInit() {
 
@@ -57,8 +59,8 @@ export class AddDevicesComponent {
       externalId: [null, Validators.required],
       projectName: [null],
       address: [null],
-      latitude: [null],
-      longitude: [null],
+      latitude: [null,Validators.pattern(this.numberregex)],
+      longitude: [null,Validators.pattern(this.numberregex)],
       countryCode: [null, Validators.required],
       fuelCode: [null],
       deviceTypeCode: [null],
@@ -101,8 +103,8 @@ export class AddDevicesComponent {
       externalId: [null, Validators.required],
       projectName: [null],
       address: [null],
-      latitude: [null].toString(),
-      longitude: [null].toString(),
+      latitude: [null,Validators.pattern(this.numberregex)],
+      longitude: [null,Validators.pattern(this.numberregex)],
       countryCode: [null, Validators.required],
       fuelCode: [null],
       deviceTypeCode: [null],
@@ -198,7 +200,7 @@ export class AddDevicesComponent {
 
     this.deviceForms.value.forEach((element: any) => {
       console.log(element);
-      this.authService.PostAuth('device', element).subscribe({
+      this.deviceService.Postdevices(element).subscribe({
         next: data => {
           console.log(data)
           // this.deviceForms.reset();

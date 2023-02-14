@@ -47,7 +47,7 @@ export class LoginComponent {
           } else {
             this.router.navigate(['/device/AllList']);
           }
-          this.toastrService.success('login Success!', 'login user ' + jwtObj.email);
+          this.toastrService.success('login user ' + jwtObj.email+ '!', 'login Success');
         } else {
           console.log("check your credentials !!")
           this.toastrService.info('Message Failure!', 'check your credentials !!');
@@ -56,7 +56,7 @@ export class LoginComponent {
       },
       (error) => {                              //Error callback
         console.error('error caught in component', error)
-        this.toastrService.error('login!', 'check your credentials !!');
+        this.toastrService.error('check your credentials!', 'login Fail!!');
 
 
       }

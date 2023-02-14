@@ -33,7 +33,8 @@ export class AddBulkDeviceComponent implements OnInit {
     "serialno",
     "externalId",
     "errorsList",
-    "Status"
+    "Status",
+    "Action"
   ];
   constructor(private uploadService: FileuploadService, private toastrService: ToastrService) { }
   @ViewChild(MatPaginator) paginator: MatPaginator;

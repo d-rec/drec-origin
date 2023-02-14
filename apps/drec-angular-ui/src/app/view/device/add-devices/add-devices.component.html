@@ -105,7 +105,7 @@
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">capacity</mat-label>
                                             <input matInput placeholder="capacity" type="number"
-                                                formControlName='capacity' [min]=0>
+                                                formControlName='capacity' [min]=1 autocomplete="off">
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -154,7 +154,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">impact Story</mat-label>
-                                            <input matInput placeholder="impactStory" formControlName='impactStory'>
+                                            <input matInput placeholder="impactStory" formControlName='impactStory' autocomplete="off">
                                         </mat-form-field>
                                     </div>
 
@@ -223,18 +223,18 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Latitude</mat-label>
-                                            <input matInput placeholder="latitude" formControlName='latitude' pattern="[0-9]+">
+                                            <input matInput placeholder="latitude" formControlName='latitude'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
+                                            <mat-error>please enter the valid value</mat-error>
                                         </mat-form-field>
                                     </div>
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">longitude</mat-label>
-                                            <input matInput placeholder="longitude" formControlName='longitude' pattern="[0-9]+(\.[0-9]*){0,1}">
+                                            <input matInput placeholder="longitude" formControlName='longitude'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
+                                            <mat-error>please enter the valid value</mat-error>
                                         </mat-form-field>
                                     </div>
 

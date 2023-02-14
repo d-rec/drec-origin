@@ -84,7 +84,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">value</mat-label>
-                                    <input matInput placeholder="capacity" type="number" formControlName='value' min="1">
+                                    <input matInput placeholder="capacity" type="number" formControlName='value' min="1" autocomplete="off">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -94,7 +94,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">starttimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate">
+                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -106,14 +106,14 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">endtimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate">
+                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate" autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                         [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                     </ngx-mat-datetime-picker>
-                                    <mat-error *ngIf="addreads.get('endtimestamp')?.errors?.['notSame']">
-                                       <b> Invalid end date.</b>
+                                    <mat-error *ngIf="checkValidation('endtimestamp')">
+                                       <b> {{getErrorcheckdatavalidation()}}</b>
                                       </mat-error>
                                 </mat-form-field>
                             </div>
