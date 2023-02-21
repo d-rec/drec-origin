@@ -254,7 +254,7 @@ export class IssuerService {
           return;
         }
         const device = await this.deviceService.findReads(
-          historydevice.device_externalid,
+          historydevice.device_externalid
         );
         await Promise.all(
           Histroryread.map(async (historydeviceread: HistoryIntermediate_MeterRead) => {

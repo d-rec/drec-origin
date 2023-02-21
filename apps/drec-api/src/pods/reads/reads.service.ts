@@ -275,11 +275,13 @@ export class ReadsService {
   public async newstoreRead(
     id: string,
     measurements: NewIntmediateMeterReadDTO,
+    organizationid:number
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
     console.log(measurements);
-    const device = await this.deviceService.findReads(id);
+    //change function for find device info by developer externalid
+    const device = await this.deviceService.findDeviceByDeveloperExternalId(id,organizationid);
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
     }

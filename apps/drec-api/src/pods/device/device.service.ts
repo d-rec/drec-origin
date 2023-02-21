@@ -41,6 +41,8 @@ import { DateTime } from 'luxon';
 import { FilterKeyDTO } from '../countrycode/dto';
 import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { SDGBenefits } from '../../models/Sdgbenefit'
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { v4 as uuid } from 'uuid';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -177,6 +179,18 @@ export class DeviceService {
     );
   }
 
+  async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<DeviceDTO | null> {
+    //change whare condition filter by developerExternalId instead of externalId and organizationid
+    return (
+      (await this.repository.findOne({
+        where: {
+          developerExternalId: meterId,
+          organizationId: organizationId
+        }
+      })) ??
+      null
+    );
+  }
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
   ): Promise<Array<DeviceDTO | null>> {
@@ -205,11 +219,39 @@ export class DeviceService {
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     console.log(orgCode);
-
+console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     let sdgbbenifitslist = SDGBenefits;
-    
+
+    const checkexternalid = await this.repository.findOne({
+      where: {
+        developerExternalId: newDevice.externalId,
+        organizationId: orgCode
+
+      }
+    });
+    console.log(checkexternalid)
+    if (checkexternalid!=undefined) {
+      console.log("236");
+      // return new Promise((resolve, reject) => {
+      //   reject(
+      //     new ConflictException({
+      //       success: false,
+      //       message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        
+      //     })
+      //   );
+      // });
+      throw new ConflictException({
+        success: false,
+        message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+      })
+    // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
+    }
+    newDevice.developerExternalId = newDevice.externalId;
+    newDevice.externalId = uuid();
+    console.log(newDevice.developerExternalId)
     //@ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = []
@@ -236,7 +278,7 @@ export class DeviceService {
   async update(
     organizationId: number,
     role: Role,
-    id: number,
+    externalId: string,
     updateDeviceDTO: UpdateDeviceDTO,
   ): Promise<Device> {
     const rule =
@@ -247,15 +289,17 @@ export class DeviceService {
           },
         }
         : undefined;
-    let currentDevice = await this.findOne(id, rule);
+    console.log(rule);
+    let currentDevice = await this.findDeviceByDeveloperExternalId(externalId, organizationId);
     if (!currentDevice) {
-      throw new NotFoundException(`No device found with id ${id}`);
+      throw new NotFoundException(`No device found with id ${externalId}`);
     }
-
-    const code = updateDeviceDTO.countryCode.toUpperCase();
-    updateDeviceDTO.countryCode = code;
+    updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
+    console.log(updateDeviceDTO.countryCode);
+    // const code = updateDeviceDTO.countryCode.toUpperCase();
+    updateDeviceDTO.externalId = currentDevice.externalId;
     let sdgbbenifitslist = SDGBenefits;
-    
+
     //@ts-ignore
     if (updateDeviceDTO.SDGBenefits === 0 || updateDeviceDTO.SDGBenefits === 1) {
       updateDeviceDTO.SDGBenefits = []
@@ -270,13 +314,16 @@ export class DeviceService {
             updateDeviceDTO.SDGBenefits[index] = 'invalid';
           }
         });
-        updateDeviceDTO.SDGBenefits = updateDeviceDTO.SDGBenefits.filter(ele => ele !== 'invalid');
+      updateDeviceDTO.SDGBenefits = updateDeviceDTO.SDGBenefits.filter(ele => ele !== 'invalid');
     } else {
       updateDeviceDTO.SDGBenefits = []
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
-    return await this.repository.save(currentDevice);
+    const updateDevice = await this.repository.save(currentDevice);
+    // updateDevice.externalId = updateDeviceDTO.externalId;
+    console.log(updateDevice);
+    return updateDevice;
   }
 
   async findUngrouped(
@@ -677,4 +724,19 @@ export class DeviceService {
     console.log(totalamountofreads);
     return totalamountofreads;
   }
+
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  // //@Cron('*/3 * * * *')
+  // async updateExternalIdtoDeveloperExternalId() : Promise<void>{
+  //   let alldevices:Device[];
+  //   alldevices= await this.repository.find();
+  //   console.log(alldevices);
+  //   await Promise.all(
+  //     alldevices.map(async (device: Device) => {
+  //       device.developerExternalId = device.externalId;
+  //       await this.repository.save(device);
+
+  //     })
+  //   );
+  // }
 }

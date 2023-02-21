@@ -44,10 +44,10 @@ export class UserORGRegistrationData {
   @Transform((value: string) => value.toLowerCase())
   email: string;
 
-
   @IsNotEmpty()
   @IsString()
   password: string;
+
   @IsNotEmpty()
   @IsString()
   confirmPassword?: string;
@@ -55,6 +55,7 @@ export class UserORGRegistrationData {
   @IsString()
   @IsOptional()
   orgName?: string;
+
   @IsString()
   @IsOptional()
   orgAddress?: string;
@@ -62,7 +63,5 @@ export class UserORGRegistrationData {
   @IsOptional()
   @IsString()
   secretKey?: string;
-  
- 
 
 }

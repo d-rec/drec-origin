@@ -19,7 +19,7 @@ import {
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
-import { CreateUserDTO, CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
 
@@ -44,7 +44,7 @@ export class UserService {
   ) { }
 
   public async seed(
-    data: CreateUserDTO,
+    data: CreateUserORGDTO,
 
     organizationId: number | null,
     role?: Role,
@@ -53,11 +53,11 @@ export class UserService {
     await this.checkForExistingUser(data.email);
 
     return this.repository.save({
-      title: data.title,
+      // title: data.title,
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email.toLowerCase(),
-      telephone: data.telephone,
+      // telephone: data.telephone,
       password: this.hashPassword(data.password),
       role: role || Role.Admin,
       status: status || UserStatus.Active,
@@ -65,24 +65,24 @@ export class UserService {
     });
   }
 
-  public async create(data: CreateUserDTO): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email);
-    const user = await this.repository.save({
-      title: data.title,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email.toLowerCase(),
-      telephone: data.telephone,
-      password: this.hashPassword(data.password),
-      notifications: true,
-      status: UserStatus.Pending,
-      role: Role.OrganizationAdmin,
-    });
+  // public async create(data: CreateUserDTO): Promise<UserDTO> {
+  //   await this.checkForExistingUser(data.email);
+  //   const user = await this.repository.save({
+  //     title: data.title,
+  //     firstName: data.firstName,
+  //     lastName: data.lastName,
+  //     email: data.email.toLowerCase(),
+  //     telephone: data.telephone,
+  //     password: this.hashPassword(data.password),
+  //     notifications: true,
+  //     status: UserStatus.Pending,
+  //     role: Role.OrganizationAdmin,
+  //   });
 
-    await this.emailConfirmationService.create(user);
+  //   await this.emailConfirmationService.create(user);
 
-    return new User(user);
-  }
+  //   return new User(user);
+  // }
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
@@ -253,14 +253,14 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { title, firstName, lastName, email, telephone }: UpdateUserProfileDTO,
+    { firstName, lastName, email}: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
-      title,
+     
       firstName,
       lastName,
       email,
-      telephone,
+      
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -412,10 +412,9 @@ export class UserService {
     }
 
     await this.repository.update(id, {
-      title: data.title,
+     
       firstName: data.firstName,
       lastName: data.lastName,
-      telephone: data.telephone,
       email: data.email,
       status: data.status,
     });

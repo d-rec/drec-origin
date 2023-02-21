@@ -18,7 +18,7 @@ import {
 } from '../../../utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceDescription, IDevice } from '../../../models';
-
+import { Exclude } from 'class-transformer';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -27,6 +27,11 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   externalId: string;
+
+
+  @IsString()
+  @Exclude()
+  developerExternalId?: string;
 
   @ApiProperty()
   @IsString()

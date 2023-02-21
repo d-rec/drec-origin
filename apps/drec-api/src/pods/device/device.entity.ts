@@ -18,6 +18,7 @@ import {
   IsNumber,
   IsArray
 } from 'class-validator';
+import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
 
 @Entity()
@@ -33,6 +34,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ unique: true })
   @IsString()
   externalId: string;
+
+  @Column()
+  @IsString()
+  @Exclude()
+  developerExternalId?: string;
 
   @Column({ nullable: true, default: DeviceStatus.Active })
   @IsNotEmpty()
