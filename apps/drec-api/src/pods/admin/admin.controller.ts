@@ -39,7 +39,8 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
 import { ResponseSuccess } from '../../models';
-import { CreateUserDTO } from '../user/dto/create-user.dto';
+// import { CreateUserDTO } from '../user/dto/create-user.dto';
+import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 
 @ApiTags('admin')
@@ -96,11 +97,12 @@ export class AdminController {
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
-    type: CreateUserDTO,
+    // type: CreateUserDTO,
+    type: CreateUserORGDTO,
     description: 'Returns a new created user',
   })
-  public async createUser(@Body() newUser: CreateUserDTO): Promise<UserDTO> {
-    return await this.userService.create(newUser);
+  public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
+    return await this.userService.newcreate(newUser);
   }
 
   @Post('/seed/users')

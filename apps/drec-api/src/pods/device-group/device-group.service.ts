@@ -600,7 +600,7 @@ export class DeviceGroupService {
         deviceGroup,
       );
       responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0 ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ') : '';
-      responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0 ? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ') : '';
+      // responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0 ? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ') : '';
       return responseDeviceGroupDTO;
     }
 
@@ -758,7 +758,7 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
-   async updateTotalReadingRequestedForCertificateIssuance(
+  async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
@@ -772,7 +772,7 @@ export class DeviceGroupService {
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
     console.log("afterupdatetargetmwh")
     console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    const updatedGroup =  await this.repository.save(deviceGroup);
+    const updatedGroup = await this.repository.save(deviceGroup);
     console.log(updatedGroup);
     return updatedGroup;
   }
@@ -1460,9 +1460,13 @@ export class DeviceGroupService {
         } else {
           recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
         }
-        if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
-          if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
-            recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
+        if (singleRecord.countryCode != undefined) {
+          singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
+          if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
+
+            if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+              recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
+            }
           }
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
@@ -1527,7 +1531,7 @@ export class DeviceGroupService {
       // if (recordsErrors.find((ele) => ele.isError === true)) {
       ////console.log("insie if ");
       recordsErrors.forEach(ele => {
-        if (ele.isError === false) { ele["status"]= 'Success'; }
+        if (ele.isError === false) { ele["status"] = 'Success'; }
         else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => successEle.externalId == ele.externalId)) {
           ele['status'] = 'Success with validation errors, please update fields';
         }

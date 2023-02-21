@@ -16,10 +16,20 @@ import {
   DevicetypeCode
 } from '../../../utils/enums';
 import { IDevice } from '../../../models';
-
+import { Exclude } from 'class-transformer';
 export class UpdateDeviceDTO
   implements Omit<IDevice, 'id' | 'externalId' | 'status' | 'organizationId' | 'yieldValue' | 'labels'>
 {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  externalId?: string;
+  
+  @IsOptional()
+  @IsString()
+  @Exclude()
+  developerExternalId?: string;
+
   @ApiProperty()
   @IsString()
   @IsOptional()

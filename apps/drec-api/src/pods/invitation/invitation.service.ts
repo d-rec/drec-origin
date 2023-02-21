@@ -16,7 +16,7 @@ import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
 import { InviteDTO } from './dto/invite.dto';
-import { CreateUserDTO, CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
 import { UserStatus } from '@energyweb/origin-backend-core';

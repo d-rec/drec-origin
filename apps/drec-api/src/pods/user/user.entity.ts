@@ -19,10 +19,10 @@ export class User extends ExtendedBaseEntity implements IUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  title: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // title: string;
 
   @ApiProperty({ type: String })
   @Column()
@@ -34,10 +34,10 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsString()
   lastName: string;
 
-  @ApiProperty({ type: String })
-  @Column({ nullable: true })
-  @IsString()
-  telephone: string;
+  // @ApiProperty({ type: String })
+  // @Column({ nullable: true })
+  // @IsString()
+  // telephone: string;
 
   @ApiProperty({ type: String })
   @Column({ unique: true })
@@ -63,6 +63,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   role: Role;
   
   @Column()
+  @Exclude()
   roleId: number;
 
   @ApiProperty({ type: Organization })

@@ -2,9 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
 
 export class UpdateUserProfileDTO extends PickType(UserDTO, [
-  'title',
+  // 'title',
   'firstName',
   'lastName',
   'email',
-  'telephone',
+  // 'telephone',
 ] as const) {}

@@ -26,7 +26,7 @@ import {
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { CreateUserDTO,CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserORGDTO } from './dto/create-user.dto';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
@@ -71,22 +71,22 @@ export class UserController {
     return await this.userService.canViewUserData(id, loggedUser);
   }
 
-  @Post('register')
-  @ApiBody({ type: CreateUserDTO })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: UserDTO,
-    description: 'Register a user',
-  })
-  public async register(
-    @Body() userRegistrationData: CreateUserDTO,
-  ): Promise<UserDTO> {
-    return this.userService.create(userRegistrationData);
-  }
+  // @Post('register')
+  // @ApiBody({ type: CreateUserDTO })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   type: UserDTO,
+  //   description: 'Register a user',
+  // })
+  // public async register(
+  //   @Body() userRegistrationData: CreateUserDTO,
+  // ): Promise<UserDTO> {
+  //   return this.userService.create(userRegistrationData);
+  // }
 // add new for adding user with organization
   
 
-   @Post('registerWithOrganization')
+   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,

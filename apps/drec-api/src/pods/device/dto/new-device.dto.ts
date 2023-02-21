@@ -17,7 +17,7 @@ import {
   DevicetypeCode
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
-
+import { Exclude } from 'class-transformer';
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
@@ -25,6 +25,12 @@ export class NewDeviceDTO
   @IsNotEmpty()
   @IsString()
   externalId: string;
+
+
+  @IsOptional()
+  @IsString()
+  @Exclude()
+  developerExternalId?: string;
 
   @ApiProperty()
   @IsString()

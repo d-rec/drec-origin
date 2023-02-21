@@ -1,4 +1,4 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType ,IntersectionType} from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
@@ -8,20 +8,23 @@ import {
 } from 'class-validator';
 import { IModulePermissionsConfig, IUserSeed } from '../../../models';
 import { UserDTO } from '../../user/dto/user.dto';
-
+import { OrganizationDTO } from '../../organization/dto/organization.dto';
 
 export class SeedUserDTO
-  extends PickType(UserDTO, [
-    'title',
+  extends IntersectionType(
+    PickType(UserDTO, [
+    // 'title',
     'firstName',
     'lastName',
     'email',
-    'telephone',
+    // 'telephone',
     'notifications',
     'status',
     'role',
     'organization'
-  ] as const)
+  ] as const),
+  PickType(OrganizationDTO,['organizationType']as const)
+    )
   implements Omit<IUserSeed, 'organization' | 'id'>
 {
   @ApiProperty({ type: String })
