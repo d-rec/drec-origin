@@ -116,7 +116,7 @@ export class MyreservationComponent implements OnInit {
     )
   }
   DisplayList() {
-    this.authService.GetMethod('device-group/my').subscribe(
+    this.authService.GetMethod('buyer-reservation/my').subscribe(
       (data) => {
         this.showdevicesinfo = false;
 

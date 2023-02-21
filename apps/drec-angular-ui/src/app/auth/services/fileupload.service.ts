@@ -32,12 +32,12 @@ export class FileuploadService {
 
   }
   addbulkDevices(data: any):Observable<any>{
-    return this.http.post<any>(this.baseUrl+'device-group/process-creation-bulk-devices-csv', data)
+    return this.http.post<any>(this.baseUrl+'buyer-reservation/process-creation-bulk-devices-csv', data)
   }
   getCsvJobList(): Observable<any> {
-    return this.http.get(`${this.baseUrl}device-group/bulk-upload/get-all-csv-jobs-of-organization`);
+    return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization`);
   }
   getJobStatus(id:number): Observable<any> {
-    return this.http.get(`${this.baseUrl}device-group/bulk-upload-status/`+id);
+    return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload-status/`+id);
   }
 }
