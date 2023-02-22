@@ -72,6 +72,16 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { organizationId },
     });
+    //devices.externalId = devices.developerExternalId
+    const newDevices = [];
+   
+       await devices.map((device: Device) => {
+        
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+    
     // let totalamountofreads = [];
     //     await Promise.all(
     //       devices.map(async (device: Device) => {
@@ -99,7 +109,7 @@ export class DeviceService {
     //       }))
 
     // console.log(totalamountofreads);
-    return devices;
+    return newDevices;
   }
 
 
@@ -219,7 +229,7 @@ export class DeviceService {
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     console.log(orgCode);
-console.log(newDevice);
+    console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     let sdgbbenifitslist = SDGBenefits;
@@ -232,14 +242,14 @@ console.log(newDevice);
       }
     });
     console.log(checkexternalid)
-    if (checkexternalid!=undefined) {
+    if (checkexternalid != undefined) {
       console.log("236");
       // return new Promise((resolve, reject) => {
       //   reject(
       //     new ConflictException({
       //       success: false,
       //       message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
-        
+
       //     })
       //   );
       // });
@@ -247,7 +257,7 @@ console.log(newDevice);
         success: false,
         message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
       })
-    // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
+      // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
@@ -270,11 +280,11 @@ console.log(newDevice);
     } else {
       newDevice.SDGBenefits = []
     }
-    const result=  await this.repository.save({
+    const result = await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
     });
-    result.externalId=result.developerExternalId;
+    result.externalId = result.developerExternalId;
     return result
   }
   async update(
@@ -324,6 +334,7 @@ console.log(newDevice);
     currentDevice.status = DeviceStatus.Submitted;
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
+    delete result["developerExternalId"];
     console.log(result);
     return result;
   }
