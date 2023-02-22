@@ -31,7 +31,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
     
       { path: 'All_certificate', component: CertificateDetailsComponent },
-      { path: 'certificate/:id/:name', component: CertificateComponent },
+      { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
    
       { path: 'add/read', component: AddreadComponent },
