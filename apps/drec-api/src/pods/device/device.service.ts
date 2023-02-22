@@ -179,7 +179,7 @@ export class DeviceService {
     );
   }
 
-  async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<DeviceDTO | null> {
+  async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<Device | null> {
     //change whare condition filter by developerExternalId instead of externalId and organizationid
     return (
       (await this.repository.findOne({
@@ -270,10 +270,12 @@ console.log(newDevice);
     } else {
       newDevice.SDGBenefits = []
     }
-    return await this.repository.save({
+    const result=  await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
     });
+    result.externalId=result.developerExternalId;
+    return result
   }
   async update(
     organizationId: number,
@@ -320,10 +322,10 @@ console.log(newDevice);
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
-    const updateDevice = await this.repository.save(currentDevice);
-    // updateDevice.externalId = updateDeviceDTO.externalId;
-    console.log(updateDevice);
-    return updateDevice;
+    const result = await this.repository.save(currentDevice);
+    result.externalId = result.developerExternalId;
+    console.log(result);
+    return result;
   }
 
   async findUngrouped(
