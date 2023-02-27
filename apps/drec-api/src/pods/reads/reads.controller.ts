@@ -557,6 +557,6 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    return await this.internalReadsService.newstoreRead(device.externalId, measurements, user.organizationId);
+    return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
 }

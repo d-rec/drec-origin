@@ -72,6 +72,16 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { organizationId },
     });
+    //devices.externalId = devices.developerExternalId
+    const newDevices = [];
+   
+       await devices.map((device: Device) => {
+        
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+    
     // let totalamountofreads = [];
     //     await Promise.all(
     //       devices.map(async (device: Device) => {
@@ -99,7 +109,7 @@ export class DeviceService {
     //       }))
 
     // console.log(totalamountofreads);
-    return devices;
+    return newDevices;
   }
 
 
@@ -179,7 +189,7 @@ export class DeviceService {
     );
   }
 
-  async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<DeviceDTO | null> {
+  async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<Device | null> {
     //change whare condition filter by developerExternalId instead of externalId and organizationid
     return (
       (await this.repository.findOne({
@@ -219,7 +229,7 @@ export class DeviceService {
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
     console.log(orgCode);
-console.log(newDevice);
+    console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     let sdgbbenifitslist = SDGBenefits;
@@ -232,14 +242,14 @@ console.log(newDevice);
       }
     });
     console.log(checkexternalid)
-    if (checkexternalid!=undefined) {
+    if (checkexternalid != undefined) {
       console.log("236");
       // return new Promise((resolve, reject) => {
       //   reject(
       //     new ConflictException({
       //       success: false,
       //       message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
-        
+
       //     })
       //   );
       // });
@@ -247,7 +257,7 @@ console.log(newDevice);
         success: false,
         message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
       })
-    // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
+      // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
@@ -270,10 +280,13 @@ console.log(newDevice);
     } else {
       newDevice.SDGBenefits = []
     }
-    return await this.repository.save({
+    const result = await this.repository.save({
       ...newDevice,
       organizationId: orgCode,
     });
+    result.externalId = result.developerExternalId;
+    delete result["developerExternalId"];
+    return result
   }
   async update(
     organizationId: number,
@@ -320,10 +333,11 @@ console.log(newDevice);
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     currentDevice.status = DeviceStatus.Submitted;
-    const updateDevice = await this.repository.save(currentDevice);
-    // updateDevice.externalId = updateDeviceDTO.externalId;
-    console.log(updateDevice);
-    return updateDevice;
+    const result = await this.repository.save(currentDevice);
+    result.externalId = result.developerExternalId;
+    delete result["developerExternalId"];
+    console.log(result);
+    return result;
   }
 
   async findUngrouped(

@@ -53,8 +53,7 @@ export class CertificateLogController {
     @Get('/claim-amount-in-ethers-json')
     async getClaimAmountInEthersJSON(
         @Query() amountFormatData: AmountFormattingDTO,
-    )
-    {
+    ) {
         if (Number.isNaN(parseInt(amountFormatData.amount))) {
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
@@ -67,7 +66,7 @@ export class CertificateLogController {
         return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(amountFormatData.amount)
     }
 
-    
+
 
     @Get('/by-reservation-groupId')
     @UseGuards(AuthGuard('jwt'))
@@ -130,6 +129,14 @@ export class CertificateLogController {
     async getRedemptionReport(
         @UserDecorator() { id }: ILoggedInUser,
     ): Promise<any[]> {
-       return this.certificateLogService.getCertificateRedemptionReport(id);
+        return this.certificateLogService.getCertificateRedemptionReport(id);
     }
+
+    
+    // @Get('/missingCertificate')
+    // findAll() {
+    //     return this.certificateLogService.getmissingtoken();
+    // }
+
+
 }
