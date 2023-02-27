@@ -97,9 +97,7 @@ export class AddreadComponent implements OnInit {
     //  2022-11-04T08:20:37.140Z
     //this.readForm.controls["externalId"]=event.externalId;
       console.log(this.historyAge);
-
-      
-
+      this.readForm.controls["read"]
 
   }
   onChangeEvent(event: any) {
@@ -117,6 +115,15 @@ export class AddreadComponent implements OnInit {
       this.endminDate=this.historyAge;
       this.hidestarttime = true;
     }
+  }
+  onEndChangeEvent(event: any) {
+   console.log(event);
+     // this.startminDate= this.historyAge;
+      //this.startmaxDate=this.devicecreateddate;
+      this.endmaxdate=this.devicecreateddate;
+      this.endminDate=event;
+      //this.hidestarttime = true;
+    
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();

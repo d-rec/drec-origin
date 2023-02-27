@@ -6,11 +6,11 @@
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Bulk Registration
         </h2>
       </div>
-      <!-- <div>
-                <button class="btn btn-dark justify-content-end px-4">
-                    <mat-icon class="align-middle">save_alt</mat-icon> Download Format
+      <div>
+                <button class="btn btn-dark justify-content-end px-4" (click)="JobDisplayList()">
+                    <mat-icon class="align-middle">refresh</mat-icon>
                 </button>
-            </div> -->
+            </div>
 
 
     </mat-card-header>
@@ -115,7 +115,7 @@
 
       <div class="d-flex justify-content-end">
           <button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
-              (click)="DisplayList()"><mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go
+              (click)="JobDisplayList()"><mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go
               Back</button>
       </div>
 

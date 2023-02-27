@@ -94,7 +94,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">starttimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off">
+                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"

@@ -43,7 +43,7 @@ export class AddBulkDeviceComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   ngOnInit(): void {
-    this.DisplayList();
+    this.JobDisplayList();
   }
 
   selectFile(event: any): void {
@@ -69,7 +69,7 @@ export class AddBulkDeviceComponent implements OnInit {
           this.uploadService.addbulkDevices(obj).subscribe({
             next: (data: any) => {
               console.log(data)
-              this.DisplayList();
+              this.JobDisplayList();
              // this.selectFile()
               // this.readForm.reset();
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
@@ -102,7 +102,7 @@ export class AddBulkDeviceComponent implements OnInit {
       );
     }
   }
-  DisplayList() {
+  JobDisplayList() {
     this.showdevicesinfo = false;
     this.uploadService.getCsvJobList().subscribe(
       (data) => {

@@ -269,6 +269,7 @@ export class AlldevicesComponent {
     {
       setTimeout(()=>{
         this.loading=false;
+      
           this.DisplayList();
       },10000)
     }
