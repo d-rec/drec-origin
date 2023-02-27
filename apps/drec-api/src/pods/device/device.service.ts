@@ -285,6 +285,7 @@ export class DeviceService {
       organizationId: orgCode,
     });
     result.externalId = result.developerExternalId;
+    delete result["developerExternalId"];
     return result
   }
   async update(

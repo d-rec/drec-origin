@@ -216,6 +216,9 @@ export class DeviceGroupService {
     status: StatusCSV,
     fileId: string,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
+    console.log("fileId");
+    console.log(typeof fileId);
+    console.log(fileId);
     return await this.repositoyCSVJobProcessing.save({
       userId,
       organizationId,
@@ -1125,10 +1128,11 @@ export class DeviceGroupService {
       filesAddedForProcessing.fileId,
       data,
     );
+    console.log(response);
     if (response == undefined) {
       return;
     } else {
-      ////console.log("started job processing",filesAddedForProcessing.jobId);
+      //console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -1329,11 +1333,12 @@ export class DeviceGroupService {
   */
 
   async processCsvFileAnotherLibrary(
-    file: File,
+    file: any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    ////console.log("into method");
+    console.log("into method");
+    console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1350,7 +1355,8 @@ export class DeviceGroupService {
 
 
       });
-    ////console.log("file?.data.toString()",file?.data.toString());
+    console.log("file?.data.toString()", file?.data.toString());
+    //const filedata=file.data.Body.toString('utf-8')
     this.csvStringToJSON(file?.data.toString());
 
     csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data: any, lineNumber: any) => {
@@ -1545,7 +1551,7 @@ export class DeviceGroupService {
         recordsErrors,
         successfullyAddedRowsAndExternalIds
       );
-      // }
+     //}
 
       ////console.log("osdksnd if ");
 

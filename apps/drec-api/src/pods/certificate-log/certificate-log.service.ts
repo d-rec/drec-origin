@@ -18,6 +18,8 @@ import { DateTime } from 'luxon';
 import { CertificateWithPerdevicelog } from './dto'
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto'
+import { grouplog } from './grouplog';
+import { issuercertificatelog } from './issuercertificate'
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
 }
@@ -102,7 +104,7 @@ export class CertificateLogService {
       {
         where: {
           deviceId: groupid,
-         // claims:IsNull()
+          // claims:IsNull()
         }
       })
     //console.log(certifiedreservation);
@@ -302,8 +304,8 @@ export class CertificateLogService {
 
                   redemptionDate: claims.claimData.periodStartDate,
                   certifiedEnergy: claims.value / 10 ** 6,
-                  beneficiary:claims.claimData.beneficiary,
-                  beneficiary_address: claims.claimData.location ,
+                  beneficiary: claims.claimData.beneficiary,
+                  beneficiary_address: claims.claimData.location,
                   claimCoiuntryCode: claims.claimData.countryCode,
                   purpose: claims.claimData.purpose
                 });
@@ -317,5 +319,43 @@ export class CertificateLogService {
     console.log(res);
     return myredme;
   }
+
+
+  // async getmissingtoken() {
+  //   const grouploglist = grouplog;
+  //   // console.log(grouploglist);
+  //   const issuerlistlist = issuercertificatelog;
+  //   //  console.log(issuerlistlist);
+  //   const missingtoken = [];
+  //   issuerlistlist.map((issuertoken: any) => {
+  //     console.log("issuertoken");
+  //     // console.log(issuertoken.owners);
+  //     //let issuertokenvalue= JSON.parse(issuertoken.owners);
+  //     var issuertokenvalue = JSON.parse(issuertoken.owners);
+  //     //  console.log(issuertokenvalue);
+  //     var value = issuertokenvalue["0x320Bbee0D0CE23302eDDb2707B2DdED3e49E4437"];
+  //      console.log(value);
+  //     // let firstKey = Object.keys(issuertokenvalue)[0];
+  //     // let firstKeyValue = issuertokenvalue[firstKey];
+  //     // issuertokenvalue[key]
+  //     //   console.log(firstObj);
+  //     //   let firstKey = Object.keys(firstObj);
+  //     //   console.log(firstKey);
+  //     //  // let issuertokenvalue = issuertoken.owners[firstKey];
+  //     //   // let issuertokenvalue = Object.values(issuertoken.owners);
+  //     // console.log(firstKeyValue);
+  //     var foundEle =  grouploglist.find(ele => ele.readvalue_watthour != value);
+  //     if(foundEle){
+  //       missingtoken.push({
+  //         token: foundEle.readvalue_watthour,
+  //         foundEle
+  //       });
+  //     }
+      
+
+  //   });
+  //   console.log(missingtoken);
+  //   return missingtoken
+  // }
 
 }
