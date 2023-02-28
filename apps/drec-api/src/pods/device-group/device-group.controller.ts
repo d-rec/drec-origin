@@ -74,10 +74,10 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
 import { OrganizationService } from '../organization/organization.service';
 
-@ApiTags('buyer-reservation')
+@ApiTags('device-group')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
-@Controller('/buyer-reservation')
+@Controller('/device-group')
 export class DeviceGroupController {
   csvParser = csv({ separator: ',' });
 
