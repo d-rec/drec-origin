@@ -86,7 +86,7 @@ export class UserController {
 // add new for adding user with organization
   
 
-   @Post('register')
+   @Post('registerWithOrganization')
   @ApiBody({ type: CreateUserORGDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
