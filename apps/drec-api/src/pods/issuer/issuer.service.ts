@@ -102,7 +102,7 @@ export class IssuerService {
     });
   }
 
- // @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
@@ -222,7 +222,7 @@ export class IssuerService {
 
 
 
- // @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
     console.log(historydevicerequestall);
