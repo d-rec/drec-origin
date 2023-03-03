@@ -94,7 +94,7 @@ export class IssuerService {
 
   //@Cron('0 59 * * * *')
   //@Cron('0 */10 * * * *')
-  //  @Cron(CronExpression.EVERY_30_SECONDS)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   hitTheCronFromIssuerAPIHistory() {
     // console.log("hitting issuer api");
     this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response => {
@@ -827,6 +827,14 @@ export class IssuerService {
   // }
 
   //actual definition is up removing async
+
+  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>)
+  {
+    reading.fromTime = new Date(reading.fromTime);
+    reading.toTime = new Date(reading.toTime);
+    this.issueCertificate(reading);
+
+  }
 
   private issueCertificate(
     reading: IIssueCommandParams<ICertificateMetadata>,
