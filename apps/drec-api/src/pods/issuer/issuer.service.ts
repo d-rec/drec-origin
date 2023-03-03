@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+// import {
+//   CertificateService,
+//   CERTIFICATE_SERVICE_TOKEN,
+//   IIssueCommandParams,
+//   IIssuedCertificate,
+//   ITransferCommand,
+// } from '@energyweb/origin-247-certificate';
 import {
-  CertificateService,
-  CERTIFICATE_SERVICE_TOKEN,
   IIssueCommandParams,
-  IIssuedCertificate,
-  ITransferCommand,
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { DateTime } from 'luxon';
@@ -33,6 +36,7 @@ import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_
 import { ReadsService } from '../reads/reads.service'
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
+import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
 
 
 @Injectable()
@@ -44,11 +48,13 @@ export class IssuerService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private readservice: ReadsService,
-    @Inject(CERTIFICATE_SERVICE_TOKEN)
-    private readonly certificateService: CertificateService<ICertificateMetadata>,
+    // @Inject(CERTIFICATE_SERVICE_TOKEN)
+    // private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
-    private httpService: HttpService
+    private httpService: HttpService,
+     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
+
   ) { }
 
   // @Cron(CronExpression.EVERY_30_SECONDS)
@@ -701,7 +707,7 @@ export class IssuerService {
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
     return;
   }
-
+/*
   private async transferCertificateToBuyer(
     group: DeviceGroup,
     certificate: IIssuedCertificate<ICertificateMetadata>,
@@ -723,6 +729,9 @@ export class IssuerService {
     };
     await this.certificateService.transfer(transferCommand);
   }
+
+  */
+
 
   private async handleLeftoverReadsByCountryCode(
     group: DeviceGroup,
@@ -853,7 +862,7 @@ export class IssuerService {
     reading: IIssueCommandParams<ICertificateMetadata>,
   ) {
     this.logger.log(`Issuing a certificate for reading`);
-    this.certificateService.issue(reading);
+    this.offChainCertificateService.issue(reading);
   }
 
 
