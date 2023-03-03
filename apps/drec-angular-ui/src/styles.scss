@@ -312,3 +312,11 @@ border-left-color:$primary!important ;
     --mdc-radio-selected-pressed-icon-color: #f2be1a;
     --mat-mdc-radio-checked-ripple-color: #f2be1a;
 }
+// this hover effect for the device list 
+// .mat-expansion-panel .mat-expansion-panel-header.cdk-keyboard-focused:not(), .mat-expansion-panel .mat-expansion-panel-header.cdk-program-focused:not(), .mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:hover:not(){
+//     background: #ffc3009e !important;
+
+// }
+.mat-expansion-panel-header:hover{
+    background: #ffc3009e !important;
+}

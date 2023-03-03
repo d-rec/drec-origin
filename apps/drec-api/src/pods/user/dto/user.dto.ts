@@ -21,10 +21,10 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @Expose()
   id: number;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  title?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // title?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()
@@ -36,10 +36,10 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @IsString()
   lastName: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  telephone?: string;
+  // @ApiPropertyOptional({ type: String })
+  // @IsOptional()
+  // @IsString()
+  // telephone?: string;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()

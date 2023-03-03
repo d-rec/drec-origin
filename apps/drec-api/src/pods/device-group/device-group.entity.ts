@@ -19,7 +19,7 @@ import {
   StandardCompliance,
 } from '../../utils/enums';
 import { Device } from '../device';
-
+import { Exclude } from 'class-transformer';
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
@@ -64,10 +64,12 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   sectors: Sector[];
 
   @Column('text', { array: true })
+  @Exclude()
   commissioningDateRange: CommissioningDateRange[];
 
   @Column()
   @IsBoolean()
+  @Exclude()
   gridInterconnection: boolean;
 
   @Column()
@@ -80,6 +82,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @Column({ default: 1000 })
   @IsNumber()
+  @Exclude()
   yieldValue: number;
 
   @Column('simple-array', { nullable: true })

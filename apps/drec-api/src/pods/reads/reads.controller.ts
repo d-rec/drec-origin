@@ -20,7 +20,7 @@ import {
   ConflictException
 } from '@nestjs/common';
 import { DateTime } from 'luxon';
-import { ApiBearerAuth, ApiResponse, ApiTags,ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -36,8 +36,8 @@ import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import * as momentTimeZone from 'moment-timezone';
-
-
+import { Iintermediate, NewReadDTO } from '../../models';
+import { ReadFilterDTO } from './dto/filter.dto'
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -66,7 +66,7 @@ export class ReadsController extends BaseReadsController {
   }
 
 
-  @Get('/:meter')
+  @Get('/:externalId')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -74,8 +74,9 @@ export class ReadsController extends BaseReadsController {
   })
   @UseGuards(AuthGuard('jwt'))
   public async getReads(
-    @Param('meter') meterId: string,
+    @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
+    // @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
     let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
@@ -93,20 +94,21 @@ export class ReadsController extends BaseReadsController {
     return super.getReads(device.externalId, filter);
   }
 
-  @Get('/:meter/difference')
+  @Get('new/:externalId')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
-    description:
-      'Returns time-series of difference between subsequent meter reads',
+    description: 'Returns time-series of meter reads',
   })
   @UseGuards(AuthGuard('jwt'))
-  public async getReadsDifference(
-    @Param('meter') meterId: string,
-    @Query() filter: FilterDTO,
+  public async newgetReads(
+    @Param('externalId') meterId: string,
+    @Query() filter: ReadFilterDTO,
+    @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
-    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
-
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+    console.log("getmeterdevice");
+    console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -118,59 +120,87 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    return super.getReadsDifference(device.externalId, filter);
+    return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt);
   }
+  
+  // @Get('/:meter/difference')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [ReadDTO],
+  //   description:
+  //     'Returns time-series of difference between subsequent meter reads',
+  // })
+  // @)UseGuards(AuthGuard('jwt'))
+  // public async getReadsDifference(
+  //   @Param('meter') meterId: string,
+  //   @Query() filter: FilterDTO,
+  // ): Promise<ReadDTO[]> {
+  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
-  @Get('group/:groupId/aggregate')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [AggregatedReadDTO],
-    description:
-      'Returns aggregated time-series of difference between subsequent meter reads',
-  })
-  public async getGroupAggregatedReads(
-    @Param('groupId') groupId: number,
-    @Query() filter: AggregateFilterDTO,
-  ): Promise<AggregatedReadDTO[]> {
-    return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
-  }
+  //   if (device === null) {
 
-  @Get('/:meter/aggregate')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [AggregatedReadDTO],
-    description:
-      'Returns aggregated time-series of difference between subsequent meter reads',
-  })
-  public async getReadsAggregates(
-    @Param('meter') meterId: string,
-    @Query() filter: AggregateFilterDTO,
-  ): Promise<AggregatedReadDTO[]> {
-    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `Invalid device id`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsDifference(device.externalId, filter);
+  // }
 
-    if (device === null) {
+  // @Get('group/:groupId/aggregate')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     'Returns aggregated time-series of difference between subsequent meter reads',
+  // })
+  // public async getGroupAggregatedReads(
+  //   @Param('groupId') groupId: number,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise<AggregatedReadDTO[]> {
+  //   return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
+  // }
 
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Invalid device id`,
-          })
-        );
-      });
-    }
-    return super.getReadsAggregates(device.externalId, filter);
-  }
+  // @Get('/:meter/aggregate')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     'Returns aggregated time-series of difference between subsequent meter reads',
+  // })
+  // public async getReadsAggregates(
+  //   @Param('meter') meterId: string,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise<AggregatedReadDTO[]> {
+  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
-  @Post('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
-  public async storeReads(
-    @Param('id') id: string,
-    @Body() measurements: MeasurementDTO,
-  ): Promise<void> {
-    return await this.internalReadsService.storeRead(id, measurements);
-  }
+  //   if (device === null) {
+
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `Invalid device id`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsAggregates(device.externalId, filter);
+  // }
+
+  // @Post('/:id')
+  // @UseGuards(AuthGuard('jwt'), RolesGuard)
+  // @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  // public async storeReads(
+  //   @Param('id') id: string,
+  //   @Body() measurements: MeasurementDTO,
+  // ): Promise<void> {
+  //   return await this.internalReadsService.storeRead(id, measurements);
+  // }
   @Post('new/:id')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -195,8 +225,8 @@ export class ReadsController extends BaseReadsController {
       });
     }
     id = id.trim();
-    let device: DeviceDTO | null = await this.deviceService.findReads(id);
-
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id, user.organizationId);
+    console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -208,57 +238,55 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-   if(measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !=='')
-    {
-     measurements.timezone=measurements.timezone.toString().trim();
-     let allTimezoneNamesLowerCase:Array<string>=[];
-     //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
-     momentTimeZone.tz.names().forEach(ele=>allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-     console.log(allTimezoneNamesLowerCase);
-     if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Invalid time zone: ${measurements.timezone}`,
-          })
-        );
-      });
-    }
-    measurements.timezone=momentTimeZone.tz.names()[allTimezoneNamesLowerCase.findIndex(ele=>ele===measurements.timezone.toLowerCase())];
+
+    if (measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== '') {
+      measurements.timezone = measurements.timezone.toString().trim();
+      let allTimezoneNamesLowerCase: Array<string> = [];
+      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
+      momentTimeZone.tz.names().forEach(ele => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
+      console.log(allTimezoneNamesLowerCase);
+      if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `Invalid time zone: ${measurements.timezone}`,
+            })
+          );
+        });
+      }
+      measurements.timezone = momentTimeZone.tz.names()[allTimezoneNamesLowerCase.findIndex(ele => ele === measurements.timezone.toLowerCase())];
       let dateInvalid: boolean = false;
       measurements.reads.forEach(ele => {
         for (let key in ele) {
-          
+
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
               const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
               //@ts-ignore
-              if(ele[key].includes('.'))
-              {
+              if (ele[key].includes('.')) {
                 //@ts-ignore
-                if(Number.isNaN(parseFloat(ele[key].substring(ele[key].indexOf('.'),ele[key].length)) ))
-                {
-                  
+                if (Number.isNaN(parseFloat(ele[key].substring(ele[key].indexOf('.'), ele[key].length)))) {
+
                   throw new ConflictException({
                     success: false,
-                    message: `Invalid date sent  ${ele[key]}`+` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    message: `Invalid date sent  ${ele[key]}` + ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   })
                 }
               }
 
               //@ts-ignore
-              if (!dateTimeRegex.test(ele[key])) {       
+              if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
                 throw new ConflictException({
                   success: false,
-                  message: `Invalid date sent  ${ele[key]}`+` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                  message: `Invalid date sent  ${ele[key]}` + ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 })
               }
               else {
-                
+
                 let dateTime;
-                  dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
+                dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
                 if (!dateTime.isValid()) {
                   dateInvalid = true;
                   throw new ConflictException({
@@ -266,37 +294,32 @@ export class ReadsController extends BaseReadsController {
                     message: `Invalid date sent  ${ele[key]}`,
                   })
                 }
-                else
-                {
-                  let milliSeondsToAddSentInRequest:string='';
+                else {
+                  let milliSeondsToAddSentInRequest: string = '';
                   //@ts-ignore
-                  if(ele[key].includes('.') && parseInt(ele[key].substring(ele[key].indexOf('.'),ele[key].length))!=NaN )
-                  {
+                  if (ele[key].includes('.') && parseInt(ele[key].substring(ele[key].indexOf('.'), ele[key].length)) != NaN) {
 
                     //@ts-ignore
-                    milliSeondsToAddSentInRequest=ele[key].substring(ele[key].indexOf('.'),ele[key].length);
+                    milliSeondsToAddSentInRequest = ele[key].substring(ele[key].indexOf('.'), ele[key].length);
                   }
-                  let utcString:string=dateTime.clone().utc().format();
-                  
-                  if(milliSeondsToAddSentInRequest!='')
-                  {
-                      utcString = utcString.substring(0,utcString.length-1)+milliSeondsToAddSentInRequest+'Z';
+                  let utcString: string = dateTime.clone().utc().format();
+
+                  if (milliSeondsToAddSentInRequest != '') {
+                    utcString = utcString.substring(0, utcString.length - 1) + milliSeondsToAddSentInRequest + 'Z';
                   }
-                  else
-                  {
-                     utcString = utcString.substring(0,utcString.length-1)+'.000Z';
+                  else {
+                    utcString = utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                     //@ts-ignore
-                      ele[key]= utcString;
+                  //@ts-ignore
+                  ele[key] = utcString;
                 }
-                
+
               }
             }
           }
         }
       });
-      if(dateInvalid)
-      {
+      if (dateInvalid) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -306,7 +329,7 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-      
+
     }
 
     //check for according to read type if start time stamp and end time stamps are sent
@@ -355,18 +378,18 @@ export class ReadsController extends BaseReadsController {
     if (measurements.type === ReadType.History) {
 
       let datevalid: boolean = true;
-     
+
       measurements.reads.forEach(ele => {
-        
+
 
         //@ts-ignore
         let startdateformate = isValidUTCDateFormat(ele.starttimestamp)
         //dateFormateToCheck.test(ele.starttimestamp);
-        
-        
+
+
         //@ts-ignore
         let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
-        
+
         if (!startdateformate || !enddateformate) {
           datevalid = false;
         }
@@ -375,19 +398,19 @@ export class ReadsController extends BaseReadsController {
         // const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
         // const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
         // const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
-        
+
         // var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
-        
+
 
         // var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
-        
+
         // if (!reqstartDate || !reqendtDate) {
         //   datevalid2 = false;
         // }
 
       })
 
-      if (!datevalid ) {
+      if (!datevalid) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -400,20 +423,20 @@ export class ReadsController extends BaseReadsController {
     }
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let datevalid1: boolean = true;
-    
+
       measurements.reads.forEach(ele => {
-        
-//@ts-ignore
+
+        //@ts-ignore
         let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
-        
+
         if (!enddateformate) {
           datevalid1 = false;
         }
-      
+
 
       })
 
-      if (!datevalid1 ) {
+      if (!datevalid1) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({

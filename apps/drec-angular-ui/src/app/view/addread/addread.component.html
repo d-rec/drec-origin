@@ -23,9 +23,9 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">ExternalId</mat-label>
 
-                            <mat-select formControlName='externalId' placeholder="ExternalId">
+                            <mat-select formControlName='externalId' placeholder="ExternalId" (ngModelChange)="onChangeDateEvent($event)">
 
-                                <mat-option *ngFor="let device of data" [value]="device.externalId">
+                                <mat-option *ngFor="let device of data" [value]="device">
                                     {{device.externalId}}
                                 </mat-option>
                             </mat-select>
@@ -35,7 +35,7 @@
                     <mat-form-field appearance="outline">
                         <mat-label>TimeZone</mat-label>
                         <input type="text"
-                               placeholder="Pick one"
+                               placeholder="Please Enter timezone"
                                aria-label="Number"
                                matInput
                                formControlName="timezone"
@@ -84,7 +84,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">value</mat-label>
-                                    <input matInput placeholder="capacity" type="number" formControlName='value'>
+                                    <input matInput placeholder="capacity" type="number" formControlName='value' min="1" autocomplete="off">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -94,7 +94,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">starttimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                        formControlName="starttimestamp" [max]="maxDate">
+                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -106,15 +106,15 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">endtimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-                                        formControlName="endtimestamp" [max]="maxDate" >
+                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate" autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                         [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                     </ngx-mat-datetime-picker>
-                                    <mat-error class="py-3" *ngIf="checkValidation('endtimestamp')">
-                                        {{ getErrorcheckconfirmPassword() }}
-                                    </mat-error>
+                                    <mat-error *ngIf="checkValidation('endtimestamp')">
+                                       <b> {{getErrorcheckdatavalidation()}}</b>
+                                      </mat-error>
                                 </mat-form-field>
                             </div>
 
@@ -124,9 +124,9 @@
             </mat-card-content>
 
             <mat-card-footer>
-                <div class="example-container row">
+                <div class="example-container mb-3 me-3 row">
                     <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
+                        <button type="submit" [disabled]="readForm.invalid" class="btn-primary btn text-capitalize px-4">submit</button>
                     </div>
                 </div>
             </mat-card-footer>

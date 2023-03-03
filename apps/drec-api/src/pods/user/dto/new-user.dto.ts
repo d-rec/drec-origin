@@ -4,8 +4,8 @@ import { Role, UserStatus } from '../../../utils/enums';
 import { IsEnum } from 'class-validator';
 
 export class NewUserDTO implements Omit<IUserProperties, 'id'> {
-  @ApiProperty({ type: String })
-  title: string;
+  // @ApiProperty({ type: String })
+  // title: string;
 
   @ApiProperty({ type: String })
   firstName: string;
@@ -13,8 +13,8 @@ export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   @ApiProperty({ type: String })
   lastName: string;
 
-  @ApiProperty({ type: String })
-  telephone: string;
+  // @ApiProperty({ type: String })
+  // telephone: string;
 
   @ApiProperty({ type: String })
   email: string;

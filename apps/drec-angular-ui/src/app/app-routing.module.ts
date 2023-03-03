@@ -6,7 +6,8 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component';
-import {AddreadComponent} from './view/addread/addread.component'
+import {AddreadComponent} from './view/addread/addread.component';
+import {CertificateDetailsComponent} from './view/certificate-details/certificate-details.component'
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
@@ -29,8 +30,8 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
     
+      { path: 'All_certificate', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
-      { path: 'certificate/:id/:name', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
    
       { path: 'add/read', component: AddreadComponent },

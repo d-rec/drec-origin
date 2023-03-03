@@ -13,7 +13,12 @@ import * as moment from 'moment';
   styleUrls: ['./addread.component.scss']
 })
 export class AddreadComponent implements OnInit {
-  maxDate = new Date();
+  startmaxDate = new Date();
+  startminDate = new Date();
+  endminDate=new Date();
+  endmaxdate:any;
+  historyAge:any;
+  devicecreateddate:any;
   readForm: FormGroup;
   public stepHour = 1;
   public stepMinute = 1;
@@ -31,7 +36,7 @@ export class AddreadComponent implements OnInit {
     private router: Router, private toastrService: ToastrService) { }
   ngOnInit() {
     this.readForm = this.fb.group({
-      timezone: new FormControl(''),
+      timezone: new FormControl(),
       externalId: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
@@ -84,21 +89,49 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
+  onChangeDateEvent(event:any){
+    console.log(event);
+    this.devicecreateddate=event.createdAt;
+    this.historyAge = new Date(this.devicecreateddate);
+    this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
+    //  2022-11-04T08:20:37.140Z
+    //this.readForm.controls["externalId"]=event.externalId;
+      console.log(this.historyAge);
+      this.readForm.controls["read"]
+
+  }
   onChangeEvent(event: any) {
     console.log(event);
     if (event === 'Delta' || event === 'Aggregate') {
+      this.endmaxdate=new Date();
+      this.endminDate=this.devicecreateddate;
       this.hidestarttime = false;
+     
+
     } else {
+      this.startminDate= this.historyAge;
+      this.startmaxDate=this.devicecreateddate;
+      this.endmaxdate=this.devicecreateddate;
+      this.endminDate=this.historyAge;
       this.hidestarttime = true;
     }
+  }
+  onEndChangeEvent(event: any) {
+   console.log(event);
+     // this.startminDate= this.historyAge;
+      //this.startmaxDate=this.devicecreateddate;
+      this.endmaxdate=this.devicecreateddate;
+      this.endminDate=event;
+      //this.hidestarttime = true;
+    
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
 
     return this.timezonedata.filter((option: string) => option.toLowerCase().includes(filterValue));
   }
-  getErrorcheckconfirmPassword() {
-    return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+  getErrorcheckdatavalidation() {
+    return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
       this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
   }
   checkValidation(input: string) {
@@ -106,7 +139,9 @@ export class AddreadComponent implements OnInit {
     return validation;
   }
   onSubmit(): void {
-    let externalId = this.readForm.value.externalId;   
+
+    let externalId = this.readForm.value.externalId.externalId;  
+    console.log(externalId);
     const myobj: any = {}
     if (this.readForm.value.timezone != null && this.readForm.value.type === 'History') {
       myobj['timezone'] = this.readForm.value.timezone
@@ -122,6 +157,7 @@ export class AddreadComponent implements OnInit {
       })
       myobj['reads'] = reads
     } else if(this.readForm.value.timezone != null && this.readForm.value.type!= 'History'){
+      myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
       let newreads:any = []

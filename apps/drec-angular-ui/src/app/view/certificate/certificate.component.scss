@@ -142,6 +142,9 @@ table {
     font-size: 14px !important;
     mat-icon{
       color: #ffc400;
+      font-size: 50px;
+      width: 52px;
+      height: 52px;
     }
 
   }
@@ -152,5 +155,21 @@ table {
     font-size: 25px;
     font-weight: bold;
 
+  }
+  .button-click-here{
+    font-size: 14px;
+    // background: ;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    color: #1a0dab !important;
+    font-weight: 500;
+  }
+  .please-note{
+    text-align: center;
+    font-size: 10px;
+  }
+  .table-data{
+    font-size: 12px;
   }
   

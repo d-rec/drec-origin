@@ -59,16 +59,16 @@ displayedColumns = [
   'compliance',
   'country',
   'fuelCode', 
-  'commissioningDateRange',
+  // 'commissioningDateRange',
   "beneficiary",
   "beneficiary_address",
   "claimCoiuntryCode",
   'capacityRange',
   "purpose",
   'offTakers',
-  'sectors',
-  'standardCompliance',
-  'installations'
+  // 'sectors',
+  // 'standardCompliance',
+  // 'installations'
  
 ];
 pageSize:number = 20;
@@ -88,6 +88,10 @@ DisplayRedemptionList() {
       // display list in the console 
       console.log(data)
       this.data = data;
+      // this.data.forEach(ele =>{
+        
+
+      // })
       this.dataSource = new MatTableDataSource(this.data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
