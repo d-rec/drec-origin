@@ -13,5 +13,6 @@ export class SynchronizeBlockchainTaskService {
         this.logger.log(`Synchronizing blockchain started`);
 ​
         await this.synchronizationService.synchronize();
+        this.logger.log(`Synchronizing blockchain Ended`);
     }
 }

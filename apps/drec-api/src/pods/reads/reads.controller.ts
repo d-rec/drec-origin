@@ -107,8 +107,8 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
-    console.log("getmeterdevice");
-    console.log(device);
+    //console.log("getmeterdevice");
+    //console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -226,7 +226,7 @@ export class ReadsController extends BaseReadsController {
     }
     id = id.trim();
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id, user.organizationId);
-    console.log(device);
+    //console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -244,7 +244,7 @@ export class ReadsController extends BaseReadsController {
       let allTimezoneNamesLowerCase: Array<string> = [];
       //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz.names().forEach(ele => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      console.log(allTimezoneNamesLowerCase);
+      //console.log(allTimezoneNamesLowerCase);
       if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
         return new Promise((resolve, reject) => {
           reject(

@@ -90,9 +90,9 @@ export class CertificateLogService {
       .where('d.organizationId = :orgid', { orgid: 3 })
       .andWhere("dl.readvalue_watthour>0")
       .groupBy("d.externalId");
-    console.log(totalExamNumbers.getQuery())
+    //console.log(totalExamNumbers.getQuery())
     const devicelog = await totalExamNumbers.getRawMany();
-    console.log(devicelog)
+    //console.log(devicelog)
 
     return devicelog;
 
@@ -125,7 +125,7 @@ export class CertificateLogService {
 
 
         const obj = JSON.parse(certifiedlist.metadata);
-        console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
+        //console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
         /* Please see note below regarding generationStartTime
         node_modules\@energyweb\origin-247-certificate\dist\js\src\certificate.service.js
             async issue(params) {
@@ -234,8 +234,8 @@ export class CertificateLogService {
 
         }
       })
-    console.log("certifiedreservation");
-    console.log(certifiedreservation);
+   // console.log("certifiedreservation");
+    //console.log(certifiedreservation);
     // const res = await Promise.all(
     //   certifiedreservation.map(async (certifiedlist: Certificate) => {
     //     certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
@@ -274,21 +274,21 @@ export class CertificateLogService {
   }
   async getCertificateRedemptionReport(buyerId: number): Promise<any[]> {
     const devicegroups = await this.devicegroupService.getBuyerDeviceGroups(buyerId);
-    console.log(devicegroups);
+    //console.log(devicegroups);
     const myredme = [];
     const res = await Promise.all(
       devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
-        console.log(devicegroup.id.toString());
+        //console.log(devicegroup.id.toString());
 
         const cert = await this.getCertificaterForRedemptionRepot(devicegroup.id.toString());
-        console.log(cert)
+        //console.log(cert)
         const res1 = await Promise.all(
           cert.map(async (claimcertificate: Certificate) => {
-            console.log("datas")
-            console.log(claimcertificate);
+            //console.log("datas")
+            //console.log(claimcertificate);
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
-                console.log(claims.claimData)
+                //console.log(claims.claimData)
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
@@ -316,7 +316,7 @@ export class CertificateLogService {
 
       }),
     );
-    console.log(res);
+    //console.log(res);
     return myredme;
   }
 

@@ -99,14 +99,14 @@ export class DecimalPermissionValue {
   decimalFormPermission: number = 0;
 
   computePermissions(addedPermissionList: any) {
-    console.log(PermissionString);
+    //console.log(PermissionString);
     let binaryFormPermission: string = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
-      console.log(ele);
+      //console.log(ele);
       binaryFormPermission =
         (addedPermissionList[ele.permissionString] === true ? '1' : '0') +
         binaryFormPermission;
-      console.log(binaryFormPermission);
+      //console.log(binaryFormPermission);
     });
     this.binaryFormPermission = binaryFormPermission;
 
@@ -118,13 +118,13 @@ export class DecimalPermissionValue {
         (addedPermissionList[ele.permissionString] === true ? 1 : 0);
     });
     this.decimalFormPermission = decimalFormPermission;
-    console.log(this.decimalFormPermission)
+    //console.log(this.decimalFormPermission)
     return this.decimalFormPermission;
   }
 
   checkModulePermissionAgainstUserPermission(modulePermission: number, userPermission: number) {
-    console.log(modulePermission);
-    console.log(userPermission);
+    //console.log(modulePermission);
+    //console.log(userPermission);
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
         (ele.andOperationNumber & modulePermission) ===
@@ -137,7 +137,7 @@ export class DecimalPermissionValue {
 
       }
     });
-    console.log(this.modulePermissions);
+    //console.log(this.modulePermissions);
  const getpermission:any=[]
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
@@ -156,10 +156,10 @@ export class DecimalPermissionValue {
         }
       }
     });
-    console.log("commonpermission");
-    console.log(getpermission);
-    console.log(this.modulePermissions);
-    console.log(this.userPermissions);
+    //console.log("commonpermission");
+    //console.log(getpermission);
+    //console.log(this.modulePermissions);
+    //console.log(this.userPermissions);
     return getpermission;
   }
 }

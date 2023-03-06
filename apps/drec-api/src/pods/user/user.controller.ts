@@ -96,7 +96,7 @@ export class UserController {
   public async newregister(
     @Body() userRegistrationData: CreateUserORGDTO,
   ): Promise<UserDTO> {
-console.log(userRegistrationData);
+//console.log(userRegistrationData);
 if(userRegistrationData.organizationType === '' ||userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined  ){
   return new Promise((resolve, reject) => {
     reject(

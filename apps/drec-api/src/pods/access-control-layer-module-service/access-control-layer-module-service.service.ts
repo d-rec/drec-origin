@@ -36,7 +36,7 @@ export class AccessControlLayerModuleServiceService {
 
 
   public async create(data: NewACLModuleDTO): Promise<ACLModuleDTO> {
-  console.log(data.permissions);
+  //console.log(data.permissions);
  const addedPermissionList: any = {
     Read: false,
     Write: false,
@@ -51,7 +51,7 @@ export class AccessControlLayerModuleServiceService {
       })
      
     }
-  console.log(addedPermissionList)
+  //console.log(addedPermissionList)
     var permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
    
     await this.checkForExistingmodule(data.name);

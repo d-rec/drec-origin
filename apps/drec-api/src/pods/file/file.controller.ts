@@ -193,7 +193,7 @@ export class FileController {
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploads(@UploadedFile() file) {
-    console.log(file)
+    //console.log(file)
     if (!supportedFiles.includes(file.mimetype)) {
      // throw new Error('Unsupported file type');
       return new Promise((resolve, reject) => {

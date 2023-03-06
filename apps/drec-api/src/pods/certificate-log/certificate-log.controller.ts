@@ -93,7 +93,7 @@ export class CertificateLogController {
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateWithPerdevicelog[]> {
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-        console.log(regexExp.test(groupuId));
+        //console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
@@ -103,8 +103,8 @@ export class CertificateLogController {
             })
         }
         const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
-        console.log("devicegroup");
-        console.log(devicegroup);
+        //console.log("devicegroup");
+        //console.log(devicegroup);
 
 
         if (devicegroup === null || devicegroup.buyerId != user.id) {
