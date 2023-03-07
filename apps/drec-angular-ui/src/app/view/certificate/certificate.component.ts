@@ -313,12 +313,12 @@ export class CertificateComponent implements OnInit {
     const daiWithSigner = daiContract.connect(signer);
     
     let claimData={
-      beneficiary: this.claimData.value.beneficiary,
-      location: this.claimData.value.location,
-      countryCode: this.claimData.value.countryCode,
-      periodStartDate: new Date(this.selectedCertificateForClaim.generationStartTime*1000).toISOString(),
-      periodEndDate: new Date(this.selectedCertificateForClaim.generationEndTime*1000).toISOString(),
-      purpose: this.claimData.value.purpose
+      beneficiary:'Beneficiary:' + this.claimData.value.beneficiary,
+      location: 'Location:' +this.claimData.value.location,
+      countryCode: 'Country Code:' +this.claimData.value.countryCode,
+      periodStartDate: 'Period Start Date:' +new Date(this.selectedCertificateForClaim.generationStartTime*1000).toISOString(),
+      periodEndDate: 'Period End Date:' +new Date(this.selectedCertificateForClaim.generationEndTime*1000).toISOString(),
+      purpose: 'Purpose:' +this.claimData.value.purpose
     }
     daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount,this.selectedBlockchainAccount,this.selectedCertificateForClaim.id,this.formattedClaimAmount,this.encodeClaimData(claimData),this.encodeClaimData(claimData));
  
