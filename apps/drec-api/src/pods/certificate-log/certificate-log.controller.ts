@@ -23,7 +23,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import { CertificateLogService } from './certificate-log.service'
-import { AmountFormattingDTO, FilterDTO, GroupIDBasedFilteringDTO } from './dto/filter.dto'
+import { FilterDTO, GroupIDBasedFilteringDTO,AmountFormattingDTO } from './dto/filter.dto'
 import { Certificate } from '@energyweb/issuer-api';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -53,8 +53,7 @@ export class CertificateLogController {
     @Get('/claim-amount-in-ethers-json')
     async getClaimAmountInEthersJSON(
         @Query() amountFormatData: AmountFormattingDTO,
-    )
-    {
+    ) {
         if (Number.isNaN(parseInt(amountFormatData.amount))) {
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
@@ -67,7 +66,6 @@ export class CertificateLogController {
         return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(amountFormatData.amount)
     }
 
-    
 
     @Get('/by-reservation-groupId')
     @UseGuards(AuthGuard('jwt'))
