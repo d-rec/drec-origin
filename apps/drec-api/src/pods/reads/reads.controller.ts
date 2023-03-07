@@ -36,8 +36,8 @@ import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import * as momentTimeZone from 'moment-timezone';
-
-
+import { Iintermediate, NewReadDTO } from '../../models';
+import { ReadFilterDTO } from './dto/filter.dto'
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -94,6 +94,35 @@ export class ReadsController extends BaseReadsController {
     return super.getReads(device.externalId, filter);
   }
 
+  @Get('new/:externalId')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [ReadDTO],
+    description: 'Returns time-series of meter reads',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  public async newgetReads(
+    @Param('externalId') meterId: string,
+    @Query() filter: ReadFilterDTO,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<ReadDTO[]> {
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+    console.log("getmeterdevice");
+    console.log(device);
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+    return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt);
+  }
+  
   // @Get('/:meter/difference')
   // @ApiResponse({
   //   status: HttpStatus.OK,
@@ -101,7 +130,7 @@ export class ReadsController extends BaseReadsController {
   //   description:
   //     'Returns time-series of difference between subsequent meter reads',
   // })
-  // @UseGuards(AuthGuard('jwt'))
+  // @)UseGuards(AuthGuard('jwt'))
   // public async getReadsDifference(
   //   @Param('meter') meterId: string,
   //   @Query() filter: FilterDTO,

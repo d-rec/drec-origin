@@ -198,7 +198,7 @@ dependencies:
   '@angular/core': 15.0.4_zone.js@0.12.0
   '@angular/forms': 15.0.4_296ccc26ddd732d448d2a406290f1980
   '@angular/material': 15.0.3_68267198498863b6181d90c716071cc2
-  '@angular/material-moment-adapter': 15.1.1_db6ec2b61f9c998980b69b2f30126b86
+  '@angular/material-moment-adapter': 15.1.0_db6ec2b61f9c998980b69b2f30126b86
   '@angular/platform-browser': 15.0.4_0dacf5c1be2a9acdc88cc30b05d6dd0b
   '@angular/platform-browser-dynamic': 15.0.4_3b5beaed9fbbcb6c76d433b35a4e12c2
   '@angular/router': 15.0.4_296ccc26ddd732d448d2a406290f1980
@@ -976,11 +976,11 @@ packages:
       tslib: 2.4.1
     dev: false
 
-  /@angular/material-moment-adapter/15.1.1_58bcf387a79ae8c52d359d479904af00:
-    resolution: {integrity: sha512-1o4+JnnUjreL+keQbw4bUCkrRXVbG05hj1lH8Fg2B2co/sUfq7ISwLTb2jvFhodX6n2rzUHbskZ3w1nFVhN9GQ==}
+  /@angular/material-moment-adapter/15.1.0_58bcf387a79ae8c52d359d479904af00:
+    resolution: {integrity: sha512-A9fqGLHV05ejWEsLMz8DujA5+gycdJePao6F0NijQhaiMmRzDCtIIQK/JDiAhlOcP3WrkSern8pNFQIr/P4TBg==}
     peerDependencies:
       '@angular/core': ^15.0.0 || ^16.0.0
-      '@angular/material': 15.1.1
+      '@angular/material': 15.1.0
       moment: ^2.18.1
     dependencies:
       '@angular/core': 15.0.4_rxjs@7.5.5+zone.js@0.12.0
@@ -989,11 +989,11 @@ packages:
       tslib: 2.4.1
     dev: false
 
-  /@angular/material-moment-adapter/15.1.1_db6ec2b61f9c998980b69b2f30126b86:
-    resolution: {integrity: sha512-1o4+JnnUjreL+keQbw4bUCkrRXVbG05hj1lH8Fg2B2co/sUfq7ISwLTb2jvFhodX6n2rzUHbskZ3w1nFVhN9GQ==}
+  /@angular/material-moment-adapter/15.1.0_db6ec2b61f9c998980b69b2f30126b86:
+    resolution: {integrity: sha512-A9fqGLHV05ejWEsLMz8DujA5+gycdJePao6F0NijQhaiMmRzDCtIIQK/JDiAhlOcP3WrkSern8pNFQIr/P4TBg==}
     peerDependencies:
       '@angular/core': ^15.0.0 || ^16.0.0
-      '@angular/material': 15.1.1
+      '@angular/material': 15.1.0
       moment: ^2.18.1
     dependencies:
       '@angular/core': 15.0.4_zone.js@0.12.0
@@ -31344,7 +31344,7 @@ packages:
       '@angular/core': 15.0.4_rxjs@7.5.5+zone.js@0.12.0
       '@angular/forms': 15.0.4_ab3d7d48f668030daffea4a621180726
       '@angular/material': 15.0.3_b8ca0fed67557ab1e64d3bf314660d7d
-      '@angular/material-moment-adapter': 15.1.1_58bcf387a79ae8c52d359d479904af00
+      '@angular/material-moment-adapter': 15.1.0_58bcf387a79ae8c52d359d479904af00
       '@angular/platform-browser': 15.0.4_0dacf5c1be2a9acdc88cc30b05d6dd0b
       '@angular/platform-browser-dynamic': 15.0.4_3b5beaed9fbbcb6c76d433b35a4e12c2
       '@angular/router': 15.0.4_ab3d7d48f668030daffea4a621180726
