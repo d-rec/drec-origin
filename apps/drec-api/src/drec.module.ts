@@ -52,6 +52,7 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
+import { AudioModule } from './pods/audio/audio.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -158,7 +159,8 @@ const QueueingModule = () => {
     SdgbenefitModule,
     CertificateLogModule,
     OnChainCertificateModule,
-    BlockchainPropertiesModule
+    BlockchainPropertiesModule,
+    AudioModule
   ],
   providers:[OnApplicationBootstrapHookService]
 })
