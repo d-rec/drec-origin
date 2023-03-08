@@ -122,9 +122,15 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
+let redisOptions= {
+  host:process.env.REDIS_URL ?? 'localhost',
+  port: 6379
+}
+
 const QueueingModule = () => {
   return BullModule.forRoot({
-    redis: process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
+    redis: redisOptions 
+    //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
   });
 };
 
