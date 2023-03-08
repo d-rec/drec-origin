@@ -25,7 +25,7 @@
 						<div>
 							<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
 							aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
-								<mat-icon class="mt-1" >card_membership</mat-icon></a>
+								<mat-icon class="mt-1" >card_membership</mat-icon><div class="certificate-id-text"><div class="id-text">{{item?.id}}</div></div></a>
 						</div>
 						<div class=" ">
 							<button class=" btn-content-back btn d-flex justify-content-end btn-sm" *ngIf="!item.CertificateClaimed" (click)="selectCertificateForClaim(item)">Claim</button>

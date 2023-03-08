@@ -142,9 +142,9 @@ table {
     font-size: 14px !important;
     mat-icon{
       color: #ffc400;
-      font-size: 50px;
-      width: 52px;
-      height: 52px;
+      font-size: 78px;
+      width: 74px;
+      height: 76px;
     }
 
   }
@@ -173,3 +173,14 @@ table {
     font-size: 12px;
   }
   
+  .certificate-id-text{
+    left: 38px;
+    top: 25px;
+    position: absolute;
+    color: #f7360ad6;
+    font-size: 16px;
+    .id-text
+    {
+      text-align: center;
+    }
+  }
