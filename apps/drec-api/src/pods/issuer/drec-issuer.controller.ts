@@ -23,6 +23,7 @@ import {
   } from '@nestjs/swagger';
   import { AuthGuard } from '@nestjs/passport';
 import { IssuerService } from './issuer.service';
+import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 
 @ApiTags('Drec Issuer')
 @ApiBearerAuth('access-token')
@@ -77,6 +78,26 @@ export class DrecIssuerController {
 
         this.invokeIssuerCronForHistory();
         resolve("successfully Hitthe history API");   
+    })
+
+  }
+
+  @Post()
+  @ApiOkResponse({
+    description: 'Re ISSUE certificates for failed data',
+    //type:[ReIssueCertificateDTO]
+  })
+  @ApiBody({ type: ReIssueCertificateDTO })
+  async reIssueCertificates( @Body() certificateData){
+
+    
+  
+
+    return new Promise((resolve, reject) => {
+
+      //@ts-ignore
+        this.issuerService.issueCertificateFromAPI(certificateData);
+        resolve("hit the issueance data");   
     })
 
   }
