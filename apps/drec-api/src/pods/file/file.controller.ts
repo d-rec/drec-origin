@@ -13,7 +13,8 @@ import {
   UseInterceptors,
   Body,
   UploadedFile,
-  ConflictException
+  ConflictException,
+  
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
@@ -89,8 +90,8 @@ export class FileController {
     uploadedFiles: {
       files: Express.Multer.File[];
     },
-    @Body() fileUploadDto: FileUploadDto,
-  ): Promise<string[]> {
+   // @Body() fileUploadDto: FileUploadDto,
+  ) {
     // if(fileUploadDto.type!==undefined && fileUploadDto.type!==null && fileUploadDto.type==='csvDeviceBulkRegistration')
     // {
     //   let fileId = await this.fileService.store(user, uploadedFiles.files);
@@ -99,7 +100,8 @@ export class FileController {
     //   //@ts-ignore
     //   return jobCreated;
     // }
-    console.log(uploadedFiles.files);
+   // console.log(uploadedFiles.files[0]);
+   // return await this.fileService.upload(uploadedFiles.files[0]);
     return this.fileService.store(user, uploadedFiles.files);
   }
 

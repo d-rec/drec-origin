@@ -1,11 +1,9 @@
 import { IsOptional } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  Installation,
-  OffTaker,
-  Sector,
-  StandardCompliance,
-} from '../../../utils/enums';
+import { ApiPropertyOptional, ApiProperty} from '@nestjs/swagger';
+
+
+import { IsNotEmpty, IsString } from 'class-validator';
+
 
 export class FilterDTO {
 
@@ -26,6 +24,15 @@ export class GroupIDBasedFilteringDTO {
   @IsOptional()
   @ApiPropertyOptional({ description: 'Group Id' })
   groupId: string;
+
+  
+}
+
+export class AmountFormattingDTO {
+
+  @ApiProperty({ type: String })
+  @IsString()
+  amount: string;
 
   
 }

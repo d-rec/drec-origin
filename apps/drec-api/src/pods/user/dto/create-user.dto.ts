@@ -4,32 +4,32 @@ import { OrganizationDTO } from '../../organization/dto/organization.dto';
 import { IsNotEmpty, IsString, Matches,MinLength, MaxLength, IsOptional } from 'class-validator';
 import { UserRegistrationData,UserORGRegistrationData } from '../../../models';
 import {Match} from '../decorators/match.decorator';
-export class CreateUserDTO
-  extends PickType(UserDTO, [
-    'title',
-    'firstName',
-    'lastName',
-    'email',
-    'telephone'
+// export class CreateUserDTO
+//   extends PickType(UserDTO, [
+//     'title',
+//     'firstName',
+//     'lastName',
+//     'email',
+//     'telephone'
    
-  ] as const)
-  implements UserRegistrationData
-{
+//   ] as const)
+//   implements UserRegistrationData
+// {
  
 
-  @ApiProperty({ type: String })
-  @MaxLength(20)
-  @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
-    message:
-      'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
-  })
-  @IsNotEmpty()
-  @IsString()
-  password: string;
+//   @ApiProperty({ type: String })
+//   @MaxLength(20)
+//   @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
+//     message:
+//       'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
+//   })
+//   @IsNotEmpty()
+//   @IsString()
+//   password: string;
 
  
 
-}
+// }
 
 export class CreateUserORGDTO
   extends IntersectionType(

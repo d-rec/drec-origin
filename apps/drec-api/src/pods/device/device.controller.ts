@@ -261,25 +261,27 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
       deviceToRegister.version = '1.0';
     }
-    return await this.deviceService
-      .register(organizationId, deviceToRegister)
-      .catch((error) => {
-        if (error && error.code && error.detail) {
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: error.detail,
-              }),
-            );
-          });
-        } else {
-          console.log("error", error);
-          return new Promise((resolve, reject) => {
-            reject({ error: true });
-          });
-        }
-      });
+    return await this.deviceService.register(organizationId, deviceToRegister)
+       .catch((error) => {
+        console.log(error.error);
+        return error
+        
+      //   if (error && error.code && error.detail) {
+      //     return new Promise((resolve, reject) => {
+      //       reject(
+      //         new ConflictException({
+      //           success: false,
+      //           message: error.detail,
+      //         }),
+      //       );
+      //     });
+      //   } else {
+      //     console.log("error", error);
+      //     return new Promise((resolve, reject) => {
+      //       reject({ error: true });
+      //     });
+       //}
+       });
 
     //}
     // catch(e)
@@ -301,7 +303,7 @@ export class DeviceController {
   }
 
 
-  @Patch('/:id')
+  @Patch('/:externalId')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -313,14 +315,25 @@ export class DeviceController {
   @ApiNotFoundResponse({ description: `No device found` })
   public async update(
     @UserDecorator() user: ILoggedInUser,
-    @Param('id') id: number,
+    @Param('externalId') externalId: string,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     console.log(deviceToUpdate);
-    deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
-    if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
-      let countries = countrCodesList;
-      if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
+    if(deviceToUpdate.countryCode!=undefined){
+      deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
+      if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
+        let countries = countrCodesList;
+        if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+              }),
+            );
+          });
+        }
+      } else {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -330,16 +343,9 @@ export class DeviceController {
           );
         });
       }
-    } else {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          }),
-        );
-      });
     }
+    
+  
     if (deviceToUpdate.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
@@ -375,7 +381,7 @@ export class DeviceController {
     return await this.deviceService.update(
       user.organizationId,
       user.role,
-      id,
+      externalId,
       deviceToUpdate,
     );
   }

@@ -8,6 +8,7 @@ import {
   AggregateFilterDTO,
   MeasurementDTO,
   ReadDTO,
+  FilterDTO,
   ReadsService as BaseReadService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
@@ -25,13 +26,15 @@ import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { Iintermediate, IAggregateintermediate } from '../../models'
+import { Iintermediate, NewReadDTO, IAggregateintermediate } from '../../models'
 import { InjectRepository } from '@nestjs/typeorm';
 import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
 
 import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
 import { ReadStatus } from 'src/utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity'
+
+import { ReadFilterDTO } from './dto/filter.dto'
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
@@ -275,10 +278,12 @@ export class ReadsService {
   public async newstoreRead(
     id: string,
     measurements: NewIntmediateMeterReadDTO,
+
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
     console.log(measurements);
+    //change function for find device info by developer externalid
     const device = await this.deviceService.findReads(id);
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
@@ -675,7 +680,7 @@ export class ReadsService {
               new ConflictException({
                 success: false,
                 //@ts-ignore
-                message: `For History Type Reads of devices start time and/or end time should be within 3 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
+                message: `For History Type Reads of devices start time and/or end time should be within 3 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within 3 year in past from onboarded date, ${device?.createdAt}`
 
               }),
             );
@@ -730,17 +735,17 @@ export class ReadsService {
             // const deltafirstvalidation = this.firstvalidateEnergy(read, device)
             // console.log("731", deltafirstvalidation);
             // if (deltafirstvalidation) {
-              reads.push({
-                timestamp: new Date(element.endtimestamp),
-                value: element.value
-              })
-              await this.deltarepository.save({
-                readsvalue: element.value,
-                deviceId: deviceId,
-                unit: measurement.unit,
-                readsEndDate: element.endtimestamp.toString()
+            reads.push({
+              timestamp: new Date(element.endtimestamp),
+              value: element.value
+            })
+            await this.deltarepository.save({
+              readsvalue: element.value,
+              deviceId: deviceId,
+              unit: measurement.unit,
+              readsEndDate: element.endtimestamp.toString()
 
-              });
+            });
             // }
 
             if (measurmentreadindex == measurement.reads.length - 1) {
@@ -996,7 +1001,7 @@ export class ReadsService {
     |> last()`
     return await this.execute(fluxQuery);
   }
-  
+
   async execute(query: any) {
 
     const data = await this.dbReader.collectRows(query);
@@ -1047,6 +1052,9 @@ export class ReadsService {
   private getexisthistorydevcielogFilteredQuery(deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+      console.log(startDate);
+      console.log(endDate);
+
     //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder("devicehistory").
@@ -1367,7 +1375,7 @@ export class ReadsService {
         }),
       )
       .andWhere("devicehistory.certificate_issued != true")
-   // console.log(query.getQuery())
+    // console.log(query.getQuery())
     return query;
   }
 
@@ -1415,6 +1423,44 @@ export class ReadsService {
       }
 
     })
+
+  }
+  //add new funtion for get meterread api response for histroy read
+
+  async getAllRead(externalId, filter:ReadFilterDTO, device_onboarded): Promise<any> {
+   
+    let historyread = []
+   
+    if ((filter.start <= device_onboarded && filter.end <= device_onboarded) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
+     console.log("1431")
+      const query = await this.getexisthistorydevcielogFilteredQuery(externalId,
+        filter.start,
+        filter.end);
+      console.log("historyexistdevicequery");      
+      try {        
+        const histroread = await query.getRawMany();
+        await histroread.forEach(element => {
+          historyread.push({
+            startdate: element.devicehistory_readsStartDate,
+            enddate: element.devicehistory_readsEndDate,
+            value: element.devicehistory_readsvalue
+          })
+        })
+
+      } catch (error) {
+        console.log(error)
+        this.logger.error(`Failed to retrieve device`, error.stack);
+        //  throw new InternalServerErrorException('Failed to retrieve users');
+      }
+    }   
+    const readsFilter: FilterDTO = {
+      offset: 0,
+      limit: 5000,
+      start: device_onboarded.toString(),
+      end: filter.end.toString(),
+    };
+   const ongoing= await this.baseReadsService.find(externalId,readsFilter)
+    return {historyread,ongoing};
 
   }
 }

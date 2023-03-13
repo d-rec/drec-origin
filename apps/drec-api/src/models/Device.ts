@@ -13,6 +13,7 @@ import {
 export interface IDevice {
   id: number;
   externalId: string;
+  developerExternalId?:string;
   status: DeviceStatus;
   organizationId: number;
   projectName: string;

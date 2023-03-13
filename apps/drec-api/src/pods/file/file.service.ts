@@ -1,11 +1,11 @@
-import { Logger, NotAcceptableException } from '@nestjs/common';
+import { Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
-import {S3} from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
@@ -25,7 +25,7 @@ export class FileService {
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     private readonly connection: Connection,
-  ) {}
+  ) { }
 
   public async store(
     user: ILoggedInUser,
@@ -36,8 +36,7 @@ export class FileService {
       throw new NotAcceptableException('No files added');
     }
     this.logger.debug(
-      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${
-        files.length
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${files.length
       } files`,
     );
 
@@ -58,8 +57,7 @@ export class FileService {
       }
     });
     this.logger.debug(
-      `User ${
-        user ? JSON.stringify(user) : 'Anonymous'
+      `User ${user ? JSON.stringify(user) : 'Anonymous'
       } has stored ${JSON.stringify(storedFile)}`,
     );
 
@@ -128,14 +126,14 @@ export class FileService {
 
       const where = hasOrganization
         ? {
-            id: documentId,
-            userId: user.id.toString(),
-            organizationId: user.organizationId.toString(),
-          }
+          id: documentId,
+          userId: user.id.toString(),
+          organizationId: user.organizationId.toString(),
+        }
         : {
-            id: documentId,
-            userId: user.id.toString(),
-          };
+          id: documentId,
+          userId: user.id.toString(),
+        };
 
       const count = await this.repository.count({ where });
 
@@ -178,39 +176,99 @@ export class FileService {
 
 
 
-async upload(file) {
-  const { originalname } = file;
-  const bucketS3 = process.env.bucketname;
-  const result= await this.uploadS3(file.buffer, bucketS3, originalname);
-  console.log(result);
-  return result
-}
+  async upload(file) {
+    console.log(file);
+    const { originalname } = file;
+    const bucketS3 = process.env.bucketname;
+    const result = await this.uploadS3(file.buffer, bucketS3, originalname);
+    console.log(result);
+    return result
+  }
 
-async uploadS3(file, bucket, name) {
-  const s3 = this.getS3();
-  const params = {
+  async uploadS3(file, bucket, name) {
+    const s3 = this.getS3();
+    console.log(`${uuid()}-${String(name)}`)
+    const params = {
       Bucket: bucket,
-      Key: String(name),
+      Key: `${uuid()}-${String(name)}`,
       Body: file,
       ACL: 'public-read'
-  };
-  return new Promise((resolve, reject) => {
+    };
+    return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
-      if (err) {
+        if (err) {
           Logger.error(err);
           reject(err.message);
-      }
-      console.log(data)
-      resolve( data
+        }
+        console.log(data)
+        resolve(data
         );
       });
-  });
-}
+    });
+  }
 
-getS3() {
-  return new S3({
+  getS3() {
+    return new S3({
       accessKeyId: process.env.accessKeyId,
       secretAccessKey: process.env.secretAccessKey,
-  });
-}
+    });
+  }
+
+
+
+  public async GetuploadS3(key: string) {
+    console.log(key);
+
+    const s3 = this.getS3();
+
+    // const fileInfo = await this.privateFilesRepository.findOne({ id: fileId }, { relations: ['owner'] });
+    if (key) {
+      console.log(key);
+      let response: any;
+      return new Promise((resolve, reject) => {
+        s3.getObject(
+          { Bucket: process.env.bucketname, Key: key }, (err, data) => {
+
+            if (err) {
+              Logger.error(err);
+              reject(err.message);
+            }
+            console.log(data)
+            resolve({
+              data,
+              filename: key
+            }
+            );
+          })
+      });
+      // function (error, data) {
+      //   if (error != null) {
+      //     console.log(error);
+      //     // alert("Failed to retrieve an object: " + error);
+      //   } else {
+      //    console.log(data);
+      //     response= {
+      //     data,
+      //     filename: key
+      //   };
+      //     return response
+      //     // alert("Loaded " + data.ContentLength + " bytes");
+      //   }
+      // }
+      // (err, data) => {
+      //   if (err) {
+      //     Logger.error(err);
+      //     reject(err.message);
+      //   }
+      //   console.log(data)
+      //   resolve(data
+      //   );
+      //);
+      //});
+
+
+      // return response;
+    }
+    throw new NotFoundException();
+  }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { AuthbaseService } from '../../../auth/authbase.service';
+import {  AuthbaseService} from '../../../auth/authbase.service';
+import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 //import * as moment from 'moment';
@@ -31,10 +32,11 @@ export class AddDevicesComponent {
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
+ numberregex: RegExp =/[0-9]+(\.[0-9]*){0,1}/
   //public color: ThemePalette = 'primary';
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector']
-  devicediscription=['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
-  constructor(private fb: FormBuilder, private authService: AuthbaseService, private router: Router,private toastrService:ToastrService) { }
+  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
+  constructor(private fb: FormBuilder, private authService: AuthbaseService,private deviceService: DeviceService, private router: Router, private toastrService: ToastrService) { }
 
   ngOnInit() {
 
@@ -48,6 +50,7 @@ export class AddDevicesComponent {
       devices: this.fb.array([
       ])
     })
+    this.showinput[0] = true;
     this.addmoredetals[0] = false;
     this.showaddmore[0] = true;
     this.shownomore[0] = false;
@@ -56,8 +59,8 @@ export class AddDevicesComponent {
       externalId: [null, Validators.required],
       projectName: [null],
       address: [null],
-      latitude: [null],
-      longitude: [null],
+      latitude: [null,Validators.pattern(this.numberregex)],
+      longitude: [null,Validators.pattern(this.numberregex)],
       countryCode: [null, Validators.required],
       fuelCode: [null],
       deviceTypeCode: [null],
@@ -100,8 +103,8 @@ export class AddDevicesComponent {
       externalId: [null, Validators.required],
       projectName: [null],
       address: [null],
-      latitude: [null],
-      longitude: [null],
+      latitude: [null,Validators.pattern(this.numberregex)],
+      longitude: [null,Validators.pattern(this.numberregex)],
       countryCode: [null, Validators.required],
       fuelCode: [null],
       deviceTypeCode: [null],
@@ -123,6 +126,7 @@ export class AddDevicesComponent {
     this.deviceForms.push(device);
     console.log(this.deviceForms.length);
     this.showaddmore[this.deviceForms.length - 1] = true;
+    this.showinput[this.deviceForms.length - 1] = true;
   }
 
   addmore(i: number) {
@@ -134,6 +138,15 @@ export class AddDevicesComponent {
     this.addmoredetals[i] = false;
     this.showaddmore[i] = true;
     this.shownomore[i] = false;
+  }
+  showinput: any[] = [];
+  showenergycapacity_input(i: number, event: any) {
+    console.log(event)
+    if (event) {
+      this.showinput[i] = true;
+    } else {
+      this.showinput[i] = false;
+    }
   }
   deletePhone(i: number) {
     this.deviceForms.removeAt(i)
@@ -165,7 +178,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+
         this.fuellist = data;
 
       }
@@ -176,7 +189,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+
         this.devicetypelist = data;
 
       }
@@ -184,19 +197,19 @@ export class AddDevicesComponent {
   }
   onSubmit() {
     console.log(this.deviceForms);
-   
+
     this.deviceForms.value.forEach((element: any) => {
       console.log(element);
-      this.authService.PostAuth('device', element).subscribe({
+      this.deviceService.Postdevices(element).subscribe({
         next: data => {
           console.log(data)
-         // this.deviceForms.reset();
-          this.toastrService.success('Add Successfully !!','Device! '+element.externalId);
+          // this.deviceForms.reset();
+          this.toastrService.success('Add Successfully !!', 'Device! ' + element.externalId);
 
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)
-           this.toastrService.error( 'some error occurred in add due to '+err.error.message,'Device!' +element.externalId,);
+          this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + element.externalId,);
         }
       });
     })

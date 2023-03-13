@@ -1,0 +1,135 @@
+<div class="body-bg">
+    <mat-card>
+        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+            <div>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">Add Read
+                </h2>
+            </div>
+            <!-- <div>
+                <button class="btn btn-dark justify-content-end px-4" (click)="adddevice()">
+                    <mat-icon class="align-middle">add_circle</mat-icon> Add More Device
+                </button>
+            </div> -->
+
+
+        </mat-card-header>
+        <hr class="mb-0 pb-0">
+        <form [formGroup]="readForm" (ngSubmit)="onSubmit()">
+            <mat-card-content>
+                <div class="example-container1 row">
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">ExternalId</mat-label>
+
+                            <mat-select formControlName='externalId' placeholder="ExternalId" (ngModelChange)="onChangeDateEvent($event)">
+
+                                <mat-option *ngFor="let device of data" [value]="device">
+                                    {{device.externalId}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                        <mat-label>TimeZone</mat-label>
+                        <input type="text"
+                               placeholder="Please Enter timezone"
+                               aria-label="Number"
+                               matInput
+                               formControlName="timezone"
+                               [matAutocomplete]="auto">
+                        <mat-autocomplete #auto="matAutocomplete">
+                          <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                            {{option}}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </mat-form-field>
+                      </div>
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Read Type</mat-label>
+
+                            <mat-select formControlName='type' placeholder="type" (ngModelChange)="onChangeEvent($event)">
+
+                                <mat-option *ngFor="let code of readtype" [value]="code">
+                                    {{code}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Unit</mat-label>
+
+                            <mat-select formControlName='unit' placeholder="Unit" >
+
+                                <mat-option *ngFor="let unit of unit" [value]="unit">
+                                    {{unit}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+
+
+                </div>
+                <div formArrayName='reads'>
+                    <div *ngFor="let read of addreads.controls; let i=index" [formGroupName]="i">
+                        <h4><b>Add read value</b></h4>
+                        <div class="example-container1 row">
+
+                            <div class="col-md-3">
+                                <mat-form-field appearance="outline">
+                                    <mat-label class="text-capitalize">value</mat-label>
+                                    <input matInput placeholder="capacity" type="number" formControlName='value' min="1" autocomplete="off">
+                                    <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                    <!-- <mat-hint>Hint</mat-hint> -->
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-3" *ngIf="hidestarttime">
+                                <mat-form-field appearance="outline">
+                                    <mat-label class="text-capitalize">starttimestamp </mat-label>
+                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
+                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                                    <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                        [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                        [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                    </ngx-mat-datetime-picker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-3">
+                                <mat-form-field appearance="outline">
+                                    <mat-label class="text-capitalize">endtimestamp </mat-label>
+                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate" autocomplete="off">
+                                    <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+                                    <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
+                                        [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                        [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                    </ngx-mat-datetime-picker>
+                                    <mat-error *ngIf="checkValidation('endtimestamp')">
+                                       <b> {{getErrorcheckdatavalidation()}}</b>
+                                      </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+
+            <mat-card-footer>
+                <div class="example-container mb-3 me-3 row">
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" [disabled]="readForm.invalid" class="btn-primary btn text-capitalize px-4">submit</button>
+                    </div>
+                </div>
+            </mat-card-footer>
+        </form>
+    </mat-card>
+</div>

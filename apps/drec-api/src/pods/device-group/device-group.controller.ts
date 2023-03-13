@@ -364,7 +364,10 @@ export class DeviceGroupController {
           'User needs to have organization added'
       })
     }
+    console.log(fileToProcess.fileName);
+    //let response:any = await this.fileService.GetuploadS3(fileToProcess.fileName);
     let response = await this.fileService.get(fileToProcess.fileName, user);
+    console.log(response.filename);
     if (response == undefined) {
       //throw new Error("file not found");
       throw new ConflictException({
@@ -384,6 +387,8 @@ export class DeviceGroupController {
 
     }
     let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, response instanceof File ? response.id : '');
+
+    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
 
     return jobCreated;
   }

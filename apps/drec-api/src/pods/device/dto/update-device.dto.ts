@@ -5,6 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
+  Matches
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -16,10 +17,20 @@ import {
   DevicetypeCode
 } from '../../../utils/enums';
 import { IDevice } from '../../../models';
-
+import { Exclude } from 'class-transformer';
 export class UpdateDeviceDTO
   implements Omit<IDevice, 'id' | 'externalId' | 'status' | 'organizationId' | 'yieldValue' | 'labels'>
 {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  externalId?: string;
+  
+  @IsOptional()
+  @IsString()
+  @Exclude()
+  developerExternalId?: string;
+
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -33,11 +44,19 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'latitude should be number',
+  })
   latitude: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'longitude should be number',
+  })
   longitude: string;
 
   @ApiProperty()
@@ -88,7 +107,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector',
+      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector,Agriculture',
   })
   @IsOptional()
   offTaker: OffTaker;
