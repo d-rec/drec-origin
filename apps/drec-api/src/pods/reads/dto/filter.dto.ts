@@ -13,10 +13,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ReadFilterDTO {
   
-  @ApiProperty({default: '2020-01-01T00:00:00Z' ,description:'Example : 2020-01-01T00:00:00Z'})
+  @ApiProperty({description:'Example : 2020-01-01T00:00:00Z'})
   start: Date;
 
-  @ApiProperty({default:'2020-01-01T00:00:00Z' ,description:'Example : 2020-01-01T00:00:00Z'})
+  @ApiProperty({description:'Example : 2020-01-01T00:00:00Z'})
   end: Date;
 
   @IsOptional()

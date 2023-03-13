@@ -5,6 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
+  Matches
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -43,11 +44,19 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'latitude should be number',
+  })
   latitude: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'longitude should be number',
+  })
   longitude: string;
 
   @ApiProperty()

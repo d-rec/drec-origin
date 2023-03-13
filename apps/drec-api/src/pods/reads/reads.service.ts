@@ -1052,6 +1052,9 @@ export class ReadsService {
   private getexisthistorydevcielogFilteredQuery(deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+      console.log(startDate);
+      console.log(endDate);
+
     //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder("devicehistory").

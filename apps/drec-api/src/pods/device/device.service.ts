@@ -332,7 +332,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = []
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
-    currentDevice.status = DeviceStatus.Submitted;
+   // currentDevice.status = DeviceStatus.Submitted;
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];

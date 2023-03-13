@@ -857,6 +857,7 @@ export class DeviceGroupService {
         try {
           return await this.deviceService.register(orgCode, device);
         } catch (e) {
+          console.log(e)
           return { isError: true, device: device, errorDetail: e };
         }
       }),
@@ -1338,7 +1339,7 @@ export class DeviceGroupService {
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
     console.log("into method");
-    console.log(file.data.Body.toString('utf-8'));
+   // console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
