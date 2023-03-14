@@ -207,7 +207,7 @@ export class DeviceService {
     console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
-        where: { externalId: In(meterIdList) },
+        where: { developerExternalId: In(meterIdList) },
       })) ?? null
     );
   }

@@ -43,5 +43,9 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @Column()
   @IsNumber()
   groupId: number | null;
+  
+  @Column()
+  @IsString()
+  certificateTransactionUID:string
 
 }
