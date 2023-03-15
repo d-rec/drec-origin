@@ -163,8 +163,13 @@ export class DeviceController {
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
   })
-  async getByExternalId(@Param('id') id: string): Promise<DeviceDTO | null> {
-    return this.deviceService.findReads(id);
+  async getByExternalId(@Param('id') id: string,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise<DeviceDTO | null> {
+    const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
+    devicedata.externalId = devicedata.developerExternalId;
+    delete devicedata["developerExternalId"];
+    return devicedata;
   }
 
   @Post()
@@ -262,26 +267,26 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister)
-       .catch((error) => {
+      .catch((error) => {
         console.log(error.error);
         return error
-        
-      //   if (error && error.code && error.detail) {
-      //     return new Promise((resolve, reject) => {
-      //       reject(
-      //         new ConflictException({
-      //           success: false,
-      //           message: error.detail,
-      //         }),
-      //       );
-      //     });
-      //   } else {
-      //     console.log("error", error);
-      //     return new Promise((resolve, reject) => {
-      //       reject({ error: true });
-      //     });
-       //}
-       });
+
+        //   if (error && error.code && error.detail) {
+        //     return new Promise((resolve, reject) => {
+        //       reject(
+        //         new ConflictException({
+        //           success: false,
+        //           message: error.detail,
+        //         }),
+        //       );
+        //     });
+        //   } else {
+        //     console.log("error", error);
+        //     return new Promise((resolve, reject) => {
+        //       reject({ error: true });
+        //     });
+        //}
+      });
 
     //}
     // catch(e)
@@ -319,7 +324,18 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     console.log(deviceToUpdate);
-    if(deviceToUpdate.countryCode!=undefined){
+    deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
+    if (deviceToUpdate.externalId.trim() === "") {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `externalId should not be empty`,
+          })
+        );
+      });
+    }
+    if (deviceToUpdate.countryCode != undefined) {
       deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
       if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
         let countries = countrCodesList;
@@ -344,8 +360,8 @@ export class DeviceController {
         });
       }
     }
-    
-  
+
+
     if (deviceToUpdate.capacity <= 0) {
       return new Promise((resolve, reject) => {
         reject(
@@ -356,9 +372,9 @@ export class DeviceController {
         );
       });
     }
-   // var commissioningDate = moment(deviceToUpdate.commissioningDate);
-  
-    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate) && deviceToUpdate.commissioningDate!== undefined) {
+    // var commissioningDate = moment(deviceToUpdate.commissioningDate);
+
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate) && deviceToUpdate.commissioningDate !== undefined) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({

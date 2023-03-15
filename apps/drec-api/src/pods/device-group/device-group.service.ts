@@ -1474,7 +1474,11 @@ export class DeviceGroupService {
             if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }
+          }else{
+            recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })   
           }
+        }else{
+          recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })   
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
           if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
@@ -1509,7 +1513,7 @@ export class DeviceGroupService {
           }
         });
       }
-     // console.log("listofExistingDevices", listofExistingDevices);
+     console.log("listofExistingDevices", listofExistingDevices);
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
       let recordsToRegister = records.filter((ele, index) => {
