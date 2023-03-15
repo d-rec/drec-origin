@@ -207,7 +207,7 @@ export class DeviceService {
     console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
-        where: { externalId: In(meterIdList) },
+        where: { developerExternalId: In(meterIdList) },
       })) ?? null
     );
   }
@@ -332,7 +332,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = []
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
-    currentDevice.status = DeviceStatus.Submitted;
+   // currentDevice.status = DeviceStatus.Submitted;
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];

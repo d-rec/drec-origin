@@ -321,7 +321,13 @@ export class CertificateComponent implements OnInit {
       purpose: 'Purpose:' +this.claimData.value.purpose
     }
     daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount,this.selectedBlockchainAccount,this.selectedCertificateForClaim.id,this.formattedClaimAmount,this.encodeClaimData(claimData),this.encodeClaimData(claimData));
-     this.closeTemplateSheetMenu();
+
+    setTimeout(() => {
+         this.toastrService.info(`Please check metamask for success or failure of claim of this certificate`);
+         this.closeTemplateSheetMenu();
+     }, 1000);
+
+ 
   }
   
 

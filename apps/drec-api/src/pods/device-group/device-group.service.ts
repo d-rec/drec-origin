@@ -838,7 +838,7 @@ export class DeviceGroupService {
     ////console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
       //@ts-ignore
-      existingDevices.forEach((ele) => existingDeviceIds.push(ele?.externalId));
+      existingDevices.forEach((ele) => existingDeviceIds.push(ele?.developerExternalId));
     }
     return existingDeviceIds;
   }
@@ -857,6 +857,7 @@ export class DeviceGroupService {
         try {
           return await this.deviceService.register(orgCode, device);
         } catch (e) {
+          console.log(e)
           return { isError: true, device: device, errorDetail: e };
         }
       }),
@@ -1338,7 +1339,7 @@ export class DeviceGroupService {
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
     console.log("into method");
-    console.log(file.data.Body.toString('utf-8'));
+    // console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1495,6 +1496,7 @@ export class DeviceGroupService {
         (record, index) => recordsErrors[index].isError === false,
       );
       const listofExistingDevices = await this.checkIfDeviceExisting(records);
+
       if (listofExistingDevices.length > 0) {
         records.forEach((singleRecord, index) => {
           if (listofExistingDevices.find(
@@ -1507,7 +1509,7 @@ export class DeviceGroupService {
           }
         });
       }
-      ////console.log("listofExistingDevices",listofExistingDevices);
+     // console.log("listofExistingDevices", listofExistingDevices);
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
       let recordsToRegister = records.filter((ele, index) => {
@@ -1523,19 +1525,23 @@ export class DeviceGroupService {
         else
           return true;
       })
+
+      console.log(recordsToRegister);
       const devicesRegistered = await this.registerCSVBulkDevices(
         organizationId,
         recordsToRegister,
       );
+      
       //@ts-ignore
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
         successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) });
       })
-      ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+     // console.log("recordsErrors.find((ele) => ele.isError === true)", recordsErrors)
 
       // if (recordsErrors.find((ele) => ele.isError === true)) {
-      ////console.log("insie if ");
+      //console.log("insie if ");
+
       recordsErrors.forEach(ele => {
         if (ele.isError === false) { ele["status"] = 'Success'; }
         else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => successEle.externalId == ele.externalId)) {
@@ -1545,13 +1551,13 @@ export class DeviceGroupService {
           ele['status'] = 'Failed';
         }
       });
-      console.log(recordsErrors);
+      //console.log(recordsErrors);
       this.createFailedRowDetailsForCSVJob(
         filesAddedForProcessing.jobId,
         recordsErrors,
         successfullyAddedRowsAndExternalIds
       );
-     //}
+      //}
 
       ////console.log("osdksnd if ");
 
