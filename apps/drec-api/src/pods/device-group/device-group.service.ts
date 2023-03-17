@@ -32,7 +32,7 @@ import {
   ResponseDeviceGroupDTO
 
 } from './dto';
-import { defaults } from 'lodash';
+import { defaults, cloneDeep } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import { DeviceDescription, IDevice, BuyerReservationCertificateGenerationFrequency } from '../../models';
@@ -825,6 +825,7 @@ export class DeviceGroupService {
 
   public async checkIfDeviceExisting(
     newDevices: NewDeviceDTO[],
+    organizationId: number
   ): Promise<Array<string>> {
     const allExternalIds: Array<string> = [];
     const existingDeviceIds: Array<string> = [];
@@ -834,6 +835,7 @@ export class DeviceGroupService {
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
         allExternalIds,
+        organizationId
       );
     ////console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
@@ -1472,11 +1474,21 @@ export class DeviceGroupService {
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
             if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+              recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }
+          } else {
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
           }
+        } else {
+          recordsErrors[index].isError = true;
+          recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
+          console.log("commissioningDate");
+          console.log(singleRecord.commissioningDate);
+          console.log(!isValidUTCDateFormat(singleRecord.commissioningDate));
           if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
@@ -1492,10 +1504,11 @@ export class DeviceGroupService {
         })
       });
 
+      console.log(records);
       const noErrorRecords = records.filter(
         (record, index) => recordsErrors[index].isError === false,
       );
-      const listofExistingDevices = await this.checkIfDeviceExisting(records);
+      const listofExistingDevices = await this.checkIfDeviceExisting(records, organizationId);
 
       if (listofExistingDevices.length > 0) {
         records.forEach((singleRecord, index) => {
@@ -1509,7 +1522,48 @@ export class DeviceGroupService {
           }
         });
       }
-     // console.log("listofExistingDevices", listofExistingDevices);
+      console.log("listofExistingDevices", listofExistingDevices);
+      // var recordsCopy= cloneDeep(records);
+      // const duplicatesExternalId: any = [];
+      // for (let i = 0; i < recordsCopy.length - 1; i++) {
+      //   for (let j = i + 1; j < recordsCopy.length; j++) {
+      //     if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase()) {
+      //       duplicatesExternalId.push({
+      //         duplicateIndex: j,
+      //         duplicateWith: i,
+      //         projectName: recordsCopy[j].projectName,
+      //         externalId: recordsCopy[j].externalId
+      //       });
+      //       recordsErrors[j].isError = true;
+      //       recordsErrors[j].errorsList.push(
+      //         { value: recordsCopy[j].externalId, property: "externalId", constraints: { externalIdExists: "Row "+(j + 1)+" Duplicate with row " + (i + 1)+ " Exists with externalId "+recordsCopy[j].externalId } }
+      //       );
+      //     }
+      //   }
+      // }
+
+      var recordsCopy = cloneDeep(records);
+      recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
+      const duplicatesExternalId: any = [];
+      for (let i = 0; i < recordsCopy.length - 1; i++) {
+        for (let j = i + 1; j < recordsCopy.length; j++) {
+          if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
+            recordsCopy[j]['statusDuplicate'] = true;
+            duplicatesExternalId.push({
+              duplicateIndex: j,
+              duplicateWith: i,
+              projectName: records[j].projectName,
+              externalId: records[j].externalId
+            });
+            recordsErrors[j].isError = true;
+            recordsErrors[j].errorsList.push(
+              { value: recordsCopy[j].externalId, property: "externalId", duplicateIndex: j,statusDuplicate:true,constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
+            );
+          }
+        }
+      }
+      console.log("duplicatesExternalId", duplicatesExternalId);
+
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
       let recordsToRegister = records.filter((ele, index) => {
@@ -1531,18 +1585,17 @@ export class DeviceGroupService {
         organizationId,
         recordsToRegister,
       );
-      
+      console.log(devicesRegistered);
       //@ts-ignore
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
         //@ts-ignore
+        console.log(records.findIndex(recEle => recEle.externalId === ele.externalId));
+         //@ts-ignore
         successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.externalId === ele.externalId) });
       })
-     // console.log("recordsErrors.find((ele) => ele.isError === true)", recordsErrors)
-
-      // if (recordsErrors.find((ele) => ele.isError === true)) {
-      //console.log("insie if ");
-
-      recordsErrors.forEach(ele => {
+      console.log(devicesRegistered);
+      recordsErrors.forEach(ele => {  
+        console.log(ele);
         if (ele.isError === false) { ele["status"] = 'Success'; }
         else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => successEle.externalId == ele.externalId)) {
           ele['status'] = 'Success with validation errors, please update fields';
@@ -1551,7 +1604,7 @@ export class DeviceGroupService {
           ele['status'] = 'Failed';
         }
       });
-      //console.log(recordsErrors);
+      console.log(recordsErrors);
       this.createFailedRowDetailsForCSVJob(
         filesAddedForProcessing.jobId,
         recordsErrors,

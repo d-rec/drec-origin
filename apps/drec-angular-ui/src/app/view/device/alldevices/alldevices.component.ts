@@ -219,7 +219,12 @@ export class AlldevicesComponent {
      this.getDeviceListData();
     console.log("myreservation");
    
-     this.DisplayList()
+   // setTimeout(() => this.DisplayList(), 10000);
+    setTimeout(()=>{
+        this.loading=false;
+      
+          this.DisplayList();
+      },2000)
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -265,13 +270,13 @@ export class AlldevicesComponent {
       this.dataSource.sort = this.sort;
       
     }
-    else
-    {
-      setTimeout(()=>{
-        this.loading=false;
+    // else
+    // {
+    //   // setTimeout(()=>{
+    //   //   this.loading=false;
       
-          this.DisplayList();
-      },10000)
-    }
+    //   //     this.DisplayList();
+    //   // },5000)
+    // }
   }
 }

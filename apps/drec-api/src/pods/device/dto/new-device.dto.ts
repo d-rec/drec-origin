@@ -19,6 +19,7 @@ import {
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude ,} from 'class-transformer';
+
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
