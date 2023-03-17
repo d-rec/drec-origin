@@ -89,7 +89,7 @@
     "passport": "0.4.1",
     "passport-jwt": "4.0.0",
     "passport-local": "1.0.0",
-    "pg": "8.5.1",
+    "pg": "8.7.1",
     "pkcs7-padding": "0.1.1",
     "qs": "6.9.6",
     "reflect-metadata": "^0.1.13",
@@ -98,7 +98,7 @@
     "rxjs": "6.6.7",
     "stream": "^0.0.2",
     "swagger-ui-express": "4.1.6",
-    "typeorm": "0.2.31",
+    "typeorm": "0.2.41",
     "uuid": "8.3.2",
     "moment-timezone": "0.5.40",
     "@ethersproject/bignumber": "5.3.0"

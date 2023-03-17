@@ -8,6 +8,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 //   ITransferCommand,
 // } from '@energyweb/origin-247-certificate';
 import {
+  IGetAllCertificatesOptions,
   IIssueCommandParams,
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
@@ -863,6 +864,24 @@ export class IssuerService {
   ) {
     this.logger.log(`Issuing a certificate for reading`);
     this.offChainCertificateService.issue(reading);
+  }
+
+  
+  getCertificateData(deviceId?:string)
+  {
+    let request:IGetAllCertificatesOptions= {
+      // generationEndFrom: new Date(1677671426*1000),
+      // generationEndTo: new Date(1677671426*1000),
+      //  generationStartFrom :new Date(1646622684*1000),
+      // generationStartTo: new Date(1648159894*1000),
+      // creationTimeFrom: Date;
+      //  creationTimeTo: Date;
+      deviceId: "51"
+  }
+
+   this.offChainCertificateService.getAll(request).then(result=>{
+      console.log("certificates",result);
+    });
   }
 
 
