@@ -107,7 +107,7 @@ export class CertificateLogService {
           // claims:IsNull()
         }
       })
-    //console.log(certifiedreservation);
+   console.log(certifiedreservation);
 
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
@@ -161,7 +161,7 @@ export class CertificateLogService {
       }),
     );
     //  console.log("res")
-    //console.log(res);
+   console.log(res);
     return res;
   }
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,

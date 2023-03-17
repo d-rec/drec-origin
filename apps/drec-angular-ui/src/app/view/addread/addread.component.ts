@@ -91,13 +91,15 @@ export class AddreadComponent implements OnInit {
   }
   onChangeDateEvent(event:any){
     console.log(event);
+    this.addreads.reset();
+    this.readForm.controls['type'].setValue(null)
     this.devicecreateddate=event.createdAt;
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //  2022-11-04T08:20:37.140Z
     //this.readForm.controls["externalId"]=event.externalId;
       console.log(this.historyAge);
-      this.readForm.controls["read"]
+     // this.readForm.controls["read"]
 
   }
   onChangeEvent(event: any) {

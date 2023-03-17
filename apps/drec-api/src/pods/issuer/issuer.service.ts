@@ -17,7 +17,7 @@ import {
   FilterDTO,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
-
+import { v4 as uuid } from 'uuid';
 
 import { HttpService } from '@nestjs/axios';
 
@@ -509,7 +509,7 @@ export class IssuerService {
       return;
     }
     let allPreviousReadingsOfDevices: Array<{ timestamp: Date, value: number }> = [];
-
+    let certificateTransactionUID = uuid();
     await Promise.all(
       group.devices.map(async (device: IDevice, index) => {
         //console.log("came inside previous readings check");
@@ -560,8 +560,9 @@ export class IssuerService {
           devicecertificatelogDto.certificate_issuance_enddate = allDevicesCompleteReadsBetweenTimeRange[index][allDevicesCompleteReadsBetweenTimeRange[index].length - 1].timestamp,// new Date(endDate.toString()),
           devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
           devicecertificatelogDto.readvalue_watthour = devciereadvalue;
-        devicecertificatelogDto.groupId = group.id;
-        //console.log("devicecertificatelogDto", devicecertificatelogDto);
+        devicecertificatelogDto.groupId = group.id,
+        devicecertificatelogDto.certificateTransactionUID = certificateTransactionUID.toString();
+        console.log("devicecertificatelogDto", devicecertificatelogDto);
         await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
       }),
     );
@@ -605,6 +606,7 @@ export class IssuerService {
       toTime: maximumEndDate,//new Date(endDate.toString()),
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
+      
       metadata: {
         version: "v1.0",
         buyerReservationId: group.devicegroup_uid,
@@ -613,6 +615,7 @@ export class IssuerService {
         deviceIds: group.devices.map((device: IDevice) => device.id),
         //deviceGroup,
         groupId: group.id?.toString() || null,
+        certificateTransactionUID: certificateTransactionUID.toString(),
       },
     };
     this.logger.log(
@@ -630,7 +633,8 @@ export class IssuerService {
       devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
       devicegroupcertificatelogDto.readvalue_watthour = issueTotalReadValue,
       devicegroupcertificatelogDto.certificate_payload = issuance,
-      devicegroupcertificatelogDto.countryCode = countryCodeKey;
+      devicegroupcertificatelogDto.countryCode = countryCodeKey,
+    devicegroupcertificatelogDto.certificateTransactionUID = certificateTransactionUID.toString();
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await 
     this.issueCertificate(issuance);
@@ -659,6 +663,7 @@ export class IssuerService {
     if (devicehistoryrequest.readsvalue < 1000) {
       return;
     }
+    let certificateTransactionUID = uuid();
     let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
     devicecertificatelogDto.deviceid = device.externalId,
       devicecertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),
@@ -666,6 +671,7 @@ export class IssuerService {
       devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
       devicecertificatelogDto.readvalue_watthour = devicehistoryrequest.readsvalue;
     devicecertificatelogDto.groupId = group.id;
+    devicecertificatelogDto.certificateTransactionUID = certificateTransactionUID.toString();
     await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
@@ -674,6 +680,7 @@ export class IssuerService {
       toTime: new Date(devicehistoryrequest.readsEndDate.toString()),
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
+     
       metadata: {
         version: "v1.0",
         buyerReservationId: group.devicegroup_uid,
@@ -681,6 +688,7 @@ export class IssuerService {
         type: CertificateType.REC,
         deviceIds: [device.id],
         //deviceGroup,
+        certificateTransactionUID: certificateTransactionUID.toString(),
         groupId: group.id?.toString() || null,
       },
     };
@@ -699,7 +707,8 @@ export class IssuerService {
       devicegroupcertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
       devicegroupcertificatelogDto.readvalue_watthour = devicehistoryrequest.readsvalue,
       devicegroupcertificatelogDto.certificate_payload = issuance,
-      devicegroupcertificatelogDto.countryCode = device.countryCode;
+      devicegroupcertificatelogDto.countryCode = device.countryCode,
+      devicegroupcertificatelogDto.certificateTransactionUID = certificateTransactionUID.toString();
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await 
     this.issueCertificate(issuance);
@@ -851,8 +860,7 @@ export class IssuerService {
 
   //actual definition is up removing async
 
-  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>)
-  {
+  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>) {
     reading.fromTime = new Date(reading.fromTime);
     reading.toTime = new Date(reading.toTime);
     this.issueCertificate(reading);

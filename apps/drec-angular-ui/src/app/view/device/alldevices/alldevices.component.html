@@ -24,7 +24,7 @@
         <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
       </mat-form-field>
       <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-      <div class="content mat-elevation-z8 text-center" *ngIf="!loading">
+      <div class="content mat-elevation-z8 text-center" >
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
           <!-- Checkbox Column -->

@@ -10,7 +10,7 @@
 	</mat-card-header>
 	<hr>
 	<mat-card-content>
-		<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>{{group_name}}</b></h2>
+		<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>Reservation Name:{{group_name}}</b></h2>
 		<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-0 pb-0"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metmask'}}<button   *ngIf="!checkMetamaskConnected()" (click)="selectAccountAddressFromMetamask()" class="btn-sm button-click-here text-info"> Click here</button> </b></h2>
 		<h6 class="text-capitalize please-note text-danger" ><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
 
@@ -25,7 +25,7 @@
 						<div>
 							<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
 							aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
-								<mat-icon class="mt-1" >card_membership</mat-icon></a>
+								<mat-icon class="mt-1" >card_membership</mat-icon><div class="certificate-id-text"><div class="id-text">{{item?.id}}</div></div></a>
 						</div>
 						<div class=" ">
 							<button class=" btn-content-back btn d-flex justify-content-end btn-sm" *ngIf="!item.CertificateClaimed" (click)="selectCertificateForClaim(item)">Claim</button>

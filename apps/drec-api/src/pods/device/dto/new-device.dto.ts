@@ -5,7 +5,8 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
-  IsNotEmpty
+  IsNotEmpty,
+  Matches
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -17,7 +18,8 @@ import {
   DevicetypeCode
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
-import { Exclude } from 'class-transformer';
+import { Exclude ,} from 'class-transformer';
+
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
@@ -45,10 +47,18 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'latitude should be number',
+  })
   latitude: string;
-
+  
   @ApiProperty()
   @IsString()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'longitude should be number',
+  })
   @IsOptional()
   longitude: string;
 
