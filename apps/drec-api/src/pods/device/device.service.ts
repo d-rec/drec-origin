@@ -203,11 +203,12 @@ export class DeviceService {
   }
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
+    organizationId:number
   ): Promise<Array<DeviceDTO | null>> {
     console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
-        where: { developerExternalId: In(meterIdList) },
+        where: { developerExternalId: In(meterIdList),organizationId: organizationId },
       })) ?? null
     );
   }

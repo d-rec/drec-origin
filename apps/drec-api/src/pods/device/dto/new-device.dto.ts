@@ -19,7 +19,7 @@ import {
 } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude ,} from 'class-transformer';
-const mobileNumberRegex = /^(\+[0-9]{1,3}[- ]?)?[0-9]{9,10}$/;
+
 export class NewDeviceDTO
   implements Omit<IDevice, 'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'>
 {
