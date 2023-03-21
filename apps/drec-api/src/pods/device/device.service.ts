@@ -245,19 +245,19 @@ export class DeviceService {
     console.log(checkexternalid)
     if (checkexternalid != undefined) {
       console.log("236");
-      // return new Promise((resolve, reject) => {
-      //   reject(
-      //     new ConflictException({
-      //       success: false,
-      //       message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
 
-      //     })
-      //   );
-      // });
-      throw new ConflictException({
-        success: false,
-        message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
-      })
+          })
+        );
+      });
+      // throw new ConflictException({
+      //   success: false,
+      //   message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+      // })
       // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
     }
     newDevice.developerExternalId = newDevice.externalId;
