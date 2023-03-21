@@ -35,10 +35,13 @@
 
                   <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="upload()">
                     Upload
+                  </button>&nbsp;
+                  <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="reset()">
+                    Clear
                   </button>
                 </mat-toolbar>
                 <div class="d-flex justify-content-center">
-                  <input type="file" id="fileInput" (change)="selectFile($event)" name="fileInput" />
+                  <input type="file"  id="fileInput" (change)="selectFile($event)" name="fileInput" />
 
                 </div>
 

@@ -13,7 +13,7 @@ import { MatPaginator } from '@angular/material/paginator';
   styleUrls: ['./add-bulk-device.component.scss']
 })
 export class AddBulkDeviceComponent implements OnInit {
-  currentFile?: File;
+  currentFile?: File|null;
   progress = 0;
   message = '';
   pageSize: number = 10;
@@ -45,8 +45,17 @@ export class AddBulkDeviceComponent implements OnInit {
   data: any;
   ngOnInit(): void {
     this.JobDisplayList();
+    
   }
-
+  reset()
+  {
+   
+    // We will clear the value of the input
+    // field using the reference variable.
+ 
+    this.currentFile=null;
+    this.fileName = 'Select File';
+  }
   selectFile(event: any): void {
     if (event.target.files && event.target.files[0]) {
       const file: File = event.target.files[0];
@@ -73,6 +82,8 @@ export class AddBulkDeviceComponent implements OnInit {
               this.JobDisplayList();
              // this.selectFile()
               // this.readForm.reset();
+              this.currentFile=null;
+              this.fileName = 'Select File';
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
             },
             error: (err) => {                          //Error callback
