@@ -50,17 +50,20 @@ export class AddBulkDeviceComponent implements OnInit {
   reset()
   {
    
-    // We will clear the value of the input
-    // field using the reference variable.
- 
     this.currentFile=null;
     this.fileName = 'Select File';
   }
   selectFile(event: any): void {
+    console.log(event)
     if (event.target.files && event.target.files[0]) {
       const file: File = event.target.files[0];
       this.currentFile = file;
       this.fileName = this.currentFile.name;
+      if (!this.fileName.endsWith('.csv')) {
+        //throw new Error("file not found");
+        this.fileName = 'Invalid file';
+        this.currentFile = null;
+      }
     } else {
       this.fileName = 'Select File';
     }
