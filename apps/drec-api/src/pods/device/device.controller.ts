@@ -266,27 +266,34 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
       deviceToRegister.version = '1.0';
     }
-    return await this.deviceService.register(organizationId, deviceToRegister)
-      .catch((error) => {
-        console.log(error.error);
-        return error
-
-        //   if (error && error.code && error.detail) {
-        //     return new Promise((resolve, reject) => {
-        //       reject(
-        //         new ConflictException({
-        //           success: false,
-        //           message: error.detail,
-        //         }),
-        //       );
-        //     });
-        //   } else {
-        //     console.log("error", error);
-        //     return new Promise((resolve, reject) => {
-        //       reject({ error: true });
-        //     });
-        //}
-      });
+    return await this.deviceService.register(organizationId, deviceToRegister);
+      // .catch((error) => {
+      //   console.log(error.error);
+      // //  return error
+      //   return new Promise((resolve, reject) => {
+      //           reject(
+      //             new ConflictException({
+      //               success: false,
+      //               message: error,
+      //             }),
+      //           );
+      //         });
+      //   //   if (error && error.code && error.detail) {
+      //   //     return new Promise((resolve, reject) => {
+      //   //       reject(
+      //   //         new ConflictException({
+      //   //           success: false,
+      //   //           message: error.detail,
+      //   //         }),
+      //   //       );
+      //   //     });
+      //   //   } else {
+      //   //     console.log("error", error);
+      //   //     return new Promise((resolve, reject) => {
+      //   //       reject({ error: true });
+      //   //     });
+      //   //}
+      // });
 
     //}
     // catch(e)
