@@ -21,6 +21,7 @@ export class AddBulkDeviceComponent implements OnInit {
   fileInfos?: Observable<any>;
   showdevicesinfo: boolean = false;
   DevicestatusList: any = [];
+  loading:boolean=true;
   objectKeys = Object.keys;
   displayedColumns = [
     "serialno",
@@ -104,13 +105,15 @@ export class AddBulkDeviceComponent implements OnInit {
   }
   JobDisplayList() {
     this.showdevicesinfo = false;
+    this.loading=true;
     this.uploadService.getCsvJobList().subscribe(
       (data) => {
         // display list in the console 
-
+        this.loading=false;
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator
+        this.dataSource.sort = this.sort;
       }
     )
   }
@@ -126,7 +129,7 @@ export class AddBulkDeviceComponent implements OnInit {
         console.log(this.data);
         // this.data = data;
         this.dataSource1 = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator
+        this.dataSource1.paginator = this.paginator
 
       })
 

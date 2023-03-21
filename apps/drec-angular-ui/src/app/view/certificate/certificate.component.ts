@@ -139,10 +139,12 @@ export class CertificateComponent implements OnInit {
  // CertificateClaimed:boolean=false;
   DisplayList() {
     this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
-      (data) => {
+      (data:any) => {
         // display list in the console 
        
-        this.data = data;
+       // this.data = data;
+        //@ts-ignore
+        this.data= data.filter(ele=>ele!==null)
         //@ts-ignore
         this.data.forEach(ele=>{
           console.log(ele);

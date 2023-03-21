@@ -196,7 +196,7 @@ export class AddDevicesComponent {
     )
   }
   onSubmit() {
-    console.log(this.deviceForms);
+    console.log(this.deviceForms.value.length);
 
     this.deviceForms.value.forEach((element: any) => {
       console.log(element);
