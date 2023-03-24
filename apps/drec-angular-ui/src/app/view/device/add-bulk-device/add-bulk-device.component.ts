@@ -13,7 +13,7 @@ import { MatPaginator } from '@angular/material/paginator';
   styleUrls: ['./add-bulk-device.component.scss']
 })
 export class AddBulkDeviceComponent implements OnInit {
-  currentFile?: File;
+  currentFile?: File|null;
   progress = 0;
   message = '';
   pageSize: number = 10;
@@ -45,13 +45,25 @@ export class AddBulkDeviceComponent implements OnInit {
   data: any;
   ngOnInit(): void {
     this.JobDisplayList();
+    
   }
-
+  reset()
+  {
+   
+    this.currentFile=null;
+    this.fileName = 'Select File';
+  }
   selectFile(event: any): void {
+    console.log(event)
     if (event.target.files && event.target.files[0]) {
       const file: File = event.target.files[0];
       this.currentFile = file;
       this.fileName = this.currentFile.name;
+      if (!this.fileName.endsWith('.csv')) {
+        //throw new Error("file not found");
+        this.fileName = 'Invalid file';
+        this.currentFile = null;
+      }
     } else {
       this.fileName = 'Select File';
     }
@@ -73,6 +85,8 @@ export class AddBulkDeviceComponent implements OnInit {
               this.JobDisplayList();
              // this.selectFile()
               // this.readForm.reset();
+              this.currentFile=null;
+              this.fileName = 'Select File';
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
             },
             error: (err) => {                          //Error callback
