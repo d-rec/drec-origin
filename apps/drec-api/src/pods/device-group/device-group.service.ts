@@ -1543,7 +1543,7 @@ export class DeviceGroupService {
             });
             recordsErrors[j].isError = true;
             recordsErrors[j].errorsList.push(
-              { value: recordsCopy[j].externalId, property: "externalId", duplicateIndex: j, statusDuplicate: true, constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
+              { value: recordsCopy[j].externalId, property: "externalId",  constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
             );
           }
         }
