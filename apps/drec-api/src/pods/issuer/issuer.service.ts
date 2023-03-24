@@ -251,6 +251,7 @@ export class IssuerService {
           name: organization.name,
           blockchainAccountAddress: organization.blockchainAccountAddress,
         };
+      
         const Histroryread = await this.readservice.getCheckHistoryCertificateIssueDateLogForDevice(
           historydevice.device_externalid,
           historydevice.reservationStartDate,
@@ -291,9 +292,11 @@ export class IssuerService {
           }, 1000 * (historydevicerequestindex + 1));
 
         }
+       
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id);
 
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {
+           
           await this.deviceService.removeFromGroup(device.id, group.id);
         }
 
