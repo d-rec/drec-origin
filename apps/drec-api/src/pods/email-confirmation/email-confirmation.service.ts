@@ -27,7 +27,10 @@ export class EmailConfirmationService {
 
   public async create(user: User,inviteuser?:Boolean): Promise<EmailConfirmation> {
     const exists = await this.repository.findOne({
-      user: { email: user.email },
+      where:{
+        user: { email: user.email }
+      },
+      relations:['user']
     });
 
     if (exists) {
