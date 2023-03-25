@@ -895,6 +895,35 @@ export class IssuerService {
     });
   }
 
+  runONce:boolean=false;
 
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  autoClaim()
+  {
+    if(!this.runONce)
+    {
+      this.runONce = true;
+    }
+    else
+    {
+      return;
+    }
+    let claimData={
+      certificateId: 332,
+    claimData: {
+      beneficiary:'Beneficiary:' + "test beneficiary new update",
+      location: 'Location:' +"test location",
+      countryCode: 'Country Code:' +"TEST COUNTRY",
+      periodStartDate: 'Period Start Date:' +new Date().toISOString(),
+      periodEndDate: 'Period End Date:' +new Date().toISOString(),
+      purpose: 'Purpose:' +"test purpose"
+    },
+    forAddress: "0x21a77648a67aE4B29B45224450aeA69BEf7E9f9D",
+    energyValue: "40000"
+    };
+    this.offChainCertificateService.claim(claimData).then(result=>{
+      console.log("claim data",result);
+    })
+  }
 
 }
