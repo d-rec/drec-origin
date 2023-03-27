@@ -167,6 +167,7 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
+   console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata["developerExternalId"];
     return devicedata;
