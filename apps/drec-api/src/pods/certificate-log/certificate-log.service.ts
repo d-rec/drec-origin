@@ -15,11 +15,15 @@ import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
 import { DateTime } from 'luxon';
-import { CertificateWithPerdevicelog } from './dto'
+import { CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog } from './dto'
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto'
 import { grouplog } from './grouplog';
-import { issuercertificatelog } from './issuercertificate'
+import { issuercertificatelog } from './issuercertificate';
+import { OffChainCertificateService, IGetAllCertificatesOptions, ICertificateReadModel } from '@energyweb/origin-247-certificate';
+import { ICertificateMetadata } from '../../utils/types';
+
+
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
 }
@@ -33,6 +37,7 @@ export class CertificateLogService {
     @InjectRepository(Certificate) private readonly certificaterrepository: Repository<Certificate>,
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
+    private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
   ) { }
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
@@ -107,7 +112,7 @@ export class CertificateLogService {
           // claims:IsNull()
         }
       })
-   console.log(certifiedreservation);
+    console.log(certifiedreservation);
 
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
@@ -161,20 +166,108 @@ export class CertificateLogService {
       }),
     );
     //  console.log("res")
-   console.log(res);
+    console.log(res);
     return res;
   }
+
+  async getCertificatesUsingGroupIDVersionUpdateOrigin247(groupid: string): Promise<CertificateNewWithPerDeviceLog[]> {
+    let request: IGetAllCertificatesOptions = {
+      // generationEndFrom: new Date(1677671426*1000),
+      // generationEndTo: new Date(1677671426*1000),
+      //  generationStartFrom :new Date(1646622684*1000),
+      // generationStartTo: new Date(1648159894*1000),
+      // creationTimeFrom: Date;
+      //  creationTimeTo: Date;
+      deviceId: groupid
+    }
+    const certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
+    let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> = [];
+    certifiedreservation.forEach(ele => certificatesInReservationWithLog.push({ ...ele, perDeviceCertificateLog: [], certificateStartDate: '', certificateEndDate: '' }));
+
+    console.log(certifiedreservation);
+
+    await Promise.all(
+      certifiedreservation.map(async (certifiedlist: ICertificateReadModel<ICertificateMetadata>, index: number) => {
+        certificatesInReservationWithLog[index].certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
+        certificatesInReservationWithLog[index].certificateEndDate = new Date(certifiedlist.generationEndTime * 1000).toISOString();
+        certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
+        try {
+          if (typeof certifiedlist.metadata === "string") {
+            let data = JSON.parse(certifiedlist.metadata);
+          }
+        }
+        catch (e) {
+          console.error(e, "certificate doesnt contains valid metadata", certifiedlist);
+          return;
+        }
+
+        let obj;
+        if (typeof certifiedlist.metadata === "string") {
+          obj = JSON.parse(certifiedlist.metadata);
+        }
+        else {
+          obj = certifiedlist.metadata;
+        }
+
+        let certificateTransactionUID = obj.certificateTransactionUID;
+        //console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
+        /* Below note can be ignored for newer certificates as we added certificateTransactionUID which will overcome this issue as well
+        Please see note below regarding generationStartTime
+        node_modules\@energyweb\origin-247-certificate\dist\js\src\certificate.service.js
+            async issue(params) {
+            const command = {
+                ...params,
+                fromTime: Math.round(params.fromTime.getTime() / 1000),
+                toTime: Math.round(params.toTime.getTime() / 1000)
+            };
+            const job = await this.blockchainActionsQueue.add({
+                payload: command,
+                type: types_1.BlockchainActionType.Issuance
+            }, jobOptions);
+            const result = await this.waitForJobResult(job);
+            return this.mapCertificate(result);
+            }
+         */
+        const devicereadstartdate = new Date((certifiedlist.generationStartTime - 1) * 1000);//as rounding when certificate is issued by EWFs package reference kept above and removing millseconds 
+        const devicereadenddate = new Date((certifiedlist.generationEndTime + 1) * 1000);//going back 1 second in start and going forward 1 second in end
+        //console.log("changegetdate", devicereadstartdate, devicereadenddate)
+        await Promise.all(
+          obj.deviceIds.map(async (deviceid: number) => {
+            const device = await this.deviceService.findOne(deviceid);
+            const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
+            devicelog.forEach(singleDeviceLogEle => {
+              certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
+            });
+            //console.log(certifiedlist)
+            return devicelog;
+          })
+        );
+        //console.log("perDeviceCertificateLog");
+        return certificatesInReservationWithLog[index];
+      }),
+    );
+    return certificatesInReservationWithLog;
+  }
+
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
     startDate: Date,
-    endDate: Date): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-    const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
-      startDate,
-      endDate);
+    endDate: Date, certificateTransactionUID?: string): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+
     // console.log(query);
     // console.log("devicequery");
     try {
+      let devicelog;
 
-      const devicelog = await query.getRawMany();
+      if (certificateTransactionUID) {
+        devicelog = await this.getDevicelogFromTransactionUID(groupId, deviceid, certificateTransactionUID);
+      }
+      else {
+        const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
+          startDate,
+          endDate);
+        devicelog = await query.getRawMany();
+      }
+
       // console.log("devicelog");
       // console.log(devicelog);
       const reservedevices = devicelog.map((s: any) => {
@@ -225,6 +318,22 @@ export class CertificateLogService {
     //console.log(query.getQuery())
     return query;
   }
+
+  private getDevicelogFromTransactionUID(groupId: number, deviceId: string,
+    certificateTransactionUID: string
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    return this.repository.find(
+      {
+        where: {
+          groupId: groupId,
+          deviceid: deviceId,
+          certificateTransactionUID: certificateTransactionUID
+        }
+      })
+
+  }
+
+
   async getCertificaterForRedemptionRepot(groupid: string): Promise<Certificate[]> {
     const certifiedreservation = await this.certificaterrepository.find(
       {
@@ -234,7 +343,7 @@ export class CertificateLogService {
 
         }
       })
-   // console.log("certifiedreservation");
+    // console.log("certifiedreservation");
     //console.log(certifiedreservation);
     // const res = await Promise.all(
     //   certifiedreservation.map(async (certifiedlist: Certificate) => {
@@ -351,7 +460,7 @@ export class CertificateLogService {
   //         foundEle
   //       });
   //     }
-      
+
 
   //   });
   //   console.log(missingtoken);

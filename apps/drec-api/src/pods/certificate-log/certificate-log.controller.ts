@@ -29,7 +29,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog } from './dto'
+import { CertificateWithPerdevicelog,CertificateNewWithPerDeviceLog } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
@@ -117,6 +117,35 @@ export class CertificateLogController {
         }
 
         return this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
+    }
+
+    @Get('/issuer/certified/new/:groupUid')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
+    async getCertificatesFromUpdatedCertificateTables(
+        @Param('groupUid') groupuId: string,
+        @UserDecorator() user: ILoggedInUser,
+    ): Promise<CertificateNewWithPerDeviceLog[]> {
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+        if (groupuId === null || !regexExp.test(groupuId)) {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: ' Please Add the valid UID ,invalid group uid value was sent',
+                }))
+            })
+        }
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
+        if (devicegroup === null || devicegroup.buyerId != user.id) {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: 'Group UId is not of this buyer, invalid value was sent',
+                }))
+            })
+        }
+
+        return this.certificateLogService.getCertificatesUsingGroupIDVersionUpdateOrigin247(devicegroup.id.toString());
     }
 
     @Get('/redemption-report')
