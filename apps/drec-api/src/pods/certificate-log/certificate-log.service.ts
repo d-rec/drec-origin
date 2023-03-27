@@ -149,7 +149,12 @@ export class CertificateLogService {
           obj.deviceIds.map(async (deviceid: number) => {
             const device = await this.deviceService.findOne(deviceid);
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
-            devicelog.forEach(singleDeviceLogEle => {
+           console.log(devicelog)
+            devicelog.forEach(async(singleDeviceLogEle) => {
+              const device = await this.deviceService.findReads(
+                singleDeviceLogEle.deviceid
+              );
+              singleDeviceLogEle.deviceid = device.developerExternalId
               certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
             });
             //console.log(certifiedlist)
@@ -177,7 +182,8 @@ export class CertificateLogService {
       const devicelog = await query.getRawMany();
       // console.log("devicelog");
       // console.log(devicelog);
-      const reservedevices = devicelog.map((s: any) => {
+      const reservedevices = await devicelog.map((s: any) => {
+       
         const item: any = {
           id: s.issuelog_id,
           certificate_issuance_startdate: s.issuelog_certificate_issuance_startdate,
@@ -187,9 +193,10 @@ export class CertificateLogService {
           deviceid: s.issuelog_deviceid,
           groupId: s.issuelog_groupId
         };
+        console.log(item);
         return item;
       });
-
+      console.log(reservedevices)
       return reservedevices;
     } catch (error) {
       console.log(error)
@@ -289,25 +296,27 @@ export class CertificateLogService {
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 console.log(claims.claimData)
+
+
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
                   fuelCode: devicegroup?.fuelCode,
                   country: devicegroup?.countryCode,
                   capacityRange: devicegroup?.capacityRange,
-                  installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
-                  offTakers: devicegroup?.offTakers.join(),
-                  sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
+                 // installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
+                  offTakers: devicegroup?.offTakers.join().replace(',', ', '),
+                 // sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join().replace(',', ', '),
                   standardCompliance: devicegroup?.standardCompliance,
 
-                  redemptionDate: claims.claimData.periodStartDate,
+                  redemptionDate: claims.claimData.periodStartDate.substring(claims.claimData.periodStartDate.indexOf(":") + 1),
                   certifiedEnergy: claims.value / 10 ** 6,
-                  beneficiary: claims.claimData.beneficiary,
-                  beneficiary_address: claims.claimData.location,
-                  claimCoiuntryCode: claims.claimData.countryCode,
-                  purpose: claims.claimData.purpose
+                  beneficiary: claims.claimData.beneficiary.substring(claims.claimData.beneficiary.indexOf(":") + 1),
+                  beneficiary_address: claims.claimData.location.substring(claims.claimData.location.indexOf(":") + 1),
+                  claimCoiuntryCode: claims.claimData.countryCode.substring(claims.claimData.countryCode.indexOf(":") + 1),
+                  purpose: claims.claimData.purpose.substring(claims.claimData.purpose.indexOf(":") + 1)
                 });
               }),
             );
