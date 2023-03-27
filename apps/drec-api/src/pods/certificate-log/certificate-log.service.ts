@@ -257,9 +257,13 @@ export class CertificateLogService {
     // console.log("devicequery");
     try {
       let devicelog;
+      console.log("certificateTransactionUID",certificateTransactionUID);
+      console.log("certificateTransactionUID",devicelog);
 
       if (certificateTransactionUID) {
         devicelog = await this.getDevicelogFromTransactionUID(groupId, deviceid, certificateTransactionUID);
+        console.log("certificateTransactionUID",devicelog);
+        
       }
       else {
         const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
