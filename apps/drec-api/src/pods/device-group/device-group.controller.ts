@@ -177,7 +177,7 @@ export class DeviceGroupController {
     @Body() deviceGroupToRegister: AddGroupDTO,
   ): Promise<ResponseDeviceGroupDTO | null> {
 
-    //integer range which is for deviceId in device(id) table
+    //integer range which is for deviceId in device(id) table 
     //-2147483648 to +2147483647
     //https://www.postgresql.org/docs/9.1/datatype-numeric.html
 
