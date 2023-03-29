@@ -1132,10 +1132,13 @@ export class DeviceGroupService {
     });
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.get(
-      filesAddedForProcessing.fileId,
-      data,
-    );
+    const response= await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
+
+
+    // const response = await this.fileService.get(
+    //   filesAddedForProcessing.fileId,
+    //   data,
+    // );
     console.log(response);
     if (response == undefined) {
       return;
@@ -1346,7 +1349,7 @@ export class DeviceGroupService {
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
     console.log("into method");
-    // console.log(file.data.Body.toString('utf-8'));
+     console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1364,10 +1367,10 @@ export class DeviceGroupService {
 
       });
     console.log("file?.data.toString()", file?.data.toString());
-    //const filedata=file.data.Body.toString('utf-8')
-    this.csvStringToJSON(file?.data.toString());
+    const filedata=file.data.Body.toString('utf-8')
+    this.csvStringToJSON(filedata);
 
-    csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data: any, lineNumber: any) => {
+    csvtojsonV2().fromString(filedata).subscribe(async (data: any, lineNumber: any) => {
       ////console.log("csvLine",data,"sdsds",lineNumber);
       rowsConvertedToCsvCount++;
       data.images = [];
