@@ -19,35 +19,37 @@
 
         <form>
         <div class="example-container1 row">
-          <div class="col-md-3">
+          <!-- <div class="col-md-3">
             <mat-toolbar *ngIf="currentFile" class="progress-bar">
               <mat-progress-bar color="accent" [value]="progress"></mat-progress-bar>
               <span class="progress">{{ progress }}%</span>
             </mat-toolbar>
-          </div>
+          </div> -->
         </div>
         <div class="example-container1 row">
-          <div class="col-md-6">
+          <div class="col-md-3">
             <mat-form-field appearance="outline">
               <div>
                 <mat-toolbar>
-                  <input matInput [value]="fileName" />
+                  <input matInput [value]="fileName" (click)="openFileExplorer()"/>
 
-                  <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="upload()">
-                    Upload
-                  </button>&nbsp;
-                  <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="reset()">
-                    Clear
-                  </button>
                 </mat-toolbar>
                 <div class="d-flex justify-content-center">
-                  <input type="file"  id="fileInput" (change)="selectFile($event)" name="fileInput" />
+                  <input type="file"  hidden id="fileInput" (change)="selectFile($event)" name="fileInput" accept=".csv" />
 
                 </div>
 
                 
               </div>
             </mat-form-field>
+          </div>
+          <div class="col-md-6 upload-reset-buttons">
+            <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="upload()">
+              Upload
+            </button>&nbsp;
+            <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="reset()">
+              Clear
+            </button>
           </div>
         </div>
 

@@ -20,7 +20,7 @@ export class AddBulkDeviceComponent implements OnInit {
   progress = 0;
   message = '';
   pageSize: number = 10;
-  fileName = 'Select File';
+  fileName = 'Please click here to Select File';
   fileInfos?: Observable<any>;
   showdevicesinfo: boolean = false;
   DevicestatusList: any = [];
@@ -54,7 +54,7 @@ export class AddBulkDeviceComponent implements OnInit {
   }
   reset() {
     this.currentFile = null;
-    this.fileName = 'Select File';
+    this.fileName = 'Please click here to select file';
   }
   selectFile(event: any): void {
     console.log(event)
@@ -68,8 +68,16 @@ export class AddBulkDeviceComponent implements OnInit {
         this.currentFile = null;
       }
     } else {
-      this.fileName = 'Select File';
+      this.fileName = 'Please click here to Select File';
     }
+    event.target.value='';
+  }
+
+  openFileExplorer()
+  {
+    console.log("came here")
+    console.log(this.currentFile);
+    document.getElementById("fileInput")?.click();
   }
 
   upload(): void {
@@ -89,7 +97,7 @@ export class AddBulkDeviceComponent implements OnInit {
               // this.selectFile()
               // this.readForm.reset();
               this.currentFile = null;
-              this.fileName = 'Select File';
+              this.fileName = 'Please click here to Select File';
               this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
             },
             error: (err) => {                          //Error callback
@@ -115,7 +123,7 @@ export class AddBulkDeviceComponent implements OnInit {
             this.message = 'Could not upload the file!';
           }
 
-          this.currentFile = undefined;
+          this.currentFile = null;
         }
       );
     }
