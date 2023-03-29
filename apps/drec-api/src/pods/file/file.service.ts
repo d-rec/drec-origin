@@ -188,9 +188,11 @@ export class FileService {
   async uploadS3(file, bucket, name) {
     const s3 = this.getS3();
     console.log(`${uuid()}-${String(name)}`)
+    let a= name.substr(0,name.indexOf(".csv"))
+    console.log(a);
     const params = {
       Bucket: bucket,
-      Key: `${uuid()}-${String(name)}`,
+      Key: `${a}-${uuid()}.csv`,
       Body: file,
       ACL: 'public-read'
     };
