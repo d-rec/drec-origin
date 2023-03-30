@@ -252,18 +252,12 @@ export class CertificateLogService {
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date, certificateTransactionUID?: string): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-
-    // console.log(query);
-    // console.log("devicequery");
     try {
       let devicelog;
-      console.log("certificateTransactionUID",certificateTransactionUID);
-      console.log("certificateTransactionUID",devicelog);
 
       if (certificateTransactionUID) {
         devicelog = await this.getDevicelogFromTransactionUID(groupId, deviceid, certificateTransactionUID);
-        console.log("certificateTransactionUID",devicelog);
-        
+        return devicelog;
       }
       else {
         const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
