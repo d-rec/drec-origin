@@ -162,17 +162,11 @@ export class AddBulkDeviceComponent implements OnInit {
           this.router.navigate(['/device/edit/' + externalId]);
         } else {
           this.toastrService.error('device id has been updated', 'current external id not found!!');
-
-
         }
-
-
       },
       (error) => {                              //Error callback
         console.error('error caught in component', error)
         this.toastrService.error('device id has been updated', 'current external id not found!!');
-
-
       }
     );
 
