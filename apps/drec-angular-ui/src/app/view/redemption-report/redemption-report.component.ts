@@ -39,7 +39,7 @@ constructor(private ReservationService: ReservationService, private router: Rout
 
 }
 ngOnInit(): void {
-  this.dataSource = new MatTableDataSource(this.data.claims);
+ 
   this.DisplayRedemptionList()
 }
 DisplayRedemptionList() {
@@ -48,10 +48,7 @@ DisplayRedemptionList() {
       // display list in the console 
       console.log(data)
       this.data = data;
-      // this.data.forEach(ele =>{
-        
-
-      // })
+    
       this.dataSource = new MatTableDataSource(this.data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
