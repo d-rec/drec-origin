@@ -297,7 +297,7 @@ export class ReadsService {
       device,
     );
     console.log(filteredMeasurements);
-    // await this.newstoreGenerationReading(id, filteredMeasurements, device);
+     await this.newstoreGenerationReading(id, filteredMeasurements, device);
   }
 
 
@@ -630,20 +630,12 @@ export class ReadsService {
           );
 
           const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
-          console.log(checkhistroyreading)
+         // console.log(checkhistroyreading)
           //@ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           console.log("historyAge");
-          console.log(historyAge);
-          console.log("createdAt");
-          //@ts-ignore
-          console.log(new Date(device?.createdAt));
-          console.log("starttimestamp");
-          console.log(new Date(element.starttimestamp));
-
-          console.log("endtimestamp");
-          console.log(new Date(element.endtimestamp));
+          
           if (checkhistroyreading) {
             return reject(
               new ConflictException({
@@ -1040,7 +1032,6 @@ export class ReadsService {
 
       const device = await query.getRawMany();
 
-      console.log(device.length > 0);
       return device.length > 0;
     } catch (error) {
       console.log(error)
