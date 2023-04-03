@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./redemption-report.component.scss']
 })
 export class RedemptionReportComponent implements OnInit {
-data :any;
+data :any=[];
 displayedColumns = [
   'certificateId',
   'redemptionDate',
