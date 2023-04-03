@@ -138,7 +138,7 @@ export class CertificateComponent implements OnInit {
   }
  // CertificateClaimed:boolean=false;
   DisplayList() {
-    this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
+    this.authService.GetMethod('certificate-log/issuer/certified/new/'+this.group_uid).subscribe(
       (data:any) => {
         // display list in the console 
        
@@ -315,13 +315,14 @@ export class CertificateComponent implements OnInit {
     const daiWithSigner = daiContract.connect(signer);
     
     let claimData={
-      beneficiary:'Beneficiary:' + this.claimData.value.beneficiary,
-      location: 'Location:' +this.claimData.value.location,
-      countryCode: 'Country Code:' +this.claimData.value.countryCode,
-      periodStartDate: 'Period Start Date:' +new Date(this.selectedCertificateForClaim.generationStartTime*1000).toISOString(),
-      periodEndDate: 'Period End Date:' +new Date(this.selectedCertificateForClaim.generationEndTime*1000).toISOString(),
-      purpose: 'Purpose:' +this.claimData.value.purpose
+      beneficiary:'Beneficiary: '+this.claimData.value.beneficiary,
+      location: 'Location: '+this.claimData.value.location,
+      countryCode: 'Country Code: '+this.claimData.value.countryCode,
+      periodStartDate: 'Period Start Date: '+new Date(this.selectedCertificateForClaim.generationStartTime*1000).toISOString(),
+      periodEndDate: 'Period End Date: '+new Date(this.selectedCertificateForClaim.generationEndTime*1000).toISOString(),
+      purpose: 'Purpose: '+this.claimData.value.purpose
     }
+    console.log(claimData);
     daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount,this.selectedBlockchainAccount,this.selectedCertificateForClaim.id,this.formattedClaimAmount,this.encodeClaimData(claimData),this.encodeClaimData(claimData));
 
     setTimeout(() => {

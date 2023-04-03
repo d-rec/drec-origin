@@ -34,8 +34,8 @@ export class AddDevicesComponent {
   public stepSecond = 1;
  numberregex: RegExp =/[0-9]+(\.[0-9]*){0,1}/
   //public color: ThemePalette = 'primary';
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
-  devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
+  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,private deviceService: DeviceService, private router: Router, private toastrService: ToastrService) { }
 
   ngOnInit() {

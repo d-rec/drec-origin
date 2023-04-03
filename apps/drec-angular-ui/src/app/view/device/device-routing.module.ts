@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: 'AllList', component: AlldevicesComponent },
   { path: 'add', component: AddDevicesComponent },
   { path: 'bulk_upload', component: AddBulkDeviceComponent },
-  { path: 'edit', component: EditDeviceComponent },
+  { path: 'edit/:id', component: EditDeviceComponent },
 ];
 
 @NgModule({

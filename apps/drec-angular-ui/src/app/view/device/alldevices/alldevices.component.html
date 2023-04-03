@@ -78,7 +78,7 @@
             <th mat-header-cell *matHeaderCellDef>Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
               <!-- <button>certificate</button> -->
-              <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>edit</mat-icon></a>
+              <a  [routerLink]="['../edit/', row.externalId]"><mat-icon>edit</mat-icon></a>
               <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
 
             </td>

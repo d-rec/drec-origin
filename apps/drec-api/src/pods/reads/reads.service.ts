@@ -33,7 +33,7 @@ import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client'
 import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
 import { ReadStatus } from 'src/utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity'
-
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 import { ReadFilterDTO } from './dto/filter.dto'
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -296,8 +296,8 @@ export class ReadsService {
       roundedMeasurements,
       device,
     );
-    //console.log(filteredMeasurements);
-    await this.newstoreGenerationReading(id, filteredMeasurements, device);
+    console.log(filteredMeasurements);
+     await this.newstoreGenerationReading(id, filteredMeasurements, device);
   }
 
 
@@ -630,20 +630,12 @@ export class ReadsService {
           );
 
           const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
-          //console.log(checkhistroyreading)
+         // console.log(checkhistroyreading)
           //@ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
-          //console.log("historyAge");
-          //console.log(historyAge);
-          //console.log("createdAt");
-          //@ts-ignore
-          //console.log(new Date(device?.createdAt));
-          //console.log("starttimestamp");
-          //console.log(new Date(element.starttimestamp));
-
-          //console.log("endtimestamp");
-          //console.log(new Date(element.endtimestamp));
+          console.log("historyAge");
+          
           if (checkhistroyreading) {
             return reject(
               new ConflictException({
@@ -1040,7 +1032,6 @@ export class ReadsService {
 
       const device = await query.getRawMany();
 
-      //console.log(device.length > 0);
       return device.length > 0;
     } catch (error) {
       //console.log(error)
@@ -1052,8 +1043,8 @@ export class ReadsService {
   private getexisthistorydevcielogFilteredQuery(deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-      console.log(startDate);
-      console.log(endDate);
+    console.log(startDate);
+    console.log(endDate);
 
     //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
@@ -1205,14 +1196,14 @@ export class ReadsService {
     // return Math.round(read.value + margin * read.value) < maxEnergy;
   }
 
-  private NewhistoryvalidateEnergy(
+ async  NewhistoryvalidateEnergy(
     read: ReadDTO,
     device: DeviceDTO,
     requestmeteredTimePeriod: number,
     measurement: NewIntmediateMeterReadDTO,
     startdate: Date,
     enddate: Date
-  ): boolean {
+  ): Promise<boolean> {
     const computeMaxEnergy = (
       capacity: number,
       meteredTimePeriod: number,
@@ -1264,6 +1255,35 @@ export class ReadsService {
         readsStartDate: startdate,
         readsEndDate: enddate
       })
+      console.log("1267");
+      if (device.groupId != null) {
+        console.log("1269");
+        const historynextissue =   await this.deviceGroupService.getNextHistoryissuanceDevicelogafterreservation(
+            device.externalId,
+            device.groupId
+          );
+        
+        console.log("historynextissue");
+        console.log(historynextissue);
+        if (historynextissue != undefined) {
+          let stdate = new Date(startdate).getTime();
+          let eddate = new Date(enddate).getTime();
+          //@ts-ignore
+          let reservSdate = new Date(historynextissue.reservationStartDate).getTime();
+          console.log(reservSdate);
+          //@ts-ignore
+          let reservEdate = new Date(historynextissue.reservationEndDate).getTime();
+          console.log(reservEdate);
+          console.log((stdate >= reservSdate && stdate < reservEdate));
+          console.log(eddate <= reservEdate && eddate > reservSdate);
+          if ((stdate >= reservSdate && stdate < reservEdate) && (eddate <= reservEdate && eddate > reservSdate)) {
+            //@ts-ignore
+            this.deviceGroupService.HistoryUpdatecertificateissuedate(historynextissue.id, HistoryNextInssuanceStatus.Pending);
+          }
+
+        }
+
+      }
       return Math.round(read.value + margin * read.value) < maxEnergy;
     } else {
       throw new ConflictException({
@@ -1427,17 +1447,17 @@ export class ReadsService {
   }
   //add new funtion for get meterread api response for histroy read
 
-  async getAllRead(externalId, filter:ReadFilterDTO, device_onboarded): Promise<any> {
-   
+  async getAllRead(externalId, filter: ReadFilterDTO, device_onboarded): Promise<any> {
+
     let historyread = []
-   
+
     if ((filter.start <= device_onboarded && filter.end <= device_onboarded) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
-     //console.log("1431")
+      console.log("1431")
       const query = await this.getexisthistorydevcielogFilteredQuery(externalId,
         filter.start,
         filter.end);
-      //console.log("historyexistdevicequery");      
-      try {        
+      console.log("historyexistdevicequery");
+      try {
         const histroread = await query.getRawMany();
         await histroread.forEach(element => {
           historyread.push({
@@ -1452,15 +1472,15 @@ export class ReadsService {
         this.logger.error(`Failed to retrieve device`, error.stack);
         //  throw new InternalServerErrorException('Failed to retrieve users');
       }
-    }   
+    }
     const readsFilter: FilterDTO = {
       offset: 0,
       limit: 5000,
       start: device_onboarded.toString(),
       end: filter.end.toString(),
     };
-   const ongoing= await this.baseReadsService.find(externalId,readsFilter)
-    return {historyread,ongoing};
+    const ongoing = await this.baseReadsService.find(externalId, readsFilter)
+    return { historyread, ongoing };
 
   }
 }

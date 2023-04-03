@@ -53,11 +53,10 @@ export class EditDeviceComponent implements OnInit {
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService, private router: Router,
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute,) {
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.externalid = params['id'];
-
-
-    });
+    // this.activatedRoute.queryParams.subscribe(params => {
+    //   this.externalid = params['id'];
+    // });
+    this.externalid = this.activatedRoute.snapshot.params['id'];
   }
 
   ngOnInit() {

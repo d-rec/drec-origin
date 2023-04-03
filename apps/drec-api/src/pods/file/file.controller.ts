@@ -14,7 +14,7 @@ import {
   Body,
   UploadedFile,
   ConflictException,
-  
+
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
@@ -90,7 +90,7 @@ export class FileController {
     uploadedFiles: {
       files: Express.Multer.File[];
     },
-   // @Body() fileUploadDto: FileUploadDto,
+    // @Body() fileUploadDto: FileUploadDto,
   ) {
     // if(fileUploadDto.type!==undefined && fileUploadDto.type!==null && fileUploadDto.type==='csvDeviceBulkRegistration')
     // {
@@ -100,9 +100,15 @@ export class FileController {
     //   //@ts-ignore
     //   return jobCreated;
     // }
-   // console.log(uploadedFiles.files[0]);
-   // return await this.fileService.upload(uploadedFiles.files[0]);
-    return this.fileService.store(user, uploadedFiles.files);
+    console.log(uploadedFiles.files[0]);
+    return await Promise.all(
+      uploadedFiles.files.map(async (file) => {
+      let response:any=await this.fileService.upload(file);
+      return response.key;
+  })
+  )
+    // return await this.fileService.upload(uploadedFiles.files[0]);
+    //  return this.fileService.store(user, uploadedFiles.files);
   }
 
   @Get(':id')
@@ -193,13 +199,13 @@ export class FileController {
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploads(@UploadedFile() file) {
-    //console.log(file)
+    console.log(file)
     if (!supportedFiles.includes(file.mimetype)) {
-     // throw new Error('Unsupported file type');
+      // throw new Error('Unsupported file type');
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
-            success: false, 
+            success: false,
             message: 'Unsupported file type',
           }),
         );

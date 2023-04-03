@@ -232,8 +232,12 @@ export class DeviceGroupService {
   ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
     ////console.log(organizationId);
     return await this.repositoyCSVJobProcessing.find({
-      organizationId
-      //status:StatusCSV.Completed
+      where: { organizationId },
+
+      order: {
+        createdAt: 'DESC',
+      },
+
     });
   }
 
@@ -1128,11 +1132,14 @@ export class DeviceGroupService {
     });
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.get(
-      filesAddedForProcessing.fileId,
-      data,
-    );
-    //console.log(response);
+    const response= await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
+
+
+    // const response = await this.fileService.get(
+    //   filesAddedForProcessing.fileId,
+    //   data,
+    // );
+    console.log(response);
     if (response == undefined) {
       return;
     } else {
@@ -1342,7 +1349,7 @@ export class DeviceGroupService {
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
     console.log("into method");
-    // console.log(file.data.Body.toString('utf-8'));
+     console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1359,12 +1366,12 @@ export class DeviceGroupService {
 
 
       });
-    //console.log("file?.data.toString()", file?.data.toString());
-    //const filedata=file.data.Body.toString('utf-8')
-    this.csvStringToJSON(file?.data.toString());
+    console.log("file?.data.toString()", file?.data.toString());
+    const filedata=file.data.Body.toString('utf-8')
+    this.csvStringToJSON(filedata);
 
-    csvtojsonV2().fromString(file?.data.toString()).subscribe(async (data: any, lineNumber: any) => {
-      //////console.log("csvLine",data,"sdsds",lineNumber);
+    csvtojsonV2().fromString(filedata).subscribe(async (data: any, lineNumber: any) => {
+      ////console.log("csvLine",data,"sdsds",lineNumber);
       rowsConvertedToCsvCount++;
       data.images = [];
       data.groupId = null;
@@ -1543,7 +1550,7 @@ export class DeviceGroupService {
             });
             recordsErrors[j].isError = true;
             recordsErrors[j].errorsList.push(
-              { value: recordsCopy[j].externalId, property: "externalId",  constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
+              { value: recordsCopy[j].externalId, property: "externalId", constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
             );
           }
         }
@@ -1576,13 +1583,13 @@ export class DeviceGroupService {
       //@ts-ignore
 
       devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
-       
+
         //@ts-ignore
         successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.developerExternalId === ele.externalId) });
       })
-      
+
       recordsErrors.forEach((ele, index) => {
-         if (ele.isError === false) { ele["status"] = 'Success'; }
+        if (ele.isError === false) { ele["status"] = 'Success'; }
 
         else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => (successEle.externalId === ele.externalId && successEle.rowNumber === index))) {
           ele['status'] = 'Success with validation errors, please update fields';
@@ -1832,6 +1839,22 @@ export class DeviceGroupService {
       }
     });
   }
+  public async getNextHistoryissuanceDevicelogafterreservation(
+    developerExternalId:any,
+    groupId:any
+  ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
+    console.log(developerExternalId);
+    console.log(groupId);
+    console.log("result1844");
+    console.log("result1844");
+   const result=  await this.historynextissuancedaterepository.findOne({
+      device_externalid: developerExternalId,
+      groupId: groupId,
+      status: 'Completed'
+    });
+    console.log(result);
+    return result
+  }
 
   async getHistoryCertificateIssueDate(
     conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
@@ -1840,6 +1863,7 @@ export class DeviceGroupService {
   }
   async HistoryUpdatecertificateissuedate(
     id: number,
+    Status: HistoryNextInssuanceStatus
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
     ////console.log("HistoryUpdatecertificateissuedate")
     // await this.checkNameConflict(data.name);
@@ -1847,7 +1871,7 @@ export class DeviceGroupService {
     let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
     if (historynextdate) {
 
-      historynextdate.status = HistoryNextInssuanceStatus.Completed
+      historynextdate.status = Status
       updatedissuedatestatus = await this.historynextissuancedaterepository.save(historynextdate);
 
     }

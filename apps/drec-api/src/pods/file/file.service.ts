@@ -177,20 +177,22 @@ export class FileService {
 
 
   async upload(file) {
-    ////console.log(file);
+    console.log(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
     const result = await this.uploadS3(file.buffer, bucketS3, originalname);
-    ////console.log(result);
+    console.log(result);
     return result
   }
 
   async uploadS3(file, bucket, name) {
     const s3 = this.getS3();
-    //console.log(`${uuid()}-${String(name)}`)
+    console.log(`${uuid()}-${String(name)}`)
+    let a= name.substr(0,name.indexOf(".csv"))
+    console.log(a);
     const params = {
       Bucket: bucket,
-      Key: `${uuid()}-${String(name)}`,
+      Key: `${a}-${uuid()}.csv`,
       Body: file,
       ACL: 'public-read'
     };
@@ -200,7 +202,7 @@ export class FileService {
           Logger.error(err);
           reject(err.message);
         }
-        //console.log(data)
+        console.log(data)
         resolve(data
         );
       });
@@ -217,13 +219,13 @@ export class FileService {
 
 
   public async GetuploadS3(key: string) {
-    //console.log(key);
+    console.log(key);
 
     const s3 = this.getS3();
 
     // const fileInfo = await this.privateFilesRepository.findOne({ id: fileId }, { relations: ['owner'] });
     if (key) {
-      //console.log(key);
+      console.log(key);
       let response: any;
       return new Promise((resolve, reject) => {
         s3.getObject(
@@ -233,7 +235,7 @@ export class FileService {
               Logger.error(err);
               reject(err.message);
             }
-            //console.log(data)
+            console.log(data)
             resolve({
               data,
               filename: key
@@ -243,10 +245,10 @@ export class FileService {
       });
       // function (error, data) {
       //   if (error != null) {
-      //     //console.log(error);
+      //     console.log(error);
       //     // alert("Failed to retrieve an object: " + error);
       //   } else {
-      //    //console.log(data);
+      //    console.log(data);
       //     response= {
       //     data,
       //     filename: key
@@ -260,7 +262,7 @@ export class FileService {
       //     Logger.error(err);
       //     reject(err.message);
       //   }
-      //   //console.log(data)
+      //   console.log(data)
       //   resolve(data
       //   );
       //);

@@ -39,6 +39,7 @@ import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_met
 import { Device } from '../device';
 import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
 
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 
 @Injectable()
 export class IssuerService {
@@ -251,7 +252,18 @@ export class IssuerService {
           name: organization.name,
           blockchainAccountAddress: organization.blockchainAccountAddress,
         };
-      
+      //   console.log("history complete")
+      //   console.log(new Date().toString())
+      //   console.log(group.reservationEndDate)
+      //   console.log(new Date().getTime())
+      //   console.log(group.reservationEndDate.getTime())
+      //   if (new Date().getTime()>=group.reservationEndDate.getTime()) {
+      //     await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id,HistoryNextInssuanceStatus.Completed);
+        
+      //  }
+       //else if(group.reservationEndDate.getTime()<=)
+
+
         const Histroryread = await this.readservice.getCheckHistoryCertificateIssueDateLogForDevice(
           historydevice.device_externalid,
           historydevice.reservationStartDate,
@@ -293,8 +305,9 @@ export class IssuerService {
 
         }
        
-        await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id);
-
+        
+        await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id,HistoryNextInssuanceStatus.Completed);
+        
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {
            
           await this.deviceService.removeFromGroup(device.id, group.id);
