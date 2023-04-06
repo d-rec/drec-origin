@@ -22,6 +22,7 @@
         </mat-card-header>
         <hr>
         <mat-card-content>
+            <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
             <!-- <div class="mat-elevation-z8"> -->
             <table mat-table [dataSource]="dataSource" matSort>
 

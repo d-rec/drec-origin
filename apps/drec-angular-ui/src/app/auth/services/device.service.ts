@@ -27,4 +27,42 @@ export class DeviceService {
     return this.httpClient.patch<any>(this.url + 'device/'+id, data)
 
   }
+
+  GetUnreserveDevices() : Observable<any>{
+    return this.httpClient.get(this.url+'device/ungrouped/buyerreservation')
+  }
+  getfilterData(searchData:any): Observable<any> {
+    //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
+    let searchUrl = `${this.url}device/ungrouped/buyerreservation?`;
+
+    if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === ""||searchData.countryCode === null)) {
+      searchUrl += `country=${searchData.countryCode}`;
+    }
+
+    if (!(typeof searchData.fuelCode === "undefined" || searchData.fuelCode === ""||searchData.fuelCode === null)) {
+      searchUrl += `&fuelCode=${searchData.fuelCode}`;
+      
+    }
+
+    // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
+    // {
+    //   searchUrl+=`&Distance=${searchData.Distance}`;
+    // }
+
+    if (!(typeof searchData.deviceTypeCode === "undefined" || searchData.deviceTypeCode === ""||searchData.deviceTypeCode === null)) {
+      searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
+    }
+
+    if (!(typeof searchData.capacity === "undefined" || searchData.capacity === ""||searchData.capacity === null)) {
+      searchUrl += `&capacity=${searchData.capacity}`;
+    }
+    if (!(typeof searchData.offTaker === "undefined" || searchData.offTaker === ""||searchData.offTaker === null)) {
+      searchUrl += `&offTaker=${searchData.capacity}`;
+    }
+    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
+    //   searchUrl += `&GroupId=${searchData.GroupId}`;
+    // }
+    return this.httpClient.get(searchUrl);
+  }
+
 }

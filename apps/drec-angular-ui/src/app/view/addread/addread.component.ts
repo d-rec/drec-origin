@@ -75,7 +75,6 @@ export class AddreadComponent implements OnInit {
     this.deviceservice.GetMyDevices().subscribe(
       (data) => {
         // display list in the console 
-        console.log(data);
         this.data = data;
       }
     )
@@ -84,7 +83,6 @@ export class AddreadComponent implements OnInit {
     this.authService.GetMethod('meter-reads/time-zones').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data);
         this.timezonedata = data;
       }
     )

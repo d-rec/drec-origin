@@ -243,34 +243,20 @@ export class FileService {
             );
           })
       });
-      // function (error, data) {
-      //   if (error != null) {
-      //     console.log(error);
-      //     // alert("Failed to retrieve an object: " + error);
-      //   } else {
-      //    console.log(data);
-      //     response= {
-      //     data,
-      //     filename: key
-      //   };
-      //     return response
-      //     // alert("Loaded " + data.ContentLength + " bytes");
-      //   }
-      // }
-      // (err, data) => {
-      //   if (err) {
-      //     Logger.error(err);
-      //     reject(err.message);
-      //   }
-      //   console.log(data)
-      //   resolve(data
-      //   );
-      //);
-      //});
-
-
-      // return response;
+      
     }
     throw new NotFoundException();
   }
+
+  // public async getPrivateFile(key: string) {
+  //   const s3 = this.getS3();
+  // if (key) {
+
+  //     return s3.getSignedUrlPromise('getObject', {
+  //       Bucket: process.env.bucketname,
+  //       Key: key
+  //     })
+  //   }
+  //   throw new NotFoundException();
+  // }
 }

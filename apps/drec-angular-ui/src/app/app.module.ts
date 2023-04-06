@@ -20,6 +20,7 @@ import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 import { AddreadComponent } from './view/addread/addread.component';
+import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,6 +36,7 @@ import { AddreadComponent } from './view/addread/addread.component';
     WithoutloginlayoutComponent,
     RedemptionReportComponent,
     AddreadComponent,
+    AddReservationComponent,
     
   ],
   imports: [

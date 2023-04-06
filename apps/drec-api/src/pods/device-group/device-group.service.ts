@@ -233,11 +233,9 @@ export class DeviceGroupService {
     //console.log(organizationId);
     return await this.repositoyCSVJobProcessing.find({
       where: { organizationId },
-
       order: {
         createdAt: 'DESC',
       },
-
     });
   }
 
@@ -277,7 +275,6 @@ export class DeviceGroupService {
         updatedDeviceGroups.push(updatedGroup);
       }),
     );
-
     return updatedDeviceGroups;
   }
 
@@ -289,7 +286,6 @@ export class DeviceGroupService {
       where: { id: In(data.groupsIds), buyerId }
     });
     const updatedDeviceGroups: DeviceGroupDTO[] = [];
-
     await Promise.all(
       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
         if (deviceGroup.buyerId === buyerId) {
@@ -344,11 +340,10 @@ export class DeviceGroupService {
     let allDevicesHaveHistoricalIssuanceAndNoNextIssuance: boolean = false;
     devices.filter(ele => {
       if ((new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime()) && (new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime())) {
-        //console.log("device filter for history")
+
         return true;
       }
     }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true) : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
-    //console.log(allDevicesHaveHistoricalIssuanceAndNoNextIssuance)
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
       //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
       //there will be single device which will have next issuance
@@ -384,13 +379,6 @@ export class DeviceGroupService {
       } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
         hours = 91 * 24;
       }
-      //@ts-ignore
-      //console.log(hours);
-      //console.log(typeof data.reservationStartDate )
-
-      //console.log("startDate");
-      //console.log(startDate);
-      //@ts-ignore
       let newEndDate: string = '';
       let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
 
@@ -432,30 +420,18 @@ export class DeviceGroupService {
         else {
           newEndDate = nextMinimumCreatedAtString;
         }
-
-
       }
-
-
-
-      //console.log("end_date");
-      //console.log(end_date);
-
       const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
         start_date: startDate,
         end_date: newEndDate,
         groupId: group.id
       });
     }
-
     await Promise.all(
       devices.map(async (device: Device) => {
-        //console.log(typeof device.createdAt )
-        //console.log(data.reservationStartDate );
-        //console.log(device.createdAt);
+
         if (new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()) {
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
-
             groupId: group.id,
             device_externalid: device.externalId,
             reservationStartDate: data.reservationStartDate,
@@ -464,7 +440,6 @@ export class DeviceGroupService {
             status: HistoryNextInssuanceStatus.Pending
           });
         }
-
         return await this.deviceService.addGroupIdToDeviceForReserving(
           device,
           group.id
@@ -481,19 +456,11 @@ export class DeviceGroupService {
     buyerId?: number,
     buyerAddress?: string
   ): Promise<ResponseDeviceGroupDTO> {
-
     let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean: boolean = false;
-
-    //console.log("came here 461");
-
     let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
     let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> = [];
     devices.forEach(ele => ele.groupId != null ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id) : "");
-    //console.log(devices);
-    //@ts-ignore
     devices = devices.filter(ele => ele.groupId === null);
-    //console.log(devices);
-    //console.log("came here 465");
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
@@ -503,8 +470,6 @@ export class DeviceGroupService {
         }))
       })
     }
-    //console.log("came here 499");
-
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
@@ -521,7 +486,6 @@ export class DeviceGroupService {
     //   );
 
     // devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
-
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
@@ -530,25 +494,18 @@ export class DeviceGroupService {
           message = message + `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
         }
         message = message + `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
-
-
         reject(new ConflictException({
           success: false,
           message: message
         }))
       })
     }
-
-
-
     group.deviceIds.forEach(ele => {
       if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
         unavailableDeviceIds.push(ele);
-
       }
     });
-
     if (!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation) {
       if (!allDevicesAvailableforBuyerReservation) {
         smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
@@ -560,9 +517,6 @@ export class DeviceGroupService {
         })
       }
     }
-
-
-
     if (!group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration) {
       let aggregatedCapacity = 0;
       devices.forEach(ele => aggregatedCapacity = ele.capacity + aggregatedCapacity);
@@ -585,7 +539,6 @@ export class DeviceGroupService {
         })
       }
     }
-
     if (smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean === false) {
       let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices, group.name);
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
@@ -610,8 +563,6 @@ export class DeviceGroupService {
       // responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0 ? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ') : '';
       return responseDeviceGroupDTO;
     }
-
-
   }
 
   async createMultiple(
@@ -659,10 +610,8 @@ export class DeviceGroupService {
         if (index == devices.length - 1) {
           resolve(true);
         }
-
       })
     });
-
     if (!allDevicesAvailableforBuyerReservation) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -678,7 +627,6 @@ export class DeviceGroupService {
       }),
     );
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-
     const aggregatedCapacity = Math.floor(
       deviceGroup.devices.reduce(
         (accumulator, currentValue: DeviceDTO) =>
@@ -705,19 +653,15 @@ export class DeviceGroupService {
     data: DeviceIdsDTO,
   ): Promise<DeviceGroupDTO | void> {
     const deviceGroup = await this.findDeviceGroupById(id, organizationId);
-
     if (!data?.deviceIds?.length) {
       return;
     }
-
     await Promise.all(
       data.deviceIds.map(async (deviceId: number) => {
         await this.deviceService.removeFromGroup(deviceId, id);
       }),
     );
-
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-
     const aggregatedCapacity = Math.floor(
       deviceGroup.devices.reduce(
         (accumulator, currentValue: DeviceDTO) =>
@@ -747,18 +691,13 @@ export class DeviceGroupService {
     await this.checkNameConflict(data.name);
     let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
     if (User.id != deviceGroup.buyerId) {
-
       throw new UnauthorizedException({
         success: false,
         message: `Unable to update data. Unauthorized.`,
       });
-
     }
-
     deviceGroup = defaults(data, deviceGroup);
-    //console.log(deviceGroup.name)
     const updatedGroup = await this.repository.save(deviceGroup);
-
     updatedGroup.devices = await this.deviceService.findForGroup(
       deviceGroup.id,
     );
@@ -1132,7 +1071,7 @@ export class DeviceGroupService {
     });
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
-    const response= await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
+    const response = await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
 
 
     // const response = await this.fileService.get(
@@ -1349,7 +1288,7 @@ export class DeviceGroupService {
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
     console.log("into method");
-     console.log(file.data.Body.toString('utf-8'));
+    console.log(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1367,7 +1306,7 @@ export class DeviceGroupService {
 
       });
     console.log("file?.data.toString()", file?.data.toString());
-    const filedata=file.data.Body.toString('utf-8')
+    const filedata = file.data.Body.toString('utf-8')
     this.csvStringToJSON(filedata);
 
     csvtojsonV2().fromString(filedata).subscribe(async (data: any, lineNumber: any) => {
@@ -1477,7 +1416,13 @@ export class DeviceGroupService {
         } else {
           recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
         }
+        // if (singleRecord.externalId === undefined || singleRecord.externalId === null) {
+        //   recordsErrors[index].isError = true;
+        //   recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "externalId", constraints: { invalidCountryCode: "externalId should not be empty" } })
+
+        // }
         if (singleRecord.countryCode != undefined) {
+
           singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
@@ -1540,19 +1485,22 @@ export class DeviceGroupService {
       const duplicatesExternalId: any = [];
       for (let i = 0; i < recordsCopy.length - 1; i++) {
         for (let j = i + 1; j < recordsCopy.length; j++) {
-          if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
-            recordsCopy[j]['statusDuplicate'] = true;
-            duplicatesExternalId.push({
-              duplicateIndex: j,
-              duplicateWith: i,
-              projectName: records[j].projectName,
-              externalId: records[j].externalId
-            });
-            recordsErrors[j].isError = true;
-            recordsErrors[j].errorsList.push(
-              { value: recordsCopy[j].externalId, property: "externalId", constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
-            );
+          if (recordsCopy[i].externalId != null) {
+            if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
+              recordsCopy[j]['statusDuplicate'] = true;
+              duplicatesExternalId.push({
+                duplicateIndex: j,
+                duplicateWith: i,
+                projectName: records[j].projectName,
+                externalId: records[j].externalId
+              });
+              recordsErrors[j].isError = true;
+              recordsErrors[j].errorsList.push(
+                { value: recordsCopy[j].externalId, property: "externalId", constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
+              );
+            }
           }
+
         }
       }
       // console.log("duplicatesExternalId", duplicatesExternalId);
@@ -1840,14 +1788,14 @@ export class DeviceGroupService {
     });
   }
   public async getNextHistoryissuanceDevicelogafterreservation(
-    developerExternalId:any,
-    groupId:any
+    developerExternalId: any,
+    groupId: any
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     console.log(developerExternalId);
     console.log(groupId);
     console.log("result1844");
     console.log("result1844");
-   const result=  await this.historynextissuancedaterepository.findOne({
+    const result = await this.historynextissuancedaterepository.findOne({
       device_externalid: developerExternalId,
       groupId: groupId,
       status: 'Completed'

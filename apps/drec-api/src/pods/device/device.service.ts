@@ -584,7 +584,16 @@ export class DeviceService {
     where = { ...where, groupId: null };
 
     query.where = where;
-    return this.repository.find(query);
+    const unreservedevices = await this.repository.find(query)
+    const newunreservedevicesDevices = [];
+
+    await unreservedevices.map((device: Device) => {
+
+      device.externalId = device.developerExternalId
+      delete device["developerExternalId"];
+      newunreservedevicesDevices.push(device);
+    })
+    return newunreservedevicesDevices;
   }
 
 

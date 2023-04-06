@@ -107,7 +107,7 @@ export class CertificateLogService {
           // claims:IsNull()
         }
       })
-   console.log(certifiedreservation);
+    console.log(certifiedreservation);
 
     const res = await Promise.all(
       certifiedreservation.map(async (certifiedlist: CertificateWithPerdevicelog) => {
@@ -122,8 +122,6 @@ export class CertificateLogService {
           console.error(e, "certificate doesnt contains valid metadta", certifiedlist);
           return;
         }
-
-
         const obj = JSON.parse(certifiedlist.metadata);
         console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
         /* Please see note below regarding generationStartTime
@@ -149,24 +147,20 @@ export class CertificateLogService {
           obj.deviceIds.map(async (deviceid: number) => {
             const device = await this.deviceService.findOne(deviceid);
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
-           console.log(devicelog)
-            devicelog.forEach(async(singleDeviceLogEle) => {
-              const device = await this.deviceService.findReads(
-                singleDeviceLogEle.deviceid
-              );
+            console.log(devicelog)
+            devicelog.forEach(async (singleDeviceLogEle) => {
               singleDeviceLogEle.deviceid = device.developerExternalId
               certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
+
             });
-            //console.log(certifiedlist)
-            return devicelog;
+            //   return devicelog;
           })
         );
-        //console.log("perDeviceCertificateLog");
+       
         return certifiedlist;
       }),
     );
-    //  console.log("res")
-   console.log(res);
+    console.log(res)
     return res;
   }
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
@@ -175,15 +169,10 @@ export class CertificateLogService {
     const query = this.getdevicelogFilteredQueryWithGroupID(groupId, deviceid,
       startDate,
       endDate);
-    // console.log(query);
-    // console.log("devicequery");
     try {
 
       const devicelog = await query.getRawMany();
-      // console.log("devicelog");
-      // console.log(devicelog);
       const reservedevices = await devicelog.map((s: any) => {
-       
         const item: any = {
           id: s.issuelog_id,
           certificate_issuance_startdate: s.issuelog_certificate_issuance_startdate,
@@ -201,13 +190,11 @@ export class CertificateLogService {
     } catch (error) {
       console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
   private getdevicelogFilteredQueryWithGroupID(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
-    //  const { organizationName, status } = filterDto;
     const query = this.repository
       .createQueryBuilder("issuelog").
       where("issuelog.deviceId = :deviceid", { deviceid: deviceid })
@@ -225,11 +212,9 @@ export class CertificateLogService {
                   .orWhere("issuelog.certificate_issuance_enddate = :DeviceReadingEndDate ", { DeviceReadingEndDate: endDate })
               })
             )
-
         }),
       )
       .andWhere("issuelog.groupId = :groupId", { groupId: groupId })
-    //console.log(query.getQuery())
     return query;
   }
   async getCertificaterForRedemptionRepot(groupid: string): Promise<Certificate[]> {
@@ -238,45 +223,8 @@ export class CertificateLogService {
         where: {
           deviceId: groupid,
           claims: Not(IsNull())
-
         }
       })
-    console.log("certifiedreservation");
-    console.log(certifiedreservation);
-    // const res = await Promise.all(
-    //   certifiedreservation.map(async (certifiedlist: Certificate) => {
-    //     certifiedlist.certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
-    //     certifiedlist.certificateEndDate = new Date(certifiedlist.generationEndTime * 1000).toISOString();
-    //    certifiedlist.devices = [];
-
-    //     try {
-    //       JSON.parse(certifiedlist.metadata);
-    //     }
-    //     catch (e) {
-    //       console.error(e, "certificate doesnt contains valid metadta", certifiedlist);
-    //       return;
-    //     }
-    //     const obj = JSON.parse(certifiedlist.metadata);
-    //     console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
-
-
-    //     await Promise.all(
-    //       obj.deviceIds.map(async (deviceid: number) => {
-    //         const device = await this.deviceService.findOne(deviceid);
-    //         const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
-    //         devicelog.forEach(singleDeviceLogEle => {
-    //         certifiedlist.devices.push(device);
-    //         });
-    //         console.log(certifiedlist)
-    //         return device;
-    //       })
-    //     );
-    //     //console.log("perDeviceCertificateLog");
-    //     return certifiedlist;
-    //   }),
-    // );
-    //  console.log("res")
-    //console.log(res);
     return certifiedreservation;
   }
   async getCertificateRedemptionReport(buyerId: number): Promise<any[]> {
@@ -286,7 +234,6 @@ export class CertificateLogService {
     const res = await Promise.all(
       devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
         console.log(devicegroup.id.toString());
-
         const cert = await this.getCertificaterForRedemptionRepot(devicegroup.id.toString());
         console.log(cert)
         const res1 = await Promise.all(
@@ -296,21 +243,18 @@ export class CertificateLogService {
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 console.log(claims.claimData)
-
-
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
                   fuelCode: devicegroup?.fuelCode,
                   country: devicegroup?.countryCode,
                   capacityRange: devicegroup?.capacityRange,
-                 // installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
+                  // installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
                   offTakers: devicegroup?.offTakers.join().replace(',', ', '),
-                 // sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
+                  // sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join().replace(',', ', '),
                   standardCompliance: devicegroup?.standardCompliance,
-
                   redemptionDate: claims.claimData.periodStartDate.substring(claims.claimData.periodStartDate.indexOf(":") + 1),
                   certifiedEnergy: claims.value / 10 ** 6,
                   beneficiary: claims.claimData.beneficiary.substring(claims.claimData.beneficiary.indexOf(":") + 1),
@@ -360,7 +304,7 @@ export class CertificateLogService {
   //         foundEle
   //       });
   //     }
-      
+
 
   //   });
   //   console.log(missingtoken);
