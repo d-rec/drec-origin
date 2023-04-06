@@ -84,7 +84,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">value</mat-label>
-                                    <input matInput placeholder="capacity" type="number" formControlName='value' min="1" autocomplete="off">
+                                    <input matInput placeholder="Read value" type="number" formControlName='value' min="1" autocomplete="off">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -93,7 +93,7 @@
                             <div class="col-md-3" *ngIf="hidestarttime">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">starttimestamp </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a startdate"
                                         formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
@@ -105,7 +105,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">endtimestamp </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a enddate"
                                         formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate" autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"

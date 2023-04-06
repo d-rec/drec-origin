@@ -24,7 +24,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">capacity</mat-label>
+                            <mat-label class="text-capitalize">Capacity(KW)</mat-label>
 
                             <input matInput placeholder="targetCapacityInMegaWattHour" type="number"
                                 formControlName='targetCapacityInMegaWattHour' min="1" autocomplete="off">
@@ -64,7 +64,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">frequency</mat-label>
+                            <mat-label class="text-capitalize">Frequency</mat-label>
                             <mat-select formControlName='frequency' placeholder="frequency">
 
                                 <mat-option *ngFor="let f of frequency" [value]="f">
@@ -76,7 +76,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">blockchainAddress</mat-label>
+                            <mat-label class="text-capitalize">BlockchainAddress</mat-label>
 
                             <input matInput placeholder="blockchainAddress" type="text"
                                 formControlName='blockchainAddress'  autocomplete="off">
@@ -87,7 +87,7 @@
 
                         <mat-radio-group
                             formControlName='continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'>
-                            <span>continuw witn some device unavailabe in reservation:</span>
+                            <span>Continue witn some device unavailabe in reservation:</span>
                             <br>
                             <mat-radio-button [value]=true checked>True</mat-radio-button>
                             <mat-radio-button [value]=false>False</mat-radio-button>
@@ -102,7 +102,7 @@
 
                         <mat-radio-group
                             formControlName='continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'>
-                            <span>continuw witn TagretCapacity:</span>
+                            <span>Continue witn Tagret Capacity:</span>
                             <br>
                             <mat-radio-button [value]=true checked>True</mat-radio-button>
                             <mat-radio-button [value]=false>False</mat-radio-button>
@@ -240,8 +240,7 @@
                                 <!-- Position Column -->
                                 <ng-container matColumnDef="onboarding_date">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> OnBoarding Date </th>
-                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMM
-                                        yyyy hh:mm:ss'}} </td>
+                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMM yyyy hh:mm:ss'}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="projectName">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> projectName </th>
