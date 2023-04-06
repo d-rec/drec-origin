@@ -213,4 +213,21 @@ export class FileController {
     }
     return await this.fileService.upload(file);
   }
+
+  // @Get('s3files/:id')
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: FileDto,
+  //   description: 'Download a file anonymously',
+  // })
+  // @ApiNotFoundResponse({ description: `The file doesn't exist` })
+  // async getPrivateFile(
+  //  // @Req() request: RequestWithUser,
+  //  @Param('id') key: string,
+  //  // @Res() res: Response
+  // ) {
+  //   const file = await this.fileService.getPrivateFile( key);
+  //   console.log(file);
+  //   return {file}
+  // }
 }
