@@ -138,7 +138,7 @@ export class CertificateComponent implements OnInit {
   }
  // CertificateClaimed:boolean=false;
   DisplayList() {
-    this.authService.GetMethod('certificate-log/issuer/certified/new/'+this.group_uid).subscribe(
+    this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data:any) => {
         // display list in the console 
        

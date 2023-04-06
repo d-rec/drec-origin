@@ -11,7 +11,7 @@ import {CertificateDetailsComponent} from './view/certificate-details/certificat
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
-
+import {AddReservationComponent} from './view/add-reservation/add-reservation.component'
 const routes: Routes = [
 
 
@@ -47,8 +47,10 @@ const routes: Routes = [
       },
       {
         path: 'redemption-report', component:RedemptionReportComponent
+      },
+      {
+        path: 'add/reservation', component:AddReservationComponent
       }
-      
     ]
   }
 ];
