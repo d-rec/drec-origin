@@ -16,6 +16,7 @@
 
 		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
+		 <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 	<ng-container *ngFor="let item of data">
 		
 		<mat-card  class="innermat-card example-card1 border" >

@@ -115,8 +115,10 @@ export class CertificateLogController {
                 }))
             })
         }
-
-        return this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
+        // setTimeout(() => {
+          
+        // }, 2000)
+        return await this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
     }
 
     @Get('/issuer/certified/new/:groupUid')

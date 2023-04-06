@@ -57,7 +57,7 @@ export class MyreservationComponent implements OnInit {
   pageSize: number = 20;
   showdevicesinfo: boolean = false;
   DevicesList: any;
-  isLoadingResults = false;
+  isLoadingResults:boolean=true;
   countrylist: any;
   fuellist: any;
   devicetypelist: any;
@@ -132,6 +132,7 @@ export class MyreservationComponent implements OnInit {
 
 
         })
+        this.isLoadingResults=false;
         this.dataSource = new MatTableDataSource(this.data);
         console.log(this.dataSource);
         this.dataSource.paginator = this.paginator;

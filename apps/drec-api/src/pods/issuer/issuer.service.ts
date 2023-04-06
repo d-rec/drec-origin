@@ -233,7 +233,7 @@ export class IssuerService {
   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
-    //console.log(historydevicerequestall);
+   // console.log(historydevicerequestall);
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate, historydevicerequestindex: number) => {
 
@@ -257,13 +257,6 @@ export class IssuerService {
       //   console.log(group.reservationEndDate)
       //   console.log(new Date().getTime())
       //   console.log(group.reservationEndDate.getTime())
-      //   if (new Date().getTime()>=group.reservationEndDate.getTime()) {
-      //     await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id,HistoryNextInssuanceStatus.Completed);
-        
-      //  }
-       //else if(group.reservationEndDate.getTime()<=)
-
-
         const Histroryread = await this.readservice.getCheckHistoryCertificateIssueDateLogForDevice(
           historydevice.device_externalid,
           historydevice.reservationStartDate,

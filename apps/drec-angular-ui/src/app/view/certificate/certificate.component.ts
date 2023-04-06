@@ -60,7 +60,7 @@ export class CertificateComponent implements OnInit {
   countrylist:any;
   maxDate = new Date();
   filteredOptions: Observable<any>;
-
+  loading:boolean=true;
   constructor(private blockchainDRECService:BlockchainDrecService ,private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService:ToastrService,private bottomSheet: MatBottomSheet,
     private fb: FormBuilder) {
 
@@ -138,8 +138,9 @@ export class CertificateComponent implements OnInit {
   }
  // CertificateClaimed:boolean=false;
   DisplayList() {
-    this.authService.GetMethod('certificate-log/issuer/certified/new/'+this.group_uid).subscribe(
+    this.authService.GetMethod('certificate-log/issuer/certified/'+this.group_uid).subscribe(
       (data:any) => {
+        this.loading=false;
         // display list in the console 
        
        // this.data = data;
@@ -166,30 +167,7 @@ export class CertificateComponent implements OnInit {
             }
           }
           })
-       // this.dataSource = new MatTableDataSource(this.data);
-        //this.dataSource.paginator = this.paginator
-        console.log(data);
-        let deviceExternalIdinCertificates:any =[];
-        //@ts-ignore
-        this.data.forEach(ele=>{
-            if(ele.perDeviceCertificateLog && ele.perDeviceCertificateLog.length> 0)
-            {
-              //@ts-ignore
-                ele.perDeviceCertificateLog.forEach(ele=>{
-                  //@ts-ignore
-                    if(!deviceExternalIdinCertificates.find(de=>de===ele.deviceid))
-                    {
-                      this.authService.GetMethod('device/externalId/'+ele.deviceid).subscribe(
-                        (data1) => {
-                          console.log(data1);
-                        deviceExternalIdinCertificates.push(ele.deviceid);
-                      }
-
-                      )
-                    }
-                })
-            }
-        })
+     
       }
 
     )
