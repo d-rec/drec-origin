@@ -1346,11 +1346,11 @@ export class ReadsService {
     const query = this.gethistorydevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
-    console.log("devicequery");
+    //console.log("devicequery");
     try {
 
       const device = await query.getRawMany();
-      console.log(device);
+     // console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
           id: s.devicehistory_id,

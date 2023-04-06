@@ -166,6 +166,7 @@ export class DeviceController {
   async getByExternalId(@Param('id') id: string,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
+    console.log(id);
     const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
    console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
