@@ -39,7 +39,7 @@ export class AddReservationComponent {
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
-  loading: boolean = true;
+  loading: boolean = false;
   selection = new SelectionModel<any>(true, []);
   reservationForm: FormGroup;
   // startmaxDate = new Date();
@@ -94,7 +94,7 @@ export class AddReservationComponent {
         this.countrycodeLoded = true;
       }
     )
-    this.getDeviceListData();
+   // this.getDeviceListData();
     console.log("myreservation");
 
     // setTimeout(() => this.DisplayList(), 10000);
@@ -108,7 +108,7 @@ export class AddReservationComponent {
   reset() {
     this.FilterForm.reset();
     
-    this.getDeviceListData();
+   // this.getDeviceListData();
     this.selection.clear();
   }
 
@@ -189,7 +189,7 @@ export class AddReservationComponent {
         //   //@ts-ignore
         //   this.selection.selected.forEach(ele=>data.find(ele1 => ele1.id != ele.countryCode)data.unsift(ele))
         // }
-
+           this.loading=true;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
             //@ts-ignore

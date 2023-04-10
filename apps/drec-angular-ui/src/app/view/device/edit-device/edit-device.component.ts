@@ -68,7 +68,7 @@ export class EditDeviceComponent implements OnInit {
     this.getDeviceinfo();
     this.date = new Date();
     this.myform = this.fb.group({
-      externalId: [null, Validators.required],
+      externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       //newexternalId: [null, Validators.required],
       projectName: [null],
       address: [null],
@@ -101,7 +101,15 @@ export class EditDeviceComponent implements OnInit {
 
 
   }
+ checkValidation(input: string) {
+    const validation = this.myform.get(input)?.invalid && (this.myform.get(input)?.dirty || this.myform.get(input)?.touched)
+    return validation;
+  }
+  emaiErrors() {
+    return this.myform.get('externalId')?.hasError('required') ? 'This field is required' :
+      this.myform.get('externalId')?.hasError('pattern') ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between' : ''
 
+  }
   DisplayList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
