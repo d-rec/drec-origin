@@ -1492,7 +1492,7 @@ export class DeviceGroupService {
         console.log(recordsCopy[i].externalId);
         for (let j = i + 1; j < recordsCopy.length; j++) {
           console.log(recordsCopy[j].externalId);
-          if (recordsCopy[i].externalId != null&& recordsCopy[j].externalId != null) {
+          if (recordsCopy[i].externalId != null && recordsCopy[j].externalId != null) {
             if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
               recordsCopy[j]['statusDuplicate'] = true;
               duplicatesExternalId.push({
