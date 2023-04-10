@@ -32,7 +32,7 @@ import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO,UpdateChangePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO, UpdateChangePasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 
@@ -44,7 +44,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
-  ) {}
+  ) { }
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
@@ -83,10 +83,10 @@ export class UserController {
   // ): Promise<UserDTO> {
   //   return this.userService.create(userRegistrationData);
   // }
-// add new for adding user with organization
-  
+  // add new for adding user with organization
 
-   @Post('registerWithOrganization')
+
+  @Post('registerWithOrganization')
   @ApiBody({ type: CreateUserORGDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -96,38 +96,38 @@ export class UserController {
   public async newregister(
     @Body() userRegistrationData: CreateUserORGDTO,
   ): Promise<UserDTO> {
-//console.log(userRegistrationData);
-if(userRegistrationData.organizationType === '' ||userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined  ){
-  return new Promise((resolve, reject) => {
-    reject(
-      new ConflictException({
-        success: false,
-        message: `organizationType should not be empty`,
-      })
-    );
-  });
-}
+    console.log(userRegistrationData);
+    if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `organizationType should not be empty`,
+          })
+        );
+      });
+    }
 
-if( userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer"){
-  return new Promise((resolve, reject) => {
-    reject(
-      new ConflictException({
-        success: false,
-        message: `organizationType value should be Developer/Buyer`,
-      })
-    );
-  });
-}
-if(userRegistrationData.orgName.trim() === "" ){
-  return new Promise((resolve, reject) => {
-    reject(
-      new ConflictException({
-        success: false,
-        message: `orgName should not be empty`,
-      })
-    );
-  });
-}
+    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `organizationType value should be Developer/Buyer`,
+          })
+        );
+      });
+    }
+    if (userRegistrationData.orgName.trim() === "") {
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `orgName should not be empty`,
+          })
+        );
+      });
+    }
     return this.userService.newcreate(userRegistrationData);
   }
 
@@ -185,7 +185,7 @@ if(userRegistrationData.orgName.trim() === "" ){
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
   }
-  
+
   @Put('reset/password/:token')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({

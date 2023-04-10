@@ -55,6 +55,10 @@
                                     <input matInput placeholder="name" formControlName='externalId'>
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
+                                    <mat-error class="pb-3" *ngIf="checkValidation('email')">
+                                        {{ emaiErrors() }}
+    
+                                    </mat-error>
                                 </mat-form-field>
                             </div>
 

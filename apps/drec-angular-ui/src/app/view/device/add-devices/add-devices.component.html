@@ -60,7 +60,11 @@
                                             <mat-label class="text-capitalize">External ID</mat-label>
                                             <input matInput placeholder="name" formControlName='externalId'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
+                                            <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
+                                            <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
+                                                {{ emaiErrors() }}
+            
+                                            </mat-error> -->
                                         </mat-form-field>
                                     </div>
 

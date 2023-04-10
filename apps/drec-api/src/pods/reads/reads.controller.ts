@@ -274,7 +274,17 @@ export class ReadsController extends BaseReadsController {
                   })
                 }
               }
+              if (new Date(ele[key]).getTime() > new Date().getTime()) {
+               
+                const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
+                throw new ConflictException({
+                  success: false,
+                  message: `One or more measurements endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
+                })
+
+
+              }
               //@ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
@@ -453,7 +463,7 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreAfterCreatedAt: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
-          if (new Date(ele.endtimestamp).getTime() < new Date(device.createdAt).getTime()) {
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.createdAt).getTime()) {
             allDatesAreAfterCreatedAt = false;
           }
         }
@@ -463,7 +473,7 @@ export class ReadsController extends BaseReadsController {
           reject(
             new ConflictException({
               success: false,
-              message: `One or more measurements endtimestamp is less than device onboarding date${device?.createdAt}`,
+              message: `One or more measurements endtimestamp is less than or equal to device onboarding date${device?.createdAt}`,
             })
           );
         });
