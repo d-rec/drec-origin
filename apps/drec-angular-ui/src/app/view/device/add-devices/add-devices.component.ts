@@ -56,7 +56,7 @@ export class AddDevicesComponent {
     this.shownomore[0] = false;
     this.myform.valueChanges.subscribe(console.log);
     const device = this.fb.group({
-      externalId: [null, Validators.required],
+      externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       projectName: [null],
       address: [null],
       latitude: [null,Validators.pattern(this.numberregex)],
@@ -85,6 +85,15 @@ export class AddDevicesComponent {
   get deviceForms() {
     return this.myform.get('devices') as FormArray
   }
+  // checkValidation(input: string) {
+  //   const validation = this.deviceForms.get(input)?.invalid && (this.deviceForms.get(input)?.dirty || this.deviceForms.get(input)?.touched)
+  //   return validation;
+  // }
+  // emaiErrors() {
+  //   return this.myform.get('device').get('externalId')?.hasError('required') ? 'This field is required' :
+  //     this.myform.get('email')?.hasError('pattern') ? 'Not a valid emailaddress' : ''
+
+  // }
   onSDGBRemoved(topping: string, i: number) {
     const toppings: any = this.myform.get('devices') as FormArray
     const sdgb = toppings[i].SDGBenefits.value as string[];
@@ -100,7 +109,7 @@ export class AddDevicesComponent {
   }
   adddevice() {
     const device = this.fb.group({
-      externalId: [null, Validators.required],
+      externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       projectName: [null],
       address: [null],
       latitude: [null,Validators.pattern(this.numberregex)],

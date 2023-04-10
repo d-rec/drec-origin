@@ -24,6 +24,10 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
+  @Matches(/^[a-zA-Z\d\-_\s]+$/, {
+    message:
+      'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
+  })
   externalId?: string;
   
   @IsOptional()

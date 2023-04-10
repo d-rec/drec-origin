@@ -1416,10 +1416,15 @@ export class DeviceGroupService {
         } else {
           recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
         }
-        // if (singleRecord.externalId === undefined || singleRecord.externalId === null) {
-        //   recordsErrors[index].isError = true;
-        //   recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "externalId", constraints: { invalidCountryCode: "externalId should not be empty" } })
-
+        // if (singleRecord.externalId != undefined || singleRecord.externalId != null) {
+        //   const Regex = /^[a-zA-Z\d\-_\s]+$/;
+         
+        //   if(!Regex.test(singleRecord.externalId)){
+        //     recordsErrors[index].isError = true;
+        //     recordsErrors[index].errorsList.push({ value: singleRecord.externalId, property: "externalId", constraints: { invalidExternalId: "external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between" } })
+  
+        //   }
+          
         // }
         if (singleRecord.countryCode != undefined) {
 
@@ -1484,8 +1489,10 @@ export class DeviceGroupService {
       recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
       const duplicatesExternalId: any = [];
       for (let i = 0; i < recordsCopy.length - 1; i++) {
+        console.log(recordsCopy[i].externalId);
         for (let j = i + 1; j < recordsCopy.length; j++) {
-          if (recordsCopy[i].externalId != null) {
+          console.log(recordsCopy[j].externalId);
+          if (recordsCopy[i].externalId != null && recordsCopy[j].externalId != null) {
             if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
               recordsCopy[j]['statusDuplicate'] = true;
               duplicatesExternalId.push({

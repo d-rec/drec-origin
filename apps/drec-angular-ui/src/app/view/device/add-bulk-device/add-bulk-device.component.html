@@ -164,9 +164,10 @@
               <div *ngIf="!element.errorsList.length">
                 <p>No Error</p>
               </div>
-              <div *ngFor="let errors of element.errorsList">
-                <p *ngFor="let item of errors.constraints | keyvalue">
-                  {{item.value}}
+              <div *ngFor="let errors of element.errorsList; let j=index">
+               
+                <p *ngFor="let item of errors.constraints | keyvalue;let k=index" >
+                  <span  *ngIf="k==0">{{j+1}}.</span> {{item.value}}
 
                 </p>
               </div>

@@ -168,7 +168,7 @@ export class DeviceController {
   ): Promise<DeviceDTO | null> {
     console.log(id);
     const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
-   console.log(devicedata);
+    console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata["developerExternalId"];
     return devicedata;
@@ -199,6 +199,8 @@ export class DeviceController {
         );
       });
     }
+
+ 
     if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
@@ -269,33 +271,33 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
-      // .catch((error) => {
-      //   console.log(error.error);
-      // //  return error
-      //   return new Promise((resolve, reject) => {
-      //           reject(
-      //             new ConflictException({
-      //               success: false,
-      //               message: error,
-      //             }),
-      //           );
-      //         });
-      //   //   if (error && error.code && error.detail) {
-      //   //     return new Promise((resolve, reject) => {
-      //   //       reject(
-      //   //         new ConflictException({
-      //   //           success: false,
-      //   //           message: error.detail,
-      //   //         }),
-      //   //       );
-      //   //     });
-      //   //   } else {
-      //   //     console.log("error", error);
-      //   //     return new Promise((resolve, reject) => {
-      //   //       reject({ error: true });
-      //   //     });
-      //   //}
-      // });
+    // .catch((error) => {
+    //   console.log(error.error);
+    // //  return error
+    //   return new Promise((resolve, reject) => {
+    //           reject(
+    //             new ConflictException({
+    //               success: false,
+    //               message: error,
+    //             }),
+    //           );
+    //         });
+    //   //   if (error && error.code && error.detail) {
+    //   //     return new Promise((resolve, reject) => {
+    //   //       reject(
+    //   //         new ConflictException({
+    //   //           success: false,
+    //   //           message: error.detail,
+    //   //         }),
+    //   //       );
+    //   //     });
+    //   //   } else {
+    //   //     console.log("error", error);
+    //   //     return new Promise((resolve, reject) => {
+    //   //       reject({ error: true });
+    //   //     });
+    //   //}
+    // });
 
     //}
     // catch(e)
@@ -340,6 +342,23 @@ export class DeviceController {
           new ConflictException({
             success: false,
             message: `externalId should not be empty`,
+          })
+        );
+      });
+    }
+    const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+      deviceToUpdate.externalId,
+      user.organizationId
+    );
+    console.log(checkexternalid)
+    if (checkexternalid != undefined) {
+      console.log("236");
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `ExternalId already exist in this organization, can't update with same external id ${ deviceToUpdate.externalId}`,
+
           })
         );
       });
