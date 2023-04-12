@@ -17,7 +17,8 @@ import {
   Post,
   Query,
   UseGuards,
-  ConflictException
+  ConflictException,
+  HttpException
 } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -39,6 +40,7 @@ import * as momentTimeZone from 'moment-timezone';
 import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
