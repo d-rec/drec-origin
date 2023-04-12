@@ -372,7 +372,7 @@ export class DeviceGroupService {
       const frequency = group.frequency.toLowerCase();
       if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
         hours = 1 * 24;
-      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monthly) {
         hours = 30 * 24;
       } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
         hours = 7 * 24;
@@ -1450,10 +1450,20 @@ export class DeviceGroupService {
             recordsErrors[index].isError = true;
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
+          if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
+           
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commissioning date, commissioning is greater than current date" } })
+         
+          }
         }
         if (singleRecord.capacity <= 0) {
           recordsErrors[index].isError = true;
           recordsErrors[index].errorsList.push({ value: singleRecord.capacity, property: "capacity", constraints: { greaterThanZero: "Capacity should be greater than 0" } })
+        }
+        if (singleRecord.energyStorageCapacity < 0) {
+          recordsErrors[index].isError = true;
+          recordsErrors[index].errorsList.push({ value: singleRecord.energyStorageCapacity, property: "energyStorageCapacity", constraints: { greaterThanZero: "Energy Storage Capacity should be greater than 0" } })
         }
       }
 

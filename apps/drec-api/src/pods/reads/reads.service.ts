@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, ConflictException ,HttpException} from '@nestjs/common';
 import { FindOneOptions, Repository, Brackets, SelectQueryBuilder, In, FindConditions, Any } from 'typeorm';
 
 import axios from 'axios';
@@ -1445,43 +1445,179 @@ export class ReadsService {
     })
 
   }
-  //add new funtion for get meterread api response for histroy read
 
-  async getAllRead(externalId, filter: ReadFilterDTO, device_onboarded): Promise<any> {
 
-    let historyread = []
+  async getAllRead(externalId, filter, deviceOnboarded, pageNumber: number): Promise<any> {
+  if (new Date(filter.start).getTime() == new Date(filter.end).getTime()) {
+    throw new HttpException('The given start and end timestamps are the same', 400)
+  }
+  let historyread = [];
+  let ongoing = [];
+  console.log("page number:::::::::::::::::::::::::::::::::::::::::::" + pageNumber)
 
-    if ((filter.start <= device_onboarded && filter.end <= device_onboarded) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
-      console.log("1431")
-      const query = await this.getexisthistorydevcielogFilteredQuery(externalId,
-        filter.start,
-        filter.end);
-      console.log("historyexistdevicequery");
-      try {
-        const histroread = await query.getRawMany();
-        await histroread.forEach(element => {
-          historyread.push({
-            startdate: element.devicehistory_readsStartDate,
-            enddate: element.devicehistory_readsEndDate,
-            value: element.devicehistory_readsvalue
-          })
+  let sizeOfPage = 5
+  let numberOfPages = 0
+  let numberOfHistReads = await this.getnumberOfHistReads(externalId, filter.start, filter.end);
+  let numberOfOngReads = 0;
+  let numberOfReads = numberOfHistReads + numberOfOngReads;
+  if (numberOfHistReads > 0) {
+    numberOfPages = Math.ceil(numberOfHistReads / sizeOfPage);
+  }
+
+  //@ts-ignore
+  if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+    filter.offset = sizeOfPage * (pageNumber - 1);
+    filter.limit = sizeOfPage;
+  }
+  
+  numberOfOngReads = await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded);
+  console.log(numberOfOngReads);
+  if (numberOfOngReads > numberOfHistReads) {
+    numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
+  }
+  numberOfReads = numberOfHistReads + numberOfOngReads;
+  // numberOfPages=Math.ceil(numberOfReads/sizeOfPage)
+
+  if(numberOfHistReads==0 && numberOfOngReads==0)
+  {
+      return {historyread,ongoing,"numberOfReads":numberOfReads,"numberOfPages":0,"currentPageNumber":0}
+  }
+
+  if ((typeof pageNumber === 'number' && !isNaN(pageNumber)) && pageNumber>numberOfPages) 
+  {
+    return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages,"currentPageNumber":1 };
+
+  }
+
+      if (new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()) {
+    const query = await this.getexisthistorydevcielogFilteredQuery(externalId, filter.start, filter.end);
+    console.log("history query executed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    
+    console.log("historyexistdevicequery");
+    try {
+      const histroread = await query.limit(filter.limit).offset(filter.offset).getRawMany();
+
+      await histroread.forEach(element => {
+        historyread.push({
+          startdate: element.devicehistory_readsStartDate,
+          enddate: element.devicehistory_readsEndDate,
+          value: element.devicehistory_readsvalue
         })
-
-      } catch (error) {
-        //console.log(error)
-        this.logger.error(`Failed to retrieve device`, error.stack);
-        //  throw new InternalServerErrorException('Failed to retrieve users');
-      }
+      })
+    } catch (error) {
+      console.log(error)
+      this.logger.error(`Failed to retrieve device`, error.stack);
     }
-    const readsFilter: FilterDTO = {
-      offset: 0,
-      limit: 5000,
-      start: device_onboarded.toString(),
+  }
+ 
+  
+  if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
+    console.log("offset::::::::::::" + filter.offset + "\nlimit:::::::::::::" + filter.limit + "\n device onboarded::::::::::" + deviceOnboarded.toString() + "\nend:::::::::" + filter.end.toString())
+    let readsFilter: FilterDTO = {
+      offset: filter.offset,
+      limit: filter.limit,
+      start: filter.start.toString(),
       end: filter.end.toString(),
     };
-    const ongoing = await this.baseReadsService.find(externalId, readsFilter)
-    return { historyread, ongoing };
+    if (new Date(filter.start).getTime() > new Date(deviceOnboarded).getTime()) {
+      readsFilter = {
+        offset: filter.offset,
+        limit: filter.limit,
+        start: filter.start.toString(),
+        end: filter.end.toString(),
+      };
+    }
+
+    else {
+      readsFilter = {
+        offset: filter.offset,
+        limit: filter.limit,
+        start: deviceOnboarded,
+        end: filter.end.toString(),
+      };
+    }
+    console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
+    if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(deviceOnboarded).getTime() > new Date(filter.end).getTime())
+     {
+       ongoing = await this.baseReadsService.find(externalId, readsFilter)
+       console.log("ongoing query executed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+       
+    }
+  }
+  console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
+  if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+  return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages,"currentPageNumber":pageNumber };
+  }
+  else
+  {
+    return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages,"currentPageNumber":1 };
 
   }
 }
 
+
+async getnumberOfHistReads(deviceId, startDate, endDate) {
+  const query = this.historyrepository.createQueryBuilder("devicehistory")
+    .where("devicehistory.deviceId = :deviceId", { deviceId })
+    .andWhere("devicehistory.readsStartDate <= :endDate", { endDate })
+    .andWhere("devicehistory.readsEndDate >= :startDate", { startDate });
+
+  const count = await query.getCount();
+  return count;
+}
+
+
+async getnumberOfOngReads(start: Date, end: Date, externalId, onboarded: Date) {
+  if (new Date(onboarded).getTime() > new Date(end).getTime()) {
+    console.log('The given dates are not for on-going reads')
+    return 0;
+  }
+  let fluxquery = ``;
+  if (new Date(start).getTime() > new Date(onboarded).getTime()) {
+    fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  |> range(start: ${start}, stop: ${end})
+  |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
+  |> count()`;
+  }
+
+  else {
+    fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  |> range(start: ${onboarded}, stop: ${end})
+  |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
+  |> count()`;
+  }
+  let noOfReads = await this.ongExecute(fluxquery);
+
+  return noOfReads;
+}
+
+
+async ongExecute(query: any) {
+  const data: any = await this.dbReader.collectRows(query);
+  if (typeof data[0] === 'undefined' || data.length == 0) {
+    console.log("type of data is undefined")
+    return 0;
+  }
+  return Number(data[0]._value);
+}
+
+
+
+
+async latestread(meterId,deviceOnboarded)
+{
+  let  query=`
+from(bucket: "${process.env.INFLUXDB_BUCKET}")
+|> range(start: ${deviceOnboarded}, stop: now())
+|> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+|> last()
+`;
+
+return await this.execute(query);
+}
+
+
+
+
+/* */
+}

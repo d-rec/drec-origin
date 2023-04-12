@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Patch,
   HttpStatus,
   Param,
@@ -10,6 +11,7 @@ import {
   ValidationPipe,
   Query,
   ConflictException,
+  HttpException
 } from '@nestjs/common';
 
 import moment from 'moment';
@@ -21,6 +23,7 @@ import {
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -445,4 +448,42 @@ export class DeviceController {
   ): Promise<DeviceDTO[]> {
     return await this.deviceService.getOrganizationDevicesTotal(organizationId);
   }
+
+
+/**/
+
+
+@Put('/my/deviceOnBoardingDate')
+@UseGuards(AuthGuard('jwt'), PermissionGuard)
+@Permission('Write')
+@ACLModules('DEVICE_MANAGEMENT_CRUDL')
+@ApiResponse({
+  status: HttpStatus.OK,
+  description: "change the device's OnBoarding date",
+})
+
+@ApiQuery({ name: 'deviceId', description: 'Device Id' })
+@ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
+async changeOnBoardingDate(
+  @UserDecorator() { organizationId }: ILoggedInUser,
+  @Query('deviceId') deviceId,
+  @Query('givenDate') givenDate
+  )
+ {
+  if(process.env.MODE!='dev')
+  {
+    throw new HttpException("Currently not in dev environment",400)
+  }
+  let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
+  console.log("THE DEVICE FROM ExTERNALID IS::::::::::::"+device.externalId);
+  if (!device) {
+    throw new HttpException("Device dosen't exist", 400);
+  }
+  const deviceExternalId = device.externalId;
+  const deviceOnboardedDate = device.createdAt;
+  return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
+  }
+
+/* */
+
 }
