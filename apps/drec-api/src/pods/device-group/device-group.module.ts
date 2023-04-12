@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceModule } from '../device/device.module';
 import { DeviceGroupController } from './device-group.controller';
+import { BuyerReservationController} from './buyer-reservation.controller'
 import { DeviceGroup } from './device-group.entity';
 import { DeviceGroupService } from './device-group.service';
 import { OrganizationModule } from '../organization/organization.module';
@@ -29,7 +30,7 @@ import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_da
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],
-  controllers: [DeviceGroupController],
+  controllers: [DeviceGroupController,BuyerReservationController],
 })
 export class DeviceGroupModule {}
  

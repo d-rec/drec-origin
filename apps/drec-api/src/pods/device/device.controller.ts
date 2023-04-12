@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Patch,
   HttpStatus,
   Param,
@@ -10,6 +11,7 @@ import {
   ValidationPipe,
   Query,
   ConflictException,
+  HttpException
 } from '@nestjs/common';
 
 import moment from 'moment';
@@ -21,6 +23,7 @@ import {
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -168,7 +171,7 @@ export class DeviceController {
   ): Promise<DeviceDTO | null> {
     console.log(id);
     const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
-   console.log(devicedata);
+    console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata["developerExternalId"];
     return devicedata;
@@ -199,6 +202,8 @@ export class DeviceController {
         );
       });
     }
+
+ 
     if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
@@ -269,33 +274,33 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
-      // .catch((error) => {
-      //   console.log(error.error);
-      // //  return error
-      //   return new Promise((resolve, reject) => {
-      //           reject(
-      //             new ConflictException({
-      //               success: false,
-      //               message: error,
-      //             }),
-      //           );
-      //         });
-      //   //   if (error && error.code && error.detail) {
-      //   //     return new Promise((resolve, reject) => {
-      //   //       reject(
-      //   //         new ConflictException({
-      //   //           success: false,
-      //   //           message: error.detail,
-      //   //         }),
-      //   //       );
-      //   //     });
-      //   //   } else {
-      //   //     console.log("error", error);
-      //   //     return new Promise((resolve, reject) => {
-      //   //       reject({ error: true });
-      //   //     });
-      //   //}
-      // });
+    // .catch((error) => {
+    //   console.log(error.error);
+    // //  return error
+    //   return new Promise((resolve, reject) => {
+    //           reject(
+    //             new ConflictException({
+    //               success: false,
+    //               message: error,
+    //             }),
+    //           );
+    //         });
+    //   //   if (error && error.code && error.detail) {
+    //   //     return new Promise((resolve, reject) => {
+    //   //       reject(
+    //   //         new ConflictException({
+    //   //           success: false,
+    //   //           message: error.detail,
+    //   //         }),
+    //   //       );
+    //   //     });
+    //   //   } else {
+    //   //     console.log("error", error);
+    //   //     return new Promise((resolve, reject) => {
+    //   //       reject({ error: true });
+    //   //     });
+    //   //}
+    // });
 
     //}
     // catch(e)
@@ -340,6 +345,23 @@ export class DeviceController {
           new ConflictException({
             success: false,
             message: `externalId should not be empty`,
+          })
+        );
+      });
+    }
+    const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+      deviceToUpdate.externalId,
+      user.organizationId
+    );
+    console.log(checkexternalid)
+    if (checkexternalid != undefined) {
+      console.log("236");
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `ExternalId already exist in this organization, can't update with same external id ${ deviceToUpdate.externalId}`,
+
           })
         );
       });
@@ -426,4 +448,42 @@ export class DeviceController {
   ): Promise<DeviceDTO[]> {
     return await this.deviceService.getOrganizationDevicesTotal(organizationId);
   }
+
+
+/**/
+
+
+@Put('/my/deviceOnBoardingDate')
+@UseGuards(AuthGuard('jwt'), PermissionGuard)
+@Permission('Write')
+@ACLModules('DEVICE_MANAGEMENT_CRUDL')
+@ApiResponse({
+  status: HttpStatus.OK,
+  description: "change the device's OnBoarding date",
+})
+
+@ApiQuery({ name: 'deviceId', description: 'Device Id' })
+@ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
+async changeOnBoardingDate(
+  @UserDecorator() { organizationId }: ILoggedInUser,
+  @Query('deviceId') deviceId,
+  @Query('givenDate') givenDate
+  )
+ {
+  if(process.env.MODE!='dev')
+  {
+    throw new HttpException("Currently not in dev environment",400)
+  }
+  let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
+  console.log("THE DEVICE FROM ExTERNALID IS::::::::::::"+device.externalId);
+  if (!device) {
+    throw new HttpException("Device dosen't exist", 400);
+  }
+  const deviceExternalId = device.externalId;
+  const deviceOnboardedDate = device.createdAt;
+  return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
+  }
+
+/* */
+
 }

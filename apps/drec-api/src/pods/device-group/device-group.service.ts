@@ -372,7 +372,7 @@ export class DeviceGroupService {
       const frequency = group.frequency.toLowerCase();
       if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
         hours = 1 * 24;
-      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monhtly) {
+      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monthly) {
         hours = 30 * 24;
       } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
         hours = 7 * 24;
@@ -1416,10 +1416,15 @@ export class DeviceGroupService {
         } else {
           recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
         }
-        // if (singleRecord.externalId === undefined || singleRecord.externalId === null) {
-        //   recordsErrors[index].isError = true;
-        //   recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "externalId", constraints: { invalidCountryCode: "externalId should not be empty" } })
-
+        // if (singleRecord.externalId != undefined || singleRecord.externalId != null) {
+        //   const Regex = /^[a-zA-Z\d\-_\s]+$/;
+         
+        //   if(!Regex.test(singleRecord.externalId)){
+        //     recordsErrors[index].isError = true;
+        //     recordsErrors[index].errorsList.push({ value: singleRecord.externalId, property: "externalId", constraints: { invalidExternalId: "external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between" } })
+  
+        //   }
+          
         // }
         if (singleRecord.countryCode != undefined) {
 
@@ -1446,10 +1451,20 @@ export class DeviceGroupService {
             recordsErrors[index].isError = true;
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
+          if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
+           
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commissioning date, commissioning is greater than current date" } })
+         
+          }
         }
         if (singleRecord.capacity <= 0) {
           recordsErrors[index].isError = true;
           recordsErrors[index].errorsList.push({ value: singleRecord.capacity, property: "capacity", constraints: { greaterThanZero: "Capacity should be greater than 0" } })
+        }
+        if (singleRecord.energyStorageCapacity < 0) {
+          recordsErrors[index].isError = true;
+          recordsErrors[index].errorsList.push({ value: singleRecord.energyStorageCapacity, property: "energyStorageCapacity", constraints: { greaterThanZero: "Energy Storage Capacity should be greater than 0" } })
         }
       }
 
@@ -1484,8 +1499,10 @@ export class DeviceGroupService {
       recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
       const duplicatesExternalId: any = [];
       for (let i = 0; i < recordsCopy.length - 1; i++) {
+        console.log(recordsCopy[i].externalId);
         for (let j = i + 1; j < recordsCopy.length; j++) {
-          if (recordsCopy[i].externalId != null) {
+          console.log(recordsCopy[j].externalId);
+          if (recordsCopy[i].externalId != null && recordsCopy[j].externalId != null) {
             if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
               recordsCopy[j]['statusDuplicate'] = true;
               duplicatesExternalId.push({
