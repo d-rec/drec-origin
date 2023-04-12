@@ -74,14 +74,14 @@ export class DeviceService {
     });
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
-   
-       await devices.map((device: Device) => {
-        
-        device.externalId = device.developerExternalId
-        delete device["developerExternalId"];
-        newDevices.push(device);
-      })
-    
+
+    await devices.map((device: Device) => {
+
+      device.externalId = device.developerExternalId
+      delete device["developerExternalId"];
+      newDevices.push(device);
+    })
+
     // let totalamountofreads = [];
     //     await Promise.all(
     //       devices.map(async (device: Device) => {
@@ -203,12 +203,12 @@ export class DeviceService {
   }
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
-    organizationId:number
+    organizationId: number
   ): Promise<Array<DeviceDTO | null>> {
     console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
-        where: { developerExternalId: In(meterIdList),organizationId: organizationId },
+        where: { developerExternalId: In(meterIdList), organizationId: organizationId },
       })) ?? null
     );
   }
@@ -333,7 +333,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = []
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
-   // currentDevice.status = DeviceStatus.Submitted;
+    // currentDevice.status = DeviceStatus.Submitted;
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
