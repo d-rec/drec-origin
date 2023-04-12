@@ -4,6 +4,7 @@ import {
   NotAcceptableException,
   Logger,
   ConflictException,
+  HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, In, IsNull, Not, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
@@ -43,11 +44,13 @@ import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { SDGBenefits } from '../../models/Sdgbenefit'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuid } from 'uuid';
+import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
+    @InjectRepository(HistoryIntermediate_MeterRead) private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
@@ -763,4 +766,77 @@ export class DeviceService {
   //     })
   //   );
   // }
+
+
+  /* */
+  public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate) {
+    const numberOfHistReads: number = await this.getNumberOfHistReads(externalId);
+    const numberOfOngReads: number = await this.getNumberOfOngReads(externalId, onboardedDate);
+
+    if (numberOfHistReads <= 0 && numberOfOngReads <= 0)
+    //no reads exist for the given device
+    //So we can change the date
+    {
+      return this.changecreatedAtDate(onboardedDate, givenDate, externalId);
+    }
+
+
+    else//If reads exist for the given device
+    {
+      throw new HttpException('The given device already had some meter reads;Thus you cannot change the createdAt', 409);
+    }
+  }
+
+
+
+  async getNumberOfHistReads(deviceId): Promise<number> {
+    const query = this.historyrepository.createQueryBuilder("devicehistory")
+      .where("devicehistory.deviceId = :deviceId", { deviceId });
+    const count = await query.getCount();
+    return count;
+  }
+
+
+
+  async getNumberOfOngReads(externalId, onboardedDate): Promise<number> {
+    let fluxQuery = ``;
+    const end = new Date();
+    fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      |> range(start: ${onboardedDate})
+      |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
+      |> count()`;
+    let noOfReads = await this.ongExecute(fluxQuery);
+
+    return noOfReads;
+  }
+
+
+  async ongExecute(query: any) {
+    console.log("query started")
+    const data: any = await this.dbReader.collectRows(query);
+    console.log("query ended");
+
+    if (typeof data[0] === 'undefined' || data.length == 0) {
+      return 0;
+    }
+    return Number(data[0]._value);
+  }
+
+
+  async changecreatedAtDate(onboardedDate, givenDate, externalId) {
+    console.log("THE EXTERNALID IS::::::::::::::::::::::::"+externalId);
+    const sixMonthsAgo = new Date(onboardedDate);
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    if (new Date(givenDate) < sixMonthsAgo || new Date(givenDate) >= new Date(onboardedDate)) {
+      throw new HttpException('Given date is more than 6 months before the onboarded date or after or equal to the onboarded date', 400);
+    }
+
+    await this.repository.update(
+      { createdAt: onboardedDate, externalId: externalId },
+      { createdAt: givenDate },
+    );
+    return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
+  }
+  /* */
 }

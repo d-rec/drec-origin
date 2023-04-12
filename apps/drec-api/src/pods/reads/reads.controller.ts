@@ -38,6 +38,7 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import * as momentTimeZone from 'moment-timezone';
 import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
+import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -93,8 +94,9 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-
-  @Get('new/:externalId')
+/* */
+@Get('new/:externalId')
+  @ApiQuery({ name: 'pagenumber',type:Number,required:false})
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -103,9 +105,13 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthGuard('jwt'))
   public async newgetReads(
     @Param('externalId') meterId: string,
-    @Query() filter: ReadFilterDTO,
+    @Query() filter: filterNoOffLimit,
+    @Query('pagenumber')pagenumber:number|null,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
+    //finding the device details throught the device service
+    filter.offset=0;
+    filter.limit=5;
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     console.log("getmeterdevice");
     console.log(device);
@@ -120,9 +126,11 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt);
+     return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
   }
-  
+/* */
+
+
   // @Get('/:meter/difference')
   // @ApiResponse({
   //   status: HttpStatus.OK,
@@ -598,4 +606,58 @@ export class ReadsController extends BaseReadsController {
     }
     return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
+  @Get('/latestread/:externalId')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns the latest meter read of the given device',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  public async getLatestMeterRead(  
+  @Param("externalId") externalId:string,
+  @UserDecorator() user: ILoggedInUser,
+  )
+  {
+
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+
+    if (device === null) {
+
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
+
+    let deviceExternalId;
+    let latestReadObject;
+    let latestRead;
+
+   deviceExternalId=device.externalId;
+  console.log("externalId::"+deviceExternalId);
+
+    if(!device.meterReadtype)
+    {
+      throw new HttpException('Read not found',400)
+    }
+    else{
+
+          latestReadObject=await this.internalReadsService.latestread(deviceExternalId,device.createdAt);
+
+              console.log(latestReadObject)
+
+            if(typeof latestReadObject==='undefined' || latestReadObject.length==0)   
+              {
+                throw new HttpException('Read Not found', 400)
+              }
+          return {
+            "enddate":latestReadObject[0].timestamp,
+            "value":latestReadObject[0].value
+          }
+      }   
+}
+
 }
