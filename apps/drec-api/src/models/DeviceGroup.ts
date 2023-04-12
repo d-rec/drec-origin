@@ -13,7 +13,7 @@ export enum BuyerReservationCertificateGenerationFrequency {
   hourly ='hourly',
   daily='daily',
   weekly='weekly',
-  monhtly ='monthly',
+  monthly ='monthly',
   quarterly ='quarterly'
 }
 
