@@ -19,7 +19,7 @@ import { CertificateDetailsComponent } from './view/certificate-details/certific
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { AddreadComponent } from './view/addread/addread.component';
+
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 @NgModule({
   declarations: [
@@ -35,7 +35,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
     WithloginlayoutComponent,
     WithoutloginlayoutComponent,
     RedemptionReportComponent,
-    AddreadComponent,
+    // AddreadComponent,
     AddReservationComponent,
     
   ],

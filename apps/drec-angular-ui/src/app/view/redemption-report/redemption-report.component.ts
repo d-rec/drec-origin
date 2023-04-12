@@ -48,7 +48,17 @@ DisplayRedemptionList() {
       // display list in the console 
       console.log(data)
       this.data = data;
-    
+        //@ts-ignore
+      this.data.forEach(ele => {
+        //@ts-ignore
+        ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
+        //@ts-ignore
+        ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
+        //@ts-ignore
+        ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
+       //@ts-ignore
+        ele['claimCoiuntryCode'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.claimCoiuntryCode)?.country;
+      })
       this.dataSource = new MatTableDataSource(this.data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
