@@ -123,9 +123,9 @@
                     </div>
                 </div>
             </form>
-            <div class="example-container1 row" style="padding: 10px">
-                <mat-card>
-                    <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+            <div class="example-container1  row" style="padding: 10px">
+                <mat-card class="nested-card">
+                    <mat-card-header class="d-flex justify-content-between nested-card-header mat-crd-hide align-items-center">
 
                         <div>
                             <h4 class="pb-0 mb-0 fw-bold text-capitalize">select the devices
@@ -133,8 +133,8 @@
                         </div>
 
                     </mat-card-header>
-                    <hr>
-                    <mat-card-content>
+                    <!-- <hr> -->
+                    <mat-card-content class="pt-3" >
                         <h3>Use filters to select devices </h3>
                         <form [formGroup]="FilterForm">
                             <div class="example-container1 row">
@@ -191,15 +191,19 @@
                                         <input matInput placeholder="Search" formControlName='capacity' #input>
                                     </mat-form-field>
                                 </div>
-                                <div class="col-md-2">
-                                    <button class="btn-primary btn text-capitalize px-4"
-                                        (click)="applyFilter()">filter</button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn-primary btn text-capitalize px-4"
-                                        (click)="reset()">Reset</button>
-                                </div>
+                                <div class="col-md-12  d-flex justify-content-end">
+                                    <div class="">
+                                        <button class="btn-primary me-2 btn text-capitalize px-4"
+                                            (click)="applyFilter()">filter</button>
+                                    </div>
+                                    <div class="">
+                                        <button class="btn-primary btn text-capitalize px-4"
+                                            (click)="reset()">Reset</button>
+                                    </div>
+    
 
+                                </div>
+                               
                             </div>
                         </form>
                         <div class="content mat-elevation-z8 text-center" *ngIf="loading">
