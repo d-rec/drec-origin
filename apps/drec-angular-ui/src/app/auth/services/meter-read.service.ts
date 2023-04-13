@@ -16,4 +16,32 @@ export class MeterReadService {
     return this.httpClient.post<any>(this.url + 'meter-reads/new/'+exterenalId, data)
 
   }
+  GetRead(exterenalId:string,data: any): Observable<any> {
+    console.log(data)
+   // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
+   let searchUrl = `${this.url}meter-reads/new/`+exterenalId+`?`;
+
+   if (!(typeof data.start === "undefined" || data.start === ""||data.start === null)) {
+     searchUrl += `start=${new Date(data.start).toISOString()}`;
+   }
+
+   if (!(typeof data.end === "undefined" || data.end === ""||data.end === null)) {
+     searchUrl += `&end=${new Date(data.end).toISOString()}`;
+     
+   }
+
+   // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
+   // {
+   //   searchUrl+=`&Distance=${searchData.Distance}`;
+   // }
+
+   if (!(typeof data.pagenumber === "undefined" || data.pagenumber === ""||data.pagenumber === null)) {
+     searchUrl += `&pagenumber=${data.pagenumber}`;
+   }
+
+   // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
+   //   searchUrl += `&GroupId=${searchData.GroupId}`;
+   // }
+   return this.httpClient.get(searchUrl);
+  }
 }

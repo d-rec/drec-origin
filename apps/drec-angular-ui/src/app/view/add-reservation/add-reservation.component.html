@@ -24,7 +24,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">Capacity(KW)</mat-label>
+                            <mat-label class="text-capitalize">Target Capacity(MWH)</mat-label>
 
                             <input matInput placeholder="targetCapacityInMegaWattHour" type="number"
                                 formControlName='targetCapacityInMegaWattHour' min="1" autocomplete="off">
@@ -83,33 +83,6 @@
 
                         </mat-form-field>
                     </div>
-                    <div class="col-md-6">
-
-                        <mat-radio-group
-                            formControlName='continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'>
-                            <span>Continue witn some device unavailabe in reservation:</span>
-                            <br>
-                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                            <mat-radio-button [value]=false>False</mat-radio-button>
-                        </mat-radio-group>
-
-
-                    </div>
-
-                </div>
-                <div class="example-container1 row">
-                    <div class="col-md-4">
-
-                        <mat-radio-group
-                            formControlName='continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'>
-                            <span>Continue witn Tagret Capacity:</span>
-                            <br>
-                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                            <mat-radio-button [value]=false>False</mat-radio-button>
-                        </mat-radio-group>
-
-                    </div>
-
                     <div class="col-md-4">
 
                         <mat-radio-group formControlName='authorityToExceed'>
@@ -121,7 +94,9 @@
 
 
                     </div>
+
                 </div>
+              
             </form>
             <div class="example-container1  row" style="padding: 10px">
                 <mat-card class="nested-card">
@@ -244,8 +219,7 @@
                                 <!-- Position Column -->
                                 <ng-container matColumnDef="onboarding_date">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> OnBoarding Date </th>
-                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMM
-                                        yyyy hh:mm:ss'}} </td>
+                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMMyyyy hh:mm:ss'}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="projectName">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> projectName </th>
@@ -296,4 +270,34 @@
         </mat-card-footer>
 
     </mat-card>
+    <ng-template let-data #myCityDialog>
+        <h2 mat-dialog-title></h2>
+        <div mat-dialog-content>
+            <p>
+                <mat-radio-group
+                [(ngModel)]="data.continewwithunavilableonedevice">
+                                <span>Continue reservation if some devices are unavailable:</span>
+                                <br>
+                                <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+                                <mat-radio-button [value]=false>No</mat-radio-button>
+                            </mat-radio-group>
+    
+              </p>
+          <p>
+           
+            <mat-radio-group
+            [(ngModel)]="data.continueWithTCLessDTC">
+            <span>Continue reservation if target capacity is less than estimated reachable capacity of devices between selected period:</span>
+            <br>
+            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+            <mat-radio-button [value]=false>No</mat-radio-button>
+        </mat-radio-group>
+          </p>
+         
+        </div>
+        <div mat-dialog-actions>
+          <!-- <button mat-button (click)="onContinue()">Continue</button> -->
+          <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Continue</button>
+        </div>
+      </ng-template>
 </div>
