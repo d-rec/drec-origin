@@ -76,17 +76,17 @@ export class AddReservationComponent {
     });
   }
   ngOnInit() {
-    this.dialogRef = this.dialog.open(this.cityDialog,
-      { data: this.reservationbollean, height: '300px', width: '500px' });
-  //  console.log(this.reservationForm)
-    this.dialogRef.afterClosed().subscribe((result: any) => {
-     // console.log(this.reservationForm);
-      console.log('The City dialog was closed.');
-      console.log(result);
+  //   this.dialogRef = this.dialog.open(this.cityDialog,
+  //     { data: this.reservationbollean, height: '300px', width: '500px' });
+  // //  console.log(this.reservationForm)
+  //   this.dialogRef.afterClosed().subscribe((result: any) => {
+  //    // console.log(this.reservationForm);
+  //     console.log('The City dialog was closed.');
+  //     console.log(result);
 
-     // this.onContinue(result);
+  //    // this.onContinue(result);
 
-    });
+  //   });
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
         // display list in the console
