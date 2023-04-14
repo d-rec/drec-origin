@@ -17,3 +17,22 @@
       
     padding: 0px !important;
   }
+::-webkit-scrollbar{
+    display: none !important;
+}
+// ::-webkit-scrollbar-thumb{
+//     background-color: #f2be1a !important;
+// }
+.mat-dialog-title{
+  position: sticky;
+  top: 0;
+  background: #fff !important;
+}
+.continue-button{ 
+  position: sticky;
+  bottom: 0;
+  padding-top: 18px;
+  background: white;
+  display: flex;
+  justify-content: end;
+}

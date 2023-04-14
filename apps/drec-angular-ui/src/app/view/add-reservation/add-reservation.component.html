@@ -1,4 +1,4 @@
-<div class="body-bg">
+<div class="body-bg add-reservation">
     <mat-card>
         <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
@@ -166,7 +166,7 @@
                                         <input matInput placeholder="Search" formControlName='capacity' #input>
                                     </mat-form-field>
                                 </div>
-                                <div class="col-md-12  d-flex justify-content-end">
+                                <div class="col-md-12 mb-3  d-flex justify-content-end">
                                     <div class="">
                                         <button class="btn-primary me-2 btn text-capitalize px-4"
                                             (click)="applyFilter()">filter</button>
@@ -270,34 +270,36 @@
         </mat-card-footer>
 
     </mat-card>
-    <ng-template let-data #myCityDialog>
-        <h2 mat-dialog-title></h2>
-        <div mat-dialog-content>
-            <p>
-                <mat-radio-group
-                [(ngModel)]="data.continewwithunavilableonedevice">
-                                <span>Continue reservation if some devices are unavailable:</span>
-                                <br>
-                                <mat-radio-button [value]=true checked>Yes</mat-radio-button>
-                                <mat-radio-button [value]=false>No</mat-radio-button>
-                            </mat-radio-group>
     
-              </p>
-          <p>
-           
+</div>
+<ng-template let-data #myCityDialog class="Position-relative ng-template-add-reservation">
+    <h2 mat-dialog-title class="mat-dialog-title"> Reservation</h2>
+    <div mat-dialog-content>
+        <p>
             <mat-radio-group
-            [(ngModel)]="data.continueWithTCLessDTC">
-            <span>Continue reservation if target capacity is less than estimated reachable capacity of devices between selected period:</span>
+            [(ngModel)]="data.continewwithunavilableonedevice">
+                            <span>Continue reservation if some devices are unavailable:</span>
+                            <br>
+                            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+                            <mat-radio-button [value]=false>No</mat-radio-button>
+                        </mat-radio-group>
+
+          </p>
+      <p>
+       
+        <mat-radio-group [(ngModel)]="data.continueWithTCLessDTC">
+            <span class="dialog-popup-discription">Continue reservation if target capacity is less than estimated reachable
+                capacity of devices between selected period:</span>
             <br>
             <mat-radio-button [value]=true checked>Yes</mat-radio-button>
             <mat-radio-button [value]=false>No</mat-radio-button>
         </mat-radio-group>
-          </p>
-         
-        </div>
-        <div mat-dialog-actions>
-          <!-- <button mat-button (click)="onContinue()">Continue</button> -->
-          <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Continue</button>
-        </div>
-      </ng-template>
-</div>
+      </p>
+      
+    </div>
+    <div mat-dialog-actions class=" continue-button">
+        <!-- <button mat-button (click)="onContinue()">Continue</button> -->
+        <button mat-button [mat-dialog-close]="data" class="btn-primary btn text-capitalize" cdkFocusInitial>Continue</button>
+    </div>
+   
+  </ng-template>
