@@ -27,7 +27,7 @@ export class AddReservationComponent {
     'status',
 
   ];
-  @ViewChild('myCityDialog') cityDialog = {} as TemplateRef<any>;
+  @ViewChild('mypopupDialog') popupDialog = {} as TemplateRef<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -49,7 +49,7 @@ export class AddReservationComponent {
   endminDate = new Date();
   FilterForm: FormGroup;
   offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
-  frequency = ['hourly', 'daily', 'weekly', 'montly']
+  frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router, public dialog: MatDialog,
@@ -76,17 +76,7 @@ export class AddReservationComponent {
     });
   }
   ngOnInit() {
-    this.dialogRef = this.dialog.open(this.cityDialog,
-      { data: this.reservationbollean, height: '300px', width: '500px' });
-  //  console.log(this.reservationForm)
-    this.dialogRef.afterClosed().subscribe((result: any) => {
-     // console.log(this.reservationForm);
-      console.log('The City dialog was closed.');
-      console.log(result);
-
-     // this.onContinue(result);
-
-    });
+    
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
         // display list in the console
@@ -230,10 +220,7 @@ export class AddReservationComponent {
           ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
         })
         console.log(this.data)
-        this.dataSource = new MatTableDataSource(this.data);
-        //console.log(this.dataSource)
-        // this.selection= new SelectionModel<any>(true, this.data);
-        // this.isAllSelected();
+       this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         //@ts-ignore
@@ -256,7 +243,7 @@ export class AddReservationComponent {
       })
       this.reservationForm.controls['deviceIds'].setValue(deviceId)
       console.log(this.reservationForm);
-      this.openCityDialog(this.reservationForm)
+      this.openpopupDialog(this.reservationForm)
     } else {
       this.toastrService.error('Validation!', 'Please select at least one device');
     }
@@ -265,10 +252,10 @@ export class AddReservationComponent {
   }
 
 
-  openCityDialog(reservationForm: any) {
+  openpopupDialog(reservationForm: any) {
     console.log("reservationForm");
     console.log(reservationForm)
-    this.dialogRef = this.dialog.open(this.cityDialog,
+    this.dialogRef = this.dialog.open(this.popupDialog,
       { data: this.reservationbollean, height: '300px', width: '500px' });
     console.log(this.reservationForm)
     this.dialogRef.afterClosed().subscribe((result: any) => {

@@ -57,7 +57,7 @@ export class DeviceService {
       searchUrl += `&capacity=${searchData.capacity}`;
     }
     if (!(typeof searchData.offTaker === "undefined" || searchData.offTaker === ""||searchData.offTaker === null)) {
-      searchUrl += `&offTaker=${searchData.capacity}`;
+      searchUrl += `&offTaker=${searchData.offTaker}`;
     }
     // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
     //   searchUrl += `&GroupId=${searchData.GroupId}`;

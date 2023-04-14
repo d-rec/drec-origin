@@ -15,7 +15,7 @@ export class AllMetereadsComponent implements OnInit  {
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
   //dataSource = new MatTableDataSource<ApidatumDisplay>([]);
-  displayedColumns: string[]=['timestamp','value'] ;//... set columns here
+  displayedColumns: string[]=['startdate','enddate','value'] ;//... set columns here
   // displayedColumns = [
   //   'onboarding_date',
   //   'projectName',
@@ -39,12 +39,12 @@ export class AllMetereadsComponent implements OnInit  {
   totalRows = 0;
   pageSize = 5;
   currentPage = 0;
-  pageSizeOptions: number[] = [5, 10, 25, 100];
+  pageSizeOptions: number[] = [5];
   loading:boolean=true;
   constructor(private service:MeterReadService,private formBuilder: FormBuilder,private deviceservice: DeviceService,) {}
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+  // ngAfterViewInit() {
+  //   this.dataSource.paginator = this.paginator;
+  // }
   ngOnInit() {
     this.DisplayList();
     //this.getPagedData();
@@ -69,6 +69,15 @@ export class AllMetereadsComponent implements OnInit  {
       }
     )
   }
+  onEndChangeEvent(event: any) {
+    console.log(event);
+      // this.startminDate= this.historyAge;
+       //this.startmaxDate=this.devicecreateddate;
+       //this.endmaxdate=this.devicecreateddate;
+       this.endminDate=event;
+       //this.hidestarttime = true;
+     
+   }
   getPagedData() {
   console.log(this.exterenalId);
   console.log(this.FilterForm);

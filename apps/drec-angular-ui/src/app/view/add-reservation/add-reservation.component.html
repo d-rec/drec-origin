@@ -247,7 +247,11 @@
                                     (click)="selection.toggle(row)">
                                 </tr>
                             </table>
-                            <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
+                            <!-- <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
+                         -->
+                            <mat-paginator #paginator   [pageSize]="pageSize"
+                             aria-label="Select page">
+                          </mat-paginator>
                         </div>
                     </mat-card-content>
                 </mat-card>
@@ -266,7 +270,7 @@
         </mat-card-footer>
 
     </mat-card>
-    <ng-template let-data #myCityDialog>
+    <ng-template let-data #mypopupDialog>
         <h2 mat-dialog-title></h2>
         <div mat-dialog-content>
             <p>
