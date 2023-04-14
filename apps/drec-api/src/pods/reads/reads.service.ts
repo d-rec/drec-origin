@@ -100,7 +100,7 @@ export class ReadsService {
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    console.log(measurements);
+    //console.log(measurements);
     const device = await this.deviceService.findReads(id);
 
     if (!device) {
@@ -108,13 +108,13 @@ export class ReadsService {
     }
 
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    console.log(roundedMeasurements);
+    //console.log(roundedMeasurements);
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
-    console.log(filteredMeasurements);
+    //console.log(filteredMeasurements);
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
@@ -127,7 +127,7 @@ export class ReadsService {
     const organization = await this.organizationService.findOne(
       device.organizationId,
     );
-    console.log('109')
+    //console.log('109')
     if (!organization) {
       throw new NotFoundException(
         `No organization found with device organization code ${device.organizationId}`,
@@ -155,7 +155,7 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    console.log("137")
+    //console.log("137")
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -282,7 +282,7 @@ export class ReadsService {
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    console.log(measurements);
+    //console.log(measurements);
     //change function for find device info by developer externalid
     const device = await this.deviceService.findReads(id);
     if (!device) {
@@ -351,20 +351,20 @@ export class ReadsService {
   //         );
 
   //         const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
-  //       console.log(checkhistroyreading)
+  //       //console.log(checkhistroyreading)
   //         //@ts-ignore
   //         const historyAge = new Date(device.createdAt);
   //         historyAge.setFullYear(historyAge.getFullYear() - 1);
-  //         console.log("historyAge");
-  //         console.log(historyAge);
-  //         console.log("createdAt");
+  //         //console.log("historyAge");
+  //         //console.log(historyAge);
+  //         //console.log("createdAt");
   //         //@ts-ignore
-  //         console.log(new Date(device?.createdAt));
-  //         console.log("starttimestamp");
-  //         console.log(new Date(element.starttimestamp));
+  //         //console.log(new Date(device?.createdAt));
+  //         //console.log("starttimestamp");
+  //         //console.log(new Date(element.starttimestamp));
 
-  //         console.log("endtimestamp");
-  //         console.log(new Date(element.endtimestamp));
+  //         //console.log("endtimestamp");
+  //         //console.log(new Date(element.endtimestamp));
   //         if(checkhistroyreading){
   //           return reject(
   //             new ConflictException({
@@ -646,10 +646,10 @@ export class ReadsService {
             );
           }
           //@ts-ignore
-          // console.log(new Date(device?.createdAt).toLocaleDateString());
-          // console.log(new Date(element.starttimestamp).toLocaleDateString());
+          // //console.log(new Date(device?.createdAt).toLocaleDateString());
+          // //console.log(new Date(element.starttimestamp).toLocaleDateString());
 
-          // console.log(new Date(element.endtimestamp).toLocaleDateString())
+          // //console.log(new Date(element.endtimestamp).toLocaleDateString())
           // if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
           //   return reject(
           //     new ConflictException({
@@ -725,7 +725,7 @@ export class ReadsService {
               value: element.value
             }
             // const deltafirstvalidation = this.firstvalidateEnergy(read, device)
-            // console.log("731", deltafirstvalidation);
+            // //console.log("731", deltafirstvalidation);
             // if (deltafirstvalidation) {
             reads.push({
               timestamp: new Date(element.endtimestamp),
@@ -967,8 +967,8 @@ export class ReadsService {
   }
 
   private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
-    console.log("527")
-    console.log(deviceregisterdate)
+    //console.log("527")
+    //console.log(deviceregisterdate)
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
 
     //@ts-ignore
@@ -977,11 +977,11 @@ export class ReadsService {
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
 
-    console.log('*** QUERY ROWS ***')
-    console.log(fluxQuery)
+    //console.log('*** QUERY ROWS ***')
+    //console.log(fluxQuery)
     const reads = await this.execute(fluxQuery);
-    console.log("reads[0]")
-    console.log(reads[0])
+    //console.log("reads[0]")
+    //console.log(reads[0])
 
     return reads[0];
   }
@@ -1027,14 +1027,14 @@ export class ReadsService {
     const query = this.getexisthistorydevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
-    console.log("historyexistdevicequery");
+    //console.log("historyexistdevicequery");
     try {
 
       const device = await query.getRawMany();
 
       return device.length > 0;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
       //  throw new InternalServerErrorException('Failed to retrieve users');
     }
@@ -1061,7 +1061,7 @@ export class ReadsService {
         }),
       )
 
-    console.log(query.getQuery())
+    //console.log(query.getQuery())
     return query;
   }
   private firstvalidateEnergy(
@@ -1081,7 +1081,7 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-    console.log("newvalidateEnergy")
+    //console.log("newvalidateEnergy")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
@@ -1095,11 +1095,11 @@ export class ReadsService {
     }
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
 
-    console.log(read.timestamp.toISOString());
+    //console.log(read.timestamp.toISOString());
     //@ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
     //@ts-ignore
-    console.log(new Date(device.createdAt).toISOString());
+    //console.log(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
@@ -1120,7 +1120,7 @@ export class ReadsService {
     );
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
-    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (Math.round(read.value + margin * read.value) < maxEnergy) {
 
       return Math.round(read.value + margin * read.value) < maxEnergy;
@@ -1149,7 +1149,7 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-    console.log("newvalidateEnergy")
+    //console.log("newvalidateEnergy")
 
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
@@ -1182,7 +1182,7 @@ export class ReadsService {
     );
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
-    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (Math.round(read.value + margin * read.value) < maxEnergy) {
 
       return Math.round(read.value + margin * read.value) < maxEnergy;
@@ -1216,7 +1216,7 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-    console.log("newvalidateEnergy")
+    //console.log("newvalidateEnergy")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
@@ -1244,7 +1244,7 @@ export class ReadsService {
     );
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
-    console.log(Math.round(read.value + margin * read.value) < maxEnergy)
+    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
 
     if (Math.round(read.value + margin * read.value) < maxEnergy) {
       this.historyrepository.save({
@@ -1311,7 +1311,7 @@ export class ReadsService {
       );
     }
 
-    console.log("new store")
+    //console.log("new store")
     await this.store(id, measurements);
 
     for (const measurement of measurements.reads) {
@@ -1364,7 +1364,7 @@ export class ReadsService {
 
       return devices;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
       //  throw new InternalServerErrorException('Failed to retrieve users');
     }
@@ -1395,7 +1395,7 @@ export class ReadsService {
         }),
       )
       .andWhere("devicehistory.certificate_issued != true")
-    // console.log(query.getQuery())
+    // //console.log(query.getQuery())
     return query;
   }
 

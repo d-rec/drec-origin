@@ -216,9 +216,9 @@ export class DeviceGroupService {
     status: StatusCSV,
     fileId: string,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    console.log("fileId");
-    console.log(typeof fileId);
-    console.log(fileId);
+    //console.log("fileId");
+    //console.log(typeof fileId);
+    //console.log(fileId);
     return await this.repositoyCSVJobProcessing.save({
       userId,
       organizationId,
@@ -230,7 +230,7 @@ export class DeviceGroupService {
   async getAllCSVJobsForOrganization(
     organizationId: number,
   ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    //console.log(organizationId);
+    ////console.log(organizationId);
     return await this.repositoyCSVJobProcessing.find({
       where: { organizationId },
       order: {
@@ -356,7 +356,7 @@ export class DeviceGroupService {
           minimumDeviceCreatedAtIndex = index;
         }
       });
-      //console.log(minimumDeviceCreatedAtDate)
+      ////console.log(minimumDeviceCreatedAtDate)
       //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
       //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
       let startDate: string = '';
@@ -366,7 +366,7 @@ export class DeviceGroupService {
       else {
         startDate = minimumDeviceCreatedAtDate.toISOString()
       }
-      //console.log(minimumDeviceCreatedAtDate)
+      ////console.log(minimumDeviceCreatedAtDate)
       let hours = 1;
 
       const frequency = group.frequency.toLowerCase();
@@ -388,7 +388,7 @@ export class DeviceGroupService {
       else {
         newEndDate = data.reservationEndDate.toISOString();
       }
-      //console.log("newEndDate",newEndDate)
+      ////console.log("newEndDate",newEndDate)
       //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
       //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
       let nextMinimumCreatedWhichIsLessThanEndDate: boolean = false;
@@ -411,7 +411,7 @@ export class DeviceGroupService {
           }
         }
       })
-      //console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
+      ////console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
 
         if (new Date(startDate).getTime() > new Date(nextMinimumCreatedAtString).getTime()) {
@@ -429,7 +429,6 @@ export class DeviceGroupService {
     }
     await Promise.all(
       devices.map(async (device: Device) => {
-
         if (new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()) {
           const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
             groupId: group.id,
@@ -525,8 +524,8 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
       ); // hours
-      //console.log("meteredTimePeriodInHours", meteredTimePeriodInHours);
-      //console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
+      ////console.log("meteredTimePeriodInHours", meteredTimePeriodInHours);
+      ////console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
       let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour * 1000;
       if (aggregatedCapacity * meteredTimePeriodInHours < targetCapacityInKiloWattHour) {
         smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
@@ -710,16 +709,16 @@ export class DeviceGroupService {
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
   ) {
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-    console.log(deviceGroup);
+    //console.log(deviceGroup);
     //@ts-ignore
-    console.log("updatetargetmwh")
-    console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
+    //console.log("updatetargetmwh")
+    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
+    //console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
-    console.log("afterupdatetargetmwh")
-    console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
+    //console.log("afterupdatetargetmwh")
+    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
     const updatedGroup = await this.repository.save(deviceGroup);
-    console.log(updatedGroup);
+    //console.log(updatedGroup);
     return updatedGroup;
   }
 
@@ -780,7 +779,7 @@ export class DeviceGroupService {
         allExternalIds,
         organizationId
       );
-    ////console.log("existingDevices",existingDevices);
+    //////console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
       //@ts-ignore
       existingDevices.forEach((ele) => existingDeviceIds.push(ele?.developerExternalId));
@@ -1095,7 +1094,7 @@ export class DeviceGroupService {
     if (response == undefined) {
       return;
     } else {
-      //console.log("started job processing",filesAddedForProcessing.jobId);
+      ////console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -1111,7 +1110,7 @@ export class DeviceGroupService {
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ) {
-    ////console.log("into method");
+    //////console.log("into method");
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
       [];
@@ -1206,19 +1205,19 @@ export class DeviceGroupService {
           dataToStore[key] === ''?dataToStore[key]=null:'';
         }
 
-        ////console.log("records",JSON.stringify(records));
+        //////console.log("records",JSON.stringify(records));
 
         records.push(dataToStore);
         recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
       })
       .on('end', async () => {
-        ////console.log("data end transmissiodsdddddddddddn",records);
+        //////console.log("data end transmissiodsdddddddddddn",records);
         for(let index=0;index<records.length;index++)
         {
           let singleRecord = records[index];
-          ////console.log("waiting");
+          //////console.log("waiting");
           const errors = await validate(singleRecord);
-          ////console.log("validation errors",errors);
+          //////console.log("validation errors",errors);
           // errors is an array of validation errors
           if (errors.length > 0) {
             recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
@@ -1242,14 +1241,14 @@ export class DeviceGroupService {
             });
           });
         }
-        ////console.log("listofExistingDevices",listofExistingDevices);
+        //////console.log("listofExistingDevices",listofExistingDevices);
         let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
         //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           records,
         );
-        ////console.log("devicesRegistered",devicesRegistered); 
+        //////console.log("devicesRegistered",devicesRegistered); 
         //@ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           if(ele instanceof DeviceDTO)
@@ -1257,10 +1256,10 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
           }
         })
-        ////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
+        //////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
        
         if (recordsErrors.find((ele) => ele.isError === true)) {
-          ////console.log("insie if ");
+          //////console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
             filesAddedForProcessing.jobId,
             recordsErrors,
@@ -1268,7 +1267,7 @@ export class DeviceGroupService {
           );
         }
 
-        ////console.log("osdksnd if ");
+        //////console.log("osdksnd if ");
 
         this.updateJobStatus(
           filesAddedForProcessing.jobId,
@@ -1276,17 +1275,17 @@ export class DeviceGroupService {
         );
 
       });
-    ////console.log("file?.data.toString()",file?.data.toString());
+    //////console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
     
     csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
-      ////console.log("csvLine",csvLine);
+      //////console.log("csvLine",csvLine);
     // csvLine =>  "1,2,3" and "4,5,6"
     })
 
     readableStream.emit('data', file?.data.toString());
     setTimeout(()=>{
-      ////console.log("data ending emission");
+      //////console.log("data ending emission");
       readableStream.emit('end');
     },60000);
     
@@ -1383,8 +1382,8 @@ export class DeviceGroupService {
           }
 
           if (key === "SdgBenefits") {
-            //console.log("data[key]",data[key]);
-            //console.log("dataToStore[key]",dataToStore[key]);
+            ////console.log("data[key]",data[key]);
+            ////console.log("dataToStore[key]",dataToStore[key]);
           }
         }
         if (key == 'yieldValue' && data.countryCode) {
@@ -1407,15 +1406,15 @@ export class DeviceGroupService {
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
-      ////console.log("completed");
-      ////console.log("error",error);
-      ////console.log("data end transmissiodsdddddddddddn",records);
+      //////console.log("completed");
+      //////console.log("error",error);
+      //////console.log("data end transmissiodsdddddddddddn",records);
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
         if (records[index].externalId) {
           records[index].externalId = records[index].externalId.trim();
         }
-        ////console.log("waiting");
+        //////console.log("waiting");
         const errors = await validate(singleRecord);
         // console.log("validation errors", errors);
         // errors is an array of validation errors
@@ -1576,7 +1575,7 @@ export class DeviceGroupService {
           ele['status'] = 'Failed';
         }
       });
-      console.log(recordsErrors);
+      //console.log(recordsErrors);
       this.createFailedRowDetailsForCSVJob(
         filesAddedForProcessing.jobId,
         recordsErrors,
@@ -1584,7 +1583,7 @@ export class DeviceGroupService {
       );
       //}
 
-      ////console.log("osdksnd if ");
+      //////console.log("osdksnd if ");
 
       this.updateJobStatus(
         filesAddedForProcessing.jobId,
@@ -1671,13 +1670,13 @@ export class DeviceGroupService {
       result.push(obj)
     }
 
-    ////console.log(result);
+    //////console.log(result);
   }
 
   // async getGroupiCertificateIssueDate(
   //   organizationId: number,
   // ): Promise<DeviceGroupIssueCertificate{}> {
-  //   //console.log(organizationId);
+  //   ////console.log(organizationId);
   //   return await this.repositoryDeviceGroupcertificate.findByIds({
   //     organizationId
   //     //status:StatusCSV.Completed
@@ -1707,7 +1706,7 @@ export class DeviceGroupService {
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
       where: { end_date: LessThan(new Date()) },
     });
-    //console.log(groupId)
+    ////console.log(groupId)
     return groupId
   }
 
@@ -1740,10 +1739,10 @@ export class DeviceGroupService {
     if (!group)
       group = await this.findDeviceGroupById(groupId, organizationId);
     //@ts-ignore
-    //console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
+    ////console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
     //@ts-ignore
     if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
-      //console.log("came inside ending reservation");
+      ////console.log("came inside ending reservation");
       if (!deviceGroupIssueNextDateDTO)
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
       //@ts-ignore
@@ -1843,7 +1842,7 @@ export class DeviceGroupService {
     id: number,
     Status: HistoryNextInssuanceStatus
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-    //console.log("HistoryUpdatecertificateissuedate")
+    ////console.log("HistoryUpdatecertificateissuedate")
     // await this.checkNameConflict(data.name);
     const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
     let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();

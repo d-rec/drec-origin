@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-//import {environment} from '../../environments/environment.dev';
-import { environment } from '../../../environments/environment';
+import {environment} from '../../../environments/environment.dev';
+// import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
@@ -57,7 +57,7 @@ export class DeviceService {
       searchUrl += `&capacity=${searchData.capacity}`;
     }
     if (!(typeof searchData.offTaker === "undefined" || searchData.offTaker === ""||searchData.offTaker === null)) {
-      searchUrl += `&offTaker=${searchData.capacity}`;
+      searchUrl += `&offTaker=${searchData.offTaker}`;
     }
     // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
     //   searchUrl += `&GroupId=${searchData.GroupId}`;

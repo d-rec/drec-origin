@@ -71,7 +71,7 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number): Promise<Device[]> {
-    console.log(organizationId);
+    ////console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
     });
@@ -111,7 +111,7 @@ export class DeviceService {
 
     //       }))
 
-    // console.log(totalamountofreads);
+    // //console.log(totalamountofreads);
     return newDevices;
   }
 
@@ -142,17 +142,17 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
-    //console.log(groupdevice)
+    ////console.log(groupdevice)
 
     groupdevice = groupdevice.filter(ele => ele.meterReadtype == ReadType.Delta || ele.meterReadtype == ReadType.ReadMeter)
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
-    //console.log(deviceGroupedByCountry);
+    ////console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry;
   }
 
   private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
-    console.log(array)
+    ////console.log(array)
 
     return array.reduce((result: any, currentValue: any) => {
 
@@ -168,7 +168,7 @@ export class DeviceService {
   }
 
   public async findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(ids: number[]): Promise<Device[]> {
-    console.log("ids", ids)
+    //console.log("ids", ids)
     return await this.repository.find({
       where: {
         //id: In(ids), groupId: IsNull()
@@ -208,7 +208,7 @@ export class DeviceService {
     meterIdList: Array<string>,
     organizationId: number
   ): Promise<Array<DeviceDTO | null>> {
-    console.log("meterIdList", meterIdList);
+    //console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
         where: { developerExternalId: In(meterIdList), organizationId: organizationId },
@@ -232,8 +232,8 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
-    console.log(orgCode);
-    console.log(newDevice);
+    //console.log(orgCode);
+    //console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     let sdgbbenifitslist = SDGBenefits;
@@ -245,7 +245,7 @@ export class DeviceService {
 
       }
     });
-    console.log(checkexternalid)
+    //console.log(checkexternalid)
     if (checkexternalid != undefined) {
       console.log("236");
       return new Promise((resolve, reject) => {
@@ -265,7 +265,7 @@ export class DeviceService {
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
-    console.log(newDevice.developerExternalId)
+    //console.log(newDevice.developerExternalId)
     //@ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = []
@@ -306,13 +306,13 @@ export class DeviceService {
           },
         }
         : undefined;
-    console.log(rule);
+    //console.log(rule);
     let currentDevice = await this.findDeviceByDeveloperExternalId(externalId, organizationId);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${externalId}`);
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
-    console.log(updateDeviceDTO.countryCode);
+    //console.log(updateDeviceDTO.countryCode);
     // const code = updateDeviceDTO.countryCode.toUpperCase();
     updateDeviceDTO.externalId = currentDevice.externalId;
     let sdgbbenifitslist = SDGBenefits;
@@ -340,7 +340,7 @@ export class DeviceService {
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
-    console.log(result);
+    //console.log(result);
     return result;
   }
 
@@ -569,7 +569,7 @@ export class DeviceService {
 
 
     });
-    console.log(where);
+    //console.log(where);
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -618,7 +618,7 @@ export class DeviceService {
   //   //     certificate_issuance_enddate: startDate && endDate && Between(startDate, endDate),
   //   //   },
   //   // });
-  //   console.log(deviceid)
+  //   //console.log(deviceid)
   //   const groupId = this.checkdevcielogcertificaterepository
   //     .createQueryBuilder()
   //     .where("deviceid = :deviceid", { deviceid: deviceid })
@@ -631,7 +631,7 @@ export class DeviceService {
 
   //       }),
   //     ).getMany();
-  //   console.log(groupId);
+  //   //console.log(groupId);
   //   return groupId
   // }
   public async getCheckCertificateIssueDateLogForDevice(deviceid: string,
@@ -681,8 +681,8 @@ export class DeviceService {
 
         }),
       )
-    //   console.log(query)
-    // console.log(query.getQuery())
+    //   //console.log(query)
+    // //console.log(query.getQuery())
     return query;
   }
 
@@ -718,7 +718,7 @@ export class DeviceService {
   }
 
   async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
-    console.log(organizationId);
+    //console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
     });
@@ -748,7 +748,7 @@ export class DeviceService {
 
       }))
 
-    console.log(totalamountofreads);
+    //console.log(totalamountofreads);
     return totalamountofreads;
   }
 
@@ -757,7 +757,7 @@ export class DeviceService {
   // async updateExternalIdtoDeveloperExternalId() : Promise<void>{
   //   let alldevices:Device[];
   //   alldevices= await this.repository.find();
-  //   console.log(alldevices);
+  //   //console.log(alldevices);
   //   await Promise.all(
   //     alldevices.map(async (device: Device) => {
   //       device.developerExternalId = device.externalId;

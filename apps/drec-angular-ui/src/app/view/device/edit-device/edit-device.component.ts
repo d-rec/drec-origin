@@ -44,7 +44,7 @@ export class EditDeviceComponent implements OnInit {
   impactStory: any;
 
   deviceDescription: any;
-  energyStorage: any;
+  energyStorage: boolean=true;
   energyStorageCapacity: any;
 
   offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
@@ -85,7 +85,7 @@ export class EditDeviceComponent implements OnInit {
       data: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: [true],
+      energyStorage: [],
       energyStorageCapacity: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])
@@ -113,10 +113,10 @@ export class EditDeviceComponent implements OnInit {
   DisplayList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
+      (data1) => {
         // display list in the console 
-        console.log(data)
-        this.countrylist = data;
+        console.log(data1)
+        this.countrylist = data1;
 
       }
     )
@@ -124,10 +124,10 @@ export class EditDeviceComponent implements OnInit {
   DisplaySDGBList() {
 
     this.authService.GetMethod('sdgbenefit/code').subscribe(
-      (data) => {
+      (data2) => {
         // display list in the console 
-        console.log(data)
-        this.sdgblist = data;
+        console.log(data2)
+        this.sdgblist = data2;
 
       }
     )
@@ -135,10 +135,10 @@ export class EditDeviceComponent implements OnInit {
   DisplayfuelList() {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data) => {
+      (data3) => {
         // display list in the console 
 
-        this.fuellist = data;
+        this.fuellist = data3;
 
       }
     )
@@ -146,10 +146,10 @@ export class EditDeviceComponent implements OnInit {
   DisplaytypeList() {
 
     this.authService.GetMethod('device/device-type').subscribe(
-      (data) => {
+      (data4) => {
         // display list in the console 
 
-        this.devicetypelist = data;
+        this.devicetypelist = data4;
 
       }
     )
@@ -187,18 +187,18 @@ export class EditDeviceComponent implements OnInit {
   getDeviceinfo() {
     this.deviceService.getDeviceInfoBYexternalId(this.externalid).subscribe(
       (data) => {
-       
-        this.id = data.id
-        this.externalId = data.externalId
-        this.status = data.status
-        this.projectName = data.projectName
-        this.address = data.address
-        this.latitude = data.latitude
-        this.longitude = data.longitude
-        this.countryCode = data.countryCode
-        this.fuelCode = data.fuelCode
-        this.deviceTypeCode = data.deviceTypeCode
-        this.capacity = data.capacity
+       console.log(data);
+        this.id = data.id;
+        this.externalId = data.externalId;
+        this.status = data.status;
+        this.projectName = data.projectName;
+        this.address = data.address;
+        this.latitude = data.latitude;
+        this.longitude = data.longitude;
+        this.countryCode = data.countryCode;
+        this.fuelCode = data.fuelCode;
+        this.deviceTypeCode = data.deviceTypeCode;
+        this.capacity = data.capacity;
         data.SDGBenefits.forEach(
           (sdgbname: string, index: number) => {
             //@ts-ignore
@@ -207,14 +207,15 @@ export class EditDeviceComponent implements OnInit {
             console.log(data.SDGBenefits);
           });
           this.SDGBenefits =data.SDGBenefits;          
-        this.commissioningDate = data.commissioningDate
-        this.offTaker = data.offTaker
-        this.qualityLabels = data.qualityLabels
-        this.impactStory = data.impactStory
-        this.gridInterconnection = data.gridInterconnection
-        this.deviceDescription = data.deviceDescription
-        this.energyStorage = data.energyStorage
-        this.energyStorageCapacity = data.energyStorageCapacity
+        this.commissioningDate = data.commissioningDate;
+        this.offTaker = data.offTaker;
+        this.qualityLabels = data.qualityLabels;
+        this.impactStory = data.impactStory;
+        this.gridInterconnection = data.gridInterconnection;
+        this.deviceDescription = data.deviceDescription;
+        this.energyStorage = data.energyStorage;
+        console.log(this.energyStorage);
+        this.energyStorageCapacity = data.energyStorageCapacity;
 
 
       })

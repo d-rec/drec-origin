@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+// import {
+//   CertificateService,
+//   CERTIFICATE_SERVICE_TOKEN,
+//   IIssueCommandParams,
+//   IIssuedCertificate,
+//   ITransferCommand,
+// } from '@energyweb/origin-247-certificate';
 import {
-  CertificateService,
-  CERTIFICATE_SERVICE_TOKEN,
+  IGetAllCertificatesOptions,
   IIssueCommandParams,
-  IIssuedCertificate,
-  ITransferCommand,
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { DateTime } from 'luxon';
@@ -33,6 +37,8 @@ import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_
 import { ReadsService } from '../reads/reads.service'
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
+import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
+
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 
 @Injectable()
@@ -44,11 +50,13 @@ export class IssuerService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private readservice: ReadsService,
-    @Inject(CERTIFICATE_SERVICE_TOKEN)
-    private readonly certificateService: CertificateService<ICertificateMetadata>,
+    // @Inject(CERTIFICATE_SERVICE_TOKEN)
+    // private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
-    private httpService: HttpService
+    private httpService: HttpService,
+     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
+
   ) { }
 
   // @Cron(CronExpression.EVERY_30_SECONDS)
@@ -85,9 +93,9 @@ export class IssuerService {
   //@Cron('0 */10 * * * *')
   // @Cron(CronExpression.EVERY_30_SECONDS)
   hitTheCronFromIssuerAPIOngoing() {
-    // console.log("hitting issuer api");
+    // //console.log("hitting issuer api");
     this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`).subscribe(response => {
-      // console.log("came here",response)
+      // //console.log("came here",response)
     });
   }
 
@@ -96,9 +104,9 @@ export class IssuerService {
   //@Cron('0 */10 * * * *')
   // @Cron(CronExpression.EVERY_30_SECONDS)
   hitTheCronFromIssuerAPIHistory() {
-    // console.log("hitting issuer api");
+    // //console.log("hitting issuer api");
     this.httpService.get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`).subscribe(response => {
-      // console.log("came here",response)
+      // //console.log("came here",response)
     });
   }
 
@@ -156,7 +164,7 @@ export class IssuerService {
         let skipUpdatingNextIssuanceLogTable: boolean = false;
         if (new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime()) {
           skipUpdatingNextIssuanceLogTable = true;
-          console.log("end time reached for buyer reservation", group);
+          //console.log("end time reached for buyer reservation", group);
           let endDto = new EndReservationdateDTO();
           endDto.endresavationdate = new Date(group.reservationEndDate);
           await this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
@@ -272,7 +280,7 @@ export class IssuerService {
   }
 
   // private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
-  //   console.log(array)
+  //   //console.log(array)
 
   //   return array.reduce((result: any, currentValue: any) => {
 
@@ -451,8 +459,8 @@ export class IssuerService {
     endDate: DateTime,
     countryCodeKey: string
   ): Promise<void> {
-    console.log("DeviceGroupNextIssueCertificate");
-    console.log(grouprequest);
+    // //console.log("DeviceGroupNextIssueCertificate");
+    // //console.log(grouprequest);
     if (!group?.devices?.length) {
       return;
     }
@@ -490,14 +498,14 @@ export class IssuerService {
             FirstDeltaRead.some(e => e.readsEndDate.getTime() === v.timestamp.getTime())))
         }
 
-        console.log(startDate.toString())
-        console.log("400")
-        console.log(endDate.toString())
+        //console.log(startDate.toString())
+        //console.log("400")
+        //console.log(endDate.toString())
         const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(device.externalId, new Date(startDate.toString()), new Date(endDate.toString()));
-        console.log("certifieddevices");
-        console.log(certifieddevices);
-        console.log("beforeallReadsForDeviceBetweenTimeRange");
-        console.log(allReadsForDeviceBetweenTimeRange);
+        //console.log("certifieddevices");
+        //console.log(certifieddevices);
+        //console.log("beforeallReadsForDeviceBetweenTimeRange");
+        //console.log(allReadsForDeviceBetweenTimeRange);
         if (certifieddevices.length > 0) {
 
           allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(ele => {
@@ -518,8 +526,8 @@ export class IssuerService {
           });
         }
 
-        console.log("afterallReadsForDeviceBetweenTimeRange");
-        console.log(allReadsForDeviceBetweenTimeRange);
+        //console.log("afterallReadsForDeviceBetweenTimeRange");
+        //console.log(allReadsForDeviceBetweenTimeRange);
         allDevicesCompleteReadsBetweenTimeRange[index] = allReadsForDeviceBetweenTimeRange;
         let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
@@ -577,14 +585,14 @@ export class IssuerService {
     let certificateTransactionUID = uuid();
     await Promise.all(
       group.devices.map(async (device: IDevice, index) => {
-        console.log("came inside previous readings check");
+        //console.log("came inside previous readings check");
         let previousReading: Array<{ timestamp: Date, value: number }> = [];
         if (allDevicesCompleteReadsBetweenTimeRange[index].length > 0) {
           let endTimestampToCheck = new Date(allDevicesCompleteReadsBetweenTimeRange[index][0].timestamp.getTime() - 1);
           let startTimeToCheck = device.createdAt;
           previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId, new Date(startTimeToCheck), endTimestampToCheck);
-          console.log("device previous reading", device.externalId, previousReading);
-          console.log("device.meterReadtype", device.meterReadtype);
+          //console.log("device previous reading", device.externalId, previousReading);
+          //console.log("device.meterReadtype", device.meterReadtype);
           if (previousReading.length == 0) {
             if (device.meterReadtype === ReadType.Delta) {
               previousReading = [{ timestamp: new Date(device.createdAt), value: 0 }];
@@ -593,18 +601,18 @@ export class IssuerService {
               try {
                 let aggregateReadings = await this.readservice.getAggregateMeterReadsFirstEntryOfDevice(device.externalId);
                 if (aggregateReadings.length > 0) {
-                  console.log("aggregateReadings[0].datetime", aggregateReadings[0].datetime);
+                  //console.log("aggregateReadings[0].datetime", aggregateReadings[0].datetime);
 
                   previousReading = [{ timestamp: new Date(aggregateReadings[0].datetime), value: 0 }];
                 }
-                console.log("aggregateReadings", aggregateReadings);
+                //console.log("aggregateReadings", aggregateReadings);
               }
               catch (e) {
                 console.error("error in getting aggregate read", e);
               }
 
             }
-            console.log("device previous reading", device.externalId, previousReading);
+            //console.log("device previous reading", device.externalId, previousReading);
           }
 
           //change this to when was initial reading came for aggregate or else if delta then its the createdAt
@@ -617,8 +625,8 @@ export class IssuerService {
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
         );
-        console.log("previousReading", previousReading);
-        console.log("allDevicesCompleteReadsBetweenTimeRange", allDevicesCompleteReadsBetweenTimeRange);
+        //console.log("previousReading", previousReading);
+        //console.log("allDevicesCompleteReadsBetweenTimeRange", allDevicesCompleteReadsBetweenTimeRange);
         let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
         devicecertificatelogDto.deviceid = device.externalId,
           devicecertificatelogDto.certificate_issuance_startdate = previousReading.length > 0 ? previousReading[0].timestamp : new Date(startDate.toString()),
@@ -703,8 +711,8 @@ export class IssuerService {
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await 
     this.issueCertificate(issuance);
-    //console.log(issuedCertificate);
-    console.log("generate Succesfull");
+    ////console.log(issuedCertificate);
+    //console.log("generate Succesfull");
     return;
   }
 
@@ -716,8 +724,8 @@ export class IssuerService {
     devicehistoryrequest: HistoryIntermediate_MeterRead,
     device: IDevice
   ): Promise<void> {
-    console.log("HistoryIntermediate_MeterRead");
-    console.log(devicehistoryrequest);
+    //console.log("HistoryIntermediate_MeterRead");
+    //console.log(devicehistoryrequest);
     if (
       !group.buyerAddress ||
       !group.buyerId
@@ -761,8 +769,8 @@ export class IssuerService {
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
     // let totalReadValueMegaWattHour = devicehistoryrequest.readsvalue / 10 ** 6;
-    // console.log("totalReadValueMegaWattHour");
-    // console.log(totalReadValueMegaWattHour);
+    // //console.log("totalReadValueMegaWattHour");
+    // //console.log(totalReadValueMegaWattHour);
     // await this.groupService.updateTotalReadingRequestedForCertificateIssuance(group.id, group.organizationId, totalReadValueMegaWattHour);
 
     let devicegroupcertificatelogDto = new CheckCertificateIssueDateLogForDeviceGroupEntity();
@@ -778,11 +786,11 @@ export class IssuerService {
     //const issuedCertificate = await 
     this.issueCertificate(issuance);
 
-    console.log("generate Succesfull");
+    //console.log("generate Succesfull");
     await this.readservice.updatehistorycertificateissuedate(devicehistoryrequest.id, devicehistoryrequest.readsStartDate, devicehistoryrequest.readsEndDate);
     return;
   }
-
+/*
   private async transferCertificateToBuyer(
     group: DeviceGroup,
     certificate: IIssuedCertificate<ICertificateMetadata>,
@@ -804,6 +812,9 @@ export class IssuerService {
     };
     await this.certificateService.transfer(transferCommand);
   }
+
+  */
+
 
   private async handleLeftoverReadsByCountryCode(
     group: DeviceGroup,
@@ -892,9 +903,9 @@ export class IssuerService {
     meterId: string,
     filter: FilterDTO,
   ): Promise<Array<{ timestamp: Date, value: number }>> {
-    console.log("381")
+    //console.log("381")
     const allReads: Array<{ timestamp: Date, value: number }> = await this.baseReadsService.find(meterId, filter);
-    console.log(`allReads externalId:${meterId}`, allReads);
+    //console.log(`allReads externalId:${meterId}`, allReads);
     return allReads;
   }
 
@@ -902,9 +913,9 @@ export class IssuerService {
     meterId: string,
     filter: FilterDTO,
   ): Promise<number> {
-    console.log("381")
+    //console.log("381")
     const allReads = await this.baseReadsService.find(meterId, filter);
-    console.log(`allReads externalId:${meterId}`, allReads);
+    //console.log(`allReads externalId:${meterId}`, allReads);
     return allReads.reduce(
       (accumulator, currentValue) => accumulator + currentValue.value,
       0,
@@ -933,9 +944,25 @@ export class IssuerService {
     reading: IIssueCommandParams<ICertificateMetadata>,
   ) {
     this.logger.log(`Issuing a certificate for reading`);
-    this.certificateService.issue(reading);
+    this.offChainCertificateService.issue(reading);
   }
 
+  
+  getCertificateData(deviceId?:string)
+  {
+    let request:IGetAllCertificatesOptions= {
+      // generationEndFrom: new Date(1677671426*1000),
+      // generationEndTo: new Date(1677671426*1000),
+      //  generationStartFrom :new Date(1646622684*1000),
+      // generationStartTo: new Date(1648159894*1000),
+      // creationTimeFrom: Date;
+      //  creationTimeTo: Date;
+      deviceId: "51"
+  }
 
+   this.offChainCertificateService.getAll(request).then(result=>{
+      console.log("certificates",result);
+    });
+  }
 
 }

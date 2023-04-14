@@ -320,3 +320,19 @@ border-left-color:$primary!important ;
 .mat-expansion-panel-header:hover{
     background: #ffc3009e !important;
 }
+.add-reservation{
+ 
+    .mdc-data-table__cell, .mdc-data-table__header-cell{
+        border: 0px !important;
+    }
+    tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12)!important;
+    }
+    .mat-mdc-table .mdc-data-table__row{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12)!important;
+    }
+   
+}
+.mat-mdc-dialog-surface.mdc-dialog__surface::-webkit-scrollbar{
+    display: none !important;
+}
