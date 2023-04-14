@@ -240,7 +240,7 @@ export class DeviceGroupController {
       }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
-    console.log("188");
+    //console.log("188");
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       throw new ConflictException({
         success: false,
@@ -249,24 +249,24 @@ export class DeviceGroupController {
     }
     let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10*3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
-      console.log("198");
+      //console.log("198");
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {
-      console.log("206");
+      //console.log("206");
       throw new ConflictException({
         success: false,
         message: 'User does not has organization associated',
       });
     }
    
-    console.log(deviceGroupToRegister.blockchainAddress);
+    //console.log(deviceGroupToRegister.blockchainAddress);
     
     if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
-      console.log("deviceGroupToRegister.blockchainAddress");
+      //console.log("deviceGroupToRegister.blockchainAddress");
       deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
      
       return await this.deviceGroupService.createOne(
@@ -277,9 +277,9 @@ export class DeviceGroupController {
       );
 
     } else {
-      console.log(user.blockchainAccountAddress);
+      //console.log(user.blockchainAccountAddress);
       if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
-        console.log("user.blockchainAddress")
+        //console.log("user.blockchainAddress")
         return await this.deviceGroupService.createOne(
           organizationId,
           deviceGroupToRegister,
@@ -541,12 +541,12 @@ export class DeviceGroupController {
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<JobFailedRowsDTO | undefined> {
-    console.log("jobId", jobId);
+    //console.log("jobId", jobId);
 
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
-    console.log("data", data);
+    //console.log("data", data);
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
@@ -563,8 +563,8 @@ export class DeviceGroupController {
     description: 'Returns created jobs of an organization',
   })
   public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log("user", user);
-    console.log("organization", organizationId);
+    //console.log("user", user);
+    //console.log("organization", organizationId);
 
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({

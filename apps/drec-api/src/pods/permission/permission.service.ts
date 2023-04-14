@@ -46,7 +46,7 @@ export class PermissionService {
 
     public async create(data: NewPermissionDTO, loginuser: LoggedInUser):
         Promise<PermissionDTO> {
-        console.log(data)
+        //console.log(data)
         const addedPermissionList: any = {
             Read: false,
             Write: false,
@@ -62,15 +62,15 @@ export class PermissionService {
             })
 
         }
-        console.log(addedPermissionList)
+        //console.log(addedPermissionList)
         var permissionValue = ( this.Permissionvalue.computePermissions(addedPermissionList));
-        console.log(permissionValue)
+        //console.log(permissionValue)
         const userpermission = await (this.findOne({ aclmodulesId: data.aclmodulesId, entityType: data.entityType, entityId: data.entityId }));
-        console.log("permission69");
-        console.log(userpermission);
+        //console.log("permission69");
+        //console.log(userpermission);
         if (!userpermission) {
             const permissionboolean = await this.checkForExistingmodulepermission(data, permissionValue);
-            console.log(permissionboolean)
+            //console.log(permissionboolean)
             if (permissionboolean) {
                 const aclpermission = new ACLModulePermissions({
                     ...data,
@@ -106,14 +106,14 @@ export class PermissionService {
 
     }
     private async checkForExistingmodulepermission(data: any, newpermissionvalue: number): Promise<boolean> {
-        console.log(data)
+        //console.log(data)
 
         const moduleId = await (this.ACLpermissionService.findOne({ id: data.aclmodulesId }));
 
-        console.log(moduleId)
+        //console.log(moduleId)
         const Ispermission = await (this.Permissionvalue.checkModulePermissionAgainstUserPermission(moduleId.permissionsValue, newpermissionvalue))
 
-        console.log(Ispermission);
+        //console.log(Ispermission);
         if (data.permissions.length === Ispermission.length) {
             return true;
         }
@@ -122,7 +122,7 @@ export class PermissionService {
     async findById(roleId: any, userId: any, modulename: any): Promise<IModulePermissionsConfig[]> {
 
         const moduleId = await (this.ACLpermissionService.findOne({ name: modulename[0] }));
-        console.log("moduleId",moduleId);
+        //console.log("moduleId",moduleId);
 
         const userpermission = await (this.repository.find({
             relations: ['aclmodules'],

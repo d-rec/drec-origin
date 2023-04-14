@@ -5,7 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import path from 'path';
-import { entities as IssuerEntities } from '@energyweb/issuer-api';
+import { BlockchainPropertiesModule, entities as IssuerEntities } from '@energyweb/issuer-api';
+import {OnChainCertificateEntities,OffChainCertificateEntities, OnChainCertificateModule} from '@energyweb/origin-247-certificate';
+
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
@@ -49,6 +51,8 @@ import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
+import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
+import { AudioModule } from './pods/audio/audio.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -91,6 +95,8 @@ export const entities = [
   SdgBenefit,
   DeltaFirstRead,
   ...IssuerEntities,
+  ...OnChainCertificateEntities,
+  ...OffChainCertificateEntities
 ];
 
 const OriginAppTypeOrmModule = () => {
@@ -116,9 +122,15 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
+let redisOptions= {
+  host:process.env.REDIS_URL ?? 'localhost',
+  port: 6379
+}
+
 const QueueingModule = () => {
   return BullModule.forRoot({
-    redis: process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
+    redis: redisOptions 
+    //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
   });
 };
 
@@ -151,7 +163,11 @@ const QueueingModule = () => {
     DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
     CountrycodeModule,
     SdgbenefitModule,
-    CertificateLogModule
+    CertificateLogModule,
+    OnChainCertificateModule,
+    BlockchainPropertiesModule,
+    AudioModule
   ],
+  providers:[OnApplicationBootstrapHookService]
 })
 export class DrecModule {}

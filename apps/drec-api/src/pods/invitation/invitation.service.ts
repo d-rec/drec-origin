@@ -103,14 +103,14 @@ inviteuseradd:Boolean=false;
     await Promise.all(
       newpermission.map(
         async (newpermission: NewPermissionDTO) => {
-          console.log(newpermission)
+          //console.log(newpermission)
           const perId = await this.PermissionService.create(newpermission, user)
-          console.log(perId);
+          //console.log(perId);
           permissionId.push(perId.id);
         }),
     );
 
-console.log(permissionId);
+//console.log(permissionId);
     await this.invitationRepository.update(saveinviteuser.id, { permissionId });
 
     await this.sendInvitation(organization, lowerCaseEmail);
@@ -128,7 +128,7 @@ console.log(permissionId);
       },
       relations: ['organization'],
     });
-    console.log(invitation)
+    //console.log(invitation)
     if (!invitation) {
       throw new BadRequestException('Requested invitation does not exist');
     }
@@ -149,7 +149,7 @@ console.log(permissionId);
       );
       await this.userService.changeRole(user.id, invitation.role);
       const pre = invitation.permissionId;
-      console.log(pre);
+      //console.log(pre);
       await Promise.all(
         pre.map(
           async (pre: number) =>

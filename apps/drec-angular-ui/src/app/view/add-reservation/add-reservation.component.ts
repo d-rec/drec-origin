@@ -260,7 +260,7 @@ export class AddReservationComponent {
     console.log(this.reservationForm)
     this.dialogRef.afterClosed().subscribe((result: any) => {
      // console.log(this.reservationForm);
-      console.log('The City dialog was closed.');
+    
       console.log(result);
 
       this.onContinue(result);
