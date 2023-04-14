@@ -203,7 +203,7 @@ export class IssuerService {
         //   newGroup.devices = countryDevicegroup[key];
         //   this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
         // }
-        console.log("206line", (startDate.diff(endDate, ['days']).days))
+        console.log("206line", (endDate.diff(startDate, ['days']).days))
         if (endDate.diff(startDate, ['days']).days <= 1) {
 
           for (let key in countryDevicegroup) {
@@ -265,14 +265,7 @@ export class IssuerService {
               this.newissueCertificateForGroup(newGroup, grouprequest, ele.startDate, ele.endDate, key);
 
             })
-
-
-
           }
-
-
-
-
         }
       }),
     );

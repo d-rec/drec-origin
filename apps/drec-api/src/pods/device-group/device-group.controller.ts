@@ -99,32 +99,7 @@ export class DeviceGroupController {
     return this.deviceGroupService.getAll();
   }
 
-  @Get('/unreserved')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.Buyer)
-  @ApiOkResponse({
-    type: [SelectableDeviceGroupDTO],
-    description: 'Returns all unreserved Device Groups',
-  })
-  async getUnreserved(
-    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto);
-  }
 
-  @Get('/reserved')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.Buyer)
-  @ApiOkResponse({
-    type: [SelectableDeviceGroupDTO],
-    description: 'Returns all reserved Device Groups',
-  })
-  async getReserved(
-    @UserDecorator() { id }: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto, id);
-  }
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -247,7 +222,7 @@ export class DeviceGroupController {
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10*3));
+    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
       console.log("198");
       throw new ConflictException({
@@ -262,13 +237,13 @@ export class DeviceGroupController {
         message: 'User does not has organization associated',
       });
     }
-   
+
     console.log(deviceGroupToRegister.blockchainAddress);
-    
-    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
+
+    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
       console.log("deviceGroupToRegister.blockchainAddress");
       deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-     
+
       return await this.deviceGroupService.createOne(
         organizationId,
         deviceGroupToRegister,
@@ -300,43 +275,8 @@ export class DeviceGroupController {
 
 
 
-  @Post('multiple')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns a new created Device group',
-  })
-  @ApiBody({ type: [AddGroupDTO] })
-  public async createMultiple(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceGroupsToRegister: AddGroupDTO[],
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.createMultiple(
-      organizationId,
-      deviceGroupsToRegister,
-    );
-  }
 
-  @Post('bulk-devices')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns auto-created device groups',
-  })
-  @ApiBody({ type: [NewDeviceDTO] })
-  public async createBulk(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() devicesToRegister: NewDeviceDTO[],
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.registerBulkDevices(
-      organizationId,
-      devicesToRegister,
-    );
-  }
+
 
 
 
@@ -366,7 +306,7 @@ export class DeviceGroupController {
     }
 
     //let response:any = await this.fileService.GetuploadS3(fileToProcess.fileName);
-   // let response = await this.fileService.get(fileToProcess.fileName, user);
+    // let response = await this.fileService.get(fileToProcess.fileName, user);
 
 
     console.log(fileToProcess.fileName);
@@ -394,80 +334,9 @@ export class DeviceGroupController {
 
     return jobCreated;
   }
-  @Post('/reserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns a new created Device group',
-  })
-  public async reserve(
-    @UserDecorator()
-    { id, blockchainAccountAddress }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.reserveGroup(
-      ids,
-      id,
-      blockchainAccountAddress,
-    );
-  }
 
-  @Post('/unreserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Unreserves device groups from buyer',
-  })
-  public async unreserve(
-    @UserDecorator()
-    { id }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.unreserveGroup(ids, id);
-  }
-  @Post('/add/:id')
-  @UseGuards(AuthGuard('jwt'))
-  //@Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: DeviceGroupDTO,
-    description: 'Returns a new created Device group',
-  })
-  public async addDevices(
-    @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceIds: DeviceIdsDTO,
-  ): Promise<DeviceGroupDTO | void> {
-    return await this.deviceGroupService.addDevices(
-      id,
-      organizationId,
-      deviceIds,
-    );
-  }
 
-  @Post('/remove/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: DeviceGroupDTO,
-    description: 'Returns a new created Device group',
-  })
-  public async removeDevices(
-    @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceIds: DeviceIdsDTO,
-  ): Promise<DeviceGroupDTO | void> {
-    return await this.deviceGroupService.removeDevices(
-      id,
-      organizationId,
-      deviceIds,
-    );
-  }
+
 
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'))

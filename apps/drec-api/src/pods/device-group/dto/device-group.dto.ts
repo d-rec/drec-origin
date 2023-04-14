@@ -33,17 +33,17 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsNumber()
   organizationId: number;
 
-  @ApiProperty()
-  @IsString()
-  countryCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  countryCode: string[];
 
-  @ApiProperty()
-  @IsString()
-  fuelCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  fuelCode: string[];
 
-  @ApiProperty()
-  @IsEnum(StandardCompliance)
-  standardCompliance: StandardCompliance;
+  // @ApiProperty()
+  // @IsEnum(StandardCompliance)
+  // standardCompliance: StandardCompliance;
 
   @ApiProperty({ type: [String] })
   @IsArray()
@@ -58,23 +58,23 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsNotEmpty()
   offTakers: OffTaker[];
 
-  @ApiProperty({
-    description: 'List of installations',
-    isArray: true,
-    enum: Installation,
-  })
-  @IsEnum(Installation, { each: true })
-  @IsNotEmpty()
-  installationConfigurations: Installation[];
+  // @ApiProperty({
+  //   description: 'List of installations',
+  //   isArray: true,
+  //   enum: Installation,
+  // })
+  // @IsEnum(Installation, { each: true })
+  // @IsNotEmpty()
+  // installationConfigurations: Installation[];
 
-  @ApiProperty({
-    description: 'List of sectors',
-    isArray: true,
-    enum: Sector,
-  })
-  @IsEnum(Sector, { each: true })
-  @IsNotEmpty()
-  sectors: Sector[];
+  // @ApiProperty({
+  //   description: 'List of sectors',
+  //   isArray: true,
+  //   enum: Sector,
+  // })
+  // @IsEnum(Sector, { each: true })
+  // @IsNotEmpty()
+  // sectors: Sector[];
 
   @ApiProperty()
   @IsBoolean()
@@ -97,15 +97,12 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsNotEmpty()
   commissioningDateRange: CommissioningDateRange[];
 
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  yieldValue: number;
+ 
 
-  @ApiProperty({ type: [String] })
-  @IsArray()
-  @IsOptional()
-  labels: string[];
+// @ApiProperty({ type: [String] })
+//   @IsArray()
+//   @IsOptional()
+//   labels: string[];
 
   @ApiPropertyOptional({ type: [DeviceDTO] })
   @IsArray()

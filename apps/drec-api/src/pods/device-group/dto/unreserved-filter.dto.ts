@@ -7,6 +7,7 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode
 } from '../../../utils/enums';
 
 export class UnreservedDeviceGroupsFilterDTO {
@@ -16,7 +17,7 @@ export class UnreservedDeviceGroupsFilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Fuel Code' })
-  fuelCode: string;
+  fuelCode: FuelCode;
 
   @IsOptional()
   @ApiPropertyOptional({
