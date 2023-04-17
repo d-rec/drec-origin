@@ -638,7 +638,7 @@ export class IssuerService {
         console.log("devicecertificatelogDto", devicecertificatelogDto);
         await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
       }),
-    );
+    ); 
     //find the minimum of all previous reading dates of devices  and use it as start date 
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
     let checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
