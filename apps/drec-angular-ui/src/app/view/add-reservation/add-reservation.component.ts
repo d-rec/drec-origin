@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -9,6 +9,7 @@ import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@ang
 import { ParseTreeResult } from '@angular/compiler';
 import { ToastrService } from 'ngx-toastr';
 import { DeviceService } from '../../auth/services/device.service'
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'app-add-reservation',
   templateUrl: './add-reservation.component.html',
@@ -26,6 +27,7 @@ export class AddReservationComponent {
     'status',
 
   ];
+  @ViewChild('mypopupDialog') popupDialog = {} as TemplateRef<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -47,9 +49,10 @@ export class AddReservationComponent {
   endminDate = new Date();
   FilterForm: FormGroup;
   offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
-  frequency = ['hourly', 'daily', 'weekly', 'montly']
-
-  constructor(private authService: AuthbaseService, private router: Router,
+  frequency = ['hourly', 'daily', 'weekly', 'monthly']
+  dialogRef: any;
+  reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
+  constructor(private authService: AuthbaseService, private router: Router, public dialog: MatDialog,
     private formBuilder: FormBuilder, private toastrService: ToastrService, private deviceservice: DeviceService) {
     this.loginuser = sessionStorage.getItem('loginuser');
     this.reservationForm = this.formBuilder.group({
@@ -73,6 +76,7 @@ export class AddReservationComponent {
     });
   }
   ngOnInit() {
+    
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
         // display list in the console
@@ -94,7 +98,7 @@ export class AddReservationComponent {
         this.countrycodeLoded = true;
       }
     )
-   // this.getDeviceListData();
+    // this.getDeviceListData();
     console.log("myreservation");
 
     // setTimeout(() => this.DisplayList(), 10000);
@@ -107,8 +111,8 @@ export class AddReservationComponent {
   }
   reset() {
     this.FilterForm.reset();
-    
-   // this.getDeviceListData();
+    this.loading = false;
+    // this.getDeviceListData();
     this.selection.clear();
   }
 
@@ -158,7 +162,7 @@ export class AddReservationComponent {
       }
     )
   }
-  displayList(){
+  displayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
       //@ts-ignore
       this.data.forEach(ele => {
@@ -189,7 +193,7 @@ export class AddReservationComponent {
         //   //@ts-ignore
         //   this.selection.selected.forEach(ele=>data.find(ele1 => ele1.id != ele.countryCode)data.unsift(ele))
         // }
-           this.loading=true;
+        this.loading = true;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
             //@ts-ignore
@@ -216,10 +220,7 @@ export class AddReservationComponent {
           ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
         })
         console.log(this.data)
-        this.dataSource = new MatTableDataSource(this.data);
-        //console.log(this.dataSource)
-        // this.selection= new SelectionModel<any>(true, this.data);
-        // this.isAllSelected();
+       this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         //@ts-ignore
@@ -241,24 +242,58 @@ export class AddReservationComponent {
 
       })
       this.reservationForm.controls['deviceIds'].setValue(deviceId)
-      this.authService.PostAuth('device-group', this.reservationForm.value).subscribe({
-        next: data => {
-          console.log(data)
-          this.reservationForm.reset();
-          this.selection.clear();
-          this.getDeviceListData();
-          this.toastrService.success('Successfully!!', 'Reservation');
-        },
-        error: err => {                          //Error callback
-          console.error('error caught in component', err)
-          this.toastrService.error('error!', err.error.message);
-        }
-      });
-
+      console.log(this.reservationForm);
+      this.openpopupDialog(this.reservationForm)
     } else {
       this.toastrService.error('Validation!', 'Please select at least one device');
     }
 
 
+  }
+
+
+  openpopupDialog(reservationForm: any) {
+    console.log("reservationForm");
+    console.log(reservationForm)
+    this.dialogRef = this.dialog.open(this.popupDialog,
+      { data: this.reservationbollean, height: '300px', width: '500px' });
+    console.log(this.reservationForm)
+    this.dialogRef.afterClosed().subscribe((result: any) => {
+     // console.log(this.reservationForm);
+    
+      console.log(result);
+
+      this.onContinue(result);
+
+    });
+
+    // this.onContinue(result)
+    //this.dialogRef.afterClosed();
+  }
+  onContinue(result: any) {
+    console.log(this.reservationForm);
+    console.log(result);
+    this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
+    this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
+    console.log(this.reservationForm);
+   // this.toastrService.success('Successfully!!', 'Reservation');
+    //this.reservationForm.reset();
+    //this.selection.clear();
+    this.authService.PostAuth('device-group', this.reservationForm.value).subscribe({
+      next: data => {
+        console.log(data)
+        this.reservationForm.reset();
+        this.selection.clear();
+        this.FilterForm.reset();
+      //  this.getDeviceListData();
+        this.toastrService.success('Successfully!!', 'Reservation');
+        this.dialogRef.close();
+      },
+      error: err => {                          //Error callback
+        console.error('error caught in component', err)
+        this.toastrService.error('error!', err.error.message);
+      }
+    });
+   
   }
 }

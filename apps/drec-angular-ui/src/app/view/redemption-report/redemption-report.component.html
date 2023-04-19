@@ -29,11 +29,11 @@
             </ng-container>
             <ng-container matColumnDef="country">
               <th mat-header-cell *matHeaderCellDef> CountryCode </th>
-              <td mat-cell *matCellDef="let element"> {{element.country}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
             </ng-container>
             <ng-container matColumnDef="fuelCode">
               <th mat-header-cell *matHeaderCellDef> FuelCode </th>
-              <td mat-cell *matCellDef="let element"> {{element.fuelCode}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
             </ng-container>
             <!-- <ng-container matColumnDef="commissioningDateRange">
               <th mat-header-cell *matHeaderCellDef> commissioningDateRange </th>
@@ -65,7 +65,7 @@
             -->
             <ng-container matColumnDef="offTakers">
               <th mat-header-cell *matHeaderCellDef> offTakers </th>
-              <td mat-cell *matCellDef="let element"> {{element.offTakers}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.offTakername}} </td>
             </ng-container>
             
               <!-- <ng-container matColumnDef="sectors">

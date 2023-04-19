@@ -741,7 +741,7 @@ export class DeviceService {
           0,
         );
         totalamountofreads.push({
-          devicename: device.externalId,
+          externalId: device.developerExternalId,
           totalcertifiedReadValue: totalcertifiedReadValue,
           totalReadValue: totalReadValue
         })

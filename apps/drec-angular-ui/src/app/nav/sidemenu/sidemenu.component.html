@@ -35,11 +35,33 @@
         </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/read"
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='OrganizationAdmin'">
+        <mat-expansion-panel-header class="mdc-button">
+          MeterRead
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+                <mat-icon>list</mat-icon>
+                <span>My Devices</span>
+              </a> -->
+          <a mat-button class="menu-button" routerLinkActive="active" routerLink="/reads/All"
+            *ngIf="loginuser.role ==='OrganizationAdmin'">
+            <mat-icon>list</mat-icon>
+            <span>All Reads</span>
+          </a>
+          <a mat-button class="menu-button" routerLinkActive="active" routerLink="/reads/add"
+            *ngIf="loginuser.role ==='OrganizationAdmin'">
+            <mat-icon>list</mat-icon>
+            <span>Add MeterRead</span>
+          </a>
+         
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <!-- <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/read"
         *ngIf="loginuser.role ==='OrganizationAdmin'">
         <mat-icon>list</mat-icon>
         <span>Add MeterRead</span>
-      </button>
+      </button> -->
 
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation"
         *ngIf="loginuser.role ==='Buyer'">

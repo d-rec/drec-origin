@@ -350,19 +350,20 @@ export class CertificateLogService {
             //console.log(claimcertificate);
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
-                console.log(claims.claimData)
+                console.log(claims.claimData);
+              
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
-                  fuelCode: devicegroup?.fuelCode,
-                  country: devicegroup?.countryCode,
+                  fuelCode: devicegroup?.fuelCode.toString().split(','),
+                  country: devicegroup?.countryCode.toString().split(','),
                   capacityRange: devicegroup?.capacityRange,
                   // installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
-                  offTakers: devicegroup?.offTakers.join().replace(',', ', '),
+                  offTakers: devicegroup?.offTakers.join().replace(',', ' ,').toString().split(','),
                   // sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join().replace(',', ', '),
-                  standardCompliance: devicegroup?.standardCompliance,
+                  //standardCompliance: devicegroup?.standardCompliance,
                   redemptionDate: claims.claimData.periodStartDate.substring(claims.claimData.periodStartDate.indexOf(":") + 1),
                   certifiedEnergy: claims.value / 10 ** 6,
                   beneficiary: claims.claimData.beneficiary.substring(claims.claimData.beneficiary.indexOf(":") + 1),

@@ -6,7 +6,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component';
-import {AddreadComponent} from './view/addread/addread.component';
+
 import {CertificateDetailsComponent} from './view/certificate-details/certificate-details.component'
 import {
   MyreservationComponent
@@ -34,7 +34,12 @@ const routes: Routes = [
       { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
    
-      { path: 'add/read', component: AddreadComponent },
+      {
+        path: 'reads',
+        loadChildren: () =>
+          import('./view/meter-read/meter-read.module').then((m) => m.MeterReadModule),
+      },
+    //  { path: 'add/read', component: AddreadComponent },
       {
         path: 'organization',
         loadChildren: () =>

@@ -152,7 +152,7 @@ export class MyreservationComponent implements OnInit {
           this.data = data;
           // this.data.forEach(ele => {
             //@ts-ignore
-            this.data['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.data.fuelCode,)?.name;
+            this.data['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.data.fuelCode)?.name;
             //@ts-ignore
             this.data['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.data.deviceTypeCode)?.name;
             //@ts-ignore

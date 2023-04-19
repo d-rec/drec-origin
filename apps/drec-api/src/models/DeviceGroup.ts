@@ -21,8 +21,8 @@ export interface IDeviceGroup {
   id: number;
   name: string;
   organizationId: number;
-  fuelCode: string;
-  countryCode: string;
+  fuelCode: string[];
+  countryCode: string[];
   //standardCompliance: StandardCompliance;
 
   deviceTypeCodes: string[];
@@ -35,9 +35,9 @@ export interface IDeviceGroup {
   capacityRange: CapacityRange;
   commissioningDateRange: CommissioningDateRange[];
 
-  yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
+ // yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
 
-  labels?: string[];
+ // labels?: string[];
 
   leftoverReads?: number; // in KW
 

@@ -1,4 +1,4 @@
-<div class="body-bg">
+<div class="body-bg add-reservation">
     <mat-card>
         <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
@@ -24,7 +24,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">Capacity(KW)</mat-label>
+                            <mat-label class="text-capitalize">Target Capacity(MWH)</mat-label>
 
                             <input matInput placeholder="targetCapacityInMegaWattHour" type="number"
                                 formControlName='targetCapacityInMegaWattHour' min="1" autocomplete="off">
@@ -83,33 +83,6 @@
 
                         </mat-form-field>
                     </div>
-                    <div class="col-md-6">
-
-                        <mat-radio-group
-                            formControlName='continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'>
-                            <span>Continue witn some device unavailabe in reservation:</span>
-                            <br>
-                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                            <mat-radio-button [value]=false>False</mat-radio-button>
-                        </mat-radio-group>
-
-
-                    </div>
-
-                </div>
-                <div class="example-container1 row">
-                    <div class="col-md-4">
-
-                        <mat-radio-group
-                            formControlName='continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'>
-                            <span>Continue witn Tagret Capacity:</span>
-                            <br>
-                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                            <mat-radio-button [value]=false>False</mat-radio-button>
-                        </mat-radio-group>
-
-                    </div>
-
                     <div class="col-md-4">
 
                         <mat-radio-group formControlName='authorityToExceed'>
@@ -121,11 +94,13 @@
 
 
                     </div>
+
                 </div>
+              
             </form>
-            <div class="example-container1 row" style="padding: 10px">
-                <mat-card>
-                    <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+            <div class="example-container1  row" style="padding: 10px">
+                <mat-card class="nested-card">
+                    <mat-card-header class="d-flex justify-content-between nested-card-header mat-crd-hide align-items-center">
 
                         <div>
                             <h4 class="pb-0 mb-0 fw-bold text-capitalize">select the devices
@@ -133,8 +108,8 @@
                         </div>
 
                     </mat-card-header>
-                    <hr>
-                    <mat-card-content>
+                    <!-- <hr> -->
+                    <mat-card-content class="pt-3" >
                         <h3>Use filters to select devices </h3>
                         <form [formGroup]="FilterForm">
                             <div class="example-container1 row">
@@ -191,15 +166,19 @@
                                         <input matInput placeholder="Search" formControlName='capacity' #input>
                                     </mat-form-field>
                                 </div>
-                                <div class="col-md-2">
-                                    <button class="btn-primary btn text-capitalize px-4"
-                                        (click)="applyFilter()">filter</button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn-primary btn text-capitalize px-4"
-                                        (click)="reset()">Reset</button>
-                                </div>
+                                <div class="col-md-12 mb-3  d-flex justify-content-end">
+                                    <div class="">
+                                        <button class="btn-primary me-2 btn text-capitalize px-4"
+                                            (click)="applyFilter()">filter</button>
+                                    </div>
+                                    <div class="">
+                                        <button class="btn-primary btn text-capitalize px-4"
+                                            (click)="reset()">Reset</button>
+                                    </div>
+    
 
+                                </div>
+                               
                             </div>
                         </form>
                         <div class="content mat-elevation-z8 text-center" *ngIf="loading">
@@ -240,8 +219,7 @@
                                 <!-- Position Column -->
                                 <ng-container matColumnDef="onboarding_date">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> OnBoarding Date </th>
-                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMM
-                                        yyyy hh:mm:ss'}} </td>
+                                    <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMMyyyy hh:mm:ss'}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="projectName">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> projectName </th>
@@ -273,7 +251,11 @@
                                     (click)="selection.toggle(row)">
                                 </tr>
                             </table>
-                            <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
+                            <!-- <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
+                         -->
+                            <mat-paginator #paginator   [pageSize]="pageSize"
+                             aria-label="Select page">
+                          </mat-paginator>
                         </div>
                     </mat-card-content>
                 </mat-card>
@@ -292,4 +274,36 @@
         </mat-card-footer>
 
     </mat-card>
+    
 </div>
+<ng-template let-data #myCityDialog class="Position-relative ng-template-add-reservation">
+    <h2 mat-dialog-title class="mat-dialog-title"> Reservation</h2>
+    <div mat-dialog-content>
+        <p>
+            <mat-radio-group
+            [(ngModel)]="data.continewwithunavilableonedevice">
+                            <span>Continue reservation if some devices are unavailable:</span>
+                            <br>
+                            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+                            <mat-radio-button [value]=false>No</mat-radio-button>
+                        </mat-radio-group>
+
+          </p>
+      <p>
+       
+        <mat-radio-group [(ngModel)]="data.continueWithTCLessDTC">
+            <span class="dialog-popup-discription">Continue reservation if target capacity is less than estimated reachable
+                capacity of devices between selected period:</span>
+            <br>
+            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+            <mat-radio-button [value]=false>No</mat-radio-button>
+        </mat-radio-group>
+      </p>
+      
+    </div>
+    <div mat-dialog-actions class=" continue-button">
+        <!-- <button mat-button (click)="onContinue()">Continue</button> -->
+        <button mat-button [mat-dialog-close]="data" class="btn-primary btn text-capitalize" cdkFocusInitial>Continue</button>
+    </div>
+   
+  </ng-template>

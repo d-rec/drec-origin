@@ -1,0 +1,107 @@
+<div class="body-bg">
+  
+    <mat-card>
+      <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
+  
+        <div>
+          <mat-card-title>
+            <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">List
+            </h2>
+        </mat-card-title>
+        </div>
+       
+      
+  
+    </mat-card-header>
+    <hr class="mt-0 pt-0">
+      
+      <mat-card-content class="mat-body-cont text-center">
+
+        <form [formGroup]="FilterForm">
+            <div class="example-container1 row">
+                <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">exterenalId</mat-label>
+                        <!-- <input [(ngModel)]="exterenalId"  type="text"> -->
+                        <!-- <input matInput placeholder="name" [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}"> -->
+                        <mat-select [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}">
+                            <mat-option *ngFor="let code of devicedata" [value]="code.externalId">
+                                {{code.externalId}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Start Date </mat-label>
+                        <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                            formControlName="start" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)"
+                            >
+                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                            [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+                            [disableMinute]="false" [hideTime]="false">
+                        </ngx-mat-datetime-picker>
+                    </mat-form-field>
+                </div>
+                <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">End Date </mat-label>
+                        <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+                            formControlName="end" [min]="endminDate" autocomplete="off">
+                        <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+                        <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                            [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+                            [disableMinute]="false" [hideTime]="false">
+                        </ngx-mat-datetime-picker>
+                        <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
+                       <b> {{getErrorcheckdatavalidation()}}</b>
+                      </mat-error> -->
+                    </mat-form-field>
+                </div>
+
+                
+                <div class="col-md-2">
+                    <button class="btn-primary btn text-capitalize px-4"
+                        (click)="getPagedData()">filter</button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn-primary btn text-capitalize px-4"
+                        (click)="reset()">Reset</button>
+                </div>
+
+            </div>
+        </form>
+        <hr>
+        <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
+      <div class="content mat-elevation-z8 text-center" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" >
+            <!-- columns here -->
+            <!-- <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+              </ng-container> -->
+              <ng-container matColumnDef="startdate">
+                <th mat-header-cell *matHeaderCellDef> Start Datetime </th>
+                <td mat-cell *matCellDef="let element"> {{element.startdate}} </td>
+              </ng-container>
+              <ng-container matColumnDef="enddate">
+                <th mat-header-cell *matHeaderCellDef>End Datetime </th>
+                <td mat-cell *matCellDef="let element"> {{element.enddate}} </td>
+              </ng-container>
+              <ng-container matColumnDef="value">
+                <th mat-header-cell *matHeaderCellDef> Value(Wh) </th>
+                <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+              </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        
+        <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions" (page)="pageChangeEvent($event)" aria-label="Select page">
+      </mat-paginator>
+      </div>
+      </mat-card-content>
+      <mat-card-footer></mat-card-footer>
+    </mat-card>
+  </div>
