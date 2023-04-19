@@ -35,6 +35,10 @@ import { ReadStatus } from 'src/utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity'
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 import { ReadFilterDTO } from './dto/filter.dto'
+import * as mapBoxTimeSpace from  '@mapbox/timespace';
+import * as momentTimeZone from 'moment-timezone';
+
+import { Cron, CronExpression } from '@nestjs/schedule';
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
@@ -1447,6 +1451,7 @@ export class ReadsService {
   }
 
 
+
   async getAllRead(externalId, filter, deviceOnboarded, pageNumber: number): Promise<any> {
   if (new Date(filter.start).getTime() == new Date(filter.end).getTime()) {
     throw new HttpException('The given start and end timestamps are the same', 400)
@@ -1615,9 +1620,160 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
 return await this.execute(query);
 }
-
-
-
-
 /* */
+
+
+async getlocaltime(externalId, organizationId, startDate, numberOfDays) {
+  let device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, organizationId);
+  console.log("Longitude: " + device.longitude);
+  console.log("Given Date: " + startDate);
+
+  let timestamp = new Date(startDate);
+  let point = [parseFloat(device.longitude), parseFloat(device.latitude)];
+  let time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
+  let start = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point).startOf('day');
+  console.log("Start Time: " + start.utc().format());
+
+  let end = start.clone().add(numberOfDays, 'days').subtract(1, 'seconds');
+  console.log("End Time: " + end.utc().format());
+
+  return { "start": start.utc().format(), "end": end.utc().format(),"point":point,"localTime":startDate};
+}
+
+
+// @Cron(CronExpression.EVERY_10_SECONDS)
+async gettingacumulateddailyreads(developerExternalId,organizationId,deviceExternalId,startDate)
+{
+  const year = startDate.substring(0, 4);
+  const month = startDate.substring(5, 7);
+  let numberofdays=this.getnumberofdaysinmonth(year,month);
+  console.log("Number of days:::::"+numberofdays);
+  let readsfilter={
+    offset:0,
+    limit:10000,
+    start:(await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays)).start,
+    end:(await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays)).end
+     //Read exists on ::::::::     2022-06-12T12:20:55.000Z
+  }
+  console.log(await this.baseReadsService.find(deviceExternalId,readsfilter));
+  const reads=await this.baseReadsService.find(deviceExternalId,readsfilter);
+  console.log("reads:::"+reads);
+  let sum=0;
+  reads.map(read=>sum+=read.value);
+  console.log("SUM::::::::::::::::::::"+sum)
+  return {"SUM":sum}
+
+}
+
+async getmonthlyreads(developerExternalId,organizationId,deviceExternalId,startDate)
+{
+  console.log("startDate from months thingy"+startDate);
+  const year = startDate.substring(0, 4);
+  const month = startDate.substring(5, 7);
+  const numberofdays=this.getnumberofdaysinmonth(year,month);
+  console.log("Number of days:::::"+numberofdays);
+  const getlocaltime=await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays);
+  const point=getlocaltime.point;
+  const startTime=getlocaltime.start;
+  const endTime=getlocaltime.end;
+  const readsfilter={
+    offset:0,
+    limit:10000,
+    start:startTime,
+    end:endTime
+     //Read exists on ::::::::     2022-06-12T12:20:55.000Z
+  }
+  console.log(await this.baseReadsService.find(deviceExternalId,readsfilter));
+  const fullreads=await this.baseReadsService.find(deviceExternalId,readsfilter);
+  console.log("reads:::"+fullreads);
+  let sum=0;
+  const reads=[];
+  fullreads.map(fullread=>console.log("read::::::::::::::::::::::"+fullread.value));
+  fullreads.map(fullread=>sum+=fullread.value);
+  fullreads.map(fullread=>reads.push(fullread));
+  console.log("SUM::::::::::::::::::::"+sum);
+  const localtime=getlocaltime.localTime;
+  const timeZoneused=await this.getlocaltimezonefromlocaltime(localtime,point);
+  console.log("timezoneused from the getmonthlyreads function::::"+timeZoneused);
+  return ({"accumlatedValue":sum,"READS":reads,"timezoneused":timeZoneused});
+}
+
+
+getnumberofdaysinmonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+
+
+
+// @Cron(CronExpression.EVERY_10_SECONDS)
+getlocaltimezonefromlocaltime(localtime,point) {
+  var timestamp = new Date(localtime);
+  let time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
+  console.log("TIME:::::::::::::::::"+time);
+
+   const actualTimeZone=momentTimeZone.tz.names().find((timezone) => {
+      console.log(
+        ' momentTimeZone.tz(timezone).zoneAbbr()',
+        momentTimeZone.tz(timezone).zoneAbbr()
+      );
+      console.log('time.zoneAbbr()', time.zoneAbbr());
+      console.log("timezonesssssss",momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr())
+      if(momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr())
+      {
+        console.log("TIMEZONE THAT's BEING RETURNED"+timezone);
+              return timezone;
+      }
+    });
+    console.log("actualtimezone"+actualTimeZone);
+
+    return actualTimeZone;
+
+}
+
+
+
+// getyearlyreads(developerExternalId,organizationId,externalId,startDate)
+// {
+
+//   return "yearly data"
+// }
+
+
+// @Cron(CronExpression.EVERY_10_SECONDS)
+async  getyearlyreads(developerExternalId, organizationId, deviceExternalId, year) {
+  year = year.slice(0, 4);
+  console.log("year:::" + year);
+  const monthlyReads = [];
+  for (let month = 1; month <= 12; month++) {
+    const monthString = month.toString().padStart(2, "0");
+    const startDate = `${year}-${monthString}-01T00:00:00.000Z`;
+    const monthlyRead = await this.getmonthlyreads(
+      developerExternalId,
+      organizationId,
+      deviceExternalId,
+      startDate
+    );
+    monthlyReads.push({ month: monthString, monthlyRead: monthlyRead });
+    console.log(`Monthly Reads for ${monthString}:`, monthlyRead);
+  }
+  return monthlyReads;
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -839,4 +839,25 @@ export class DeviceService {
     return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
   }
   /* */
+
+////////////////////////////////////////
+
+public async atto(organizationId, externalId) {
+  const queryBuilder = this.repository.createQueryBuilder('Device');
+  const rows = await queryBuilder
+    .where("Device.organizationId = :organizationId", { organizationId })
+    .andWhere(
+      new Brackets(qb => {
+        qb.where("Device.externalId = :externalId", { externalId })
+          .orWhere("Device.externalId LIKE :pattern", { pattern: `${externalId}%` });
+      }))
+      .orderBy('Device.externalId')
+    .getMany();
+  return rows.map(row => ({
+    externalId: row.developerExternalId,
+    organizationId: row.organizationId
+  }));
+}
+
+///////////////////
 }
