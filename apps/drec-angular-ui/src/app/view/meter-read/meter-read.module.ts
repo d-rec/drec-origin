@@ -6,10 +6,12 @@ import { MeterReadRoutingModule } from './meter-read-routing.module';
 import {AddreadComponent} from './addread/addread.component'
 import { AllMetereadsComponent } from './all-metereads/all-metereads.component';
 
+import { MeterReadTableComponent } from './meter-read-table/meter-read-table.component';
+
 
 @NgModule({
   declarations: [
-    AllMetereadsComponent,AddreadComponent
+    AllMetereadsComponent,AddreadComponent, MeterReadTableComponent
   ],
   imports: [
     CommonModule,

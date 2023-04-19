@@ -10,6 +10,8 @@ import { ParseTreeResult } from '@angular/compiler';
 import { ToastrService } from 'ngx-toastr';
 import { DeviceService } from '../../auth/services/device.service'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import {MeterReadTableComponent} from '../meter-read/meter-read-table/meter-read-table.component'
 @Component({
   selector: 'app-add-reservation',
   templateUrl: './add-reservation.component.html',
@@ -25,8 +27,10 @@ export class AddReservationComponent {
     'countryCode',
     'fuelCode',
     'status',
+    'viewread'
 
   ];
+  bottomSheetRef = {} as MatBottomSheetRef<MeterReadTableComponent>
   @ViewChild('mypopupDialog') popupDialog = {} as TemplateRef<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -44,15 +48,15 @@ export class AddReservationComponent {
   loading: boolean = false;
   selection = new SelectionModel<any>(true, []);
   reservationForm: FormGroup;
-  // startmaxDate = new Date();
-  // startminDate = new Date();
+  
   endminDate = new Date();
   FilterForm: FormGroup;
   offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
-  constructor(private authService: AuthbaseService, private router: Router, public dialog: MatDialog,
+  constructor(private authService: AuthbaseService, private router: Router, 
+    public dialog: MatDialog,private bottomSheet: MatBottomSheet,
     private formBuilder: FormBuilder, private toastrService: ToastrService, private deviceservice: DeviceService) {
     this.loginuser = sessionStorage.getItem('loginuser');
     this.reservationForm = this.formBuilder.group({
@@ -79,35 +83,43 @@ export class AddReservationComponent {
     
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
-        // display list in the console
+      
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2: any) => {
-        // display list in the console
+      
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3: any) => {
-        // display list in the console
-        // console.log(data)
+       
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
     )
-    // this.getDeviceListData();
+  
     console.log("myreservation");
+  }
 
-    // setTimeout(() => this.DisplayList(), 10000);
-    // setTimeout(() => {
-    //   this.loading = false;
-
-    //  this.displayList();
-    // }, 2000)
-
+  openBottomSheet(device:any) {
+    if(this.reservationForm.value.reservationStartDate!=null && this.reservationForm.value.reservationEndDate!=null){
+      let requestreaddata:any ={devicename:device.externalId,rexternalid:device.id,reservationStartDate:this.reservationForm.value.reservationStartDate,reservationEndDate:this.reservationForm.value.reservationEndDate}
+      const config: MatBottomSheetConfig = { data: requestreaddata };
+      this.bottomSheetRef = this.bottomSheet.open(MeterReadTableComponent, config);
+      this.bottomSheetRef.afterOpened().subscribe(() => {
+        console.log('Bottom sheet is open.');
+      });
+      this.bottomSheetRef.afterDismissed().subscribe(data => {
+        console.log('Return value: ', data);
+      });
+    }else{
+      this.toastrService.error('Validation!', 'Please add start and end date');
+    }
+   
   }
   reset() {
     this.FilterForm.reset();
@@ -121,9 +133,6 @@ export class AddReservationComponent {
     console.log(this.selection.selected);
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
-
-    //this.reservationForm.controls['deviceIds'].setValue(this.selection.selected)
-    //this.reservationForm.value.deviceIds=this.selection.selected;
     return numSelected === numRows;
   }
   masterToggle() {
@@ -134,25 +143,13 @@ export class AddReservationComponent {
   }
   onEndChangeEvent(event: any) {
     console.log(event);
-    // this.startminDate= this.historyAge;
-    //this.startmaxDate=this.devicecreateddate;
-
-    this.endminDate = event;
-    //this.hidestarttime = true;
+     this.endminDate = event;
+  
 
   }
-  // applyFilter(event: Event) {
-  //   console.log(event)
-  //   const filterValue = (event.target as HTMLInputElement).value;
-  //   this.dataSource.filter = filterValue.trim().toLowerCase();
-  //   if (this.dataSource.paginator) {
-  //     this.dataSource.paginator.firstPage();
-  //   }
-  // }
+
 
   getDeviceListData() {
-
-    // this.deviceurl = 'device/ungrouped/buyerreservation';
 
     this.deviceservice.GetUnreserveDevices().subscribe(
       (data) => {
@@ -175,9 +172,7 @@ export class AddReservationComponent {
       })
       console.log(this.data)
       this.dataSource = new MatTableDataSource(this.data);
-      //console.log(this.dataSource)
-      // this.selection= new SelectionModel<any>(true, this.data);
-      // this.isAllSelected();
+    
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
       this.loading = false;
@@ -189,10 +184,7 @@ export class AddReservationComponent {
 
     this.deviceservice.getfilterData(this.FilterForm.value).subscribe(
       (data) => {
-        // if(this.selection.selected.length>0){
-        //   //@ts-ignore
-        //   this.selection.selected.forEach(ele=>data.find(ele1 => ele1.id != ele.countryCode)data.unsift(ele))
-        // }
+      
         this.loading = true;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
@@ -229,10 +221,7 @@ export class AddReservationComponent {
   }
   onSubmit(): void {
     console.log(this.reservationForm.value)
-    // const email = formData.value.email;
-    // const password = formData.value.password;
-    // const username = formData.value.username;
-    //this.auth.post(email, password, username);
+   
     if (this.selection.selected.length > 0) {
 
       let deviceId: any = []
@@ -259,16 +248,11 @@ export class AddReservationComponent {
       { data: this.reservationbollean, height: '300px', width: '500px' });
     console.log(this.reservationForm)
     this.dialogRef.afterClosed().subscribe((result: any) => {
-     // console.log(this.reservationForm);
-    
       console.log(result);
 
       this.onContinue(result);
 
     });
-
-    // this.onContinue(result)
-    //this.dialogRef.afterClosed();
   }
   onContinue(result: any) {
     console.log(this.reservationForm);
@@ -276,9 +260,7 @@ export class AddReservationComponent {
     this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
     this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
     console.log(this.reservationForm);
-   // this.toastrService.success('Successfully!!', 'Reservation');
-    //this.reservationForm.reset();
-    //this.selection.clear();
+  
     this.authService.PostAuth('device-group', this.reservationForm.value).subscribe({
       next: data => {
         console.log(data)

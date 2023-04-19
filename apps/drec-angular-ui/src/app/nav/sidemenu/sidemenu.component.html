@@ -35,7 +35,7 @@
         </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='OrganizationAdmin'">
+      <mat-expansion-panel [class.mat-elevation-z0]="true" >
         <mat-expansion-panel-header class="mdc-button">
           MeterRead
         </mat-expansion-panel-header>
@@ -45,7 +45,7 @@
                 <span>My Devices</span>
               </a> -->
           <a mat-button class="menu-button" routerLinkActive="active" routerLink="/reads/All"
-            *ngIf="loginuser.role ==='OrganizationAdmin'">
+            *ngIf="loginuser.role ==='OrganizationAdmin'||'Buyer'">
             <mat-icon>list</mat-icon>
             <span>All Reads</span>
           </a>
