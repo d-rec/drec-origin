@@ -118,9 +118,15 @@ export class ReadsController extends BaseReadsController {
     //finding the device details throught the device service
     filter.offset=0;
     filter.limit=5;
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
-    //console.log("getmeterdevice");
-    //console.log(device);
+    let device: DeviceDTO | null;
+    if(user.role==='Buyer'){
+      device = await this.deviceService.findOne(parseInt(meterId));
+   
+    }else{
+     device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+    }
+     //console.log("getmeterdevice");
+    console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {

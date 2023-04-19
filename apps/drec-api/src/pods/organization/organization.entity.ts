@@ -26,10 +26,10 @@ export class Organization
   @IsString()
   name: string;
   
-  @ApiProperty({ type: String })
-  @Column()
-  @IsString()
-  secretKey: string;
+  // @ApiProperty({ type: String })
+  // @Column()
+  // @IsString()
+  // secretKey: string;
 
   @ApiProperty({ type: String })
   @Column()

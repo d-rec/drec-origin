@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsArray,
   IsOptional,
+  Matches
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -33,10 +34,10 @@ export class DeviceDTO implements IDevice {
   @Exclude()
   developerExternalId?: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  status: DeviceStatus;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // status: DeviceStatus;
 
   @ApiProperty()
   @IsNumber()
@@ -56,11 +57,19 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'longitude should be number',
+  })
   latitude: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+    message:
+      'longitude should be number',
+  })
   longitude: string;
 
   @ApiProperty()
@@ -132,30 +141,30 @@ export class DeviceDTO implements IDevice {
   // @IsOptional()
   // generatorsIds: number[];
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  labels: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // labels: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
   impactStory: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  data: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // data: string;
 
   @ApiProperty()
   @IsArray()
   @IsOptional()
   images: string[];
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  integrator?: Integrator;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // integrator?: Integrator;
 
   @ApiProperty()
   @IsString()

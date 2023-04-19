@@ -230,12 +230,16 @@
                         </mat-form-field>
                         <div class="d-flex mt-2">
                             <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                            <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
+                            
+                            <!-- <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
+                             -->
+                            <button mat-raised-button matStepperNext class="btn-primary btn ms-2 btn-block"
+                            [disabled]="registerForm.invalid" (click)="onSubmit(registerForm)">Submit</button>
                         </div>
                         
                     </form>
                 </mat-step>
-                <mat-step label="Secret Key">
+                <!-- <mat-step label="Secret Key">
                     <form [formGroup]="registerForm" class="px-3 example-form">
                         <ng-template matStepLabel></ng-template>
                         <mat-form-field class="mb-5 mt-0 pt-0">
@@ -258,9 +262,9 @@
                         </div>
 
                         
-                        <!-- <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button> -->
+                        <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button>
                     </form>
-                </mat-step>
+                </mat-step> -->
 
                 <!-- Icon overrides. -->
                 <!-- <ng-template matStepperIcon="phone">

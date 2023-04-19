@@ -1493,7 +1493,7 @@ export class ReadsService {
       return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
 
     }
- //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
+    //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
     if (new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()) {
       const query = await this.getexisthistorydevcielogFilteredQuery(externalId, filter.start, filter.end);
       console.log("history query executed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -1515,7 +1515,9 @@ export class ReadsService {
       }
     }
 
-
+    console.log("1513")
+    console.log(deviceOnboarded);
+    console.log(filter.end);
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       console.log("offset::::::::::::" + filter.offset + "\nlimit:::::::::::::" + filter.limit + "\n device onboarded::::::::::" + deviceOnboarded.toString() + "\nend:::::::::" + filter.end.toString())
       let readsFilter: FilterDTO = {
@@ -1553,7 +1555,7 @@ export class ReadsService {
 
           if (index === 0) {
 
-            if (previousReading.length>0) {
+            if (previousReading.length > 0) {
               ongoing.push({
                 startdate: previousReading[0].timestamp,
                 enddate: element.timestamp,
@@ -1604,6 +1606,7 @@ export class ReadsService {
 
 
   async getnumberOfOngReads(start: Date, end: Date, externalId, onboarded: Date) {
+    console.log(externalId)
     if (new Date(onboarded).getTime() > new Date(end).getTime()) {
       console.log('The given dates are not for on-going reads')
       return 0;

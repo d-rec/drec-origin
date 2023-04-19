@@ -941,14 +941,14 @@ export class DeviceGroupService {
     //   new Set(devices.map((device: DeviceDTO) => device.sector)),
     // );
 
-    const labels: string[] = [];
+    // const labels: string[] = [];
 
-    devices.map((device: DeviceDTO) => {
-      if (!device.labels) {
-        return;
-      }
-      return labels.push(device.labels);
-    });
+    // devices.map((device: DeviceDTO) => {
+    //   if (!device.labels) {
+    //     return;
+    //   }
+    //   return labels.push(device.labels);
+    // });
 
     const fuelCode = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.fuelCode.trim())),
@@ -1346,7 +1346,7 @@ export class DeviceGroupService {
         //yieldValue: 0,
         //labels: '',
         impactStory: '',
-        data: '',
+        // data: '',
         images: [],
         deviceDescription: DeviceDescription.GroundmountSolar,
         energyStorage: true,

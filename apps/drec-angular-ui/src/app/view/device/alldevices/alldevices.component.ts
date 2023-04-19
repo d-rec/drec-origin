@@ -192,7 +192,8 @@ export class AlldevicesComponent {
   countrycodeLoded:boolean=false;
   loading:boolean=true;
   constructor(private authService: AuthbaseService, private router: Router) {
-    this.loginuser = sessionStorage.getItem('loginuser');
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
   }
   ngOnInit(): void {
     this.authService.GetMethod('device/fuel-type').subscribe(
