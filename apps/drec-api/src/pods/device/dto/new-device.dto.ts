@@ -144,10 +144,10 @@ export class NewDeviceDTO
   @IsOptional()
   impactStory: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  data: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // data: string;
 
   @ApiProperty()
   @IsArray()

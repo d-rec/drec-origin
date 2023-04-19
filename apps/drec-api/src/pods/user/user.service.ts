@@ -87,20 +87,20 @@ export class UserService {
     status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     var org_id;
-    if (data.secretKey != null) {
+   // if (data.secretKey != null) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
-        secretKey: data.secretKey,
+       // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress
 
       }
 
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) ) {
         throw new ConflictException({
           success: false,
-          message: `Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
+          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
 
       } else {
@@ -114,7 +114,7 @@ export class UserService {
 
       }
 
-    }
+  //  }
     this.logger.debug(
       `Successfully registered a new organization with id ${org_id}`,
     );
@@ -149,8 +149,6 @@ export class UserService {
       await this.emailConfirmationService.create(user,false);
     }
     
-
-
     return new User(user);
   }
 
