@@ -7,7 +7,7 @@ export class IPublicAddOrganization {
   name?: string='';
 
   organizationType?: string;
-  secretKey:string;
+  //secretKey:string;
   status: OrganizationStatus;
 
 }

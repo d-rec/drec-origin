@@ -121,16 +121,16 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @Column('int', { nullable: true, array: true })
   // generatorsIds: number[];
 
-  @Column({ nullable: true })
-  @IsString()
-  labels: string;
+  // @Column({ nullable: true })
+  // @IsString()
+  // labels: string;
 
   @Column({ nullable: true })
   @IsString()
   impactStory: string;
 
-  @Column({ nullable: true })
-  data: string;
+  // @Column({ nullable: true })
+  // data: string;
 
   @Column('simple-array', { nullable: true })
   images: string[];
@@ -138,9 +138,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'int', nullable: true })
   groupId: number | null;
 
-  @Column({ nullable: true })
-  @IsEnum(Integrator)
-  integrator: Integrator;
+  // @Column({ nullable: true })
+  // @IsEnum(Integrator)
+  // integrator: Integrator;
 
   @Column({ nullable: true })
   @IsEnum(DeviceDescription)
@@ -155,7 +155,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', nullable: true,select:false })
   meterReadtype: string;
 
   @Column()

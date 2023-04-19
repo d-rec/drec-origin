@@ -24,10 +24,10 @@ export class PublicOrganizationInfoDTO implements IPublicOrganization {
   @IsOptional()
   name: string;
   
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsOptional()
-  secretKey:string;
+  // @ApiProperty({ type: String })
+  // @IsString()
+  // @IsOptional()
+  // secretKey:string;
 
   @ApiProperty({ type: String })
   @IsString()

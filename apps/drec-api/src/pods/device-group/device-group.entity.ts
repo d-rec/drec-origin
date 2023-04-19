@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn,CreateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 import {
   IsString,
   IsNotEmpty,
@@ -24,7 +24,7 @@ import { Exclude } from 'class-transformer';
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
- 
+
   @PrimaryGeneratedColumn('uuid')
   devicegroup_uid: string;
 
@@ -36,18 +36,16 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column()
   organizationId: number;
 
-  @Column()
-  @IsString()
-  fuelCode: string;
+  @Column('text', { array: true })
+  fuelCode: string[];
 
-  @Column()
-  @IsString()
-  countryCode: string;
+  @Column('text', { array: true })
+  countryCode: string[];
 
-  @Column({ type: 'enum', enum: StandardCompliance })
-  @IsEnum(StandardCompliance)
-  @IsOptional()
-  standardCompliance: StandardCompliance;
+  // @Column({ type: 'enum', enum: StandardCompliance })
+  // @IsEnum(StandardCompliance)
+  // @IsOptional()
+  // standardCompliance: StandardCompliance;
 
   @Column('text', { array: true })
   deviceTypeCodes: string[];
@@ -55,13 +53,13 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column('text', { array: true })
   offTakers: OffTaker[];
 
-  @Column('text', { array: true })
-  @IsOptional()
-  installationConfigurations: Installation[];
+  // @Column('text', { array: true })
+  // @IsOptional()
+  // installationConfigurations: Installation[];
 
-  @Column('text', { array: true })
-  @IsOptional()
-  sectors: Sector[];
+  // @Column('text', { array: true })
+  // @IsOptional()
+  // sectors: Sector[];
 
   @Column('text', { array: true })
   @Exclude()
@@ -85,9 +83,9 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Exclude()
   yieldValue: number;
 
-  @Column('simple-array', { nullable: true })
-  @IsOptional()
-  labels: string[];
+  // @Column('simple-array', { nullable: true })
+  // @IsOptional()
+  // labels: string[];
 
   @Column({ type: 'int', nullable: true })
   @IsNumber()
@@ -123,12 +121,12 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolumeInMegaWattHour: number ;
+  targetVolumeInMegaWattHour: number;
 
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolumeCertificateGenerationSucceededInMegaWattHour: number ;
+  targetVolumeCertificateGenerationSucceededInMegaWattHour: number;
 
   @Column({ type: 'int', nullable: true })
   @IsNumber()
@@ -138,27 +136,27 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column({ type: 'int', nullable: true })
   @IsNumber()
   @IsOptional()
-  targetVolumeCertificateGenerationFailedInMegaWattHour: number ;
+  targetVolumeCertificateGenerationFailedInMegaWattHour: number;
 
   @Column({ type: 'boolean', nullable: true })
   @IsNumber()
   @IsOptional()
-  authorityToExceed: boolean ;
+  authorityToExceed: boolean;
 
   @Column('simple-array', { nullable: true })
   @IsArray()
   deviceIds?: number[];
 
-  @CreateDateColumn({ 
-    type: 'timestamp', 
+  @CreateDateColumn({
+    type: 'timestamp',
     precision: 3
   })
-  reservationStartDate:Date;
+  reservationStartDate: Date;
 
-  @CreateDateColumn({ 
-    type: 'timestamp', 
+  @CreateDateColumn({
+    type: 'timestamp',
     precision: 3
   })
-  reservationEndDate:Date;
+  reservationEndDate: Date;
 
 }

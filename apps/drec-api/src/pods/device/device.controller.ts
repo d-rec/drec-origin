@@ -255,22 +255,22 @@ export class DeviceController {
         reject(
           new ConflictException({
             success: false,
-            message: ' Invalid Capacity',
+            message: ' Invalid Capacity or energy Storage Capacity',
           }),
         );
       });
     }
-    if (deviceToRegister.capacity <= 0) {
+    if (deviceToRegister.capacity <= 0||deviceToRegister.energyStorageCapacity<0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: ' Invalid Capacity, it should be greater than 0',
+            message: ' Invalid Capacity or energy Storage Capacity, it should be greater than 0',
           }),
         );
       });
     }
-    if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
+    if (deviceToRegister.version === null || deviceToRegister.version === undefined||deviceToRegister.version==='0') {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);

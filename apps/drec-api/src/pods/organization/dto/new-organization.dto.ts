@@ -103,15 +103,15 @@ export class NewAddOrganizationDTO
   @IsNotEmpty()
   name: string;
  
-  @ApiProperty({ type: String })
-  @MaxLength(6)
-  @Matches(/((?=.*[0-9])(?=.*[A-Z]).{6,})/, {
-    message:
-      'secret valye  must contain 6 characters (upper and/or lower case) and at least 1 digit',
-  })
-  @IsNotEmpty()
-  @IsString()
-  secretKey: string;
+  // @ApiProperty({ type: String })
+  // @MaxLength(6)
+  // @Matches(/((?=.*[0-9])(?=.*[A-Z]).{6,})/, {
+  //   message:
+  //     'secret valye  must contain 6 characters (upper and/or lower case) and at least 1 digit',
+  // })
+  // @IsNotEmpty()
+  // @IsString()
+  // secretKey: string;
 
   @ApiProperty({ type: String })
   @IsString()

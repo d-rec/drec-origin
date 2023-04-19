@@ -211,7 +211,7 @@ export class IssuerService {
         //   newGroup.devices = countryDevicegroup[key];
         //   this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
         // }
-        console.log("206line", (startDate.diff(endDate, ['days']).days))
+        console.log("206line", (endDate.diff(startDate, ['days']).days))
         if (endDate.diff(startDate, ['days']).days <= 1) {
 
           for (let key in countryDevicegroup) {
@@ -273,14 +273,7 @@ export class IssuerService {
               this.newissueCertificateForGroup(newGroup, grouprequest, ele.startDate, ele.endDate, key);
 
             })
-
-
-
           }
-
-
-
-
         }
       }),
     );
@@ -645,7 +638,7 @@ export class IssuerService {
         console.log("devicecertificatelogDto", devicecertificatelogDto);
         await this.deviceService.AddCertificateIssueDateLogForDevice(devicecertificatelogDto);
       }),
-    );
+    ); 
     //find the minimum of all previous reading dates of devices  and use it as start date 
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
     let checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');

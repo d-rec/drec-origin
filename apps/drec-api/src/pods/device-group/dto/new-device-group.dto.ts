@@ -32,13 +32,13 @@ export class NewDeviceGroupDTO
   @Min(1, { each: true })
   deviceIds: number[];
 
-  @ApiProperty()
-  @IsString()
-  countryCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  countryCode: string[];
 
-  @ApiProperty()
-  @IsString()
-  fuelCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  fuelCode: string[];
 
   // @ApiProperty()
   // @IsEnum(StandardCompliance)
@@ -96,15 +96,15 @@ export class NewDeviceGroupDTO
   @IsNotEmpty()
   commissioningDateRange: CommissioningDateRange[];
 
-  @ApiProperty({ default: 1000 })
-  @IsNumber()
-  @IsOptional()
-  yieldValue: number;
+  // @ApiProperty({ default: 1000 })
+  // @IsNumber()
+  // @IsOptional()
+  // yieldValue: number;
 
-  @ApiProperty({ type: [String] })
-  @IsArray()
-  @IsOptional()
-  labels: string[];
+  // @ApiProperty({ type: [String] })
+  // @IsArray()
+  // @IsOptional()
+  // labels: string[];
 
 
   @ApiProperty({ type: String })
