@@ -53,6 +53,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countrCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -485,5 +486,56 @@ async changeOnBoardingDate(
   }
 
 /* */
+
+//////////////////////////////////////////////////
+
+
+// @Get('/autocomplete')
+//   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+//   @Permission('Read')
+//   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+//   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+//   @ApiResponse({
+//     status: HttpStatus.OK,
+//     type: [DeviceDTO],
+//     description: 'Returns auto corrected externalIDs and other data',
+//   })
+
+//   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
+
+//   async autocomplete(
+//     @UserDecorator() { organizationId }: ILoggedInUser,
+//     // @Query('externalId') externalId :Number,
+
+//   ){
+//     return await this.deviceService.atto(organizationId);
+//   }
+
+
+@Get('/my/autocomplete')
+@UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+@Permission('Read')
+@ACLModules('DEVICE_MANAGEMENT_CRUDL')
+//@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+@ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Returns Auto-Complete',
+})
+
+@ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
+
+async autocomplete(
+  @UserDecorator() { organizationId }: ILoggedInUser,
+  @Query('externalId') externalId :Number,
+)
+  {
+  return await this.deviceService.atto(organizationId,externalId);
+}
+
+
+
+
+/////////////////////////////////////////////////
+
 
 }
