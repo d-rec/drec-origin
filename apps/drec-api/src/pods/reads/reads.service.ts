@@ -35,7 +35,7 @@ import { ReadStatus } from 'src/utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity'
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 import { ReadFilterDTO } from './dto/filter.dto'
-import * as mapBoxTimeSpace from  '@mapbox/timespace';
+import * as mapBoxTimeSpace from '@mapbox/timespace';
 import * as momentTimeZone from 'moment-timezone';
 
 import { Cron, CronExpression } from '@nestjs/schedule';

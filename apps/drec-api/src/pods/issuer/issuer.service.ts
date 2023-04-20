@@ -205,12 +205,7 @@ export class IssuerService {
         }
 
         this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
-        // for (let key in countryDevicegroup) {
-        //   //deep clone to avoid duplicates
-        //   let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
-        //   newGroup.devices = countryDevicegroup[key];
-        //   this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
-        // }
+       
         console.log("206line", (endDate.diff(startDate, ['days']).days))
         if (endDate.diff(startDate, ['days']).days <= 1) {
 

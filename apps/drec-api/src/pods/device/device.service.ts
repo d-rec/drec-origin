@@ -142,12 +142,12 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
-    ////console.log(groupdevice)
+   console.log(groupdevice)
 
     groupdevice = groupdevice.filter(ele => ele.meterReadtype == ReadType.Delta || ele.meterReadtype == ReadType.ReadMeter)
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
-    ////console.log(deviceGroupedByCountry);
+    console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry;
   }
 
