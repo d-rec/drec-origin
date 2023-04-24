@@ -170,7 +170,14 @@ export class DeviceGroupService {
     });
   }
 
-  async getBuyerDeviceGroups(buyerId: number): Promise<DeviceGroupDTO[]> {
+  async getBuyerDeviceGroups(
+    buyerId: number,
+    filterDto?: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<DeviceGroupDTO[]> {
+
+    const query = this.getreservationFilteredQuery(filterDto, buyerId);
+    const deviceGroups = await this.repository.find(query);
+
     return this.repository.find({
       where: { buyerId },
       order: {
@@ -185,31 +192,31 @@ export class DeviceGroupService {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
-//   async getReservedOrUnreserved(
-//     filterDto: UnreservedDeviceGroupsFilterDTO,
-//     buyerId?: number,
-//   ): Promise<SelectableDeviceGroupDTO[]> {
-//     const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
-//     const deviceGroups = await this.repository.find(query);
+  //   async getReservedOrUnreserved(
+  //     filterDto: UnreservedDeviceGroupsFilterDTO,
+  //     buyerId?: number,
+  //   ): Promise<SelectableDeviceGroupDTO[]> {
+  //     const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
+  //     const deviceGroups = await this.repository.find(query);
 
-//     const res = await Promise.all(
-//       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-//         const organization = await this.organizationService.findOne(
-//           deviceGroup.organizationId,
-//         );
-//         return {
-//           ...deviceGroup,
-//           organization: {
-//             name: organization.name,
-//             blockchainAccountAddress: organization.blockchainAccountAddress,
-//           },
-//           selected: false,
-//         };
-//       }),
-//     );
-//     return res;
-//  }
- 
+  //     const res = await Promise.all(
+  //       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
+  //         const organization = await this.organizationService.findOne(
+  //           deviceGroup.organizationId,
+  //         );
+  //         return {
+  //           ...deviceGroup,
+  //           organization: {
+  //             name: organization.name,
+  //             blockchainAccountAddress: organization.blockchainAccountAddress,
+  //           },
+  //           selected: false,
+  //         };
+  //       }),
+  //     );
+  //     return res;
+  //  }
+
   async createCSVJobForFile(
     userId: number,
     organizationId: number,
@@ -971,7 +978,7 @@ export class DeviceGroupService {
         groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
       fuelCode: fuelCode,//[devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode : '').join(' , ')],
-      countryCode:countryCode,// [devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , ')],
+      countryCode: countryCode,// [devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , ')],
       //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
       //@ts-ignore
@@ -983,57 +990,48 @@ export class DeviceGroupService {
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
       //yieldValue: averageYieldValue,
-     // labels: labels ?? [],
+      // labels: labels ?? [],
       //devicesIds: devicesIds
     };
 
     return deviceGroup;
   }
 
-  // private getUnreservedFilteredQuery(
-  //   filter: UnreservedDeviceGroupsFilterDTO,
-  //   buyerId?: number,
-  // ): FindManyOptions<DeviceGroup> {
-  //   const where: FindConditions<DeviceGroup> = cleanDeep({
-  //     countryCode: filter.country,
-  //     fuelCode: filter.fuelCode,
-  //     //standardCompliance: filter.standardCompliance,
-  //     gridInterconnection: filter.gridInterconnection,
-  //     capacityRange: filter.capacityRange,
-  //   });
-  //   // if (filter.sector) {
-  //   //   where.sectors = this.getRawFilter(filter.sector);
-  //   // }
-  //   // if (filter.installationConfiguration) {
-  //   //   where.installationConfigurations = this.getRawFilter(
-  //   //     filter.installationConfiguration,
-  //   //   );
-  //   //}
-  //   if (filter.country) {
-  //     where.countryCode = this.getRawFilter(filter.country);
-  //   }
-  //   if (filter.fuelCode) {
-  //     where.fuelCode = this.getRawFilter(filter.fuelCode);
-  //   }
-  //   if (filter.offTaker) {
-  //     where.offTakers = this.getRawFilter(filter.offTaker);
-  //   }
-  //   if (filter.commissioningDateRange) {
-  //     where.commissioningDateRange = this.getRawFilter(
-  //       filter.commissioningDateRange,
-  //     );
-  //   }
-  //   const query: FindManyOptions<DeviceGroup> = {
-  //     where: {
-  //       buyerId: buyerId || null,
-  //       ...where,
-  //     },
-  //     order: {
-  //       organizationId: 'ASC',
-  //     },
-  //   };
-  //   return query;
-  // }
+  private getreservationFilteredQuery(
+    filter: UnreservedDeviceGroupsFilterDTO,
+    buyerId?: number,
+  ): FindManyOptions<DeviceGroup> {
+    const where: FindConditions<DeviceGroup> = cleanDeep({
+   // countryCode: filter.country,
+     // gridInterconnection: filter.gridInterconnection,
+      //capacityRange: filter.capacityRange,
+    });
+
+    // if (filter.country) {
+    //   where.countryCode = this.getRawFilter(filter.country);
+    // }
+    if (filter.fuelCode) {
+      where.fuelCode = this.getRawFilter(filter.fuelCode);
+    }
+    if (filter.offTaker) {
+      where.offTakers = this.getRawFilter(filter.offTaker);
+    }
+    // if (filter.commissioningDateRange) {
+    //   where.commissioningDateRange = this.getRawFilter(
+    //     filter.commissioningDateRange,
+    //   );
+    // }
+    const query: FindManyOptions<DeviceGroup> = {
+      where: {
+        buyerId: buyerId || null,
+        ...where,
+      },
+      order: {
+        organizationId: 'ASC',
+      },
+    };
+    return query;
+  }
 
   private getRawFilter(
     filter:

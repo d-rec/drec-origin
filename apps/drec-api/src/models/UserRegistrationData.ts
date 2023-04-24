@@ -60,8 +60,6 @@ export class UserORGRegistrationData {
   @IsOptional()
   orgAddress?: string;
 
-  @IsOptional()
-  @IsString()
-  secretKey?: string;
+ 
 
 }
