@@ -1546,39 +1546,42 @@ export class ReadsService {
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
 
         finalongoing = await this.baseReadsService.find(externalId, readsFilter)
-        let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
-        let startTimeToCheck = deviceOnboarded;
-        let previousReading = await this.findLastReadForMeterWithinRange(externalId, new Date(startTimeToCheck), endTimestampToCheck);
-        console.log("device previous reading", externalId, previousReading);
-
-        finalongoing.forEach((element, index) => {
-
-          if (index === 0) {
-
-            if (previousReading.length > 0) {
+        if(finalongoing.length > 0){
+          let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
+          let startTimeToCheck = deviceOnboarded;
+          let previousReading = await this.findLastReadForMeterWithinRange(externalId, new Date(startTimeToCheck), endTimestampToCheck);
+          console.log("device previous reading", externalId, previousReading);
+  
+          finalongoing.forEach((element, index) => {
+  
+            if (index === 0) {
+  
+              if (previousReading.length > 0) {
+                ongoing.push({
+                  startdate: previousReading[0].timestamp,
+                  enddate: element.timestamp,
+                  value: element.value
+                })
+              }
+              else {
+                ongoing.push({
+                  startdate: deviceOnboarded,
+                  enddate: element.timestamp,
+                  value: element.value
+                })
+              }
+  
+            } else {
+              console.log(element);
               ongoing.push({
-                startdate: previousReading[0].timestamp,
+                startdate: finalongoing[index - 1].timestamp,
                 enddate: element.timestamp,
                 value: element.value
               })
             }
-            else {
-              ongoing.push({
-                startdate: deviceOnboarded,
-                enddate: element.timestamp,
-                value: element.value
-              })
-            }
-
-          } else {
-            console.log(element);
-            ongoing.push({
-              startdate: finalongoing[index - 1].timestamp,
-              enddate: element.timestamp,
-              value: element.value
-            })
-          }
-        })
+          })
+        }
+       
         console.log("ongoing query executed!!!!!!", ongoing);
 
       }
