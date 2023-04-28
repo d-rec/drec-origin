@@ -78,7 +78,7 @@ export class FilterDTO {
   country: string;
 
   @IsOptional()
-  SDGBenefits?: number| undefined;
+  SDGBenefits?: string[]| undefined;
 }
 export class BuyerDeviceFilterDTO {
   @IsOptional()

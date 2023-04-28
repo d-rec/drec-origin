@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
 export class cleanUpDtofield1681978992039 implements MigrationInterface {
-
+    name = 'cleanUpDtofield1681978992039';
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
             `ALTER TABLE "device" 

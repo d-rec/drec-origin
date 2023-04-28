@@ -7,7 +7,8 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, In, IsNull, Not, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
+import { FindOneOptions, Repository, In, IsNull, Not,FindOperator,
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -20,7 +21,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, ReadType, Role } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role,SDGBenefitsList } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -307,7 +308,7 @@ export class DeviceService {
         }
         : undefined;
     //console.log(rule);
-    let currentDevice = await this.findDeviceByDeveloperExternalId(externalId, organizationId);
+    let currentDevice = await this.findDeviceByDeveloperExternalId(externalId.trim(), organizationId);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${externalId}`);
     }
@@ -455,8 +456,13 @@ export class DeviceService {
         filter.start_date &&
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
+       // SDGBenefits:
 
     });
+    if (filter.SDGBenefits) {
+      where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+    }
+    console.log(where)
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -465,7 +471,16 @@ export class DeviceService {
     };
     return query;
   }
+  private getRawFilter(
+    filter:
+      | String
+     ,
+  ): FindOperator<any> {
 
+    return Raw((alias) => `${alias} = Any(SDGBenefits)`,{
+      SDGBenefits:[filter]
+    } );
+  }
   public async addGroupIdToDeviceForReserving(
     currentDevice: Device,
     groupId: number

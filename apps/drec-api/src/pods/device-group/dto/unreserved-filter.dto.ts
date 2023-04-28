@@ -7,35 +7,48 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-  FuelCode
+  FuelCode,
+  SDGBenefitsList
 } from '../../../utils/enums';
 import { countrCodesList } from '../../../models/country-code'
+//import {SDGBenefits} from '../../../models/Sdgbenefit'
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Country Code' })
-  country: string;
+  country: string[];
 
   @IsOptional()
   @ApiPropertyOptional({ 
-    type: FuelCode, 
     description: 'Fuel Code',
-    enum: FuelCode
-  
+    enum: FuelCode,
+    isArray:true
   })
-  fuelCode: FuelCode;
-
- 
- 
+  fuelCode: string[];
 
   @IsOptional()
   @ApiPropertyOptional({
     type: OffTaker,
     description: 'Off-taker',
     enum: OffTaker,
+    isArray:true
   })
   offTaker: OffTaker;
 
-  
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'Start date reservationStartDate Date filter' })
+  start_date: Date;
+
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'End date reservationEndDate Date filter' })
+  end_date: Date;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'SDG Benefit',
+    enum: SDGBenefitsList,
+    isArray:true
+  })
+  sdgbenefit: string[];
   // @IsOptional()
   // @ApiPropertyOptional({
   //   type: OffTaker,

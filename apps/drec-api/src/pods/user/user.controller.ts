@@ -174,27 +174,7 @@ export class UserController {
     return this.userService.newcreate(userRegistrationData);
   }
 
-  @Put()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBody({ type: UpdateOwnUserSettingsDTO })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: UserDTO,
-    description: `Update you own user settings`,
-  })
-  public async updateOwnUserSettings(
-    @UserDecorator() user: ILoggedInUser,
-    @Body() body: UpdateOwnUserSettingsDTO,
-  ): Promise<UserDTO | null> {
-    try {
-      if (typeof body.notifications !== 'undefined') {
-        await this.userService.setNotifications(user.id, body.notifications);
-      }
-      return this.userService.findById(user.id);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
+  
 
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
