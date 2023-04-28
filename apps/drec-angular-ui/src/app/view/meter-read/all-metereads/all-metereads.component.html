@@ -21,10 +21,10 @@
             <div class="example-container1 row">
               <div class="col-md-4" *ngIf="loginuser.role ==='OrganizationAdmin'">
                 <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">exterenalId</mat-label>
+                    <mat-label class="text-capitalize">ExternalId</mat-label>
                     <!-- <input [(ngModel)]="exterenalId"  type="text"> -->
                     <!-- <input matInput placeholder="name" [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}"> -->
-                    <mat-select [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}">
+                    <mat-select [(ngModel)]="externalId" [ngModelOptions]="{standalone: true}">
                         <mat-option *ngFor="let code of devicedata" [value]="code.externalId">
                             {{code.externalId}}
                         </mat-option>
@@ -32,10 +32,10 @@
                 </mat-form-field>
             </div><div class="col-md-4" *ngIf="loginuser.role !='OrganizationAdmin'">
               <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">exterenalId</mat-label>
+                  <mat-label class="text-capitalize">ExternalId</mat-label>
                   <!-- <input [(ngModel)]="exterenalId"  type="text"> -->
                   <!-- <input matInput placeholder="name" [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}"> -->
-                  <mat-select [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}">
+                  <mat-select [(ngModel)]="externalId" [ngModelOptions]="{standalone: true}">
                       <mat-option *ngFor="let code of devicedata" [value]="code.id">
                           {{code.externalId}}
                       </mat-option>

@@ -66,7 +66,7 @@ export class AddDevicesComponent {
       deviceTypeCode: [null],
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
-      gridInterconnection: true,
+      gridInterconnection: [true],
       offTaker: [null],
       impactStory: [null],
       data: [null],
