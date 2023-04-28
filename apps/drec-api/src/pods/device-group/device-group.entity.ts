@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import {
   IsString,
   IsNotEmpty,
@@ -17,9 +17,11 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode
 } from '../../utils/enums';
-import { Device } from '../device';
+//import { Device } from '../device';
 import { Exclude } from 'class-transformer';
+import {Device} from '../device/device.entity'
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
@@ -159,4 +161,20 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   })
   reservationEndDate: Date;
 
+  @Column('int', { array: true })
+  deviceIdsInt: number[];
+
+  @ManyToMany(() => Device)
+  @JoinTable({
+    name: 'device',
+   joinColumn: { name: 'groupId', referencedColumnName: 'id' },
+   inverseJoinColumn: { name: 'deviceIdsInt', referencedColumnName: 'id' },
+  })
+  device: Device[];
+
+
+
+  // @ManyToMany(() => Device)
+  // @JoinTable()
+  // device: Device[];
 }

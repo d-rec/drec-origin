@@ -19,7 +19,7 @@ import {
   CapacityRange,
   CommissioningDateRange,
 } from '../../../utils/enums';
-
+import { Exclude } from 'class-transformer';
 export class NewDeviceGroupDTO
   implements Omit<IDeviceGroup, 'id' | 'organizationId'>
 {
@@ -151,7 +151,11 @@ export class NewDeviceGroupDTO
   @IsOptional()
   devicegroup_uid?: string | null | undefined;
 
- 
+  @ApiProperty({ type: [Number] })
+  @Exclude()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  deviceIdsInt?: number[];
 
 
   // @ApiProperty({ type: String })

@@ -137,82 +137,26 @@ export class FileController {
       .send(file.data);
   }
 
-  @Get('/public/:id')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: FileDto,
-    description: 'Download a file anonymously',
-  })
-  @ApiNotFoundResponse({ description: `The file doesn't exist` })
-  async downloadAnonymously(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    const file = await this.fileService.get(id);
-    if (!file) {
-      throw new NotFoundException();
-    }
+ 
 
-    res
-      .set({
-        'Content-Type': file.contentType,
-        'Content-Length': file.data.length,
-      })
-      .send(file.data);
-  }
-
-  @Post('/public')
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: FileUploadDto })
-  @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
-      storage: multer.memoryStorage(),
-      fileFilter: (req: Request, file, callback) => {
-        if (!FILE_SUPPORTED_MIMETYPES.includes(file.mimetype)) {
-          callback(new Error('Unsupported file type'), false);
-        }
-
-        callback(null, true);
-      },
-      limits: {
-        files: maxFilesLimit,
-        fileSize: maxFileSize,
-      },
-    }),
-  )
-  @UseGuards(AuthGuard('jwt'))
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: [String],
-    description: 'Upload a file',
-  })
-  async uploadAnonymously(
-    @UserDecorator() user: ILoggedInUser,
-    @UploadedFiles()
-    uploadedFiles: {
-      files: Express.Multer.File[];
-    },
-  ): Promise<string[]> {
-    return this.fileService.store(user, uploadedFiles.files, true);
-  }
-
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploads(@UploadedFile() file) {
-    console.log(file)
-    if (!supportedFiles.includes(file.mimetype)) {
-      // throw new Error('Unsupported file type');
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Unsupported file type',
-          }),
-        );
-      });
-    }
-    return await this.fileService.upload(file);
-  }
+  // 
+  // @Post('/upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploads(@UploadedFile() file) {
+  //   console.log(file)
+  //   if (!supportedFiles.includes(file.mimetype)) {
+  //     // throw new Error('Unsupported file type');
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: 'Unsupported file type',
+  //         }),
+  //       );
+  //     });
+  //   }
+  //   return await this.fileService.upload(file);
+  // }
 
   // @Get('s3files/:id')
   // @ApiResponse({

@@ -53,6 +53,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countrCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -203,7 +204,7 @@ export class DeviceController {
       });
     }
 
- 
+
     if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
@@ -260,7 +261,7 @@ export class DeviceController {
         );
       });
     }
-    if (deviceToRegister.capacity <= 0||deviceToRegister.energyStorageCapacity<0) {
+    if (deviceToRegister.capacity <= 0 || deviceToRegister.energyStorageCapacity < 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -270,7 +271,7 @@ export class DeviceController {
         );
       });
     }
-    if (deviceToRegister.version === null || deviceToRegister.version === undefined||deviceToRegister.version==='0') {
+    if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
@@ -338,34 +339,39 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     console.log(deviceToUpdate);
-    deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
-    if (deviceToUpdate.externalId.trim() === "") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `externalId should not be empty`,
-          })
-        );
-      });
-    }
-    const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
-      deviceToUpdate.externalId,
-      user.organizationId
-    );
-    console.log(checkexternalid)
-    if (checkexternalid != undefined) {
-      console.log("236");
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `ExternalId already exist in this organization, can't update with same external id ${ deviceToUpdate.externalId}`,
 
-          })
-        );
-      });
+    if (deviceToUpdate.externalId) {
+      deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
+      if (deviceToUpdate.externalId === "") {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `externalId should not be empty`,
+            })
+          );
+        });
+      }
+
+      const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId
+      );
+      console.log(checkexternalid)
+      if (checkexternalid != undefined && checkexternalid.developerExternalId === externalId.trim()) {
+        console.log("236");
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
+
+            })
+          );
+        });
+      }
     }
+
     if (deviceToUpdate.countryCode != undefined) {
       deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
       if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
@@ -450,40 +456,88 @@ export class DeviceController {
   }
 
 
-/**/
+  /**/
 
 
-@Put('/my/deviceOnBoardingDate')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
-@Permission('Write')
-@ACLModules('DEVICE_MANAGEMENT_CRUDL')
-@ApiResponse({
-  status: HttpStatus.OK,
-  description: "change the device's OnBoarding date",
-})
+  @Put('/my/deviceOnBoardingDate')
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "change the device's OnBoarding date",
+  })
 
-@ApiQuery({ name: 'deviceId', description: 'Device Id' })
-@ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
-async changeOnBoardingDate(
-  @UserDecorator() { organizationId }: ILoggedInUser,
-  @Query('deviceId') deviceId,
-  @Query('givenDate') givenDate
-  )
- {
-  if(process.env.MODE!='dev')
-  {
-    throw new HttpException("Currently not in dev environment",400)
-  }
-  let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
-  console.log("THE DEVICE FROM ExTERNALID IS::::::::::::"+device.externalId);
-  if (!device) {
-    throw new HttpException("Device dosen't exist", 400);
-  }
-  const deviceExternalId = device.externalId;
-  const deviceOnboardedDate = device.createdAt;
-  return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
+  @ApiQuery({ name: 'deviceId', description: 'Device Id' })
+  @ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
+  async changeOnBoardingDate(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('deviceId') deviceId,
+    @Query('givenDate') givenDate
+  ) {
+    if (process.env.MODE != 'dev') {
+      throw new HttpException("Currently not in dev environment", 400)
+    }
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
+    console.log("THE DEVICE FROM ExTERNALID IS::::::::::::" + device.externalId);
+    if (!device) {
+      throw new HttpException("Device dosen't exist", 400);
+    }
+    const deviceExternalId = device.externalId;
+    const deviceOnboardedDate = device.createdAt;
+    return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
   }
 
-/* */
+  /* */
+
+  //////////////////////////////////////////////////
+
+
+  // @Get('/autocomplete')
+  //   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  //   @Permission('Read')
+  //   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  //   @ApiResponse({
+  //     status: HttpStatus.OK,
+  //     type: [DeviceDTO],
+  //     description: 'Returns auto corrected externalIDs and other data',
+  //   })
+
+  //   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
+
+  //   async autocomplete(
+  //     @UserDecorator() { organizationId }: ILoggedInUser,
+  //     // @Query('externalId') externalId :Number,
+
+  //   ){
+  //     return await this.deviceService.atto(organizationId);
+  //   }
+
+
+  @Get('/my/autocomplete')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Auto-Complete',
+  })
+
+  @ApiQuery({ name: 'externalId', description: 'externalId', type: Number })
+
+  async autocomplete(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('externalId') externalId: Number,
+  ) {
+    return await this.deviceService.atto(organizationId, externalId);
+  }
+
+
+
+
+  /////////////////////////////////////////////////
+
 
 }
