@@ -164,13 +164,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column('int', { array: true })
   deviceIdsInt: number[];
 
-  @ManyToMany(() => Device)
-  @JoinTable({
-    name: 'device',
-   joinColumn: { name: 'groupId', referencedColumnName: 'id' },
-   inverseJoinColumn: { name: 'deviceIdsInt', referencedColumnName: 'id' },
-  })
-  device: Device[];
+
 
 
 
