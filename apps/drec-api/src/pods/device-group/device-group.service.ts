@@ -175,7 +175,31 @@ export class DeviceGroupService {
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<DeviceGroupDTO[]> {
     console.log(groupfilterDto);
+if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined){
+  if((groupfilterDto.start_date!=null && groupfilterDto.end_date===null)){
+    return new Promise((resolve, reject) => {
+      reject(new ConflictException({
+        success: false,
+        message: `End date should be if in filter query you used with Start date `,
+      }))
+    })
+  }
+  console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
+  console.log(groupfilterDto.end_date)
+  console.log(new Date(groupfilterDto.start_date).getTime())
+  
+  if(!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())){
+    return new Promise((resolve, reject) => {
+      reject(new ConflictException({
+        success: false,
+        message: `End date should be greater then from Start date `,
+      }))
+    })
+  }
+}
+    
     let deviceGroups;
+
     if (groupfilterDto === undefined) {
       deviceGroups = this.repository.find({
         where: { buyerId },
@@ -204,10 +228,7 @@ export class DeviceGroupService {
           queryBuilder.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
 
         }
-
-
-        //queryBuilder.where('d.SDGBenefits =:benefits', { benefits: [groupfilterDto.sdgbenefit]});
-      }
+}
 
 
       if (groupfilterDto.fuelCode) {
@@ -219,10 +240,8 @@ export class DeviceGroupService {
           console.log(JSON.stringify(groupfilterDto.fuelCode));
           queryBuilder.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
         }
-
-        //queryBuilder.where('d.SDGBenefits =:benefits', { benefits: [groupfilterDto.sdgbenefit]});
-      }
-      //console.log(typeof groupfilterDto.sdgbenefit);
+}
+     
       if (groupfilterDto.country) {
         const string = groupfilterDto.country;
         const values = string.split(",");
@@ -305,8 +324,8 @@ export class DeviceGroupService {
             leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
             devicegroup_uid: curr.devicegroup_uid,
             type: curr.type,
-            deviceIds: curr.deviceIds,
-            deviceIdsInt: curr.deviceIdsInt,
+            deviceIds: curr.deviceIdsInt,
+           // deviceIdsInt: curr.deviceIdsInt,
             SDGBenefits: curr.d_SDGBenefits || ""
           });
           console.log(acc);
