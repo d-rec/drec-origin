@@ -19,6 +19,7 @@ import {
     ApiOkResponse,
     ApiSecurity,
     ApiTags,
+    ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
@@ -31,6 +32,10 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
 import { CertificateWithPerdevicelog,CertificateNewWithPerDeviceLog } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
+import { ActiveUserGuard } from 'src/guards/ActiveUserGuard';
+import { PermissionGuard } from 'src/guards/PermissionGuard';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -170,4 +175,43 @@ export class CertificateLogController {
     // }
 
 
+    /* */
+   
+    @Get('/certificateReadModule')
+    @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+    @Permission('Read')
+    @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+    @ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Returns the certificate_read_module table',
+    })
+    @ApiQuery({
+      name: 'certificateStartDate',
+      required: false,
+    })
+    @ApiQuery({
+      name: 'certiifcateEndDate',
+      required: false,
+    })
+    @ApiQuery({
+      name: 'pageNumber',
+      type: Number,
+      required: true,
+    })
+    @ApiQuery({
+      name: 'targetVolumeCertificateGenerationRequestedInMegaWattHour',
+      type: Number,
+      required: false,
+    })
+    async GetCertificateReadModule(
+      @UserDecorator() { organizationId }: ILoggedInUser,      
+      @Query('pageNumber') pageNumber: number,
+      @Query('certificateStartDate') generationStartTime?: string,
+      @Query('certiifcateEndDate') generationEndTime?: string,
+      @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour') targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
+    ) {
+      return await this.certificateLogService.getsCertificateReadModule(organizationId.toString(), pageNumber, generationStartTime, generationEndTime, targetVolumeCertificateGenerationRequestedInMegaWattHour);
+    }
+    
+    /* */
 }
