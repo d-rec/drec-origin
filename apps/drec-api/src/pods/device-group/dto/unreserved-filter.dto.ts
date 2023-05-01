@@ -14,8 +14,8 @@ import { countrCodesList } from '../../../models/country-code'
 //import {SDGBenefits} from '../../../models/Sdgbenefit'
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
-  @ApiPropertyOptional({ type: String, description: 'Country Code' })
-  country: string[];
+  @ApiPropertyOptional({ type: String, description: 'Filter with multiple Country Code :"IND,CAN"' })
+  country: string;
 
   @IsOptional()
   @ApiPropertyOptional({ 
@@ -35,11 +35,11 @@ export class UnreservedDeviceGroupsFilterDTO {
   offTaker: OffTaker;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Start date reservationStartDate Date filter' })
+  @ApiPropertyOptional({default:'2020-01-01T00:00:00Z', description: 'Start date reservationStartDate filter' })
   start_date: Date;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'End date reservationEndDate Date filter' })
+  @ApiPropertyOptional({default:'2020-01-01T00:00:00Z', description: 'End date reservationEndDate filter' })
   end_date: Date;
 
   @IsOptional()

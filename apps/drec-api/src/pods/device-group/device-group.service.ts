@@ -224,21 +224,23 @@ export class DeviceGroupService {
       }
       //console.log(typeof groupfilterDto.sdgbenefit);
       if (groupfilterDto.country) {
-        console.log(groupfilterDto.country);
-        if (typeof groupfilterDto.sdgbenefit === 'string') {
-          console.log(typeof groupfilterDto.sdgbenefit);
-          queryBuilder.orWhere('dg.countryCode = :country', { country: groupfilterDto.sdgbenefit });
-        } else if (typeof groupfilterDto.sdgbenefit === 'object') {
-          console.log(JSON.stringify(groupfilterDto.country));
-          console.log(typeof groupfilterDto.country);
-          const countryString = groupfilterDto.sdgbenefit.map((country) => country).join(',');
-
-          queryBuilder.orWhere("dg.countryCode LIKE :country", { country: `%${countryString}%` });
-
-        }
-
-
-        //queryBuilder.where('d.SDGBenefits =:benefits', { benefits: [groupfilterDto.sdgbenefit]});
+        const string = groupfilterDto.country;
+        const values = string.split(",");
+        console.log(values);
+        let CountryInvalid = false;
+        values.forEach(ele => {
+          groupfilterDto.country = ele.toUpperCase();
+          if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
+            let countries = countrCodesList;
+            if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
+              CountryInvalid = true;
+            }
+          }
+        });
+        console.log(CountryInvalid)
+       if(!CountryInvalid){
+        queryBuilder.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
+       }
       }
       if (groupfilterDto.offTaker) {
         console.log(typeof groupfilterDto.offTaker)
@@ -267,7 +269,7 @@ export class DeviceGroupService {
       deviceGroups = groupedData.reduce((acc, curr) => {
         console.log("existing");
         const existing = acc.find(item => item.id === curr.id);
-        console.log(existing);
+
         if (existing) {
 
           if (curr.d_SDGBenefits) {
@@ -275,10 +277,7 @@ export class DeviceGroupService {
             existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
           }
         } else {
-          console.log("acc")
-          console.log(acc)
-          console.log("curr")
-          console.log(curr)
+
           acc.push({
             id: curr.id,
             name: curr.name,
