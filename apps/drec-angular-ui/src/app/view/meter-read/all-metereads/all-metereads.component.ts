@@ -27,7 +27,7 @@ export class AllMetereadsComponent implements OnInit {
   devicedata: any;
   p: number = 1;
   total: number = 0;
-  exterenalId: any;
+  externalId: any;
   FilterForm: FormGroup;
   endminDate = new Date();
   showfilterform: boolean = true;
@@ -51,7 +51,7 @@ export class AllMetereadsComponent implements OnInit {
     this.DisplayList();
   
       this.FilterForm = this.formBuilder.group({
-        exterenalId: [Validators.required],
+        externalId: [Validators.required],
         start: [null, Validators.required],
         end: [null, Validators.required],
         pagenumber: [this.p]
@@ -97,9 +97,9 @@ export class AllMetereadsComponent implements OnInit {
   }
   getPagedData() {
 
-    console.log(this.exterenalId);
+    console.log(this.externalId);
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    this.counterComponent.start(this.FilterForm,this.exterenalId);
+    this.counterComponent.start(this.FilterForm,this.externalId);
    
   }
   pageChangeEvent(event: PageEvent) {

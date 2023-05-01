@@ -174,7 +174,8 @@ export class AlldevicesComponent {
     'externalId',
     'countryCode',
     'fuelCode',
-    'status',
+    'commissioningDate',
+    'capacity',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -225,7 +226,7 @@ export class AlldevicesComponent {
         this.loading=false;
       
           this.DisplayList();
-      },2000)
+      },5000)
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -247,6 +248,7 @@ export class AlldevicesComponent {
     this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
         this.data = data;
+        console.log(this.data)
         //@ts-ignore
       }
     )

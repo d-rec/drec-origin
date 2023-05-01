@@ -225,7 +225,7 @@ export class EditDeviceComponent implements OnInit {
    
     console.log(this.myform);
     if(this.myform.value.externalId===null){
-      this.myform.value.externalId=this.externalId;
+      this.myform.removeControl('externalId');
     }
     console.log(this.myform);
     this.deviceService.Patchdevices(this.externalid, this.myform.value).subscribe({

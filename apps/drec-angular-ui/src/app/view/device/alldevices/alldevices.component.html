@@ -70,9 +70,13 @@
             <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
           </ng-container>
           <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-            <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+          <ng-container matColumnDef="commissioningDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Commissioning Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.commissioningDate}} </td>
+          </ng-container>
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> capacity </th>
+            <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
           </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Action</th>

@@ -16,7 +16,7 @@ export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
   
-  displayedColumns: string[] = ['startdate', 'enddate', 'value'];//... set columns here
+  displayedColumns: string[] = ['startdate', 'enddate', 'value','ReadType'];//... set columns here
   
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -73,8 +73,19 @@ showname:boolean=false;
     this.service.GetRead(this.exterenalId, this.FilterForm.value)
       .subscribe((response: any) => {
         console.log(response)
+
         this.readdata = response;
-        this.dataSource = new MatTableDataSource(this.readdata.ongoing);
+        this.readdata.historyread.forEach((element:any) => {
+
+          element['readtype']="History"
+          element['color']="#008000"
+        });
+        this.readdata.ongoing.forEach((element:any) => {
+
+          element['readtype']="Ongoing"
+          element['color']="#f2be1a"
+        });
+        this.dataSource = new MatTableDataSource([...this.readdata.historyread,...this.readdata.ongoing]);
         this.totalRows = this.readdata.numberOfReads
        
         this.currentPage = this.readdata.currentPageNumber;
