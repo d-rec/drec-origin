@@ -111,6 +111,7 @@ import {
     })
     async getMyDevices(
       @UserDecorator() { id, organizationId, role }: ILoggedInUser,
+      @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
     ): Promise<DeviceGroupDTO[]> {
       switch (role) {
         case Role.DeviceOwner:
@@ -118,7 +119,7 @@ import {
             organizationId,
           );
         case Role.Buyer:
-          return await this.deviceGroupService.getBuyerDeviceGroups(id);
+          return await this.deviceGroupService.getBuyerDeviceGroups(id,filterDto);
         case Role.OrganizationAdmin:
           return await this.deviceGroupService.getAll();
         default:

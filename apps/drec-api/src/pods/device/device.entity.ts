@@ -40,10 +40,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Exclude()
   developerExternalId?: string;
 
-  @Column({ nullable: true, default: DeviceStatus.Active })
-  @IsNotEmpty()
-  @IsEnum(DeviceStatus)
-  status: DeviceStatus;
+  // @Column({ nullable: true, default: DeviceStatus.Active })
+  // @IsNotEmpty()
+  // @IsEnum(DeviceStatus)
+  // status: DeviceStatus;
 
   @Column()
   organizationId: number;
@@ -155,7 +155,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
 
-  @Column({ type: 'varchar', nullable: true,select:false })
+  @Column({ type: 'varchar', nullable: true})
   meterReadtype: string;
 
   @Column()
