@@ -14,7 +14,7 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In, Between, LessThanOrEqual, getConnection
+  In, Between, LessThanOrEqual, getConnection,Brackets
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -175,29 +175,29 @@ export class DeviceGroupService {
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<DeviceGroupDTO[]> {
     console.log(groupfilterDto);
-if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined){
-  if((groupfilterDto.start_date!=null && groupfilterDto.end_date===null)){
-    return new Promise((resolve, reject) => {
-      reject(new ConflictException({
-        success: false,
-        message: `End date should be if in filter query you used with Start date `,
-      }))
-    })
-  }
-  console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
-  console.log(groupfilterDto.end_date)
-  console.log(new Date(groupfilterDto.start_date).getTime())
-  
-  if(!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())){
-    return new Promise((resolve, reject) => {
-      reject(new ConflictException({
-        success: false,
-        message: `End date should be greater then from Start date `,
-      }))
-    })
-  }
-}
-    
+    if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
+      if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: `End date should be if in filter query you used with Start date `,
+          }))
+        })
+      }
+      console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
+      console.log(groupfilterDto.end_date)
+      console.log(new Date(groupfilterDto.start_date).getTime())
+
+      if (!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: `End date should be greater then from Start date `,
+          }))
+        })
+      }
+    }
+
     let deviceGroups;
 
     if (groupfilterDto === undefined) {
@@ -209,82 +209,95 @@ if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined)
       });
     } else {
       console.log("187")
-
+      console.log(buyerId)
       const queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-        .select(['dg.*', 'd.SDGBenefits']);
+        .select(['dg.*', 'd.SDGBenefits'])
+        
+        .orderBy('dg.id', 'ASC')
 
-      //console.log(queryBuilder);
-      if (groupfilterDto.sdgbenefit) {
-        console.log(groupfilterDto.sdgbenefit);
-        if (typeof groupfilterDto.sdgbenefit === 'string') {
-          console.log(typeof groupfilterDto.sdgbenefit);
-          queryBuilder.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
-        } else if (typeof groupfilterDto.sdgbenefit === 'object') {
-          console.log(JSON.stringify(groupfilterDto.sdgbenefit));
-          console.log(typeof groupfilterDto.sdgbenefit);
-          const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
-
-          queryBuilder.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
-
-        }
-}
-
-
-      if (groupfilterDto.fuelCode) {
-        console.log(groupfilterDto.fuelCode);
-        if (typeof groupfilterDto.fuelCode === 'string') {
-          console.log(typeof groupfilterDto.fuelCode);
-          queryBuilder.orWhere('dg.fuelCode = :fuelcode', { fuelcode: [groupfilterDto.fuelCode] });
-        } else if (typeof groupfilterDto.fuelCode === 'object') {
-          console.log(JSON.stringify(groupfilterDto.fuelCode));
-          queryBuilder.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
-        }
-}
-     
-      if (groupfilterDto.country) {
-        const string = groupfilterDto.country;
-        const values = string.split(",");
-        console.log(values);
-        let CountryInvalid = false;
-        values.forEach(ele => {
-          groupfilterDto.country = ele.toUpperCase();
-          if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-            let countries = countrCodesList;
-            if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
-              CountryInvalid = true;
+      // //console.log(queryBuilder);
+      queryBuilder.where((qb) => {
+        qb.where(`dg.buyerId = :buyerid `, {
+          buyerid: buyerId
+        })
+      .andWhere(new Brackets(qb => {
+       
+        if (groupfilterDto.country) {
+          const string = groupfilterDto.country;
+          const values = string.split(",");
+          console.log(values);
+          let CountryInvalid = false;
+          values.forEach(ele => {
+            groupfilterDto.country = ele.toUpperCase();
+            if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
+              let countries = countrCodesList;
+              if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
+                CountryInvalid = true;
+              }
             }
+          });
+          console.log(CountryInvalid)
+          if (!CountryInvalid) {
+           
+                qb.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
+             
           }
-        });
-        console.log(CountryInvalid)
-       if(!CountryInvalid){
-        queryBuilder.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
-       }
-      }
-      if (groupfilterDto.offTaker) {
-        console.log(typeof groupfilterDto.offTaker)
-        console.log(groupfilterDto.offTaker)
-        // const filterOperator = this.getRawFilter(groupfilterDto.offTake);
-        // queryBuilder.where('dg.offTakers =:offTaker', { offTaker: filterOperator });
-        if (typeof groupfilterDto.sdgbenefit === 'string') {
-          queryBuilder.orWhere('dg.offTakers =:offTaker', { offTaker: [groupfilterDto.offTaker] });
-
         }
-        else if (typeof groupfilterDto.sdgbenefit === 'object') {
-          queryBuilder.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
+        if ((groupfilterDto.fuelCode )) {
+          console.log(groupfilterDto.fuelCode);
+          if (typeof groupfilterDto.fuelCode === 'string' && groupfilterDto.fuelCode!='') {
+            console.log(typeof groupfilterDto.fuelCode);
+            qb.orWhere('dg.fuelCode = :fuelcode', { fuelcode: [groupfilterDto.fuelCode] });
+          } else if (typeof groupfilterDto.fuelCode === 'object') {
+            console.log(JSON.stringify(groupfilterDto.fuelCode));
+            qb.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
+          }
         }
-      }
-      if (groupfilterDto.start_date) {
+        if (groupfilterDto.offTaker) {
+          console.log(typeof groupfilterDto.offTaker)
+          console.log(groupfilterDto.offTaker)
+          // const filterOperator = this.getRawFilter(groupfilterDto.offTake);
+          // queryBuilder.where('dg.offTakers =:offTaker', { offTaker: filterOperator });
+          if (typeof groupfilterDto.offTaker === 'string') {
+            console.log("272")
+            qb.orWhere('dg.offTakers = :offTaker', { offTaker: [groupfilterDto.offTaker] });
+  
+          }
+          else if (typeof groupfilterDto.offTaker === 'object') {
+            qb.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
+          }
+        }
+        if (groupfilterDto.start_date) {
 
-        queryBuilder.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-      }
-      if (groupfilterDto.end_date) {
-        queryBuilder.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
-      }
-      //console.log(queryBuilder);
+          qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
+        }
+        if (groupfilterDto.end_date) {
+          qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
+        }
+
+        if (groupfilterDto.sdgbenefit) {
+          console.log(groupfilterDto.sdgbenefit);
+          if (typeof groupfilterDto.sdgbenefit === 'string') {
+            console.log(typeof groupfilterDto.sdgbenefit);
+            qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
+          } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+            console.log(JSON.stringify(groupfilterDto.sdgbenefit));
+            console.log(typeof groupfilterDto.sdgbenefit);
+            const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
+  
+            qb.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
+  
+          }
+        }
+  
+      }));
+    })
+      const groupedDatasql = await queryBuilder.getSql();
+      console.log(groupedDatasql);
       const groupedData = await queryBuilder.getRawMany();
 
-      console.log(groupedData);
+     // console.log(groupedData);
       deviceGroups = groupedData.reduce((acc, curr) => {
         console.log("existing");
         const existing = acc.find(item => item.id === curr.id);
@@ -325,10 +338,10 @@ if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined)
             devicegroup_uid: curr.devicegroup_uid,
             type: curr.type,
             deviceIds: curr.deviceIdsInt,
-           // deviceIdsInt: curr.deviceIdsInt,
+            // deviceIdsInt: curr.deviceIdsInt,
             SDGBenefits: curr.d_SDGBenefits || ""
           });
-          console.log(acc);
+          // console.log(acc);
         }
         return acc;
       }, []);
