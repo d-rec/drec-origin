@@ -1,16 +1,19 @@
 
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder ,FormGroup,Validators} from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef ,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
+import {ReservationService}from'../../auth/services/reservation.service';
 import { Router } from '@angular/router';
-
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-myreservation',
@@ -33,6 +36,7 @@ export class MyreservationComponent implements OnInit {
     'targetVolumeInMegaWattHour',
     //'fuelCode',
     'number Of Devices',
+    'SDGBenefits',
     'actions',
   ];
   displayedColumns1 = [
@@ -61,19 +65,71 @@ export class MyreservationComponent implements OnInit {
   countrylist: any;
   fuellist: any;
   devicetypelist: any;
-  constructor(private authService: AuthbaseService, private router: Router,) { }
+  FilterForm: FormGroup;
+  public sdgblist: any;
+  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  filteredOptions: Observable<any[]>;
+  endminDate = new Date();
+  constructor(private authService: AuthbaseService,
+    private reservationService: ReservationService,
+     router: Router, private formBuilder: FormBuilder,
+     private toastrService: ToastrService
+     ) { }
   ngOnInit() {
+
+
+    this.FilterForm = this.formBuilder.group({
+      countryCode: [],
+      fuelCode: [],
+      offTaker: [],
+      SDGBenefits: [],
+      reservationStartDate: [null],
+      reservationEndDate: [null],
+    });
+
     console.log("myreservation");
     this.DisplayList()
     this.DisplayfuelList();
     this.DisplaytypeList();
     this.DisplaycountryList();
+    this.DisplaySDGBList()
+   // this.getcountryListData();
+ 
+    console.log("myreservation");
+    setTimeout(()=>{
+    //  this.loading=false;
+    
+      this.applycountryFilter();
+    },2000)
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
   //   this.dataSource.sort = this.sort;
   // }
+  applycountryFilter() {
+    this.FilterForm.controls['countryCode'];
+    console.log(this.FilterForm.controls['countryCode']);
+    this.filteredOptions = this.FilterForm.controls['countryCode'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+    console.log(this.filteredOptions);
+  }
+  private _filter(value: any): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
 
+    // if (this.countrycodeLoded === true) {
+      console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+    return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+   
+  }
+  onEndChangeEvent(event: any) {
+    console.log(event);
+    this.endminDate = event;
+
+
+  }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -115,8 +171,24 @@ export class MyreservationComponent implements OnInit {
       }
     )
   }
+
+  DisplaySDGBList() {
+
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
+      (data) => {
+        // display list in the console 
+        console.log(data)
+        this.sdgblist = data;
+
+      }
+    )
+  }
   DisplayList() {
-    this.authService.GetMethod('device-group/my').subscribe(
+    console.log(this.FilterForm.value)
+    if(!(this.FilterForm.value.reservationStartDate!=null && this.FilterForm.value.reservationEndDate===null))
+   {
+
+    this.reservationService.getReservationData(this.FilterForm.value).subscribe(
       (data) => {
         this.showdevicesinfo = false;
 
@@ -139,10 +211,20 @@ export class MyreservationComponent implements OnInit {
         this.dataSource.sort = this.sort;
       }
     )
+   }else{
+    this.toastrService.error("Filter error","End date should be if in filter query you used with Start date");
+   }
+  }
+  reset() {
+    this.FilterForm.reset();
+   // this.loading = false;
+    // this.getDeviceListData();
+    //this.selection.clear();
+    this.DisplayList()
   }
 
   DisplayDeviceList(deviceid: number[]) {
-
+    this.FilterForm.reset();
     this.showdevicesinfo = true;
     this.DevicesList = [];
     deviceid.forEach(ele => {
