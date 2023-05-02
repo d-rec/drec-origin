@@ -32,8 +32,8 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
 import { CertificateWithPerdevicelog,CertificateNewWithPerDeviceLog } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
-import { ActiveUserGuard } from 'src/guards/ActiveUserGuard';
-import { PermissionGuard } from 'src/guards/PermissionGuard';
+import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
+import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 @ApiTags('certificate-log')
