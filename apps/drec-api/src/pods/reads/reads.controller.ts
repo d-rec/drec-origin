@@ -501,10 +501,16 @@ export class ReadsController extends BaseReadsController {
     // Device onboarding and system date validation
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allDatesAreAfterCreatedAt: boolean = true;
+      let allDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() <= new Date(device.createdAt).getTime()) {
             allDatesAreAfterCreatedAt = false;
+          }
+        }
+        if (device && device.commissioningDate) {
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            allDatesAreAftercommissioningDate = false;
           }
         }
       })
@@ -514,6 +520,16 @@ export class ReadsController extends BaseReadsController {
             new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp is less than or equal to device onboarding date${device?.createdAt}`,
+            })
+          );
+        });
+      }
+      if (!allDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp should be greater than to device commissioningDate date${device?.commissioningDate}`,
             })
           );
         });
@@ -545,6 +561,7 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreBeforeCreatedAt: boolean = true;
       let allStartDatesAreBeforeEnddate: boolean = true;
       let readvalue: boolean = true;
+      let historyallDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime()) {
@@ -560,6 +577,14 @@ export class ReadsController extends BaseReadsController {
 
         if (ele.value < 0) {
           readvalue = false;
+        }
+        if (device && device.commissioningDate) {
+          if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallDatesAreAftercommissioningDate = false;
+          }
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallDatesAreAftercommissioningDate = false;
+          }
         }
       })
       if (!allStartDatesAreBeforeEnddate) {
@@ -589,6 +614,16 @@ export class ReadsController extends BaseReadsController {
             new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
+            })
+          );
+        });
+      }
+      if (!historyallDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements starttimestamp and endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
             })
           );
         });
