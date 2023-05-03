@@ -174,7 +174,7 @@ export class CertificateLogService {
             //   return devicelog;
           })
         );
-       
+
         return certifiedlist;
       }),
     );
@@ -364,7 +364,7 @@ export class CertificateLogService {
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 console.log(claims.claimData);
-              
+
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
@@ -551,4 +551,20 @@ async getsCertificateReadModule(userOrgId: string, pageNumber: number, generatio
      
     
       
+  async getLastCertifiedDevicelogBYgroupId(
+    groupId: number, deviceId: string
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+    return this.repository.findOne(
+      {
+        where: {
+          groupId: groupId,
+          deviceid: deviceId,
+
+        },
+        order:{
+          certificate_issuance_enddate:'DESC'
+        }
+      })
+
+  }
 }

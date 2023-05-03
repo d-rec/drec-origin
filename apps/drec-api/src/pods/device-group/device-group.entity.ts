@@ -165,7 +165,9 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   deviceIdsInt: number[];
 
 
-
+  @Column({ type: 'boolean'})
+  @IsOptional()
+  reservationActive: boolean;
 
 
   // @ManyToMany(() => Device)

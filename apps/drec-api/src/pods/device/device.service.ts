@@ -135,7 +135,7 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number, endDate: string): Promise<{ [key: string]: Device[] }> {
+  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
 
     let groupdevice: Array<any> = await this.repository.find({
       where: { groupId },
@@ -873,6 +873,21 @@ public async atto(organizationId, externalId) {
     organizationId: row.organizationId
   }));
 }
+async getLastCertifiedDevicelogBYgroupId(
+  groupId: number, deviceId: string
+): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+  return this.checkdevcielogcertificaterepository.findOne(
+    {
+      where: {
+        groupId: groupId,
+        deviceid: deviceId,
 
+      },
+      order:{
+        certificate_issuance_enddate:'DESC'
+      }
+    })
+
+}
 ///////////////////
 }
