@@ -118,6 +118,18 @@
                                   </mat-error> -->
                                 </mat-form-field>
                             </div>
+                            <div class="col-md-6">
+
+                                <mat-radio-group formControlName='reservationActive'>
+                                    <span>grid Inter connection:</span>
+
+                                    <mat-radio-button value="All">All</mat-radio-button>
+                                    <mat-radio-button value="Active">Active</mat-radio-button>
+                                    <mat-radio-button value="Deactive">Deactive</mat-radio-button>
+                                </mat-radio-group>
+
+
+                            </div>
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">
                                     <button class="btn-primary me-2 btn text-capitalize px-4"
@@ -162,10 +174,10 @@
                 </ng-container>
 
                 <!-- Fruit Column -->
-                <!-- <ng-container matColumnDef="buyerAddress">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Fruit </th>
-                        <td mat-cell *matCellDef="let row"> {{row.buyerAddress}} </td>
-                    </ng-container> -->
+                <ng-container matColumnDef="reservationActive">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+                        <td mat-cell *matCellDef="let row"> {{row.reservationActive}} </td>
+                    </ng-container>
                 <!-- Progress Column -->
                 <!-- <ng-container matColumnDef="capacityRange">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Capacity </th>
@@ -216,7 +228,7 @@
                                 aria-label="Button that displays a tooltip when focused or hovered over">visibility</mat-icon></a> -->
                             <a matTooltip="Certificate" [matTooltipPosition]="'left'"
                                 aria-label="Button that displays a tooltip when focused or hovered over"
-                                [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}">
+                                [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name,devices:row.deviceIds}">
                                 <mat-icon class="fs-6 mt-2">card_membership</mat-icon></a>
                             &nbsp;&nbsp;
                             <a matTooltip="Devices" [matTooltipPosition]="'above'"
