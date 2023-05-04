@@ -161,7 +161,7 @@ export class CertificateLogService {
             //   return devicelog;
           })
         );
-       
+
         return certifiedlist;
       }),
     );
@@ -351,7 +351,7 @@ export class CertificateLogService {
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 console.log(claims.claimData);
-              
+
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
@@ -419,5 +419,6 @@ export class CertificateLogService {
   //   console.log(missingtoken);
   //   return missingtoken
   // }
+
 
 }
