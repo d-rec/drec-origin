@@ -88,13 +88,13 @@ import {
   Max,
 } from 'class-validator';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
-import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { NewfindLatestRead } from '../../utils/get-lastread-influx';
 import { DateTime } from 'luxon';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { SdgBenefit } from '../sdgbenefit/sdgbenefit.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-
+import { ReadsService } from '../reads/reads.service'
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -118,8 +118,8 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-
-
+    //private readService: ReadsService,
+    //  private readonly readsService: ReadsService
   ) { }
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -291,6 +291,14 @@ export class DeviceGroupService {
 
               }
             }
+            if (groupfilterDto.reservationActive) {
+              if (groupfilterDto.reservationActive === 'Active') {
+                qb.orWhere('dg.reservationActive = :active', { active: true });
+              }
+              if (groupfilterDto.reservationActive === 'Deactive') {
+                qb.orWhere('dg.reservationActive = :active', { active: false });
+              }
+            }
 
           }));
       })
@@ -330,6 +338,7 @@ export class DeviceGroupService {
             frequency: curr.frequency,
             reservationStartDate: curr.reservationStartDate,
             reservationEndDate: curr.reservationEndDate,
+            reservationActive: curr.reservationActive,
             targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
             targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
             targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
@@ -2083,5 +2092,61 @@ export class DeviceGroupService {
     })
     console.log(activeresvation);
     return activeresvation
+  }
+
+  async getcurrentInformationofDevicesInReservation(groupuid): Promise<any> {
+    const group = await this.findOne({ devicegroup_uid: groupuid })
+    console.log(group)
+    if (group === null) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
+        }))
+      })
+    }
+    const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+    const device_historynextissuance = [];
+    await Promise.all(
+      devices.map(async (device) => {
+        console.log(device);
+        const historynext_issuancer = await this.historynextissuancedaterepository.find(
+          {
+            where: {
+              groupId: group.id,
+              device_externalid: device.externalId
+            },
+          }
+        );
+        historynext_issuancer.forEach(element => {
+          element.device_externalid = device.developerExternalId
+          delete element["createdAt"];
+          delete element["groupId"];
+          delete element["id"];
+          delete element["updatedAt"];
+
+        });
+        device_historynextissuance.push({
+          historynext_issuancer,
+
+        })
+      }),
+    );
+    let AllDeviceshistnextissuansinfo: any = []
+    device_historynextissuance.forEach(ele => ele.historynext_issuancer.forEach(he => AllDeviceshistnextissuansinfo.push(he)))
+    console.log(group.id)
+    let nextissuance={};
+     nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
+      where: {
+        groupId: group.id
+      }
+    })?? null;
+    console.log(nextissuance)
+
+    return {
+
+      AllDeviceshistnextissuansinfo,
+      ongoing_next_issuance: nextissuance
+    }
   }
 }

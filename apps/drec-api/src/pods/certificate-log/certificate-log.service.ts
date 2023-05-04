@@ -420,20 +420,5 @@ export class CertificateLogService {
   //   return missingtoken
   // }
 
-  async getLastCertifiedDevicelogBYgroupId(
-    groupId: number, deviceId: string
-  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
-    return this.repository.findOne(
-      {
-        where: {
-          groupId: groupId,
-          deviceid: deviceId,
 
-        },
-        order:{
-          certificate_issuance_enddate:'DESC'
-        }
-      })
-
-  }
 }

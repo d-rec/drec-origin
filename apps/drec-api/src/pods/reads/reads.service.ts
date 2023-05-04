@@ -970,7 +970,7 @@ export class ReadsService {
 
   }
 
-  private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
+   async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
     //console.log("527")
     //console.log(deviceregisterdate)
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());

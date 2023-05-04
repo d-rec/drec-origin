@@ -276,13 +276,6 @@ export class DeviceGroupController {
   }
 
 
-
-
-
-
-
-
-
   @Post('process-creation-bulk-devices-csv')
   @UseGuards(AuthGuard('jwt'))
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)

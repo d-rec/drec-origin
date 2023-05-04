@@ -96,10 +96,10 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-/* */
-@Get('new/:externalId')
-  @ApiQuery({ name: 'pagenumber',type:Number,required:false})
-  @ApiQuery({ name: 'Date',required:false})
+  /* */
+  @Get('new/:externalId')
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery({ name: 'Date', required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -109,23 +109,23 @@ export class ReadsController extends BaseReadsController {
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: filterNoOffLimit,
-    @Query('pagenumber')pagenumber:number|null,
-    @Query('Date')startDate,
+    @Query('pagenumber') pagenumber: number | null,
+    @Query('Date') startDate,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
 
     //finding the device details throught the device service
-    filter.offset=0;
-    filter.limit=5;
+    filter.offset = 0;
+    filter.limit = 5;
     let device: DeviceDTO | null;
-    if(user.role==='Buyer'){
+    if (user.role === 'Buyer') {
       device = await this.deviceService.findOne(parseInt(meterId));
-   
-    }else{
-     device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+
+    } else {
+      device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     }
-     //console.log("getmeterdevice");
+    //console.log("getmeterdevice");
     console.log(device);
     if (device === null) {
 
@@ -138,29 +138,25 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-    
-    if(filter.accumulated==='Daily')
-    {
-      return this.internalReadsService.gettingacumulateddailyreads(device.developerExternalId,user.organizationId,device.externalId,startDate)
+
+    if (filter.accumulated === 'Daily') {
+      return this.internalReadsService.gettingacumulateddailyreads(device.developerExternalId, user.organizationId, device.externalId, startDate)
     }
 
-    else if(filter.accumulated==='Monthly')
-    {
-      return this.internalReadsService.getmonthlyreads(device.developerExternalId,user.organizationId,device.externalId,startDate)
+    else if (filter.accumulated === 'Monthly') {
+      return this.internalReadsService.getmonthlyreads(device.developerExternalId, user.organizationId, device.externalId, startDate)
     }
 
-    else if(filter.accumulated==='Yearly')
-    {
-      return await this.internalReadsService.getyearlyreads(device.developerExternalId,user.organizationId,device.externalId,startDate);
+    else if (filter.accumulated === 'Yearly') {
+      return await this.internalReadsService.getyearlyreads(device.developerExternalId, user.organizationId, device.externalId, startDate);
     }
 
-    else
-    {
-     return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
+    else {
+      return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt, pagenumber);
     }
-  
-   }
-/* */
+
+  }
+  /* */
 
 
   // @Get('/:meter/difference')
@@ -315,7 +311,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
               if (new Date(ele[key]).getTime() > new Date().getTime()) {
-               
+
                 const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
                 throw new ConflictException({
@@ -679,13 +675,19 @@ export class ReadsController extends BaseReadsController {
     description: 'Returns the latest meter read of the given device',
   })
   @UseGuards(AuthGuard('jwt'))
-  public async getLatestMeterRead(  
-  @Param("externalId") externalId:string,
-  @UserDecorator() user: ILoggedInUser,
-  )
-  {
+  public async getLatestMeterRead(
+    @Param("externalId") externalId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ) {
 
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+    let device: DeviceDTO | null
+    if (user.role === 'Buyer') {
+      device = await this.deviceService.findOne(parseInt(externalId));
+
+    } else {
+      device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+
+    }
 
     if (device === null) {
 
@@ -703,28 +705,34 @@ export class ReadsController extends BaseReadsController {
     let latestReadObject;
     let latestRead;
 
-   deviceExternalId=device.externalId;
-  console.log("externalId::"+deviceExternalId);
+    deviceExternalId = device.externalId;
+    console.log("externalId::" + deviceExternalId);
 
-    if(!device.meterReadtype)
-    {
-      throw new HttpException('Read not found',400)
+    if (!device.meterReadtype) {
+      throw new HttpException('Read not found', 400)
     }
-    else{
+    else {
 
-          latestReadObject=await this.internalReadsService.latestread(deviceExternalId,device.createdAt);
+      latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
 
-              console.log(latestReadObject)
+      console.log(latestReadObject)
 
-            if(typeof latestReadObject==='undefined' || latestReadObject.length==0)   
-              {
-                throw new HttpException('Read Not found', 400)
-              }
-          return {
-            "enddate":latestReadObject[0].timestamp,
-            "value":latestReadObject[0].value
-          }
-      }   
+      if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
+        throw new HttpException('Read Not found', 400)
+      }
+      if (user.role === 'Buyer') {
+        return {
+          externalId: device.developerExternalId,
+          timestamp: latestReadObject[0].timestamp,
+          value: latestReadObject[0].value
+        }
+      }
+
+      return {
+        "enddate": latestReadObject[0].timestamp,
+        "value": latestReadObject[0].value
+      }
+    }
   }
 
 }
