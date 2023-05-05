@@ -43,10 +43,15 @@ export class ReservationService {
     if (!(typeof searchData.reservationEndDate === "undefined" || searchData.reservationEndDate === ""||searchData.reservationEndDate === null)) {
       searchUrl += `&end_date=${new Date(searchData.reservationEndDate).toISOString()}`;
     }
-    
+    if (!(typeof searchData.reservationActive === "undefined" || searchData.reservationActive === ""||searchData.reservationActive === null)) {
+      searchUrl += `&reservationActive=${searchData.reservationActive}`;
+    }
     // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
     //   searchUrl += `&GroupId=${searchData.GroupId}`;
     // }
     return this.httpClient.get(searchUrl);
+  }
+  GetnextissuanceCycleinfo(group_uid:any) : Observable<any>{
+    return this.httpClient.get(this.url+'buyer-reservation/current-information/'+group_uid)
   }
 }
