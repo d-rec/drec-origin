@@ -47,6 +47,7 @@ export interface IDevice {
   meterReadtype?: string;
   createdAt?:Date;
   version?:string;
+  timezone?:string;
 }
 
 export enum DeviceDescription {

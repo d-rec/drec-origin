@@ -292,6 +292,11 @@ export class ReadsService {
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
     }
+   
+     
+    if(device.timezone===null && measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== ''){
+      await this.deviceService.updatetimezone(device.externalId, measurements.timezone);
+    }
 
     const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
 

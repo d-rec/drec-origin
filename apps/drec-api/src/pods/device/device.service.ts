@@ -573,7 +573,24 @@ export class DeviceService {
     return await this.repository.save(devicereadtype);
 
   }
+  public async updatetimezone(
+    deviceId: string,
+    timeZone: string,
+  ): Promise<Device> {
 
+    const devicereadtype = await this.repository.findOne({
+      where: {
+        externalId: deviceId,
+      }
+    });
+    if (!devicereadtype) {
+      throw new NotFoundException(`No device found with id ${deviceId}`);
+    }
+    devicereadtype.timezone = timeZone;
+
+    return await this.repository.save(devicereadtype);
+
+  }
   //
   private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
@@ -891,7 +908,7 @@ export class DeviceService {
       })
 
   }
-  async getcertifieddevicedaterange(externaId, groupId): Promise<any> {
+  async getcertifieddevicedaterange(device, groupId): Promise<any> {
     // // const query = {
     // //   select: ['MIN(entryTime) AS firstEntryTime', 'MAX(entryTime) AS lastEntryTime'],
     // //   where: { deviceid: externaId, groupId },
@@ -903,22 +920,23 @@ export class DeviceService {
     // const result = await this.checkdevcielogcertificaterepository.find(query);
     // console.log(result)
     // return result[0];
-    console.log(externaId);
+    console.log(device);
     console.log(groupId)
-    const result = this.checkdevcielogcertificaterepository.find({
-      where: {
-        deviceid: externaId,
-        groupId: groupId
-      }
-    })
-    //   const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
-    //   .select('MIN(deviceData.certificate_issuance_startdate)', 'firstEntryTime')
-    //   .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastEntryTime')
-    //   .where('deviceData.deviceid = :deviceId', { externaId })
-    //   .andWhere('deviceData.groupId = :groupId', { groupId });
+    // const result = this.checkdevcielogcertificaterepository.find({
+    //   where: {
+    //     deviceid: externaId,
+    //     groupId: groupId[]
+    //   }
+    // })
+      const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
+      .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
+      .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
+      .where('deviceData.deviceid= :externaId', { externaId:device.externalId })
+      .andWhere('deviceData.groupId= :groupId', { groupId });
 
-    // const result = await queryBuilder.getRawOne();
-    return result;
+    const result = await queryBuilder.getRawOne();
+    let finalresult = {...result,extenalId:device.developerExternalId}
+    return finalresult;
   }
   ///////////////////
 }
