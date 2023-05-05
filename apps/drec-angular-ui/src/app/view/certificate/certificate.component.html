@@ -33,27 +33,31 @@
 				</mat-card-header>
 
 				<mat-card-content>
-					<div >
-						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">History certificate Issuance Jobs</h4>
 
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Ongoing Next Issuance cycle</h4>
 						<table class="mt-2">
 							<thead>
 								<tr>
-									<th>Device Name</th>
-									<th>Reservation Start date</th>
-									<th>Reservation End date</th>
-									<th>status</th>
+
+									<th style="border: 1px solid black; padding: 5px;">Reservation Start date</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation End date</th>
+
 								</tr>
 							</thead>
 							<tbody>
-								<tr *ngFor="let d of history_nextissuanclist">
+								<tr *ngIf="ongoingnextissuance!=null">
 
-									<td>{{d.device_externalid}}</td>
-									<td>{{d.reservationStartDate}}</td>
-									<td>{{d.reservationEndDate}}</td>
-									<td>{{d.status}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{ongoingnextissuance.start_date}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{ongoingnextissuance.end_date}}</td>
+
 								</tr>
+								<tr *ngIf="ongoingnextissuance===null">
 
+									<td>No next issuance</td>
+
+
+								</tr>
 
 							</tbody>
 
@@ -61,29 +65,27 @@
 					</div>
 					<hr>
 					<div>
-						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Ongoing Next Issuance cycle</h4>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">History certificate Issuance Jobs
+						</h4>
+
 						<table class="mt-2">
 							<thead>
 								<tr>
-
-									<th>Reservation Start date</th>
-									<th>Reservation End date</th>
-
+									<th style="border: 1px solid black; padding: 5px;">Device Name</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation Start date</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation End date</th>
+									<th style="border: 1px solid black; padding: 5px;">status</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr *ngIf="ongoingnextissuance!=null">
+								<tr *ngFor="let d of history_nextissuanclist">
 
-									<td>{{ongoingnextissuance.start_date}}</td>
-									<td>{{ongoingnextissuance.end_date}}</td>
-
+									<td style="border: 1px solid black; padding: 5px;">{{d.device_externalid}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.reservationStartDate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.reservationEndDate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.status}}</td>
 								</tr>
-								<tr *ngIf="ongoingnextissuance===null">
 
-									<td>No next issuance</td>
-									
-
-								</tr>
 
 							</tbody>
 
@@ -96,8 +98,8 @@
 							<thead>
 								<tr>
 									<th style="border: 1px solid black;">Device Name</th>
-									
-									<th style="border: 1px solid black;">Last Read  End datetime</th>
+
+									<th style="border: 1px solid black;">Last Read End datetime</th>
 									<th style="border: 1px solid black;">Read value(Wh)</th>
 								</tr>
 							</thead>
@@ -107,6 +109,33 @@
 									<td style="border: 1px solid black;">{{d.externalId}}</td>
 									<td style="border: 1px solid black;">{{d.timestamp}}</td>
 									<td style="border: 1px solid black;">{{d.value}}</td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+
+					</div>
+					<hr>
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Certified Devices log first to
+							last Date</h4>
+						<table class="mt-2" style="border: 1px solid black;">
+							<thead>
+								<tr>
+									<th style="border: 1px solid black; padding: 5px;">Device Name</th>
+
+									<th style="border: 1px solid black; padding: 5px;">First Start Date</th>
+									<th style="border: 1px solid black; padding: 5px;">Last End Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let d of alldevicescertifiedlogdatrange">
+
+									<td style="border: 1px solid black; padding: 5px;">{{d.extenalId}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.firstcertifiedstartdate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.lastcertifiedenddate}}</td>
 								</tr>
 
 
