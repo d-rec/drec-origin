@@ -235,6 +235,7 @@ export class CertificateLogService {
             const device = await this.deviceService.findOne(deviceid);
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
             devicelog.forEach(singleDeviceLogEle => {
+              singleDeviceLogEle.deviceid = device.developerExternalId
               certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
             });
             //console.log(certifiedlist)
