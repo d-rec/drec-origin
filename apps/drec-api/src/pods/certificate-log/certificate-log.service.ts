@@ -567,5 +567,4 @@ async getsCertificateReadModule(userOrgId: string, pageNumber: number, generatio
         }
       })
     }
-
 }
