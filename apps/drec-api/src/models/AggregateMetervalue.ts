@@ -31,7 +31,7 @@ export interface IAggregateintermediate {
     datetime:string;  
     createdAt: Date;
     updatedAt: Date;
-    deviceId?:string;
+    externalId?:string;
 
 
 }
@@ -41,7 +41,7 @@ export interface Iintermediate {
     unit: Unit;
     
     createdAt: Date;
-    deviceId?:string;
+    externalId?:string;
     reads?:NewReadDTO[]
    // status:YieldStatus;
 

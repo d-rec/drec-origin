@@ -683,7 +683,7 @@ export class DeviceService {
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
           readvalue_watthour: s.device_readvalue_watthour,
           status: s.device_status,
-          deviceid: s.device_deviceid
+          deviceid: s.device_externalId
         };
         return item;
       });
@@ -701,7 +701,7 @@ export class DeviceService {
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
-      where("device.deviceid = :deviceid", { deviceid: deviceid })
+      where("device.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
           db.where("device.status ='Requested' OR device.status ='Succeeded'")
@@ -762,7 +762,7 @@ export class DeviceService {
 
         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
           {
-            where: { deviceid: device.externalId }
+            where: { externalId: device.externalId }
           }
         )
         const totalcertifiedReadValue = certifiedamountofread.reduce(
@@ -825,7 +825,7 @@ export class DeviceService {
 
   async getNumberOfHistReads(deviceId): Promise<number> {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
-      .where("devicehistory.deviceId = :deviceId", { deviceId });
+      .where("devicehistory.externalId = :deviceId", { deviceId });
     const count = await query.getCount();
     return count;
   }
@@ -899,7 +899,7 @@ export class DeviceService {
       {
         where: {
           groupId: groupId,
-          deviceid: deviceId,
+          externalId: deviceId,
 
         },
         order: {
@@ -911,11 +911,11 @@ export class DeviceService {
   async getcertifieddevicedaterange(device, groupId): Promise<any> {
     // // const query = {
     // //   select: ['MIN(entryTime) AS firstEntryTime', 'MAX(entryTime) AS lastEntryTime'],
-    // //   where: { deviceid: externaId, groupId },
+    // //   where: { deviceid: externalId, groupId },
     // // };
     // const query: FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> = {
     //   select: ['MIN(checkCertificateIssueDateLogForDevice.certificate_issuance_startdate) AS firststartdateTime', 'MAX(checkCertificateIssueDateLogForDevice.certificate_issuance_enddate) AS lastenddateTime'],
-    //   where: { deviceid: externaId, groupId },
+    //   where: { deviceid: externalId, groupId },
     // };
     // const result = await this.checkdevcielogcertificaterepository.find(query);
     // console.log(result)
@@ -924,14 +924,14 @@ export class DeviceService {
     console.log(groupId)
     // const result = this.checkdevcielogcertificaterepository.find({
     //   where: {
-    //     deviceid: externaId,
+    //     deviceid: externalId,
     //     groupId: groupId[]
     //   }
     // })
       const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
       .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
       .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
-      .where('deviceData.deviceid= :externaId', { externaId:device.externalId })
+      .where('deviceData.externalId= :externalId', { externalId:device.externalId })
       .andWhere('deviceData.groupId= :groupId', { groupId });
 
     const result = await queryBuilder.getRawOne();

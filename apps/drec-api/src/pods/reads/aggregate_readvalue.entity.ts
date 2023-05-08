@@ -58,6 +58,6 @@ export class AggregateMeterRead extends ExtendedBaseEntity implements IAggregate
   @ApiProperty({ type: String })
   @Column()
   @IsString()
-  deviceId: string;
+  externalId: string;
 
 }

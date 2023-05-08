@@ -37,7 +37,7 @@ export class DeltaFirstRead extends ExtendedBaseEntity implements IDeltaintermed
     @ApiProperty({ type: String })
     @Column()
     @IsString()
-    deviceId: string;
+    externalId: string;
 
     @ApiProperty({ type: Date })
     @IsDate()

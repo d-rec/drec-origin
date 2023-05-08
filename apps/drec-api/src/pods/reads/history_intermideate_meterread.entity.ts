@@ -36,7 +36,7 @@ export class HistoryIntermediate_MeterRead extends ExtendedBaseEntity implements
   createdAt: Date;
 
   @Column()
-  deviceId: string;
+  externalId: string;
 
 
   @Column()

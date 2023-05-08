@@ -482,9 +482,7 @@ export class BuyerReservationController {
   @Get('current-information/:groupUid')
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
-    status: HttpStatus.OK,
-    type: JobFailedRowsDTO,
-    description: 'Returns status of job id for bulk upload',
+    status: HttpStatus.OK
   })
   public async getReservationcurrentinformation(
     @Param('groupUid') groupuId: string,

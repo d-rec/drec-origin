@@ -635,7 +635,7 @@ export class IssuerService {
         //console.log("previousReading", previousReading);
         //console.log("allDevicesCompleteReadsBetweenTimeRange", allDevicesCompleteReadsBetweenTimeRange);
         let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
-        devicecertificatelogDto.deviceid = device.externalId,
+        devicecertificatelogDto.externalId = device.externalId,
           devicecertificatelogDto.certificate_issuance_startdate = previousReading.length > 0 ? previousReading[0].timestamp : new Date(startDate.toString()),
           devicecertificatelogDto.certificate_issuance_enddate = allDevicesCompleteReadsBetweenTimeRange[index][allDevicesCompleteReadsBetweenTimeRange[index].length - 1].timestamp,// new Date(endDate.toString()),
           devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
@@ -745,7 +745,7 @@ export class IssuerService {
     }
     let certificateTransactionUID = uuid();
     let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
-    devicecertificatelogDto.deviceid = device.externalId,
+    devicecertificatelogDto.externalId = device.externalId,
       devicecertificatelogDto.certificate_issuance_startdate = new Date(devicehistoryrequest.readsStartDate.toString()),
       devicecertificatelogDto.certificate_issuance_enddate = new Date(devicehistoryrequest.readsEndDate.toString()),
       devicecertificatelogDto.status = SingleDeviceIssuanceStatus.Requested,
@@ -1060,14 +1060,14 @@ export class IssuerService {
   }
 
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async testtime(): Promise<void> {
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  // async testtime(): Promise<void> {
 
-    const leates = await this.readservice.latestread('f1a8befb-5dca-4c12-a71b-793f492803d4', '2022-04-20T07:45:45.405Z');
-    console.log(leates[0].timestamp.getTime());
+  //   const leates = await this.readservice.latestread('f1a8befb-5dca-4c12-a71b-793f492803d4', '2022-04-20T07:45:45.405Z');
+  //   console.log(leates[0].timestamp.getTime());
 
-    const lastcertifieddeviceend_date = await this.deviceService.getLastCertifiedDevicelogBYgroupId(2, 'f1a8befb-5dca-4c12-a71b-793f492803d4');
-    console.log(lastcertifieddeviceend_date.certificate_issuance_enddate.getTime())
+  //   const lastcertifieddeviceend_date = await this.deviceService.getLastCertifiedDevicelogBYgroupId(2, 'f1a8befb-5dca-4c12-a71b-793f492803d4');
+  //   console.log(lastcertifieddeviceend_date.certificate_issuance_enddate.getTime())
 
-  }
+  // }
 }

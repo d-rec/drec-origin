@@ -91,7 +91,7 @@ export class CertificateLogService {
       .select("d.externalId", "externalId")
       .addSelect("(COUNT(dl.id))", "total")
       .from(CheckCertificateIssueDateLogForDeviceEntity, "dl")
-      .leftJoin(Device, "d", "dl.deviceid = d.externalId")
+      .leftJoin(Device, "d", "dl.externalId = d.externalId")
       .where('d.organizationId = :orgid', { orgid: 3 })
       .andWhere("dl.readvalue_watthour>0")
       .groupBy("d.externalId");
@@ -108,7 +108,7 @@ export class CertificateLogService {
     const certifiedreservation = await this.certificaterrepository.find(
       {
         where: {
-          deviceId: groupid,
+          externalId: groupid,
           // claims:IsNull()
         }
       })
@@ -154,7 +154,7 @@ export class CertificateLogService {
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate);
             console.log(devicelog)
             devicelog.forEach(async (singleDeviceLogEle) => {
-              singleDeviceLogEle.deviceid = device.developerExternalId
+              singleDeviceLogEle.externalId = device.developerExternalId
               certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
 
             });
@@ -235,7 +235,7 @@ export class CertificateLogService {
             const device = await this.deviceService.findOne(deviceid);
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
             devicelog.forEach(singleDeviceLogEle => {
-              singleDeviceLogEle.deviceid = device.developerExternalId
+              singleDeviceLogEle.externalId = device.developerExternalId
               certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
             });
             //console.log(certifiedlist)
@@ -272,7 +272,7 @@ export class CertificateLogService {
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
-          deviceid: s.issuelog_deviceid,
+          deviceid: s.issuelog_externalId,
           groupId: s.issuelog_groupId
         };
         console.log(item);
@@ -290,7 +290,7 @@ export class CertificateLogService {
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     const query = this.repository
       .createQueryBuilder("issuelog").
-      where("issuelog.deviceId = :deviceid", { deviceid: deviceid })
+      where("issuelog.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
           db.where(
@@ -318,7 +318,7 @@ export class CertificateLogService {
       {
         where: {
           groupId: groupId,
-          deviceid: deviceId,
+          externalId: deviceId,
           certificateTransactionUID: certificateTransactionUID
         }
       })
