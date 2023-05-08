@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Component({
   selector: 'app-myreservation',
@@ -72,8 +73,9 @@ export class MyreservationComponent implements OnInit {
   endminDate = new Date();
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
-    router: Router, private formBuilder: FormBuilder,
-    private toastrService: ToastrService
+    private router: Router, private formBuilder: FormBuilder,
+    private toastrService: ToastrService,
+
   ) { }
   ngOnInit() {
 
@@ -226,6 +228,13 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList()
   }
 
+  DisplayCertificatepage(reservation_row: any) {
+    console.log(typeof reservation_row.deviceIds);
+    let changedeviceId = JSON.stringify(reservation_row.deviceIds)
+    console.log(typeof changedeviceId);
+    this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.devicegroup_uid, name: reservation_row.name, devices: reservation_row.deviceIds } });
+
+  }
   DisplayDeviceList(deviceid: number[]) {
     this.FilterForm.reset();
     this.showdevicesinfo = true;
