@@ -50,7 +50,7 @@ export class CertificateComponent implements OnInit {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'deviceid', 'readvalue_watthour'];
+  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -101,7 +101,10 @@ export class CertificateComponent implements OnInit {
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    this.getnextissuancinfo();
+    
+    setInterval(() => {
+      this.getnextissuancinfo();
+    }, 60000);
     this.getlastreadoddevices();
     this.getcertifiedlogdaterange();
   }
