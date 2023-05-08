@@ -10,7 +10,7 @@ import {
     readsEndDate:Date;  
     createdAt: Date;
     updatedAt: Date;
-    deviceId?:string;
+    externalId?:string;
 
 
 }

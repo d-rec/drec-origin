@@ -1,170 +1,324 @@
 <div class="body-bg">
-<mat-card class="example-card">
-	<mat-card-header>
-		<mat-card-title>
-			<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
-			
+	<mat-card class="example-card">
+		<mat-card-header>
+			<mat-card-title>
+				<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
 
-		</mat-card-title>
-		
-	</mat-card-header>
-	<hr>
-	<mat-card-content>
-		<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>Reservation Name:{{group_name}}</b></h2>
-		<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-0 pb-0"><b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please select account in Metamask'}}<button   *ngIf="!checkMetamaskConnected()" (click)="selectAccountAddressFromMetamask()" class="btn-sm button-click-here text-info"> Click here</button> </b></h2>
-		<h6 class="text-capitalize please-note text-danger" ><b>Please note this application assumes you are using metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to this RPC and try the transactions</b></h6>
 
-		<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
+			</mat-card-title>
+
+		</mat-card-header>
+		<hr>
+		<mat-card-content>
+			<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>Reservation
+					Name:{{group_name}}</b></h2>
+			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-0 pb-0">
+				<b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please selectaccount in Metamask'}}<button *ngIf="!checkMetamaskConnected()"
+						(click)="selectAccountAddressFromMetamask()" class="btn-sm button-click-here text-info"> Click
+						here</button> </b>
+			</h2>
+			<h6 class="text-capitalize please-note text-danger"><b>Please note this application assumes you are using
+					metamask and are connected to this RPC {{blockchainProperties?.rpcNode}} if not please connect to
+					this RPC and try the transactions</b></h6>
+
+			<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
-		 <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-	<ng-container *ngFor="let item of data">
-		
-		<mat-card  class="innermat-card example-card1 border" >
-			<mat-card-header class="">
-				<div class="col-12">
-					<mat-card-title class=" d-flex justify-content-between align-items-center">
-						<div>
-							<a  matTooltip="Link to Certificate"  [matTooltipPosition]="'right'"
-							aria-label="Button that displays a tooltip when focused or hovered over" style ="text-align: right;" href= {{energyurl+item.creationBlockHash}} target="_blank" class="certificate-text d-flex text-capitalize">
-								<mat-icon class="mt-1" >card_membership</mat-icon><div class="certificate-id-text"><div class="id-text">{{item?.id}}</div></div></a>
-						</div>
-						<div class=" ">
-							<button class=" btn-content-back btn d-flex justify-content-end btn-sm" *ngIf="!item.CertificateClaimed" (click)="selectCertificateForClaim(item)">Claim</button>
-							<button class=" btn-content-back btn d-flex justify-content-end btn-sm"  *ngIf="item.CertificateClaimed">Claimed</button>
-								
-						</div>
-					</mat-card-title>
+			<mat-card class="innermat-card example-card1 border">
+				<mat-card-header class="">
+					<div class="col-12">
+						<mat-card-title class=" d-flex justify-content-between align-items-center">
+							<h4>Reservation certificate generate cycle information</h4>
+						</mat-card-title>
+					</div>
+				</mat-card-header>
 
-				</div>
-				
-				<!-- <div class="d-flex justify-content-end">
+				<mat-card-content>
+
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Ongoing Next Issuance cycle</h4>
+						<table class="mt-2">
+							<thead>
+								<tr>
+
+									<th style="border: 1px solid black; padding: 5px;">Reservation Start date</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation End date</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngIf="ongoingnextissuance!=null">
+
+									<td style="border: 1px solid black; padding: 5px;">{{ongoingnextissuance.start_date}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{ongoingnextissuance.end_date}}</td>
+
+								</tr>
+								<tr *ngIf="ongoingnextissuance===null">
+
+									<td>No next issuance</td>
+
+
+								</tr>
+
+							</tbody>
+
+						</table>
+					</div>
+					<hr>
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">History certificate Issuance Jobs
+						</h4>
+
+						<table class="mt-2">
+							<thead>
+								<tr>
+									<th style="border: 1px solid black; padding: 5px;">Device Name</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation Start date</th>
+									<th style="border: 1px solid black; padding: 5px;">Reservation End date</th>
+									<th style="border: 1px solid black; padding: 5px;">status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let d of history_nextissuanclist">
+
+									<td style="border: 1px solid black; padding: 5px;">{{d.device_externalid}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.reservationStartDate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.reservationEndDate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.status}}</td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+					</div>
+					<hr>
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Last Read record of devices</h4>
+						<table class="mt-2" style="border: 1px solid black;">
+							<thead>
+								<tr>
+									<th style="border: 1px solid black;">Device Name</th>
+
+									<th style="border: 1px solid black;">Last Read End datetime</th>
+									<th style="border: 1px solid black;">Read value(Wh)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let d of alldevicesread">
+
+									<td style="border: 1px solid black;">{{d.externalId}}</td>
+									<td style="border: 1px solid black;">{{d.timestamp}}</td>
+									<td style="border: 1px solid black;">{{d.value}}</td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+
+					</div>
+					<hr>
+					<div>
+						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Certified Devices log first to
+							last Date</h4>
+						<table class="mt-2" style="border: 1px solid black;">
+							<thead>
+								<tr>
+									<th style="border: 1px solid black; padding: 5px;">Device Name</th>
+
+									<th style="border: 1px solid black; padding: 5px;">First Start Date</th>
+									<th style="border: 1px solid black; padding: 5px;">Last End Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let d of alldevicescertifiedlogdatrange">
+
+									<td style="border: 1px solid black; padding: 5px;">{{d.extenalId}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.firstcertifiedstartdate}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.lastcertifiedenddate}}</td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+
+					</div>
+				</mat-card-content>
+			</mat-card>
+			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
+			<ng-container *ngFor="let item of data">
+
+				<mat-card class="innermat-card example-card1 border">
+					<mat-card-header class="">
+						<div class="col-12">
+							<mat-card-title class=" d-flex justify-content-between align-items-center">
+								<div>
+									<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
+										aria-label="Button that displays a tooltip when focused or hovered over"
+										style="text-align: right;" href={{energyurl+item.creationBlockHash}}
+										target="_blank" class="certificate-text d-flex text-capitalize">
+										<mat-icon class="mt-1">card_membership</mat-icon>
+										<div class="certificate-id-text">
+											<div class="id-text">{{item?.id}}</div>
+										</div>
+									</a>
+								</div>
+								<div class=" ">
+									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
+										*ngIf="!item.CertificateClaimed"
+										(click)="selectCertificateForClaim(item)">Claim</button>
+									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
+										*ngIf="item.CertificateClaimed">Claimed</button>
+
+								</div>
+							</mat-card-title>
+
+						</div>
+
+						<!-- <div class="d-flex justify-content-end">
 					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
 						
 				</div>
 	 -->
-	
-			</mat-card-header>
-		  
-			<mat-card-content>
-				<div class="text-center text-danger mt-0 mb-2 pt-0 " *ngIf="!checkMetamaskConnected()">Metamask not Connected, please connect metamask and then
-					<button class="button-click-here mt-0 pt-0" (click)="selectAccountAddressFromMetamask()"> click here</button> to select account for claim</div>
-				
-				<div class='content'>
-				<div class='column' >
-					<div class='row '><p><b>Generation Start Date</b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:--> {{item.generationStartTimeinUTC}}</p></div>
-				  </div>
-				  <div class='column' >
-					<div class='row'><p><b>Generation End Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:--> {{item.generationEndTimeinUTC}}</p></div>
-				  </div>
-				  <div class='column'>
-					<div class='row'><p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>: &nbsp;{{item1.value}}(Wh)</p></div>
-				  </div>
-			</div>
-			<mat-accordion>
-				
-				<mat-expansion-panel (opened)="panelOpenState = true"
-									 (closed)="panelOpenState = false">
-				  <mat-expansion-panel-header>
-					<mat-panel-title>
-						<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
-					</mat-panel-title>
-					<!-- <mat-panel-description>
+
+					</mat-card-header>
+
+					<mat-card-content>
+						<div class="text-center text-danger mt-0 mb-2 pt-0 " *ngIf="!checkMetamaskConnected()">Metamask
+							not Connected, please connect metamask and then
+							<button class="button-click-here mt-0 pt-0" (click)="selectAccountAddressFromMetamask()">
+								click here</button> to select account for claim
+						</div>
+
+						<div class='content'>
+							<div class='column'>
+								<div class='row '>
+									<p><b>Generation Start
+											Date</b>:&nbsp;<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+										{{item.generationStartTimeinUTC}}</p>
+								</div>
+							</div>
+							<div class='column'>
+								<div class='row'>
+									<p><b>Generation End
+											Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+										{{item.generationEndTimeinUTC}}</p>
+								</div>
+							</div>
+							<div class='column'>
+								<div class='row'>
+									<p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>:
+										&nbsp;{{item1.value}}(Wh)</p>
+								</div>
+							</div>
+						</div>
+						<mat-accordion>
+
+							<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+								<mat-expansion-panel-header>
+									<mat-panel-title>
+										<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
+									</mat-panel-title>
+									<!-- <mat-panel-description>
 					  Currently I am {{panelOpenState ? 'open' : 'closed'}}
 					</mat-panel-description> -->
-				  </mat-expansion-panel-header>
-				  <table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
-					<ng-container matColumnDef="certificate_issuance_startdate">
-					  <th mat-header-cell *matHeaderCellDef>StartDate </th>
-					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.certificate_issuance_startdate}}</td>
-					</ng-container>
-				  
-					<ng-container matColumnDef="certificate_issuance_enddate">
-					  <th mat-header-cell *matHeaderCellDef> EndDate</th>
-					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.certificate_issuance_enddate}}</td>
-					</ng-container>
-				  
-					<ng-container matColumnDef="deviceid">
-					  <th mat-header-cell *matHeaderCellDef> Device Name </th>
-					  <td mat-cell *matCellDef="let element" class="table-data"> {{element.deviceid }} </td>
-					</ng-container>
-					<ng-container matColumnDef="readvalue_watthour">
-						<th mat-header-cell *matHeaderCellDef> Read Value </th>
-						<td mat-cell *matCellDef="let element" class="table-data"> {{element.readvalue_watthour }} </td>
-					  </ng-container>
-					
-				  
-					<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
-					<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
-				  </table>
-				</mat-expansion-panel>
-			  </mat-accordion>
-			
-		
-			</mat-card-content>
-		  </mat-card>
-		  
-		<br>
-		</ng-container>
-		<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
-	</mat-card-content>
-</mat-card>
-<ng-template let-bottomSheetRef="bottomSheetRef" #templateBottomSheet>
-  
-	<mat-card>
-        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+								</mat-expansion-panel-header>
+								<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
+									<ng-container matColumnDef="certificate_issuance_startdate">
+										<th mat-header-cell *matHeaderCellDef>StartDate </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.certificate_issuance_startdate}}</td>
+									</ng-container>
 
-            <div>
-            <h2 class="pb-0 mb-0 fw-bold text-capitalize">Add Claim
-                </h2>
-            </div>
-            <div>
-				<button class="border-0 bg-white" (click)="closeTemplateSheetMenu()"><mat-icon>close</mat-icon></button>
-            </div>
+									<ng-container matColumnDef="certificate_issuance_enddate">
+										<th mat-header-cell *matHeaderCellDef> EndDate</th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.certificate_issuance_enddate}}</td>
+									</ng-container>
+
+									<ng-container matColumnDef="externalId">
+										<th mat-header-cell *matHeaderCellDef> Device Name </th>
+										<td mat-cell *matCellDef="let element" class="table-data"> {{element.externalId }}
+										</td>
+									</ng-container>
+									<ng-container matColumnDef="readvalue_watthour">
+										<th mat-header-cell *matHeaderCellDef> Read Value </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.readvalue_watthour }} </td>
+									</ng-container>
 
 
-        </mat-card-header>
-        <hr class="mb-0 pb-0">
-        <form [formGroup]="claimData" (ngSubmit)="claimUsingEtherJS()">
-            <mat-card-content>
-                <div class="example-container1 row">
-                    <div class="col-md-3">                       
+									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+									<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
+								</table>
+							</mat-expansion-panel>
+						</mat-accordion>
+
+
+					</mat-card-content>
+				</mat-card>
+
+				<br>
+			</ng-container>
+			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
+		</mat-card-content>
+	</mat-card>
+	<ng-template let-bottomSheetRef="bottomSheetRef" #templateBottomSheet>
+
+		<mat-card>
+			<mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+				<div>
+					<h2 class="pb-0 mb-0 fw-bold text-capitalize">Add Claim
+					</h2>
+				</div>
+				<div>
+					<button class="border-0 bg-white"
+						(click)="closeTemplateSheetMenu()"><mat-icon>close</mat-icon></button>
+				</div>
+
+
+			</mat-card-header>
+			<hr class="mb-0 pb-0">
+			<form [formGroup]="claimData" (ngSubmit)="claimUsingEtherJS()">
+				<mat-card-content>
+					<div class="example-container1 row">
+						<div class="col-md-3">
 							<mat-form-field appearance="outline">
 								<mat-label class="text-capitalize">Beneficiary</mat-label>
-								<input matInput placeholder="Beneficiary" formControlName='beneficiary' autocomplete="off">
-							</mat-form-field>                       
-                    </div>
-					<div class="col-md-3">
-                        <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">Location</mat-label>
-							<input matInput placeholder="Location" formControlName='location' autocomplete="off">
-                           
-                        </mat-form-field>
-                    </div>
-                    <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                        <mat-label>CountryCode</mat-label>
-                        <input type="text"
-                               placeholder="Pick one"
-                               aria-label="Number"
-                               matInput
-                               formControlName="countryCode"
-                               [matAutocomplete]="auto">
-                        <mat-autocomplete #auto="matAutocomplete">
-                          <mat-option *ngFor="let option of filteredOptions | async" [value]="option.alpha3">
-                            {{option.country}}
-                          </mat-option>
-                        </mat-autocomplete>
-                      </mat-form-field>
-                      </div>
-                   
-                    <div class="col-md-3">
-                        <mat-form-field appearance="outline">
-							<mat-label class="text-capitalize">Purpose</mat-label>
-							<input matInput placeholder="Purpose" formControlName='purpose' autocomplete="off">
-                        </mat-form-field>
-                    </div>
-                </div>
-				<!-- <div class="example-container1 row">
+								<input matInput placeholder="Beneficiary" formControlName='beneficiary'
+									autocomplete="off">
+							</mat-form-field>
+						</div>
+						<div class="col-md-3">
+							<mat-form-field appearance="outline">
+								<mat-label class="text-capitalize">Location</mat-label>
+								<input matInput placeholder="Location" formControlName='location' autocomplete="off">
+
+							</mat-form-field>
+						</div>
+						<div class="col-md-3">
+							<mat-form-field appearance="outline">
+								<mat-label>CountryCode</mat-label>
+								<input type="text" placeholder="Pick one" aria-label="Number" matInput
+									formControlName="countryCode" [matAutocomplete]="auto">
+								<mat-autocomplete #auto="matAutocomplete">
+									<mat-option *ngFor="let option of filteredOptions | async" [value]="option.alpha3">
+										{{option.country}}
+									</mat-option>
+								</mat-autocomplete>
+							</mat-form-field>
+						</div>
+
+						<div class="col-md-3">
+							<mat-form-field appearance="outline">
+								<mat-label class="text-capitalize">Purpose</mat-label>
+								<input matInput placeholder="Purpose" formControlName='purpose' autocomplete="off">
+							</mat-form-field>
+						</div>
+					</div>
+					<!-- <div class="example-container1 row">
 				<div class="col-md-3" >
 					<mat-form-field appearance="outline">
 						<mat-label class="text-capitalize">periodStartDate </mat-label>
@@ -194,16 +348,17 @@
 				</div>
 				</div>
                -->
-            </mat-card-content>
+				</mat-card-content>
 
-            <mat-card-footer>
-                <div class="example-container row">
-                    <div class="col-12 d-flex px-4 py-2 justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="claimData.invalid">submit</button>
-                    </div>
-                </div>
-            </mat-card-footer>
-        </form>
-    </mat-card>
-  </ng-template>
+				<mat-card-footer>
+					<div class="example-container row">
+						<div class="col-12 d-flex px-4 py-2 justify-content-end">
+							<button type="submit" class="btn-primary btn text-capitalize px-4"
+								[disabled]="claimData.invalid">submit</button>
+						</div>
+					</div>
+				</mat-card-footer>
+			</form>
+		</mat-card>
+	</ng-template>
 </div>

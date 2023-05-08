@@ -269,7 +269,7 @@ export class ReadsService {
 
   public findlastRead(deviceId: string): Promise<AggregateMeterRead[]> {
     return this.repository.find({
-      where: { deviceId },
+      where: { externalId: deviceId},
       order: {
         id: 'DESC',
       },
@@ -291,6 +291,11 @@ export class ReadsService {
     const device = await this.deviceService.findReads(id);
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
+    }
+   
+     
+    if(device.timezone===null && measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== ''){
+      await this.deviceService.updatetimezone(device.externalId, measurements.timezone);
     }
 
     const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
@@ -737,7 +742,7 @@ export class ReadsService {
             })
             await this.deltarepository.save({
               readsvalue: element.value,
-              deviceId: deviceId,
+              externalId: deviceId,
               unit: measurement.unit,
               readsEndDate: element.endtimestamp.toString()
 
@@ -825,7 +830,7 @@ export class ReadsService {
                 await this.repository.save({
                   value: element.value,
                   deltaValue: Delta,
-                  deviceId: deviceId,
+                  externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString()
 
@@ -846,7 +851,7 @@ export class ReadsService {
                 await this.repository.save({
                   value: element.value,
                   deltaValue: Delta,
-                  deviceId: deviceId,
+                  externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString()
 
@@ -900,7 +905,7 @@ export class ReadsService {
                 await this.repository.save({
                   value: element.value,
                   deltaValue: Delta,
-                  deviceId: deviceId,
+                  externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString()
 
@@ -970,7 +975,7 @@ export class ReadsService {
 
   }
 
-  private async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
+   async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
     //console.log("527")
     //console.log(deviceregisterdate)
     //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
@@ -1053,7 +1058,7 @@ export class ReadsService {
     //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder("devicehistory").
-      where("devicehistory.deviceId = :deviceid", { deviceid: deviceid })
+      where("devicehistory.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
 
         new Brackets((db) => {
@@ -1253,7 +1258,7 @@ export class ReadsService {
     if (Math.round(read.value + margin * read.value) < maxEnergy) {
       this.historyrepository.save({
         type: measurement.type,
-        deviceId: device.externalId,
+        externalId: device.externalId,
         unit: measurement.unit,
         readsvalue: read.value,
         readsStartDate: startdate,
@@ -1361,7 +1366,7 @@ export class ReadsService {
           readsStartDate: s.devicehistory_readsStartDate,
           readsEndDate: s.devicehistory_readsEndDate,
           readsvalue: s.devicehistory_readsvalue,
-          deviceId: s.devicehistory_deviceId
+          externalId: s.devicehistory_externalId
         };
         return item;
       });
@@ -1380,7 +1385,7 @@ export class ReadsService {
     //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder("devicehistory").
-      where("devicehistory.deviceId = :deviceid", { deviceid: deviceid })
+      where("devicehistory.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
           db.where(
@@ -1430,7 +1435,7 @@ export class ReadsService {
 
     return this.repository.find({
       where: {
-        deviceId: meterId
+        externalId: meterId
       },
       take: 1
     })
@@ -1443,7 +1448,7 @@ export class ReadsService {
 
     return this.deltarepository.find({
       where: {
-        deviceId: meterId
+        externalId: meterId
       }
 
     })
@@ -1599,7 +1604,7 @@ export class ReadsService {
 
   async getnumberOfHistReads(deviceId, startDate, endDate) {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
-      .where("devicehistory.deviceId = :deviceId", { deviceId })
+      .where("devicehistory.externalId = :deviceId", { deviceId })
       .andWhere("devicehistory.readsStartDate <= :endDate", { endDate })
       .andWhere("devicehistory.readsEndDate >= :startDate", { startDate });
 

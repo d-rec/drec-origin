@@ -199,7 +199,10 @@ export class DeviceDTO implements IDevice {
   @IsString()
   @IsOptional()
   meterReadtype?: string;
-
+  
+  @IsString()
+  @IsOptional()
+  timezone: string;
 
   @IsOptional()
   createdAt?: Date;

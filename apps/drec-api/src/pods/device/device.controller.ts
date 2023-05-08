@@ -54,6 +54,7 @@ import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countrCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
+import { DeviceGroup } from '../device-group/device-group.entity';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -535,8 +536,65 @@ export class DeviceController {
   }
 
 
+  @Get('/certifiedlog/first&lastdate')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Certified log date rang of Device',
+  })
+  async certifiedlogdaterang(
+    @UserDecorator() user: ILoggedInUser,
+    @Query('externalId') externalId: number,
+    @Query('groupUid') groupuId: string,
+  ) :Promise<any>{
+    console.log(externalId);
+    console.log(groupuId)
+    
+    const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+    if (groupuId === null || !regexExp.test(groupuId)) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: ' Please Add the valid UID ,invalid group uid value was sent',
+        }))
+      })
+    }
 
+    let device: DeviceDTO | null
 
+    device = await this.deviceService.findOne(externalId);
+    console.log(device);
+    if (device === null) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'device not found, invalid value was sent',
+        }))
+      })
+    }
+    let group: DeviceGroup | null
+    group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
+    console.log(group);
+    if (group === null || group.buyerId != user.id) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
+        }))
+      })
+    }
+    return await this.deviceService.getcertifieddevicedaterange(device,group.id);
+  }
+  // @Get('/certified/date-range-log')
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: 'Returns Auto-Complete',
+  // })
+  // async devicecertifiedlogdaterange() {
+
+  //   return "await this.deviceService.atto(organizationId, externalId)";
+  // }
   /////////////////////////////////////////////////
 
 
