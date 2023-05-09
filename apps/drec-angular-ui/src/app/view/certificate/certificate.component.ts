@@ -105,10 +105,11 @@ export class CertificateComponent implements OnInit {
     setInterval(() => {
 
       this.getnextissuancinfo();
-    }, 30000)
+      this.getlastreadofdevices();
+      this.getcertifiedlogdaterange();
+    }, 20000);
 
-    this.getlastreadofdevices();
-    this.getcertifiedlogdaterange();
+
   }
 
   getnextissuancinfo() {
