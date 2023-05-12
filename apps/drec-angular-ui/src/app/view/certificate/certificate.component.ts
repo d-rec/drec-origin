@@ -5,7 +5,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, group, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
@@ -33,6 +33,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
+import { DeviceService } from '../../auth/services/device.service';
 @Component({
   selector: 'app-certificate',
   templateUrl: './certificate.component.html',
@@ -66,10 +67,12 @@ export class CertificateComponent implements OnInit {
   history_nextissuanclist: any;
   ongoingnextissuance: any;
   devicesId: any
+  alldevicescertifiedlogdatrange: any = [];
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
-    private readService: MeterReadService
+    private readService: MeterReadService,
+    private deviceService: DeviceService
   ) {
 
     this.activatedRoute.queryParams.subscribe(params => {
@@ -99,11 +102,14 @@ export class CertificateComponent implements OnInit {
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    
     setInterval(() => {
+
       this.getnextissuancinfo();
-    }, 60000);
-    this.getlastreadoddevices();
+      this.getlastreadofdevices();
+      this.getcertifiedlogdaterange();
+    }, 20000);
+
+
   }
 
   getnextissuancinfo() {
@@ -118,17 +124,80 @@ export class CertificateComponent implements OnInit {
     )
   }
   alldevicesread: any = []
-  getlastreadoddevices() {
+  getlastreadofdevices() {
     console.log(this.devicesId)
+    console.log(typeof this.devicesId)
     //let alldevicesread = []
-    this.devicesId.forEach((elemant: any) => {
-      this.readService.Getlastread(elemant).subscribe(
-        (data) => {
+    if (typeof this.devicesId === 'string') {
+      this.readService.Getlastread(this.devicesId).subscribe({
+        next: data => {
           console.log(data),
             this.alldevicesread.push(data)
+          console.log(this.alldevicesread)
+        },
+        error: err => {                      //Error callback
+          console.error('error caught in component', err)
+          //.toastrService.error('device id has been updated', 'current external id not found!!');
+
+        }
+      })
+    } else {
+      this.devicesId.forEach((elemant: any) => {
+        this.readService.Getlastread(elemant).subscribe({
+          next: data => {
+            console.log(data),
+              this.alldevicesread.push(data)
             console.log(this.alldevicesread)
+          },
+          error: err => {                              //Error callback
+            console.error('error caught in component', err)
+            //.toastrService.error('device id has been updated', 'current external id not found!!');
+
+          }
         })
-    })
+      })
+    }
+
+
+  }
+
+  getcertifiedlogdaterange() {
+    console.log(typeof this.devicesId)
+    if (typeof this.devicesId === 'string') {
+      this.deviceService.getcertifieddevicelogdate(this.devicesId, this.group_uid).subscribe({
+        next: data => {
+          console.log(data);
+          if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
+            this.alldevicescertifiedlogdatrange.push(data)
+          }
+          console.log(this.alldevicesread)
+        },
+        error: err => {                                //Error callback
+          console.error('error caught in component', err)
+          //.toastrService.error('device id has been updated', 'current external id not found!!');
+
+        }
+      });
+    } else {
+      this.devicesId.forEach((elemant: any) => {
+        this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
+          next: data => {
+            console.log(data);
+            if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
+              this.alldevicescertifiedlogdatrange.push(data)
+            }
+
+            console.log(this.alldevicescertifiedlogdatrange)
+          },
+          error: err => {                               //Error callback
+            console.error('error caught in component', err)
+            //.toastrService.error('device id has been updated', 'current external id not found!!');
+
+          }
+        });
+
+      })
+    }
 
   }
   openTemplateSheetMenu() {

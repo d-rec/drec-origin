@@ -547,8 +547,8 @@ export class DeviceController {
     @Query('externalId') externalId: number,
     @Query('groupUid') groupuId: string,
   ) :Promise<any>{
-    console.log(externalId);
-    console.log(groupuId)
+    // console.log(externalId);
+    // console.log(groupuId)
     
     const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
     if (groupuId === null || !regexExp.test(groupuId)) {
@@ -563,7 +563,7 @@ export class DeviceController {
     let device: DeviceDTO | null
 
     device = await this.deviceService.findOne(externalId);
-    console.log(device);
+   /// console.log(device);
     if (device === null) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -574,7 +574,7 @@ export class DeviceController {
     }
     let group: DeviceGroup | null
     group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
-    console.log(group);
+   // console.log(group);
     if (group === null || group.buyerId != user.id) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({

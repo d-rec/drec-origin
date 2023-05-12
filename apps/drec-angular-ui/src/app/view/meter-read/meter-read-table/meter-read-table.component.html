@@ -8,11 +8,11 @@
       
         <ng-container matColumnDef="startdate">
             <th mat-header-cell *matHeaderCellDef> Start Datetime </th>
-            <td mat-cell *matCellDef="let element"> {{element.startdate}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.startdate|date:'long'}} </td>
         </ng-container>
         <ng-container matColumnDef="enddate">
             <th mat-header-cell *matHeaderCellDef>End Datetime </th>
-            <td mat-cell *matCellDef="let element"> {{element.enddate}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.enddate|date:'long'}} </td>
         </ng-container>
         <ng-container matColumnDef="value">
             <th mat-header-cell *matHeaderCellDef> Value(Wh) </th>

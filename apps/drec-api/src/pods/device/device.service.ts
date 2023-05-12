@@ -145,12 +145,12 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
-    console.log(groupdevice)
+    //console.log(groupdevice)
 
     groupdevice = groupdevice.filter(ele => ele.meterReadtype == ReadType.Delta || ele.meterReadtype == ReadType.ReadMeter)
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
-    console.log(deviceGroupedByCountry);
+    //console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry;
   }
 
@@ -920,8 +920,8 @@ export class DeviceService {
     // const result = await this.checkdevcielogcertificaterepository.find(query);
     // console.log(result)
     // return result[0];
-    console.log(device);
-    console.log(groupId)
+    //console.log(device);
+    //console.log(groupId)
     // const result = this.checkdevcielogcertificaterepository.find({
     //   where: {
     //     deviceid: externalId,

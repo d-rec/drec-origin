@@ -317,10 +317,11 @@ export class ReadsController extends BaseReadsController {
                   })
                 }
               }
-              if (new Date(ele[key]).getTime() > new Date().getTime()) {
+              const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
-                const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+              if (new Date(ele[key]).getTime() > new Date(cur).getTime()) {
 
+                
                 throw new ConflictException({
                   success: false,
                   message: `One or more measurements endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
@@ -582,6 +583,8 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
+           //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+
           if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
             historyallDatesAreAftercommissioningDate = false;
           }
@@ -689,6 +692,7 @@ export class ReadsController extends BaseReadsController {
 
     let device: DeviceDTO | null
     if (user.role === 'Buyer') {
+    
       device = await this.deviceService.findOne(parseInt(externalId));
 
     } else {
@@ -722,7 +726,7 @@ export class ReadsController extends BaseReadsController {
 
       latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
 
-      console.log(latestReadObject)
+      
 
       if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
         throw new HttpException('Read Not found', 400)
