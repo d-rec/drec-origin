@@ -51,7 +51,7 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { CountrycodeService } from '../countrycode/countrycode.service';
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 @ApiTags('device')
@@ -230,7 +230,7 @@ export class DeviceController {
     }
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
     if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
-      let countries = countrCodesList;
+      let countries = countryCodesList;
       if (countries.find(ele => ele.countryCode === deviceToRegister.countryCode) === undefined) {
         return new Promise((resolve, reject) => {
           reject(
@@ -375,7 +375,7 @@ export class DeviceController {
     if (deviceToUpdate.countryCode != undefined) {
       deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
       if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
-        let countries = countrCodesList;
+        let countries = countryCodesList;
         if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
           return new Promise((resolve, reject) => {
             reject(

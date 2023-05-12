@@ -70,7 +70,7 @@ import csv from 'csv-parser';
 
 import csvtojsonV2 from "csvtojson";
 
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
@@ -170,10 +170,18 @@ export class DeviceGroupService {
     });
   }
 
+
+  /* */
+
   async getBuyerDeviceGroups(
+
     buyerId: number,
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
+    pageNumber?,
   ): Promise<DeviceGroupDTO[]> {
+    let totalGroups;
+    let groupedData;
+    let  groupedDataWithBenefits;
     console.log(groupfilterDto);
 if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined){
   if((groupfilterDto.start_date!=null && groupfilterDto.end_date===null)){
@@ -250,7 +258,7 @@ if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined)
         values.forEach(ele => {
           groupfilterDto.country = ele.toUpperCase();
           if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-            let countries = countrCodesList;
+            let countries = countryCodesList;
             if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
               CountryInvalid = true;
             }
@@ -281,69 +289,96 @@ if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined)
       if (groupfilterDto.end_date) {
         queryBuilder.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
       }
-      //console.log(queryBuilder);
-      const groupedData = await queryBuilder.getRawMany();
+    //console.log(queryBuilder);
+      groupedData = await queryBuilder
+        .select("DISTINCT ON (dg.id) dg.*, d.SDGBenefits")
+       .getRawMany();
+
+       groupedDataWithBenefits = await queryBuilder
+       .select("DISTINCT ON (d2.id) d2.*, d.SDGBenefits")
+       .from(DeviceGroup, "d2")
+       .leftJoin("d2.deviceIdsInt", "d")
+       .whereInIds(groupedData.flatMap((data) => data.deviceIdsInt))
+       .getRawMany();
+     
+       
 
       console.log(groupedData);
-      deviceGroups = groupedData.reduce((acc, curr) => {
-        console.log("existing");
-        const existing = acc.find(item => item.id === curr.id);
 
-        if (existing) {
+    
+/////////////////////////////// 
+totalGroups = await queryBuilder.select("COUNT(DISTINCT dg.id)", "distinctReads").getRawMany();
 
-          if (curr.d_SDGBenefits) {
+//////////////////////////////
+    
 
-            existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
-          }
-        } else {
+      
 
-          acc.push({
-            id: curr.id,
-            name: curr.name,
-            organizationId: curr.organizationId,
-            fuelCode: curr.fuelCode,
-            countryCode: curr.countryCode,
-            deviceTypeCodes: curr.deviceTypeCodes,
-            offTakers: curr.offTakers,
-            commissioningDateRange: curr.commissioningDateRange,
-            gridInterconnection: curr.gridInterconnection,
-            aggregatedCapacity: curr.aggregatedCapacity,
-            yieldValue: curr.yieldValue,
-            buyerId: curr.buyerId,
-            buyerAddress: curr.buyerAddress,
-            leftoverReads: curr.leftoverReads,
-            capacityRange: curr.capacityRange,
-            frequency: curr.frequency,
-            reservationStartDate: curr.reservationStartDate,
-            reservationEndDate: curr.reservationEndDate,
-            targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
-            targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
-            targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
-            targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
-            authorityToExceed: curr.authorityToExceed,
-            leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
-            devicegroup_uid: curr.devicegroup_uid,
-            type: curr.type,
-            deviceIds: curr.deviceIdsInt,
-           // deviceIdsInt: curr.deviceIdsInt,
-            SDGBenefits: curr.d_SDGBenefits || ""
-          });
-          console.log(acc);
-        }
-        return acc;
-      }, []);
-    }
-    console.log(deviceGroups)
+// deviceGroups = groupedData.reduce((acc, curr) => {
+//         console.log("existing");
+
+
+//         const existing = acc.find(item => item.id === curr.id);
+
+//         if (existing) {
+
+//           if (curr.d_SDGBenefits) {
+
+//             existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
+//           }
+//         } else {
+
+//           acc.push({
+//             id: curr.id,
+//             name: curr.name,
+//             organizationId: curr.organizationId,
+//             fuelCode: curr.fuelCode,
+//             countryCode: curr.countryCode,
+//             deviceTypeCodes: curr.deviceTypeCodes,
+//             offTakers: curr.offTakers,
+//             commissioningDateRange: curr.commissioningDateRange,
+//             gridInterconnection: curr.gridInterconnection,
+//             aggregatedCapacity: curr.aggregatedCapacity,
+//             yieldValue: curr.yieldValue,
+//             buyerId: curr.buyerId,
+//             buyerAddress: curr.buyerAddress,
+//             leftoverReads: curr.leftoverReads,
+//             capacityRange: curr.capacityRange,
+//             frequency: curr.frequency,
+//             reservationStartDate: curr.reservationStartDate,
+//             reservationEndDate: curr.reservationEndDate,
+//             targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
+//             targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
+//             targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
+//             targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
+//             authorityToExceed: curr.authorityToExceed,
+//             leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
+//             devicegroup_uid: curr.devicegroup_uid,
+//             type: curr.type,
+//             deviceIds: curr.deviceIdsInt,
+//            // deviceIdsInt: curr.deviceIdsInt,
+//             SDGBenefits: curr.d_SDGBenefits || ""
+//           });
+//           console.log(acc);
+//         }
+//         return acc;
+//       }, []);
+   }
+//     console.log(deviceGroups)
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
-    return deviceGroups;
+console.log("TOTAL GROUPS:::::::::::::::::::::::::::::"+totalGroups[0].distinctReads);
+return groupedDataWithBenefits;
   }
 
+  /* */
+  
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     return (await this.repository.findOne(conditions)) ?? null;
   }
+
 
   //   async getReservedOrUnreserved(
   //     filterDto: UnreservedDeviceGroupsFilterDTO,
@@ -1610,7 +1645,7 @@ if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined)
           singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
-            if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+            if (countryCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }

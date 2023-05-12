@@ -29,6 +29,7 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { time } from 'console';
+import { deviceFilterDTO } from './dto/deviceFilter.dto';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
@@ -486,8 +487,8 @@ export class CertificateLogService {
       // }
       
 //  @Cron(CronExpression.EVERY_30_SECONDS)
-async getsCertificateReadModule(userOrgId: string, pageNumber: number, generationStartTime?: string, generationEndTime?: string, targetVolumeCertificateGenerationRequestedInMegaWattHour?: number) {
-  const pageSize = 10;
+async getsCertificateReadModule(userOrgId: string, pageNumber: number,deviceFilter:deviceFilterDTO, generationStartTime?: string, generationEndTime?: string, targetVolumeCertificateGenerationRequestedInMegaWattHour?: number) {
+  const pageSize = 3;
 
   if (pageNumber <= 0) {
     throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
@@ -495,11 +496,13 @@ async getsCertificateReadModule(userOrgId: string, pageNumber: number, generatio
 
   const skip = (pageNumber - 1) * pageSize;
 
-  let queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('crm')
-    .innerJoin(DeviceGroup, 'dg', 'crm.deviceId = dg.id::text')
-    .andWhere('dg.organizationId = :userOrgId', { userOrgId })
-    .skip(skip)
+   let queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('crm')
+     .innerJoin(DeviceGroup, 'dg', 'crm.deviceId = dg.id::text')
+     .andWhere('dg.organizationId = :userOrgId', { userOrgId })
+     .skip(skip)
     .take(pageSize);
+
+
 
   if (generationStartTime && generationEndTime) {
     const startTimestamp = new Date(generationStartTime).getTime() / 1000;
@@ -521,8 +524,10 @@ async getsCertificateReadModule(userOrgId: string, pageNumber: number, generatio
     queryBuilder = queryBuilder.andWhere('dg.targetVolumeCertificateGenerationRequestedInMegaWattHour <= :targetVolume', { targetVolume: targetVolumeCertificateGenerationRequestedInMegaWattHour });
   }
 
+  console.log("BEFORE QUERY:::::::::::::::::::::"+new Date());
   const results = await queryBuilder.getRawMany();
   const count = await queryBuilder.getCount();
+  console.log("AFTER QUERY:::::::::::::::::::::"+new Date());
 
   const totalPages = Math.ceil(count / pageSize);
 
