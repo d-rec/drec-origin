@@ -14,7 +14,7 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In, Between, LessThanOrEqual, getConnection
+  In, Between, LessThanOrEqual, getConnection, Brackets
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -45,7 +45,8 @@ import {
   StandardCompliance,
   FuelCode,
   DevicetypeCode,
-  SingleDeviceIssuanceStatus
+  SingleDeviceIssuanceStatus,
+  ReadType
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -70,7 +71,7 @@ import csv from 'csv-parser';
 
 import csvtojsonV2 from "csvtojson";
 
-import { countryCodesList } from '../../models/country-code'
+import { countrCodesList } from '../../models/country-code'
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
@@ -87,13 +88,13 @@ import {
   Max,
 } from 'class-validator';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
-import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { NewfindLatestRead } from '../../utils/get-lastread-influx';
 import { DateTime } from 'luxon';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { SdgBenefit } from '../sdgbenefit/sdgbenefit.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-
+import { ReadsService } from '../reads/reads.service'
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -117,8 +118,8 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-
-
+    //private readService: ReadsService,
+    //  private readonly readsService: ReadsService
   ) { }
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -170,215 +171,216 @@ export class DeviceGroupService {
     });
   }
 
-
-  /* */
-
   async getBuyerDeviceGroups(
-
     buyerId: number,
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
-    pageNumber?,
   ): Promise<DeviceGroupDTO[]> {
-    let totalGroups;
-    let groupedData;
-    let  groupedDataWithBenefits;
     console.log(groupfilterDto);
-if(groupfilterDto.start_date!=undefined && groupfilterDto.end_date != undefined){
-  if((groupfilterDto.start_date!=null && groupfilterDto.end_date===null)){
-    return new Promise((resolve, reject) => {
-      reject(new ConflictException({
-        success: false,
-        message: `End date should be if in filter query you used with Start date `,
-      }))
-    })
-  }
-  console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
-  console.log(groupfilterDto.end_date)
-  console.log(new Date(groupfilterDto.start_date).getTime())
-  
-  if(!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())){
-    return new Promise((resolve, reject) => {
-      reject(new ConflictException({
-        success: false,
-        message: `End date should be greater then from Start date `,
-      }))
-    })
-  }
-}
-    
-    let deviceGroups;
+    if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
+      if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: `End date should be if in filter query you used with Start date `,
+          }))
+        })
+      }
+      console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
+      console.log(groupfilterDto.end_date)
+      console.log(new Date(groupfilterDto.start_date).getTime())
 
+      if (!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: `End date should be greater then from Start date `,
+          }))
+        })
+      }
+    }
+
+    let deviceGroups: any;
+    let queryBuilder: any;
     if (groupfilterDto === undefined) {
-      deviceGroups = this.repository.find({
-        where: { buyerId },
-        order: {
-          createdAt: 'DESC',
-        },
+      // deviceGroups = this.repository.find({
+      //   where: { buyerId },
+      //   order: {
+      //     createdAt: 'DESC',
+      //   },
+      // });
+
+      queryBuilder = this.repository.createQueryBuilder('dg')
+        .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+        .select(['dg.*', 'd.SDGBenefits'])
+        .orderBy('dg.id', 'ASC')
+
+      // //console.log(queryBuilder);
+      queryBuilder.where((qb) => {
+        qb.where(`dg.buyerId = :buyerid `, {
+          buyerid: buyerId
+        })
       });
     } else {
       console.log("187")
-
-      const queryBuilder = this.repository.createQueryBuilder('dg')
+      console.log(buyerId)
+      queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-        .select(['dg.*', 'd.SDGBenefits']);
+        .select(['dg.*', 'd.SDGBenefits'])
 
-      //console.log(queryBuilder);
-      if (groupfilterDto.sdgbenefit) {
-        console.log(groupfilterDto.sdgbenefit);
-        if (typeof groupfilterDto.sdgbenefit === 'string') {
-          console.log(typeof groupfilterDto.sdgbenefit);
-          queryBuilder.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
-        } else if (typeof groupfilterDto.sdgbenefit === 'object') {
-          console.log(JSON.stringify(groupfilterDto.sdgbenefit));
-          console.log(typeof groupfilterDto.sdgbenefit);
-          const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
+        .orderBy('dg.id', 'ASC')
 
-          queryBuilder.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
+      // //console.log(queryBuilder);
+      queryBuilder.where((qb) => {
+        qb.where(`dg.buyerId = :buyerid `, {
+          buyerid: buyerId
+        })
+          .andWhere(new Brackets(qb => {
 
-        }
-}
+            if (groupfilterDto.country) {
+              const string = groupfilterDto.country;
+              const values = string.split(",");
+              console.log(values);
+              let CountryInvalid = false;
+              values.forEach(ele => {
+                groupfilterDto.country = ele.toUpperCase();
+                if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
+                  let countries = countrCodesList;
+                  if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
+                    CountryInvalid = true;
+                  }
+                }
+              });
+              console.log(CountryInvalid)
+              if (!CountryInvalid) {
 
+                qb.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
 
-      if (groupfilterDto.fuelCode) {
-        console.log(groupfilterDto.fuelCode);
-        if (typeof groupfilterDto.fuelCode === 'string') {
-          console.log(typeof groupfilterDto.fuelCode);
-          queryBuilder.orWhere('dg.fuelCode = :fuelcode', { fuelcode: [groupfilterDto.fuelCode] });
-        } else if (typeof groupfilterDto.fuelCode === 'object') {
-          console.log(JSON.stringify(groupfilterDto.fuelCode));
-          queryBuilder.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
-        }
-}
-     
-      if (groupfilterDto.country) {
-        const string = groupfilterDto.country;
-        const values = string.split(",");
-        console.log(values);
-        let CountryInvalid = false;
-        values.forEach(ele => {
-          groupfilterDto.country = ele.toUpperCase();
-          if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-            let countries = countryCodesList;
-            if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
-              CountryInvalid = true;
+              }
             }
-          }
-        });
-        console.log(CountryInvalid)
-       if(!CountryInvalid){
-        queryBuilder.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
-       }
-      }
-      if (groupfilterDto.offTaker) {
-        console.log(typeof groupfilterDto.offTaker)
-        console.log(groupfilterDto.offTaker)
-        // const filterOperator = this.getRawFilter(groupfilterDto.offTake);
-        // queryBuilder.where('dg.offTakers =:offTaker', { offTaker: filterOperator });
-        if (typeof groupfilterDto.sdgbenefit === 'string') {
-          queryBuilder.orWhere('dg.offTakers =:offTaker', { offTaker: [groupfilterDto.offTaker] });
+            if ((groupfilterDto.fuelCode)) {
+              console.log(groupfilterDto.fuelCode);
+              if (typeof groupfilterDto.fuelCode === 'string') {
+                console.log(typeof groupfilterDto.fuelCode);
+                qb.orWhere('dg.fuelCode = :fuelcode', { fuelcode: [groupfilterDto.fuelCode] });
+              } else if (typeof groupfilterDto.fuelCode === 'object') {
+                console.log(JSON.stringify(groupfilterDto.fuelCode));
+                qb.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
+              }
+            }
+            if (groupfilterDto.offTaker) {
+              console.log(typeof groupfilterDto.offTaker)
+              console.log(groupfilterDto.offTaker)
+              // const filterOperator = this.getRawFilter(groupfilterDto.offTake);
+              // queryBuilder.where('dg.offTakers =:offTaker', { offTaker: filterOperator });
+              if (typeof groupfilterDto.offTaker === 'string') {
+                console.log("272")
+                qb.orWhere('dg.offTakers = :offTaker', { offTaker: [groupfilterDto.offTaker] });
 
-        }
-        else if (typeof groupfilterDto.sdgbenefit === 'object') {
-          queryBuilder.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
-        }
-      }
-      if (groupfilterDto.start_date) {
+              }
+              else if (typeof groupfilterDto.offTaker === 'object') {
+                qb.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
+              }
+            }
+            if (groupfilterDto.start_date) {
 
-        queryBuilder.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-      }
-      if (groupfilterDto.end_date) {
-        queryBuilder.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
-      }
-    //console.log(queryBuilder);
-      groupedData = await queryBuilder
-        .select("DISTINCT ON (dg.id) dg.*, d.SDGBenefits")
-       .getRawMany();
+              qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
+            }
+            if (groupfilterDto.end_date) {
+              qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
+            }
 
-       groupedDataWithBenefits = await queryBuilder
-       .select("DISTINCT ON (d2.id) d2.*, d.SDGBenefits")
-       .from(DeviceGroup, "d2")
-       .leftJoin("d2.deviceIdsInt", "d")
-       .whereInIds(groupedData.flatMap((data) => data.deviceIdsInt))
-       .getRawMany();
+            if (groupfilterDto.sdgbenefit) {
+              console.log(groupfilterDto.sdgbenefit);
+              if (typeof groupfilterDto.sdgbenefit === 'string') {
+                console.log(typeof groupfilterDto.sdgbenefit);
+                qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
+              } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+                console.log(JSON.stringify(groupfilterDto.sdgbenefit));
+                console.log(typeof groupfilterDto.sdgbenefit);
+                const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
+
+                qb.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
+
+              }
+            }
+            if (groupfilterDto.reservationActive) {
+              if (groupfilterDto.reservationActive === 'Active') {
+                qb.orWhere('dg.reservationActive = :active', { active: true });
+              }
+              if (groupfilterDto.reservationActive === 'Deactive') {
+                qb.orWhere('dg.reservationActive = :active', { active: false });
+              }
+            }
+
+          }));
+      })
+      const groupedDatasql = await queryBuilder.getSql();
      
-       
 
-      console.log(groupedData);
+    }
+    const groupedData = await queryBuilder.getRawMany();
 
+    // console.log(groupedData);
+    deviceGroups = groupedData.reduce((acc, curr) => {
     
-/////////////////////////////// 
-totalGroups = await queryBuilder.select("COUNT(DISTINCT dg.id)", "distinctReads").getRawMany();
+      const existing = acc.find(item => item.id === curr.id);
 
-//////////////////////////////
-    
+      if (existing) {
 
-      
+        if (curr.d_SDGBenefits) {
 
-// deviceGroups = groupedData.reduce((acc, curr) => {
-//         console.log("existing");
+          existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
+        }
+      } else {
 
+        acc.push({
+          id: curr.id,
+          name: curr.name,
+          organizationId: curr.organizationId,
+          fuelCode: curr.fuelCode,
+          countryCode: curr.countryCode,
+          deviceTypeCodes: curr.deviceTypeCodes,
+          offTakers: curr.offTakers,
+          commissioningDateRange: curr.commissioningDateRange,
+          gridInterconnection: curr.gridInterconnection,
+          aggregatedCapacity: curr.aggregatedCapacity,
+          yieldValue: curr.yieldValue,
+          buyerId: curr.buyerId,
+          buyerAddress: curr.buyerAddress,
+          leftoverReads: curr.leftoverReads,
+          capacityRange: curr.capacityRange,
+          frequency: curr.frequency,
+          reservationStartDate: curr.reservationStartDate,
+          reservationEndDate: curr.reservationEndDate,
+          reservationActive: curr.reservationActive,
+          targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
+          targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
+          targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
+          targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
+          authorityToExceed: curr.authorityToExceed,
+          leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
+          devicegroup_uid: curr.devicegroup_uid,
+          type: curr.type,
+          deviceIds: curr.deviceIdsInt,
+          // deviceIdsInt: curr.deviceIdsInt,
+          SDGBenefits: curr.d_SDGBenefits || ""
+        });
+        // console.log(acc);
+      }
+      return acc;
+    }, []);
 
-//         const existing = acc.find(item => item.id === curr.id);
-
-//         if (existing) {
-
-//           if (curr.d_SDGBenefits) {
-
-//             existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
-//           }
-//         } else {
-
-//           acc.push({
-//             id: curr.id,
-//             name: curr.name,
-//             organizationId: curr.organizationId,
-//             fuelCode: curr.fuelCode,
-//             countryCode: curr.countryCode,
-//             deviceTypeCodes: curr.deviceTypeCodes,
-//             offTakers: curr.offTakers,
-//             commissioningDateRange: curr.commissioningDateRange,
-//             gridInterconnection: curr.gridInterconnection,
-//             aggregatedCapacity: curr.aggregatedCapacity,
-//             yieldValue: curr.yieldValue,
-//             buyerId: curr.buyerId,
-//             buyerAddress: curr.buyerAddress,
-//             leftoverReads: curr.leftoverReads,
-//             capacityRange: curr.capacityRange,
-//             frequency: curr.frequency,
-//             reservationStartDate: curr.reservationStartDate,
-//             reservationEndDate: curr.reservationEndDate,
-//             targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
-//             targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
-//             targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
-//             targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
-//             authorityToExceed: curr.authorityToExceed,
-//             leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
-//             devicegroup_uid: curr.devicegroup_uid,
-//             type: curr.type,
-//             deviceIds: curr.deviceIdsInt,
-//            // deviceIdsInt: curr.deviceIdsInt,
-//             SDGBenefits: curr.d_SDGBenefits || ""
-//           });
-//           console.log(acc);
-//         }
-//         return acc;
-//       }, []);
-   }
-//     console.log(deviceGroups)
+ 
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
-console.log("TOTAL GROUPS:::::::::::::::::::::::::::::"+totalGroups[0].distinctReads);
-return groupedDataWithBenefits;
+    return deviceGroups;
   }
 
-  /* */
-  
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     return (await this.repository.findOne(conditions)) ?? null;
   }
-
 
   //   async getReservedOrUnreserved(
   //     filterDto: UnreservedDeviceGroupsFilterDTO,
@@ -745,6 +747,7 @@ return groupedDataWithBenefits;
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
       deviceGroup['frequency'] = group.frequency;
       deviceGroup['deviceIdsInt'] = group.deviceIds;
+      deviceGroup['reservationActive'] = true
       if (buyerId && buyerAddress) {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
@@ -1645,7 +1648,7 @@ return groupedDataWithBenefits;
           singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
-            if (countryCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+            if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }
@@ -1901,6 +1904,7 @@ return groupedDataWithBenefits;
   async getGroupiCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
+    console.log("1883")
     return (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null;
   }
   async getAllNextrequestCertificate(
@@ -1936,7 +1940,7 @@ return groupedDataWithBenefits;
     organizationId: number,
     reservationend: EndReservationdateDTO,
     group?: DeviceGroupDTO | DeviceGroup,
-    deviceGroupIssueNextDateDTO?: any,
+    deviceGroupIssueNextDateDTO?: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     if (!group)
       group = await this.findDeviceGroupById(groupId, organizationId);
@@ -1945,21 +1949,24 @@ return groupedDataWithBenefits;
     //@ts-ignore
     if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
       ////console.log("came inside ending reservation");
+
       if (!deviceGroupIssueNextDateDTO)
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
       //@ts-ignore
-      await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
-      let devices = await this.deviceService.findForGroup(groupId);
 
-      if (!devices?.length) {
-        return;
-      }
+      this.endReservation(groupId, group, deviceGroupIssueNextDateDTO)
+      // await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
+      // let devices = await this.deviceService.findForGroup(groupId);
 
-      await Promise.all(
-        devices.map(async (device: any) => {
-          await this.deviceService.removeFromGroup(device.id, groupId);
-        }),
-      );
+      // if (!devices?.length) {
+      //   return;
+      // }
+
+      // await Promise.all(
+      //   devices.map(async (device: any) => {
+      //     await this.deviceService.removeFromGroup(device.id, groupId);
+      //   }),
+      // );
 
 
       return;
@@ -1967,11 +1974,21 @@ return groupedDataWithBenefits;
 
   }
 
-  async endReservationGroupIfTargetVolumeReached(
+
+  async endReservation(
     groupId: number,
     group: DeviceGroup,
     deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate
   ): Promise<void> {
+
+    let updatedissuedatestatus = new DeviceGroup();
+    if (group) {
+
+      group.reservationActive = false
+      updatedissuedatestatus = await this.repository.save(group);
+
+    }
+
     await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
     let devices = await this.deviceService.findForGroup(groupId);
 
@@ -1984,9 +2001,19 @@ return groupedDataWithBenefits;
         await this.deviceService.removeFromGroup(device.id, groupId);
       }),
     );
-
-
     return;
+  }
+
+  async deactiveReaservation(group: DeviceGroup): Promise<void> {
+    console.log(group);
+    let updatedissuedatestatus = new DeviceGroup();
+    if (group) {
+
+      group.reservationActive = false
+      updatedissuedatestatus = await this.repository.save(group);
+      return;
+    }
+
 
   }
 
@@ -2018,6 +2045,20 @@ return groupedDataWithBenefits;
       }
     });
   }
+
+  public async countgroupIdHistoryissuanceDevicelog(groupId: number): Promise<number> {
+    //const repository = getRepository(HistoryDeviceGroupNextIssueCertificate);
+    const count = await this.historynextissuancedaterepository.count({
+      where: {
+        groupId: groupId,
+        status: 'Pending',
+      },
+    });
+    return count;
+  }
+
+
+
   public async getNextHistoryissuanceDevicelogafterreservation(
     developerExternalId: any,
     groupId: any
@@ -2055,5 +2096,71 @@ return groupedDataWithBenefits;
 
     }
     return updatedissuedatestatus;
+  }
+
+  async getallReservationactive(): Promise<DeviceGroup[]> {
+    const activeresvation = await this.repository.find({
+      where: {
+        reservationActive: true
+      }
+    })
+    console.log(activeresvation);
+    return activeresvation
+  }
+
+  async getcurrentInformationofDevicesInReservation(groupuid): Promise<any> {
+    const group = await this.findOne({ devicegroup_uid: groupuid,reservationActive:true })
+   // console.log(group)
+    if (group === null) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
+        }))
+      })
+    }
+    const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+    const device_historynextissuance = [];
+    await Promise.all(
+      devices.map(async (device) => {
+       // console.log(device);
+        const historynext_issuancer = await this.historynextissuancedaterepository.find(
+          {
+            where: {
+              groupId: group.id,
+              device_externalid: device.externalId
+            },
+          }
+        );
+        historynext_issuancer.forEach(element => {
+          element.device_externalid = device.developerExternalId
+          delete element["createdAt"];
+          delete element["groupId"];
+          delete element["id"];
+          delete element["updatedAt"];
+
+        });
+        device_historynextissuance.push({
+          historynext_issuancer,
+
+        })
+      }),
+    );
+    let AllDeviceshistnextissuansinfo: any = []
+    device_historynextissuance.forEach(ele => ele.historynext_issuancer.forEach(he => AllDeviceshistnextissuansinfo.push(he)))
+    //console.log(group.id)
+    let nextissuance = {};
+    nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
+      where: {
+        groupId: group.id
+      }
+    }) ?? null;
+    //console.log(nextissuance)
+
+    return {
+
+      AllDeviceshistnextissuansinfo,
+      ongoing_next_issuance: nextissuance
+    }
   }
 }

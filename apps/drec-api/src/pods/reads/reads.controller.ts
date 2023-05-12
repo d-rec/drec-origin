@@ -318,7 +318,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
               if (new Date(ele[key]).getTime() > new Date().getTime()) {
-               
+
                 const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
                 throw new ConflictException({
@@ -504,10 +504,16 @@ export class ReadsController extends BaseReadsController {
     // Device onboarding and system date validation
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allDatesAreAfterCreatedAt: boolean = true;
+      let allDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() <= new Date(device.createdAt).getTime()) {
             allDatesAreAfterCreatedAt = false;
+          }
+        }
+        if (device && device.commissioningDate) {
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            allDatesAreAftercommissioningDate = false;
           }
         }
       })
@@ -517,6 +523,16 @@ export class ReadsController extends BaseReadsController {
             new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp is less than or equal to device onboarding date${device?.createdAt}`,
+            })
+          );
+        });
+      }
+      if (!allDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp should be greater than to device commissioningDate date${device?.commissioningDate}`,
             })
           );
         });
@@ -548,6 +564,7 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreBeforeCreatedAt: boolean = true;
       let allStartDatesAreBeforeEnddate: boolean = true;
       let readvalue: boolean = true;
+      let historyallDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime()) {
@@ -563,6 +580,14 @@ export class ReadsController extends BaseReadsController {
 
         if (ele.value < 0) {
           readvalue = false;
+        }
+        if (device && device.commissioningDate) {
+          if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallDatesAreAftercommissioningDate = false;
+          }
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallDatesAreAftercommissioningDate = false;
+          }
         }
       })
       if (!allStartDatesAreBeforeEnddate) {
@@ -592,6 +617,16 @@ export class ReadsController extends BaseReadsController {
             new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
+            })
+          );
+        });
+      }
+      if (!historyallDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements starttimestamp and endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
             })
           );
         });
@@ -647,13 +682,19 @@ export class ReadsController extends BaseReadsController {
     description: 'Returns the latest meter read of the given device',
   })
   @UseGuards(AuthGuard('jwt'))
-  public async getLatestMeterRead(  
-  @Param("externalId") externalId:string,
-  @UserDecorator() user: ILoggedInUser,
-  )
-  {
+  public async getLatestMeterRead(
+    @Param("externalId") externalId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ) {
 
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+    let device: DeviceDTO | null
+    if (user.role === 'Buyer') {
+      device = await this.deviceService.findOne(parseInt(externalId));
+
+    } else {
+      device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+
+    }
 
     if (device === null) {
 
@@ -671,28 +712,34 @@ export class ReadsController extends BaseReadsController {
     let latestReadObject;
     let latestRead;
 
-   deviceExternalId=device.externalId;
-  console.log("externalId::"+deviceExternalId);
+    deviceExternalId = device.externalId;
+    console.log("externalId::" + deviceExternalId);
 
-    if(!device.meterReadtype)
-    {
-      throw new HttpException('Read not found',400)
+    if (!device.meterReadtype) {
+      throw new HttpException('Read not found', 400)
     }
-    else{
+    else {
 
-          latestReadObject=await this.internalReadsService.latestread(deviceExternalId,device.createdAt);
+      latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
 
-              console.log(latestReadObject)
+      console.log(latestReadObject)
 
-            if(typeof latestReadObject==='undefined' || latestReadObject.length==0)   
-              {
-                throw new HttpException('Read Not found', 400)
-              }
-          return {
-            "enddate":latestReadObject[0].timestamp,
-            "value":latestReadObject[0].value
-          }
-      }   
+      if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
+        throw new HttpException('Read Not found', 400)
+      }
+      if (user.role === 'Buyer') {
+        return {
+          externalId: device.developerExternalId,
+          timestamp: latestReadObject[0].timestamp,
+          value: latestReadObject[0].value
+        }
+      }
+
+      return {
+        "enddate": latestReadObject[0].timestamp,
+        "value": latestReadObject[0].value
+      }
+    }
   }
 
 }

@@ -11,18 +11,20 @@ import { DeviceGroupModule } from '../device-group/device-group.module';
 import { IssuerService } from './issuer.service';
 import {DrecIssuerController} from './drec-issuer.controller';
 import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.service';
-
+import {CertificateLogModule} from '../certificate-log/certificate-log.module'
 
 
 @Module({
   imports: [
     DeviceModule,
     DeviceGroupModule,
+    CertificateLogModule,
     // CertificateModule,
     OffChainCertificateModule,
     ReadsModule,
     OrganizationModule,
     HttpModule,
+    
   ],
   providers: [IssuerService,SynchronizeBlockchainTaskService],
   exports: [IssuerService],

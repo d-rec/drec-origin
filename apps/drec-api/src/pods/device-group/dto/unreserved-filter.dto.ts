@@ -49,6 +49,14 @@ export class UnreservedDeviceGroupsFilterDTO {
     isArray:true
   })
   sdgbenefit: string[];
+
+  @ApiPropertyOptional({
+    description: 'Reservation Active or Deactive',
+    enum:['All','Active','Deactive'],
+
+  })
+  @IsOptional()
+  reservationActive: string;
   // @IsOptional()
   // @ApiPropertyOptional({
   //   type: OffTaker,

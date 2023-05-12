@@ -44,4 +44,7 @@ export class MeterReadService {
    // }
    return this.httpClient.get(searchUrl);
   }
+  Getlastread(exterenalId:string): Observable<any> {
+    return this.httpClient.get(this.url+'meter-reads/latestread/'+exterenalId)
+  }
 }

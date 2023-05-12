@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceModule } from '../device/device.module';
+import {ReadsModule} from '../reads/reads.module';
 import { DeviceGroupController } from './device-group.controller';
 import { BuyerReservationController} from './buyer-reservation.controller'
 import { DeviceGroup } from './device-group.entity';
@@ -15,6 +16,7 @@ import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certific
 import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
 @Module({
   imports: [
+   
     TypeOrmModule.forFeature([
       DeviceGroup,
       DeviceCsvFileProcessingJobsEntity,
@@ -24,9 +26,11 @@ import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_da
       HistoryDeviceGroupNextIssueCertificate
     ]),
     forwardRef(() => DeviceModule),
+    
     OrganizationModule,
     YieldConfigModule,
-    FileModule
+    FileModule,
+    
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],

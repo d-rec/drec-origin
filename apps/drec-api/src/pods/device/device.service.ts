@@ -7,8 +7,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, In, IsNull, Not,FindOperator,
-  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
+import {
+  FindOneOptions, Repository, In, IsNull, Not, FindOperator,
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual
+} from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -21,7 +23,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, ReadType, Role,SDGBenefitsList } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role, SDGBenefitsList } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -135,7 +137,7 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number, endDate: string): Promise<{ [key: string]: Device[] }> {
+  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
 
     let groupdevice: Array<any> = await this.repository.find({
       where: { groupId },
@@ -143,7 +145,7 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
-   console.log(groupdevice)
+    console.log(groupdevice)
 
     groupdevice = groupdevice.filter(ele => ele.meterReadtype == ReadType.Delta || ele.meterReadtype == ReadType.ReadMeter)
 
@@ -456,7 +458,7 @@ export class DeviceService {
         filter.start_date &&
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
-       // SDGBenefits:
+      // SDGBenefits:
 
     });
     if (filter.SDGBenefits) {
@@ -474,12 +476,12 @@ export class DeviceService {
   private getRawFilter(
     filter:
       | String
-     ,
+    ,
   ): FindOperator<any> {
 
-    return Raw((alias) => `${alias} = Any(SDGBenefits)`,{
-      SDGBenefits:[filter]
-    } );
+    return Raw((alias) => `${alias} = Any(SDGBenefits)`, {
+      SDGBenefits: [filter]
+    });
   }
   public async addGroupIdToDeviceForReserving(
     currentDevice: Device,
@@ -571,7 +573,24 @@ export class DeviceService {
     return await this.repository.save(devicereadtype);
 
   }
+  public async updatetimezone(
+    deviceId: string,
+    timeZone: string,
+  ): Promise<Device> {
 
+    const devicereadtype = await this.repository.findOne({
+      where: {
+        externalId: deviceId,
+      }
+    });
+    if (!devicereadtype) {
+      throw new NotFoundException(`No device found with id ${deviceId}`);
+    }
+    devicereadtype.timezone = timeZone;
+
+    return await this.repository.save(devicereadtype);
+
+  }
   //
   private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
@@ -664,7 +683,7 @@ export class DeviceService {
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
           readvalue_watthour: s.device_readvalue_watthour,
           status: s.device_status,
-          deviceid: s.device_deviceid
+          deviceid: s.device_externalId
         };
         return item;
       });
@@ -682,7 +701,7 @@ export class DeviceService {
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
-      where("device.deviceid = :deviceid", { deviceid: deviceid })
+      where("device.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
           db.where("device.status ='Requested' OR device.status ='Succeeded'")
@@ -743,7 +762,7 @@ export class DeviceService {
 
         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
           {
-            where: { deviceid: device.externalId }
+            where: { externalId: device.externalId }
           }
         )
         const totalcertifiedReadValue = certifiedamountofread.reduce(
@@ -806,7 +825,7 @@ export class DeviceService {
 
   async getNumberOfHistReads(deviceId): Promise<number> {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
-      .where("devicehistory.deviceId = :deviceId", { deviceId });
+      .where("devicehistory.externalId = :deviceId", { deviceId });
     const count = await query.getCount();
     return count;
   }
@@ -839,7 +858,7 @@ export class DeviceService {
 
 
   async changecreatedAtDate(onboardedDate, givenDate, externalId) {
-    console.log("THE EXTERNALID IS::::::::::::::::::::::::"+externalId);
+    console.log("THE EXTERNALID IS::::::::::::::::::::::::" + externalId);
     const sixMonthsAgo = new Date(onboardedDate);
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -855,24 +874,69 @@ export class DeviceService {
   }
   /* */
 
-////////////////////////////////////////
+  ////////////////////////////////////////
 
-public async atto(organizationId, externalId) {
-  const queryBuilder = this.repository.createQueryBuilder('Device');
-  const rows = await queryBuilder
-    .where("Device.organizationId = :organizationId", { organizationId })
-    .andWhere(
-      new Brackets(qb => {
-        qb.where("Device.externalId = :externalId", { externalId })
-          .orWhere("Device.externalId LIKE :pattern", { pattern: `${externalId}%` });
-      }))
+  public async atto(organizationId, externalId) {
+    const queryBuilder = this.repository.createQueryBuilder('Device');
+    const rows = await queryBuilder
+      .where("Device.organizationId = :organizationId", { organizationId })
+      .andWhere(
+        new Brackets(qb => {
+          qb.where("Device.externalId = :externalId", { externalId })
+            .orWhere("Device.externalId LIKE :pattern", { pattern: `${externalId}%` });
+        }))
       .orderBy('Device.externalId')
-    .getMany();
-  return rows.map(row => ({
-    externalId: row.developerExternalId,
-    organizationId: row.organizationId
-  }));
-}
+      .getMany();
+    return rows.map(row => ({
+      externalId: row.developerExternalId,
+      organizationId: row.organizationId
+    }));
+  }
+  async getLastCertifiedDevicelogBYgroupId(
+    groupId: number, deviceId: string
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+    return this.checkdevcielogcertificaterepository.findOne(
+      {
+        where: {
+          groupId: groupId,
+          externalId: deviceId,
 
-///////////////////
+        },
+        order: {
+          certificate_issuance_enddate: 'DESC'
+        }
+      })
+
+  }
+  async getcertifieddevicedaterange(device, groupId): Promise<any> {
+    // // const query = {
+    // //   select: ['MIN(entryTime) AS firstEntryTime', 'MAX(entryTime) AS lastEntryTime'],
+    // //   where: { deviceid: externalId, groupId },
+    // // };
+    // const query: FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> = {
+    //   select: ['MIN(checkCertificateIssueDateLogForDevice.certificate_issuance_startdate) AS firststartdateTime', 'MAX(checkCertificateIssueDateLogForDevice.certificate_issuance_enddate) AS lastenddateTime'],
+    //   where: { deviceid: externalId, groupId },
+    // };
+    // const result = await this.checkdevcielogcertificaterepository.find(query);
+    // console.log(result)
+    // return result[0];
+    console.log(device);
+    console.log(groupId)
+    // const result = this.checkdevcielogcertificaterepository.find({
+    //   where: {
+    //     deviceid: externalId,
+    //     groupId: groupId[]
+    //   }
+    // })
+      const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
+      .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
+      .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
+      .where('deviceData.externalId= :externalId', { externalId:device.externalId })
+      .andWhere('deviceData.groupId= :groupId', { groupId });
+
+    const result = await queryBuilder.getRawOne();
+    let finalresult = {...result,extenalId:device.developerExternalId}
+    return finalresult;
+  }
+  ///////////////////
 }

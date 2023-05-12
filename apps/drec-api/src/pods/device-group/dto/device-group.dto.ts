@@ -166,6 +166,9 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   leftoverReads: number;
+
+  @IsBoolean()
+  reservationActive?: boolean;
 }
 
 export class CSVBulkUploadDTO {

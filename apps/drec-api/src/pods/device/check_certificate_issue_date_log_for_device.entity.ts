@@ -38,7 +38,7 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
 
   @Column()
   @IsString()
-  deviceid: string;
+  externalId: string;
  
   @Column()
   @IsNumber()
