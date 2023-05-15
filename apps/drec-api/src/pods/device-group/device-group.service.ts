@@ -71,7 +71,7 @@ import csv from 'csv-parser';
 
 import csvtojsonV2 from "csvtojson";
 
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
@@ -244,7 +244,7 @@ export class DeviceGroupService {
               values.forEach(ele => {
                 groupfilterDto.country = ele.toUpperCase();
                 if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-                  let countries = countrCodesList;
+                  let countries = countryCodesList;
                   if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
                     CountryInvalid = true;
                   }
@@ -1648,7 +1648,7 @@ export class DeviceGroupService {
           singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
-            if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+            if (countryCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }

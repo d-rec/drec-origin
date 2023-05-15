@@ -1,5 +1,5 @@
 //import { Countries } from '@energyweb/utils-general';
-import { countrCodesList } from '../models/country-code'
+import { countryCodesList } from '../models/country-code'
 import {
 
     ReadDTO

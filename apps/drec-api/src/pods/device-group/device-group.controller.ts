@@ -57,7 +57,7 @@ import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceDescription, ILoggedInUser } from '../../models';
+import { DeviceDescription, ILoggedInUser,BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { NewDeviceDTO } from '../device/dto';
 import { File, FileService } from '../file';
 
@@ -243,7 +243,14 @@ export class DeviceGroupController {
         message: 'User does not has organization associated',
       });
     }
+    const frequency = deviceGroupToRegister.frequency.toLowerCase();
+    if (frequency === BuyerReservationCertificateGenerationFrequency.monthly || frequency === BuyerReservationCertificateGenerationFrequency.quarterly||frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
 
+      throw new ConflictException({
+        success: false,
+        message: 'This frequency is currently not supported',
+      });
+    }
     console.log(deviceGroupToRegister.blockchainAddress);
 
     if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {

@@ -57,7 +57,7 @@ import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceDescription, ILoggedInUser } from '../../models';
+import { DeviceDescription, ILoggedInUser, BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { NewDeviceDTO } from '../device/dto';
 import { File, FileService } from '../file';
 
@@ -216,7 +216,7 @@ export class BuyerReservationController {
       }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
-    console.log("188");
+
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       throw new ConflictException({
         success: false,
@@ -225,20 +225,27 @@ export class BuyerReservationController {
     }
     let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
-      console.log("198");
+
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {
-      console.log("206");
+
       throw new ConflictException({
         success: false,
         message: 'User does not has organization associated',
       });
     }
+    const frequency = deviceGroupToRegister.frequency.toLowerCase();
+    if (frequency === BuyerReservationCertificateGenerationFrequency.monthly || frequency === BuyerReservationCertificateGenerationFrequency.quarterly||frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
 
+      throw new ConflictException({
+        success: false,
+        message: 'This frequency is currently not supported',
+      });
+    }
     console.log(deviceGroupToRegister.blockchainAddress);
 
     if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {

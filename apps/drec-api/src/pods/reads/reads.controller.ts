@@ -726,8 +726,6 @@ export class ReadsController extends BaseReadsController {
 
       latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
 
-      
-
       if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
         throw new HttpException('Read Not found', 400)
       }
