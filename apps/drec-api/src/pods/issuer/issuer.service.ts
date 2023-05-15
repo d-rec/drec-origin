@@ -206,8 +206,15 @@ export class IssuerService {
         this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
 
         console.log("206line", (endDate.diff(startDate, ['days']).days))
-        if (endDate.diff(startDate, ['days']).days <= 1) {
-
+        for (let key in countryDevicegroup) {
+          //deep clone to avoid duplicates
+          let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
+          newGroup.devices = countryDevicegroup[key];
+          // console.log("218line", startDate)
+          // console.log("20619line", endDate)
+          this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
+        }
+     /*   if (endDate.diff(startDate, ['days']).days <= 1) {
           for (let key in countryDevicegroup) {
             //deep clone to avoid duplicates
             let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
@@ -216,6 +223,7 @@ export class IssuerService {
             // console.log("20619line", endDate)
             this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
           }
+          
         }
         else {
           console.log("224line,monthlytestr")
@@ -240,7 +248,7 @@ export class IssuerService {
               this.newissueCertificateForGroup(JSON.parse(JSON.stringify(newGroup)), JSON.parse(JSON.stringify(grouprequest)), ele.startDate, ele.endDate, key, index);
             })
           }
-        }
+        }*/
       }),
     );
   }
@@ -464,7 +472,7 @@ export class IssuerService {
           end: endDate.toString(),
         };
         let allReadsForDeviceBetweenTimeRange: Array<{ timestamp: Date, value: number }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
-        if (device.meterReadtype === 'Delta') {
+        if (device.meterReadtype === 'Delta'|| allReadsForDeviceBetweenTimeRange.length >0) {
           const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
           allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(v => !(
             FirstDeltaRead.some(e => e.readsEndDate.getTime() === v.timestamp.getTime())))

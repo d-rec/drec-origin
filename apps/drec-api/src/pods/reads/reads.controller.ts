@@ -324,7 +324,7 @@ export class ReadsController extends BaseReadsController {
                 
                 throw new ConflictException({
                   success: false,
-                  message: `One or more measurements endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
+                  message: `One or more measurements starttimestamp or endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
                 })
 
 
@@ -366,6 +366,8 @@ export class ReadsController extends BaseReadsController {
                   }
                   //@ts-ignore
                   ele[key] = utcString;
+                  device.createdAt = new Date(new Date(device.createdAt).toLocaleString('en-US', { timeZone: measurements.timezone }))
+                  device.commissioningDate=new Date(device.commissioningDate).toLocaleString('en-US', { timeZone: measurements.timezone })
                 }
 
               }
