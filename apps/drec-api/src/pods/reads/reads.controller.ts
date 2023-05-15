@@ -96,10 +96,15 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-  /* */
-  @Get('new/:externalId')
-  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
-  @ApiQuery({ name: 'Date', required: false })
+/* */
+@Get('new/:externalId') 
+
+  @ApiQuery({ name: 'Month',type:Number,required:false})
+  @ApiQuery({ name: 'Year',type:Number,required:false})
+
+  @ApiQuery({ name: 'pagenumber',type:Number,required:false})
+
+
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -109,54 +114,56 @@ export class ReadsController extends BaseReadsController {
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: filterNoOffLimit,
-    @Query('pagenumber') pagenumber: number | null,
-    @Query('Date') startDate,
+    @Query('pagenumber')pagenumber:number|null,
+    @Query('Month')month:number|null,
+    @Query('Year')year:number|null,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
 
     //finding the device details throught the device service
-    filter.offset = 0;
-    filter.limit = 5;
-    let device: DeviceDTO | null;
-    if (user.role === 'Buyer') {
-      device = await this.deviceService.findOne(parseInt(meterId));
-
-    } else {
+     filter.offset=0;
+     filter.limit=5;
+     let device: DeviceDTO | null;  
+     
+     if(month && !year)
+   {
+    throw new HttpException('Year is required when month is given',400)
+    }
+     if(user.role==='Buyer'){
+       device = await this.deviceService.findOne(parseInt(meterId));
+   
+     }else{
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
-    }
-    //console.log("getmeterdevice");
-    console.log(device);
-    if (device === null) {
+     }
+      console.log("getmeterdevice");
+     console.log(device);
+     if (device === null) {
 
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Invalid device id`,
-          })
-        );
-      });
-    }
+       return new Promise((resolve, reject) => {
+         reject(
+           new ConflictException({
+             success: false,
+             message: `Invalid device id`,
+           })
+         );
+       });
+     }
+    
 
-    if (filter.accumulated === 'Daily') {
-      return this.internalReadsService.gettingacumulateddailyreads(device.developerExternalId, user.organizationId, device.externalId, startDate)
-    }
 
-    else if (filter.accumulated === 'Monthly') {
-      return this.internalReadsService.getmonthlyreads(device.developerExternalId, user.organizationId, device.externalId, startDate)
-    }
+     if(filter.accumulationType)
+     {
+       return this.internalReadsService.getAccumulatedReads(device.externalId,user.organizationId,device.developerExternalId,filter.accumulationType,month,year);
+     }
 
-    else if (filter.accumulated === 'Yearly') {
-      return await this.internalReadsService.getyearlyreads(device.developerExternalId, user.organizationId, device.externalId, startDate);
-    }
-
-    else {
-      return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt, pagenumber);
-    }
-
-  }
-  /* */
+     else
+     {
+      return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
+     }
+  
+   }
+/* */
 
 
   // @Get('/:meter/difference')
@@ -310,13 +317,14 @@ export class ReadsController extends BaseReadsController {
                   })
                 }
               }
-              if (new Date(ele[key]).getTime() > new Date().getTime()) {
+              const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
-                const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+              if (new Date(ele[key]).getTime() > new Date(cur).getTime()) {
 
+                
                 throw new ConflictException({
                   success: false,
-                  message: `One or more measurements endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
+                  message: `One or more measurements starttimestamp or endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
                 })
 
 
@@ -358,6 +366,8 @@ export class ReadsController extends BaseReadsController {
                   }
                   //@ts-ignore
                   ele[key] = utcString;
+                  device.createdAt = new Date(new Date(device.createdAt).toLocaleString('en-US', { timeZone: measurements.timezone }))
+                  device.commissioningDate=new Date(device.commissioningDate).toLocaleString('en-US', { timeZone: measurements.timezone })
                 }
 
               }
@@ -575,6 +585,8 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
+           //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+
           if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
             historyallDatesAreAftercommissioningDate = false;
           }
@@ -682,6 +694,7 @@ export class ReadsController extends BaseReadsController {
 
     let device: DeviceDTO | null
     if (user.role === 'Buyer') {
+    
       device = await this.deviceService.findOne(parseInt(externalId));
 
     } else {
@@ -714,8 +727,6 @@ export class ReadsController extends BaseReadsController {
     else {
 
       latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
-
-      console.log(latestReadObject)
 
       if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
         throw new HttpException('Read Not found', 400)

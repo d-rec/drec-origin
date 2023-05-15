@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException, ConflictException, HttpException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { FindOneOptions, Repository, Brackets, SelectQueryBuilder, In, FindConditions, Any } from 'typeorm';
 
 import axios from 'axios';
@@ -24,7 +24,7 @@ import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
+import { flattenDeep, values, groupBy, mean, sum, head } from 'lodash';
 import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { Iintermediate, NewReadDTO, IAggregateintermediate } from '../../models'
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,6 +39,11 @@ import * as mapBoxTimeSpace from '@mapbox/timespace';
 import * as momentTimeZone from 'moment-timezone';
 
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { response } from 'express';
+import { EndReservationdateDTO } from '../device-group/dto';
+import { timestamp } from 'rxjs/operators';
+import { getFormattedOffSetFromOffsetAsJson, getLocalTime, getLocalTimeZoneFromDevice, getOffsetFromTimeZoneName } from 'src/utils/localTimeDetailsForDevice';
+import { log } from 'console';
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
@@ -1551,16 +1556,16 @@ export class ReadsService {
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
 
         finalongoing = await this.baseReadsService.find(externalId, readsFilter)
-        if(finalongoing.length > 0){
+        if (finalongoing.length > 0) {
           let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
           let startTimeToCheck = deviceOnboarded;
           let previousReading = await this.findLastReadForMeterWithinRange(externalId, new Date(startTimeToCheck), endTimestampToCheck);
           console.log("device previous reading", externalId, previousReading);
-  
+
           finalongoing.forEach((element, index) => {
-  
+
             if (index === 0) {
-  
+
               if (previousReading.length > 0) {
                 ongoing.push({
                   startdate: previousReading[0].timestamp,
@@ -1575,7 +1580,7 @@ export class ReadsService {
                   value: element.value
                 })
               }
-  
+
             } else {
               console.log(element);
               ongoing.push({
@@ -1586,7 +1591,7 @@ export class ReadsService {
             }
           })
         }
-       
+
         console.log("ongoing query executed!!!!!!", ongoing);
 
       }
@@ -1604,10 +1609,10 @@ export class ReadsService {
 
   async getnumberOfHistReads(deviceId, startDate, endDate) {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
-      .where("devicehistory.externalId = :deviceId", { deviceId })
-      .andWhere("devicehistory.readsStartDate <= :endDate", { endDate })
-      .andWhere("devicehistory.readsEndDate >= :startDate", { startDate });
-
+    .where("devicehistory.externalId = :deviceId", { deviceId })
+    .andWhere("devicehistory.readsStartDate <= :endDate", { endDate })
+    .andWhere("devicehistory.readsEndDate >= :startDate", { startDate });
+  
     const count = await query.getCount();
     return count;
   }
@@ -1659,162 +1664,191 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 |> last()
 `;
 
-return await this.execute(query);
-}
-/* */
-
-
-async getlocaltime(externalId, organizationId, startDate, numberOfDays) {
-  let device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, organizationId);
-  console.log("Longitude: " + device.longitude);
-  console.log("Given Date: " + startDate);
-
-  let timestamp = new Date(startDate);
-  let point = [parseFloat(device.longitude), parseFloat(device.latitude)];
-  let time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
-  let start = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point).startOf('day');
-  console.log("Start Time: " + start.utc().format());
-
-  let end = start.clone().add(numberOfDays, 'days').subtract(1, 'seconds');
-  console.log("End Time: " + end.utc().format());
-
-  return { "start": start.utc().format(), "end": end.utc().format(),"point":point,"localTime":startDate};
-}
-
-
-// @Cron(CronExpression.EVERY_10_SECONDS)
-async gettingacumulateddailyreads(developerExternalId,organizationId,deviceExternalId,startDate)
-{
-  const year = startDate.substring(0, 4);
-  const month = startDate.substring(5, 7);
-  let numberofdays=this.getnumberofdaysinmonth(year,month);
-  console.log("Number of days:::::"+numberofdays);
-  let readsfilter={
-    offset:0,
-    limit:10000,
-    start:(await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays)).start,
-    end:(await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays)).end
-     //Read exists on ::::::::     2022-06-12T12:20:55.000Z
+    return await this.execute(query);
   }
-  console.log(await this.baseReadsService.find(deviceExternalId,readsfilter));
-  const reads=await this.baseReadsService.find(deviceExternalId,readsfilter);
-  console.log("reads:::"+reads);
-  let sum=0;
-  reads.map(read=>sum+=read.value);
-  console.log("SUM::::::::::::::::::::"+sum)
-  return {"SUM":sum}
-
-}
-
-async getmonthlyreads(developerExternalId,organizationId,deviceExternalId,startDate)
-{
-  console.log("startDate from months thingy"+startDate);
-  const year = startDate.substring(0, 4);
-  const month = startDate.substring(5, 7);
-  const numberofdays=this.getnumberofdaysinmonth(year,month);
-  console.log("Number of days:::::"+numberofdays);
-  const getlocaltime=await this.getlocaltime(developerExternalId,organizationId,startDate,numberofdays);
-  const point=getlocaltime.point;
-  const startTime=getlocaltime.start;
-  const endTime=getlocaltime.end;
-  const readsfilter={
-    offset:0,
-    limit:10000,
-    start:startTime,
-    end:endTime
-     //Read exists on ::::::::     2022-06-12T12:20:55.000Z
-  }
-  console.log(await this.baseReadsService.find(deviceExternalId,readsfilter));
-  const fullreads=await this.baseReadsService.find(deviceExternalId,readsfilter);
-  console.log("reads:::"+fullreads);
-  let sum=0;
-  const reads=[];
-  fullreads.map(fullread=>console.log("read::::::::::::::::::::::"+fullread.value));
-  fullreads.map(fullread=>sum+=fullread.value);
-  fullreads.map(fullread=>reads.push(fullread));
-  console.log("SUM::::::::::::::::::::"+sum);
-  const localtime=getlocaltime.localTime;
-  const timeZoneused=await this.getlocaltimezonefromlocaltime(localtime,point);
-  console.log("timezoneused from the getmonthlyreads function::::"+timeZoneused);
-  return ({"accumlatedValue":sum,"READS":reads,"timezoneused":timeZoneused});
-}
+  /* */
 
 
-getnumberofdaysinmonth(year, month) {
-  return new Date(year, month, 0).getDate();
-}
+ 
 
 
 
 
-// @Cron(CronExpression.EVERY_10_SECONDS)
-getlocaltimezonefromlocaltime(localtime,point) {
-  var timestamp = new Date(localtime);
-  let time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
-  console.log("TIME:::::::::::::::::"+time);
+  async getAccumulatedReads(meter: string,organizationId,developerExternalId, accumulationType, month: number, year: number) {
+    let startDate;
+    let numberOfDays;
+    let endDate;
 
-   const actualTimeZone=momentTimeZone.tz.names().find((timezone) => {
-      console.log(
-        ' momentTimeZone.tz(timezone).zoneAbbr()',
-        momentTimeZone.tz(timezone).zoneAbbr()
-      );
-      console.log('time.zoneAbbr()', time.zoneAbbr());
-      console.log("timezonesssssss",momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr())
-      if(momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr())
+    if (month && year) {
+      startDate = this.convertToISODate(month, year);
+      numberOfDays = this.getNumberOfDaysInMonth(month, year);
+      endDate = DateTime.fromISO(startDate).plus({ days: numberOfDays }).toISODate()+"T00:00:00Z";
+    }
+    if(year && !month)
+    {
+      month=1;
+      startDate=this.convertToISODate(month,year);
+      console.log("startDate for year:::::::::::::"+startDate);
+      
+      endDate = DateTime.fromISO(startDate) .plus({ years: 1 }).toUTC().toISO({ suppressMilliseconds: true, includeOffset: false })+"Z";
+
+    }
+    console.log("startDate::::::::::::" + startDate);
+    console.log("End DAte:::::::::::::" + endDate);
+
+    meter = meter;
+    let tempResults = [];
+    let finalResults: { timezone?: string, value?: any }[] = [];
+    let response;
+    let url;
+
+    //  const changedDatesJSON=this.addOffSetToStartAndEndDates(developerExternalId,organizationId,startDate,endDate);
+    // startDate=(await changedDatesJSON).startDate;
+    // endDate=(await changedDatesJSON).endDate;
+
+
+    const monthlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(1d,-5h30m)`;
+    const yearlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(30d,-5h30m)`;
+console.log("accumulation type:::::::::::::::::"+accumulationType);
+    if (accumulationType === 'Monthly' && month && year) {
+      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${monthlyQuery}`;
+    }
+
+    else if (accumulationType = 'Yearly' && year) {
+      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${yearlyQuery}`;
+    }
+
+    else {
+      throw new HttpException('Invalid accumulationType', HttpStatus.BAD_REQUEST);
+    }
+
+    const config = {
+      auth: {
+        username: `${process.env.INFLUXDB_ADMIN_USER}`,
+        password: `${process.env.INFLUXDB_ADMIN_PASSWORD}`,
+      },
+    };
+
+    try {
+      response = await axios.get(url, config);
+      if(!response.data.results[0].series)
       {
-        console.log("TIMEZONE THAT's BEING RETURNED"+timezone);
-              return timezone;
+        throw new HttpException('No reads found', HttpStatus.CONFLICT);
       }
-    });
-    console.log("actualtimezone"+actualTimeZone);
-
-    return actualTimeZone;
-
-}
-
+      tempResults = this.readFilterNullUndefined(response.data.results[0].series[0].values)
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
 
 
-// getyearlyreads(developerExternalId,organizationId,externalId,startDate)
-// {
+    for (let i = 0; i < tempResults.length; i++) {
+      let resultObj: { timezone?: string, value?: any } = {};
+      for (let j = 0; j < 2; j++) {
+        if (j % 2 === 0) {
+          const dateStr = new Date(tempResults[i][j]).getTime();
+          const date = new Date(dateStr);
+          date.setHours(date.getHours() + 5, date.getMinutes() + 30);
+          const isoDateStr = date.toISOString();
+          resultObj.timezone = isoDateStr;
+        } else {
+          resultObj.value = tempResults[i][j];
+        }
+      }
 
-//   return "yearly data"
-// }
+      finalResults.push(resultObj);
+    }
 
+    console.log(finalResults);
+    return finalResults;
 
-// @Cron(CronExpression.EVERY_10_SECONDS)
-async  getyearlyreads(developerExternalId, organizationId, deviceExternalId, year) {
-  year = year.slice(0, 4);
-  console.log("year:::" + year);
-  const monthlyReads = [];
-  for (let month = 1; month <= 12; month++) {
-    const monthString = month.toString().padStart(2, "0");
-    const startDate = `${year}-${monthString}-01T00:00:00.000Z`;
-    const monthlyRead = await this.getmonthlyreads(
-      developerExternalId,
-      organizationId,
-      deviceExternalId,
-      startDate
-    );
-    monthlyReads.push({ month: monthString, monthlyRead: monthlyRead });
-    console.log(`Monthly Reads for ${monthString}:`, monthlyRead);
   }
-  return monthlyReads;
-  
-}
 
 
 
 
 
+  readFilterNullUndefined(arr) {
+    for (let i = 0; i < arr.length; i++) {
+
+      for (let j = 0; j < 2; j++) {
+        if (j % 2 != 0) {
+          if ((arr[i])[j] == null || (arr[i])[j] == undefined) {
+            (arr[i])[j] = 0;
+          }
+        }
+      }
+
+    }
+    return arr;
+  }
 
 
 
+  convertToISODate(month, year) {
+    const isoDate = DateTime.fromObject({
+      year: year,
+      month: month,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      zone: 'utc'
+    }).toISO({ suppressMilliseconds: true });
+
+    return isoDate;
+  }
 
 
+  getNumberOfDaysInMonth(month, year) {
+    return DateTime.fromObject({
+      year: year,
+      month: month,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
+    }).daysInMonth;
+  }
+
+//  @Cron(CronExpression.EVERY_10_SECONDS)
+//  async  addOffSetToStartAndEndDates(externalId,organizationId,startDate,endDate)
+//   {     
+
+//     let device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, organizationId);
+//     console.log("DEVICE:::::::::::"+device)
 
 
+//       console.log("THIS IS THE LAT "+device.latitude+"AND LONG"+device.longitude);
+//       const localTime=getLocalTime(startDate,device);//timezone of the device.
+//       console.log("calling the localtimezone function")
+//       const localTimeZone=getLocalTimeZoneFromDevice(localTime,device);
+//       console.log("calling the offset function");
+//       const nonFormattedOffSet=getOffsetFromTimeZoneName(localTimeZone);
+//       const offset=getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
+//       console.log("FINAL OFFSET HOURS::::::"+offset.hours);
+//       console.log("FINAL OFFSET MINUTES::::::"+offset.minutes);
 
 
+//   const parsedStartDate = new Date(startDate);
+//   const parsedEndDate = new Date(endDate);
 
+//   parsedStartDate.setUTCHours(parsedStartDate.getUTCHours() + offset.hours);
+//   parsedStartDate.setUTCMinutes(parsedStartDate.getUTCMinutes() + offset.minutes);
+//   parsedEndDate.setUTCHours(parsedEndDate.getUTCHours() + offset.hours);
+//   parsedEndDate.setUTCMinutes(parsedEndDate.getUTCMinutes() + offset.minutes);
+
+//   const updatedStartDate = parsedStartDate.toISOString();
+//   const updatedEndDate = parsedEndDate.toISOString();
+    
+//     console.log("UPDATED START DATE::::"+updatedStartDate);
+//     console.log("UPDATED END DATE::::::::::"+updatedEndDate);
+
+//   return {
+//     "startDate":updatedStartDate,
+//     "endDate":updatedEndDate
+//   }
+
+//   }
 
 }

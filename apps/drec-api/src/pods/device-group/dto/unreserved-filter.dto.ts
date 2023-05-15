@@ -10,7 +10,7 @@ import {
   FuelCode,
   SDGBenefitsList
 } from '../../../utils/enums';
-import { countrCodesList } from '../../../models/country-code'
+import { countryCodesList } from '../../../models/country-code'
 //import {SDGBenefits} from '../../../models/Sdgbenefit'
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
@@ -35,11 +35,11 @@ export class UnreservedDeviceGroupsFilterDTO {
   offTaker: OffTaker;
 
   @IsOptional()
-  @ApiPropertyOptional({default:'2020-01-01T00:00:00Z', description: 'Start date reservationStartDate filter' })
+  @ApiPropertyOptional({ description: 'Start date reservationStartDate filter' })
   start_date: Date;
 
   @IsOptional()
-  @ApiPropertyOptional({default:'2020-01-01T00:00:00Z', description: 'End date reservationEndDate filter' })
+  @ApiPropertyOptional({ description: 'End date reservationEndDate filter' })
   end_date: Date;
 
   @IsOptional()

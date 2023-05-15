@@ -8,8 +8,7 @@
   
   import { ApiProperty } from '@nestjs/swagger';
   
-  export enum accumulatedType {
-    daily = 'Daily',
+  export enum accumulationType {
     monthly = 'Monthly',
     yearly = 'Yearly',
    
@@ -17,17 +16,17 @@
   export class filterNoOffLimit {
     
     @IsOptional()
-    @ApiProperty({default: '2020-01-01T00:00:00Z' ,description:'Example : 2020-01-01T00:00:00Z'})
+    @ApiProperty({description:'Example : 2020-01-01T00:00:00Z',required:false})
     start: Date;
   
-    @ApiProperty({default:'2020-01-01T00:00:00Z' ,description:'Example : 2020-01-01T00:00:00Z'})
+    @ApiProperty({description:'Example : 2020-01-01T00:00:00Z',required:false})
     end: Date;
   
-    @ApiProperty({ enum: accumulatedType, enumName: 'accumulatedType',required:false })
-    accumulated:accumulatedType;
+    @ApiProperty({ enum: accumulationType, enumName: 'accumulationType',required:false })
+    accumulationType:accumulationType;
 
     limit: number;
-  
+
      offset: number;
   }
   /* */

@@ -71,7 +71,7 @@ import csv from 'csv-parser';
 
 import csvtojsonV2 from "csvtojson";
 
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 
 import { File, FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
@@ -199,19 +199,31 @@ export class DeviceGroupService {
       }
     }
 
-    let deviceGroups;
-
+    let deviceGroups: any;
+    let queryBuilder: any;
     if (groupfilterDto === undefined) {
-      deviceGroups = this.repository.find({
-        where: { buyerId },
-        order: {
-          createdAt: 'DESC',
-        },
+      // deviceGroups = this.repository.find({
+      //   where: { buyerId },
+      //   order: {
+      //     createdAt: 'DESC',
+      //   },
+      // });
+
+      queryBuilder = this.repository.createQueryBuilder('dg')
+        .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+        .select(['dg.*', 'd.SDGBenefits'])
+        .orderBy('dg.id', 'ASC')
+
+      // //console.log(queryBuilder);
+      queryBuilder.where((qb) => {
+        qb.where(`dg.buyerId = :buyerid `, {
+          buyerid: buyerId
+        })
       });
     } else {
       console.log("187")
       console.log(buyerId)
-      const queryBuilder = this.repository.createQueryBuilder('dg')
+      queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
         .select(['dg.*', 'd.SDGBenefits'])
 
@@ -232,7 +244,7 @@ export class DeviceGroupService {
               values.forEach(ele => {
                 groupfilterDto.country = ele.toUpperCase();
                 if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-                  let countries = countrCodesList;
+                  let countries = countryCodesList;
                   if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
                     CountryInvalid = true;
                   }
@@ -303,60 +315,62 @@ export class DeviceGroupService {
           }));
       })
       const groupedDatasql = await queryBuilder.getSql();
-      console.log(groupedDatasql);
-      const groupedData = await queryBuilder.getRawMany();
+     
 
-      // console.log(groupedData);
-      deviceGroups = groupedData.reduce((acc, curr) => {
-        console.log("existing");
-        const existing = acc.find(item => item.id === curr.id);
-
-        if (existing) {
-
-          if (curr.d_SDGBenefits) {
-
-            existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
-          }
-        } else {
-
-          acc.push({
-            id: curr.id,
-            name: curr.name,
-            organizationId: curr.organizationId,
-            fuelCode: curr.fuelCode,
-            countryCode: curr.countryCode,
-            deviceTypeCodes: curr.deviceTypeCodes,
-            offTakers: curr.offTakers,
-            commissioningDateRange: curr.commissioningDateRange,
-            gridInterconnection: curr.gridInterconnection,
-            aggregatedCapacity: curr.aggregatedCapacity,
-            yieldValue: curr.yieldValue,
-            buyerId: curr.buyerId,
-            buyerAddress: curr.buyerAddress,
-            leftoverReads: curr.leftoverReads,
-            capacityRange: curr.capacityRange,
-            frequency: curr.frequency,
-            reservationStartDate: curr.reservationStartDate,
-            reservationEndDate: curr.reservationEndDate,
-            reservationActive: curr.reservationActive,
-            targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
-            targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
-            targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
-            targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
-            authorityToExceed: curr.authorityToExceed,
-            leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
-            devicegroup_uid: curr.devicegroup_uid,
-            type: curr.type,
-            deviceIds: curr.deviceIdsInt,
-            // deviceIdsInt: curr.deviceIdsInt,
-            SDGBenefits: curr.d_SDGBenefits || ""
-          });
-          // console.log(acc);
-        }
-        return acc;
-      }, []);
     }
-    console.log(deviceGroups)
+    const groupedData = await queryBuilder.getRawMany();
+
+    // console.log(groupedData);
+    deviceGroups = groupedData.reduce((acc, curr) => {
+    
+      const existing = acc.find(item => item.id === curr.id);
+
+      if (existing) {
+
+        if (curr.d_SDGBenefits) {
+
+          existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
+        }
+      } else {
+
+        acc.push({
+          id: curr.id,
+          name: curr.name,
+          organizationId: curr.organizationId,
+          fuelCode: curr.fuelCode,
+          countryCode: curr.countryCode,
+          deviceTypeCodes: curr.deviceTypeCodes,
+          offTakers: curr.offTakers,
+          commissioningDateRange: curr.commissioningDateRange,
+          gridInterconnection: curr.gridInterconnection,
+          aggregatedCapacity: curr.aggregatedCapacity,
+          yieldValue: curr.yieldValue,
+          buyerId: curr.buyerId,
+          buyerAddress: curr.buyerAddress,
+          leftoverReads: curr.leftoverReads,
+          capacityRange: curr.capacityRange,
+          frequency: curr.frequency,
+          reservationStartDate: curr.reservationStartDate,
+          reservationEndDate: curr.reservationEndDate,
+          reservationActive: curr.reservationActive,
+          targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
+          targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
+          targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
+          targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
+          authorityToExceed: curr.authorityToExceed,
+          leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
+          devicegroup_uid: curr.devicegroup_uid,
+          type: curr.type,
+          deviceIds: curr.deviceIdsInt,
+          // deviceIdsInt: curr.deviceIdsInt,
+          SDGBenefits: curr.d_SDGBenefits || ""
+        });
+        // console.log(acc);
+      }
+      return acc;
+    }, []);
+
+ 
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     return deviceGroups;
@@ -1634,7 +1648,7 @@ export class DeviceGroupService {
           singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
           if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
 
-            if (countrCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+            if (countryCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
             }
@@ -2095,8 +2109,8 @@ export class DeviceGroupService {
   }
 
   async getcurrentInformationofDevicesInReservation(groupuid): Promise<any> {
-    const group = await this.findOne({ devicegroup_uid: groupuid })
-    console.log(group)
+    const group = await this.findOne({ devicegroup_uid: groupuid,reservationActive:true })
+   // console.log(group)
     if (group === null) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -2109,7 +2123,7 @@ export class DeviceGroupService {
     const device_historynextissuance = [];
     await Promise.all(
       devices.map(async (device) => {
-        console.log(device);
+       // console.log(device);
         const historynext_issuancer = await this.historynextissuancedaterepository.find(
           {
             where: {
@@ -2134,14 +2148,14 @@ export class DeviceGroupService {
     );
     let AllDeviceshistnextissuansinfo: any = []
     device_historynextissuance.forEach(ele => ele.historynext_issuancer.forEach(he => AllDeviceshistnextissuansinfo.push(he)))
-    console.log(group.id)
-    let nextissuance={};
-     nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
+    //console.log(group.id)
+    let nextissuance = {};
+    nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
       where: {
         groupId: group.id
       }
-    })?? null;
-    console.log(nextissuance)
+    }) ?? null;
+    //console.log(nextissuance)
 
     return {
 

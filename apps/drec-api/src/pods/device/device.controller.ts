@@ -51,7 +51,7 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { CountrycodeService } from '../countrycode/countrycode.service';
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -231,7 +231,7 @@ export class DeviceController {
     }
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
     if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
-      let countries = countrCodesList;
+      let countries = countryCodesList;
       if (countries.find(ele => ele.countryCode === deviceToRegister.countryCode) === undefined) {
         return new Promise((resolve, reject) => {
           reject(
@@ -376,7 +376,7 @@ export class DeviceController {
     if (deviceToUpdate.countryCode != undefined) {
       deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
       if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
-        let countries = countrCodesList;
+        let countries = countryCodesList;
         if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
           return new Promise((resolve, reject) => {
             reject(
@@ -547,8 +547,8 @@ export class DeviceController {
     @Query('externalId') externalId: number,
     @Query('groupUid') groupuId: string,
   ) :Promise<any>{
-    console.log(externalId);
-    console.log(groupuId)
+    // console.log(externalId);
+    // console.log(groupuId)
     
     const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
     if (groupuId === null || !regexExp.test(groupuId)) {
@@ -563,7 +563,7 @@ export class DeviceController {
     let device: DeviceDTO | null
 
     device = await this.deviceService.findOne(externalId);
-    console.log(device);
+   /// console.log(device);
     if (device === null) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -574,7 +574,7 @@ export class DeviceController {
     }
     let group: DeviceGroup | null
     group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
-    console.log(group);
+   // console.log(group);
     if (group === null || group.buyerId != user.id) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
