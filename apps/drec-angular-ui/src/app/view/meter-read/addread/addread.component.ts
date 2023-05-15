@@ -28,7 +28,7 @@ export class AddreadComponent implements OnInit {
   hidestarttime: boolean = true;
   readtype = ['History', 'Delta', 'Aggregate'];
   unit = ['Wh', 'kWh', 'MWh', 'GWh'];
-  options: string[] = ['One', 'Two', 'Three'];
+  commissioningDate:any;
   filteredOptions: Observable<string[]>;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
@@ -92,6 +92,8 @@ export class AddreadComponent implements OnInit {
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
     this.devicecreateddate=event.createdAt;
+    this.commissioningDate=event.commissioningDate;
+    console.log(this.commissioningDate)
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //  2022-11-04T08:20:37.140Z

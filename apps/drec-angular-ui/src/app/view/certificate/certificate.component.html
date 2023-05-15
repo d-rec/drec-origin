@@ -13,8 +13,7 @@
 			<h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>Reservation
 					Name:{{group_name}}</b></h2>
 			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-0 pb-0">
-				<b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please
-					selectaccount in Metamask'}}<button *ngIf="!checkMetamaskConnected()"
+				<b>{{selectedBlockchainAccount ? 'Metamask connected Account'+selectedBlockchainAccount : 'Please selectaccount in Metamask'}}<button *ngIf="!checkMetamaskConnected()"
 						(click)="selectAccountAddressFromMetamask()" class="btn-sm button-click-here text-info"> Click
 						here</button> </b>
 			</h2>
@@ -32,7 +31,6 @@
 						</mat-card-title>
 					</div>
 				</mat-card-header>
-
 				<mat-card-content>
 
 					<div>
@@ -149,6 +147,196 @@
 
 					</div>
 				</mat-card-content>
+				<mat-card-content>
+					<div class="container-total">
+						<div class="inner-container">
+							<!-- <h1 class="heading">Reservation</h1>
+							<div class="date-description">
+			<p class="first-description">Start Dates</p>
+			<p class="first-description">Reservation</p>
+			<p class="sec-description">End Dates</p>
+		  </div> -->
+							<!-- this is for first content  -->
+							<!-- <div class="range-one">
+								<div class="range-slider">
+									<span class="range-selected"></span>
+								</div>
+								<div class="heading-content">
+									<p class="date-descriptio">Start Date</p>
+									<p class="date-descriptio">End Date</p>
+								</div>
+								<div class="range-input">
+									<div>
+										<div class="first-dot"></div>
+										<div class="first"></div>
+									</div>
+
+									<div>
+										<div class="second-dot"></div>
+										<div class="second"></div>
+									</div>
+									<div>
+										<div class="second-dot"></div>
+										<div class="second"></div>
+									</div>
+									<div>
+										<div class="third-dot"></div>
+										
+										<div class="fourth-dot"></div>
+										<div class="fifth-dot"></div>
+
+										<div class="third"></div>
+									</div>
+								</div>
+								<div class="heading-content">
+									<p class="first-text">TuesDay, 04 May 2023</p>
+									<p class="last-text">SatDay, 10 May 2023</p>
+								</div>
+							</div> -->
+							<h1 class="heading">Ongoing Next Issuance cycle</h1>
+							<!-- this is for second contetn  -->
+							<div class="flex-to-progress" *ngIf="ongoingnextissuance!=null">
+								<div class="range-two" style="width: 98%;">
+									<div class="range-slider">
+										<span class="range-selected"></span>
+									</div>
+									<div class="heading-content">
+										<p class="date-descriptio">Start Date</p>
+										<p class="date-descriptio">End Date</p>
+									</div>
+									<div class="range-input">
+										<div>
+											<div class="first-dot"></div>
+											<div class="first"></div>
+										</div>
+
+										<div>
+											<div class="second-dot"></div>
+											<div class="second"></div>
+										</div>
+										<div>
+											<div class="third-dot"></div>
+											<div class="third"></div>
+										</div>
+									</div>
+									<div class="heading-content">
+										<p class="first-text">{{ongoingnextissuance.start_date | date :'long'}}</p>
+										<p class="last-text">{{ongoingnextissuance.end_date | date:'long'}}
+										</p>
+									</div>
+								</div>
+							</div>
+							<h1 class="heading">History certificate Issuance Jobs</h1>
+							<!-- this is for third content  -->
+							<div class="flex-to-progress" *ngFor="let d of history_nextissuanclist">
+								<div class="range-three" style="width: 96%;">
+									<div class="range-slider">
+										<span class="range-selected"></span>
+									</div>
+									<div class="heading-content">
+										<p class="date-descriptio">Start Date</p>
+										<p class="date-descriptio">End Date</p>
+									</div>
+									<div class="range-input">
+										<div>
+											<div class="first-dot"></div>
+											<div class="first"></div>
+										</div>
+
+										<div>
+											<div class="second-dot"></div>
+											<div class="second"></div>
+										</div>
+										<div>
+											<div class="third-dot"></div>
+											<div class="third"></div>
+										</div>
+									</div>
+									<div class="heading-content">
+										<p class="first-text">{{d.reservationStartDate |date:'long'}}</p>
+										<p class="middle-text">({{d.device_externalid}}({{d.device_createdAt}}))</p>
+										<p class="last-text">{{d.reservationEndDate|date:'long'}}</p>
+									</div>
+								</div>
+							</div>
+							<h1 class="heading">Last Read record of devices</h1>
+							<!-- this is for fourth content  -->
+							<div class="flex-to-progress">
+								<div class="range-four" style="width: 94%;">
+									<div class="range-slider">
+										<span class="range-selected"></span>
+									</div>
+									<div class="heading-content">
+										<p class="date-descriptio">Start Date</p>
+										<p class="date-descriptio">End Date</p>
+									</div>
+									<div class="range-input">
+										<div>
+											<div class="first-dot"></div>
+											<div class="first"></div>
+										</div>
+
+										<div>
+											<div class="second-dot"></div>
+											<div class="second"></div>
+										</div>
+										<div>
+											<div class="third-dot"></div>
+											<div class="third"></div>
+										</div>
+									</div>
+									<div class="heading-content">
+										<p class="first-text">Sunday, 23 May 2023</p>
+										<p class="middle-text">(Device Name)</p>
+										<p class="last-text">Monday, 30 May 2023</p>
+									</div>
+								</div>
+							</div>
+							<h1 class="heading">Certified Devices log first to last Date
+							</h1>
+							<!-- this is for fourth content  -->
+							<div class="flex-to-progress" *ngFor="let d of alldevicescertifiedlogdatrange">
+								<div class="range-four" style="width: 94%;">
+									<div class="range-slider">
+										<span class="range-selected"></span>
+									</div>
+									<div class="heading-content">
+										<p class="date-descriptio">Start Date</p>
+										<p class="date-descriptio">End Date</p>
+									</div>
+									<div class="range-input">
+										<div>
+											<div class="first-dot"></div>
+											<div class="first"></div>
+										</div>
+
+										<div>
+											<div class="second-dot"></div>
+											<div class="second"></div>
+										</div>
+										<div>
+											<div class="third-dot"></div>
+											<div class="third"></div>
+										</div>
+									</div>
+									<div class="heading-content">
+										<p class="first-text">{{d.firstcertifiedstartdate|date:'long'}}</p>
+										<p class="middle-text">({{d.extenalId}})</p>
+										<p class="last-text">{{d.lastcertifiedenddate|date:'long'}}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="bottom-content">
+							<ul class="bottom-nav">
+								<li>Data One</li>
+								<li>Data One</li>
+								<li>Data One</li>
+							</ul>
+						</div>
+					</div>
+				</mat-card-content>
+
 			</mat-card>
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 			<ng-container *ngFor="let item of data">
@@ -200,7 +388,8 @@
 								<div class='row '>
 									<p><b>Generation Start Date</b>:&nbsp;
 										<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-										{{item.generationStartTimeinUTC|date:'long'}}</p>
+										{{item.generationStartTimeinUTC|date:'long'}}
+									</p>
 								</div>
 							</div>
 							<div class='column'>

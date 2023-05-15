@@ -6,11 +6,10 @@
                 <h2 class="pb-0 mb-0 fw-bold text-capitalize">Add Read
                 </h2>
             </div>
-            <!-- <div>
-                <button class="btn btn-dark justify-content-end px-4" (click)="adddevice()">
-                    <mat-icon class="align-middle">add_circle</mat-icon> Add More Device
-                </button>
-            </div> -->
+            <div>
+                <p *ngIf="devicecreateddate!=null">Onboarding Date:{{devicecreateddate}}</p>
+                <p *ngIf="(commissioningDate!=null)">Commissioning Date:{{commissioningDate}}</p>
+            </div>
 
 
         </mat-card-header>
