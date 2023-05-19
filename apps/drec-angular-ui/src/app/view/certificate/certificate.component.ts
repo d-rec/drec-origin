@@ -127,7 +127,7 @@ export class CertificateComponent implements OnInit {
   getlastreadofdevices() {
     console.log(this.devicesId)
     console.log(typeof this.devicesId)
-    //let alldevicesread = []
+    this.alldevicesread = [];
     if (typeof this.devicesId === 'string') {
       this.readService.Getlastread(this.devicesId).subscribe({
         next: data => {
@@ -142,6 +142,7 @@ export class CertificateComponent implements OnInit {
         }
       })
     } else {
+     
       this.devicesId.forEach((elemant: any) => {
         this.readService.Getlastread(elemant).subscribe({
           next: data => {
@@ -167,10 +168,11 @@ export class CertificateComponent implements OnInit {
       this.deviceService.getcertifieddevicelogdate(this.devicesId, this.group_uid).subscribe({
         next: data => {
           console.log(data);
+          this.alldevicescertifiedlogdatrange=[];
           if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
             this.alldevicescertifiedlogdatrange.push(data)
           }
-          console.log(this.alldevicesread)
+          console.log(this.alldevicescertifiedlogdatrange)
         },
         error: err => {                                //Error callback
           console.error('error caught in component', err)
@@ -179,10 +181,12 @@ export class CertificateComponent implements OnInit {
         }
       });
     } else {
+      this.alldevicescertifiedlogdatrange=[];
       this.devicesId.forEach((elemant: any) => {
         this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
           next: data => {
             console.log(data);
+           
             if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
               this.alldevicescertifiedlogdatrange.push(data)
             }
@@ -245,6 +249,7 @@ export class CertificateComponent implements OnInit {
   }
   // CertificateClaimed:boolean=false;
   DisplayList() {
+    console.log("certifed list")
     this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid).subscribe(
       (data: any) => {
         this.loading = false;
