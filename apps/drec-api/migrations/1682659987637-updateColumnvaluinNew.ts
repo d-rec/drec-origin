@@ -8,6 +8,7 @@ export class updateColumnvaluinNew1682659987637 implements MigrationInterface {
             SET "deviceIdsInt" = (
               SELECT array_agg(CAST(device_id_text AS bigint))
               FROM unnest(string_to_array("deviceIds", ',')) AS device_id_text
+              WHERE device_id_text <> ''
             )
             WHERE "deviceIds" IS NOT NULL`,
         );

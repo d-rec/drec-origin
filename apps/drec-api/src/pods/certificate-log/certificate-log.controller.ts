@@ -93,11 +93,11 @@ export class CertificateLogController {
     }
     @Get('/issuer/certified/:groupUid')
     @UseGuards(AuthGuard('jwt'))
-    @ApiOkResponse({ type: [CertificateWithPerdevicelog], description: 'Returns issuer Certificate of groupId' })
+    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getissueCertificate(
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
-    ): Promise<CertificateWithPerdevicelog[]> {
+    ): Promise<CertificateNewWithPerDeviceLog[]> {
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         //console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
@@ -124,7 +124,7 @@ export class CertificateLogController {
         // setTimeout(() => {
           
         // }, 2000)
-        return await this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
+        return await this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
     @Get('/issuer/certified/new/:groupUid')
@@ -153,7 +153,7 @@ export class CertificateLogController {
             })
         }
 
-        return this.certificateLogService.getCertificatesUsingGroupIDVersionUpdateOrigin247(devicegroup.id.toString());
+        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
     @Get('/redemption-report')

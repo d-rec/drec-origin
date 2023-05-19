@@ -51,7 +51,7 @@ export class CertificateLogService {
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
-    
+
   ) { }
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
@@ -117,15 +117,41 @@ export class CertificateLogService {
 
   }
 
-
-  async getfindreservationcertified(groupid: string): Promise<CertificateWithPerdevicelog[]> {
+  async getCertificateFromOldOrNewUfinction(groupid: string): Promise<any[]> {
     const certifiedreservation = await this.certificaterrepository.find(
       {
         where: {
-          externalId: groupid,
+          deviceId: groupid,
           // claims:IsNull()
         }
       })
+
+    console.log(certifiedreservation);
+    let request: IGetAllCertificatesOptions = {
+      // generationEndFrom: new Date(1677671426*1000),
+      // generationEndTo: new Date(1677671426*1000),
+      //  generationStartFrom :new Date(1646622684*1000),
+      // generationStartTo: new Date(1648159894*1000),
+      // creationTimeFrom: Date;
+      //  creationTimeTo: Date;
+      deviceId: groupid
+    }
+    const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
+    if (certifiedreservation.length> 0) {
+      return this.getfindreservationcertified(certifiedreservation, groupid);
+    } else if(certifiedreservation1.length> 0){
+      return this.getCertificatesUsingGroupIDVersionUpdateOrigin247(groupid);
+    }
+  }
+
+  async getfindreservationcertified(certifiedreservation: Certificate[],groupid: string): Promise<CertificateWithPerdevicelog[]> {
+    // const certifiedreservation = await this.certificaterrepository.find(
+    //   {
+    //     where: {
+    //       externalId: groupid,
+    //       // claims:IsNull()
+    //     }
+    //   })
     console.log(certifiedreservation);
 
     const res = await Promise.all(
@@ -197,7 +223,7 @@ export class CertificateLogService {
     let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> = [];
     certifiedreservation.forEach(ele => certificatesInReservationWithLog.push({ ...ele, perDeviceCertificateLog: [], certificateStartDate: '', certificateEndDate: '' }));
 
-    console.log(certifiedreservation);
+    // console.log(certifiedreservation);
 
     await Promise.all(
       certifiedreservation.map(async (certifiedlist: ICertificateReadModel<ICertificateMetadata>, index: number) => {
@@ -435,128 +461,128 @@ export class CertificateLogService {
   //   return missingtoken
   // }
 
-    
-      
-      // async getsCertificateReadModule(userOrgId: string, generationStartTime, generationEndTime, pageNumber: number) {
-      //   if (pageNumber <= 0) {
-      //     throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
-      //   }
-      
-      //   generationStartTime = new Date(generationStartTime).getTime() / 1000;
-      //   generationEndTime = new Date(generationEndTime).getTime() / 1000;
-      
-      //   const queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('certificate_read_module')
-      //     .innerJoin('DeviceGroup', 'dg', 'certificate_read_module.deviceId = CAST(dg.Id AS character varying)')
-      //     .andWhere('dg.organizationId = :userOrgId', { userOrgId });
-      
-      //   if (generationStartTime && generationEndTime) {
-      //     queryBuilder.andWhere('certificate_read_module.generationStartTime <= :generationEndTime', {
-      //       generationEndTime: generationEndTime,
-      //     })
-      //       .andWhere('certificate_read_module.generationEndTime >= :generationStartTime', {
-      //         generationStartTime: generationStartTime,
-      //       });
-      //   }
-      
-      //   const limit = 10;
-      //   const offset = (pageNumber - 1) * limit;
-      
-      //   const [results, totalCount] = await queryBuilder
-      //     .skip(offset)
-      //     .take(limit)
-      //     .getManyAndCount();
-      
-      //   const totalPages = Math.ceil(totalCount / limit);
-      
-      //   if (pageNumber > totalPages) {
-      //     throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-      //   }
-      
-      //   for (const result of results) {
-      //     const deviceGroup = await this.deviceGroupRepository.findOne({ id: result.deviceId });
-      //     result.deviceGroup = deviceGroup;
-      
-      //     // Parse metadata as JSON
-      //     result.metadata = JSON.parse(result.metadata);
-      //   }
-      
-      //   return {
-      //     "results": results,
-      //     "pageNumber": pageNumber,
-      //     "totalPages": totalPages,
-      //   };
-      // }
-      
-//  @Cron(CronExpression.EVERY_30_SECONDS)
-async getsCertificateReadModule(userOrgId: string, pageNumber: number,deviceFilter:deviceFilterDTO, generationStartTime?: string, generationEndTime?: string, targetVolumeCertificateGenerationRequestedInMegaWattHour?: number) {
-  const pageSize = 3;
-
-  if (pageNumber <= 0) {
-    throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
-  }
-
-  const skip = (pageNumber - 1) * pageSize;
-
-   let queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('crm')
-     .innerJoin(DeviceGroup, 'dg', 'crm.deviceId = dg.id::text')
-     .andWhere('dg.organizationId = :userOrgId', { userOrgId })
-     .skip(skip)
-    .take(pageSize);
 
 
+  // async getsCertificateReadModule(userOrgId: string, generationStartTime, generationEndTime, pageNumber: number) {
+  //   if (pageNumber <= 0) {
+  //     throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
+  //   }
 
-  if (generationStartTime && generationEndTime) {
-    const startTimestamp = new Date(generationStartTime).getTime() / 1000;
-    const endTimestamp = new Date(generationEndTime).getTime() / 1000;
+  //   generationStartTime = new Date(generationStartTime).getTime() / 1000;
+  //   generationEndTime = new Date(generationEndTime).getTime() / 1000;
 
-    queryBuilder = queryBuilder.andWhere('crm.generationStartTime <= :endTimestamp', { endTimestamp })
-      .andWhere('crm.generationEndTime >= :startTimestamp', { startTimestamp });
-  } else if (generationStartTime) {
-    const startTimestamp = new Date(generationStartTime).getTime() / 1000;
+  //   const queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('certificate_read_module')
+  //     .innerJoin('DeviceGroup', 'dg', 'certificate_read_module.deviceId = CAST(dg.Id AS character varying)')
+  //     .andWhere('dg.organizationId = :userOrgId', { userOrgId });
 
-    queryBuilder = queryBuilder.andWhere('crm.generationStartTime <= :startTimestamp', { startTimestamp });
-  } else if (generationEndTime) {
-    const endTimestamp = new Date(generationEndTime).getTime() / 1000;
+  //   if (generationStartTime && generationEndTime) {
+  //     queryBuilder.andWhere('certificate_read_module.generationStartTime <= :generationEndTime', {
+  //       generationEndTime: generationEndTime,
+  //     })
+  //       .andWhere('certificate_read_module.generationEndTime >= :generationStartTime', {
+  //         generationStartTime: generationStartTime,
+  //       });
+  //   }
 
-    queryBuilder = queryBuilder.andWhere('crm.generationEndTime >= :endTimestamp', { endTimestamp });
-  }
+  //   const limit = 10;
+  //   const offset = (pageNumber - 1) * limit;
 
-  if (targetVolumeCertificateGenerationRequestedInMegaWattHour !== undefined) {
-    queryBuilder = queryBuilder.andWhere('dg.targetVolumeCertificateGenerationRequestedInMegaWattHour <= :targetVolume', { targetVolume: targetVolumeCertificateGenerationRequestedInMegaWattHour });
-  }
+  //   const [results, totalCount] = await queryBuilder
+  //     .skip(offset)
+  //     .take(limit)
+  //     .getManyAndCount();
 
-  console.log("BEFORE QUERY:::::::::::::::::::::"+new Date());
-  const results = await queryBuilder.getRawMany();
-  const count = await queryBuilder.getCount();
-  console.log("AFTER QUERY:::::::::::::::::::::"+new Date());
+  //   const totalPages = Math.ceil(totalCount / limit);
 
-  const totalPages = Math.ceil(count / pageSize);
+  //   if (pageNumber > totalPages) {
+  //     throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+  //   }
 
-  if (pageNumber > totalPages) {
-    throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-  }
+  //   for (const result of results) {
+  //     const deviceGroup = await this.deviceGroupRepository.findOne({ id: result.deviceId });
+  //     result.deviceGroup = deviceGroup;
 
-  const formattedResults = results.map((result) => {
-    const parsedMetadata = JSON.parse(result.crm_metadata);
+  //     // Parse metadata as JSON
+  //     result.metadata = JSON.parse(result.metadata);
+  //   }
+
+  //   return {
+  //     "results": results,
+  //     "pageNumber": pageNumber,
+  //     "totalPages": totalPages,
+  //   };
+  // }
+
+  //  @Cron(CronExpression.EVERY_30_SECONDS)
+  async getsCertificateReadModule(userOrgId: string, pageNumber: number, deviceFilter: deviceFilterDTO, generationStartTime?: string, generationEndTime?: string, targetVolumeCertificateGenerationRequestedInMegaWattHour?: number) {
+    const pageSize = 3;
+
+    if (pageNumber <= 0) {
+      throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
+    }
+
+    const skip = (pageNumber - 1) * pageSize;
+
+    let queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('crm')
+      .innerJoin(DeviceGroup, 'dg', 'crm.deviceId = dg.id::text')
+      .andWhere('dg.organizationId = :userOrgId', { userOrgId })
+      .skip(skip)
+      .take(pageSize);
+
+
+
+    if (generationStartTime && generationEndTime) {
+      const startTimestamp = new Date(generationStartTime).getTime() / 1000;
+      const endTimestamp = new Date(generationEndTime).getTime() / 1000;
+
+      queryBuilder = queryBuilder.andWhere('crm.generationStartTime <= :endTimestamp', { endTimestamp })
+        .andWhere('crm.generationEndTime >= :startTimestamp', { startTimestamp });
+    } else if (generationStartTime) {
+      const startTimestamp = new Date(generationStartTime).getTime() / 1000;
+
+      queryBuilder = queryBuilder.andWhere('crm.generationStartTime <= :startTimestamp', { startTimestamp });
+    } else if (generationEndTime) {
+      const endTimestamp = new Date(generationEndTime).getTime() / 1000;
+
+      queryBuilder = queryBuilder.andWhere('crm.generationEndTime >= :endTimestamp', { endTimestamp });
+    }
+
+    if (targetVolumeCertificateGenerationRequestedInMegaWattHour !== undefined) {
+      queryBuilder = queryBuilder.andWhere('dg.targetVolumeCertificateGenerationRequestedInMegaWattHour <= :targetVolume', { targetVolume: targetVolumeCertificateGenerationRequestedInMegaWattHour });
+    }
+
+    console.log("BEFORE QUERY:::::::::::::::::::::" + new Date());
+    const results = await queryBuilder.getRawMany();
+    const count = await queryBuilder.getCount();
+    console.log("AFTER QUERY:::::::::::::::::::::" + new Date());
+
+    const totalPages = Math.ceil(count / pageSize);
+
+    if (pageNumber > totalPages) {
+      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    }
+
+    const formattedResults = results.map((result) => {
+      const parsedMetadata = JSON.parse(result.crm_metadata);
+      return {
+        ...result,
+        crm_metadata: parsedMetadata,
+      };
+    });
+
     return {
-      ...result,
-      crm_metadata: parsedMetadata,
+      result: formattedResults,
+      pageNumber: pageNumber,
+      totalPages: totalPages,
+      totalCount: count,
     };
-  });
-
-  return {
-    result:formattedResults,
-    pageNumber: pageNumber,
-    totalPages: totalPages,
-    totalCount: count,
-  };
-}
+  }
 
 
 
-     
-    
-      
+
+
+
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number, deviceId: string
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
@@ -567,9 +593,9 @@ async getsCertificateReadModule(userOrgId: string, pageNumber: number,deviceFilt
           deviceid: deviceId,
 
         },
-        order:{
-          certificate_issuance_enddate:'DESC'
+        order: {
+          certificate_issuance_enddate: 'DESC'
         }
       })
-    }
+  }
 }
