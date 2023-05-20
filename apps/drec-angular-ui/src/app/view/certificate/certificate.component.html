@@ -352,7 +352,8 @@
 										target="_blank" class="certificate-text d-flex text-capitalize">
 										<mat-icon class="mt-1">card_membership</mat-icon>
 										<div class="certificate-id-text">
-											<div class="id-text">{{item?.id}}</div>
+											<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
+											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
 										</div>
 									</a>
 								</div>

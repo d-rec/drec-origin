@@ -6,14 +6,23 @@
                 <h2 class="pb-0 mb-0 fw-bold text-capitalize">Add Read
                 </h2>
             </div>
-            <div>
-                <p *ngIf="devicecreateddate!=null">Onboarding Date:{{devicecreateddate}}</p>
-                <p *ngIf="(commissioningDate!=null)">Commissioning Date:{{commissioningDate}}</p>
-            </div>
+
 
 
         </mat-card-header>
         <hr class="mb-0 pb-0">
+
+        <mat-card-content>
+           
+                <div class="d-flex">
+                    <p *ngIf="devicecreateddate!=null">Onboarding Date:<br>{{devicecreateddate}}&nbsp;&nbsp;&nbsp;&nbsp;</p>&nbsp;&nbsp;
+                    <p *ngIf="(commissioningDate!=null)">Commissioning Date:<br>{{commissioningDate}}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                    <p *ngIf="(lastreaddate!=null)">Last Read End datetime:<br>{{lastreaddate|date:'long'}}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                    <p *ngIf="(lastreadvalue!=null)">Last Read :<br>{{lastreadvalue}}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                </div>
+            
+
+        </mat-card-content>
         <form [formGroup]="readForm" (ngSubmit)="onSubmit()">
             <mat-card-content>
                 <div class="example-container1 row">
@@ -22,7 +31,8 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">ExternalId</mat-label>
 
-                            <mat-select formControlName='externalId' placeholder="ExternalId" (ngModelChange)="onChangeDateEvent($event)">
+                            <mat-select formControlName='externalId' placeholder="ExternalId"
+                                (ngModelChange)="ExternaIdonChangeEvent($event)">
 
                                 <mat-option *ngFor="let device of data" [value]="device">
                                     {{device.externalId}}
@@ -31,27 +41,24 @@
                         </mat-form-field>
                     </div>
                     <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                        <mat-label>TimeZone</mat-label>
-                        <input type="text"
-                               placeholder="Please Enter timezone"
-                               aria-label="Number"
-                               matInput
-                               formControlName="timezone"
-                               [matAutocomplete]="auto">
-                        <mat-autocomplete #auto="matAutocomplete">
-                          <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-                            {{option}}
-                          </mat-option>
-                        </mat-autocomplete>
-                      </mat-form-field>
-                      </div>
+                        <mat-form-field appearance="outline">
+                            <mat-label>TimeZone</mat-label>
+                            <input type="text" placeholder="Please Enter timezone" aria-label="Number" matInput
+                                formControlName="timezone" [matAutocomplete]="auto">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                                    {{option}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Read Type</mat-label>
 
-                            <mat-select formControlName='type' placeholder="type" (ngModelChange)="onChangeEvent($event)">
+                            <mat-select formControlName='type' placeholder="type"
+                                (ngModelChange)="onChangeEvent($event)">
 
                                 <mat-option *ngFor="let code of readtype" [value]="code">
                                     {{code}}
@@ -63,7 +70,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Unit</mat-label>
 
-                            <mat-select formControlName='unit' placeholder="Unit" >
+                            <mat-select formControlName='unit' placeholder="Unit">
 
                                 <mat-option *ngFor="let unit of unit" [value]="unit">
                                     {{unit}}
@@ -83,7 +90,8 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">value</mat-label>
-                                    <input matInput placeholder="Read value" type="number" formControlName='value' min="1" autocomplete="off">
+                                    <input matInput placeholder="Read value" type="number" formControlName='value'
+                                        min="1" autocomplete="off">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -93,7 +101,8 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">starttimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a startdate"
-                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
+                                        formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate"
+                                        autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -105,15 +114,16 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">endtimestamp </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a enddate"
-                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate" autocomplete="off">
+                                        formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate"
+                                        autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                         [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                     </ngx-mat-datetime-picker>
                                     <mat-error *ngIf="checkValidation('endtimestamp')">
-                                       <b> {{getErrorcheckdatavalidation()}}</b>
-                                      </mat-error>
+                                        <b> {{getErrorcheckdatavalidation()}}</b>
+                                    </mat-error>
                                 </mat-form-field>
                             </div>
 
@@ -125,7 +135,8 @@
             <mat-card-footer>
                 <div class="example-container mb-3 me-3 row">
                     <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" [disabled]="readForm.invalid" class="btn-primary btn text-capitalize px-4">submit</button>
+                        <button type="submit" [disabled]="readForm.invalid"
+                            class="btn-primary btn text-capitalize px-4">submit</button>
                     </div>
                 </div>
             </mat-card-footer>
