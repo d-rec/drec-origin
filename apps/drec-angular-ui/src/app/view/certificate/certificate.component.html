@@ -147,7 +147,7 @@
 
 					</div>
 				</mat-card-content>
-				<mat-card-content>
+				<mat-card-content *ngIf="false">
 					<div class="container-total">
 						<div class="inner-container">
 							<!-- <h1 class="heading">Reservation</h1>
@@ -401,8 +401,14 @@
 							</div>
 							<div class='column'>
 								<div class='row'>
-									<p *ngFor="let item1 of item.owners | keyvalue"><b>Volume</b>:
+									<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
 										&nbsp;{{item1.value}}(Wh)</p>
+										
+								</div>
+								<div class='row' *ngIf="item.CertificateClaimed">
+									<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
+										&nbsp;{{item1.value}}(Wh)</p>
+										
 								</div>
 							</div>
 						</div>
