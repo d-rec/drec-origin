@@ -101,10 +101,7 @@ export class ReadsController extends BaseReadsController {
 
   @ApiQuery({ name: 'Month',type:Number,required:false})
   @ApiQuery({ name: 'Year',type:Number,required:false})
-
   @ApiQuery({ name: 'pagenumber',type:Number,required:false})
-
-
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -124,8 +121,7 @@ export class ReadsController extends BaseReadsController {
     //finding the device details throught the device service
      filter.offset=0;
      filter.limit=5;
-     let device: DeviceDTO | null;  
-     
+     let device: DeviceDTO | null;      
      if(month && !year)
    {
     throw new HttpException('Year is required when month is given',400)
@@ -149,19 +145,15 @@ export class ReadsController extends BaseReadsController {
          );
        });
      }
-    
-
 
      if(filter.accumulationType)
      {
        return this.internalReadsService.getAccumulatedReads(device.externalId,user.organizationId,device.developerExternalId,filter.accumulationType,month,year);
      }
-
      else
      {
       return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
      }
-  
    }
 /* */
 

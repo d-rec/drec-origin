@@ -791,7 +791,7 @@ export class DeviceService {
   // async updateExternalIdtoDeveloperExternalId() : Promise<void>{
   //   let alldevices:Device[];
   //   alldevices= await this.repository.find();
-  //   //console.log(alldevices);
+  //   console.log(alldevices);
   //   await Promise.all(
   //     alldevices.map(async (device: Device) => {
   //       device.developerExternalId = device.externalId;
