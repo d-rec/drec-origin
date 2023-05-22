@@ -2,7 +2,7 @@
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input } from '@angular/core';
+import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
@@ -46,7 +46,7 @@ import { DeviceService } from '../../auth/services/device.service';
     ]),
   ],
 })
-export class CertificateComponent implements OnInit {
+export class CertificateComponent implements   OnDestroy{
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
@@ -68,6 +68,7 @@ export class CertificateComponent implements OnInit {
   ongoingnextissuance: any;
   devicesId: any
   alldevicescertifiedlogdatrange: any = [];
+  intervalId:any;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -102,7 +103,7 @@ export class CertificateComponent implements OnInit {
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    setInterval(() => {
+    this.intervalId=setInterval(() => {
 
       this.getnextissuancinfo();
       this.getlastreadofdevices();
@@ -111,7 +112,9 @@ export class CertificateComponent implements OnInit {
 
 
   }
-
+ngOnDestroy(): void {
+  clearInterval(this.intervalId);
+}
   getnextissuancinfo() {
     this.reservationService.GetnextissuanceCycleinfo(this.group_uid).subscribe(
       (data: any) => {
@@ -142,7 +145,7 @@ export class CertificateComponent implements OnInit {
         }
       })
     } else {
-     
+
       this.devicesId.forEach((elemant: any) => {
         this.readService.Getlastread(elemant).subscribe({
           next: data => {
@@ -168,7 +171,7 @@ export class CertificateComponent implements OnInit {
       this.deviceService.getcertifieddevicelogdate(this.devicesId, this.group_uid).subscribe({
         next: data => {
           console.log(data);
-          this.alldevicescertifiedlogdatrange=[];
+          this.alldevicescertifiedlogdatrange = [];
           if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
             this.alldevicescertifiedlogdatrange.push(data)
           }
@@ -181,12 +184,12 @@ export class CertificateComponent implements OnInit {
         }
       });
     } else {
-      this.alldevicescertifiedlogdatrange=[];
+      this.alldevicescertifiedlogdatrange = [];
       this.devicesId.forEach((elemant: any) => {
         this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
           next: data => {
             console.log(data);
-           
+
             if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
               this.alldevicescertifiedlogdatrange.push(data)
             }
@@ -276,8 +279,19 @@ export class CertificateComponent implements OnInit {
               // }
             }
           }
-        })
 
+          if (ele.creationBlockHash!="") {
+            ele.creationBlockHash
+          }
+          //@ts-ignore
+          else if(ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+            console.log("ele.creationBlockHash")
+            //@ts-ignore
+            ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+         console.log(ele.creationBlockHash)
+          }
+        })
+        console.log(this.data);
       }
 
     )

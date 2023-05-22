@@ -87,7 +87,9 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
-  onChangeDateEvent(event:any){
+  lastreadvalue:number;
+  lastreaddate:any;
+  ExternaIdonChangeEvent(event:any){
     console.log(event);
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
@@ -100,6 +102,20 @@ export class AddreadComponent implements OnInit {
     //this.readForm.controls["externalId"]=event.externalId;
       console.log(this.historyAge);
      // this.readForm.controls["read"]
+     this.readService.Getlastread(event.externalId).subscribe({
+      next: data => {
+        console.log(data),
+        this.lastreaddate=data.enddate;
+        this.lastreadvalue=data.value;
+        //   this.alldevicesread.push(data)
+        // console.log(this.alldevicesread)
+      },
+      error: err => {                      //Error callback
+        console.error('error caught in component', err)
+        //.toastrService.error('device id has been updated', 'current external id not found!!');
+
+      }
+    })
 
   }
   onChangeEvent(event: any) {
