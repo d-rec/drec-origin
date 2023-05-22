@@ -109,7 +109,7 @@ export class IssuerService {
     });
   }
 
-  //@Cron(CronExpression.EVERY_30_SECONDS)
+@Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Ongoing Cycle');
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
@@ -264,7 +264,7 @@ export class IssuerService {
   //   }, {});
   // };
 
-   //@Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
     const historydevicerequestall = await this.groupService.getNextHistoryissuanceDevicelog();
     // console.log(historydevicerequestall);
@@ -328,7 +328,7 @@ export class IssuerService {
 
             await this.deviceService.removeFromGroup(device.id, group.id);
           }
-          return;
+         
         }
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id, HistoryNextInssuanceStatus.Completed);
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {

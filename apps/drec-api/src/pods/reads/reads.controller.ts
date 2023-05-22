@@ -101,10 +101,7 @@ export class ReadsController extends BaseReadsController {
 
   @ApiQuery({ name: 'Month',type:Number,required:false})
   @ApiQuery({ name: 'Year',type:Number,required:false})
-
   @ApiQuery({ name: 'pagenumber',type:Number,required:false})
-
-
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -124,8 +121,7 @@ export class ReadsController extends BaseReadsController {
     //finding the device details throught the device service
      filter.offset=0;
      filter.limit=5;
-     let device: DeviceDTO | null;  
-     
+     let device: DeviceDTO | null;      
      if(month && !year)
    {
     throw new HttpException('Year is required when month is given',400)
@@ -149,19 +145,15 @@ export class ReadsController extends BaseReadsController {
          );
        });
      }
-    
-
 
      if(filter.accumulationType)
      {
        return this.internalReadsService.getAccumulatedReads(device.externalId,user.organizationId,device.developerExternalId,filter.accumulationType,month,year);
      }
-
      else
      {
       return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
      }
-  
    }
 /* */
 
@@ -397,9 +389,6 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
       });
-
-
-
       if (datesContainingNullOrEmptyValues) {
         return new Promise((resolve, reject) => {
           reject(
@@ -441,8 +430,6 @@ export class ReadsController extends BaseReadsController {
         //@ts-ignore
         let startdateformate = isValidUTCDateFormat(ele.starttimestamp)
         //dateFormateToCheck.test(ele.starttimestamp);
-
-
         //@ts-ignore
         let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
@@ -479,19 +466,14 @@ export class ReadsController extends BaseReadsController {
     }
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let datevalid1: boolean = true;
-
       measurements.reads.forEach(ele => {
-
         //@ts-ignore
         let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {
           datevalid1 = false;
         }
-
-
       })
-
       if (!datevalid1) {
         return new Promise((resolve, reject) => {
           reject(
@@ -504,7 +486,7 @@ export class ReadsController extends BaseReadsController {
       }
 
     }
-    // Device onboarding and system date validation
+    // Device onboarding  validation
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allDatesAreAfterCreatedAt: boolean = true;
       let allDatesAreAftercommissioningDate: boolean = true;
@@ -541,6 +523,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
+    // system date validation
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
       let allEndDatesAreBeforSystemDate: boolean = true;
       measurements.reads.forEach(ele => {
@@ -567,7 +550,8 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreBeforeCreatedAt: boolean = true;
       let allStartDatesAreBeforeEnddate: boolean = true;
       let readvalue: boolean = true;
-      let historyallDatesAreAftercommissioningDate: boolean = true;
+      let historyallStartDatesAreAftercommissioningDate: boolean = true;
+      let historyallEndDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime()) {
@@ -588,10 +572,10 @@ export class ReadsController extends BaseReadsController {
            //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
           if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
-            historyallDatesAreAftercommissioningDate = false;
+            historyallStartDatesAreAftercommissioningDate = false;
           }
           if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
-            historyallDatesAreAftercommissioningDate = false;
+            historyallEndDatesAreAftercommissioningDate = false;
           }
         }
       })
@@ -626,12 +610,22 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-      if (!historyallDatesAreAftercommissioningDate) {
+      if (!historyallStartDatesAreAftercommissioningDate) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
               success: false,
-              message: `One or more measurements starttimestamp and endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+              message: `One or more measurements starttimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+            })
+          );
+        });
+      }
+      if (!historyallEndDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
             })
           );
         });
