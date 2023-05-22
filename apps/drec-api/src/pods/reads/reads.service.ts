@@ -1571,7 +1571,7 @@ export class ReadsService {
           limit: 1000, start: deviceOnboarded, end: filter.end.toString()
         })
         console.log(allread);
-        finalongoing = await this.baseReadsService(readsFilter, readsFilter)
+        finalongoing = await this.getPaginatedData(externalId, readsFilter, pageNumber)
         console.log(finalongoing);
         // this.timeOffset=finalongoing[4].timestamp
         if (finalongoing.length > 0) {
@@ -1686,12 +1686,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   }
   /* */
 
-
-
-
-
-
-
   async getAccumulatedReads(meter: string, organizationId, developerExternalId, accumulationType, month: number, year: number) {
     let startDate;
     let numberOfDays;
@@ -1718,23 +1712,18 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     let finalResults: { timezone?: string, value?: any }[] = [];
     let response;
     let url;
-
     //  const changedDatesJSON=this.addOffSetToStartAndEndDates(developerExternalId,organizationId,startDate,endDate);
     // startDate=(await changedDatesJSON).startDate;
     // endDate=(await changedDatesJSON).endDate;
-
-
     const monthlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(1d,-5h30m)`;
     const yearlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(30d,-5h30m)`;
     console.log("accumulation type:::::::::::::::::" + accumulationType);
     if (accumulationType === 'Monthly' && month && year) {
       url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${monthlyQuery}`;
     }
-
     else if (accumulationType = 'Yearly' && year) {
       url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${yearlyQuery}`;
     }
-
     else {
       throw new HttpException('Invalid accumulationType', HttpStatus.BAD_REQUEST);
     }
@@ -1757,7 +1746,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       throw error;
     }
 
-
     for (let i = 0; i < tempResults.length; i++) {
       let resultObj: { timezone?: string, value?: any } = {};
       for (let j = 0; j < 2; j++) {
@@ -1771,17 +1759,12 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
           resultObj.value = tempResults[i][j];
         }
       }
-
       finalResults.push(resultObj);
     }
-
     console.log(finalResults);
     return finalResults;
 
   }
-
-
-
 
 
   readFilterNullUndefined(arr) {
@@ -1800,7 +1783,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   }
 
 
-
   convertToISODate(month, year) {
     const isoDate = DateTime.fromObject({
       year: year,
@@ -1814,7 +1796,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     return isoDate;
   }
-
 
   getNumberOfDaysInMonth(month, year) {
     return DateTime.fromObject({
@@ -1868,4 +1849,48 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   //   }
 
 
+  async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
+    console.log(page)
+    let data:any;
+    let lastValue: Date | number;
+    for (let currentPage = 1; currentPage <= page; currentPage++) {
+      const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
+      lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
+      console.log("currentPage", currentPage)
+      if (currentPage === page) {
+        data= currentData;
+        console.log(data)
+        
+        console.log(lastValue);
+      }
+    }
+    console.log(data)
+    return data;
+  }
+
+  async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
+    let currentQuery;
+    console.log(lastValue);
+    if (lastValue) {
+      let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
+      currentQuery = `from(bucket: "origin_update_ewf/autogen")
+        |> range(start: ${newDateTime}, stop: ${filter.end}) 
+        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+        |> limit(n: ${filter.limit})`;
+    } else {
+      currentQuery = `from(bucket: "origin_update_ewf/autogen")
+        |> range(start: ${filter.start}, stop: ${filter.end}) 
+        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+        |> limit(n: ${filter.limit})`;
+    }
+    console.log(currentQuery);
+    //@ts-ignore
+    const org = process.env.INFLUXDB_ORG;
+    const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
+    console.log(result);
+    return result.map((record: any) => ({
+      timestamp: new Date(record._time),
+      value: Number(record._value),
+    }));
+  }
 }

@@ -328,7 +328,7 @@ export class IssuerService {
 
             await this.deviceService.removeFromGroup(device.id, group.id);
           }
-          return;
+         
         }
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id, HistoryNextInssuanceStatus.Completed);
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {

@@ -176,39 +176,9 @@ export class DeviceGroupService {
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<DeviceGroupDTO[]> {
     console.log(groupfilterDto);
-    if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
-      if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
-        return new Promise((resolve, reject) => {
-          reject(new ConflictException({
-            success: false,
-            message: `End date should be if in filter query you used with Start date `,
-          }))
-        })
-      }
-      console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
-      console.log(groupfilterDto.end_date)
-      console.log(new Date(groupfilterDto.start_date).getTime())
-
-      if (!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())) {
-        return new Promise((resolve, reject) => {
-          reject(new ConflictException({
-            success: false,
-            message: `End date should be greater then from Start date `,
-          }))
-        })
-      }
-    }
-
     let deviceGroups: any;
     let queryBuilder: any;
     if (groupfilterDto === undefined) {
-      // deviceGroups = this.repository.find({
-      //   where: { buyerId },
-      //   order: {
-      //     createdAt: 'DESC',
-      //   },
-      // });
-
       queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
         .select(['dg.*', 'd.SDGBenefits'])
@@ -221,6 +191,28 @@ export class DeviceGroupService {
         })
       });
     } else {
+      if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
+        if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
+          return new Promise((resolve, reject) => {
+            reject(new ConflictException({
+              success: false,
+              message: `End date should be if in filter query you used with Start date `,
+            }))
+          })
+        }
+        console.log((new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime()))
+        console.log(groupfilterDto.end_date)
+        console.log(new Date(groupfilterDto.start_date).getTime())
+
+        if (!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())) {
+          return new Promise((resolve, reject) => {
+            reject(new ConflictException({
+              success: false,
+              message: `End date should be greater then from Start date `,
+            }))
+          })
+        }
+      }
       console.log("187")
       console.log(buyerId)
       queryBuilder = this.repository.createQueryBuilder('dg')
@@ -315,14 +307,14 @@ export class DeviceGroupService {
           }));
       })
       const groupedDatasql = await queryBuilder.getSql();
-     
+
 
     }
     const groupedData = await queryBuilder.getRawMany();
 
     // console.log(groupedData);
     deviceGroups = groupedData.reduce((acc, curr) => {
-    
+
       const existing = acc.find(item => item.id === curr.id);
 
       if (existing) {
@@ -370,7 +362,7 @@ export class DeviceGroupService {
       return acc;
     }, []);
 
- 
+
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     return deviceGroups;
@@ -2109,8 +2101,8 @@ export class DeviceGroupService {
   }
 
   async getcurrentInformationofDevicesInReservation(groupuid): Promise<any> {
-    const group = await this.findOne({ devicegroup_uid: groupuid,reservationActive:true })
-   // console.log(group)
+    const group = await this.findOne({ devicegroup_uid: groupuid, reservationActive: true })
+    // console.log(group)
     if (group === null) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -2123,7 +2115,7 @@ export class DeviceGroupService {
     const device_historynextissuance = [];
     await Promise.all(
       devices.map(async (device) => {
-       // console.log(device);
+        // console.log(device);
         const historynext_issuancer = await this.historynextissuancedaterepository.find(
           {
             where: {
