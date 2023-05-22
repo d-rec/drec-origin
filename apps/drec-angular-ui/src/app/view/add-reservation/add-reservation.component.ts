@@ -96,15 +96,15 @@ export class AddReservationComponent {
         this.devicetypeLoded = true;
       }
     );
-   this.getcountryListData();
- 
+    this.getcountryListData();
+
     console.log("myreservation");
-    setTimeout(()=>{
-      this.loading=false;
-    
+    setTimeout(() => {
+      this.loading = false;
+
       this.applycountryFilter();
-    },2000)
-    
+    }, 2000)
+
   }
   applycountryFilter() {
     this.FilterForm.controls['countryCode'];
@@ -211,16 +211,19 @@ export class AddReservationComponent {
         this.loading = true;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
-            //@ts-ignore
-            if (data.find(
-              //@ts-ignore
-              (ele1) => ele1.id != ele.id,
-            )) {
-              console.log(ele);
-              //@ts-ignore
-              data.unshift(ele);
+
+            const selectedIndex = data.findIndex((row: any) => row.id === ele.id);
+
+            if (selectedIndex !== -1) {
+              // The selected ID exists, so remove it from the data list
+              data.splice(selectedIndex, 1);
+              data.push(ele);
+            } else {
+              // The selected ID doesn't exist, so add it to the data list
+              data.push(ele);
             }
-          });
+          }
+          );
         }
 
         this.data = data;
@@ -247,9 +250,9 @@ export class AddReservationComponent {
     const filterValue = value.toLowerCase();
 
     // if (this.countrycodeLoded === true) {
-      console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+    console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-   
+
   }
   onSubmit(): void {
     console.log(this.reservationForm.value)
