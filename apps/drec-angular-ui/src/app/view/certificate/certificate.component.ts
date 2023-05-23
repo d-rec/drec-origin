@@ -55,6 +55,7 @@ export class CertificateComponent implements OnDestroy {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   data: any;
+  group_id: string;
   group_uid: string;
   energyurl: any;
   group_name: any;
@@ -69,6 +70,7 @@ export class CertificateComponent implements OnDestroy {
   devicesId: any
   alldevicescertifiedlogdatrange: any = [];
   intervalId: any;
+  reservationstatus: boolean;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -77,11 +79,23 @@ export class CertificateComponent implements OnDestroy {
   ) {
 
     this.activatedRoute.queryParams.subscribe(params => {
-      this.group_uid = params['id'];
-      this.group_name = params['name'];
-      this.devicesId = params['devices']
+      this.group_id = params['id'];
+
 
     });
+
+    this.reservationService.GetMethodById(this.group_id).subscribe(
+      (data: any) => {
+        console.log(data);
+        //@ts-ignore
+        this.group_name = data.name;
+        this.devicesId = data.deviceIds;
+        this.reservationstatus = data.reservationActive;
+        this.group_uid = data.devicegroup_uid
+
+      }
+
+    )
   }
   ngOnInit() {
     this.claimData = this.fb.group({
@@ -94,7 +108,9 @@ export class CertificateComponent implements OnDestroy {
     })
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
-    this.DisplayList();
+    setTimeout(() => {
+      this.DisplayList();
+    }, 3000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
@@ -253,6 +269,7 @@ export class CertificateComponent implements OnDestroy {
   // CertificateClaimed:boolean=false;
   DisplayList() {
     console.log("certifed list")
+    console.log(this.group_uid);
     this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid).subscribe(
       (data: any) => {
         this.loading = false;
