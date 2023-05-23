@@ -1566,14 +1566,14 @@ export class ReadsService {
       console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
         console.log(readsFilter);
-        const allread = await this.baseReadsService.find(externalId, {
-          offset: 0,
-          limit: 1000, start: deviceOnboarded, end: filter.end.toString()
-        })
-        console.log(allread);
+        // const allread = await this.baseReadsService.find(externalId, {
+        //   offset: 0,
+        //   limit: 1000, start: deviceOnboarded, end: filter.end.toString()
+        // })
+        // console.log(allread);
         finalongoing = await this.getPaginatedData(externalId, readsFilter, pageNumber)
-        console.log(finalongoing);
-        // this.timeOffset=finalongoing[4].timestamp
+        // console.log(finalongoing);
+       
         if (finalongoing.length > 0) {
           let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
           let startTimeToCheck = deviceOnboarded;
@@ -1859,12 +1859,9 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       console.log("currentPage", currentPage)
       if (currentPage === page) {
         data= currentData;
-        console.log(data)
-        
         console.log(lastValue);
       }
     }
-    console.log(data)
     return data;
   }
 
@@ -1887,7 +1884,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     //@ts-ignore
     const org = process.env.INFLUXDB_ORG;
     const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
-    console.log(result);
+  
     return result.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
