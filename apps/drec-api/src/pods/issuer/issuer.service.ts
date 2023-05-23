@@ -271,7 +271,7 @@ export class IssuerService {
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate, historydevicerequestindex: number) => {
         const count = await this.groupService.countgroupIdHistoryissuanceDevicelog(historydevice.groupId)
-       
+       console.log("count",count)
         const group = await this.groupService.findOne(
           { id: historydevice.groupId }
         );
@@ -630,7 +630,7 @@ export class IssuerService {
         }
       })
     }
-    console.log(dateindex, group.devices)
+   // console.log(dateindex, group.devices)
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
