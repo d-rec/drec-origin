@@ -1870,12 +1870,14 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     console.log(lastValue);
     if (lastValue) {
       let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
-      currentQuery = `from(bucket: "origin_update_ewf/autogen")
+      //@ts-ignore
+      currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         |> range(start: ${newDateTime}, stop: ${filter.end}) 
         |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
         |> limit(n: ${filter.limit})`;
     } else {
-      currentQuery = `from(bucket: "origin_update_ewf/autogen")
+       //@ts-ignore
+      currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         |> range(start: ${filter.start}, stop: ${filter.end}) 
         |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
         |> limit(n: ${filter.limit})`;
