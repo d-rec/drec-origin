@@ -46,7 +46,7 @@ import { DeviceService } from '../../auth/services/device.service';
     ]),
   ],
 })
-export class CertificateComponent implements   OnDestroy{
+export class CertificateComponent implements OnDestroy {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
@@ -68,7 +68,7 @@ export class CertificateComponent implements   OnDestroy{
   ongoingnextissuance: any;
   devicesId: any
   alldevicescertifiedlogdatrange: any = [];
-  intervalId:any;
+  intervalId: any;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -103,7 +103,7 @@ export class CertificateComponent implements   OnDestroy{
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    this.intervalId=setInterval(() => {
+    this.intervalId = setInterval(() => {
 
       this.getnextissuancinfo();
       this.getlastreadofdevices();
@@ -112,9 +112,9 @@ export class CertificateComponent implements   OnDestroy{
 
 
   }
-ngOnDestroy(): void {
-  clearInterval(this.intervalId);
-}
+  ngOnDestroy(): void {
+    clearInterval(this.intervalId);
+  }
   getnextissuancinfo() {
     this.reservationService.GetnextissuanceCycleinfo(this.group_uid).subscribe(
       (data: any) => {
@@ -280,15 +280,17 @@ ngOnDestroy(): void {
             }
           }
 
-          if (ele.creationBlockHash!="") {
+          if (ele.creationBlockHash != "") {
             ele.creationBlockHash
+            ele['energyurl'] = environment.Explorer_URL + '/block/' + ele.creationBlockHash
           }
           //@ts-ignore
-          else if(ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
             console.log("ele.creationBlockHash")
             //@ts-ignore
             ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-         console.log(ele.creationBlockHash)
+            console.log(ele.creationBlockHash)
+            ele['energyurl'] = environment.Explorer_URL + '/tx/' + ele.creationBlockHash
           }
         })
         console.log(this.data);
