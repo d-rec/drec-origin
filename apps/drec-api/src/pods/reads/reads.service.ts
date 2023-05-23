@@ -1484,7 +1484,7 @@ export class ReadsService {
     let ongoing = [];
     let finalongoing = [];
     console.log("page number:::::::::::::::::::::::::::::::::::::::::::" + pageNumber)
-    let sizeOfPage = 10
+    let sizeOfPage = 5
     let numberOfPages = 0
     let numberOfHistReads = await this.getnumberOfHistReads(externalId, filter.start, filter.end);
     let numberOfOngReads = 0;
@@ -1571,7 +1571,7 @@ export class ReadsService {
         //   limit: 1000, start: deviceOnboarded, end: filter.end.toString()
         // })
         // console.log(allread);
-        finalongoing = await this.getPaginatedData(externalId, readsFilter, pageNumber)
+        finalongoing = await await this.baseReadsService.find(externalId, readsFilter)
         // console.log(finalongoing);
        
         if (finalongoing.length > 0) {
@@ -1849,45 +1849,50 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   //   }
 
 
-  async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
-    console.log(page)
-    let data:any;
-    let lastValue: Date | number;
-    for (let currentPage = 1; currentPage <= page; currentPage++) {
-      const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
-      lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
-      console.log("currentPage", currentPage)
-      if (currentPage === page) {
-        data= currentData;
-        console.log(lastValue);
-      }
-    }
-    return data;
-  }
+  // async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
+  //   console.log(page)
+  //   let data:any;
+  //   let lastValue: Date | number;
+  //   if(isNaN(page)){
+  //     page = 1;
+  //   }
+  //   for (let currentPage = 1; currentPage <= page; currentPage++) {
+  //     const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
+  //     lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
+  //     console.log("currentPage", currentPage)
+  //     if (currentPage === page) {
+  //       data= currentData;
+  //       console.log(lastValue);
+  //     }
+  //   }
+  //   return data;
+  // }
 
-  async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
-    let currentQuery;
-    console.log(lastValue);
-    if (lastValue) {
-      let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
-      currentQuery = `from(bucket: "origin_update_ewf/autogen")
-        |> range(start: ${newDateTime}, stop: ${filter.end}) 
-        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-        |> limit(n: ${filter.limit})`;
-    } else {
-      currentQuery = `from(bucket: "origin_update_ewf/autogen")
-        |> range(start: ${filter.start}, stop: ${filter.end}) 
-        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-        |> limit(n: ${filter.limit})`;
-    }
-    console.log(currentQuery);
-    //@ts-ignore
-    const org = process.env.INFLUXDB_ORG;
-    const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
+  // async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
+  //   let currentQuery;
+  //   console.log(lastValue);
+  //   if (lastValue) {
+  //     let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
+  //     //@ts-ignore
+  //     currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  //       |> range(start: ${newDateTime}, stop: ${filter.end}) 
+  //       |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+  //       |> limit(n: ${filter.limit})`;
+  //   } else {
+  //      //@ts-ignore
+  //     currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  //       |> range(start: ${filter.start}, stop: ${filter.end}) 
+  //       |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+  //       |> limit(n: ${filter.limit})`;
+  //   }
+  //   // console.log(currentQuery);
+  //   //@ts-ignore
+  //   const org = process.env.INFLUXDB_ORG;
+  //   const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
   
-    return result.map((record: any) => ({
-      timestamp: new Date(record._time),
-      value: Number(record._value),
-    }));
-  }
+  //   return result.map((record: any) => ({
+  //     timestamp: new Date(record._time),
+  //     value: Number(record._value),
+  //   }));
+  // }
 }
