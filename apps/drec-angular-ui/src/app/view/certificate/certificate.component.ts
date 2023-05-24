@@ -119,12 +119,17 @@ export class CertificateComponent implements OnDestroy {
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    this.intervalId = setInterval(() => {
 
-      this.getnextissuancinfo();
-      this.getlastreadofdevices();
-      this.getcertifiedlogdaterange();
+    console.log("drt46")
+    this.intervalId = setInterval(() => {
+      if (this.reservationstatus) {
+        this.getnextissuancinfo();
+        this.getlastreadofdevices();
+        this.getcertifiedlogdaterange();
+      }
     }, 20000);
+
+
 
 
   }
@@ -280,7 +285,7 @@ export class CertificateComponent implements OnDestroy {
         this.data = data.filter(ele => ele !== null)
         //@ts-ignore
         this.data.forEach(ele => {
-          console.log(ele);
+
           ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
           ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
           //converting blockchain address to lower case
@@ -299,18 +304,18 @@ export class CertificateComponent implements OnDestroy {
 
           if (ele.creationBlockHash != "") {
             ele.creationBlockHash
-            ele['energyurl'] = environment.Explorer_URL + '/block/' + ele.creationBlockHash
+            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
           }
           //@ts-ignore
           else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-            console.log("ele.creationBlockHash")
+
             //@ts-ignore
             ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-            console.log(ele.creationBlockHash)
-            ele['energyurl'] = environment.Explorer_URL + '/tx/' + ele.creationBlockHash
+
+            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
           }
         })
-        console.log(this.data);
+
       }
 
     )
