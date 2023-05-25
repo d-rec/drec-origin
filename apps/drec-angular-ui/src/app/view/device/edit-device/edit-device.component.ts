@@ -82,7 +82,6 @@ export class EditDeviceComponent implements OnInit {
       gridInterconnection: [true],
       offTaker: [null],
       impactStory: [null],
-      data: [null],
       images: [null],
       deviceDescription: [null],
       energyStorage: [],
@@ -213,7 +212,12 @@ export class EditDeviceComponent implements OnInit {
         this.impactStory = data.impactStory;
         this.gridInterconnection = data.gridInterconnection;
         this.deviceDescription = data.deviceDescription;
-        this.energyStorage = data.energyStorage;
+        if(data.energyStorage!=null){
+          this.energyStorage = data.energyStorage;
+        }else{
+          this.energyStorage = false;
+        }
+        
         console.log(this.energyStorage);
         this.energyStorageCapacity = data.energyStorageCapacity;
 
