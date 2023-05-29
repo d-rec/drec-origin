@@ -161,8 +161,9 @@ export class AddreadComponent implements OnInit {
     let externalId = this.readForm.value.externalId.externalId;  
     console.log(externalId);
     console.log(this.readForm.value);
+   
     const myobj: any = {}
-    if ((this.readForm.value.timezone != null||this.readForm.value.timezone != '') && this.readForm.value.type === 'History') {
+    if ((this.readForm.value.timezone != null&&this.readForm.value.timezone!= '') && this.readForm.value.type === 'History') {
       myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
@@ -175,7 +176,8 @@ export class AddreadComponent implements OnInit {
         })
       })
       myobj['reads'] = reads
-    } else if((this.readForm.value.timezone != null||this.readForm.value.timezone != '') && this.readForm.value.type!= 'History'){
+    } else if((this.readForm.value.timezone != null&&this.readForm.value.timezone!= '')&& this.readForm.value.type!= 'History'){
+     
       myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
