@@ -269,19 +269,16 @@
 
                         <div class="example-container1 row" *ngIf="addmoredetals">
                             <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">grid Inter connection</mat-label>
-                                    <input matInput placeholder="gridInterconnection"
-                                        formControlName='gridInterconnection' [(ngModel)]="gridInterconnection">
-                                </mat-form-field>
+                            
+                                <mat-radio-group  formControlName='gridInterconnection' [(ngModel)]="gridInterconnection">
+                                    <span >grid Inter connection:</span>
+
+                                    <mat-radio-button [value]=true >Yes</mat-radio-button>
+                                        <mat-radio-button [value]=false>No</mat-radio-button>
+                                    </mat-radio-group>
                             </div>
 
-                            <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Data</mat-label>
-                                    <input matInput placeholder="data" formControlName='data'>
-                                </mat-form-field>
-                            </div>
+                           
 
                             <div class="col-md-3">
                                 <!--  <mat-form-field appearance="outline">

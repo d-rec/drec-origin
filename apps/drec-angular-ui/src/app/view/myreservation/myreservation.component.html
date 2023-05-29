@@ -176,7 +176,7 @@
                 <!-- Fruit Column -->
                 <ng-container matColumnDef="reservationActive">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-                        <td mat-cell *matCellDef="let row"><p *ngIf="row.reservationActive">Active</p> <p *ngIf="!row.reservationActive">Deactive</p> </td>
+                        <td mat-cell *matCellDef="let row" ><span *ngIf="row.reservationActive">Active</span> <span *ngIf="!row.reservationActive">Deactive</span> </td>
                     </ng-container>
                 <!-- Progress Column -->
                 <!-- <ng-container matColumnDef="capacityRange">

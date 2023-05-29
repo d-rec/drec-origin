@@ -35,7 +35,7 @@
         </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true" >
+      <mat-expansion-panel [class.mat-elevation-z0]="true"  *ngIf="loginuser.role ==='OrganizationAdmin'">
         <mat-expansion-panel-header class="mdc-button">
           MeterRead
         </mat-expansion-panel-header>
