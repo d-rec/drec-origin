@@ -46,7 +46,7 @@ import { DeviceService } from '../../auth/services/device.service';
     ]),
   ],
 })
-export class CertificateComponent implements   OnDestroy{
+export class CertificateComponent implements OnDestroy {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
@@ -55,6 +55,7 @@ export class CertificateComponent implements   OnDestroy{
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   data: any;
+  group_id: string;
   group_uid: string;
   energyurl: any;
   group_name: any;
@@ -68,7 +69,8 @@ export class CertificateComponent implements   OnDestroy{
   ongoingnextissuance: any;
   devicesId: any
   alldevicescertifiedlogdatrange: any = [];
-  intervalId:any;
+  intervalId: any;
+  reservationstatus: boolean;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -77,11 +79,23 @@ export class CertificateComponent implements   OnDestroy{
   ) {
 
     this.activatedRoute.queryParams.subscribe(params => {
-      this.group_uid = params['id'];
-      this.group_name = params['name'];
-      this.devicesId = params['devices']
+      this.group_id = params['id'];
+
 
     });
+
+    this.reservationService.GetMethodById(this.group_id).subscribe(
+      (data: any) => {
+        console.log(data);
+        //@ts-ignore
+        this.group_name = data.name;
+        this.devicesId = data.deviceIds;
+        this.reservationstatus = data.reservationActive;
+        this.group_uid = data.devicegroup_uid
+
+      }
+
+    )
   }
   ngOnInit() {
     this.claimData = this.fb.group({
@@ -94,7 +108,9 @@ export class CertificateComponent implements   OnDestroy{
     })
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
-    this.DisplayList();
+    setTimeout(() => {
+      this.DisplayList();
+    }, 3000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
@@ -103,18 +119,23 @@ export class CertificateComponent implements   OnDestroy{
       map(value => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
-    this.intervalId=setInterval(() => {
 
-      this.getnextissuancinfo();
-      this.getlastreadofdevices();
-      this.getcertifiedlogdaterange();
+    console.log("drt46")
+    this.intervalId = setInterval(() => {
+      if (this.reservationstatus) {
+        this.getnextissuancinfo();
+        this.getlastreadofdevices();
+        this.getcertifiedlogdaterange();
+      }
     }, 20000);
 
 
+
+
   }
-ngOnDestroy(): void {
-  clearInterval(this.intervalId);
-}
+  ngOnDestroy(): void {
+    clearInterval(this.intervalId);
+  }
   getnextissuancinfo() {
     this.reservationService.GetnextissuanceCycleinfo(this.group_uid).subscribe(
       (data: any) => {
@@ -253,6 +274,7 @@ ngOnDestroy(): void {
   // CertificateClaimed:boolean=false;
   DisplayList() {
     console.log("certifed list")
+    console.log(this.group_uid);
     this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid).subscribe(
       (data: any) => {
         this.loading = false;
@@ -263,7 +285,7 @@ ngOnDestroy(): void {
         this.data = data.filter(ele => ele !== null)
         //@ts-ignore
         this.data.forEach(ele => {
-          console.log(ele);
+
           ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
           ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
           //converting blockchain address to lower case
@@ -280,18 +302,20 @@ ngOnDestroy(): void {
             }
           }
 
-          if (ele.creationBlockHash!="") {
+          if (ele.creationBlockHash != "") {
             ele.creationBlockHash
+            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
           }
           //@ts-ignore
-          else if(ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-            console.log("ele.creationBlockHash")
+          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+
             //@ts-ignore
             ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-         console.log(ele.creationBlockHash)
+
+            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
           }
         })
-        console.log(this.data);
+
       }
 
     )

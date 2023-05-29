@@ -23,7 +23,7 @@
 
 			<!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
 		 -->
-			<mat-card class="innermat-card example-card1 border">
+			<mat-card class="innermat-card example-card1 border" *ngIf="reservationstatus">
 				<mat-card-header class="">
 					<div class="col-12">
 						<mat-card-title class=" d-flex justify-content-between align-items-center">
@@ -31,7 +31,7 @@
 						</mat-card-title>
 					</div>
 				</mat-card-header>
-				<mat-card-content>
+				<mat-card-content >
 
 					<div>
 						<h4 style="text-align: center;color:#f2be1a; font-size: 15px;">Ongoing Next Issuance cycle</h4>
@@ -348,7 +348,7 @@
 								<div>
 									<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
 										aria-label="Button that displays a tooltip when focused or hovered over"
-										style="text-align: right;" href={{energyurl+item.creationBlockHash}}
+										style="text-align: right;" href={{item.energyurl}}
 										target="_blank" class="certificate-text d-flex text-capitalize">
 										<mat-icon class="mt-1">card_membership</mat-icon>
 										<div class="certificate-id-text">
