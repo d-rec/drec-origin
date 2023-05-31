@@ -218,7 +218,6 @@ export class DeviceGroupService {
       queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
         .select(['dg.*', 'd.SDGBenefits'])
-
         .orderBy('dg.id', 'ASC')
 
       // //console.log(queryBuilder);
@@ -2154,5 +2153,38 @@ export class DeviceGroupService {
       AllDeviceshistnextissuansinfo,
       ongoing_next_issuance: nextissuance
     }
+  }
+
+  async getReservationInfoDeveloperBsise(orgId): Promise<any> {
+
+    let queryBuilder: any;
+      queryBuilder = this.repository.createQueryBuilder('dg')
+    .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+    .select(['dg.id','dg.name','dg.deviceIdsInt', 'd.*'])
+    .orderBy('dg.id', 'ASC')
+    .where(`d.organizationId = :orgId`, {orgId: orgId })
+ 
+  const groupedData = await queryBuilder.getRawMany();
+console.log(groupedData);
+ let deviceGroups = groupedData.reduce((acc, curr) => {
+
+    const existing = acc.find(item => item.dg_id === curr. dg_id);
+
+    if (existing) {
+      existing.developerdeviceIds.push(curr.id);
+    } else {
+
+      acc.push({
+        dg_id: curr.dg_id,
+        name: curr. dg_name,      
+        deviceIdsInt: curr.dg_deviceIdsInt,
+        // deviceIdsInt: curr.deviceIdsInt,
+        developerdeviceIds: [curr.id]
+      });
+      // console.log(acc);
+    }
+    return acc;
+  }, []);
+  return deviceGroups;
   }
 }
