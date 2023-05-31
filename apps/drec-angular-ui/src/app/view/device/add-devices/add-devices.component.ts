@@ -122,7 +122,6 @@ export class AddDevicesComponent {
       gridInterconnection: true,
       offTaker: [null],
       impactStory: [null],
-      data: [null],
       images: [null],
       deviceDescription: [null],
       energyStorage: true,
