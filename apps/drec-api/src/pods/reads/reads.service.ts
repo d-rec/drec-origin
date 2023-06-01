@@ -356,285 +356,7 @@ export class ReadsService {
     };
   }
 
-  // private async NewfilterMeasurements(
-  //   deviceId: string,
-  //   measurement: NewIntmediateMeterReadDTO,
-  //   device: DeviceDTO,
-  // ): Promise<MeasurementDTO> {
-  //   //@ts-ignore
-  //   const final = await this.NewfindLatestRead(deviceId, device.createdAt);
 
-  //   let reads: any = [];
-
-  //   if (measurement.type === "History") {
-
-  //     await new Promise((resolve, reject) => {
-  //       measurement.reads.forEach(async (element, measurmentreadindex) => {
-
-  //         const requeststartdate = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
-  //         const requestcurrentend = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
-  //         const meteredTimePeriod = Math.abs(
-  //           requeststartdate.diff(requestcurrentend, ['hours']).toObject()?.hours || 0,
-  //         );
-
-  //         const checkhistroyreading = await this.checkhistoryreadexist(device.externalId, element.starttimestamp, element.endtimestamp);
-  //       //console.log(checkhistroyreading)
-  //         //@ts-ignore
-  //         const historyAge = new Date(device.createdAt);
-  //         historyAge.setFullYear(historyAge.getFullYear() - 1);
-  //         //console.log("historyAge");
-  //         //console.log(historyAge);
-  //         //console.log("createdAt");
-  //         //@ts-ignore
-  //         //console.log(new Date(device?.createdAt));
-  //         //console.log("starttimestamp");
-  //         //console.log(new Date(element.starttimestamp));
-
-  //         //console.log("endtimestamp");
-  //         //console.log(new Date(element.endtimestamp));
-  //         if(checkhistroyreading){
-  //           return reject(
-  //             new ConflictException({
-  //               success: false,
-  //               message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `
-
-  //             }),
-  //           );
-  //         }
-  //         //@ts-ignore
-  //         if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
-  //           return reject(
-  //             new ConflictException({
-  //               success: false,
-  //               message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
-
-  //             }),
-  //           );
-
-  //         }
-  //         //@ts-ignore
-  //         if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
-  //           //@ts-ignore
-  //           requeststartdate >= DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
-  //           requestcurrentend <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
-  //           //@ts-ignore
-  //           requestcurrentend >= DateTime.fromISO(new Date(device?.createdAt).toISOString())) {
-
-  //           return reject(
-  //             new ConflictException({
-  //               success: false,
-  //               //@ts-ignore
-  //               message: `For History Type Reads of devices start time and/or end time should be within 1 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within one year in past from onboarded date, ${device?.createdAt}`
-
-  //             }),
-  //           );
-  //         }
-
-  //         reads.push({
-  //           timestamp: new Date(element.endtimestamp),
-  //           value: element.value,
-  //           timeperiod: meteredTimePeriod,
-  //           startdate: requeststartdate,
-  //           enddate: requestcurrentend
-  //         });
-
-  //         if (measurmentreadindex == measurement.reads.length - 1) {
-
-  //           resolve(true);
-  //         }
-
-  //       })
-  //     });
-
-  //   }
-  //   else if (measurement.type === 'Delta') {
-
-  //     if (!final) {
-
-  //       await this.deviceService.updatereadtype(deviceId, measurement.type);
-  //     } else {
-
-  //       if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
-  //         throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
-
-  //       }
-
-  //     }
-  //     await new Promise((resolve, reject) => {
-  //       measurement.reads.forEach((element, measurmentreadindex) => {
-  //         if (final && final['timestamp']) {
-  //           //@ts-ignore
-  //           if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
-  //             return reject(
-  //               new ConflictException({
-  //                 success: false,
-  //                 message:
-  //                   //@ts-ignore
-  //                   `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
-
-  //               }),
-  //             );
-  //           }
-  //         }
-
-  //         reads.push({
-  //           timestamp: new Date(element.endtimestamp),
-  //           value: element.value
-  //         })
-  //         if (measurmentreadindex == measurement.reads.length - 1) {
-  //           resolve(true);
-  //         }
-  //       })
-  //     });
-  //   }
-  //   else if (measurement.type === 'Aggregate') {
-  //     if (!final) {
-  //       await new Promise((resolve, reject) => {
-  //         measurement.reads.forEach(async (element, measurmentreadindex) => {
-  //           const lastvalue = await this.findlastRead(deviceId);
-  //           let Delta = 0;
-  //           if (lastvalue.length > 0) {
-  //             Delta = Math.abs(element.value - lastvalue[0].value);
-
-  //             if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-  //               return reject(
-  //                 new ConflictException({
-  //                   success: false,
-  //                   message:
-  //                     `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `
-
-  //                 }),
-  //               );
-  //             }
-  //             reads.push({
-  //               timestamp: new Date(element.endtimestamp),
-  //               value: Delta
-  //             })
-  //             await this.repository.save({
-  //               value: element.value,
-  //               deltaValue: Delta,
-  //               deviceId: deviceId,
-  //               unit: measurement.unit,
-  //               datetime: element.endtimestamp.toString()
-
-  //             });
-  //           }
-  //           else {
-  //             await this.repository.save({
-  //               value: element.value,
-  //               deltaValue: Delta,
-  //               deviceId: deviceId,
-  //               unit: measurement.unit,
-  //               datetime: element.endtimestamp.toString()
-
-  //             });
-  //           }
-  //           if (measurmentreadindex == measurement.reads.length - 1) {
-  //             resolve(true);
-  //           }
-
-  //         })
-  //       });
-  //       await this.deviceService.updatereadtype(deviceId, measurement.type);
-
-  //     } else {
-  //       if (device?.meterReadtype != measurement.type && device?.meterReadtype != null) {
-  //         throw new NotFoundException(`In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`);
-  //       }
-
-  //       await new Promise((resolve, reject) => {
-  //         measurement.reads.forEach(async (element, measurmentreadindex) => {
-
-  //           const lastvalue = await this.findlastRead(deviceId);
-  //           let Delta;
-  //           if (lastvalue.length > 0) {
-  //             Delta = Math.abs(element.value - lastvalue[0].value);
-  //             if (new Date(element.endtimestamp).getTime() < new Date(lastvalue[0].datetime).getTime() || element.value <= lastvalue[0].value) {
-  //               return reject(
-  //                 new ConflictException({
-  //                   success: false,
-  //                   message:
-  //                     `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `
-
-  //                 }),
-  //               );
-  //             }
-  //             reads.push({
-  //               timestamp: new Date(element.endtimestamp),
-  //               value: Delta
-  //             })
-  //             //@ts-ignore
-  //             await this.repository.save({
-  //               value: element.value,
-  //               deltaValue: Delta,
-  //               deviceId: deviceId,
-  //               unit: measurement.unit,
-  //               datetime: element.endtimestamp
-
-  //             });
-
-
-  //           }
-  //           if (measurmentreadindex == measurement.reads.length - 1) {
-  //             resolve(true);
-  //           }
-  //         })
-  //       });
-
-  //     }
-  //   }
-
-
-  //   if (!final || !device) {
-  //     if (measurement.type === "History") {
-  //       return {
-  //         reads: reads.filter((read: any) =>
-  //           this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-  //         ),
-  //         unit: measurement.unit,
-
-  //       };
-  //     } else {
-
-  //       return {
-  //         reads: reads.filter((read: ReadDTO) =>
-  //           this.firstvalidateEnergy(read, device),
-  //         ),
-  //         unit: measurement.unit
-  //       }
-  //     }
-  //   }
-  //   else {
-  //     if (measurement.type === "History") {
-
-  //       return {
-  //         reads: reads.filter((read: any) =>
-
-  //           this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-
-  //         ),
-  //         unit: measurement.unit,
-  //       };
-  //     } else {
-  //       return {
-  //         reads: reads.filter((read: ReadDTO) =>
-  //           this.NewvalidateEnergy(read, final, device),
-  //         ),
-  //         unit: measurement.unit,
-  //       };
-  //     }
-  //   }
-
-  // }
-
-  // private async newgetLatestRead(meterId: string): Promise<ReadDTO | void> {
-  //   try {
-  //     return await this.baseReadsService.findLatestRead(meterId);
-  //   } catch (e) {
-  //     this.logger.warn(e.message);
-  //     return;
-  //   }
-  // }
   private async NewfilterMeasurements(
     deviceId: string,
     measurement: NewIntmediateMeterReadDTO,
@@ -672,21 +394,7 @@ export class ReadsService {
               }),
             );
           }
-          //@ts-ignore
-          // //console.log(new Date(device?.createdAt).toLocaleDateString());
-          // //console.log(new Date(element.starttimestamp).toLocaleDateString());
-
-          // //console.log(new Date(element.endtimestamp).toLocaleDateString())
-          // if (new Date(device?.createdAt).toLocaleDateString() < new Date(element.starttimestamp).toLocaleDateString() && new Date(device.createdAt).toLocaleDateString() < new Date(element.endtimestamp).toLocaleDateString()) {
-          //   return reject(
-          //     new ConflictException({
-          //       success: false,
-          //       message: `For History Type Reads of devices start time and/or end time should be  before of device onboarding `
-
-          //     }),
-          //   );
-
-          // }
+       
           //@ts-ignore
           if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
             //@ts-ignore
@@ -751,8 +459,6 @@ export class ReadsService {
               timestamp: new Date(element.endtimestamp),
               value: element.value
             }
-            // const deltafirstvalidation = this.firstvalidateEnergy(read, device)
-            // //console.log("731", deltafirstvalidation);
             // if (deltafirstvalidation) {
             reads.push({
               timestamp: new Date(element.endtimestamp),
@@ -994,22 +700,13 @@ export class ReadsService {
   }
 
   async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
-    //console.log("527")
-    //console.log(deviceregisterdate)
-    //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
-
+ 
     //@ts-ignore
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`
-
-    //console.log('*** QUERY ROWS ***')
-    //console.log(fluxQuery)
     const reads = await this.execute(fluxQuery);
-    //console.log("reads[0]")
-    //console.log(reads[0])
-
     return reads[0];
   }
 
@@ -1030,10 +727,7 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-    // const url = 'http://localhost:8086';
-    // const token = 'admin:admin'
-    // const org = '';
-
+   
     //@ts-ignore
     const url = process.env.INFLUXDB_URL;
     //@ts-ignore
@@ -1243,7 +937,7 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-    //console.log("newvalidateEnergy")
+    
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
@@ -1272,7 +966,6 @@ export class ReadsService {
     this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-
     if (Math.round(read.value + margin * read.value) < maxEnergy) {
       this.historyrepository.save({
         type: measurement.type,
@@ -1284,14 +977,11 @@ export class ReadsService {
       })
       console.log("1267");
       if (device.groupId != null) {
-        console.log("1269");
         const historynextissue = await this.deviceGroupService.getNextHistoryissuanceDevicelogafterreservation(
           device.externalId,
           device.groupId
         );
-
-        console.log("historynextissue");
-        console.log(historynextissue);
+ console.log("historynextissue");
         if (historynextissue != undefined) {
           let stdate = new Date(startdate).getTime();
           let eddate = new Date(enddate).getTime();
@@ -1320,7 +1010,6 @@ export class ReadsService {
     }
 
   }
-
 
 
   private async newstoreGenerationReading(
@@ -1448,7 +1137,6 @@ export class ReadsService {
     }
     return updatedhistoryissue;
   }
-
   async getAggregateMeterReadsFirstEntryOfDevice(meterId: string): Promise<AggregateMeterRead[]> {
 
     return this.repository.find({
@@ -1461,16 +1149,13 @@ export class ReadsService {
 
   }
   // add new function for Delta firstread filter
-
   async getDeltaMeterReadsFirstEntryOfDevice(meterId: string): Promise<DeltaFirstRead[]> {
 
     return this.deltarepository.find({
       where: {
         externalId: meterId
       }
-
     })
-
   }
 
   /* */
@@ -1566,13 +1251,9 @@ export class ReadsService {
       console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
         console.log(readsFilter);
-        // const allread = await this.baseReadsService.find(externalId, {
-        //   offset: 0,
-        //   limit: 1000, start: deviceOnboarded, end: filter.end.toString()
-        // })
-        // console.log(allread);
-        finalongoing = await await this.baseReadsService.find(externalId, readsFilter)
-        // console.log(finalongoing);
+       
+       // finalongoing = await this.baseReadsService.find(externalId, readsFilter);
+        finalongoing =  await this.getPaginatedData(externalId, readsFilter,pageNumber);
        
         if (finalongoing.length > 0) {
           let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
@@ -1609,9 +1290,7 @@ export class ReadsService {
             }
           })
         }
-
         console.log("ongoing query executed!!!!!!", ongoing);
-
       }
     }
     console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
@@ -1849,50 +1528,50 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   //   }
 
 
-  // async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
-  //   console.log(page)
-  //   let data:any;
-  //   let lastValue: Date | number;
-  //   if(isNaN(page)){
-  //     page = 1;
-  //   }
-  //   for (let currentPage = 1; currentPage <= page; currentPage++) {
-  //     const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
-  //     lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
-  //     console.log("currentPage", currentPage)
-  //     if (currentPage === page) {
-  //       data= currentData;
-  //       console.log(lastValue);
-  //     }
-  //   }
-  //   return data;
-  // }
+  async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
+    console.log(page)
+    let data:any;
+    let lastValue: Date | number;
+    if(isNaN(page)){
+      page = 1;
+    }
+    for (let currentPage = 1; currentPage <= page; currentPage++) {
+      const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
+      lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
+      console.log("currentPage", currentPage)
+      if (currentPage === page) {
+        data= currentData;
+        console.log(lastValue);
+      }
+    }
+    return data;
+  }
 
-  // async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
-  //   let currentQuery;
-  //   console.log(lastValue);
-  //   if (lastValue) {
-  //     let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
-  //     //@ts-ignore
-  //     currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  //       |> range(start: ${newDateTime}, stop: ${filter.end}) 
-  //       |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-  //       |> limit(n: ${filter.limit})`;
-  //   } else {
-  //      //@ts-ignore
-  //     currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  //       |> range(start: ${filter.start}, stop: ${filter.end}) 
-  //       |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-  //       |> limit(n: ${filter.limit})`;
-  //   }
-  //   // console.log(currentQuery);
-  //   //@ts-ignore
-  //   const org = process.env.INFLUXDB_ORG;
-  //   const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
+  async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
+    let currentQuery;
+    console.log(lastValue);
+    if (lastValue) {
+      let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
+      //@ts-ignore
+      currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        |> range(start: ${newDateTime}, stop: ${filter.end}) 
+        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+        |> limit(n: ${filter.limit})`;
+    } else {
+       //@ts-ignore
+      currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        |> range(start: ${filter.start}, stop: ${filter.end}) 
+        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
+        |> limit(n: ${filter.limit})`;
+    }
+    // console.log(currentQuery);
+    //@ts-ignore
+    const org = process.env.INFLUXDB_ORG;
+    const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
   
-  //   return result.map((record: any) => ({
-  //     timestamp: new Date(record._time),
-  //     value: Number(record._value),
-  //   }));
-  // }
+    return result.map((record: any) => ({
+      timestamp: new Date(record._time),
+      value: Number(record._value),
+    }));
+  }
 }
