@@ -15,21 +15,23 @@ import * as moment from 'moment';
 export class AddreadComponent implements OnInit {
   startmaxDate = new Date();
   startminDate = new Date();
-  endminDate=new Date();
-  endmaxdate:any;
-  historyAge:any;
-  devicecreateddate:any;
+  endminDate = new Date();
+  endmaxdate: any;
+  historyAge: any;
+  devicecreateddate: any;
   readForm: FormGroup;
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
   data: any;
+  showerror: boolean;
   timezonedata: any = [];
+  countrylist: any;
   hidestarttime: boolean = true;
   readtype = ['History', 'Delta', 'Aggregate'];
   unit = ['Wh', 'kWh', 'MWh', 'GWh'];
-  commissioningDate:any;
-  filteredOptions: Observable<string[]>;
+  commissioningDate: any;
+  filteredOptions: Observable<any[]>;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
@@ -61,12 +63,13 @@ export class AddreadComponent implements OnInit {
     })
     this.addreads.push(read);
     this.DisplayList();
-    this.TimeZoneList();
-    this.readForm.controls['timezone'];
-    this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
+    //this.TimeZoneList();
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data3) => {
+        this.countrylist = data3;  
+      }
+    )
+  
   }
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
@@ -79,41 +82,42 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
-  TimeZoneList() {
-    this.authService.GetMethod('meter-reads/time-zones').subscribe(
-      (data) => {
-        // display list in the console 
-        this.timezonedata = data;
-      }
-    )
-  }
-  lastreadvalue:number;
-  lastreaddate:any;
-  ExternaIdonChangeEvent(event:any){
+  // TimeZoneList() {
+  //   this.authService.GetMethod('meter-reads/time-zones').subscribe(
+  //     (data) => {
+  //       // display list in the console 
+  //       this.timezonedata = data;
+  //     }
+  //   )
+  // }
+  lastreadvalue: number;
+  lastreaddate: any;
+  ExternaIdonChangeEvent(event: any) {
     console.log(event);
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
-    this.devicecreateddate=event.createdAt;
-    this.commissioningDate=event.commissioningDate;
-    console.log(this.commissioningDate)
+    this.devicecreateddate = event.createdAt;
+    this.commissioningDate = event.commissioningDate;
+
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-    //  2022-11-04T08:20:37.140Z
-    //this.readForm.controls["externalId"]=event.externalId;
-      console.log(this.historyAge);
-     // this.readForm.controls["read"]
-     this.readService.Getlastread(event.externalId).subscribe({
+    //@ts-ignore
+    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
+    console.log(this.timezonedata);
+    this.readForm.controls['timezone'].setValue(null);
+    this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+    console.log(this.filteredOptions);
+    this.readService.Getlastread(event.externalId).subscribe({
       next: data => {
         console.log(data),
-        this.lastreaddate=data.enddate;
-        this.lastreadvalue=data.value;
-        //   this.alldevicesread.push(data)
-        // console.log(this.alldevicesread)
+          this.lastreaddate = data.enddate;
+        this.lastreadvalue = data.value;
       },
       error: err => {                      //Error callback
         console.error('error caught in component', err)
-        //.toastrService.error('device id has been updated', 'current external id not found!!');
-
       }
     })
 
@@ -121,32 +125,30 @@ export class AddreadComponent implements OnInit {
   onChangeEvent(event: any) {
     console.log(event);
     if (event === 'Delta' || event === 'Aggregate') {
-      this.endmaxdate=new Date();
-      this.endminDate=this.devicecreateddate;
+      this.endmaxdate = new Date();
+      this.endminDate = this.devicecreateddate;
       this.hidestarttime = false;
-     
-
     } else {
-      this.startminDate= this.historyAge;
-      this.startmaxDate=this.devicecreateddate;
-      this.endmaxdate=this.devicecreateddate;
-      this.endminDate=this.historyAge;
+      this.startminDate = this.historyAge;
+      this.startmaxDate = this.devicecreateddate;
+      this.endmaxdate = this.devicecreateddate;
+      this.endminDate = this.historyAge;
       this.hidestarttime = true;
     }
   }
   onEndChangeEvent(event: any) {
-   console.log(event);
-     // this.startminDate= this.historyAge;
-      //this.startmaxDate=this.devicecreateddate;
-      this.endmaxdate=this.devicecreateddate;
-      this.endminDate=event;
-      //this.hidestarttime = true;
-    
+    console.log(event);
+    this.endmaxdate = this.devicecreateddate;
+    this.endminDate = event;
   }
   private _filter(value: string): string[] {
+    console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-
-    return this.timezonedata.filter((option: string) => option.toLowerCase().includes(filterValue));
+    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0));
+    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0).length > 0)) {
+      this.showerror = true;
+    }
+    return this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0)
   }
   getErrorcheckdatavalidation() {
     return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
@@ -158,16 +160,16 @@ export class AddreadComponent implements OnInit {
   }
   onSubmit(): void {
 
-    let externalId = this.readForm.value.externalId.externalId;  
+    let externalId = this.readForm.value.externalId.externalId;
     console.log(externalId);
     console.log(this.readForm.value);
-   
+
     const myobj: any = {}
-    if ((this.readForm.value.timezone != null&&this.readForm.value.timezone!= '') && this.readForm.value.type === 'History') {
+    if ((this.readForm.value.timezone != null && this.readForm.value.timezone != '') && this.readForm.value.type === 'History') {
       myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
-      let reads:any = []
+      let reads: any = []
       this.readForm.value.reads.forEach((ele: any) => {
         reads.push({
           starttimestamp: moment(ele.starttimestamp).format('YYYY-MM-DD HH:mm:ss'),
@@ -176,12 +178,12 @@ export class AddreadComponent implements OnInit {
         })
       })
       myobj['reads'] = reads
-    } else if((this.readForm.value.timezone != null&&this.readForm.value.timezone!= '')&& this.readForm.value.type!= 'History'){
-     
+    } else if ((this.readForm.value.timezone != null && this.readForm.value.timezone != '') && this.readForm.value.type != 'History') {
+
       myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
-      let newreads:any = []
+      let newreads: any = []
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
           starttimestamp: "",
@@ -193,7 +195,7 @@ export class AddreadComponent implements OnInit {
     } else {
       myobj['type'] = this.readForm.value.type
       myobj['unit'] = this.readForm.value.unit
-      let newreads:any = []
+      let newreads: any = []
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
           starttimestamp: ele.starttimestamp,
@@ -202,8 +204,8 @@ export class AddreadComponent implements OnInit {
         })
       })
       myobj['reads'] = newreads
-    }  
-    this.readService.PostRead(externalId,myobj).subscribe({
+    }
+    this.readService.PostRead(externalId, myobj).subscribe({
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();

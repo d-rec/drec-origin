@@ -4,7 +4,7 @@
     <mat-nav-list>
 
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/organization/information"
-        *ngIf="loginuser.role ==='OrganizationAdmin'">
+        *ngIf="loginuser.role ==='OrganizationAdmin' && !showmenu">
         <mat-icon>list</mat-icon>
         <span>Organization</span>
       </button>
@@ -32,6 +32,11 @@
           *ngIf="loginuser.role ==='OrganizationAdmin'">
           <mat-icon>list</mat-icon>
           <span> Bulk Upload</span>
+        </a>
+        <a mat-button class="menu-button" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
+         *ngIf="!showmenu" >
+          <mat-icon>list</mat-icon>
+          <span> Certified Devices</span>
         </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -69,7 +74,7 @@
         <span>My Reservations</span>
       </button>
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/All_certificate"
-      *ngIf="loginuser.role ==='Buyer'">
+      *ngIf="loginuser.role ==='Buyer' && !showmenu">
       <mat-icon>list</mat-icon>
       <span>Certificate</span>
     </button>

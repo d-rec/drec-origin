@@ -21,6 +21,7 @@ import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutlog
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
+import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -37,6 +38,8 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
+   
+    CertifiedDevicesDeveloperComponent,
     
   ],
   imports: [
