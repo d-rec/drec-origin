@@ -13,7 +13,10 @@ import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.
 import { YieldConfigModule } from '../yield-config/yieldconfig.module';
 import {DeviceGroupNextIssueCertificate} from './device_group_issuecertificate.entity';
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity';
-import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
+import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import {CheckCertificateIssueDateLogForDeviceEntity} from '../device/check_certificate_issue_date_log_for_device.entity'
+import {Certificate} from '@energyweb/issuer-api';
 @Module({
   imports: [
    
@@ -23,7 +26,10 @@ import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_da
       DeviceCsvProcessingFailedRowsEntity,
       DeviceGroupNextIssueCertificate,
       CheckCertificateIssueDateLogForDeviceGroupEntity,
-      HistoryDeviceGroupNextIssueCertificate
+      HistoryDeviceGroupNextIssueCertificate,
+      CertificateReadModelEntity,
+      CheckCertificateIssueDateLogForDeviceEntity,
+      Certificate,
     ]),
     forwardRef(() => DeviceModule),
     

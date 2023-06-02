@@ -98,6 +98,7 @@ export class CertificateLogController {
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
+        console.log("101")
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         //console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
@@ -134,6 +135,7 @@ export class CertificateLogController {
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
+        console.log("138")
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         if (groupuId === null || !regexExp.test(groupuId)) {
             return new Promise((resolve, reject) => {
@@ -227,5 +229,16 @@ export class CertificateLogController {
     }
     
     
-    /* */
+    /* for developre*/
+    @Get('/issuer/certifiedfordeveloper')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
+    async getCertificatesForDeveloper(
+       
+        @UserDecorator() user: ILoggedInUser,
+    ): Promise<CertificateNewWithPerDeviceLog[]> {
+       console.log("238")
+
+        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId);
+    }
 }

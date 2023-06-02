@@ -94,7 +94,11 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { SdgBenefit } from '../sdgbenefit/sdgbenefit.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-import { ReadsService } from '../reads/reads.service'
+import { ReadsService } from '../reads/reads.service';
+import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
+import { Certificate } from '@energyweb/issuer-api';
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -120,6 +124,8 @@ export class DeviceGroupService {
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     //private readService: ReadsService,
     //  private readonly readsService: ReadsService
+    @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
+
   ) { }
 
   async getAll(): Promise<DeviceGroupDTO[]> {
@@ -218,7 +224,6 @@ export class DeviceGroupService {
       queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
         .select(['dg.*', 'd.SDGBenefits'])
-
         .orderBy('dg.id', 'ASC')
 
       // //console.log(queryBuilder);
@@ -2154,5 +2159,92 @@ export class DeviceGroupService {
       AllDeviceshistnextissuansinfo,
       ongoing_next_issuance: nextissuance
     }
+  }
+
+  async getReservationInforDeveloperBsise(orgId): Promise<any> {
+
+    let queryBuilder: any;
+    queryBuilder = this.repository.createQueryBuilder('dg')
+      .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
+      .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'crm.internalCertificateId'])
+      .orderBy('dg.id', 'ASC')
+      .where(`d.organizationId = :orgId`, { orgId: orgId })
+      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
+      const groupedDatasql = await queryBuilder.getSql();
+    // console.log(groupedDatasql);
+    const groupedData = await queryBuilder.getRawMany();
+    // console.log(groupedData)
+
+    let deviceGroups = groupedData.reduce((acc, curr) => {
+
+      const existing = acc.find(item => item.dg_id === curr.dg_id);
+
+      if (existing) {
+        let newobj = {};
+
+        const existing1 = acc.find(item => item.id === curr.id);
+        if(existing1){
+          existing.developerdeviceIds.push(curr.id);
+        }
+       existing.internalCertificateId.push(curr.crm_internalCertificateId)
+        // existing.certificatelog.push(newobj);
+      } else {
+
+        acc.push({
+          dg_id: curr.dg_id,
+          name: curr.dg_name,
+          deviceIdsInt: curr.dg_deviceIdsInt,
+          // deviceIdsInt: curr.deviceIdsInt,
+          developerdeviceIds: [curr.id],
+          internalCertificateId: [curr.crm_internalCertificateId]
+        });
+        // console.log(acc);
+      }
+      return acc;
+    }, []);
+
+    return deviceGroups;
+  }
+  async getoldReservationInforDeveloperBsise(orgId): Promise<any> {
+
+    let queryBuilder: any;
+    queryBuilder = this.repository.createQueryBuilder('dg')
+      .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      .innerJoin(Certificate, 'issuer', 'CAST(issuer.deviceId AS INTEGER) = dg.id')
+      .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'issuer.id'])
+      .orderBy('dg.id', 'ASC')
+      .where(`d.organizationId = :orgId`, { orgId: orgId })
+      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
+     
+      const groupedDatasql = await queryBuilder.getSql();
+    // console.log(groupedDatasql);
+    const groupedData = await queryBuilder.getRawMany();
+    // console.log(groupedData)
+    let deviceGroups = groupedData.reduce((acc, curr) => {
+      const existing = acc.find(item => item.dg_id === curr.dg_id);
+      if (existing) {
+        let newobj = {};
+        const existing1 = acc.find(item => item.id === curr.id);
+        if(existing1){
+          existing.developerdeviceIds.push(curr.id);
+        }
+       existing.internalCertificateId.push(curr.id)
+        // existing.certificatelog.push(newobj);
+      } else {
+        acc.push({
+          dg_id: curr.dg_id,
+          name: curr.dg_name,
+          deviceIdsInt: curr.dg_deviceIdsInt,
+          // deviceIdsInt: curr.deviceIdsInt,
+          developerdeviceIds: [curr.id],
+          internalCertificateId: [curr.id]
+        });
+        // console.log(acc);
+      }
+      return acc;
+    }, []);
+
+    return deviceGroups;
   }
 }
