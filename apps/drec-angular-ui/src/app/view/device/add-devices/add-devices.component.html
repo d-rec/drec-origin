@@ -199,14 +199,14 @@
 
                                     <div class="col-md-3">
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="addmore(i)" *ngIf="showaddmore[i]">
                                             Add more details <mat-icon
                                                 class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                         </button>
 
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="nomore(i)" *ngIf="shownomore[i]">
                                             hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
                                         </button>
@@ -292,7 +292,7 @@
                 </div>
             </mat-card-content>
             <mat-card-footer>
-                <div class="mt-3 mb-3 px-3 row">
+                <div class="example-container mt-3  ">
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn-primary btn text-capitalize px-4"
                             [disabled]="myform.invalid">submit</button>

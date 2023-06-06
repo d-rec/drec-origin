@@ -354,3 +354,26 @@ border-left-color:$primary!important ;
         text-align: left;
     }
 }
+
+// this is for edit icon color 
+.edit-icon {
+
+    color: $primary;
+}
+.edit-icon:hover {
+
+    color: $primary;
+}
+// this is for spinner 
+.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle, .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic{
+    stroke:  $primary !important;
+}
+
+// this is for date selector button 
+.mat-stroked-button{
+    background-color: $primary !important;
+    border: 1px solid $primary !important;
+    color: $gray !important;
+    font-weight: 600 !important;
+}
+
