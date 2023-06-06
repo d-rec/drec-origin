@@ -45,10 +45,10 @@
             </mat-form-field>
           </div>
           <div class="col-md-6 upload-reset-buttons">
-            <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="upload()">
+            <button class="btn btn-primary" [disabled]="!currentFile" (click)="upload()">
               Upload
             </button>&nbsp;
-            <button mat-flat-button color="primary" [disabled]="!currentFile" (click)="reset()">
+            <button class="btn btn-dark" [disabled]="!currentFile" (click)="reset()">
               Clear
             </button>
           </div>
