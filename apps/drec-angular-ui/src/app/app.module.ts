@@ -22,6 +22,9 @@ import { RedemptionReportComponent } from './view/redemption-report/redemption-r
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
+// import { TimezonePipe } from './timezone.pipe';
+
+
 @NgModule({
   declarations: [
     AppComponent,

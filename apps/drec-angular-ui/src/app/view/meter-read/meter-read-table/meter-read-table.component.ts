@@ -35,6 +35,7 @@ export class MeterReadTableComponent implements OnInit {
   pageSizeOptions: number[] = [5];
   loading: boolean = true;
   loginuser: any
+  device_timezone:any;
   @Input()
   showtable: boolean;
 showname:boolean=false;
@@ -87,9 +88,10 @@ showname:boolean=false;
         });
         this.dataSource = new MatTableDataSource([...this.readdata.historyread,...this.readdata.ongoing]);
         this.totalRows = this.readdata.numberOfReads
-       
+      
         this.currentPage = this.readdata.currentPageNumber;
         console.log(this.currentPage)
+        this.device_timezone= this.readdata.timezone;
         this.loading = false;
       });
   }
