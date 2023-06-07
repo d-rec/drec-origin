@@ -148,7 +148,10 @@ export class AddreadComponent implements OnInit {
     console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
+    }else{
+      this.showerror = false;
     }
+    
     return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
   }
   getErrorcheckdatavalidation() {
@@ -210,7 +213,7 @@ export class AddreadComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();
-        this.toastrService.success('Successfully!', 'Read Add SuccessFully!!');
+        this.toastrService.success('Successfully!', 'Read Added!!');
       },
       error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
         console.error('error caught in component', err)
