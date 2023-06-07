@@ -1,5 +1,5 @@
 <div class="body-bg">
-    <mat-card>
+    <mat-card class="mb-3">
         <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
             <div>
@@ -38,12 +38,12 @@
                                     <mat-label class="text-capitalize">Current External ID</mat-label>
                                     <input matInput [value]="externalId" readonly>
                                   
-                                        <mat-icon matSuffix (click)="editExternalid()"
+                                        <mat-icon class="edit-icon" matSuffix (click)="editExternalid()"
                                             *ngIf="!showcancelicon" style="cursor: pointer;"  matTooltip="Yes"
                                             matTooltipPosition="above">edit</mat-icon>
                                         <mat-icon matSuffix (click)="hideeditExternalid()"
                                             *ngIf="showcancelicon" style="cursor: pointer;"  matTooltip="No"
-                                            matTooltipPosition="above">cancel</mat-icon>
+                                            matTooltipPosition="above" >cancel</mat-icon>
                                   
 
                                     <!-- <mat-hint>Hint</mat-hint> -->
@@ -208,13 +208,13 @@
 
                             <div class="col-md-3">
                                 <button
-                                    class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
+                                    class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                                     (click)="addmore()" *ngIf="showaddmore">
                                     Add more details <mat-icon class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                 </button>
 
                                 <button
-                                    class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                    class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
                                     (click)="nomore()" *ngIf="shownomore">
                                     hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
                                 </button>
@@ -268,10 +268,10 @@
 
 
                         <div class="example-container1 row" *ngIf="addmoredetals">
-                            <div class="col-md-3">
-                            
+                            <div class="col-md-3  d-flex flex-column">
+                                <span >Grid Inter-connection:</span>
                                 <mat-radio-group  formControlName='gridInterconnection' [(ngModel)]="gridInterconnection">
-                                    <span >Grid Inter-connection:</span>
+                                   
 
                                     <mat-radio-button [value]=true >Yes</mat-radio-button>
                                         <mat-radio-button [value]=false>No</mat-radio-button>
@@ -280,14 +280,14 @@
 
                            
 
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-flex flex-column ">
                                 <!--  <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage</mat-label>
                                            <input matInput placeholder="energyStorage" formControlName='energyStorage'> -->
-
+                                           <span>Energy Storage:</span>
                                 <mat-radio-group formControlName='energyStorage' [(ngModel)]="energyStorage"
                                     (ngModelChange)="showenergycapacity_input($event)">
-                                    <span>Energy Storage:</span>
+                                   
 
                                     <mat-radio-button [value]=true >Yes</mat-radio-button>
                                     <mat-radio-button [value]=false>NO</mat-radio-button>
@@ -311,15 +311,16 @@
                     <!-- <mat-card-footer></mat-card-footer> -->
                 </mat-card>
                 <!-- </div> -->
+                <mat-card-footer>
+                    <div class="example-container mt-3 row">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
+                        </div>
+                    </div>
+                </mat-card-footer>
 
             </mat-card-content>
-            <mat-card-footer>
-                <div class="example-container row">
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
-                    </div>
-                </div>
-            </mat-card-footer>
+         
         </form>
     </mat-card>
 </div>

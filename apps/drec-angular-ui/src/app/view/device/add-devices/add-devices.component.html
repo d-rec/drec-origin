@@ -7,8 +7,8 @@
                 </h2>
             </div>
             <div>
-                <button class="btn btn-dark justify-content-end px-4" (click)="adddevice()">
-                    <mat-icon class="align-middle">add_circle</mat-icon> Add More Device
+                <button class="btn btn-dark justify-content-end  d-flex align-items-center px-4" (click)="adddevice()">
+                    <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More Device
                 </button>
             </div>
 
@@ -199,14 +199,14 @@
 
                                     <div class="col-md-3">
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="addmore(i)" *ngIf="showaddmore[i]">
                                             Add more details <mat-icon
                                                 class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                         </button>
 
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="nomore(i)" *ngIf="shownomore[i]">
                                             hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
                                         </button>
@@ -255,19 +255,20 @@
                                 </div>
 
                                 <div class="example-container1 row" *ngIf="addmoredetals[i]">
-                                    <div class="col-md-3">
+                                    <div class="col-md-3 d-flex flex-column">
+                                        <span>Grid Inter-connection:</span>
                                         <mat-radio-group formControlName='gridInterconnection'>
-                                            <span>Grid Inter-connection:</span>
+                                            
 
                                             <mat-radio-button [value]=true>Yes</mat-radio-button>
                                             <mat-radio-button [value]=false>No</mat-radio-button>
                                         </mat-radio-group>
                                     </div>
-                                    <div class="col-md-3">
-
+                                    <div class="col-md-3 d-flex flex-column">
+                                        <span>Energy Storage:</span>
                                         <mat-radio-group formControlName='energyStorage'
                                             (ngModelChange)="showenergycapacity_input(i,$event)">
-                                            <span>Energy Storage:</span>
+                                            
 
                                             <mat-radio-button [value]=true>Yes</mat-radio-button>
                                             <mat-radio-button [value]=false>No</mat-radio-button>
@@ -291,7 +292,7 @@
                 </div>
             </mat-card-content>
             <mat-card-footer>
-                <div class="example-container row">
+                <div class="example-container mt-3  ">
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn-primary btn text-capitalize px-4"
                             [disabled]="myform.invalid">submit</button>

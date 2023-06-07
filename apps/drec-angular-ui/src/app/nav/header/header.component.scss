@@ -28,7 +28,9 @@ $example-header-rgba:rgba(0,0,0,0.1);
     flex: 1 1 auto;
   }
 
-
+  ::ng-deep .mat-toolbar-multiple-rows{
+    min-height: 54px;
+  }
 
   .custom-header
   {
