@@ -22,7 +22,7 @@ export const getLocalTime = (startDate, device) => {
 export const getLocalTimeZoneFromDevice = (localTime, device) => {
   if (device.timezone) {
     console.log("timezone is there")
-    console.log("DEVICE TIMEZONE BEING RETURNED:" + device.timezone);
+  //  console.log("DEVICE TIMEZONE BEING RETURNED:" + device.timezone);
     return device.timezone;
   }
   else if (device.longitude && device.latitude && localTime) {
@@ -34,7 +34,7 @@ export const getLocalTimeZoneFromDevice = (localTime, device) => {
       console.log("TIME:::::::::::::::::" + time);
       const actualTimeZone = momentTimeZone.tz.names().find((timezone) => {
         if (momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr()) {
-          console.log("TIMEZONE THAT's BEING RETURNED:::" + timezone);
+          // console.log("TIMEZONE THAT's BEING RETURNED:::" + timezone);
           return timezone;
         }
       });
@@ -43,19 +43,14 @@ export const getLocalTimeZoneFromDevice = (localTime, device) => {
     catch {
 
       const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(entry => entry.countryCode === device.countryCode);
-      console.log("counrtycode obj keys that were found:::::::::::" + Object.keys(countryCodeFound.timezones[0]));
 
-      console.log("countrycode obj found:::::" + JSON.stringify(countryCodeFound.timezones[0]));
-      console.log("countrycode obj to be returned::::;" + countryCodeFound.timezones[0].name)
       return countryCodeFound.timezones[0].name;
     }
   }
   else {
     console.log("only country code")
     const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(entry => entry.countryCode === device.countryCode);
-    console.log("counrtycode obj keys that were found:::::::::::" + Object.keys(countryCodeFound.timezones[0]));
-    console.log("countrycode obj found:::::" + JSON.stringify(countryCodeFound.timezones[0]));
-    console.log("countrycode obj to be returned::::;" + countryCodeFound.timezones[0].name)
+
     return countryCodeFound.timezones[0].name;
   }
 }

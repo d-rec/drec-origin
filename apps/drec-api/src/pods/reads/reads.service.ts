@@ -1210,6 +1210,7 @@ export class ReadsService {
       console.log("historyexistdevicequery");
       try {
         const histroread = await query.limit(filter.limit).offset(filter.offset).getRawMany();
+        //console.log("histroread", histroread);
         await histroread.forEach(element => {
 
           historyread.push({
@@ -1224,9 +1225,9 @@ export class ReadsService {
         this.logger.error(`Failed to retrieve device`, error.stack);
       }
     }
-   // console.log("1513")
+    // console.log("1513")
     //console.log(deviceOnboarded);
-   // console.log(filter.end);
+    // console.log(filter.end);
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       console.log("offset::::::::::::" + filter.offset + "\nlimit:::::::::::::" + filter.limit + "\n device onboarded::::::::::" + deviceOnboarded.toString() + "\nend:::::::::" + filter.end.toString())
 
@@ -1254,7 +1255,7 @@ export class ReadsService {
         };
       }
 
-    //  console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
+      //  console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
 
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
         let finalongoing = await this.getPaginatedData(externalId, readsFilter, pageNumber);
@@ -1275,7 +1276,7 @@ export class ReadsService {
         let previousReadTime;
         if (pageNumber > 1) {
           const previousPage = pageNumber - 1;
-         const previousPageData = await this.getPaginatedData(externalId, readsFilter, previousPage);
+          const previousPageData = await this.getPaginatedData(externalId, readsFilter, previousPage);
           if (previousPageData.length > 0) {
             // @ts-ignore
             previousReadTime = previousPageData[0].timestamp;
@@ -1318,17 +1319,19 @@ export class ReadsService {
           }
         }
         ongoing = transformedFinalOngoing;
-      //  console.log(ongoing);
-        console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
-        if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
-
-          return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": pageNumber };
-        }
-        else {
-          return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
-        }
       }
     }
+    //  console.log(ongoing);
+    console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
+    if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+
+      return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": pageNumber };
+    }
+    else {
+      return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
+    }
+
+
   }
 
   async getnumberOfHistReads(deviceId, startDate, endDate) {
@@ -1621,22 +1624,22 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     let localTime = null;
     let formattedOffset = null;
     let device = await this.deviceService.findDeviceByDeveloperExternalId(developerExternalId, organizationId);
-   // console.log("DEVICE:::::::::::" + device);
+    // console.log("DEVICE:::::::::::" + device);
     if (device.latitude && device.longitude) {
-     // console.log("THIS IS THE LAT " + device.latitude + "AND LONG" + device.longitude);
-     // console.log("calling the localtimezone function");
+      // console.log("THIS IS THE LAT " + device.latitude + "AND LONG" + device.longitude);
+      // console.log("calling the localtimezone function");
       localTime = getLocalTime(startDate, device);
     }
 
     const localTimeZone = getLocalTimeZoneFromDevice(localTime, device);
-   // console.log("localTimeZone:::::" + localTimeZone);
-   // console.log("calling the offset function");
+    // console.log("localTimeZone:::::" + localTimeZone);
+    // console.log("calling the offset function");
     const localTimeZoneName = localTimeZone;
-   // console.log("TIME ZONE BEING SENT::::" + localTimeZoneName);
+    // console.log("TIME ZONE BEING SENT::::" + localTimeZoneName);
     const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
     const offset = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-   // console.log("FINAL OFFSET HOURS::::::" + typeof (offset.hours));
-   // console.log("FINAL OFFSET MINUTES::::::" + typeof (offset.minutes));
+    // console.log("FINAL OFFSET HOURS::::::" + typeof (offset.hours));
+    // console.log("FINAL OFFSET MINUTES::::::" + typeof (offset.minutes));
 
     const offSetHoursString = (offset.hours).toString();
     const offSetMinutesString = (offset.minutes).toString();

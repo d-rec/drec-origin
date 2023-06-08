@@ -132,8 +132,8 @@ export class ReadsController extends BaseReadsController {
     } else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     }
-    console.log("getmeterdevice");
-    console.log(device);
+    // console.log("getmeterdevice");
+    // console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
