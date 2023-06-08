@@ -41,7 +41,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { response } from 'express';
 import { EndReservationdateDTO } from '../device-group/dto';
 import { timestamp } from 'rxjs/operators';
-import { getFormattedOffSetFromOffsetAsJson, getLocalTime, getLocalTimeZoneFromDevice, getOffsetFromTimeZoneName } from 'src/utils/localTimeDetailsForDevice';
+import { getFormattedOffSetFromOffsetAsJson, getLocalTime, getLocalTimeZoneFromDevice, getOffsetFromTimeZoneName } from '../../utils/localTimeDetailsForDevice';
 import { log } from 'console';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
