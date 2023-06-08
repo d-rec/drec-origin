@@ -40,6 +40,7 @@ import * as momentTimeZone from 'moment-timezone';
 import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -96,12 +97,12 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-/* */
-@Get('new/:externalId') 
+  /* */
+  @Get('new/:externalId')
 
-  @ApiQuery({ name: 'Month',type:Number,required:false})
-  @ApiQuery({ name: 'Year',type:Number,required:false})
-  @ApiQuery({ name: 'pagenumber',type:Number,required:false})
+  @ApiQuery({ name: 'Month', type: Number, required: false })
+  @ApiQuery({ name: 'Year', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -111,51 +112,59 @@ export class ReadsController extends BaseReadsController {
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: filterNoOffLimit,
-    @Query('pagenumber')pagenumber:number|null,
-    @Query('Month')month:number|null,
-    @Query('Year')year:number|null,
+    @Query('pagenumber') pagenumber: number | null,
+    @Query('Month') month: number | null,
+    @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
 
     //finding the device details throught the device service
-     filter.offset=0;
-     filter.limit=5;
-     let device: DeviceDTO | null;      
-     if(month && !year)
-   {
-    throw new HttpException('Year is required when month is given',400)
+    filter.offset = 0;
+    filter.limit = 5;
+    let device: DeviceDTO | null;
+    if (month && !year) {
+      throw new HttpException('Year is required when month is given', 400)
     }
-     if(user.role==='Buyer'){
-       device = await this.deviceService.findOne(parseInt(meterId));
-   
-     }else{
+    if (user.role === 'Buyer') {
+      device = await this.deviceService.findOne(parseInt(meterId));
+
+    } else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
-     }
-      console.log("getmeterdevice");
-     console.log(device);
-     if (device === null) {
+    }
+    console.log("getmeterdevice");
+    console.log(device);
+    if (device === null) {
 
-       return new Promise((resolve, reject) => {
-         reject(
-           new ConflictException({
-             success: false,
-             message: `Invalid device id`,
-           })
-         );
-       });
-     }
+      return new Promise((resolve, reject) => {
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Invalid device id`,
+          })
+        );
+      });
+    }
 
-     if(filter.accumulationType)
-     {
-       return this.internalReadsService.getAccumulatedReads(device.externalId,user.organizationId,device.developerExternalId,filter.accumulationType,month,year);
-     }
-     else
-     {
-      return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
-     }
-   }
-/* */
+    if (filter.readType === 'accumulated' && filter.accumulationType) {
+      return this.internalReadsService.getAccumulatedReads(device.externalId, user.organizationId, device.developerExternalId, filter.accumulationType, month, year);
+    }
+
+    else if (filter.readType === 'meterReads') {
+      let timezone = getLocalTimeZoneFromDevice(filter.start, device);
+      console.log("the timezone we got from all reads is:::" + timezone);
+      const returnedObject = await this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt, pagenumber);
+      console.log("THE RETURNED OBJECT KEYS:::" + Object.keys(returnedObject));
+      Object.assign(returnedObject, { "timezone": timezone });
+      console.log("THE CHANGED OBJECT KEYS::::::" + Object.keys(returnedObject));
+      return returnedObject;
+    }
+
+    else {
+      throw new HttpException('Invalid readType parameter', 400);
+    }
+  }
+  /* */
 
 
   // @Get('/:meter/difference')
@@ -313,7 +322,7 @@ export class ReadsController extends BaseReadsController {
 
               if (new Date(ele[key]).getTime() > new Date(cur).getTime()) {
 
-                
+
                 throw new ConflictException({
                   success: false,
                   message: `One or more measurements starttimestamp or endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
@@ -359,7 +368,7 @@ export class ReadsController extends BaseReadsController {
                   //@ts-ignore
                   ele[key] = utcString;
                   device.createdAt = new Date(new Date(device.createdAt).toLocaleString('en-US', { timeZone: measurements.timezone }))
-                  device.commissioningDate=new Date(device.commissioningDate).toLocaleString('en-US', { timeZone: measurements.timezone })
+                  device.commissioningDate = new Date(device.commissioningDate).toLocaleString('en-US', { timeZone: measurements.timezone })
                 }
 
               }
@@ -569,7 +578,7 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
-           //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
           if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
             historyallStartDatesAreAftercommissioningDate = false;
@@ -688,7 +697,7 @@ export class ReadsController extends BaseReadsController {
 
     let device: DeviceDTO | null
     if (user.role === 'Buyer') {
-    
+
       device = await this.deviceService.findOne(parseInt(externalId));
 
     } else {

@@ -38,7 +38,7 @@ export class AddGroupDTO {
   @IsEnum(BuyerReservationCertificateGenerationFrequency)
   frequency:BuyerReservationCertificateGenerationFrequency;
 
-  @ApiPropertyOptional({ type: String })
+ // @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   blockchainAddress?: string;

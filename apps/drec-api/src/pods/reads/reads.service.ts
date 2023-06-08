@@ -394,7 +394,7 @@ export class ReadsService {
               }),
             );
           }
-       
+
           //@ts-ignore
           if (requeststartdate <= DateTime.fromISO(new Date(historyAge).toISOString()) ||
             //@ts-ignore
@@ -700,7 +700,7 @@ export class ReadsService {
   }
 
   async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
- 
+
     //@ts-ignore
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
@@ -712,9 +712,9 @@ export class ReadsService {
 
   async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date): Promise<Array<{ timestamp: Date, value: number }>> {
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-    |> range(start: ${startdate.toISOString()}, stop: ${enddate.toISOString()})
-    |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-    |> last()`
+      |> range(start: ${startdate.getTime() / 1000}000000000, stop: ${enddate.getTime() / 1000}000000000)
+      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+      |> last()`;
     return await this.execute(fluxQuery);
   }
 
@@ -727,7 +727,7 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-   
+
     //@ts-ignore
     const url = process.env.INFLUXDB_URL;
     //@ts-ignore
@@ -937,7 +937,7 @@ export class ReadsService {
         capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
       );
     };
-    
+
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
@@ -981,7 +981,7 @@ export class ReadsService {
           device.externalId,
           device.groupId
         );
- console.log("historynextissue");
+        console.log("historynextissue");
         if (historynextissue != undefined) {
           let stdate = new Date(startdate).getTime();
           let eddate = new Date(enddate).getTime();
@@ -1169,8 +1169,9 @@ export class ReadsService {
     let ongoing = [];
     let finalongoing = [];
     console.log("page number:::::::::::::::::::::::::::::::::::::::::::" + pageNumber)
-    let sizeOfPage = 5
-    let numberOfPages = 0
+
+    let sizeOfPage = 5;
+    let numberOfPages = 0;
     let numberOfHistReads = await this.getnumberOfHistReads(externalId, filter.start, filter.end);
     let numberOfOngReads = 0;
     let numberOfReads = numberOfHistReads + numberOfOngReads;
@@ -1178,11 +1179,11 @@ export class ReadsService {
       numberOfPages = Math.ceil(numberOfHistReads / sizeOfPage);
     }
     //@ts-ignore
+
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       filter.offset = sizeOfPage * (pageNumber - 1);
       filter.limit = sizeOfPage;
     }
-
     numberOfOngReads = await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded);
     console.log(numberOfOngReads);
     if (numberOfOngReads > numberOfHistReads) {
@@ -1190,43 +1191,47 @@ export class ReadsService {
     }
     numberOfReads = numberOfHistReads + numberOfOngReads;
     // numberOfPages=Math.ceil(numberOfReads/sizeOfPage)
-
     if (numberOfHistReads == 0 && numberOfOngReads == 0) {
+
       return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": 0, "currentPageNumber": 0 }
     }
-
     if ((typeof pageNumber === 'number' && !isNaN(pageNumber)) && pageNumber > numberOfPages) {
+
       return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
-
     }
-    //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
-    if (new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()) {
-      const query = await this.getexisthistorydevcielogFilteredQuery(externalId, filter.start, filter.end);
-      console.log("history query executed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
+    //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
+
+    if (new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()) {
+
+      const query = await this.getexisthistorydevcielogFilteredQuery(externalId, filter.start, filter.end);
+
+      console.log("history query executed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       console.log("historyexistdevicequery");
       try {
         const histroread = await query.limit(filter.limit).offset(filter.offset).getRawMany();
-
         await histroread.forEach(element => {
+
           historyread.push({
             startdate: element.devicehistory_readsStartDate,
             enddate: element.devicehistory_readsEndDate,
             value: element.devicehistory_readsvalue
           })
+
         })
       } catch (error) {
         console.log(error)
         this.logger.error(`Failed to retrieve device`, error.stack);
       }
     }
-
-    console.log("1513")
-    console.log(deviceOnboarded);
-    console.log(filter.end);
+   // console.log("1513")
+    //console.log(deviceOnboarded);
+   // console.log(filter.end);
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       console.log("offset::::::::::::" + filter.offset + "\nlimit:::::::::::::" + filter.limit + "\n device onboarded::::::::::" + deviceOnboarded.toString() + "\nend:::::::::" + filter.end.toString())
+
       let readsFilter: FilterDTO = {
+
         offset: filter.offset,
         limit: filter.limit,
         start: filter.start.toString(),
@@ -1248,61 +1253,83 @@ export class ReadsService {
           end: filter.end.toString(),
         };
       }
-      console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
+
+    //  console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
+
       if (new Date(filter.start).getTime() < new Date(deviceOnboarded).getTime() || new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()) {
-        console.log(readsFilter);
-       
-       // finalongoing = await this.baseReadsService.find(externalId, readsFilter);
-        finalongoing =  await this.getPaginatedData(externalId, readsFilter,pageNumber);
-       
-        if (finalongoing.length > 0) {
-          let endTimestampToCheck = new Date(finalongoing[0].timestamp.getTime() - 1);
-          let startTimeToCheck = deviceOnboarded;
-          let previousReading = await this.findLastReadForMeterWithinRange(externalId, new Date(startTimeToCheck), endTimestampToCheck);
-          console.log("device previous reading", externalId, previousReading);
+        let finalongoing = await this.getPaginatedData(externalId, readsFilter, pageNumber);
+        //console.log("final ongoing:::::::", finalongoing);
 
-          finalongoing.forEach((element, index) => {
+        // const nextPage = pageNumber + 1;
 
-            if (index === 0) {
+        // const nextPageData = await this.getPaginatedData(externalId, readsFilter, nextPage);
 
-              if (previousReading.length > 0) {
-                ongoing.push({
-                  startdate: previousReading[0].timestamp,
-                  enddate: element.timestamp,
-                  value: element.value
-                })
-              }
-              else {
-                ongoing.push({
-                  startdate: deviceOnboarded,
-                  enddate: element.timestamp,
-                  value: element.value
-                })
-              }
+        // let nextReadTime;
 
-            } else {
-              console.log(element);
-              ongoing.push({
-                startdate: finalongoing[index - 1].timestamp,
-                enddate: element.timestamp,
-                value: element.value
-              })
-            }
-          })
+        // if (nextPageData.length > 0) {
+        //   // @ts-ignore
+        //   nextReadTime = nextPageData[0].timestamp;
+        // } else {
+        //   nextReadTime = null;
+        // }
+        let previousReadTime;
+        if (pageNumber > 1) {
+          const previousPage = pageNumber - 1;
+         const previousPageData = await this.getPaginatedData(externalId, readsFilter, previousPage);
+          if (previousPageData.length > 0) {
+            // @ts-ignore
+            previousReadTime = previousPageData[0].timestamp;
+            // @ts-ignore
+            console.log("previous page read data[0]::::" + previousPageData[0].timestamp);
+          } else {
+            previousReadTime = null;
+          }
         }
-        console.log("ongoing query executed!!!!!!", ongoing);
+        const transformedFinalOngoing = [];
+        for (let i = 0; i < finalongoing.length; i++) {
+          const currentRead = finalongoing[i];
+          let startdate;
+          if (i === 0 && pageNumber == 1) {
+            startdate = new Date(Math.max(new Date(deviceOnboarded).getTime(), new Date(filter.start).getTime()));
+          } else if (i == 0 && pageNumber != 1) {
+            // @ts-ignore
+            startdate = previousReadTime;
+          }
+          else {
+            startdate = transformedFinalOngoing[i - 1].enddate;
+          }
+          // @ts-ignore
+          const enddate = finalongoing[i].timestamp;
+          if (i > 1) {
+            transformedFinalOngoing.push({
+              startdate: transformedFinalOngoing[i - 1].enddate,
+              enddate: enddate,
+              // @ts-ignore
+              value: currentRead.value
+            });
+          }
+          else {
+            transformedFinalOngoing.push({
+              startdate: startdate,
+              enddate: enddate,
+              //@ts-ignore
+              value: currentRead.value
+            });
+          }
+        }
+        ongoing = transformedFinalOngoing;
+      //  console.log(ongoing);
+        console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
+        if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
+
+          return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": pageNumber };
+        }
+        else {
+          return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
+        }
       }
     }
-    console.log("count of ong reads:::::::::::::::::::::::::::::::::::" + await this.getnumberOfOngReads(filter.start, filter.end, externalId, deviceOnboarded))
-    if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
-      return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": pageNumber };
-    }
-    else {
-      return { historyread, ongoing, "numberOfReads": numberOfReads, "numberOfPages": numberOfPages, "currentPageNumber": 1 };
-
-    }
   }
-
 
   async getnumberOfHistReads(deviceId, startDate, endDate) {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
@@ -1351,8 +1378,6 @@ export class ReadsService {
   }
 
 
-
-
   async latestread(meterId, deviceOnboarded) {
     let query = `
 from(bucket: "${process.env.INFLUXDB_BUCKET}")
@@ -1369,18 +1394,20 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     let startDate;
     let numberOfDays;
     let endDate;
-
     if (month && year) {
       startDate = this.convertToISODate(month, year);
       numberOfDays = this.getNumberOfDaysInMonth(month, year);
-      endDate = DateTime.fromISO(startDate).plus({ days: numberOfDays }).toISODate() + "T00:00:00Z";
+      endDate = DateTime.fromISO(startDate).plus({ days: numberOfDays }).minus({ seconds: 1 }).toISODate() + "T00:00:00Z";
     }
     if (year && !month) {
       month = 1;
       startDate = this.convertToISODate(month, year);
       console.log("startDate for year:::::::::::::" + startDate);
 
-      endDate = DateTime.fromISO(startDate).plus({ years: 1 }).toUTC().toISO({ suppressMilliseconds: true, includeOffset: false }) + "Z";
+      endDate = DateTime.fromISO(startDate)
+        .plus({ years: 1 })
+        .minus({ seconds: 1 })
+        .toISO({ suppressMilliseconds: true, includeOffset: false }) + "Z";
 
     }
     console.log("startDate::::::::::::" + startDate);
@@ -1388,21 +1415,25 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     meter = meter;
     let tempResults = [];
-    let finalResults: { timezone?: string, value?: any }[] = [];
+    let finalResults: { timestamp?: string, value?: any }[] = [];
     let response;
     let url;
-    //  const changedDatesJSON=this.addOffSetToStartAndEndDates(developerExternalId,organizationId,startDate,endDate);
-    // startDate=(await changedDatesJSON).startDate;
-    // endDate=(await changedDatesJSON).endDate;
-    const monthlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(1d,-5h30m)`;
-    const yearlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read"WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(30d,-5h30m)`;
+    const offSet = await this.getOffSetForInfluxQuery(developerExternalId, organizationId, startDate);
+    console.log("THE OFFSET RETURNED:::" + offSet);
+
+    const formattedOffSet = offSet.formattedOffset;
+
+    const monthlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read" WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(1d,${formattedOffSet})`;
+    const yearlyQuery = `SELECT time, SUM("read") AS total_meter_reads FROM "read" WHERE time >= '${startDate}' AND time < '${endDate}'  AND meter = '${meter}'GROUP BY time(30d,${formattedOffSet})`;
     console.log("accumulation type:::::::::::::::::" + accumulationType);
     if (accumulationType === 'Monthly' && month && year) {
       url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${monthlyQuery}`;
     }
-    else if (accumulationType = 'Yearly' && year) {
+
+    else if (accumulationType === 'Yearly' && year) {
       url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${yearlyQuery}`;
     }
+
     else {
       throw new HttpException('Invalid accumulationType', HttpStatus.BAD_REQUEST);
     }
@@ -1416,6 +1447,12 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     try {
       response = await axios.get(url, config);
+
+      if (!response) {
+        throw new HttpException('Some Error occured', HttpStatus.AMBIGUOUS);
+      }
+
+
       if (!response.data.results[0].series) {
         throw new HttpException('No reads found', HttpStatus.CONFLICT);
       }
@@ -1425,26 +1462,34 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       throw error;
     }
 
+
+
     for (let i = 0; i < tempResults.length; i++) {
-      let resultObj: { timezone?: string, value?: any } = {};
+      let resultObj: { startTime?: string, endTime?: string, value?: any } = {};
       for (let j = 0; j < 2; j++) {
         if (j % 2 === 0) {
-          const dateStr = new Date(tempResults[i][j]).getTime();
-          const date = new Date(dateStr);
-          date.setHours(date.getHours() + 5, date.getMinutes() + 30);
-          const isoDateStr = date.toISOString();
-          resultObj.timezone = isoDateStr;
+          const startDateStr = new Date(tempResults[i][j]).getTime();
+          const startDate = new Date(startDateStr);
+          const isoStartDateStr = startDate.toISOString();
+          resultObj.startTime = isoStartDateStr;
         } else {
           resultObj.value = tempResults[i][j];
+          if (i < tempResults.length - 1) {
+            const endDateStr = new Date(tempResults[i + 1][j - 1]).getTime();
+            const endDate = new Date(endDateStr);
+            const isoEndDateStr = endDate.toISOString();
+            resultObj.endTime = isoEndDateStr;
+          } else {
+            resultObj.endTime = endDate;
+          }
         }
       }
+
       finalResults.push(resultObj);
     }
     console.log(finalResults);
-    return finalResults;
-
+    return { 'aggregateType': accumulationType, 'accumulatedReads': finalResults, 'timezone': offSet.localTimeZone };
   }
-
 
   readFilterNullUndefined(arr) {
     for (let i = 0; i < arr.length; i++) {
@@ -1529,49 +1574,103 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
 
   async getPaginatedData(meter: string, filter: any, page: number): Promise<unknown[]> {
-    console.log(page)
-    let data:any;
-    let lastValue: Date | number;
-    if(isNaN(page)){
-      page = 1;
-    }
-    for (let currentPage = 1; currentPage <= page; currentPage++) {
-      const currentData = await this.retrieveDataWithLastValue(meter, filter, lastValue);
-      lastValue = currentData.length > 0 ? currentData[currentData.length - 1]['timestamp'] : '';
-      console.log("currentPage", currentPage)
-      if (currentPage === page) {
-        data= currentData;
-        console.log(lastValue);
-      }
-    }
+    console.log("page: " + page);
+    const pageSize = filter.limit;
+    const skipCount = (page - 1) * pageSize;
+    const data = await this.retrieveDataWithLastValue(meter, filter, skipCount, pageSize);
+    console.log("data:", data);
     return data;
   }
 
-  async retrieveDataWithLastValue(meter: string, filter: any, lastValue: Date | number): Promise<unknown[]> {
-    let currentQuery;
-    console.log(lastValue);
-    if (lastValue) {
-      let newDateTime = new Date(new Date(lastValue).getTime() + 1000).toISOString();
-      //@ts-ignore
+  async retrieveDataWithLastValue(meter: string, filter: any, skipCount: number, pageSize: number): Promise<unknown[]> {
+    let currentQuery: string;
+
+    if (filter.lastValue) {
+      let newDateTime = new Date(new Date(filter.lastValue).getTime() + 1000).toISOString();
       currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-        |> range(start: ${newDateTime}, stop: ${filter.end}) 
-        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-        |> limit(n: ${filter.limit})`;
+    |> range(start: ${newDateTime}, stop: ${filter.end})
+    |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read")
+    |> drop(columns: ["_start", "_stop"])
+    |> limit(n: ${pageSize}, offset: ${skipCount})`;
     } else {
-       //@ts-ignore
       currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-        |> range(start: ${filter.start}, stop: ${filter.end}) 
-        |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read" )  
-        |> limit(n: ${filter.limit})`;
+    |> range(start: ${filter.start}, stop: ${filter.end})
+    |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read")
+    |> drop(columns: ["_start", "_stop"])
+    |> limit(n: ${pageSize}, offset: ${skipCount})`;
     }
-    // console.log(currentQuery);
-    //@ts-ignore
+
     const org = process.env.INFLUXDB_ORG;
-    const result = await this.influxDB.getQueryApi(org).collectRows(currentQuery);
-  
+    const url = process.env.INFLUXDB_URL;
+    const token = process.env.INFLUXDB_TOKEN;
+
+    const influxDB = new InfluxDB({ url, token });
+    const queryApi = influxDB.getQueryApi(org);
+    const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
+
     return result.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
     }));
   }
+
+
+  //
+  async getOffSetForInfluxQuery(developerExternalId, organizationId, startDate) {
+
+    let localTime = null;
+    let formattedOffset = null;
+    let device = await this.deviceService.findDeviceByDeveloperExternalId(developerExternalId, organizationId);
+   // console.log("DEVICE:::::::::::" + device);
+    if (device.latitude && device.longitude) {
+     // console.log("THIS IS THE LAT " + device.latitude + "AND LONG" + device.longitude);
+     // console.log("calling the localtimezone function");
+      localTime = getLocalTime(startDate, device);
+    }
+
+    const localTimeZone = getLocalTimeZoneFromDevice(localTime, device);
+   // console.log("localTimeZone:::::" + localTimeZone);
+   // console.log("calling the offset function");
+    const localTimeZoneName = localTimeZone;
+   // console.log("TIME ZONE BEING SENT::::" + localTimeZoneName);
+    const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
+    const offset = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
+   // console.log("FINAL OFFSET HOURS::::::" + typeof (offset.hours));
+   // console.log("FINAL OFFSET MINUTES::::::" + typeof (offset.minutes));
+
+    const offSetHoursString = (offset.hours).toString();
+    const offSetMinutesString = (offset.minutes).toString();
+
+    formattedOffset = offSetHoursString + 'h' + offSetMinutesString + 'm';
+
+    console.log("FORMATTED OFFSET BEING RETURNED:::" + formattedOffset);
+
+    return { 'formattedOffset': formattedOffset, 'offSetHours': offset.hours, 'offSetMinutes': offset.minutes, 'localTimeZone': localTimeZoneName };
+
+  }
+
+
+  async getOngoingReads(meter, filter): Promise<any> {
+
+    console.log("IN THE FUNCTION TO GET ONGOING READS");
+
+    const url = process.env.INFLUXDB_URL;
+    const token = process.env.INFLUXDB_TOKEN;
+    const org = process.env.INFLUXDB_ORG;
+    const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
+    console.log('filter.start:::::::' + filter);
+    // console.log('filter.end:::::::::' + filter.end);
+    // console.log('filter.limit:::::::' + filter.limit);
+    // console.log('filter.offset:::::' + filter.offset);
+    // console.log('meter:::::::::::::' + meter);
+
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}") |> range(start:${filter.start} , stop:${filter.end} ) |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read") |> limit(n:${filter.limit} , offset:${filter.offset})`;
+
+    // const result = await queryApi.queryRaw(fluxQuery);
+    const result = await queryApi.collectRows(fluxQuery);
+    console.log(result);
+    console.log('\ncollect-rows query SUCCESS');
+    return result
+  }
+
 }

@@ -252,37 +252,46 @@ export class DeviceGroupController {
       });
     }
     console.log(deviceGroupToRegister.blockchainAddress);
+    //@ts-ignore
+    console.log(process.env.DREC_BLOCKCHAIN_ADDRESS);
+    return await this.deviceGroupService.createOne(
+      organizationId,
+      deviceGroupToRegister,
+      user.id,
+      //@ts-ignore
+      process.env.DREC_BLOCKCHAIN_ADDRESS,
+      
+    );
+    // if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
+    //   console.log("deviceGroupToRegister.blockchainAddress");
+    //   deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
 
-    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
-      console.log("deviceGroupToRegister.blockchainAddress");
-      deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
+    //   return await this.deviceGroupService.createOne(
+    //     organizationId,
+    //     deviceGroupToRegister,
+    //     user.id,
+    //     deviceGroupToRegister.blockchainAddress
+    //   );
 
-      return await this.deviceGroupService.createOne(
-        organizationId,
-        deviceGroupToRegister,
-        user.id,
-        deviceGroupToRegister.blockchainAddress
-      );
+    // } else {
+    //   //console.log(user.blockchainAccountAddress);
+    //   if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
+    //     //console.log("user.blockchainAddress")
+    //     return await this.deviceGroupService.createOne(
+    //       organizationId,
+    //       deviceGroupToRegister,
+    //       user.id,
+    //       user.blockchainAccountAddress
+    //     );
 
-    } else {
-      //console.log(user.blockchainAccountAddress);
-      if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
-        //console.log("user.blockchainAddress")
-        return await this.deviceGroupService.createOne(
-          organizationId,
-          deviceGroupToRegister,
-          user.id,
-          user.blockchainAccountAddress
-        );
+    //   } else {
 
-      } else {
-
-        throw new ConflictException({
-          success: false,
-          message: 'No blockchain address sent and no blockchain address attached to this account',
-        });
-      }
-    }
+    //     throw new ConflictException({
+    //       success: false,
+    //       message: 'No blockchain address sent and no blockchain address attached to this account',
+    //     });
+    //   }
+    // }
 
   }
 
