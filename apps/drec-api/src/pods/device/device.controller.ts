@@ -159,7 +159,11 @@ export class DeviceController {
     description: `The device with the code doesn't exist`,
   })
   async get(@Param('id') id: number): Promise<DeviceDTO | null> {
-    return this.deviceService.findOne(id);
+    const devicedata =  await this.deviceService.findOne(id);
+    console.log(devicedata);
+    devicedata.externalId = devicedata.developerExternalId;
+    delete devicedata["developerExternalId"];
+    return devicedata
   }
 
   @Get('externalId/:id')

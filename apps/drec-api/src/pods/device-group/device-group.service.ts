@@ -1952,20 +1952,6 @@ export class DeviceGroupService {
       //@ts-ignore
 
       this.endReservation(groupId, group, deviceGroupIssueNextDateDTO)
-      // await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
-      // let devices = await this.deviceService.findForGroup(groupId);
-
-      // if (!devices?.length) {
-      //   return;
-      // }
-
-      // await Promise.all(
-      //   devices.map(async (device: any) => {
-      //     await this.deviceService.removeFromGroup(device.id, groupId);
-      //   }),
-      // );
-
-
       return;
     }
 
@@ -2002,7 +1988,7 @@ export class DeviceGroupService {
   }
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
-    console.log(group);
+    //console.log(group);
     let updatedissuedatestatus = new DeviceGroup();
     if (group) {
 
@@ -2051,6 +2037,7 @@ export class DeviceGroupService {
         status: 'Pending',
       },
     });
+    console.log(groupId,"count",count)
     return count;
   }
 

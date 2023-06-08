@@ -270,8 +270,7 @@ export class IssuerService {
     // console.log(historydevicerequestall);
     await Promise.all(
       historydevicerequestall.map(async (historydevice: HistoryDeviceGroupNextIssueCertificate, historydevicerequestindex: number) => {
-        const count = await this.groupService.countgroupIdHistoryissuanceDevicelog(historydevice.groupId)
-       console.log("count",count)
+       
         const group = await this.groupService.findOne(
           { id: historydevice.groupId }
         );
@@ -330,16 +329,20 @@ export class IssuerService {
           }
          
         }
+        
         await this.groupService.HistoryUpdatecertificateissuedate(historydevice.id, HistoryNextInssuanceStatus.Completed);
         if (group.reservationEndDate.getTime() <= new Date(device.createdAt).getTime()) {
 
           await this.deviceService.removeFromGroup(device.id, group.id);
         }
+        const count = await this.groupService.countgroupIdHistoryissuanceDevicelog(historydevice.groupId)
+        console.log("count",count)
         const checknextongoingissueance = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id })
-        console.log("checknextongoingissueance", checknextongoingissueance)
+        console.log("checknextongoingissueance", !checknextongoingissueance)
         if (count === 0 && !checknextongoingissueance) {
           await this.groupService.deactiveReaservation(group)
         }
+       
       }),
     )
   }
