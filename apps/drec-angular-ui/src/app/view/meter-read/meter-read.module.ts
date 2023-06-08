@@ -7,18 +7,20 @@ import {AddreadComponent} from './addread/addread.component'
 import { AllMetereadsComponent } from './all-metereads/all-metereads.component';
 
 import { MeterReadTableComponent } from './meter-read-table/meter-read-table.component';
-import {TimezonePipe} from '../../utils/timezone.pipe'
+import { PipesModule } from '../../pipes.module';
 
 @NgModule({
   declarations: [
-    AllMetereadsComponent,AddreadComponent, MeterReadTableComponent,TimezonePipe
+    AllMetereadsComponent,AddreadComponent, MeterReadTableComponent
   ],
   imports: [
     CommonModule,
     MeterReadRoutingModule,
     MaterialModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    PipesModule
   ]
+
 })
 export class MeterReadModule { }

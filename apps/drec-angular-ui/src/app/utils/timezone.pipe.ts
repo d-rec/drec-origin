@@ -10,6 +10,9 @@ export class TimezonePipe implements PipeTransform {
     const date = new Date(value);
     console.log(date)
     console.log(timezone)
+    if (timezone === undefined || timezone === null) {
+      timezone = "Asia/Kolkata"
+    }
     const formattedDate = momentTimeZone.tz(date, timezone).format(format);
     return formattedDate;
   }

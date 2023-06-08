@@ -4,10 +4,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MaterialModule} from './material/material.module';
-import {AuthInterceptor} from './auth/auth.interceptor';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule,HTTP_INTERCEPTORS} from '@angular/common/http';
+import { MaterialModule } from './material/material.module';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HeaderComponent } from './nav/header/header.component';
 import { FooterComponent } from './nav/footer/footer.component';
 import { SidemenuComponent } from './nav/sidemenu/sidemenu.component';
@@ -22,8 +22,8 @@ import { RedemptionReportComponent } from './view/redemption-report/redemption-r
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
-// import { TimezonePipe } from './timezone.pipe';
-
+//import { TimezonePipe } from './utils/timezone.pipe';
+import { PipesModule } from './pipes.module';
 
 @NgModule({
   declarations: [
@@ -41,9 +41,9 @@ import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-dev
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
-   
+
     CertifiedDevicesDeveloperComponent,
-    
+
   ],
   imports: [
     BrowserModule,
@@ -53,14 +53,15 @@ import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-dev
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    PipesModule,
     ToastrModule.forRoot({
       closeButton: true,
       timeOut: 15000, // 15 seconds
       progressBar: true,
     }),
-
+   
   ],
-  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
