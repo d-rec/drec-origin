@@ -32,7 +32,8 @@
     "@energyweb/issuer": "4.1.1-alpha.1634225870.0",
     "ethers": "^5.7.2",
     "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
-    "web3": "^1.8.1"
+    "web3": "^1.8.1",
+    "moment-timezone": "0.5.40"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",

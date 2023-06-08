@@ -11,7 +11,7 @@
 
         </mat-card-header>
         <hr class="mb-0 pb-0">
-<!-- 
+        <!-- 
         <mat-card-content>
            
                 <div class="d-flex">
@@ -41,7 +41,7 @@
                         </mat-form-field>
                     </div>
                     <div class="col-md-3">
-                        <mat-form-field appearance="outline">
+                        <!-- <mat-form-field appearance="outline">
                             <mat-label>TimeZone</mat-label>
                             <input type="text" placeholder="Please Enter timezone" aria-label="Number" matInput
                                 formControlName="timezone" [matAutocomplete]="auto">
@@ -50,7 +50,20 @@
                                     {{option}}
                                 </mat-option>
                             </mat-autocomplete>
+                        </mat-form-field> -->
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Select Timezone</mat-label>
+                            <input type="text" placeholder="Please Enter Timezone" aria-label="text" matInput
+                                formControlName="timezone" [matAutocomplete]="auto">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
+                                    {{code.name}}
+                                </mat-option>
+
+                            </mat-autocomplete>
+                           
                         </mat-form-field>
+                        <mat-error *ngIf="showerror"> Invalid timezone Selected </mat-error>
                     </div>
                     <div class="col-md-3">
 

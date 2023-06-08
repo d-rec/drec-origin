@@ -35,7 +35,7 @@ export class AllMetereadsComponent implements OnInit {
   pageSize = 5;
   currentPage = 0;
   pageSizeOptions: number[] = [5];
-  loading: boolean = true;
+  filter: boolean = false;
   loginuser: any
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
@@ -96,10 +96,11 @@ export class AllMetereadsComponent implements OnInit {
 
   }
   getPagedData() {
-
+ this.filter=true;
     console.log(this.externalId);
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    this.counterComponent.start(this.FilterForm,this.externalId);
+    console.log(this.FilterForm)
+    this.counterComponent.start(this.FilterForm,this.externalId,this.filter);
    
   }
   pageChangeEvent(event: PageEvent) {

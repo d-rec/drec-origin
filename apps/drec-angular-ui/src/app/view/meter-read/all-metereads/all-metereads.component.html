@@ -71,21 +71,23 @@
                     </mat-form-field>
                 </div>
 
+                <div class="d-flex align-items-center justify-content-end">
+                    <div class="me-3">
+                        <button class="btn-primary btn text-capitalize px-4"
+                            (click)="getPagedData()">filter</button>
+                    </div>
+                    <div class="">
+                        <button class="btn-dark btn text-capitalize px-4"
+                            (click)="reset()">Reset</button>
+                    </div>
+                </div>
                 
-                <div class="col-md-2">
-                    <button class="btn-primary btn text-capitalize px-4"
-                        (click)="getPagedData()">filter</button>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn-primary btn text-capitalize px-4"
-                        (click)="reset()">Reset</button>
-                </div>
 
             </div>
         </form>
         <hr>
         <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
-    <app-meter-read-table></app-meter-read-table>
+    <app-meter-read-table ></app-meter-read-table>
       </mat-card-content>
       <mat-card-footer></mat-card-footer>
     </mat-card>

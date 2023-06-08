@@ -164,7 +164,6 @@ export class AddDevicesComponent {
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
         this.countrylist = data;
 
       }
@@ -175,7 +174,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+        
         this.sdgblist = data;
 
       }
@@ -204,16 +203,22 @@ export class AddDevicesComponent {
     )
   }
   onSubmit() {
-    console.log(this.deviceForms.value.length);
-
-    this.deviceForms.value.forEach((element: any) => {
-      console.log(element);
+  
+    const formArray = this.myform.get('devices') as FormArray;
+    this.deviceForms.value.forEach((element: any,index:number) => {
+     
       this.deviceService.Postdevices(element).subscribe({
         next: data => {
-          console.log(data)
+         
+          const formGroup = formArray.at(index);
           // this.deviceForms.reset();
-          this.toastrService.success('Add Successfully !!', 'Device! ' + element.externalId);
-
+          this.toastrService.success('Added Successfully !!', 'Device! ' + element.externalId);
+          formGroup.reset();
+          while (formArray.length > 1) {
+            formArray.removeAt(1);
+          }
+        
+         
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)

@@ -4,82 +4,135 @@ $tritary: #3f3f3f;
 $gray: #3f3f3f;
 $white: #fff;
 $danger: #f44336;
-$lightgrey:lightgrey;
-$mat-divider-rgba:rgba(255, 255, 255, 0.5);
-$example-sidenav-rgba:rgba(0,0,0,0.1);
-$example-sidenav-rgba-bg:rgba(247, 247, 248, 0.5);
+$lightgrey: lightgrey;
+$mat-divider-rgba: rgba(255, 255, 255, 0.5);
+$example-sidenav-rgba: rgba(0, 0, 0, 0.1);
+$example-sidenav-rgba-bg: rgba(247, 247, 248, 0.5);
+
+::ng-deep .mat-expansion-panel-body {
+  padding: 0 17px 16px !important;
+}
 
 .example-container {
-    position: absolute;
-    top: 60px;
-    bottom: 60px;
-    left: 0;
-    right: 0;
-  }
+  position: absolute;
+  top: 46px;
+  bottom: 38px;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+
 .example-sidenav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 200px;
-    background: $example-sidenav-rgba-bg;
-  }
-  .menu-button {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    font-size: 1rem;
-  
-    mat-icon {
-        margin-right: 8px;
-    }
-  }
-  .avatar {
-    margin-top: 16px;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-  }
-  
-  .name {
-    margin-top: 8px;
-    font-weight: normal;
-  }
-  
-  .designation {
-    margin-top: 2px;
-    font-size: 0.7rem;
-    color: $lightgrey;
-  }
-  
-  mat-divider {
-    margin-top: 16px;
-    margin-bottom: 16px;
-    background-color: $mat-divider-rgba;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  background: $example-sidenav-rgba-bg;
+}
 
-  .menu-button
-  {
-    height: 50px!important;
-    font-size: 14px;
-    &.active
-    {
-    background-color: $primary!important;
+.menu-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 1rem;
+  margin-bottom: 6px;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.avatar {
+  margin-top: 16px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.name {
+  margin-top: 8px;
+  font-weight: normal;
+}
+
+.designation {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: $lightgrey;
+}
+
+mat-divider {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  background-color: $mat-divider-rgba;
+}
+
+.menu-button {
+  height: 50px !important;
+  font-size: 14px;
+
+  &.active {
+    background-color: $primary !important;
     border-radius: 0px;
-    padding: 20px inherit!important;
-    }
-    }
+    padding: 20px inherit !important;
+  }
+}
 
-    .example-sidenav
-    {
-      box-shadow: 3px 0px 33px $example-sidenav-rgba;
-      border: none!important;
-    }
+.example-sidenav {
+  box-shadow: 3px 0px 33px $example-sidenav-rgba;
+  border: none !important;
+}
 
-    .mat-mdc-button.mat-unthemed
-    {
-      color: $secondary!important;
+.mat-mdc-button.mat-unthemed {
+  color: $secondary !important;
+}
+
+// mat-button:hover{
+//   background-color: red;
+// }
+// this is for inside list matexpansion panel
+mat-nav-list {
+  .inside-menu-button {
+    height: 30px !important;
+    font-size: 14px;
+    letter-spacing: 0.6px;
+    font-weight: 300;
+    margin-bottom: 6px;
+
+    &.active {
+      // color: $primary!important;
+      border-radius: 0px;
+      // background: #fff !important;
+      // box-shadow: 3px 0px 33px $example-sidenav-rgba !important;
+      // padding: 20px inherit!important;
     }
-    // mat-button:hover{
-    //   background-color: red;
-    // }
+  }
+}
+
+// this is for mat expension panel height after expand     
+.mat-expansion-panel-header.mat-expanded {
+  height: 45px !important;
+}
+
+.mdc-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  // font-size: 1rem;
+  margin-bottom: 6px;
+  padding: 0 13px 0px 7px;
+
+  mat-icon {
+    margin-right: 8px;
+    vertical-align: top;
+    font-size: 1.125rem;
+    height: 1.125rem;
+    width: 1.125rem;
+  }
+
+  ::ng-deep .mat-content {
+    display: flex;
+    align-items: center;
+  }
+}

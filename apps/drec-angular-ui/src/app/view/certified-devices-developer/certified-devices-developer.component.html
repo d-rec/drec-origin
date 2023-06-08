@@ -1,0 +1,147 @@
+
+<div class="body-bg">
+	<mat-card class="example-card">
+		<mat-card-header>
+			<mat-card-title>
+				<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
+
+
+			</mat-card-title>
+
+		</mat-card-header>
+		<hr>
+		<mat-card-content>
+		
+            <h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+				<b>All certificate of those reservation in which my devices reserve </b>
+			</h2>
+			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
+			<ng-container *ngFor="let item of data;let i=index">
+
+				<mat-card class="innermat-card example-card1 border">
+					<mat-card-header class="">
+						<div class="col-12">
+							<mat-card-title class=" d-flex justify-content-between align-items-center">
+								<div>
+                                    {{i+1}}
+									<!-- <a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
+										aria-label="Button that displays a tooltip when focused or hovered over"
+										style="text-align: right;" href={{item.energyurl}}
+										target="_blank" class="certificate-text d-flex text-capitalize">
+										<mat-icon class="mt-1">card_membership</mat-icon>
+										<div class="certificate-id-text">
+											<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
+											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
+										</div>
+									</a> -->
+								</div>
+								<div class=" ">
+									<!-- <button class=" btn-content-back btn d-flex justify-content-end btn-sm"
+										*ngIf="!item.CertificateClaimed"
+										(click)="selectCertificateForClaim(item)">Claim</button>
+									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
+										*ngIf="item.CertificateClaimed">Claimed</button> -->
+
+								</div>
+							</mat-card-title>
+
+						</div>
+
+						<!-- <div class="d-flex justify-content-end">
+					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
+						
+				</div>
+	 -->
+
+					</mat-card-header>
+
+					<mat-card-content>
+						<!-- <div class="text-center text-danger mt-0 mb-2 pt-0 " *ngIf="!checkMetamaskConnected()">Metamask
+							not Connected, please connect metamask and then
+							<button class="button-click-here mt-0 pt-0" (click)="selectAccountAddressFromMetamask()">
+								click here</button> to select account for claim
+						</div> -->
+
+						<div class='content'>
+							<div class='column'>
+								<div class='row '>
+									<p><b>Generation Start Date</b>:&nbsp;
+										<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+										{{item.generationStartTimeinUTC|date:'long'}}
+									</p>
+								</div>
+							</div>
+							<div class='column'>
+								<div class='row'>
+									<p><b>Generation End
+											Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+										{{item.generationEndTimeinUTC |date:'long'}}</p>
+								</div>
+							</div>
+							<div class='column'>
+								<div class='row'>
+									<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
+										&nbsp;{{item1.value}}(Wh)</p>
+										
+								</div>
+								<div class='row' *ngIf="item.CertificateClaimed">
+									<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
+										&nbsp;{{item1.value}}(Wh)</p>
+										
+								</div>
+							</div>
+						</div>
+						<mat-accordion>
+
+							<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+								<mat-expansion-panel-header>
+									<mat-panel-title>
+										<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
+									</mat-panel-title>
+									<!-- <mat-panel-description>
+					  Currently I am {{panelOpenState ? 'open' : 'closed'}}
+					</mat-panel-description> -->
+								</mat-expansion-panel-header>
+								<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
+									<ng-container matColumnDef="certificate_issuance_startdate">
+										<th mat-header-cell *matHeaderCellDef>StartDate </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.certificate_issuance_startdate|date:'long'}}</td>
+									</ng-container>
+
+									<ng-container matColumnDef="certificate_issuance_enddate">
+										<th mat-header-cell *matHeaderCellDef> EndDate</th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.certificate_issuance_enddate|date:'long'}}</td>
+									</ng-container>
+
+									<ng-container matColumnDef="externalId">
+										<th mat-header-cell *matHeaderCellDef> Device Name </th>
+										<td mat-cell *matCellDef="let element" class="table-data"> {{element.externalId
+											}}
+										</td>
+									</ng-container>
+									<ng-container matColumnDef="readvalue_watthour">
+										<th mat-header-cell *matHeaderCellDef> Read Value </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											{{element.readvalue_watthour }} </td>
+									</ng-container>
+
+
+									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+									<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
+								</table>
+							</mat-expansion-panel>
+						</mat-accordion>
+
+
+					</mat-card-content>
+				</mat-card>
+
+				<br>
+			</ng-container>
+			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
+		</mat-card-content>
+	</mat-card>
+
+</div>

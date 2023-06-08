@@ -1,5 +1,5 @@
-<div class="body-bg">
-  
+<div class="body-bg  alldevice-component">
+
   <mat-card>
     <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
 
@@ -7,24 +7,24 @@
         <mat-card-title>
           <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">My All Devices
           </h2>
-      </mat-card-title>
+        </mat-card-title>
       </div>
       <div>
-        <button class="btn btn-dark justify-content-end px-4" routerLink="/device/add">
-          <mat-icon class="align-middle pe-2">add_circle</mat-icon>Add New Devices</button>
+        <button class="btn btn-dark justify-content-end px-4  d-flex align-items-center" routerLink="/device/add">
+          <mat-icon class="align-middle me-2">add_circle</mat-icon>Add New Devices</button>
       </div>
-    
 
-  </mat-card-header>
-  <hr class="mt-0 pt-0">
-    
+
+    </mat-card-header>
+    <hr class="mt-0 pt-0">
+
     <mat-card-content class="mat-body-cont text-center">
       <mat-form-field>
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
       </mat-form-field>
       <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-      <div class="content mat-elevation-z8 text-center" >
+      <div class="content mat-elevation-z8 text-center">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
 
           <!-- Checkbox Column -->
@@ -44,45 +44,45 @@
 
           <!-- Position Column -->
           <ng-container matColumnDef="onboarding_date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> OnBoarding Date </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> OnBoarding Date </th>
             <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'EEE d MMM y hh:mm:ss'}} </td>
           </ng-container>
-          <ng-container matColumnDef="projectName">
+          <ng-container matColumnDef="projectName" class="text-left">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Project Name </th>
             <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
           </ng-container>
-          <ng-container matColumnDef="externalId">
+          <ng-container matColumnDef="externalId" class="text-left">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
             <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
           </ng-container>
 
-         
+
           <ng-container matColumnDef="countryCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Country </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Country </th>
             <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
           </ng-container>
 
-        
-        
+
+
 
           <ng-container matColumnDef="fuelCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Fuel Code </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Fuel Code </th>
             <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
           </ng-container>
           <!-- Status Column -->
           <ng-container matColumnDef="commissioningDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Commissioning Date </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Commissioning Date </th>
             <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'EEE d MMM y hh:mm:ss'}} </td>
           </ng-container>
           <ng-container matColumnDef="capacity">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Capacity(Kw) </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Capacity(Kw) </th>
             <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
               <!-- <button>certificate</button> -->
-              <a  [routerLink]="['../edit/', row.externalId]"><mat-icon>edit</mat-icon></a>
+              <a class="edit-icon" [routerLink]="['../edit/', row.externalId]"><mat-icon class="primary">edit</mat-icon></a>
               <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
 
             </td>
