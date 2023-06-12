@@ -202,7 +202,7 @@
                                 [attr.aria-pressed]="hide" class="icon-eye">
                                 <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                             </button>
-                            <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or lower case) and one
+                            <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters (upper and/or lower case) and one
                                 number</mat-hint>
                             <mat-error class="pb-5 " *ngIf="checkValidation('password')">
                                 {{ getErrorPassword() }}
@@ -217,9 +217,9 @@
                                 [attr.aria-pressed]="hide1" class="icon-eye">
                                 <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
                             </button>
-                            <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or lower case) and one
+                            <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters (upper and/or lower case) and one
                                 number</mat-hint>
-                            <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
+                            <mat-error class="" *ngIf="checkValidation('confirmPassword')">
                                 {{ getErrorcheckconfirmPassword() }}
                             </mat-error>
                             <!-- <mat-error class="py-3"
