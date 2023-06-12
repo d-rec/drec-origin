@@ -90,7 +90,7 @@
         <mat-icon>add_circle</mat-icon>
         <span>Add Reservation</span>
       </button>
-      <button mat-button class="menu-button" routerLinkActive="active" *ngIf="loginuser.role ==='Buyer'">
+      <button mat-button class="menu-button" routerLinkActive="active" *ngIf="loginuser.role ==='Buyer'&&!showmenu">
         <mat-icon>account_circle</mat-icon>
         <span>Account</span>
       </button>

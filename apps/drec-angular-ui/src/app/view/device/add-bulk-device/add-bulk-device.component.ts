@@ -98,7 +98,7 @@ export class AddBulkDeviceComponent implements OnInit {
               // this.readForm.reset();
               this.currentFile = null;
               this.fileName = 'Please click here to Select File';
-              this.toastrService.success('Successfully!', 'bulk devices upload successfully!!');
+              this.toastrService.success('Successfully!', 'Devices uploaded in Bulk!!');
             },
             error: (err) => {                          //Error callback
               console.error('error caught in component', err)

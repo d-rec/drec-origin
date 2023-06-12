@@ -87,6 +87,7 @@ export class MeterReadTableComponent implements OnInit {
 
     this.service.GetRead(this.exterenalId, this.FilterForm.value)
       .subscribe((response: any) => {
+        this.filter = true;
         console.log(response)
 
         this.readdata = response;
