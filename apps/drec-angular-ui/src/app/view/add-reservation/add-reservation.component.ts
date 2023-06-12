@@ -303,8 +303,8 @@ export class AddReservationComponent {
         this.selection.clear();
         this.FilterForm.reset();
         //  this.getDeviceListData();
-        this.toastrService.success('Successfully!!', 'Reservation');
-        this.dialogRef.close();
+        this.toastrService.success('Successfully!!', 'Reservation Added');
+        this.dialogRef.close(); 
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)

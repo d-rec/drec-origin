@@ -7,7 +7,7 @@ import {AddreadComponent} from './addread/addread.component'
 import { AllMetereadsComponent } from './all-metereads/all-metereads.component';
 
 import { MeterReadTableComponent } from './meter-read-table/meter-read-table.component';
-
+import { PipesModule } from '../../pipes.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +18,9 @@ import { MeterReadTableComponent } from './meter-read-table/meter-read-table.com
     MeterReadRoutingModule,
     MaterialModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    PipesModule
   ]
+
 })
 export class MeterReadModule { }

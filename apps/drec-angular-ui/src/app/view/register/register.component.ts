@@ -118,7 +118,7 @@ export class RegisterComponent implements OnInit {
       next: data => {
         console.log(data)
         this.registerForm.reset();
-        this.toastrService.success('Successfully!!', 'Registration');
+        this.toastrService.success('Successfully!!', 'User Registration');
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)

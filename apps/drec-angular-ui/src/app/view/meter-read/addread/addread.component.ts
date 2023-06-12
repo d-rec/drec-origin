@@ -144,11 +144,15 @@ export class AddreadComponent implements OnInit {
   private _filter(value: string): string[] {
     console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0));
-    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0).length > 0)) {
+    console.log(filterValue)
+    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
+    }else{
+      this.showerror = false;
     }
-    return this.timezonedata.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0)
+    
+    return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
   }
   getErrorcheckdatavalidation() {
     return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
@@ -209,7 +213,7 @@ export class AddreadComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();
-        this.toastrService.success('Successfully!', 'Read Add SuccessFully!!');
+        this.toastrService.success('Successfully!', 'Read Added!!');
       },
       error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
         console.error('error caught in component', err)
