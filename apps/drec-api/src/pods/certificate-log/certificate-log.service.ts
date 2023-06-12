@@ -187,7 +187,7 @@ export class CertificateLogService {
               //   singleDeviceLogEle['timezone'] = countryCodeFound.timezones[0].name;
               // }
               singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-                  
+
               certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
 
             });
@@ -266,7 +266,7 @@ export class CertificateLogService {
               //   singleDeviceLogEle['timezone'] = countryCodeFound.timezones[0].name;
               // }
               singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-                  
+
               certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
             });
 
@@ -587,14 +587,14 @@ export class CertificateLogService {
 
   //add function to get the certified log which device of developer added in reservation for developer
 
-  async getCertifiedlogofDeveloperDevice(orgId: number): Promise<any[]> {
-    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(orgId)
-    //  console.log("getnewreservationinfo", getnewreservationinfo);
-    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(orgId)
-    // console.log("getoldreservationinfo", getoldreservationinfo);
-    if (getoldreservationinfo.length > 0) {
+  async getCertifiedlogofDeveloperDevice(orgId: number, pageNumber) {
+    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(orgId, pageNumber)
+    console.log("getnewreservationinfo",getnewreservationinfo.deviceGroups.length);
+    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(orgId, pageNumber)
+    console.log("getoldreservationinfo", getoldreservationinfo);
+    if (getoldreservationinfo.deviceGroups.length > 0) {
       return this.getDeveloperfindreservationcertified(getoldreservationinfo);
-    } else if (getnewreservationinfo.length > 0) {
+    } else if (getnewreservationinfo.deviceGroups.length > 0) {
       console.log("580");
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo);
     }
@@ -610,6 +610,7 @@ export class CertificateLogService {
         let newq = await this.certificaterrepository
           .createQueryBuilder('issuar')
           .where(`issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`)
+          .limit(10);
         const groupedDatasql = await newq.getQuery();
         console.log(groupedDatasql)
         const result = await newq.getMany();
@@ -665,7 +666,7 @@ export class CertificateLogService {
                     certifiedlist.perDeviceCertificateLog.push(devicelog[0])
 
                   }
-                 
+
                 }
 
                 //   return devicelog;
@@ -682,20 +683,21 @@ export class CertificateLogService {
     return finalcertificatesInReservationWithLog
   }
 
-  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo): Promise<CertificateNewWithPerDeviceLog[]> {
+  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo): Promise<any> {
 
     let finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
-      getreservationinfo.map(async (group: any, index: number) => {
+      getreservationinfo.deviceGroups.map(async (group: any, index: number) => {
         console.log(typeof group.internalCertificateId)
-       // console.log("getreservationinfo", group.internalCertificateId);
+        // console.log("getreservationinfo", group.internalCertificateId);
         let newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(`crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`)
+        // .limit(10);
         const groupedDatasql = await newq.getQuery();
-       // console.log(groupedDatasql)
+        console.log(groupedDatasql)
         const result = await newq.getMany();
-       // console.log(result)
+        // console.log(result)
         let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> = [];
         result.forEach(ele => certificatesInReservationWithLog.push({ ...ele, perDeviceCertificateLog: [], certificateStartDate: '', certificateEndDate: '' }));
 
@@ -729,7 +731,7 @@ export class CertificateLogService {
                 const device = await this.deviceService.findOne(deviceid);
                 let devicelog;
                 if (group.developerdeviceIds.find(ele => ele === deviceid)) {
-                 
+
                   devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
                   devicelog.forEach(singleDeviceLogEle => {
                     singleDeviceLogEle.externalId = device.developerExternalId
@@ -745,7 +747,7 @@ export class CertificateLogService {
                 }
                 else {
                   devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
-                
+
                   if (devicelog.length > 0) {
                     const totalReadValue = devicelog.reduce(
                       (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
@@ -767,6 +769,13 @@ export class CertificateLogService {
         );
       })
     )
+
+    // const response = {
+    //   certificatelog: finalcertificatesInReservationWithLog,
+    //   currentpage: getreservationinfo.pageNumber,
+    //   totalPages: getreservationinfo.totalPages,
+    // }
+    // return response;
     return finalcertificatesInReservationWithLog
   }
 

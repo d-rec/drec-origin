@@ -4,7 +4,9 @@ import {
   Logger,
   ConflictException,
   Inject,
-  UnauthorizedException
+  UnauthorizedException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -292,6 +294,7 @@ export class DeviceGroupService {
                 console.log(typeof groupfilterDto.sdgbenefit);
                 qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
               } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+
                 console.log(JSON.stringify(groupfilterDto.sdgbenefit));
                 console.log(typeof groupfilterDto.sdgbenefit);
                 const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
@@ -1272,6 +1275,7 @@ export class DeviceGroupService {
   @Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('*/3 * * * *')
   async getAddedCSVProcessingJobsAndStartProcessing() {
+    console.log("bulkupload")
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
     if (filesAddedForProcessing === undefined) {
@@ -1287,7 +1291,7 @@ export class DeviceGroupService {
     data.organizationId = filesAddedForProcessing.organizationId;
     const response = await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
 
-
+    console.log("response");
     // const response = await this.fileService.get(
     //   filesAddedForProcessing.fileId,
     //   data,
@@ -2037,7 +2041,7 @@ export class DeviceGroupService {
         status: 'Pending',
       },
     });
-    console.log(groupId,"count",count)
+    console.log(groupId, "count", count)
     return count;
   }
 
@@ -2148,8 +2152,18 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId): Promise<any> {
+  async getReservationInforDeveloperBsise(orgId,pageNumber): Promise<any> {
+    const pageSize = 10;
+   // const pageNumber = 2
+    if (pageNumber <= 0) {
+      throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
+    }
 
+    const skip = (pageNumber - 1) * pageSize;
+    console.log(skip)
+
+
+    //const totalPages = Math.ceil(totalCountQuery / limit);
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
@@ -2158,11 +2172,26 @@ export class DeviceGroupService {
       .orderBy('dg.id', 'ASC')
       .where(`d.organizationId = :orgId`, { orgId: orgId })
       .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-      const groupedDatasql = await queryBuilder.getSql();
-    // console.log(groupedDatasql);
-    const groupedData = await queryBuilder.getRawMany();
-    // console.log(groupedData)
+      .offset(skip) // Calculate the offset based on the current page
+      .limit(pageSize); // Set the limit to the number of items per page
 
+    const groupedDatasql = await queryBuilder.getSql();
+    console.log(groupedDatasql);
+    const groupedData = await queryBuilder.getRawMany();
+    const totalCountQuery= this.repository.createQueryBuilder('dg')
+    .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+    .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
+    .where(`d.organizationId = :orgId`, { orgId: 2 })
+    .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
+    const totalCount = await totalCountQuery.getRawMany();
+    console.log("totalCountQuery",totalCount.length);
+   
+    const totalPages = Math.ceil(totalCount.length / pageSize);
+
+    if (pageNumber > totalPages) {
+      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    }
+    console.log(totalPages);
     let deviceGroups = groupedData.reduce((acc, curr) => {
 
       const existing = acc.find(item => item.dg_id === curr.dg_id);
@@ -2171,10 +2200,10 @@ export class DeviceGroupService {
         let newobj = {};
 
         const existing1 = acc.find(item => item.id === curr.id);
-        if(existing1){
+        if (existing1) {
           existing.developerdeviceIds.push(curr.id);
         }
-       existing.internalCertificateId.push(curr.crm_internalCertificateId)
+        existing.internalCertificateId.push(curr.crm_internalCertificateId)
         // existing.certificatelog.push(newobj);
       } else {
 
@@ -2190,10 +2219,14 @@ export class DeviceGroupService {
       }
       return acc;
     }, []);
-
-    return deviceGroups;
+    const response = {
+      deviceGroups,
+      pageNumber,
+      totalPages,
+    };
+    return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId,pageNumber): Promise<any> {
 
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
@@ -2203,8 +2236,8 @@ export class DeviceGroupService {
       .orderBy('dg.id', 'ASC')
       .where(`d.organizationId = :orgId`, { orgId: orgId })
       .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-     
-      const groupedDatasql = await queryBuilder.getSql();
+      .limit(5)
+    const groupedDatasql = await queryBuilder.getSql();
     // console.log(groupedDatasql);
     const groupedData = await queryBuilder.getRawMany();
     // console.log(groupedData)
@@ -2213,10 +2246,10 @@ export class DeviceGroupService {
       if (existing) {
         let newobj = {};
         const existing1 = acc.find(item => item.id === curr.id);
-        if(existing1){
+        if (existing1) {
           existing.developerdeviceIds.push(curr.id);
         }
-       existing.internalCertificateId.push(curr.id)
+        existing.internalCertificateId.push(curr.id)
         // existing.certificatelog.push(newobj);
       } else {
         acc.push({
@@ -2231,7 +2264,12 @@ export class DeviceGroupService {
       }
       return acc;
     }, []);
-
-    return deviceGroups;
+    const totalPages =10;
+    const response = {
+      deviceGroups,
+      pageNumber,
+      totalPages,
+    };
+    return response;
   }
 }

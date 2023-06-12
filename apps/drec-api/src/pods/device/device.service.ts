@@ -77,6 +77,9 @@ export class DeviceService {
     ////console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
+      order: {
+        createdAt: 'DESC',
+      },
     });
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
@@ -592,7 +595,7 @@ export class DeviceService {
 
   }
   //
-  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
+  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO,page: number, limit: number): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
 
       fuelCode: filter.fuelCode,
@@ -609,28 +612,46 @@ export class DeviceService {
       order: {
         organizationId: 'ASC',
       },
+      skip: (page - 1) * limit,
+      take: limit,
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise<Device[]> {
+  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO, page: number, limit: number): Promise<{devices: Device[], currentPage: number, totalPages: number }> {
 
-    let query = this.getBuyerFilteredQuery(filterDto);
+    let query = this.getBuyerFilteredQuery(filterDto, page, limit);
 
     let where: any = query.where
 
     where = { ...where, groupId: null };
 
     query.where = where;
-    const unreservedevices = await this.repository.find(query)
-    const newunreservedevicesDevices = [];
+    // const unreservedevices = await this.repository.find(query)
+    // const newunreservedevicesDevices = [];
 
-    await unreservedevices.map((device: Device) => {
+    // await unreservedevices.map((device: Device) => {
 
-      device.externalId = device.developerExternalId
+    //   device.externalId = device.developerExternalId
+    //   delete device["developerExternalId"];
+    //   newunreservedevicesDevices.push(device);
+    // })
+    // return newunreservedevicesDevices;
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = page;
+  
+    const newUnreservedDevices = devices.map((device: Device) => {
+      device.externalId = device.developerExternalId;
       delete device["developerExternalId"];
-      newunreservedevicesDevices.push(device);
-    })
-    return newunreservedevicesDevices;
+      return device;
+    });
+  
+    return {
+      devices: newUnreservedDevices,
+      currentPage,
+      totalPages,
+    };
   }
 
 

@@ -364,7 +364,7 @@ export class ReadsService {
   ): Promise<MeasurementDTO> {
     //@ts-ignore
     const final = await this.NewfindLatestRead(deviceId, device.createdAt);
-
+    console.log("final", final)
     let reads: any = [];
 
     if (measurement.type === "History") {
@@ -441,7 +441,9 @@ export class ReadsService {
       if (!final) {
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
+
             if (final && final['timestamp']) {
+
               //@ts-ignore
               if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
                 return reject(
@@ -449,7 +451,7 @@ export class ReadsService {
                     success: false,
                     message:
                       //@ts-ignore
-                      `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+                      `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`
 
                   }),
                 );
@@ -492,6 +494,7 @@ export class ReadsService {
           await new Promise((resolve, reject) => {
             measurement.reads.forEach((element, measurmentreadindex) => {
               if (final && final['timestamp']) {
+
                 //@ts-ignore
                 if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
                   return reject(
@@ -499,7 +502,7 @@ export class ReadsService {
                       success: false,
                       message:
                         //@ts-ignore
-                        `The sent date for reading ${element.endtimestamp} is less than last sent mter read date ${final.timestamp}`
+                        `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`
 
                     }),
                   );

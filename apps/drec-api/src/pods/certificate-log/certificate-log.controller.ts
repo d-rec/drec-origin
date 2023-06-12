@@ -30,7 +30,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog,CertificateNewWithPerDeviceLog } from './dto'
+import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
@@ -123,7 +123,7 @@ export class CertificateLogController {
             })
         }
         // setTimeout(() => {
-          
+
         // }, 2000)
         return await this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
@@ -171,7 +171,7 @@ export class CertificateLogController {
         return this.certificateLogService.getCertificateRedemptionReport(id);
     }
 
-    
+
     // @Get('/missingCertificate')
     // findAll() {
     //     return this.certificateLogService.getmissingtoken();
@@ -184,61 +184,62 @@ export class CertificateLogController {
     @Permission('Read')
     @ACLModules('DEVICE_MANAGEMENT_CRUDL')
     @ApiResponse({
-      status: HttpStatus.OK,
-      description: 'Returns the certificate_read_module table',
+        status: HttpStatus.OK,
+        description: 'Returns the certificate_read_module table',
     })
     @ApiQuery({
-      name: 'certificateStartDate',
-      required: false,
+        name: 'certificateStartDate',
+        required: false,
     })
     @ApiQuery({
-      name: 'certiifcateEndDate',
-      required: false,
+        name: 'certiifcateEndDate',
+        required: false,
     })
     @ApiQuery({
-      name: 'pageNumber',
-      type: Number,
-      required: true,
+        name: 'pageNumber',
+        type: Number,
+        required: true,
     })
     @ApiQuery({
-      name: 'targetVolumeCertificateGenerationRequestedInMegaWattHour',
-      type: Number,
-      required: false,
+        name: 'targetVolumeCertificateGenerationRequestedInMegaWattHour',
+        type: Number,
+        required: false,
     })
     @ApiQuery({
-      name: 'deviceFilter',
-      type: Object,
-      required: false,
+        name: 'deviceFilter',
+        type: Object,
+        required: false,
     })
     async GetCertificateReadModule(
-      @UserDecorator() { organizationId }: ILoggedInUser,
-      @Query('pageNumber') pageNumber: number,
-      @Query('certificateStartDate') generationStartTime?: string,
-      @Query('certiifcateEndDate') generationEndTime?: string,
-      @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour') targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
-      @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
+        @UserDecorator() { organizationId }: ILoggedInUser,
+        @Query('pageNumber') pageNumber: number,
+        @Query('certificateStartDate') generationStartTime?: string,
+        @Query('certiifcateEndDate') generationEndTime?: string,
+        @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour') targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
+        @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
     ) {
-      return await this.certificateLogService.getsCertificateReadModule(
-        organizationId.toString(),
-        pageNumber,
-        deviceFilter,
-        generationStartTime,
-        generationEndTime,
-        targetVolumeCertificateGenerationRequestedInMegaWattHour,
-      );
+        return await this.certificateLogService.getsCertificateReadModule(
+            organizationId.toString(),
+            pageNumber,
+            deviceFilter,
+            generationStartTime,
+            generationEndTime,
+            targetVolumeCertificateGenerationRequestedInMegaWattHour,
+        );
     }
-    
-    
+
+
     /* for developre*/
     @Get('/issuer/certifiedfordeveloper')
     @UseGuards(AuthGuard('jwt'))
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getCertificatesForDeveloper(
-       
-        @UserDecorator() user: ILoggedInUser,
-    ): Promise<CertificateNewWithPerDeviceLog[]> {
-       console.log("238")
 
-        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId);
+        @UserDecorator() user: ILoggedInUser,
+        @Query('pageNumber') pageNumber: number,
+    )/*: Promise<CertificateNewWithPerDeviceLog[]>*/ {
+        console.log("238")
+        pageNumber = 1;
+        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId, pageNumber);
     }
 }

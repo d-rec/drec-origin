@@ -1,9 +1,9 @@
 export enum OffTaker {
   School = 'School',
-  HealthFacility = 'HealthFacility',
+  HealthFacility = 'Health Facility',
   Residential = 'Residential',
   Commercial = 'Commercial',
   Industrial = 'Industrial',
-  PublicSector = 'PublicSector',
+  PublicSector = 'Public Sector',
   Agriculture='Agriculture'
 }

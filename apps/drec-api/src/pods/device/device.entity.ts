@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn,BeforeUpdate } from 'typeorm';
 import {
   DeviceStatus,
   Installation,
@@ -166,4 +166,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true })
   version: string;
+
+  @Column({ nullable: true })
+  updatedAt: Date;
+
+  // @BeforeUpdate()
+  // updateTimestamp() {
+  //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
+  // }
 }
