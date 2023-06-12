@@ -91,8 +91,11 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
-  ): Promise<DeviceDTO[]> {
-    return this.deviceService.finddeviceForBuyer(filterDto);
+    @Query('pagenumber') pagenumber: number | null,
+  )/*: Promise<DeviceDTO[]>*/ {
+    const page = pagenumber;
+    const limit = 10;
+    return this.deviceService.finddeviceForBuyer(filterDto, page, limit);
   }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -159,7 +162,7 @@ export class DeviceController {
     description: `The device with the code doesn't exist`,
   })
   async get(@Param('id') id: number): Promise<DeviceDTO | null> {
-    const devicedata =  await this.deviceService.findOne(id);
+    const devicedata = await this.deviceService.findOne(id);
     console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata["developerExternalId"];
@@ -550,10 +553,10 @@ export class DeviceController {
     @UserDecorator() user: ILoggedInUser,
     @Query('externalId') externalId: number,
     @Query('groupUid') groupuId: string,
-  ) :Promise<any>{
+  ): Promise<any> {
     // console.log(externalId);
     // console.log(groupuId)
-    
+
     const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
     if (groupuId === null || !regexExp.test(groupuId)) {
       return new Promise((resolve, reject) => {
@@ -567,7 +570,7 @@ export class DeviceController {
     let device: DeviceDTO | null
 
     device = await this.deviceService.findOne(externalId);
-   /// console.log(device);
+    /// console.log(device);
     if (device === null) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -578,7 +581,7 @@ export class DeviceController {
     }
     let group: DeviceGroup | null
     group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
-   // console.log(group);
+    // console.log(group);
     if (group === null || group.buyerId != user.id) {
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
@@ -587,7 +590,7 @@ export class DeviceController {
         }))
       })
     }
-    return await this.deviceService.getcertifieddevicedaterange(device,group.id);
+    return await this.deviceService.getcertifieddevicedaterange(device, group.id);
   }
   // @Get('/certified/date-range-log')
   // @UseGuards(AuthGuard('jwt'))
