@@ -53,7 +53,7 @@ export class AddReservationComponent {
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
   FilterForm: FormGroup;
-  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };

@@ -29,7 +29,7 @@
                                 </mat-form-field>
                             </div> -->
                             <div class="col-md-3">
-                                <!-- <mat-form-field>
+                                <mat-form-field>
                                     <mat-label class="text-capitalize">Select country Code</mat-label>
                                      <input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
                                         formControlName="countryCode" [matAutocomplete]="auto" multiple>
@@ -39,9 +39,9 @@
                                         </mat-option>
                                     </mat-autocomplete> 
                                     
-                                </mat-form-field> -->
+                                </mat-form-field>
 
-                                <mat-form-field>
+                                <!-- <mat-form-field>
                                     <mat-select formControlName="countryCode" [multiple]="true" placeholder="Select Options" matAutocomplete="auto">
                                       <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">{{code.country}}</mat-option>
                                     </mat-select>
@@ -49,7 +49,7 @@
                                     <mat-autocomplete #auto="matAutocomplete">
                                       <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">{{code.country}}</mat-option>
                                     </mat-autocomplete>
-                                  </mat-form-field>
+                                  </mat-form-field> -->
                                   
                             </div>
                             <div class="col-md-3">
@@ -125,7 +125,7 @@
 
                                     <mat-radio-button value="All">All</mat-radio-button>
                                     <mat-radio-button value="Active"class="ms-2">Active</mat-radio-button>
-                                    <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button>
+                                    <!-- <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button> -->
                                 </mat-radio-group>
 
 
@@ -136,7 +136,7 @@
                                         (click)="DisplayList()">filter</button>
                                 </div>
                                 <div class="">
-                                    <button class="btn-dark btn text-capitalize px-4">Reset</button>
+                                    <button class="btn-dark btn text-capitalize px-4"(click)="reset()">Reset</button>
                                 </div>
 
 
@@ -158,7 +158,29 @@
                 </mat-form-field> -->
 <div class="content mat-elevation-z8 d-flex flex-column">
     <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-truncate">Action</th>
+            <td mat-cell *matCellDef="let row; let i=index;" class="table-data-myreservation">
+                <tr class="d-flex">
+                    <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
+                        [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}"
+                        target="_blank"><mat-icon class="fs-6 mt-2" matTooltip="Certificate"  [matTooltipPosition]="'right'"
+                        aria-label="Button that displays a tooltip when focused or hovered over">visibility</mat-icon></a> -->
+                    <a matTooltip="Certificate" [matTooltipPosition]="'left'"
+                        aria-label="Button that displays a tooltip when focused or hovered over"
+                        (click)="DisplayCertificatepage(row)">
+                        <mat-icon class="fs-6 mt-2">card_membership</mat-icon></a>
+                    &nbsp;&nbsp;
+                    <a matTooltip="Devices" [matTooltipPosition]="'above'"
+                        aria-label="Button that displays a tooltip when focused or hovered over"
+                        (click)="DisplayDeviceList(row)"><mat-icon
+                            class="fs-6 mt-2">devices</mat-icon> </a>
+                </tr>
+                <!-- <button>certificate</button> -->
 
+                <!-- <button class="btn-primary btn btn-sm"  ><mat-icon>visibility</mat-icon> Devices</button> -->
+            </td>
+        </ng-container>
         <!-- Progress Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Name </th>
@@ -195,13 +217,13 @@
         <ng-container matColumnDef="reservationStartDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Start </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                {{row.reservationStartDate| date:'EEE d MMM y'}} </td>
+                {{row.reservationStartDate| date:'EEE d MMM y hh:mm:ss'}} </td>
         </ng-container>
         <!-- Fruit Column -->
         <ng-container matColumnDef="reservationEndDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> End </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                {{row.reservationEndDate| date:'EEE d MMM y'}} </td>
+                {{row.reservationEndDate| date:'EEE d MMM y hh:mm:ss'}} </td>
         </ng-container>
         <ng-container matColumnDef="targetVolumeInMegaWattHour">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Target </th>
@@ -218,29 +240,7 @@
             <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.numberOfdevices}}
             </td>
         </ng-container>
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-truncate">Action</th>
-            <td mat-cell *matCellDef="let row; let i=index;" class="table-data-myreservation">
-                <tr class="d-flex">
-                    <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
-                        [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}"
-                        target="_blank"><mat-icon class="fs-6 mt-2" matTooltip="Certificate"  [matTooltipPosition]="'right'"
-                        aria-label="Button that displays a tooltip when focused or hovered over">visibility</mat-icon></a> -->
-                    <a matTooltip="Certificate" [matTooltipPosition]="'left'"
-                        aria-label="Button that displays a tooltip when focused or hovered over"
-                        (click)="DisplayCertificatepage(row)">
-                        <mat-icon class="fs-6 mt-2">card_membership</mat-icon></a>
-                    &nbsp;&nbsp;
-                    <a matTooltip="Devices" [matTooltipPosition]="'above'"
-                        aria-label="Button that displays a tooltip when focused or hovered over"
-                        (click)="DisplayDeviceList(row.deviceIds)"><mat-icon
-                            class="fs-6 mt-2">devices</mat-icon> </a>
-                </tr>
-                <!-- <button>certificate</button> -->
-
-                <!-- <button class="btn-primary btn btn-sm"  ><mat-icon>visibility</mat-icon> Devices</button> -->
-            </td>
-        </ng-container>
+       
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
@@ -277,13 +277,9 @@
         <hr>
         <mat-card-content>
 
-            <!-- <samp style="text-align: center;">groupId:<i>{{group_uid}}</i></samp>
-             -->
-            <!-- <ng-container *ngFor="let item of DevicesList">
-
-              
-            </ng-container> -->
-
+            <h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize"><b>Reservation
+                Name:{{group_name}}</b></h2>
+<br>
             <table mat-table [dataSource]="dataSource1" matSort>
                 <ng-container matColumnDef="projectName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Project Name </th>
@@ -302,12 +298,12 @@
                 <!-- Fruit Column -->
                 <ng-container matColumnDef="createdAt">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> On Boarding Date </th>
-                    <td mat-cell *matCellDef="let row"> {{row.createdAt| date:'EEE d MMM y'}} </td>
+                    <td mat-cell *matCellDef="let row"> {{row.createdAt| date:'EEE d MMM y hh:mm:ss'}} </td>
                 </ng-container>
                 <!-- Fruit Column -->
                 <ng-container matColumnDef="commissioningDate">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Commissioning Date </th>
-                    <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE d MMM y'}} </td>
+                    <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE d MMM y hh:mm:ss'}} </td>
                 </ng-container>
                 <ng-container matColumnDef="offTaker">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> OffTaker </th>

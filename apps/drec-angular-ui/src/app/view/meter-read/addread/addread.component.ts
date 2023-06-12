@@ -217,7 +217,7 @@ export class AddreadComponent implements OnInit {
       },
       error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
         console.error('error caught in component', err)
-        this.toastrService.error('error!', err.error.message);
+        this.toastrService.error(err.error.message,'error!');
       }
     });
   }

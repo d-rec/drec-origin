@@ -112,13 +112,13 @@
         <!-- <div class="form-scroll"> -->
         <mat-card-content>
             <mat-stepper>
-                <mat-step label="User Info" >
+                <mat-step label="User Info">
                     <form [formGroup]="registerForm" class="px-3 example-form">
                         <!-- <ng-template matStepLabel></ng-template> -->
                         <ng-template matStepContent>
                             <mat-form-field appearance="fill" class="mt-0">
-                                <mat-label class="mat-labels-cont">First Name</mat-label>
-                                <input autofocus type="text" matInput placeholder="First Name*"
+                                <mat-label class="mat-labels-cont">First Name </mat-label>
+                                <input autofocus type="text" matInput 
                                     formControlName="firstName">
                                 <mat-error class="pb-1" *ngIf="checkValidation('firstName')">
                                     {{ fieldRequired }}
@@ -128,16 +128,15 @@
 
                             <mat-form-field appearance="fill" class="mt-0">
                                 <mat-label class="mat-labels-cont">Last Name</mat-label>
-                                <input autofocus type="text" matInput placeholder="Last Name*"
-                                    formControlName="lastName">
+                                <input autofocus type="text" matInput  formControlName="lastName">
                                 <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
                                     {{ fieldRequired }}
 
                                 </mat-error>
                             </mat-form-field>
-                            <mat-form-field appearance="fill"  class="mt-0">
-                                <mat-label class="mat-labels-cont">Email</mat-label>
-                                <input autofocus type="email" matInput placeholder="Email *" formControlName="email">
+                            <mat-form-field appearance="fill" class="mt-0">
+                                <mat-label class="mat-labels-cont">Email </mat-label>
+                                <input autofocus type="email" matInput formControlName="email">
                                 <mat-error class="pb-3" *ngIf="checkValidation('email')">
                                     {{ emaiErrors() }}
 
@@ -152,14 +151,14 @@
 
                     </form>
                 </mat-step>
-                <mat-step label="Organization Info" >
+                <mat-step label="Organization Info">
                     <form [formGroup]="registerForm" class="px-3 example-form">
                         <!-- <ng-template matStepLabel></ng-template> -->
                         <ng-template matStepContent>
                             <mat-form-field appearance="fill" class="mt-0">
-                                <mat-label class="mat-labels-cont text-capitalize">organizationType</mat-label>
-                                <mat-select formControlName="organizationType" placeholder="Organization Type *" class="value-fs">
-                                    <mat-option *ngFor="let org of orgtype" [value]="org.value" >
+                                <mat-label class="mat-labels-cont text-capitalize">organization Type*</mat-label>
+                                <mat-select formControlName="organizationType" class="value-fs">
+                                    <mat-option *ngFor="let org of orgtype" [value]="org.value">
                                         {{org.viewValue}}
                                     </mat-option>
                                 </mat-select>
@@ -168,75 +167,76 @@
                                 </mat-error>
                             </mat-form-field>
                             <mat-form-field appearance="fill" class="mt-0">
-                                <mat-label class="mat-labels-cont">OrganizationName</mat-label>
-                                <input autofocus type="text" matInput placeholder="OrganizationName *" formControlName="orgName">
+                                <mat-label class="mat-labels-cont">Organization Name</mat-label>
+                                <input autofocus type="text" matInput formControlName="orgName">
                                 <mat-error class="pb-1" *ngIf="checkValidation('orgName')">
                                     {{ fieldRequired }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-form-field appearance="fill" class="mt-0">
-                                <mat-label class="mat-labels-cont">OrganizationAddress</mat-label>
-                                <input autofocus type="text" matInput placeholder="OrganizationAddress"
-                                    formControlName="orgAddress">
+                                <mat-label class="mat-labels-cont">Organization Address</mat-label>
+                                <input autofocus type="text" matInput formControlName="orgAddress">
                                 <mat-error class="pb-3" *ngIf="checkValidation('orgAddress')">
                                     {{ fieldRequired }}
                                 </mat-error>
                             </mat-form-field>
                             <div class="d-flex mt-2">
-                                <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                                <button mat-button matStepperNext class="btn-primary btn  ms-2   btn-block">Next</button>
+                                <button mat-button matStepperPrevious
+                                    class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
+                                <button mat-button matStepperNext
+                                    class="btn-primary btn  ms-2   btn-block">Next</button>
                             </div>
                         </ng-template>
                     </form>
 
                 </mat-step>
-                <mat-step label="Password" >
-                    <form [formGroup]="registerForm">
-                        <ng-template matStepLabel></ng-template>
+                <mat-step label="Security Info">
+                    <form [formGroup]="registerForm" class="px-3 example-form">
+                        <ng-template matStepContent>
 
-                        <mat-form-field appearance="fill" class="mt-0 mb-4">
-                            <mat-label class="mat-labels-cont">Enter your password</mat-label>
-                            <input matInput [type]="hide ? 'password' : 'text'" placeholder="Password *"
-                                formControlName="password">
-                            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                                [attr.aria-pressed]="hide" class="icon-eye">
-                                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                            </button>
-                            <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or lower case) and one
-                                number</mat-hint>
-                            <mat-error class="pb-5 " *ngIf="checkValidation('password')">
-                                {{ getErrorPassword() }}
-                            </mat-error>
-                            <br>
-                        </mat-form-field>
-                        <mat-form-field class="mb-4">
-                            <mat-label class="mat-labels-cont">Enter your confirmPassword</mat-label>
-                            <input  [type]="hide1 ? 'password' : 'text'" matInput
-                                placeholder="confirm Password *" formControlName="confirmPassword"  >
-                            <button mat-icon-button matSuffix (click)="hide1 = !hide1" [attr.aria-label]="'Hide password'"
-                                [attr.aria-pressed]="hide1" class="icon-eye">
-                                <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
-                            </button>
-                            <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or lower case) and one
-                                number</mat-hint>
-                            <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
-                                {{ getErrorcheckconfirmPassword() }}
-                            </mat-error>
-                            <!-- <mat-error class="py-3"
+                            <mat-form-field appearance="fill" class="mt-0">
+                                <mat-label class="mat-labels-cont">Enter your password</mat-label>
+                                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+                                <button mat-icon-button matSuffix (click)="hide = !hide"
+                                    [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" class="icon-eye">
+                                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                                </button>
+                                <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or
+                                    lower case) and one number</mat-hint>
+                                <mat-error class="pb-5 " *ngIf="checkValidation('password')">
+                                    {{ getErrorPassword() }}
+                                </mat-error>
+                                <br>
+                            </mat-form-field>
+                            <mat-form-field class="mt-0">
+                                <mat-label class="mat-labels-cont">Enter your Confirm Password</mat-label>
+                                <input [type]="hide1 ? 'password' : 'text'" matInput formControlName="confirmPassword">
+                                <button mat-icon-button matSuffix (click)="hide1 = !hide1"
+                                    [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide1" class="icon-eye">
+                                    <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
+                                </button>
+                                <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or
+                                    lower case) and one
+                                    number</mat-hint>
+                                <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
+                                    {{ getErrorcheckconfirmPassword() }}
+                                </mat-error>
+                                <!-- <mat-error class="py-3"
                             *ngIf="registerForm.get('confirmPassword')?.hasError('notSame')"
                           >
                              Password Doesn't match
                           </mat-error> -->
-                        </mat-form-field>
-                        <div class="d-flex mt-2">
-                            <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                            
-                            <!-- <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
+                            </mat-form-field>
+                            <div class="d-flex mt-2">
+                                <button mat-button matStepperPrevious
+                                    class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
+
+                                <!-- <button mat-button matStepperNext class="btn-primary btn   ms-2  btn-block" [disabled] = "checkValidation('confirmPassword')">Next</button>
                              -->
-                            <button mat-raised-button matStepperNext class="btn-primary btn ms-2 btn-block"
-                            [disabled]="registerForm.invalid" (click)="onSubmit(registerForm)">Submit</button>
-                        </div>
-                        
+                                <button mat-raised-button matStepperNext class="btn-primary btn ms-2 btn-block"
+                                    [disabled]="registerForm.invalid" (click)="onSubmit(registerForm)">Submit</button>
+                            </div>
+                        </ng-template>
                     </form>
                 </mat-step>
                 <!-- <mat-step label="Secret Key">

@@ -26,7 +26,7 @@ import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 export class MyreservationComponent implements OnInit {
   displayedColumns = [
-
+    'actions',
     'name',
     'aggregatedCapacity',
     'reservationActive',
@@ -37,7 +37,7 @@ export class MyreservationComponent implements OnInit {
     //'fuelCode',
     'number Of Devices',
     'SDGBenefits',
-    'actions',
+   
   ];
   displayedColumns1 = [
     'projectName',
@@ -68,9 +68,10 @@ export class MyreservationComponent implements OnInit {
   devicetypelist: any;
   FilterForm: FormGroup;
   public sdgblist: any;
-  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
+  group_name:any;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
@@ -235,11 +236,13 @@ export class MyreservationComponent implements OnInit {
     this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id } });
 
   }
-  DisplayDeviceList(deviceid: number[]) {
+  DisplayDeviceList(row: any) {
     this.FilterForm.reset();
     this.showdevicesinfo = true;
+   this.group_name=row.name
     this.DevicesList = [];
-    deviceid.forEach(ele => {
+    //@ts-ignore
+    row.deviceIds.forEach(ele => {
       this.authService.GetMethod('device/' + ele).subscribe(
         (data) => {
 

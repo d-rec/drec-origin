@@ -40,7 +40,7 @@ export class RedemptionReportComponent implements OnInit {
   countrylist: any;
   fuellist: any;
 
-  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
 
   constructor(private authService: AuthbaseService, private ReservationService: ReservationService, private router: Router,) {
 
