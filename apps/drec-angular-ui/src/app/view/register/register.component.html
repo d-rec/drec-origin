@@ -194,34 +194,35 @@
                     <form [formGroup]="registerForm" class="px-3 example-form">
                         <ng-template matStepContent>
 
-                            <mat-form-field appearance="fill" class="mt-0">
-                                <mat-label class="mat-labels-cont">Enter your password</mat-label>
-                                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-                                <button mat-icon-button matSuffix (click)="hide = !hide"
-                                    [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" class="icon-eye">
-                                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                                </button>
-                                <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or
-                                    lower case) and one number</mat-hint>
-                                <mat-error class="pb-5 " *ngIf="checkValidation('password')">
-                                    {{ getErrorPassword() }}
-                                </mat-error>
-                                <br>
-                            </mat-form-field>
-                            <mat-form-field class="mt-0">
-                                <mat-label class="mat-labels-cont">Enter your Confirm Password</mat-label>
-                                <input [type]="hide1 ? 'password' : 'text'" matInput formControlName="confirmPassword">
-                                <button mat-icon-button matSuffix (click)="hide1 = !hide1"
-                                    [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide1" class="icon-eye">
-                                    <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
-                                </button>
-                                <mat-hint class="password-desc">Choose a password of at max 6 characters (upper and/or
-                                    lower case) and one
-                                    number</mat-hint>
-                                <mat-error class="py-3" *ngIf="checkValidation('confirmPassword')">
-                                    {{ getErrorcheckconfirmPassword() }}
-                                </mat-error>
-                                <!-- <mat-error class="py-3"
+                        <mat-form-field appearance="fill" class="mt-0 mb-4">
+                            <mat-label class="mat-labels-cont">Enter your password</mat-label>
+                            <input matInput [type]="hide ? 'password' : 'text'" placeholder="Password *"
+                                formControlName="password">
+                            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                                [attr.aria-pressed]="hide" class="icon-eye">
+                                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            </button>
+                            <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters (upper and/or lower case) and one
+                                number</mat-hint>
+                            <mat-error class="pb-5 " *ngIf="checkValidation('password')">
+                                {{ getErrorPassword() }}
+                            </mat-error>
+                            <br>
+                        </mat-form-field>
+                        <mat-form-field class="mb-4">
+                            <mat-label class="mat-labels-cont">Enter your confirmPassword</mat-label>
+                            <input  [type]="hide1 ? 'password' : 'text'" matInput
+                                placeholder="confirm Password *" formControlName="confirmPassword"  >
+                            <button mat-icon-button matSuffix (click)="hide1 = !hide1" [attr.aria-label]="'Hide password'"
+                                [attr.aria-pressed]="hide1" class="icon-eye">
+                                <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            </button>
+                            <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters (upper and/or lower case) and one
+                                number</mat-hint>
+                            <mat-error class="" *ngIf="checkValidation('confirmPassword')">
+                                {{ getErrorcheckconfirmPassword() }}
+                            </mat-error>
+                            <!-- <mat-error class="py-3"
                             *ngIf="registerForm.get('confirmPassword')?.hasError('notSame')"
                           >
                              Password Doesn't match

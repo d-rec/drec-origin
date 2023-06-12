@@ -12,7 +12,6 @@
         </button>
       </div>
 
-
     </mat-card-header>
     <hr>
     <mat-card-content>
@@ -69,19 +68,19 @@
             <td mat-cell *matCellDef="let row;let i=index"> {{i+1}} </td>
           </ng-container>
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> createdAt </th>
-            <td mat-cell *matCellDef="let element"> {{element.createdAt}} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Created At </th>
+            <td mat-cell *matCellDef="let element"> {{element.createdAt | date:'EEE d MMM y hh:mm:ss'}} </td>
           </ng-container>
 
           <!-- Name Column -->
           <ng-container matColumnDef="jobId">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> jobId </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Job Id </th>
             <td mat-cell *matCellDef="let element"> {{element.jobId}} </td>
           </ng-container>
 
           <!-- Weight Column -->
           <ng-container matColumnDef="fileId">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> fileId </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> File Id </th>
             <td mat-cell *matCellDef="let element"> {{element.fileId}} </td>
           </ng-container>
 

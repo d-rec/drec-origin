@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator,PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
@@ -53,6 +53,8 @@ export class AddReservationComponent {
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
   FilterForm: FormGroup;
+  p: number = 1;
+  totalRows = 0;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
@@ -79,6 +81,7 @@ export class AddReservationComponent {
       deviceTypeCode: [],
       capacity: [],
       offTaker: [],
+      pagenumber: [this.p]
     });
   }
   ngOnInit() {
@@ -97,14 +100,14 @@ export class AddReservationComponent {
       }
     );
     this.getcountryListData();
-
+    this.applyFilter();
     console.log("myreservation");
     setTimeout(() => {
-      this.loading = false;
+     // this.loading = false;
 
       this.applycountryFilter();
     }, 2000)
-
+    
   }
   applycountryFilter() {
     this.FilterForm.controls['countryCode'];
@@ -204,7 +207,8 @@ export class AddReservationComponent {
   applyFilter() {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
-
+    console.log(this.p);
+    this.FilterForm.controls['pagenumber'].setValue(this.p);
     this.deviceservice.getfilterData(this.FilterForm.value).subscribe(
       (data) => {
 
@@ -212,21 +216,21 @@ export class AddReservationComponent {
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
 
-            const selectedIndex = data.findIndex((row: any) => row.id === ele.id);
+            const selectedIndex = data.devices.findIndex((row: any) => row.id === ele.id);
 
             if (selectedIndex !== -1) {
               // The selected ID exists, so remove it from the data list
-              data.splice(selectedIndex, 1);
-              data.push(ele);
+              data.devices.splice(selectedIndex, 1);
+              data.devices.push(ele);
             } else {
               // The selected ID doesn't exist, so add it to the data list
-              data.push(ele);
+              data.devices.push(ele);
             }
           }
           );
         }
 
-        this.data = data;
+        this.data = data.devices;
         console.log(this.data)
         //@ts-ignore
         this.data.forEach(ele => {
@@ -239,8 +243,11 @@ export class AddReservationComponent {
         })
         console.log(this.data)
         this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator;
+        this.totalRows = data.totalCount
+        console.log(this.totalRows);
+        //this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        
         //@ts-ignore
       }
     )
@@ -250,7 +257,7 @@ export class AddReservationComponent {
     const filterValue = value.toLowerCase();
 
     // if (this.countrycodeLoded === true) {
-    console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+   // console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }
@@ -305,6 +312,7 @@ export class AddReservationComponent {
         //  this.getDeviceListData();
         this.toastrService.success('Successfully!!', 'Reservation Added');
         this.dialogRef.close(); 
+        this.router.navigate(['/myreservation']);
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)
@@ -312,5 +320,12 @@ export class AddReservationComponent {
       }
     });
 
+  }
+  
+  pageChangeEvent(event: PageEvent) {
+    console.log(event);
+    this.p = event.pageIndex + 1;
+
+    this.applyFilter();
   }
 }

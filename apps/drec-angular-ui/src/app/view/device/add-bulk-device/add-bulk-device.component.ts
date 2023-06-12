@@ -68,7 +68,7 @@ export class AddBulkDeviceComponent implements OnInit {
         this.currentFile = null;
       }
     } else {
-      this.fileName = 'Please click here to Select File';
+      this.fileName = 'Please click here to select file';
     }
     event.target.value='';
   }
