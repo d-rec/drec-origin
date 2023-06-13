@@ -81,7 +81,7 @@ export class AddReservationComponent {
       deviceTypeCode: [],
       capacity: [],
       offTaker: [],
-      pagenumber: [this.p]
+      //pagenumber: [this.p]
     });
   }
   ngOnInit() {
@@ -100,7 +100,7 @@ export class AddReservationComponent {
       }
     );
     this.getcountryListData();
-    this.applyFilter();
+   // this.applyFilter();
     console.log("myreservation");
     setTimeout(() => {
      // this.loading = false;
@@ -207,8 +207,8 @@ export class AddReservationComponent {
   applyFilter() {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
-    console.log(this.p);
-    this.FilterForm.controls['pagenumber'].setValue(this.p);
+   // console.log(this.p);
+    //this.FilterForm.controls['pagenumber'].setValue(this.p);
     this.deviceservice.getfilterData(this.FilterForm.value).subscribe(
       (data) => {
 
@@ -216,21 +216,21 @@ export class AddReservationComponent {
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
 
-            const selectedIndex = data.devices.findIndex((row: any) => row.id === ele.id);
+            const selectedIndex = data.findIndex((row: any) => row.id === ele.id);
 
             if (selectedIndex !== -1) {
               // The selected ID exists, so remove it from the data list
-              data.devices.splice(selectedIndex, 1);
-              data.devices.push(ele);
+              data.splice(selectedIndex, 1);
+              data.push(ele);
             } else {
               // The selected ID doesn't exist, so add it to the data list
-              data.devices.push(ele);
+              data.push(ele);
             }
           }
           );
         }
 
-        this.data = data.devices;
+        this.data = data;
         console.log(this.data)
         //@ts-ignore
         this.data.forEach(ele => {
@@ -243,9 +243,9 @@ export class AddReservationComponent {
         })
         console.log(this.data)
         this.dataSource = new MatTableDataSource(this.data);
-        this.totalRows = data.totalCount
-        console.log(this.totalRows);
-        //this.dataSource.paginator = this.paginator;
+        // this.totalRows = data.totalCount
+        // console.log(this.totalRows);
+        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         
         //@ts-ignore
@@ -322,10 +322,10 @@ export class AddReservationComponent {
 
   }
   
-  pageChangeEvent(event: PageEvent) {
-    console.log(event);
-    this.p = event.pageIndex + 1;
+  // pageChangeEvent(event: PageEvent) {
+  //   console.log(event);
+  //   this.p = event.pageIndex + 1;
 
-    this.applyFilter();
-  }
+  //   this.applyFilter();
+  // }
 }
