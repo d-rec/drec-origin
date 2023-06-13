@@ -34,3 +34,12 @@
     transform: translate(-50%, -50%);
     z-index: 5;
 }
+
+.mat-elevation-z8{
+  width: 100%;
+  overflow: scroll;
+  mat-paginator{
+    display: initial !important;
+  }
+}
+

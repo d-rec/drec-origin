@@ -34,7 +34,7 @@ export class AddDevicesComponent {
   public stepSecond = 1;
  numberregex: RegExp =/[0-9]+(\.[0-9]*){0,1}/
   //public color: ThemePalette = 'primary';
-  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,private deviceService: DeviceService, private router: Router, private toastrService: ToastrService) { }
 
@@ -205,20 +205,28 @@ export class AddDevicesComponent {
   onSubmit() {
   
     const formArray = this.myform.get('devices') as FormArray;
-    this.deviceForms.value.forEach((element: any,index:number) => {
+    const deviceArray = this.myform.value.devices;
+    deviceArray.forEach((element: any,index:number) => {
      
       this.deviceService.Postdevices(element).subscribe({
         next: data => {
          
-          const formGroup = formArray.at(index);
+        //  const formGroup = formArray.at(index);
           // this.deviceForms.reset();
           this.toastrService.success('Added Successfully !!', 'Device! ' + element.externalId);
-          formGroup.reset();
-          while (formArray.length > 1) {
-            formArray.removeAt(1);
-          }
+          // formGroup.reset();
+          // while (formArray.length > 1) {
+          //   formArray.removeAt(1);
+          // }
         
-         
+          const index1 = deviceArray.indexOf(element);
+          deviceArray.splice(index, 1);
+
+          // Check if formDataArray is empty
+          if (deviceArray.length === 0) {
+            // Navigate to the list UI page
+            this.router.navigate(['/device/AllList']);
+          }
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)

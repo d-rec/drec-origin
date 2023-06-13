@@ -55,14 +55,7 @@ $secondary: #010101;
   .table-data-myreservation{
     font-size: 12px;
   }
-  // this is for table 
-  .mat-elevation-z8{
-    min-width: 100% !important;
-    overflow: scroll;
-    mat-paginator{
-      display: initial !important;
-    }
-  }
+
   mat-progress-spinner{
     position: absolute;
     top: 50%;
@@ -104,3 +97,12 @@ $secondary: #010101;
   //   }
     
   // }
+
+   // this is for table 
+.mat-elevation-z8{
+  width: 100%;
+  overflow: scroll;
+  mat-paginator{
+    display: initial !important;
+  }
+}

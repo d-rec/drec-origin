@@ -37,7 +37,9 @@ export class DeviceService {
   getfilterData(searchData: any): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
     let searchUrl = `${this.url}device/ungrouped/buyerreservation?`;
-
+    // if (!(typeof searchData.pagenumber === "undefined" || searchData.pagenumber === ""||searchData.pagenumber === null)) {
+    //   searchUrl += `&pagenumber=${searchData.pagenumber}`;
+    // }
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === "" || searchData.countryCode === null)) {
       searchUrl += `country=${searchData.countryCode}`;
     }

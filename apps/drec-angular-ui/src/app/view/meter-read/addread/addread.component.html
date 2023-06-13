@@ -31,7 +31,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">ExternalId</mat-label>
 
-                            <mat-select formControlName='externalId' placeholder="ExternalId"
+                            <mat-select formControlName='externalId' 
                                 (ngModelChange)="ExternaIdonChangeEvent($event)">
 
                                 <mat-option *ngFor="let device of data" [value]="device">
@@ -70,7 +70,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Read Type</mat-label>
 
-                            <mat-select formControlName='type' placeholder="type"
+                            <mat-select formControlName='type' 
                                 (ngModelChange)="onChangeEvent($event)">
 
                                 <mat-option *ngFor="let code of readtype" [value]="code">
@@ -83,7 +83,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Unit</mat-label>
 
-                            <mat-select formControlName='unit' placeholder="Unit">
+                            <mat-select formControlName='unit' >
 
                                 <mat-option *ngFor="let unit of unit" [value]="unit">
                                     {{unit}}
@@ -102,7 +102,7 @@
 
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">value</mat-label>
+                                    <mat-label class="text-capitalize">Meter Read</mat-label>
                                     <input matInput placeholder="Read value" type="number" formControlName='value'
                                         min="1" autocomplete="off">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
@@ -112,8 +112,8 @@
 
                             <div class="col-md-3" *ngIf="hidestarttime">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">starttimestamp </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a startdate"
+                                    <mat-label class="text-capitalize">Start Datetime </mat-label>
+                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a start date"
                                         formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate"
                                         autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
@@ -125,8 +125,8 @@
                             </div>
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">endtimestamp </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a enddate"
+                                    <mat-label class="text-capitalize">End Datetime </mat-label>
+                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a end date"
                                         formControlName="endtimestamp" [max]="endmaxdate" [min]="endminDate"
                                         autocomplete="off">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>

@@ -8,7 +8,7 @@
             </div>
 
         </mat-card-header>
-
+<hr>
         <mat-card-content class="mat-body-cont">
             <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
                 <div class="example-container1 row">
@@ -88,8 +88,8 @@
                         <mat-radio-group formControlName='authorityToExceed'>
                             <span>Authority to Exceed:</span>
                             <br>
-                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                            <mat-radio-button [value]=false>False</mat-radio-button>
+                            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+                            <mat-radio-button [value]=false>No</mat-radio-button>
                         </mat-radio-group>
 
 
@@ -272,6 +272,9 @@
                          -->
                             <mat-paginator #paginator [pageSize]="pageSize" aria-label="Select page">
                             </mat-paginator>
+                            <!-- <mat-paginator #paginator [length]="totalRows"  (page)="pageChangeEvent($event)"
+                            aria-label="Select page">
+                            </mat-paginator> -->
                         </div>
                     </mat-card-content>
                 </mat-card>

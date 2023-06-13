@@ -107,10 +107,12 @@
     <form class="example-form px-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
         <mat-form-field class="example-full-width">
-          <input matInput placeholder="Username" formControlName="username" required>
+          <mat-label class="mat-labels-cont">Username</mat-label>
+          <input matInput  formControlName="username" required>
         </mat-form-field>
         <mat-form-field class="example-full-width">
-          <input matInput placeholder="Password" type="password" formControlName="password" required>
+          <mat-label class="mat-labels-cont">Password</mat-label>
+          <input matInput  type="password" formControlName="password" required>
         </mat-form-field>
       </mat-card-content>
       <div class="p-3">

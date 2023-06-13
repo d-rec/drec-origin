@@ -47,7 +47,7 @@ export class EditDeviceComponent implements OnInit {
   energyStorage: boolean=true;
   energyStorageCapacity: any;
 
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
@@ -236,7 +236,7 @@ export class EditDeviceComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         // this.deviceForms.reset();
-        this.toastrService.success('Update Successfully !!', 'Device! ' + this.myform.value.externalId);
+        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.myform.value.externalId);
         this.router.navigate(['device/AllList']);
       },
       error: (err: any): void => {                          //Error callback
@@ -245,5 +245,8 @@ export class EditDeviceComponent implements OnInit {
       }
     });
     // })
+  }
+  reset() {
+    this.router.navigate(['/device/AllList']);
   }
 }
