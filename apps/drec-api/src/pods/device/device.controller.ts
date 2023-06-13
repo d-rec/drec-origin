@@ -91,11 +91,11 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
-  )/*: Promise<DeviceDTO[]>*/ {
-    const page = pagenumber;
-    const limit = 10;
-    return this.deviceService.finddeviceForBuyer(filterDto, page, limit);
+   // @Query('pagenumber') pagenumber: number | null,
+  ): Promise<DeviceDTO[]> {
+    // const page = pagenumber;
+    // const limit = 10;
+    return this.deviceService.finddeviceForBuyer(filterDto);
   }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
