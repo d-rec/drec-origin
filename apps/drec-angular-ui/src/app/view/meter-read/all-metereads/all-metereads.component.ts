@@ -61,7 +61,9 @@ export class AllMetereadsComponent implements OnInit {
   }
   reset() {
     this.FilterForm.reset();
-  
+    this.filter=false;
+    this.externalId=null;
+    this.counterComponent.start(this.FilterForm,this.externalId,this.filter);
   }
   DisplayList() {
     if (this.loginuser.role === 'Buyer') {

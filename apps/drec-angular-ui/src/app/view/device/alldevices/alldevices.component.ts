@@ -10,6 +10,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
+import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { concat } from 'rxjs';
 export interface PeriodicElement {
@@ -36,137 +37,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
   templateUrl: './alldevices.component.html',
   styleUrls: ['./alldevices.component.scss']
 })
-// export class AlldevicesComponent {
-//   displayedColumns = [
-//     'onboarding_date',
-//     'projectName',
-//     'externalId',
-//     'countryCode',
-//     'fuelCode',
-//     'status',
-//     'actions',
-//   ];
-//   @ViewChild(MatPaginator) paginator: MatPaginator;
-//   @ViewChild(MatSort) sort: MatSort;
-//   dataSource: MatTableDataSource<any>;
-//   data: any;
-//   loginuser: any
-//   deviceurl: any;
-//   pageSize: number = 20;
-//   countrylist: any;
-//   fuellist: any;
-//   devicetypelist: any;
-//   constructor(private authService: AuthbaseService, private router: Router) {
-    
-//     this.loginuser = sessionStorage.getItem('loginuser');
-//   }
-//   ngOnInit(): void {
-    
-//     this.authService.GetMethod('device/fuel-type').subscribe(
-//       (data1) => {
-//         // display list in the console 
 
-//         this.fuellist = data1;
-
-//       });
-//       this.authService.GetMethod('device/device-type').subscribe(
-//         (data2) => {
-//           // display list in the console 
-  
-//           this.devicetypelist = data2;
-  
-//         }
-//       );
-//       this.authService.GetMethod('countrycode/list').subscribe(
-//         (data3) => {
-//           // display list in the console 
-//           // console.log(data)
-//           this.countrylist = data3;
-  
-//         }
-//       )
-//     console.log("myreservation");
-//     // this.DisplayfuelList();
-//     // this.DisplaytypeList();
-//     // this.DisplaycountryList();
-     
-//      setTimeout(() => this.DisplayList(), 10000);
-
-//   }
-//   // ngAfterViewInit() {
-//   //   this.dataSource.paginator = this.paginator;
-//   //   this.dataSource.sort = this.sort;
-    
-//   // }
-
-//   applyFilter(event: Event) {
-//     const filterValue = (event.target as HTMLInputElement).value;
-//     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-//     if (this.dataSource.paginator) {
-//       this.dataSource.paginator.firstPage();
-//     }
-//   }
-//   // DisplayfuelList() {
-
-//   //   this.authService.GetMethod('device/fuel-type').subscribe(
-//   //     (data1) => {
-//   //       // display list in the console 
-
-//   //       this.fuellist = data1;
-
-//   //     }
-//   //   )
-//   // }
-//   // DisplaytypeList() {
-
-//   //   this.authService.GetMethod('device/device-type').subscribe(
-//   //     (data2) => {
-//   //       // display list in the console 
-
-//   //       this.devicetypelist = data2;
-
-//   //     }
-//   //   )
-//   // }
-//   // DisplaycountryList() {
-
-//   //   this.authService.GetMethod('countrycode/list').subscribe(
-//   //     (data3) => {
-//   //       // display list in the console 
-//   //       // console.log(data)
-//   //       this.countrylist = data3;
-
-//   //     }
-//   //   )
-//   // }
-//   DisplayList() {
-//     if (this.loginuser.role === 'Admin') {
-//       this.deviceurl = 'device';
-//     } else {
-//       this.deviceurl = 'device/my';
-//     }
-//     this.authService.GetMethod(this.deviceurl).subscribe(
-//       (data) => {
-       
-//         this.data = data;
-//         //@ts-ignore
-//        this.data.forEach(ele => {
-//           //@ts-ignore
-//           ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-//           //@ts-ignore
-//           ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-//           //@ts-ignore
-//           ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
-//         })
-//         console.log(this.data)
-//         this.dataSource = new MatTableDataSource(this.data);
-//         this.dataSource.paginator = this.paginator;
-//         this.dataSource.sort = this.sort;
-//       }
-//     )
-//   }
-// }
 export class AlldevicesComponent {
   displayedColumns = [
     'onboarding_date',
@@ -192,7 +63,7 @@ export class AlldevicesComponent {
   devicetypeLoded:boolean=false;
   countrycodeLoded:boolean=false;
   loading:boolean=true;
-  constructor(private authService: AuthbaseService, private router: Router) {
+  constructor(private authService: AuthbaseService,private deviceService: DeviceService, private router: Router) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
   }
@@ -241,15 +112,16 @@ export class AlldevicesComponent {
   }
   getDeviceListData() {
     if (this.loginuser.role === 'Admin') {
-      this.deviceurl = 'device';
+      this.deviceurl = 'device?pagenumber=1';
     } else {
-      this.deviceurl = 'device/my';
+      this.deviceurl = 'device/my?pagenumber=1';
     }
     this.authService.GetMethod(this.deviceurl).subscribe(
       (data) => {
-        this.data = data;
-        console.log(this.data)
+        console.log(data)
         //@ts-ignore
+        this.data = data.devices;
+        
       }
     )
   }
@@ -267,7 +139,7 @@ export class AlldevicesComponent {
         //@ts-ignore
         ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
       })
-      console.log(this.data)
+      
       this.dataSource = new MatTableDataSource(this.data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -281,5 +153,8 @@ export class AlldevicesComponent {
     //   //     this.DisplayList();
     //   // },5000)
     // }
+  }
+  UpdateDevice(externalId: any) {
+    this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true} }); 
   }
 }

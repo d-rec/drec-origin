@@ -49,7 +49,7 @@ export class MeterReadTableComponent implements OnInit {
   }
   ngOnInit() {
     console.log(this.data);
-    // if (this.data != null) {
+    if (this.data != null) {
     console.log("53", this.data);
     this.showname = true;
     this.FilterForm = this.formBuilder.group({
@@ -64,7 +64,7 @@ export class MeterReadTableComponent implements OnInit {
       this.getPagedData();
     }
 
-    // }
+    }
 
   }
 
@@ -73,8 +73,9 @@ export class MeterReadTableComponent implements OnInit {
     this.exterenalId = exterenalId
     console.log(FilterForm)
     this.FilterForm = FilterForm
+    this.filter = filter;
     if (filter) {
-      this.filter = filter;
+      
       this.getPagedData();
     }
 

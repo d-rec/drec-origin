@@ -71,7 +71,9 @@ export class MyreservationComponent implements OnInit {
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
-  group_name:any;
+  group_info:any;
+  reservationsstatus:any;
+  reservationstart:any;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
@@ -239,7 +241,11 @@ export class MyreservationComponent implements OnInit {
   DisplayDeviceList(row: any) {
     this.FilterForm.reset();
     this.showdevicesinfo = true;
-   this.group_name=row.name
+
+   this.group_info=row;
+  //  this.reservationsstatus=row.reservationActivethis, 
+
+  // this.reservationstart= "start from "+row.reservationStartDate+ " To "+row. reservationEndDate 
     this.DevicesList = [];
     //@ts-ignore
     row.deviceIds.forEach(ele => {
