@@ -6,7 +6,8 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
+  SDGBenefitsList
 } from '../../../utils/enums';
 
 export class FilterDTO {
@@ -61,9 +62,9 @@ export class FilterDTO {
   // })
   // sector: Sector;
 
-  @IsOptional()
-  @ApiPropertyOptional({ type: String, description: 'Labels' })
-  labels: string;
+  // @IsOptional()
+  // @ApiPropertyOptional({ type: String, description: 'Labels' })
+  // labels: string;
 
   // @IsOptional()
   // @ApiPropertyOptional({
@@ -78,6 +79,11 @@ export class FilterDTO {
   country: string;
 
   @IsOptional()
+  @ApiPropertyOptional({
+    description: 'SDG Benefit',
+    enum: SDGBenefitsList,
+    isArray:true
+  })
   SDGBenefits?: string[]| undefined;
 }
 export class BuyerDeviceFilterDTO {

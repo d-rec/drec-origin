@@ -69,11 +69,13 @@ export class DeviceController {
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin)
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
-  ): Promise<DeviceDTO[]> {
-    return this.deviceService.find(filterDto);
+    @Query('pagenumber') pagenumber: number | null,
+  )/*: Promise<DeviceDTO[]>*/ {
+    return this.deviceService.find(filterDto, pagenumber);
   }
   // @Get('/devicegroup')
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -91,11 +93,10 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
-   // @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pagenumber: number | null,
   ): Promise<DeviceDTO[]> {
-    // const page = pagenumber;
-    // const limit = 10;
-    return this.deviceService.finddeviceForBuyer(filterDto);
+   
+    return this.deviceService.finddeviceForBuyer(filterDto,pagenumber);
   }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -141,15 +142,47 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
     description: 'Returns my Devices',
   })
   async getMyDevices(
+    @Query(ValidationPipe) filterDto: FilterDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<DeviceDTO[]> {
-    return await this.deviceService.getOrganizationDevices(organizationId);
+    @Query('pagenumber') pagenumber: number | null
+  )/*: Promise<DeviceDTO[]>*/ {
+    console.log(filterDto);
+    if(filterDto.country){
+      filterDto.country = filterDto.country.toUpperCase();
+      console.log(filterDto.country);
+      if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
+        let countries = countryCodesList;
+        if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+              }),
+            );
+          });
+        }
+      } else {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            }),
+          );
+        });
+      }
+    }
+  
+
+    return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
   }
 
   @Get('/:id')
@@ -533,11 +566,11 @@ export class DeviceController {
     description: 'Returns Auto-Complete',
   })
 
-  @ApiQuery({ name: 'externalId', description: 'externalId', type: Number })
+  @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
 
   async autocomplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('externalId') externalId: Number,
+    @Query('externalId') externalId: String,
   ) {
     return await this.deviceService.atto(organizationId, externalId);
   }

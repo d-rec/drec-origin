@@ -60,9 +60,36 @@ export class DeviceService {
 
   ) { }
 
-  public async find(filterDto: FilterDTO): Promise<Device[]> {
-    const query = this.getFilteredQuery(filterDto);
-    return this.repository.find(query);
+  public async find(filterDto: FilterDTO, pagenumber: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
+    const limit = 20;
+    let query = await this.getFilteredQuery(filterDto)
+    if (pagenumber) {
+      query = {
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      }
+    }
+
+    console.log(query);
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+    //devices.externalId = devices.developerExternalId
+    const totalPages = Math.ceil(totalCount / 20);
+    const currentPage = pagenumber;
+    const newDevices = [];
+
+    await devices.map((device: Device) => {
+
+      device.externalId = device.developerExternalId
+      delete device["developerExternalId"];
+      newDevices.push(device);
+    })
+
+    return {
+      devices: newDevices,
+      currentPage,
+      totalPages,
+      totalCount
+    };
   }
 
   public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
@@ -73,8 +100,42 @@ export class DeviceService {
     });
   }
 
-  async getOrganizationDevices(organizationId: number): Promise<Device[]> {
+  async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
     ////console.log(organizationId);
+
+    if (pagenumber) {
+      const limit = 20;
+      const query = await this.getFilteredQuery(filterDto);
+      console.log(query);
+      let where: any = query.where
+      where = { ...where, organizationId };
+      console.log(where);
+      query.where = where;
+      console.log({
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      });
+      const [devices, totalCount] = await this.repository.findAndCount({
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      });
+      //devices.externalId = devices.developerExternalId
+      const totalPages = Math.ceil(totalCount / 20);
+      const currentPage = pagenumber;
+      const newDevices = [];
+      await devices.map((device: Device) => {
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+      return {
+        devices: newDevices,
+        currentPage,
+        totalPages,
+        totalCount
+      };
+    }
+
     const devices = await this.repository.find({
       where: { organizationId },
       order: {
@@ -83,42 +144,12 @@ export class DeviceService {
     });
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
-
     await devices.map((device: Device) => {
-
       device.externalId = device.developerExternalId
       delete device["developerExternalId"];
       newDevices.push(device);
     })
-
-    // let totalamountofreads = [];
-    //     await Promise.all(
-    //       devices.map(async (device: Device) => {
-
-    //         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
-    //           {
-    //             where: { deviceid: device.externalId }
-    //           }
-    //         )
-    //         const totalcertifiedReadValue = certifiedamountofread.reduce(
-    //           (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
-    //           0,
-    //         );
-    //         let totalamount= await this.getallread(device.externalId);
-    //         const totalReadValue = totalamount.reduce(
-    //           (accumulator, currentValue) => accumulator + currentValue.value,
-    //           0,
-    //         );
-    //         totalamountofreads.push({
-    //           devicename: device.externalId,
-    //           totalcertifiedReadValue: totalcertifiedReadValue,
-    //           totalReadValue:totalReadValue
-    //         })
-
-    //       }))
-
-    // //console.log(totalamountofreads);
-    return newDevices;
+    return newDevices
   }
 
 
@@ -446,6 +477,8 @@ export class DeviceService {
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
+    const limit = 20;
+    // const page = 1;
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
@@ -454,7 +487,7 @@ export class DeviceService {
       gridInterconnection: filter.gridInterconnection,
       offTaker: filter.offTaker,
       //sector: filter.sector,
-      labels: filter.labels,
+      // labels: filter.labels,
       //standardCompliance: filter.standardCompliance,
       countryCode: filter.country && getCodeFromCountry(filter.country),
       commissioningDate:
@@ -472,7 +505,8 @@ export class DeviceService {
       where,
       order: {
         organizationId: 'ASC',
-      },
+      }
+
     };
     return query;
   }
@@ -595,7 +629,7 @@ export class DeviceService {
 
   }
   //
-  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
+  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO,pagenumber,limit): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
 
       fuelCode: filter.fuelCode,
@@ -612,48 +646,46 @@ export class DeviceService {
       order: {
         organizationId: 'ASC',
       },
-      // skip: (page - 1) * limit,
-      // take: limit,
+      skip: (pagenumber - 1) * limit,
+      take: limit,
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise< Device[]> {
-
-    let query = this.getBuyerFilteredQuery(filterDto);
+  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO,pagenumber): Promise<any> {
+    const limit = 10;
+    let query = this.getBuyerFilteredQuery(filterDto,pagenumber,limit);
 
     let where: any = query.where
 
     where = { ...where, groupId: null };
 
     query.where = where;
-    const unreservedevices = await this.repository.find(query)
-    const newunreservedevicesDevices = [];
+    // const unreservedevices = await this.repository.find(query)
+    //const newunreservedevicesDevices = [];
 
-    await unreservedevices.map((device: Device) => {
+    // await unreservedevices.map((device: Device) => {
 
-      device.externalId = device.developerExternalId
-      delete device["developerExternalId"];
-      newunreservedevicesDevices.push(device);
-    })
-    return newunreservedevicesDevices;
-    // const [devices, totalCount] = await this.repository.findAndCount(query);
-
-    // const totalPages = Math.ceil(totalCount / limit);
-    // const currentPage = page;
-  
-    // const newUnreservedDevices = devices.map((device: Device) => {
-    //   device.externalId = device.developerExternalId;
+    //   device.externalId = device.developerExternalId
     //   delete device["developerExternalId"];
-    //   return device;
-    // });
-  
-     
-    //  return{
-    //   devices: newUnreservedDevices,
-    //   currentPage,
-    //   totalPages,
-    //   totalCount
-    // };
+    //   newunreservedevicesDevices.push(device);
+    // })
+    // return newunreservedevicesDevices;
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = pagenumber;
+
+    const newUnreservedDevices = devices.map((device: Device) => {
+      device.externalId = device.developerExternalId;
+      delete device["developerExternalId"];
+      return device;
+    });
+     return{
+      devices: newUnreservedDevices,
+      currentPage,
+      totalPages,
+      totalCount
+    };
   }
 
 
@@ -905,14 +937,15 @@ export class DeviceService {
       .where("Device.organizationId = :organizationId", { organizationId })
       .andWhere(
         new Brackets(qb => {
-          qb.where("Device.externalId = :externalId", { externalId })
-            .orWhere("Device.externalId LIKE :pattern", { pattern: `${externalId}%` });
+          qb.where("Device.developerExternalId = :externalId", { externalId })
+            .orWhere("Device.developerExternalId LIKE :pattern", { pattern: `${externalId}%` });
         }))
       .orderBy('Device.externalId')
       .getMany();
     return rows.map(row => ({
       externalId: row.developerExternalId,
       organizationId: row.organizationId
+
     }));
   }
   async getLastCertifiedDevicelogBYgroupId(
@@ -951,14 +984,14 @@ export class DeviceService {
     //     groupId: groupId[]
     //   }
     // })
-      const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
+    const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
       .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
       .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
-      .where('deviceData.externalId= :externalId', { externalId:device.externalId })
+      .where('deviceData.externalId= :externalId', { externalId: device.externalId })
       .andWhere('deviceData.groupId= :groupId', { groupId });
 
     const result = await queryBuilder.getRawOne();
-    let finalresult = {...result,extenalId:device.developerExternalId}
+    let finalresult = { ...result, extenalId: device.developerExternalId }
     return finalresult;
   }
   ///////////////////
