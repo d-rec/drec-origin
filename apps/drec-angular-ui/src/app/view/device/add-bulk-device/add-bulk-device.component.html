@@ -184,9 +184,10 @@
           <ng-container matColumnDef="Action">
             <th mat-header-cell *matHeaderCellDef> Action </th>
             <td mat-cell *matCellDef="let element">
-              <a class="btn-primary btn btn-sm but-cont " (click)="UpdateDevice(element.externalId)"
-                *ngIf="element.status==='Success with validation errors, please update fields'">Edit</a>
-
+              <!-- <a class="btn-primary btn btn-sm but-cont " (click)="UpdateDevice(element.externalId)"
+                *ngIf="element.status==='Success with validation errors, please update fields'">Edit</a> -->
+                <a class="edit-icon" (click)="UpdateDevice(element.externalId)"
+                *ngIf="element.status==='Success with validation errors, please update fields'"><mat-icon class="primary">edit</mat-icon></a>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>

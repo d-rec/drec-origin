@@ -76,7 +76,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">BlockchainAddress</mat-label>
+                            <mat-label class="text-capitalize">Blockchain Address</mat-label>
 
                             <input matInput placeholder="blockchainAddress" type="text"
                                 formControlName='blockchainAddress' autocomplete="off">
@@ -104,14 +104,14 @@
                         class="d-flex justify-content-between nested-card-header mat-crd-hide align-items-center">
 
                         <div>
-                            <h4 class="pb-0 mb-0 fw-bold text-capitalize">select the devices
+                            <h4 class="pb-0 mb-0 fw-bold text-capitalize">Select The Devices
                             </h4>
                         </div>
 
                     </mat-card-header>
                     <!-- <hr> -->
                     <mat-card-content class="pt-3">
-                        <h3>Use filters to select devices </h3>
+                        <h3>Use Filters To Select Devices </h3>
                         <form [formGroup]="FilterForm">
                             <div class="example-container1 row">
                                 <!-- <div class="col-md-3">
@@ -126,9 +126,9 @@
                                 </div> -->
                                 <div class="col-md-3">
                                     <mat-form-field >
-                                        <mat-label class="text-capitalize">Select country Code</mat-label>
+                                        <mat-label class="text-capitalize">Select Country Code</mat-label>
                                         <input type="text" placeholder="Please Enter countryCode" aria-label="text"
-                                            matInput formControlName="countryCode" [matAutocomplete]="auto" >
+                                            matInput formControlName="countryCode" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
                                         <mat-autocomplete #auto="matAutocomplete">
                                             <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
                                                 {{code.country}}
@@ -140,7 +140,7 @@
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Fuel Code</mat-label>
 
-                                        <mat-select formControlName='fuelCode' placeholder="fuelCode">
+                                        <mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
 
                                             <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                                 {{code.name}}
@@ -152,7 +152,7 @@
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-                                        <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode">
+                                        <mat-select formControlName='deviceTypeCode'  (ngModelChange)="checkFormValidity()">
 
                                             <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                                                 {{code.name}}
@@ -163,9 +163,9 @@
 
                                 <div class="col-md-3">
                                     <mat-form-field>
-                                        <mat-label class="text-capitalize">off Taker</mat-label>
+                                        <mat-label class="text-capitalize">Off Taker</mat-label>
 
-                                        <mat-select formControlName='offTaker' placeholder="offTaker">
+                                        <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
 
                                             <mat-option *ngFor="let code of offtaker" [value]="code">
                                                 {{code}}
@@ -176,13 +176,13 @@
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label>capacity(Kw)</mat-label>
-                                        <input matInput placeholder="Search" formControlName='capacity' #input>
+                                        <input matInput (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
                                     </mat-form-field>
                                 </div>
                                 <div class="col-md-12 mb-3  d-flex justify-content-end">
                                     <div class="">
                                         <button class="btn-primary me-2 btn text-capitalize px-4"
-                                            (click)="applyFilter()">filter</button>
+                                            (click)="applyFilter()" [disabled]="!isAnyFieldFilled">Filter</button>
                                     </div>
                                     <div class="">
                                         <button class="btn-dark btn text-capitalize px-4"
@@ -270,11 +270,11 @@
                             </table>
                             <!-- <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
                          -->
-                            <mat-paginator #paginator [pageSize]="pageSize" aria-label="Select page">
-                            </mat-paginator>
-                            <!-- <mat-paginator #paginator [length]="totalRows"  (page)="pageChangeEvent($event)"
-                            aria-label="Select page">
+                            <!-- <mat-paginator #paginator [pageSize]="pageSize" aria-label="Select page">
                             </mat-paginator> -->
+                            <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+                            aria-label="Select page">
+                            </mat-paginator>
                         </div>
                     </mat-card-content>
                 </mat-card>
@@ -287,7 +287,7 @@
             <div class="example-container mb-3 me-2 row">
                 <div class="col-12 d-flex justify-content-end">
                     <button type="submit" [disabled]="reservationForm.invalid"
-                        class="btn-primary btn text-capitalize px-4" (click)="onSubmit()">submit</button>
+                        class="btn-primary btn text-capitalize px-4" (click)="onSubmit()">Submit</button>
                 </div>
             </div>
         </mat-card-footer>
