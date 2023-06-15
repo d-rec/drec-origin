@@ -370,10 +370,9 @@ border-left-color:$primary!important ;
 }
 
 // this is for date selector button 
-.mat-stroked-button{
+
+.mat-stroked-button:not(:disabled){
     background-color: $primary !important;
     border: 1px solid $primary !important;
     color: $gray !important;
-    font-weight: 600 !important;
 }
-
