@@ -111,21 +111,25 @@ export class BuyerReservationController {
   })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroupDTO[]> {
+    
+    @Query(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    })) filterDto: UnreservedDeviceGroupsFilterDTO,
+    
+    @Query('pageNumber') pageNumber: number,
+  )/*: Promise<DeviceGroupDTO[]> */{
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
-          organizationId,
-        );
+          organizationId);
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(id, filterDto);
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pageNumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
       default:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
-          organizationId,
-        );
+          organizationId);
     }
   }
 

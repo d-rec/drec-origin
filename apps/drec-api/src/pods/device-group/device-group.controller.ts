@@ -118,13 +118,13 @@ export class DeviceGroupController {
     })) filterDto: UnreservedDeviceGroupsFilterDTO,
     
     @Query('pageNumber') pageNumber: number,
-  ): Promise<DeviceGroupDTO[]> {
+  )/*: Promise<DeviceGroupDTO[]> */{
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId);
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(id,filterDto );
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pageNumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
       default:
