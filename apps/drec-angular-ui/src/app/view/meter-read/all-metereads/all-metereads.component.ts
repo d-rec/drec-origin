@@ -74,7 +74,8 @@ export class AllMetereadsComponent implements OnInit {
         }
       )
     } else if (this.loginuser.role === 'OrganizationAdmin') {
-      this.deviceservice.GetMyDevices().subscribe(
+      const deviceurl = 'device/my';
+      this.deviceservice.GetMyDevices(deviceurl).subscribe(
         (data) => {
           // display list in the console 
           this.devicedata = data;

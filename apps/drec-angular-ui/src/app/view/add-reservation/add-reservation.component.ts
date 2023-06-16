@@ -149,7 +149,7 @@ checkFormValidity(): void {
   reset() {
     this.FilterForm.reset();
     this.loading = false;
-    // this.getDeviceListData();
+    this.applyFilter();
     this.selection.clear();
   }
 
@@ -183,35 +183,36 @@ checkFormValidity(): void {
     )
   }
 
-  getDeviceListData() {
+  // getDeviceListData() {
 
-    this.deviceservice.GetUnreserveDevices().subscribe(
-      (data) => {
-        this.data = data;
-        this.displayList();
-        //@ts-ignore
-      }
-    )
-  }
-  displayList() {
-    if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
-      //@ts-ignore
-      this.data.forEach(ele => {
-        //@ts-ignore
-        ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-        //@ts-ignore
-        ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-        //@ts-ignore
-        ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
-      })
-      console.log(this.data)
-      this.dataSource = new MatTableDataSource(this.data);
+  //   this.deviceservice.GetUnreserveDevices().subscribe(
+  //     (data) => {
+  //       this.data = data;
+  //       this.displayList();
+  //       //@ts-ignore
+  //     }
+  //   )
+  // }
+  // displayList() {
+  //   if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
+  //     //@ts-ignore
+  //     this.data.forEach(ele => {
+  //       //@ts-ignore
+  //       ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
+  //       //@ts-ignore
+  //       ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
+  //       //@ts-ignore
+  //       ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
+  //     })
+  //     console.log(this.data)
+  //     this.dataSource = new MatTableDataSource(this.data);
 
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-      this.loading = false;
-    }
-  }
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //     this.loading = false;
+  //   }
+  // }
+
   applyFilter() {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
