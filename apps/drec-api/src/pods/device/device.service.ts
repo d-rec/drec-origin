@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindOneOptions, Repository, In, IsNull, Not, FindOperator,
-  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, ILike
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -101,9 +101,14 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
-    ////console.log(organizationId);
-
-    if (pagenumber) {
+    console.log(pagenumber);
+    console.log(Object.keys(filterDto).length);
+    // if (pagenumber) {
+      if (filterDto || Object.keys(filterDto).length != 0) {
+       //let pgno=pagenumber;
+        if (pagenumber===null||pagenumber===undefined) {
+          pagenumber = 1
+        }
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       console.log(query);
@@ -497,8 +502,22 @@ export class DeviceService {
       // SDGBenefits:
 
     });
+    // if (filter.SDGBenefits) {
+    // //  const sdgBenefitsArray: string[] = filter.SDGBenefits;
+    //   const sdgBenefitsArray = filter.SDGBenefits;
+    //   where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'${term.trim()}'`)}])`);
+    // }
     if (filter.SDGBenefits) {
-      where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+      console.log(typeof filter.SDGBenefits)
+      console.log(filter.SDGBenefits)
+      const newsdg = filter.SDGBenefits.toString()
+      console.log(typeof newsdg)
+      //const sdgBenefitsString: string = filter.SDGBenefits;
+      const sdgBenefitsArray = newsdg.split(',');
+      console.log(typeof newsdg)
+      console.log(sdgBenefitsArray)
+      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'${term.trim()}'`)}])`);
+      //where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
     }
     console.log(where)
     const query: FindManyOptions<Device> = {
@@ -629,7 +648,7 @@ export class DeviceService {
 
   }
   //
-  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO,pagenumber,limit): FindManyOptions<Device> {
+  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO, pagenumber, limit): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
 
       fuelCode: filter.fuelCode,
@@ -651,9 +670,9 @@ export class DeviceService {
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO,pagenumber): Promise<any> {
+  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO, pagenumber): Promise<any> {
     const limit = 10;
-    let query = this.getBuyerFilteredQuery(filterDto,pagenumber,limit);
+    let query = this.getBuyerFilteredQuery(filterDto, pagenumber, limit);
 
     let where: any = query.where
 
@@ -680,7 +699,7 @@ export class DeviceService {
       delete device["developerExternalId"];
       return device;
     });
-     return{
+    return {
       devices: newUnreservedDevices,
       currentPage,
       totalPages,

@@ -181,24 +181,32 @@ export class DeviceGroupService {
 
   async getBuyerDeviceGroups(
     buyerId: number,
+    pageNumber?:number,
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<DeviceGroupDTO[]> {
+    
+  ): Promise<any> {
     console.log(groupfilterDto);
     let deviceGroups: any;
     let queryBuilder: any;
-    if (groupfilterDto === undefined) {
+    const pageSize = 10;
+   
+      if (!groupfilterDto || Object.keys(groupfilterDto).length === 0) {
+      const skip = (pageNumber - 1) * pageSize;
+      console.log("skip",skip)
       queryBuilder = this.repository.createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
         .select(['dg.*', 'd.SDGBenefits'])
         .orderBy('dg.id', 'ASC')
-
+        // .offset(skip) 
+        // .limit(pageSize);
       // //console.log(queryBuilder);
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
         })
       });
-    } else {
+    } 
+    else {
       if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
         if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
           return new Promise((resolve, reject) => {
@@ -290,18 +298,22 @@ export class DeviceGroupService {
 
             if (groupfilterDto.sdgbenefit) {
               console.log(groupfilterDto.sdgbenefit);
-              if (typeof groupfilterDto.sdgbenefit === 'string') {
-                console.log(typeof groupfilterDto.sdgbenefit);
-                qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
-              } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+              // if (typeof groupfilterDto.sdgbenefit === 'string') {
+              //   console.log(typeof groupfilterDto.sdgbenefit);
+              //   qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
+              // } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+              const newsdg = groupfilterDto.sdgbenefit.toString()
+              console.log(typeof newsdg)
+              //const sdgBenefitsString: string = filter.SDGBenefits;
+              const sdgBenefitsArray = newsdg.split(',');
+              console.log(JSON.stringify(groupfilterDto.sdgbenefit));
+              console.log(typeof groupfilterDto.sdgbenefit);
+              console.log(sdgBenefitsArray);
+              const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
+              console.log(sdgBenefitString);
+              qb.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
 
-                console.log(JSON.stringify(groupfilterDto.sdgbenefit));
-                console.log(typeof groupfilterDto.sdgbenefit);
-                const sdgBenefitString = groupfilterDto.sdgbenefit.map((benefit) => benefit).join(',');
-
-                qb.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
-
-              }
+              // }
             }
             if (groupfilterDto.reservationActive) {
               if (groupfilterDto.reservationActive === 'Active') {
@@ -315,11 +327,15 @@ export class DeviceGroupService {
           }));
       })
       const groupedDatasql = await queryBuilder.getSql();
-
-
     }
+    console.log(queryBuilder.getSql());
     const groupedData = await queryBuilder.getRawMany();
+    console.log(groupedData.length);
+    const totalPages = Math.ceil(groupedData.length / pageSize);
 
+    if (pageNumber > totalPages) {
+      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    }
     // console.log(groupedData);
     deviceGroups = groupedData.reduce((acc, curr) => {
 
@@ -374,6 +390,13 @@ export class DeviceGroupService {
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     return deviceGroups;
+    // const response = {
+    //   deviceGroups,
+    //   pageNumber,
+    //   totalPages,
+    //   totalcount:groupedData.length
+    // };
+    // return response;
   }
 
   async findOne(
@@ -2152,9 +2175,9 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId,pageNumber): Promise<any> {
+  async getReservationInforDeveloperBsise(orgId, pageNumber): Promise<any> {
     const pageSize = 10;
-   // const pageNumber = 2
+    // const pageNumber = 2
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
     }
@@ -2178,14 +2201,14 @@ export class DeviceGroupService {
     const groupedDatasql = await queryBuilder.getSql();
     console.log(groupedDatasql);
     const groupedData = await queryBuilder.getRawMany();
-    const totalCountQuery= this.repository.createQueryBuilder('dg')
-    .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-    .where(`d.organizationId = :orgId`, { orgId: 2 })
-    .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
+    const totalCountQuery = this.repository.createQueryBuilder('dg')
+      .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
+      .where(`d.organizationId = :orgId`, { orgId: 2 })
+      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
     const totalCount = await totalCountQuery.getRawMany();
-    console.log("totalCountQuery",totalCount.length);
-   
+    console.log("totalCountQuery", totalCount.length);
+
     const totalPages = Math.ceil(totalCount.length / pageSize);
 
     if (pageNumber > totalPages) {
@@ -2226,7 +2249,7 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId,pageNumber): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId, pageNumber): Promise<any> {
 
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
@@ -2264,7 +2287,7 @@ export class DeviceGroupService {
       }
       return acc;
     }, []);
-    const totalPages =10;
+    const totalPages = 10;
     const response = {
       deviceGroups,
       pageNumber,
