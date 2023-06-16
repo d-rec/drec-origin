@@ -20,7 +20,7 @@ export class AddBulkDeviceComponent implements OnInit {
   progress = 0;
   message = '';
   pageSize: number = 10;
-  fileName = 'Please click here to Select File';
+  fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
   showdevicesinfo: boolean = false;
   DevicestatusList: any = [];
@@ -167,7 +167,7 @@ export class AddBulkDeviceComponent implements OnInit {
     this.deviceService.getDeviceInfoBYexternalId(externalId).subscribe(
       (data) => {
         if (data) {
-          this.router.navigate(['/device/edit/' + externalId]);
+          this.router.navigate(['/device/edit/' + externalId], { queryParams: { frombulk: true } });
         } else {
           this.toastrService.error('device id has been updated', 'current external id not found!!');
         }

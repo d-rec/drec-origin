@@ -23,7 +23,7 @@ export class EditDeviceComponent implements OnInit {
   shownomore: any;
   showaddmore: any;
   public sdgblist: any;
-  id:number;
+  id: number;
   externalid: any;
   showinput: boolean = true;
   externalId: any;
@@ -36,7 +36,7 @@ export class EditDeviceComponent implements OnInit {
   fuelCode: any;
   deviceTypeCode: any;
   capacity: any;
-  SDGBenefits: any=[];
+  SDGBenefits: any = [];
   commissioningDate: any;
   qualityLabels: any;
   offTaker: any;
@@ -44,18 +44,26 @@ export class EditDeviceComponent implements OnInit {
   impactStory: any;
 
   deviceDescription: any;
-  energyStorage: boolean=true;
+  energyStorage: boolean = true;
   energyStorageCapacity: any;
-
+  frommydevice: boolean = false;
+  frombulk: boolean = false;
   offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService, private router: Router,
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute,) {
-    // this.activatedRoute.queryParams.subscribe(params => {
-    //   this.externalid = params['id'];
-    // });
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['fromdevices'] != undefined) {
+        this.frommydevice = params['fromdevices'];
+        console.log(this.frommydevice);
+      }
+      if (params['frombulk'] != undefined) {
+        this.frombulk = params['frombulk'];
+        console.log(this.frombulk);
+      }
+    });
     this.externalid = this.activatedRoute.snapshot.params['id'];
   }
 
@@ -100,7 +108,7 @@ export class EditDeviceComponent implements OnInit {
 
 
   }
- checkValidation(input: string) {
+  checkValidation(input: string) {
     const validation = this.myform.get(input)?.invalid && (this.myform.get(input)?.dirty || this.myform.get(input)?.touched)
     return validation;
   }
@@ -153,16 +161,16 @@ export class EditDeviceComponent implements OnInit {
       }
     )
   }
-  shownewExternalidInput:boolean=false;
-  showcancelicon:boolean=false;
-  editExternalid(){
-    this.shownewExternalidInput=true;
-    this.showcancelicon=true;
+  shownewExternalidInput: boolean = false;
+  showcancelicon: boolean = false;
+  editExternalid() {
+    this.shownewExternalidInput = true;
+    this.showcancelicon = true;
   }
-  hideeditExternalid(){
-    this.shownewExternalidInput=false;
-    this.myform.value.externalId=this.externalId;
-    this.showcancelicon=false;
+  hideeditExternalid() {
+    this.shownewExternalidInput = false;
+    this.myform.value.externalId = this.externalId;
+    this.showcancelicon = false;
     console.log(this.myform);
   }
   addmore() {
@@ -186,7 +194,7 @@ export class EditDeviceComponent implements OnInit {
   getDeviceinfo() {
     this.deviceService.getDeviceInfoBYexternalId(this.externalid).subscribe(
       (data) => {
-       console.log(data);
+        console.log(data);
         this.id = data.id;
         this.externalId = data.externalId;
         this.status = data.status;
@@ -201,23 +209,23 @@ export class EditDeviceComponent implements OnInit {
         data.SDGBenefits.forEach(
           (sdgbname: string, index: number) => {
             //@ts-ignore
-            let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());          
-              data.SDGBenefits[index] = foundEle.name           
+            let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());
+            data.SDGBenefits[index] = foundEle.name
             console.log(data.SDGBenefits);
           });
-          this.SDGBenefits =data.SDGBenefits;          
+        this.SDGBenefits = data.SDGBenefits;
         this.commissioningDate = data.commissioningDate;
         this.offTaker = data.offTaker;
         this.qualityLabels = data.qualityLabels;
         this.impactStory = data.impactStory;
         this.gridInterconnection = data.gridInterconnection;
         this.deviceDescription = data.deviceDescription;
-        if(data.energyStorage!=null){
+        if (data.energyStorage != null) {
           this.energyStorage = data.energyStorage;
-        }else{
+        } else {
           this.energyStorage = false;
         }
-        
+
         console.log(this.energyStorage);
         this.energyStorageCapacity = data.energyStorageCapacity;
 
@@ -226,9 +234,9 @@ export class EditDeviceComponent implements OnInit {
 
   }
   onSubmit() {
-   
+
     console.log(this.myform);
-    if(this.myform.value.externalId===null){
+    if (this.myform.value.externalId === null) {
       this.myform.removeControl('externalId');
     }
     console.log(this.myform);
@@ -247,6 +255,11 @@ export class EditDeviceComponent implements OnInit {
     // })
   }
   reset() {
-    this.router.navigate(['/device/AllList']);
+    if(this.frombulk){
+      this.router.navigate(['/device/bulk_upload']);
+    }else{
+      this.router.navigate(['/device/AllList']);
+    }
+    
   }
 }
