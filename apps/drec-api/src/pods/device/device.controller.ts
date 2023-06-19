@@ -77,22 +77,14 @@ export class DeviceController {
   )/*: Promise<DeviceDTO[]>*/ {
     return this.deviceService.find(filterDto, pagenumber);
   }
-  // @Get('/devicegroup')
-  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  // @Roles(Role.Admin)
-  // @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
-  // async getAllgroupdevcie(
-
-  // ): Promise<DeviceDTO[]> {
-  //   return this.deviceService.NewfindForGroup(1);
-  // }
+ 
   @Get('/ungrouped/buyerreservation')
   @UseGuards(AuthGuard('jwt'))
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
-    @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
+    @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
   ): Promise<DeviceDTO[]> {
    
@@ -316,51 +308,7 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
-    // .catch((error) => {
-    //   console.log(error.error);
-    // //  return error
-    //   return new Promise((resolve, reject) => {
-    //           reject(
-    //             new ConflictException({
-    //               success: false,
-    //               message: error,
-    //             }),
-    //           );
-    //         });
-    //   //   if (error && error.code && error.detail) {
-    //   //     return new Promise((resolve, reject) => {
-    //   //       reject(
-    //   //         new ConflictException({
-    //   //           success: false,
-    //   //           message: error.detail,
-    //   //         }),
-    //   //       );
-    //   //     });
-    //   //   } else {
-    //   //     console.log("error", error);
-    //   //     return new Promise((resolve, reject) => {
-    //   //       reject({ error: true });
-    //   //     });
-    //   //}
-    // });
-
-    //}
-    // catch(e)
-    // {
-    //   if(e && e.code && e.detail)
-    //   {
-    //     return new Promise((resolve,reject)=>{
-    //       reject(new ConflictException({
-    //         success: false,
-    //         message:e.detail}))
-    //     })
-    // }
-    // else
-    //   return new Promise((resolve,reject)=>{
-    //     reject({error:true});
-    //   })
-
-    // }
+  
   }
 
 
