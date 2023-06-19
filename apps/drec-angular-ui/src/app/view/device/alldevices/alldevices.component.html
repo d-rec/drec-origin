@@ -138,7 +138,7 @@
                 [disabled]="!isAnyFieldFilled">Filter</button>
             </div>
             <div class="">
-              <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
+              <button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled" (click)="reset()">Reset</button>
             </div>
 
 

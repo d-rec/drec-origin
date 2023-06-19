@@ -7,7 +7,7 @@ import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRe
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator,PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { ReservationService } from '../../auth/services/reservation.service';
 import { Router } from '@angular/router';
@@ -59,7 +59,7 @@ export class MyreservationComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
-  pageSize: number = 20;
+  pageSize: number = 10;
   showdevicesinfo: boolean = false;
   DevicesList: any;
   isLoadingResults: boolean = true;
@@ -68,6 +68,8 @@ export class MyreservationComponent implements OnInit {
   devicetypelist: any;
   FilterForm: FormGroup;
   public sdgblist: any;
+  p: number = 1;
+  totalRows = 0;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
@@ -90,7 +92,8 @@ export class MyreservationComponent implements OnInit {
       SDGBenefits: [],
       reservationStartDate: [null],
       reservationEndDate: [null],
-      reservationActive: []
+      reservationActive: [],
+      pagenumber: [this.p]
     });
 
     console.log("myreservation");
@@ -189,8 +192,22 @@ export class MyreservationComponent implements OnInit {
       }
     )
   }
+  isAnyFieldFilled: boolean = false;
+
+  checkFormValidity(): void {
+    console.log("115");
+    const formValues = this.FilterForm.value;
+    this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
+    console.log(this.isAnyFieldFilled);
+  }
+  formfilter()
+  {
+    this.p=1;
+    this.DisplayList()
+  }
   DisplayList() {
     console.log(this.FilterForm.value)
+    this.FilterForm.controls['pagenumber'].setValue(this.p);
     if (this.FilterForm.value.reservationActive === "All") {
       this.FilterForm.removeControl('reservationActive');
     }
@@ -200,7 +217,7 @@ export class MyreservationComponent implements OnInit {
         (data) => {
           this.showdevicesinfo = false;
 
-          this.data = data;
+          this.data = data.groupedData;
           //@ts-ignore
           this.data.forEach(ele => {
 
@@ -215,7 +232,9 @@ export class MyreservationComponent implements OnInit {
           this.isLoadingResults = false;
           this.dataSource = new MatTableDataSource(this.data);
           console.log(this.dataSource);
-          this.dataSource.paginator = this.paginator;
+          this.totalRows = data.totalCount;
+          console.log(this.totalRows);
+         
           this.dataSource.sort = this.sort;
         }
       )
@@ -228,6 +247,7 @@ export class MyreservationComponent implements OnInit {
     // this.loading = false;
     // this.getDeviceListData();
     //this.selection.clear();
+    this.p = 1;
     this.DisplayList()
   }
 
@@ -283,5 +303,10 @@ export class MyreservationComponent implements OnInit {
     // })
 
   }
+  pageChangeEvent(event: PageEvent) {
+    console.log(event);
+    this.p = event.pageIndex + 1;
 
+    this.DisplayList();
+  }
 }

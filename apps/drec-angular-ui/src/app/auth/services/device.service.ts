@@ -75,10 +75,8 @@ export class DeviceService {
   }
   getfilterData(searchData: any): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
-    let searchUrl = `${this.url}device/ungrouped/buyerreservation?`;
-    if (!(typeof searchData.pagenumber === "undefined" || searchData.pagenumber === ""||searchData.pagenumber === null)) {
-      searchUrl += `pagenumber=${searchData.pagenumber}`;
-    }
+    let searchUrl = `${this.url}device/ungrouped/buyerreservation?pagenumber=`+searchData.pagenumber;
+    
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === "" || searchData.countryCode === null)) {
       searchUrl += `&country=${searchData.countryCode}`;
     }
@@ -87,11 +85,6 @@ export class DeviceService {
       searchUrl += `&fuelCode=${searchData.fuelCode}`;
 
     }
-
-    // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
-    // {
-    //   searchUrl+=`&Distance=${searchData.Distance}`;
-    // }
 
     if (!(typeof searchData.deviceTypeCode === "undefined" || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null)) {
       searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
@@ -103,9 +96,18 @@ export class DeviceService {
     if (!(typeof searchData.offTaker === "undefined" || searchData.offTaker === "" || searchData.offTaker === null)) {
       searchUrl += `&offTaker=${searchData.offTaker}`;
     }
-    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
-    //   searchUrl += `&GroupId=${searchData.GroupId}`;
-    // }
+    if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null)) {
+      console.log(typeof searchData.SDGBenefits )
+      console.log( searchData.SDGBenefits )
+      searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
+    }
+    if (!(typeof searchData.start_date === "undefined" || searchData.start_date === ""||searchData.start_date === null)) {
+      searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
+    }
+
+    if (!(typeof searchData.end_date === "undefined" || searchData.end_date === ""||searchData.end_date === null)) {
+      searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
+    }
     return this.httpClient.get(searchUrl);
   }
   getcertifieddevicelogdate(externalId: any, groupId: any): Observable<any> {

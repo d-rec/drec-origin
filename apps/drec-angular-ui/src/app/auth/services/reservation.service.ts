@@ -18,7 +18,7 @@ export class ReservationService {
 
   getReservationData(searchData:any): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
-    let searchUrl = `${this.url}device-group/my?`;
+    let searchUrl = `${this.url}device-group/my?pagenumber=`+searchData.pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === ""||searchData.countryCode === null)) {
       searchUrl += `country=${searchData.countryCode}`;
