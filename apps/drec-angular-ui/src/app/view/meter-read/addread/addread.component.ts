@@ -75,7 +75,8 @@ export class AddreadComponent implements OnInit {
     return this.readForm.controls["reads"] as FormArray;
   }
   DisplayList() {
-    this.deviceservice.GetMyDevices().subscribe(
+    const deviceurl = 'device/my';
+    this.deviceservice.GetMyDevices(deviceurl).subscribe(
       (data) => {
         // display list in the console 
         this.data = data;
