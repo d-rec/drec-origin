@@ -236,10 +236,11 @@ export class CertificateLogController {
     async getCertificatesForDeveloper(
 
         @UserDecorator() user: ILoggedInUser,
+        @Query(ValidationPipe) filterDto: FilterDTO,
         @Query('pageNumber') pageNumber: number,
     )/*: Promise<CertificateNewWithPerDeviceLog[]>*/ {
         console.log("238")
-        pageNumber = 1;
-        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId, pageNumber);
+        //pageNumber = 1;
+        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId,filterDto, pageNumber);
     }
 }

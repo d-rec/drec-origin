@@ -20,6 +20,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -104,6 +105,7 @@ export class DeviceGroupController {
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
@@ -111,20 +113,19 @@ export class DeviceGroupController {
   })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
-    
     @Query(new ValidationPipe({
       transform: true,
       whitelist: true,
     })) filterDto: UnreservedDeviceGroupsFilterDTO,
     
-    @Query('pageNumber') pageNumber: number,
+    @Query('pagenumber') pagenumber: number| null,
   )/*: Promise<DeviceGroupDTO[]> */{
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId);
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(id,pageNumber,filterDto);
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
       default:

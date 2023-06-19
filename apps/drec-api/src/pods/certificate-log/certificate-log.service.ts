@@ -587,9 +587,9 @@ export class CertificateLogService {
 
   //add function to get the certified log which device of developer added in reservation for developer
 
-  async getCertifiedlogofDeveloperDevice(orgId: number, pageNumber) {
-    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(orgId, pageNumber)
-    console.log("getnewreservationinfo",getnewreservationinfo.deviceGroups.length);
+  async getCertifiedlogofDeveloperDevice(orgId: number, filterDto:FilterDTO,pageNumber) {
+    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(orgId,filterDto, pageNumber)
+    console.log("getnewreservationinfo",getnewreservationinfo);
     const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(orgId, pageNumber)
     console.log("getoldreservationinfo", getoldreservationinfo);
     if (getoldreservationinfo.deviceGroups.length > 0) {
@@ -770,13 +770,13 @@ export class CertificateLogService {
       })
     )
 
-    // const response = {
-    //   certificatelog: finalcertificatesInReservationWithLog,
-    //   currentpage: getreservationinfo.pageNumber,
-    //   totalPages: getreservationinfo.totalPages,
-    // }
-    // return response;
-    return finalcertificatesInReservationWithLog
+    const response = {
+      certificatelog: finalcertificatesInReservationWithLog,
+      currentpage: getreservationinfo.pageNumber,
+      totalPages: getreservationinfo.totalPages,
+    }
+    return response;
+    //return finalcertificatesInReservationWithLog
   }
 
 

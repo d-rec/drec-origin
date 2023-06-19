@@ -1,9 +1,9 @@
 export enum SDGBenefitsList {
 
-    SDG1 = "SDG1",
-    SDG2 = "SDG2",
-    SDG3 = "SDG3",
-    SDG4 = "SDG4",
+    SDG1 = "No Poverty",
+    SDG2 = "Zero Hunger",
+    SDG3 = "Good Health and Well-being",
+    SDG4 = "Quality Education",
     SDG5 = "SDG5",
     SDG6 = "SDG6",
     SDG7 = "SDG7",
