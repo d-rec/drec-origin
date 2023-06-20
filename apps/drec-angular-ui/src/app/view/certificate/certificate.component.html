@@ -348,13 +348,13 @@
 				<mat-card class="innermat-card example-card1 border">
 					<mat-card-header class="">
 						<div class="col-12">
-							<mat-card-title class=" d-flex justify-content-between align-items-center">
-								<div>
+							<mat-card-title class=" d-flex justify-content-between align-items-center ">
+								<div class="position-relative">
 									<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
 										aria-label="Button that displays a tooltip when focused or hovered over"
 										style="text-align: right;" href={{item.energyurl}}
 										target="_blank" class="certificate-text d-flex text-capitalize">
-										<mat-icon class="mt-1">card_membership</mat-icon>
+										<mat-icon class="mt-1 ">card_membership</mat-icon>
 										<div class="certificate-id-text">
 											<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
 											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>

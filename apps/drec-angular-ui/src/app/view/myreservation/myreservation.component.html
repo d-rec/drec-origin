@@ -286,7 +286,7 @@
                     </h2>
 
                     <div class='content'>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row '>
                                 <p><b> Name</b>:&nbsp;
                                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
@@ -294,7 +294,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> Start
                                         Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -303,7 +303,7 @@
                             </div>
 
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> End
                                         Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -312,8 +312,8 @@
                         </div>
 
                     </div>
-                    <div class='content'>
-                        <div class='column'>
+                    <div class='content '>
+                        <div class='column col-4'>
                             <div class='row '>
                                 <p><b> Target Capacity</b>:&nbsp;
                                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
@@ -321,7 +321,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b>Frequency</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
                                     {{group_info.frequency}}</p>
@@ -330,7 +330,7 @@
 
                         </div>
 
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> off
                                         takers</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -340,14 +340,14 @@
                     </div>
                     <div class='content'>
 
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> number of
                                         devices</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
                                     {{group_info.numberOfdevices}}</p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p *ngIf="!(group_info.reservationActive)"><b>Status:</b>:
                                     &nbsp;Deactive</p>
@@ -356,7 +356,7 @@
                             </div>
 
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b>SDG benefits:</b>:
                                     &nbsp;{{group_info.SDGBenefits}}</p>
