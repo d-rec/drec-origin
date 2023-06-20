@@ -181,32 +181,39 @@ export class DeviceGroupService {
 
   async getBuyerDeviceGroups(
     buyerId: number,
-    pageNumber?:number,
+    pageNumber?: number,
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
-    
+
   ): Promise<any> {
     console.log(groupfilterDto);
     let deviceGroups: any;
     let queryBuilder: any;
     const pageSize = 10;
-   
-      if (!groupfilterDto || Object.keys(groupfilterDto).length === 0) {
-      const skip = (pageNumber - 1) * pageSize;
-      console.log("skip",skip)
-      queryBuilder = this.repository.createQueryBuilder('dg')
-        .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-        .select(['dg.*', 'd.SDGBenefits'])
+    console.log(Object.keys(groupfilterDto).length);
+    if (!groupfilterDto || Object.keys(groupfilterDto).length === 0) {
+
+      queryBuilder = this.repository
+        .createQueryBuilder('dg')
+        .innerJoin(Device, 'd', 'd.id = ANY(dg."deviceIdsInt")')
+        .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
-        // .offset(skip) 
-        // .limit(pageSize);
+        .groupBy('dg.id')
+
+      // this.repository.createQueryBuilder('dg')
+      //   .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      //   .select(['dg.*', 'd.SDGBenefits'])
+      //   .orderBy('dg.id', 'ASC')
+      //   .offset(skip)
+      //   .limit(pageSize);
       // //console.log(queryBuilder);
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
         })
       });
-    } 
+    }
     else {
+      const skip = (pageNumber - 1) * pageSize;
       if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
         if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
           return new Promise((resolve, reject) => {
@@ -231,11 +238,14 @@ export class DeviceGroupService {
       }
       console.log("187")
       console.log(buyerId)
-      queryBuilder = this.repository.createQueryBuilder('dg')
-        .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-        .select(['dg.*', 'd.SDGBenefits'])
+      queryBuilder = this.repository
+        .createQueryBuilder('dg')
+        .innerJoin(Device, 'd', 'd.id = ANY(dg."deviceIdsInt")')
+        .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
-
+        .groupBy('dg.id')
+      // .offset(skip)
+      // .limit(pageSize);
       // //console.log(queryBuilder);
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
@@ -277,8 +287,6 @@ export class DeviceGroupService {
             if (groupfilterDto.offTaker) {
               console.log(typeof groupfilterDto.offTaker)
               console.log(groupfilterDto.offTaker)
-              // const filterOperator = this.getRawFilter(groupfilterDto.offTake);
-              // queryBuilder.where('dg.offTakers =:offTaker', { offTaker: filterOperator });
               if (typeof groupfilterDto.offTaker === 'string') {
                 console.log("272")
                 qb.orWhere('dg.offTakers = :offTaker', { offTaker: [groupfilterDto.offTaker] });
@@ -298,22 +306,25 @@ export class DeviceGroupService {
 
             if (groupfilterDto.sdgbenefit) {
               console.log(groupfilterDto.sdgbenefit);
-              // if (typeof groupfilterDto.sdgbenefit === 'string') {
-              //   console.log(typeof groupfilterDto.sdgbenefit);
-              //   qb.orWhere('d.SDGBenefits = :benefit', { benefit: groupfilterDto.sdgbenefit });
-              // } else if (typeof groupfilterDto.sdgbenefit === 'object') {
+
               const newsdg = groupfilterDto.sdgbenefit.toString()
               console.log(typeof newsdg)
-              //const sdgBenefitsString: string = filter.SDGBenefits;
+
               const sdgBenefitsArray = newsdg.split(',');
-              console.log(JSON.stringify(groupfilterDto.sdgbenefit));
-              console.log(typeof groupfilterDto.sdgbenefit);
-              console.log(sdgBenefitsArray);
+
               const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
               console.log(sdgBenefitString);
-              qb.orWhere("d.SDGBenefits LIKE :sdgBenefitString", { sdgBenefitString: `%${sdgBenefitString}%` });
 
-              // }
+              qb.orWhere(new Brackets(qb => {
+                sdgBenefitsArray.forEach((benefit, index) => {
+                  if (index === 0) {
+                    qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                  } else {
+                    qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                  }
+                });
+              }));
+
             }
             if (groupfilterDto.reservationActive) {
               if (groupfilterDto.reservationActive === 'Active') {
@@ -328,75 +339,66 @@ export class DeviceGroupService {
       })
       const groupedDatasql = await queryBuilder.getSql();
     }
-    console.log(queryBuilder.getSql());
-    const groupedData = await queryBuilder.getRawMany();
-    console.log(groupedData.length);
-    const totalPages = Math.ceil(groupedData.length / pageSize);
 
+    const skip = (pageNumber - 1) * pageSize;
+    console.log("skip", skip)
+    let groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    console.log(queryBuilder.getSql());
+    // console.log(groupedData);
+    const totalCountQuery = await queryBuilder
+      .getCount()
+
+    console.log("totalCountQuery", totalCountQuery);
+    const totalPages = Math.ceil(totalCountQuery / pageSize);
+    console.log("totalPages", totalPages);
     if (pageNumber > totalPages) {
       throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
     }
-    // console.log(groupedData);
-    deviceGroups = groupedData.reduce((acc, curr) => {
 
-      const existing = acc.find(item => item.id === curr.id);
-
-      if (existing) {
-
-        if (curr.d_SDGBenefits) {
-
-          existing.SDGBenefits += `,${curr.d_SDGBenefits}`;
-        }
-      } else {
-
-        acc.push({
-          id: curr.id,
-          name: curr.name,
-          organizationId: curr.organizationId,
-          fuelCode: curr.fuelCode,
-          countryCode: curr.countryCode,
-          deviceTypeCodes: curr.deviceTypeCodes,
-          offTakers: curr.offTakers,
-          commissioningDateRange: curr.commissioningDateRange,
-          gridInterconnection: curr.gridInterconnection,
-          aggregatedCapacity: curr.aggregatedCapacity,
-          yieldValue: curr.yieldValue,
-          buyerId: curr.buyerId,
-          buyerAddress: curr.buyerAddress,
-          leftoverReads: curr.leftoverReads,
-          capacityRange: curr.capacityRange,
-          frequency: curr.frequency,
-          reservationStartDate: curr.reservationStartDate,
-          reservationEndDate: curr.reservationEndDate,
-          reservationActive: curr.reservationActive,
-          targetVolumeInMegaWattHour: curr.targetVolumeInMegaWattHour,
-          targetVolumeCertificateGenerationRequestedInMegaWattHour: curr.targetVolumeCertificateGenerationRequestedInMegaWattHour,
-          targetVolumeCertificateGenerationSucceededInMegaWattHour: curr.targetVolumeCertificateGenerationSucceededInMegaWattHour,
-          targetVolumeCertificateGenerationFailedInMegaWattHour: curr.targetVolumeCertificateGenerationFailedInMegaWattHour,
-          authorityToExceed: curr.authorityToExceed,
-          leftoverReadsByCountryCode: curr.leftoverReadsByCountryCode,
-          devicegroup_uid: curr.devicegroup_uid,
-          type: curr.type,
-          deviceIds: curr.deviceIdsInt,
-          // deviceIdsInt: curr.deviceIdsInt,
-          SDGBenefits: curr.d_SDGBenefits || ""
-        });
-        // console.log(acc);
-      }
-      return acc;
-    }, []);
-
-
+    console.log(groupedData[0].sdgBenefits)
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
-    return deviceGroups;
-    // const response = {
-    //   deviceGroups,
-    //   pageNumber,
-    //   totalPages,
-    //   totalcount:groupedData.length
-    // };
-    // return response;
+    const finalreservation = groupedData.map((deviceGroup) => ({
+
+      id: deviceGroup.dg_id,
+      name: deviceGroup.dg_name,
+      organizationId: deviceGroup.dg_organizationId,
+      fuelCode: deviceGroup.dg_fuelCode,
+      countryCode: deviceGroup.dg_countryCode,
+      deviceTypeCodes: deviceGroup.dg_deviceTypeCodes,
+      offTakers: deviceGroup.dg_offTakers,
+      commissioningDateRange: deviceGroup.dg_commissioningDateRange,
+      gridInterconnection: deviceGroup.dg_gridInterconnection,
+      aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
+      yieldValue: deviceGroup.dg_yieldValue,
+      buyerId: deviceGroup.dg_buyerId,
+      buyerAddress: deviceGroup.dg_buyerAddress,
+      leftoverReads: deviceGroup.dg_leftoverReads,
+      capacityRange: deviceGroup.dg_capacityRange,
+      frequency: deviceGroup.dg_frequency,
+      reservationStartDate: deviceGroup.dg_reservationStartDate,
+      reservationEndDate: deviceGroup.dg_reservationEndDate,
+      reservationActive: deviceGroup.dg_reservationActive,
+      targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
+      targetVolumeCertificateGenerationRequestedInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
+      targetVolumeCertificateGenerationSucceededInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
+      targetVolumeCertificateGenerationFailedInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
+      authorityToExceed: deviceGroup.dg_authorityToExceed,
+      leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
+      devicegroup_uid: deviceGroup.dg_devicegroup_uid,
+      type: deviceGroup.dg_type,
+      deviceIds: deviceGroup.dg_deviceIdsInt,
+      SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits))
+
+    }));
+    console.log(groupedData);
+    const response = {
+      groupedData: finalreservation,
+      pageNumber,
+      totalPages,
+      totalCount: totalCountQuery
+    };
+    return response;
   }
 
   async findOne(
@@ -436,9 +438,7 @@ export class DeviceGroupService {
     status: StatusCSV,
     fileId: string,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    //console.log("fileId");
-    //console.log(typeof fileId);
-    //console.log(fileId);
+
     return await this.repositoyCSVJobProcessing.save({
       userId,
       organizationId,
@@ -450,7 +450,7 @@ export class DeviceGroupService {
   async getAllCSVJobsForOrganization(
     organizationId: number,
   ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    ////console.log(organizationId);
+
     return await this.repositoyCSVJobProcessing.find({
       where: { organizationId },
       order: {
@@ -2175,8 +2175,8 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId, pageNumber): Promise<any> {
-    const pageSize = 10;
+  async getReservationInforDeveloperBsise(orgId, filterDto, pageNumber): Promise<any> {
+    const pageSize = 20;
     // const pageNumber = 2
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
@@ -2193,23 +2193,93 @@ export class DeviceGroupService {
       .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
       .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'crm.internalCertificateId'])
       .orderBy('dg.id', 'ASC')
-      .where(`d.organizationId = :orgId`, { orgId: orgId })
-      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-      .offset(skip) // Calculate the offset based on the current page
-      .limit(pageSize); // Set the limit to the number of items per page
+    queryBuilder.where((qb) => {
+      qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+        .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
+        .andWhere(new Brackets(qb => {
 
-    const groupedDatasql = await queryBuilder.getSql();
-    console.log(groupedDatasql);
-    const groupedData = await queryBuilder.getRawMany();
-    const totalCountQuery = this.repository.createQueryBuilder('dg')
-      .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-      .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-      .where(`d.organizationId = :orgId`, { orgId: 2 })
-      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
-    const totalCount = await totalCountQuery.getRawMany();
-    console.log("totalCountQuery", totalCount.length);
+          if (filterDto.country) {
+            const string = filterDto.country;
+            const values = string.split(",");
+            console.log(values);
+            let CountryInvalid = false;
+            
+            filterDto.country = filterDto.country.toUpperCase();
+            if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
+              let countries = countryCodesList;
+              if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
+                CountryInvalid = true;
+              }
+            }
+                     
+            if (!CountryInvalid) {
+              qb.orWhere('dg.countryCode = :countrycode', { countrycode: filterDto.fuelCode });
+            }
+          }
+          if ((filterDto.fuelCode)) {          
+            console.log(typeof filterDto.fuelCode);
+            filterDto.fuelCode.toString()
+            qb.orWhere(`d.fuelCode = :fuelcode`, { fuelcode: filterDto.fuelCode });
+           
+          }
+          if (filterDto.offTaker) {
+            console.log(typeof filterDto.offTaker)
+            console.log(filterDto.offTaker)
+           
+            console.log("272")
+            qb.orWhere('d.offTakers = :offTaker', { offTaker: filterDto.offTaker });
+          
+          }
+          const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
+          const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
+          if (filterDto.start_date) {
+            qb.orWhere("crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
+          }
+          if (filterDto.end_date) {
+            qb.orWhere("crm.generationEndTime  BETWEEN :certificateStartDate2  AND :certificateEndDate2", { certificateStartDate2: startTimestamp, certificateEndDate2: endTimestamp })
+          }
 
-    const totalPages = Math.ceil(totalCount.length / pageSize);
+          if (filterDto.sdgbenefit) {
+            console.log(filterDto.sdgbenefit);
+
+            const newsdg = filterDto.sdgbenefit.toString()
+            console.log(typeof newsdg)
+
+            const sdgBenefitsArray = newsdg.split(',');
+
+            const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
+            console.log(sdgBenefitString);
+
+            qb.orWhere(new Brackets(qb => {
+              sdgBenefitsArray.forEach((benefit, index) => {
+                if (index === 0) {
+                  qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                } else {
+                  qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                }
+              });
+            }));
+
+          }
+
+        }));
+
+    })
+    const totalCountQuery = await queryBuilder.getRawMany();
+    // const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize);
+    // console.log(groupedDatasql); 
+    const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    // const totalCountQuery =  queryBuilder.getSql();
+   // this.repository.createQueryBuilder('dg')
+    // .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+    // .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
+    // .where(`d.organizationId = :orgId`,{ orgId: orgId })
+    // .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
+    console.log("totalCountQuery", totalCountQuery);
+    const totalCount = totalCountQuery.length;
+    console.log("totalCountQuery", totalCount);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     if (pageNumber > totalPages) {
       throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
@@ -2227,7 +2297,7 @@ export class DeviceGroupService {
           existing.developerdeviceIds.push(curr.id);
         }
         existing.internalCertificateId.push(curr.crm_internalCertificateId)
-        // existing.certificatelog.push(newobj);
+        
       } else {
 
         acc.push({
@@ -2238,7 +2308,7 @@ export class DeviceGroupService {
           developerdeviceIds: [curr.id],
           internalCertificateId: [curr.crm_internalCertificateId]
         });
-        // console.log(acc);
+        
       }
       return acc;
     }, []);

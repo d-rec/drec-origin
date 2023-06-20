@@ -40,7 +40,7 @@ export class AddReservationComponent {
   data: any;
   loginuser: any
   deviceurl: any;
-  pageSize: number = 10;
+  pageSize: number = 20;
   countrylist: any;
   fuellist: any;
   devicetypelist: any;
@@ -52,12 +52,14 @@ export class AddReservationComponent {
   reservationForm: FormGroup;
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
+  filterendminDate = new Date();
   FilterForm: FormGroup;
   p: number = 1;
   totalRows = 0;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
+  sdgblist:any;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -81,6 +83,9 @@ export class AddReservationComponent {
       deviceTypeCode: [],
       capacity: [],
       offTaker: [],
+      SDGBenefits: [],
+      start_date: [null],
+      end_date: [null],
       pagenumber: [this.p]
     });
   }
@@ -99,8 +104,16 @@ export class AddReservationComponent {
         this.devicetypeLoded = true;
       }
     );
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.sdgblist = data;
+
+      }
+    )
     this.getcountryListData();
-    this.applyFilter();
+    this. displayList();
     console.log("myreservation");
     setTimeout(() => {
      // this.loading = false;
@@ -126,10 +139,6 @@ checkFormValidity(): void {
     console.log(this.filteredOptions);
   }
 
-  // filterStates(name: string) {
-  //   return this.states.filter(state =>
-  //     state.name.toLowerCase().indexOf(name.toLowerCase()) === 0);
-  // }
   openBottomSheet(device: any) {
     if (this.reservationForm.value.reservationStartDate != null && this.reservationForm.value.reservationEndDate != null) {
       let requestreaddata: any = { devicename: device.externalId, rexternalid: device.id, reservationStartDate: this.reservationForm.value.reservationStartDate, reservationEndDate: this.reservationForm.value.reservationEndDate }
@@ -149,8 +158,11 @@ checkFormValidity(): void {
   reset() {
     this.FilterForm.reset();
     this.loading = false;
-    this.applyFilter();
+    this.p=1;
     this.selection.clear();
+    this.displayList();
+   this.isAnyFieldFilled=false;
+    
   }
 
   isAllSelected() {
@@ -169,8 +181,10 @@ checkFormValidity(): void {
   onEndChangeEvent(event: any) {
     console.log(event);
     this.endminDate = event;
-
-
+  }
+  onfilterEndChangeEvent(event: any) {
+    console.log(event);
+    this.filterendminDate = event;
   }
   getcountryListData() {
 
@@ -212,8 +226,12 @@ checkFormValidity(): void {
   //     this.loading = false;
   //   }
   // }
-
-  applyFilter() {
+  applyFilter(){
+    this.p=1;
+    console.log(this.p);
+    this.displayList();
+  }
+  displayList() {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
     console.log(this.p);
@@ -335,6 +353,6 @@ checkFormValidity(): void {
     console.log(event);
     this.p = event.pageIndex + 1;
 
-    this.applyFilter();
+    this.displayList();
   }
 }

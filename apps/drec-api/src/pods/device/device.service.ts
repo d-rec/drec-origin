@@ -104,11 +104,11 @@ export class DeviceService {
     console.log(pagenumber);
     console.log(Object.keys(filterDto).length);
     // if (pagenumber) {
-      if (filterDto || Object.keys(filterDto).length != 0) {
-       //let pgno=pagenumber;
-        if (pagenumber===null||pagenumber===undefined) {
-          pagenumber = 1
-        }
+    if (filterDto || Object.keys(filterDto).length != 0) {
+      //let pgno=pagenumber;
+      if (pagenumber === null || pagenumber === undefined) {
+        pagenumber = 1
+      }
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       console.log(query);
@@ -502,11 +502,7 @@ export class DeviceService {
       // SDGBenefits:
 
     });
-    // if (filter.SDGBenefits) {
-    // //  const sdgBenefitsArray: string[] = filter.SDGBenefits;
-    //   const sdgBenefitsArray = filter.SDGBenefits;
-    //   where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'${term.trim()}'`)}])`);
-    // }
+
     if (filter.SDGBenefits) {
       console.log(typeof filter.SDGBenefits)
       console.log(filter.SDGBenefits)
@@ -648,7 +644,7 @@ export class DeviceService {
 
   }
   //
-  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO, pagenumber, limit): FindManyOptions<Device> {
+  private getBuyerFilteredQuery(filter: FilterDTO, pagenumber, limit): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
 
       fuelCode: filter.fuelCode,
@@ -656,8 +652,10 @@ export class DeviceService {
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-
-
+      commissioningDate:
+        filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date),
     });
     //console.log(where);
     const query: FindManyOptions<Device> = {
@@ -670,25 +668,21 @@ export class DeviceService {
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO, pagenumber): Promise<any> {
-    const limit = 10;
-    let query = this.getBuyerFilteredQuery(filterDto, pagenumber, limit);
-
+  public async finddeviceForBuyer(filterDto: FilterDTO, pagenumber): Promise<any> {
+    const limit = 20;
+    let query = this.getFilteredQuery(filterDto);
+    if (pagenumber) {
+      query = {
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      }
+    }
     let where: any = query.where
 
     where = { ...where, groupId: null };
 
     query.where = where;
-    // const unreservedevices = await this.repository.find(query)
-    //const newunreservedevicesDevices = [];
 
-    // await unreservedevices.map((device: Device) => {
-
-    //   device.externalId = device.developerExternalId
-    //   delete device["developerExternalId"];
-    //   newunreservedevicesDevices.push(device);
-    // })
-    // return newunreservedevicesDevices;
     const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
