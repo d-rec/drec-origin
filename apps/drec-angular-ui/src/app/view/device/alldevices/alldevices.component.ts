@@ -49,6 +49,7 @@ export class AlldevicesComponent {
     'fuelCode',
     'commissioningDate',
     'capacity',
+    'SDGBenefits',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -72,6 +73,7 @@ export class AlldevicesComponent {
   filteredOptions: Observable<any[]>;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   endminDate = new Date();
+  totalPages: number;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -116,7 +118,7 @@ export class AlldevicesComponent {
 
       }
     )
-    this.getDeviceListData();
+    this.getDeviceListData( this.p );
     console.log("myreservation");
 
     // setTimeout(() => this.DisplayList(), 10000);
@@ -124,7 +126,7 @@ export class AlldevicesComponent {
       this.loading = false;
       this.applycountryFilter();
       this.DisplayList();
-    }, 5000)
+    },1000)
   }
   isAnyFieldFilled: boolean = false;
 
@@ -163,16 +165,22 @@ export class AlldevicesComponent {
     this.loading = false;
     this.isAnyFieldFilled = false;
     this.p = 1;
-    this.getDeviceListData();
+    this.getDeviceListData( this.p );
+   
 
   }
   onEndChangeEvent(event: any) {
     console.log(event);
     this.endminDate = event;
-
-
   }
-  getDeviceListData() {
+
+  DisplayListFilter() {
+    this.p = 1;
+    this.getDeviceListData(this.p);
+  }
+  getDeviceListData(page:number) {
+   // this.paginator.pageIndex = 0; // Reset the page index to the first page
+    //this.paginator.firstPage();
     if (this.loginuser.role === 'Admin') {
       this.deviceurl = 'device?';
     } else {
@@ -181,7 +189,7 @@ export class AlldevicesComponent {
     console.log(this.FilterForm.value);
     console.log(this.p);
 
-    this.FilterForm.controls['pagenumber'].setValue(this.p);
+    this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value).subscribe(
       (data) => {
         console.log(data)
@@ -211,6 +219,8 @@ export class AlldevicesComponent {
       this.dataSource = new MatTableDataSource(this.data.devices);
       this.totalRows = this.data.totalCount
       console.log(this.totalRows);
+      this.totalPages=this.data.totalPages
+
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
 
@@ -220,10 +230,24 @@ export class AlldevicesComponent {
   UpdateDevice(externalId: any) {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
-  pageChangeEvent(event: PageEvent) {
-    console.log(event);
-    this.p = event.pageIndex + 1;
+  // pageChangeEvent(event: PageEvent) {
+  //   console.log(event);
+  //   this.p = event.pageIndex + 1;
 
-    this.getDeviceListData();
+  //   this.getDeviceListData();
+  // }
+
+  previousPage(): void {
+    if (this.p > 1) {
+      this.p--;
+      this.getDeviceListData(this.p);
+    }
+  }
+  
+  nextPage(): void {
+    if (this.p < this.totalPages) {
+      this.p++;
+      this.getDeviceListData(this.p);;
+    }
   }
 }
