@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindOneOptions, Repository, In, IsNull, Not, FindOperator,
-  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, ILike
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, MoreThanOrEqual, ILike
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -101,31 +101,24 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
-    console.log(pagenumber);
-    console.log(Object.keys(filterDto).length);
-    // if (pagenumber) {
-    if (filterDto || Object.keys(filterDto).length != 0) {
-      //let pgno=pagenumber;
+
+    if (pagenumber != undefined && Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
       }
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
-      console.log(query);
       let where: any = query.where
       where = { ...where, organizationId };
-      console.log(where);
       query.where = where;
-      console.log({
-        ...query, skip: (pagenumber - 1) * limit,
-        take: limit
-      });
+      console.log(query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-      //devices.externalId = devices.developerExternalId
-      const totalPages = Math.ceil(totalCount / 20);
+      console.log(devices);
+
+      const totalPages = Math.ceil(totalCount / limit);
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
@@ -483,37 +476,36 @@ export class DeviceService {
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
     const limit = 20;
-    // const page = 1;
+
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
-      //installationConfiguration: filter.installationConfiguration,
       capacity: filter.capacity,
       gridInterconnection: filter.gridInterconnection,
       offTaker: filter.offTaker,
-      //sector: filter.sector,
-      // labels: filter.labels,
-      //standardCompliance: filter.standardCompliance,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-      commissioningDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-      // SDGBenefits:
 
     });
+    console.log(filter.end_date);
+    if (filter.start_date != null && filter.end_date === undefined) {
+      where.commissioningDate = MoreThanOrEqual(filter.start_date);
 
+    }
+    if (filter.start_date === undefined && filter.end_date != null) {
+      where.commissioningDate = LessThanOrEqual(filter.end_date);
+    }
+    if (filter.start_date != null && filter.end_date != null) {
+      where.commissioningDate = filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date)
+    }
     if (filter.SDGBenefits) {
       console.log(typeof filter.SDGBenefits)
-      console.log(filter.SDGBenefits)
       const newsdg = filter.SDGBenefits.toString()
-      console.log(typeof newsdg)
-      //const sdgBenefitsString: string = filter.SDGBenefits;
       const sdgBenefitsArray = newsdg.split(',');
-      console.log(typeof newsdg)
       console.log(sdgBenefitsArray)
-      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'${term.trim()}'`)}])`);
-      //where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'%${term}%'`)}])`);
+      // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
     }
     console.log(where)
     const query: FindManyOptions<Device> = {
