@@ -448,7 +448,7 @@ export class DeviceGroupService {
       jobId: jobId,
     });
   }
- 
+
   async create(
     organizationId: number,
     data: NewDeviceGroupDTO,
@@ -598,7 +598,7 @@ export class DeviceGroupService {
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
-       if (devices.length === 0) {
+    if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
         let message = '';
@@ -671,7 +671,7 @@ export class DeviceGroupService {
         deviceGroup,
       );
       responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0 ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ') : '';
-     delete responseDeviceGroupDTO["deviceIdsInt"];
+      delete responseDeviceGroupDTO["deviceIdsInt"];
       return responseDeviceGroupDTO;
     }
   }
@@ -1961,20 +1961,21 @@ export class DeviceGroupService {
 
     //const totalPages = Math.ceil(totalCountQuery / limit);
     let queryBuilder: any;
-    queryBuilder =this.repository.createQueryBuilder('dg')
+    queryBuilder = this.repository.createQueryBuilder('dg')
     .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    .innerJoin(CheckCertificateIssueDateLogForDeviceGroupEntity, 'dg_log', 'dg_log.groupId = dg.id')
-    .innerJoin(CertificateReadModelEntity, 'crm','dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\'')
-    .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*','dg_log.readvalue_watthour', 'crm.internalCertificateId'])
-    .orderBy('dg.id', 'ASC')
-    
-    // this.repository.createQueryBuilder('dg')
-    //   .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    //   .innerJoin(CheckCertificateIssueDateLogForDeviceGroupEntity, 'dg_log', 'dg_log.groupId = dg.id')
-    //   .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-    //   .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*','dg_log.readvalue_watthour', 'crm.internalCertificateId'])
-    //   .orderBy('dg.id', 'ASC')
-
+    .innerJoin(
+      CheckCertificateIssueDateLogForDeviceGroupEntity,
+      'dg_log',
+      'dg_log.groupId = dg.id'
+    )
+    .innerJoin(
+      CertificateReadModelEntity,
+      'crm',
+      'dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
+    )
+    .select('DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId')
+    .orderBy('dg.id, crm.internalCertificateId, dg_log.readvalue_watthour', 'ASC')
+  
     queryBuilder.where((qb) => {
       qb.where(`d.organizationId = :orgId`, { orgId: orgId })
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
@@ -2014,13 +2015,15 @@ export class DeviceGroupService {
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
           const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-          if (filterDto.start_date) {
+          if (filterDto.start_date && filterDto.end_date===undefined) {
+            qb.orWhere("crm.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp})
+          }
+          if (filterDto.end_date && filterDto.start_date===undefined) {
+            qb.orWhere("crm.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
+          }
+          if (filterDto.start_date && filterDto.end_date) {
             qb.orWhere("crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
           }
-          if (filterDto.end_date) {
-            qb.orWhere("crm.generationEndTime  BETWEEN :certificateStartDate2  AND :certificateEndDate2", { certificateStartDate2: startTimestamp, certificateEndDate2: endTimestamp })
-          }
-
           if (filterDto.sdgbenefit) {
             console.log(filterDto.sdgbenefit);
 
@@ -2030,8 +2033,7 @@ export class DeviceGroupService {
             const sdgBenefitsArray = newsdg.split(',');
 
             const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
-            console.log(sdgBenefitString);
-
+           
             qb.orWhere(new Brackets(qb => {
               sdgBenefitsArray.forEach((benefit, index) => {
                 if (index === 0) {
@@ -2044,11 +2046,18 @@ export class DeviceGroupService {
 
           }
           if (filterDto.fromAmountread && filterDto.toAmountread) {
-            console.log(filterDto.fromAmountread);
-            console.log(filterDto.toAmountread);
             qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
           }
-
+          if (filterDto.fromAmountread!=null && filterDto.toAmountread===undefined) {
+            console.log(filterDto.fromAmountread);
+            console.log(filterDto.toAmountread);
+            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
+          }
+          if (filterDto.fromAmountread===undefined && filterDto.toAmountread!=null) {
+            console.log(filterDto.fromAmountread);
+            console.log(filterDto.toAmountread);
+            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", {  toAmountread: filterDto.toAmountread })
+          }
         }));
 
     })
@@ -2056,16 +2065,8 @@ export class DeviceGroupService {
     const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
     console.log(groupedDatasql);
     const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
-    // const totalCountQuery =  queryBuilder.getSql();
-    // this.repository.createQueryBuilder('dg')
-    // .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    // .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-    // .where(`d.organizationId = :orgId`,{ orgId: orgId })
-    // .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
-    //console.log("totalCountQuery", totalCountQuery);
     const totalCount = totalCountQuery.length;
     console.log("totalCountQuery", totalCount);
-
     const totalPages = Math.ceil(totalCount / pageSize);
 
     if (pageNumber > totalPages) {
@@ -2074,7 +2075,7 @@ export class DeviceGroupService {
     console.log(totalPages);
     let deviceGroups = groupedData.reduce((acc, curr) => {
 
-      const existing = acc.find(item => item.dg_id === curr.dg_id);
+      const existing = acc.find(item => item.dg_id === curr.devicegroupid);
 
       if (existing) {
         let newobj = {};
@@ -2083,17 +2084,17 @@ export class DeviceGroupService {
         if (existing1) {
           existing.developerdeviceIds.push(curr.id);
         }
-        existing.internalCertificateId.push(curr.crm_internalCertificateId)
+        existing.internalCertificateId.push(curr.internalCertificateId)
 
       } else {
 
         acc.push({
-          dg_id: curr.dg_id,
-          name: curr.dg_name,
-          deviceIdsInt: curr.dg_deviceIdsInt,
+          dg_id: curr.devicegroupid,
+          name: curr.name,
+          deviceIdsInt: curr.deviceIdsInt,
           // deviceIdsInt: curr.deviceIdsInt,
           developerdeviceIds: [curr.id],
-          internalCertificateId: [curr.crm_internalCertificateId]
+          internalCertificateId: [curr.internalCertificateId]
         });
 
       }
