@@ -1,6 +1,6 @@
 
 
-import { FormBuilder ,FormGroup,FormControl} from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
@@ -8,7 +8,7 @@ import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRe
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator,PageEvent } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
@@ -61,10 +61,10 @@ export class AlldevicesComponent {
   countrylist: any;
   fuellist: any;
   devicetypelist: any;
-  fuellistLoaded:boolean=false;
-  devicetypeLoded:boolean=false;
-  countrycodeLoded:boolean=false;
-  loading:boolean=true;
+  fuellistLoaded: boolean = false;
+  devicetypeLoded: boolean = false;
+  countrycodeLoded: boolean = false;
+  loading: boolean = true;
   public sdgblist: any;
   FilterForm: FormGroup;
   p: number = 1;
@@ -72,7 +72,7 @@ export class AlldevicesComponent {
   filteredOptions: Observable<any[]>;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   endminDate = new Date();
-  constructor(private authService: AuthbaseService,private deviceService: DeviceService, private formBuilder: FormBuilder,private router: Router) {
+  constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -91,40 +91,40 @@ export class AlldevicesComponent {
       (data1) => {
         // display list in the console
         this.fuellist = data1;
-        this.fuellistLoaded=true;
+        this.fuellistLoaded = true;
       });
-      this.authService.GetMethod('device/device-type').subscribe(
-        (data2) => {
-          // display list in the console
-          this.devicetypelist = data2;
-          this.devicetypeLoded=true;
-        }
-      );
-      this.authService.GetMethod('countrycode/list').subscribe(
-        (data3) => {
-          // display list in the console
-          // console.log(data)
-          this.countrylist = data3;
-          this.countrycodeLoded=true;
-        }
-      )
-      this.authService.GetMethod('sdgbenefit/code').subscribe(
-        (data) => {
-          // display list in the console 
-          
-          this.sdgblist = data;
-  
-        }
-      )
-     this.getDeviceListData();
+    this.authService.GetMethod('device/device-type').subscribe(
+      (data2) => {
+        // display list in the console
+        this.devicetypelist = data2;
+        this.devicetypeLoded = true;
+      }
+    );
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data3) => {
+        // display list in the console
+        // console.log(data)
+        this.countrylist = data3;
+        this.countrycodeLoded = true;
+      }
+    )
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.sdgblist = data;
+
+      }
+    )
+    this.getDeviceListData();
     console.log("myreservation");
-   
-   // setTimeout(() => this.DisplayList(), 10000);
-    setTimeout(()=>{
-        this.loading=false;
-        this.applycountryFilter();
-        //  this.DisplayList();
-      },5000)
+
+    // setTimeout(() => this.DisplayList(), 10000);
+    setTimeout(() => {
+      this.loading = false;
+      this.applycountryFilter();
+      this.DisplayList();
+    }, 5000)
   }
   isAnyFieldFilled: boolean = false;
 
@@ -134,14 +134,14 @@ export class AlldevicesComponent {
     this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
     console.log(this.isAnyFieldFilled);
   }
-    applycountryFilter() {
-      this.FilterForm.controls['countryCode'];
-      this.filteredOptions = this.FilterForm.controls['countryCode'].valueChanges.pipe(
-        startWith(''),
-        map(value => this._filter(value || '')),
-      );
-      console.log(this.filteredOptions);
-    }
+  applycountryFilter() {
+    this.FilterForm.controls['countryCode'];
+    this.filteredOptions = this.FilterForm.controls['countryCode'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+    console.log(this.filteredOptions);
+  }
   // applyFilter(event: Event) {
   //   const filterValue = (event.target as HTMLInputElement).value;
   //   this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -154,17 +154,17 @@ export class AlldevicesComponent {
     const filterValue = value.toLowerCase();
 
     // if (this.countrycodeLoded === true) {
-   // console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+    // console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }
   reset() {
     this.FilterForm.reset();
     this.loading = false;
-    this.isAnyFieldFilled=false;
-    this.p=1;
+    this.isAnyFieldFilled = false;
+    this.p = 1;
     this.getDeviceListData();
-    
+
   }
   onEndChangeEvent(event: any) {
     console.log(event);
@@ -180,27 +180,25 @@ export class AlldevicesComponent {
     }
     console.log(this.FilterForm.value);
     console.log(this.p);
-    
+
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    this.deviceService.GetMyDevices(this.deviceurl,this.FilterForm.value).subscribe(
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value).subscribe(
       (data) => {
         console.log(data)
         //@ts-ignore
-        if(data.devices){
+        if (data.devices) {
           this.loading = false;
-           //@ts-ignore
+          //@ts-ignore
           this.data = data;
           this.DisplayList()
-        }        
+        }
       }
     )
   }
-  DisplayList()
-  {
-    
-    if(this.fuellistLoaded== true && this.devicetypeLoded== true && this.countrycodeLoded===true)
-    {
-       //@ts-ignore
+  DisplayList() {
+
+    if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
+      //@ts-ignore
       this.data.devices.forEach(ele => {
         //@ts-ignore
         ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
@@ -209,25 +207,18 @@ export class AlldevicesComponent {
         //@ts-ignore
         ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
       })
-      
+
       this.dataSource = new MatTableDataSource(this.data.devices);
       this.totalRows = this.data.totalCount
       console.log(this.totalRows);
-     // this.dataSource.paginator = this.paginator;
+      // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-      
+
     }
-    // else
-    // {
-    //   // setTimeout(()=>{
-    //   //   this.loading=false;
-      
-    //   //     this.DisplayList();
-    //   // },5000)
-    // }
+   
   }
   UpdateDevice(externalId: any) {
-    this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true} }); 
+    this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
   pageChangeEvent(event: PageEvent) {
     console.log(event);

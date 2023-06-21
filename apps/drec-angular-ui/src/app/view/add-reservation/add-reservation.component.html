@@ -179,6 +179,46 @@
                                         <input matInput (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
                                     </mat-form-field>
                                 </div>
+                                <div class="col-md-3">
+                                    <mat-form-field>
+                                      <mat-label class="text-capitalize">SDG Benefits</mat-label>
+                        
+                                      <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
+                        
+                                        <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.value">{{sdgb.value}}</mat-option>
+                        
+                                      </mat-select>
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="col-md-3">
+                                    <mat-form-field>
+                                        <mat-label class="text-capitalize">Commissioning Start Date </mat-label>
+                                        <input matInput [ngxMatDatetimePicker]="picker2" placeholder="Choose a date"
+                                            formControlName="start_date" autocomplete="off"
+                                            (ngModelChange)="onfilterEndChangeEvent($event);checkFormValidity()">
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
+                                        <ngx-mat-datetime-picker #picker2 [showSpinners]="true" [showSeconds]="false"
+                                            [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                            [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                        </ngx-mat-datetime-picker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-md-3">
+                                    <mat-form-field>
+                                        <mat-label class="text-capitalize">Commissioning End Date </mat-label>
+                                      
+                                        <input matInput [ngxMatDatetimePicker]="picker3" placeholder="Choose a date"
+                                            formControlName="end_date" [min]="filterendminDate" autocomplete="off" (ngModelChange)="checkFormValidity()">
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker3)"></mat-datepicker-toggle>
+                                        <ngx-mat-datetime-picker #picker3 [showSpinners]="true" [showSeconds]="false"
+                                            [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                            [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                        </ngx-mat-datetime-picker>
+                                        <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
+                                       <b> {{getErrorcheckdatavalidation()}}</b>
+                                      </mat-error> -->
+                                    </mat-form-field>
+                                </div>
                                 <div class="col-md-12 mb-3  d-flex justify-content-end">
                                     <div class="">
                                         <button class="btn-primary me-2 btn text-capitalize px-4"

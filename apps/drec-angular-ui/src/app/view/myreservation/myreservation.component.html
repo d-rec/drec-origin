@@ -32,7 +32,7 @@
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">Select country Code</mat-label>
                                     <input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
-                                        formControlName="countryCode" [matAutocomplete]="auto" multiple>
+                                        formControlName="countryCode" (ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
                                     <mat-autocomplete #auto="matAutocomplete">
                                         <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
                                             {{code.country}}
@@ -56,7 +56,7 @@
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">Fuel Code</mat-label>
 
-                                    <mat-select formControlName='fuelCode' placeholder="fuelCode" multiple>
+                                    <mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()"  multiple>
 
                                         <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                             {{code.name}}
@@ -68,9 +68,9 @@
 
                             <div class="col-md-3">
                                 <mat-form-field>
-                                    <mat-label class="text-capitalize">off Taker</mat-label>
+                                    <mat-label class="text-capitalize">Off Taker</mat-label>
 
-                                    <mat-select formControlName='offTaker' placeholder="offTaker" multiple>
+                                    <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
 
                                         <mat-option *ngFor="let code of offtaker" [value]="code">
                                             {{code}}
@@ -82,7 +82,7 @@
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
-                                    <mat-select formControlName="SDGBenefits" multiple>
+                                    <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
 
                                         <mat-option *ngFor="let sdgb of sdgblist"
                                             [value]="sdgb.value">{{sdgb.value}}</mat-option>
@@ -95,7 +95,7 @@
                                     <mat-label class="text-capitalize">Start Date </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                                         formControlName="reservationStartDate" autocomplete="off"
-                                        (ngModelChange)="onEndChangeEvent($event)">
+                                        (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -120,7 +120,7 @@
                             </div>
                             <div class="col-md-6 d-flex flex-column">
                                 <span>Reservation Status:</span>
-                                <mat-radio-group formControlName='reservationActive'>
+                                <mat-radio-group formControlName='reservationActive' (ngModelChange)="checkFormValidity()">
 
 
                                     <mat-radio-button value="All">All</mat-radio-button>
@@ -133,10 +133,10 @@
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">
                                     <button class="btn-primary me-2 btn text-capitalize px-4"
-                                        (click)="DisplayList()">filter</button>
+                                    [disabled]="!isAnyFieldFilled" (click)="formfilter()">filter</button>
                                 </div>
                                 <div class="">
-                                    <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
+                                    <button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled" (click)="reset()">Reset</button>
                                 </div>
 
 
@@ -249,8 +249,10 @@
                         <!-- <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td> -->
                     </tr>
                 </table>
-                <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>
-
+                <!-- <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator> -->
+                <mat-paginator  [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+                aria-label="Select page">
+              </mat-paginator>
             </div>
 
 
@@ -286,7 +288,7 @@
                     </h2>
 
                     <div class='content'>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row '>
                                 <p><b> Name</b>:&nbsp;
                                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
@@ -294,7 +296,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> Start
                                         Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -303,7 +305,7 @@
                             </div>
 
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> End
                                         Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -312,8 +314,8 @@
                         </div>
 
                     </div>
-                    <div class='content'>
-                        <div class='column'>
+                    <div class='content '>
+                        <div class='column col-4'>
                             <div class='row '>
                                 <p><b> Target Capacity</b>:&nbsp;
                                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
@@ -321,7 +323,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b>Frequency</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
                                     {{group_info.frequency}}</p>
@@ -330,7 +332,7 @@
 
                         </div>
 
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> off
                                         takers</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
@@ -340,14 +342,14 @@
                     </div>
                     <div class='content'>
 
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b> number of
                                         devices</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
                                     {{group_info.numberOfdevices}}</p>
                             </div>
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p *ngIf="!(group_info.reservationActive)"><b>Status:</b>:
                                     &nbsp;Deactive</p>
@@ -356,7 +358,7 @@
                             </div>
 
                         </div>
-                        <div class='column'>
+                        <div class='column col-4'>
                             <div class='row'>
                                 <p><b>SDG benefits:</b>:
                                     &nbsp;{{group_info.SDGBenefits}}</p>
@@ -370,7 +372,7 @@
             <hr>
             <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
              -->
-            <div class="content mat-elevation-z8 d-flex flex-column">
+            <div class="content mat-elevation-z8 thead-width d-flex flex-column">
                 <table mat-table [dataSource]="dataSource1" matSort>
                     <ng-container matColumnDef="projectName">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>Project Name </th>
@@ -389,12 +391,12 @@
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="createdAt">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> On Boarding Date </th>
-                        <td mat-cell *matCellDef="let row"> {{row.createdAt| date:'EEE d MMM y hh:mm:ss'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.createdAt| date:'EEE d MMM y'}} </td>
                     </ng-container>
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="commissioningDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Commissioning Date </th>
-                        <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE d MMM y hh:mm:ss'}} </td>
+                        <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE d MMM'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="offTaker">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> OffTaker </th>
