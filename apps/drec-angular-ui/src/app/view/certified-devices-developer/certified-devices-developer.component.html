@@ -1,4 +1,3 @@
-
 <div class="body-bg">
 	<mat-card class="example-card">
 		<mat-card-header>
@@ -11,19 +10,160 @@
 		</mat-card-header>
 		<hr>
 		<mat-card-content>
-		
-            <h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+
+			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
 				<b>All certificate of those reservation in which my devices reserve </b>
 			</h2>
-			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-			<ng-container *ngFor="let item of data;let i=index">
 
-				<mat-card class="innermat-card example-card1 border">
+
+			<form [formGroup]="FilterForm">
+				<div class="example-container1 row">
+					<!-- <div class="col-md-3">
+						  <mat-form-field>
+							  <mat-label class="text-capitalize">Select country Code</mat-label>
+							  <mat-select formControlName='countryCode'>
+								  <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
+									  {{code.country}}
+								  </mat-option>
+							  </mat-select>
+						  </mat-form-field>
+					  </div> -->
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">Select Country Code</mat-label>
+							<input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
+								formControlName="countryCode" [matAutocomplete]="auto"
+								(ngModelChange)="checkFormValidity()">
+							<mat-autocomplete #auto="matAutocomplete">
+								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
+									{{code.country}}
+								</mat-option>
+							</mat-autocomplete>
+						</mat-form-field>
+					</div>
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">Fuel Code</mat-label>
+
+							<mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
+
+								<mat-option *ngFor="let code of fuellist" [value]="code.code">
+									{{code.name}}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+					<!-- <div class="col-md-3">
+					<mat-form-field>
+					  <mat-label class="text-capitalize">Device Type Code</mat-label>
+		
+					  <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()">
+		
+						<mat-option *ngFor="let code of devicetypelist" [value]="code.code">
+						  {{code.name}}
+						</mat-option>
+					  </mat-select>
+					</mat-form-field>
+				  </div> -->
+
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">Off Taker</mat-label>
+
+							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
+
+								<mat-option *ngFor="let code of offtaker" [value]="code">
+									{{code}}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+					</div>
+
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">SDG Benefits</mat-label>
+
+							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
+
+								<mat-option *ngFor="let sdgb of sdgblist"
+									[value]="sdgb.value">{{sdgb.value}}</mat-option>
+
+							</mat-select>
+						</mat-form-field>
+					</div>
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">Certificate Start Date </mat-label>
+							<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+								formControlName="start_date" autocomplete="off"
+								(ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
+							<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+							<ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+								[disableMinute]="false" [hideTime]="false">
+							</ngx-mat-datetime-picker>
+						</mat-form-field>
+					</div>
+					<div class="col-md-3">
+						<mat-form-field>
+							<mat-label class="text-capitalize">Certificate End Date </mat-label>
+
+							<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+								formControlName="end_date" [min]="endminDate" autocomplete="off"
+								(ngModelChange)="checkFormValidity()">
+							<mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+							<ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+								[disableMinute]="false" [hideTime]="false">
+							</ngx-mat-datetime-picker>
+
+						</mat-form-field>
+					</div>
+					<div class="col-md-1">
+						<h5>Read Amount: </h5>
+
+					</div>
+					<div class="col-md-2">
+
+						<mat-form-field>
+							<mat-label class="text-capitalize">From </mat-label>
+							<input matInput type="number" (ngModelChange)="checkFormValidity()"
+								formControlName='fromAmountread' #input>
+						</mat-form-field>
+
+					</div>
+					<div class="col-md-2">
+						<mat-form-field>
+							<mat-label class="text-capitalize">To </mat-label>
+							<input matInput type="number" (ngModelChange)="checkFormValidity()"
+								formControlName='toAmountread' #input>
+						</mat-form-field>
+					</div>
+					<div class="col-md-12 mb-3  d-flex justify-content-end">
+						<div class="">
+							<button class="btn-primary me-2 btn text-capitalize px-4" (click)="DisplayListFilter()"
+								[disabled]="!isAnyFieldFilled">Filter</button>
+						</div>
+						<div class="">
+							<button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
+								(click)="reset()">Reset</button>
+						</div>
+
+
+					</div>
+
+				</div>
+			</form>
+
+			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
+			<ng-container  *ngIf="!loading">
+
+				<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
 					<mat-card-header class="">
 						<div class="col-12">
 							<mat-card-title class=" d-flex justify-content-between align-items-center">
 								<div>
-                                    {{i+1}}
+									{{i+1}}
 									<!-- <a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
 										aria-label="Button that displays a tooltip when focused or hovered over"
 										style="text-align: right;" href={{item.energyurl}}
@@ -36,31 +176,15 @@
 									</a> -->
 								</div>
 								<div class=" ">
-									<!-- <button class=" btn-content-back btn d-flex justify-content-end btn-sm"
-										*ngIf="!item.CertificateClaimed"
-										(click)="selectCertificateForClaim(item)">Claim</button>
-									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
-										*ngIf="item.CertificateClaimed">Claimed</button> -->
 
 								</div>
 							</mat-card-title>
 
 						</div>
 
-						<!-- <div class="d-flex justify-content-end">
-					<button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"  *ngIf="checkMetamaskConnected()" (click)="selectCertificateForClaim(item)">Claim</button>
-						
-				</div>
-	 -->
-
 					</mat-card-header>
 
 					<mat-card-content>
-						<!-- <div class="text-center text-danger mt-0 mb-2 pt-0 " *ngIf="!checkMetamaskConnected()">Metamask
-							not Connected, please connect metamask and then
-							<button class="button-click-here mt-0 pt-0" (click)="selectAccountAddressFromMetamask()">
-								click here</button> to select account for claim
-						</div> -->
 
 						<div class='content'>
 							<div class='column'>
@@ -82,12 +206,12 @@
 								<div class='row'>
 									<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
 										&nbsp;{{item1.value}}(Wh)</p>
-										
+
 								</div>
 								<div class='row' *ngIf="item.CertificateClaimed">
 									<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
 										&nbsp;{{item1.value}}(Wh)</p>
-										
+
 								</div>
 							</div>
 						</div>
@@ -139,8 +263,16 @@
 				</mat-card>
 
 				<br>
-			</ng-container>
+			
+			<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+				aria-label="Select page">
+			</mat-paginator> -->
+
+			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>
+			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
+			
 			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
+		</ng-container>
 		</mat-card-content>
 	</mat-card>
 
