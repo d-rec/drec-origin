@@ -7,7 +7,7 @@ import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetec
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -33,6 +33,7 @@ import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
+import { CertificateService } from '../../auth/services/certificate.service'
 @Component({
   selector: 'app-certified-devices-developer',
   templateUrl: './certified-devices-developer.component.html',
@@ -46,6 +47,7 @@ export class CertifiedDevicesDeveloperComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
+  obs: Observable<any>;
   data: any;
   group_id: string;
   group_uid: string;
@@ -63,39 +65,87 @@ export class CertifiedDevicesDeveloperComponent {
   alldevicescertifiedlogdatrange: any = [];
   intervalId: any;
   reservationstatus: boolean;
+  totalRows = 0;
+  pageSize: number = 10;
+  totalPages: number;
+  p: number = 1;
+  FilterForm: FormGroup;
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  endminDate = new Date();
+  sdgblist:any;
+  fuellist: any;
+  devicetypelist: any;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private readService: MeterReadService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private certificateService: CertificateService,
+    private formBuilder: FormBuilder,
   ) {
+    this.FilterForm = this.formBuilder.group({
+      countryCode: [],
+      fuelCode: [],
+      // deviceTypeCode: [],
+      capacity: [],
+      offTaker: [],
+      SDGBenefits: [],
+      start_date: [null],
+      end_date: [null],
+      fromAmountread:[null],
+      toAmountread:[null],
+      pagenumber: [this.p]
+    });
 
-    
   }
   ngOnInit() {
-   
+
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
+
+    this.authService.GetMethod('device/fuel-type').subscribe(
+      (data1) => {
+        // display list in the console
+        this.fuellist = data1;
+       // this.fuellistLoaded = true;
+      });
+    this.authService.GetMethod('device/device-type').subscribe(
+      (data2) => {
+        // display list in the console
+        this.devicetypelist = data2;
+       // this.devicetypeLoded = true;
+      }
+    );
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data3) => {
+        // display list in the console
+        // console.log(data)
+        this.countrylist = data3;
+      //  this.countrycodeLoded = true;
+      }
+    )
+    this.authService.GetMethod('sdgbenefit/code').subscribe(
+      (data) => {
+        // display list in the console 
+
+        this.sdgblist = data;
+
+      }
+    )
     setTimeout(() => {
-      this.DisplayList();
-    }, 3000);
+      this.DisplayList(this.p);
+    }, 1000);
     this.getBlockchainProperties();
     this.AllCountryList();
-    this.claimData.controls['countryCode'];
-    this.filteredOptions = this.claimData.controls['countryCode'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
     this.selectAccountAddressFromMetamask();
-
     console.log("drt46")
- 
-
   }
- 
- 
-  AllCountryList() {
 
+  onEndChangeEvent(event: any) {
+    console.log(event);
+    this.endminDate = event;
+  }
+  AllCountryList() {
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
         // display list in the console 
@@ -107,7 +157,7 @@ export class CertifiedDevicesDeveloperComponent {
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    //((u) => isRole(u.role, Role.DeviceOwner));
+
     return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
   }
   // ngAfterViewInit() {
@@ -121,7 +171,22 @@ export class CertifiedDevicesDeveloperComponent {
       this.blockchainProperties = response;
     })
   }
+  isAnyFieldFilled: boolean = false;
 
+  checkFormValidity(): void {
+    console.log("115");
+    const formValues = this.FilterForm.value;
+    this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
+    console.log(this.isAnyFieldFilled);
+  }
+  reset() {
+    this.FilterForm.reset();
+    this.loading = false;
+    this.isAnyFieldFilled = false;
+    this.p = 1;
+    this.DisplayList(this.p);
+
+  }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -130,18 +195,23 @@ export class CertifiedDevicesDeveloperComponent {
       this.dataSource.paginator.firstPage();
     }
   }
+  DisplayListFilter() {
+    this.p = 1;
+    this.DisplayList(this.p);
+  }
   // CertificateClaimed:boolean=false;
-  DisplayList() {
+  DisplayList(page:number) {
     console.log("certifed list")
-    console.log(this.group_uid);
-    this.authService.GetMethod('certificate-log/issuer/certifiedfordeveloper').subscribe(
+    // console.log(this.group_uid);
+    this.FilterForm.controls['pagenumber'].setValue(page);
+    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value).subscribe(
       (data: any) => {
         this.loading = false;
         // display list in the console 
 
         // this.data = data;
         //@ts-ignore
-        this.data = data.filter(ele => ele !== null)
+        this.data = data.certificatelog.filter(ele => ele !== null)
         //@ts-ignore
         this.data.forEach(ele => {
 
@@ -175,6 +245,12 @@ export class CertifiedDevicesDeveloperComponent {
           }
         })
 
+        this.dataSource = new MatTableDataSource(this.data);
+        console.log(this.dataSource);
+        this.obs = this.dataSource.connect();
+        this.totalRows = data.totalCount;
+        this.totalPages=data.totalPages;
+        console.log(this.totalRows);
       }
 
     )
@@ -238,6 +314,23 @@ export class CertifiedDevicesDeveloperComponent {
       this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');
     }
   }
+  pageChangeEvent(event: PageEvent) {
+    console.log(event);
+    this.p = event.pageIndex + 1;
+    this.DisplayList(this.p);
+  }
 
-
+  previousPage(): void {
+    if (this.p > 1) {
+      this.p--;
+      this.DisplayList(this.p);
+    }
+  }
+  
+  nextPage(): void {
+    if (this.p < this.totalPages) {
+      this.p++;
+      this.DisplayList(this.p);;
+    }
+  }
 }

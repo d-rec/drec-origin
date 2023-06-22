@@ -774,6 +774,7 @@ export class CertificateLogService {
       certificatelog: finalcertificatesInReservationWithLog,
       currentpage: getreservationinfo.pageNumber,
       totalPages: getreservationinfo.totalPages,
+      totalCount:getreservationinfo.totalCount
     }
     return response;
     //return finalcertificatesInReservationWithLog

@@ -84,7 +84,7 @@ export class MyreservationComponent implements OnInit {
   ) { }
   ngOnInit() {
 
-
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       fuelCode: [],
