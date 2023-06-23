@@ -480,7 +480,7 @@ export class DeviceService {
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
-      capacity: filter.capacity,
+      capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
       offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),

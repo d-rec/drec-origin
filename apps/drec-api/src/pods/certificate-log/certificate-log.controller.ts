@@ -230,7 +230,7 @@ export class CertificateLogController {
 
 
     /* for developre*/
-    @Get('/issuer/certifiedfordeveloper')
+    @Get('/issuer/certifiedlogOfdevices')
     @UseGuards(AuthGuard('jwt'))
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getCertificatesForDeveloper(
@@ -240,7 +240,8 @@ export class CertificateLogController {
         @Query('pageNumber') pageNumber: number,
     )/*: Promise<CertificateNewWithPerDeviceLog[]>*/ {
         console.log("238")
+        console.log(user)
         //pageNumber = 1;
-        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId,filterDto, pageNumber);
+        return this.certificateLogService.getCertifiedlogofDevices(user,filterDto, pageNumber);
     }
 }

@@ -1948,7 +1948,7 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId, filterDto, pageNumber): Promise<any> {
+  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
     const pageSize = 10;
     // const pageNumber = 2
     if (pageNumber <= 0) {
@@ -1962,31 +1962,37 @@ export class DeviceGroupService {
     //const totalPages = Math.ceil(totalCountQuery / limit);
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
-    .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    .innerJoin(
-      CheckCertificateIssueDateLogForDeviceGroupEntity,
-      'dg_log',
-      'dg_log.groupId = dg.id'
-    )
-    .innerJoin(
-      CertificateReadModelEntity,
-      'crm',
-      'dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
-    )
-    .select('DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId')
-    .orderBy('dg.id, crm.internalCertificateId, dg_log.readvalue_watthour', 'ASC')
-  
+      .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      .innerJoin(
+        CheckCertificateIssueDateLogForDeviceGroupEntity,
+        'dg_log',
+        'dg_log.groupId = dg.id'
+      )
+      .innerJoin(
+        CertificateReadModelEntity,
+        'crm',
+        'dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
+      )
+      .select('DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId')
+      .orderBy('dg.id, crm.internalCertificateId, dg_log.readvalue_watthour', 'ASC')
+
     queryBuilder.where((qb) => {
-      qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      let where_orgnaizationId: any;
+      if (role === 'OrganizationAdmin') {
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      }
+      if (role === 'Buyer') {
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+      }
+     
+      where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
-
           if (filterDto.country) {
             const string = filterDto.country;
             const values = string.split(",");
             console.log(values);
             let CountryInvalid = false;
-
             filterDto.country = filterDto.country.toUpperCase();
             if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
               let countries = countryCodesList;
@@ -2006,19 +2012,15 @@ export class DeviceGroupService {
 
           }
           if (filterDto.offTaker) {
-            console.log(typeof filterDto.offTaker)
-            console.log(filterDto.offTaker)
-
-            console.log("272")
             qb.orWhere('d.offTakers = :offTaker', { offTaker: filterDto.offTaker });
 
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
           const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-          if (filterDto.start_date && filterDto.end_date===undefined) {
-            qb.orWhere("crm.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp})
+          if (filterDto.start_date && filterDto.end_date === undefined) {
+            qb.orWhere("crm.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
           }
-          if (filterDto.end_date && filterDto.start_date===undefined) {
+          if (filterDto.end_date && filterDto.start_date === undefined) {
             qb.orWhere("crm.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
           }
           if (filterDto.start_date && filterDto.end_date) {
@@ -2029,11 +2031,8 @@ export class DeviceGroupService {
 
             const newsdg = filterDto.sdgbenefit.toString()
             console.log(typeof newsdg)
-
             const sdgBenefitsArray = newsdg.split(',');
-
             const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
-           
             qb.orWhere(new Brackets(qb => {
               sdgBenefitsArray.forEach((benefit, index) => {
                 if (index === 0) {
@@ -2048,15 +2047,11 @@ export class DeviceGroupService {
           if (filterDto.fromAmountread && filterDto.toAmountread) {
             qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
           }
-          if (filterDto.fromAmountread!=null && filterDto.toAmountread===undefined) {
-            console.log(filterDto.fromAmountread);
-            console.log(filterDto.toAmountread);
+          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
             qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
           }
-          if (filterDto.fromAmountread===undefined && filterDto.toAmountread!=null) {
-            console.log(filterDto.fromAmountread);
-            console.log(filterDto.toAmountread);
-            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", {  toAmountread: filterDto.toAmountread })
+          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
+            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
           }
         }));
 
@@ -2069,37 +2064,59 @@ export class DeviceGroupService {
     console.log("totalCountQuery", totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    if (pageNumber > totalPages) {
-      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    }
+    
     console.log(totalPages);
-    let deviceGroups = groupedData.reduce((acc, curr) => {
+    let deviceGroups: any;
+    if (role === 'OrganizationAdmin') {
+      deviceGroups = groupedData.reduce((acc, curr) => {
 
-      const existing = acc.find(item => item.dg_id === curr.devicegroupid);
+        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
 
-      if (existing) {
-        let newobj = {};
+        if (existing) {
+          let newobj = {};
 
-        const existing1 = acc.find(item => item.id === curr.id);
-        if (existing1) {
-          existing.developerdeviceIds.push(curr.id);
+          const existing1 = acc.find(item => item.id === curr.id);
+          if (existing1) {
+            existing.developerdeviceIds.push(curr.id);
+          }
+          existing.internalCertificateId.push(curr.internalCertificateId)
+
+        } else {
+
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            // deviceIdsInt: curr.deviceIdsInt,
+            developerdeviceIds: [curr.id],
+            internalCertificateId: [curr.internalCertificateId]
+          });
+
         }
-        existing.internalCertificateId.push(curr.internalCertificateId)
+        return acc;
+      }, []);
+    }
+    if (role === 'Buyer') {
+      deviceGroups = groupedData.reduce((acc, curr) => {
 
-      } else {
+        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
 
-        acc.push({
-          dg_id: curr.devicegroupid,
-          name: curr.name,
-          deviceIdsInt: curr.deviceIdsInt,
-          // deviceIdsInt: curr.deviceIdsInt,
-          developerdeviceIds: [curr.id],
-          internalCertificateId: [curr.internalCertificateId]
-        });
+        if (existing) {
+          existing.internalCertificateId.push(curr.internalCertificateId)
+        } else {
 
-      }
-      return acc;
-    }, []);
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            internalCertificateId: [curr.internalCertificateId]
+          });
+
+        }
+        return acc;
+      }, []);
+    }
+
     const response = {
       deviceGroups,
       pageNumber,
@@ -2108,21 +2125,129 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId, pageNumber): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
+    const pageSize = 10;
+    // const pageNumber = 2
+    if (pageNumber <= 0) {
+      throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
+    }
+
+    const skip = (pageNumber - 1) * pageSize;
+    console.log(skip)
 
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-      .innerJoin(CheckCertificateIssueDateLogForDeviceGroupEntity, 'dg_log', 'dg_log.groupId = dg.id')
+      .innerJoin(
+        CheckCertificateIssueDateLogForDeviceGroupEntity,
+        'dg_log',
+        'dg_log.groupId = dg.id'
+      )
       .innerJoin(Certificate, 'issuer', 'CAST(issuer.deviceId AS INTEGER) = dg.id')
-      .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'issuer.id'])
-      .orderBy('dg.id', 'ASC')
-      .where(`d.organizationId = :orgId`, { orgId: orgId })
-      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-      .limit(5)
-    const groupedDatasql = await queryBuilder.getSql();
-    // console.log(groupedDatasql);
-    const groupedData = await queryBuilder.getRawMany();
+      .select('DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id')
+      .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC')
+
+    queryBuilder.where((qb) => {
+      let where_orgnaizationId: any;
+      if (role === 'OrganizationAdmin') {
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      }
+      if (role === 'Buyer') {
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+      }
+     
+      where_orgnaizationId
+        .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
+        .andWhere(new Brackets(qb => {
+          if (filterDto.country) {
+            const string = filterDto.country;
+            const values = string.split(",");
+            console.log(values);
+            let CountryInvalid = false;
+            filterDto.country = filterDto.country.toUpperCase();
+            if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
+              let countries = countryCodesList;
+              if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
+                CountryInvalid = true;
+              }
+            }
+
+            if (!CountryInvalid) {
+              qb.orWhere('dg.countryCode = :countrycode', { countrycode: filterDto.fuelCode });
+            }
+          }
+          if ((filterDto.fuelCode)) {
+            console.log(typeof filterDto.fuelCode);
+            filterDto.fuelCode.toString()
+            qb.orWhere(`d.fuelCode = :fuelcode`, { fuelcode: filterDto.fuelCode });
+
+          }
+          if (filterDto.offTaker) {
+            qb.orWhere('d.offTakers = :offTaker', { offTaker: filterDto.offTaker });
+
+          }
+          const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
+          const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
+          if (filterDto.start_date && filterDto.end_date === undefined) {
+            qb.orWhere("issuer.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
+          }
+          if (filterDto.end_date && filterDto.start_date === undefined) {
+            qb.orWhere("issuer.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
+          }
+          if (filterDto.start_date && filterDto.end_date) {
+            qb.orWhere("issuer.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
+          }
+          if (filterDto.sdgbenefit) {
+            console.log(filterDto.sdgbenefit);
+
+            const newsdg = filterDto.sdgbenefit.toString()
+            console.log(typeof newsdg)
+
+            const sdgBenefitsArray = newsdg.split(',');
+
+            const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
+
+            qb.orWhere(new Brackets(qb => {
+              sdgBenefitsArray.forEach((benefit, index) => {
+                if (index === 0) {
+                  qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                } else {
+                  qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                }
+              });
+            }));
+
+          }
+          if (filterDto.fromAmountread && filterDto.toAmountread) {
+            qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
+          }
+          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
+            console.log(filterDto.fromAmountread);
+            console.log(filterDto.toAmountread);
+            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
+          }
+          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
+            console.log(filterDto.fromAmountread);
+            console.log(filterDto.toAmountread);
+            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
+          }
+        }));
+
+    })
+    const totalCountQuery = await queryBuilder.getRawMany();
+    const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
+    console.log(groupedDatasql);
+    const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    const totalCount = totalCountQuery.length;
+    console.log("totalCountQuery", totalCount);
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    // if (pageNumber > totalPages) {
+    //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    // }
+    console.log(totalPages);
+
+
     // console.log(groupedData)
     let deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find(item => item.dg_id === curr.dg_id);
@@ -2147,7 +2272,7 @@ export class DeviceGroupService {
       }
       return acc;
     }, []);
-    const totalPages = 10;
+    // const totalPages = 10;
     const response = {
       deviceGroups,
       pageNumber,
