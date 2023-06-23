@@ -23,7 +23,7 @@ export class DeviceService {
       if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
         searchUrl += `pagenumber=${searchData.pagenumber}`;
       }
-      if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null)) {
+      if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null||searchData.countryCode === undefined)) {
         searchUrl += `&country=${searchData.countryCode}`;
       }
   
