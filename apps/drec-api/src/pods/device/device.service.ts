@@ -116,12 +116,12 @@ export class DeviceService {
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-      const users = await this.repository.find({
-        ...query, skip: (pagenumber - 1) * limit,
-        take: limit,
-        logger: new Logger(),
-      });
-      console.log(users);
+      // const users = await this.repository.find({
+      //   ...query, skip: (pagenumber - 1) * limit,
+      //   take: limit,
+      //   logger: new Logger(),
+      // });
+      // console.log(users);
 
       const totalPages = Math.ceil(totalCount / limit);
       const currentPage = pagenumber;
