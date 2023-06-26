@@ -116,7 +116,12 @@ export class DeviceService {
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-      console.log(devices);
+      const users = await this.repository.find({
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit,
+        logger: new Logger(),
+      });
+      console.log(users);
 
       const totalPages = Math.ceil(totalCount / limit);
       const currentPage = pagenumber;
@@ -488,6 +493,7 @@ export class DeviceService {
     });
     console.log(filter.end_date);
     if (filter.start_date != null && filter.end_date === undefined) {
+      console.log(filter.start_date);
       where.commissioningDate = MoreThanOrEqual(filter.start_date);
 
     }
@@ -507,7 +513,7 @@ export class DeviceService {
       where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'%${term}%'`)}])`);
       // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
     }
-    console.log(where)
+    //console.log(where)
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -515,6 +521,7 @@ export class DeviceService {
       }
 
     };
+    console.log(query)
     return query;
   }
   private getRawFilter(

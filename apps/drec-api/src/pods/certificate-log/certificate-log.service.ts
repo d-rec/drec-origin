@@ -582,14 +582,13 @@ export class CertificateLogService {
 
     const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
     console.log("getnewreservationinfo", getnewreservationinfo.deviceGroups.length);
-    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
-    console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
-    if (getoldreservationinfo.deviceGroups.length > 0) {
-    //   if (pageNumber > totalPages) {
-    //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    // }
-      return this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
-    } else if (getnewreservationinfo.deviceGroups.length > 0) {
+  //  const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+  //  console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
+    // if (getoldreservationinfo.deviceGroups.length > 0) {
+   
+    //   return this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
+    // } 
+     if (getnewreservationinfo.deviceGroups.length > 0) {
       console.log("580");
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo, user.role);
     }

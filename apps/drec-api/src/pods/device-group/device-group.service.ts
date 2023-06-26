@@ -386,7 +386,7 @@ export class DeviceGroupService {
       SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits))
 
     }));
-    console.log(groupedData);
+    
     const response = {
       groupedData: finalreservation,
       pageNumber,
@@ -2002,17 +2002,59 @@ export class DeviceGroupService {
             }
 
             if (!CountryInvalid) {
-              qb.orWhere('dg.countryCode = :countrycode', { countrycode: filterDto.fuelCode });
+              const newCountry = filterDto.country.toString()
+              console.log(typeof newCountry)
+              const CountryArray = newCountry.split(',');
+              qb.orWhere(new Brackets(qb => {
+                
+                CountryArray.forEach((country, index) => {
+                  if (index === 0) {
+                    qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  } else {
+                    qb.orWhere(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  }
+                });
+              }));
+
+             // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
+           
             }
           }
           if ((filterDto.fuelCode)) {
             console.log(typeof filterDto.fuelCode);
-            filterDto.fuelCode.toString()
-            qb.orWhere(`d.fuelCode = :fuelcode`, { fuelcode: filterDto.fuelCode });
+            console.log(typeof filterDto.fuelCode);
+            const newfuelCode = filterDto.fuelCode.toString()
+            console.log(typeof newfuelCode)
+            const fuelCodeArray = newfuelCode.split(',');
+            qb.orWhere(new Brackets(qb => {
+              
+              fuelCodeArray.forEach((fuelCode, index) => {
+                if (index === 0) {
+                  qb.where(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                } else {
+                  qb.orWhere(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                }
+              });
+            }));
+          //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
 
           }
           if (filterDto.offTaker) {
-            qb.orWhere('d.offTakers = :offTaker', { offTaker: filterDto.offTaker });
+           // console.log(typeof filterDto.offTaker);
+            const newoffTaker = filterDto.offTaker.toString()
+            console.log(typeof newoffTaker)
+            const offTakerArray = newoffTaker.split(',');
+            qb.orWhere(new Brackets(qb => {
+              
+              offTakerArray.forEach((offTaker, index) => {
+                if (index === 0) {
+                  qb.where(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                } else {
+                  qb.orWhere(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                }
+              });
+            }));
+           // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
 
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
@@ -2026,10 +2068,10 @@ export class DeviceGroupService {
           if (filterDto.start_date && filterDto.end_date) {
             qb.orWhere("crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
           }
-          if (filterDto.sdgbenefit) {
-            console.log(filterDto.sdgbenefit);
+          if (filterDto.SDGBenefits) {
+            console.log(filterDto.SDGBenefits);
 
-            const newsdg = filterDto.sdgbenefit.toString()
+            const newsdg = filterDto.SDGBenefits.toString()
             console.log(typeof newsdg)
             const sdgBenefitsArray = newsdg.split(',');
             const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
