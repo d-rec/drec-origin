@@ -25,3 +25,10 @@ export class CertificateNewWithPerDeviceLog
     certificateEndDate:string;
     perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity[];
 }
+
+export class CertificatelogResponse{
+    certificatelog: CertificateNewWithPerDeviceLog[]| CertificateWithPerdevicelog[];
+    totalPages: number;
+    totalCount: number;
+
+}

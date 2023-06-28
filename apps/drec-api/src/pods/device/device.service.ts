@@ -111,18 +111,12 @@ export class DeviceService {
       let where: any = query.where
       where = { ...where, organizationId };
       query.where = where;
-      console.log(query);
+     // console.log(query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-      // const users = await this.repository.find({
-      //   ...query, skip: (pagenumber - 1) * limit,
-      //   take: limit,
-      //   logger: new Logger(),
-      // });
-      // console.log(users);
-
+     
       const totalPages = Math.ceil(totalCount / limit);
       const currentPage = pagenumber;
       const newDevices = [];

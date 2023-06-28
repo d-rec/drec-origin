@@ -17,7 +17,7 @@ import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
 import { DateTime } from 'luxon';
-import { CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog } from './dto'
+import { CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog,CertificatelogResponse } from './dto'
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto'
 import { grouplog } from './grouplog';
@@ -582,12 +582,13 @@ export class CertificateLogService {
 
     const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
     console.log("getnewreservationinfo", getnewreservationinfo.deviceGroups.length);
-  //  const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
-  //  console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
-    // if (getoldreservationinfo.deviceGroups.length > 0) {
+    console.log("getnewreservationinfo", getnewreservationinfo);
+  const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+   console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
+    if (getoldreservationinfo.deviceGroups.length > 0) {
    
-    //   return this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
-    // } 
+      return this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
+    } 
      if (getnewreservationinfo.deviceGroups.length > 0) {
       console.log("580");
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo, user.role);
@@ -595,10 +596,10 @@ export class CertificateLogService {
   }
 
 
-  async getDeveloperfindreservationcertified(certifiedreservation: Certificate[], role): Promise<CertificateWithPerdevicelog[]> {
+  async getDeveloperfindreservationcertified(certifiedreservation, role): Promise<CertificatelogResponse> {
     let finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
-      certifiedreservation.map(async (group: any, index: number) => {
+      certifiedreservation.deviceGroups.map(async (group: any, index: number) => {
         console.log(typeof group.internalCertificateId)
         console.log("getreservationinfo", group.internalCertificateId);
         let newq = await this.certificaterrepository
@@ -677,10 +678,17 @@ export class CertificateLogService {
         return res;
       })
     )
-    return finalcertificatesInReservationWithLog
+    const response = {
+      certificatelog: finalcertificatesInReservationWithLog,
+      currentpage: certifiedreservation.pageNumber,
+      totalPages: certifiedreservation.totalPages,
+      totalCount: certifiedreservation.totalCount
+    }
+    return response;
+    //return finalcertificatesInReservationWithLog
   }
 
-  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo, role): Promise<any> {
+  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo, role): Promise<CertificatelogResponse> {
     let finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
       getreservationinfo.deviceGroups.map(async (group: any, index: number) => {
