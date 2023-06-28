@@ -948,11 +948,19 @@ export class DeviceService {
         }))
       .orderBy('Device.externalId')
       .getMany();
-    return rows.map(row => ({
-      externalId: row.developerExternalId,
-      organizationId: row.organizationId
+      console.log(rows);
+      const newDevices = [];
+      await rows.map((device: Device) => {
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+    return newDevices;
+    // rows.map(row => ({
+    //   externalId: row.developerExternalId,
+    //   organizationId: row.organizationId
 
-    }));
+    // }));
   }
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number, deviceId: string
