@@ -346,11 +346,14 @@ export class DeviceGroupService {
     console.log("totalCountQuery", totalCountQuery);
     const totalPages = Math.ceil(totalCountQuery / pageSize);
     console.log("totalPages", totalPages);
-    if (pageNumber > totalPages) {
-      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    if(totalCountQuery > 0){
+      if (pageNumber > totalPages) {
+        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+      }
     }
+    
 
-    console.log(groupedData[0].sdgBenefits)
+   // console.log(groupedData[0].sdgBenefits)
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     const finalreservation = groupedData.map((deviceGroup) => ({
