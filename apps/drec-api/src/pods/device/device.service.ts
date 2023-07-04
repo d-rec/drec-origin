@@ -478,10 +478,10 @@ export class DeviceService {
 
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
-      deviceTypeCode: filter.deviceTypeCode,
+     // deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-      offTaker: filter.offTaker,
+     // offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
 
     });
@@ -506,6 +506,22 @@ export class DeviceService {
       console.log(sdgBenefitsArray)
       where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'%${term}%'`)}])`);
       // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+    }
+    if (filter.deviceTypeCode) {
+      console.log(typeof filter.deviceTypeCode)
+      const newdtype = filter.deviceTypeCode.toString()
+      const newdtypeArray = newdtype.split(',');
+      console.log(newdtypeArray)
+      where.deviceTypeCode = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newdtypeArray.map(term => `'%${term}%'`)}])`);
+      
+    }
+    if (filter.offTaker) {
+      console.log(typeof filter.offTaker)
+      const newoffTaker = filter.offTaker.toString()
+      const newoffTakerArray = newoffTaker.split(',');
+      console.log(newoffTakerArray)
+      where.offTaker = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map(term => `'%${term}%'`)}])`);
+      
     }
     //console.log(where)
     const query: FindManyOptions<Device> = {

@@ -102,7 +102,9 @@
     "typeorm": "0.2.41",
     "uuid": "8.3.2",
     "moment-timezone": "0.5.40",
-    "@ethersproject/bignumber": "5.3.0"
+    "@ethersproject/bignumber": "5.3.0",
+    "crypto-js":"4.1.1"
+
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",

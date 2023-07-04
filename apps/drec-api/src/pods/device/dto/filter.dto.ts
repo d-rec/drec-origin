@@ -16,7 +16,7 @@ export class FilterDTO {
   fuelCode: FuelCode;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode })
+  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode, isArray:true })
   deviceTypeCode: DevicetypeCode;
 
   // @IsOptional()
@@ -51,6 +51,7 @@ export class FilterDTO {
     type: OffTaker,
     description: 'Off-taker',
     enum: OffTaker,
+     isArray:true
   })
   offTaker: OffTaker;
 
