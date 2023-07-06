@@ -5,6 +5,7 @@ import {
   Logger,
   ConflictException,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -116,8 +117,12 @@ export class DeviceService {
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-     
+      console.log((pagenumber - 1) * limit);
+     console.log(totalCount);
       const totalPages = Math.ceil(totalCount / limit);
+       if (pagenumber > totalPages) {
+      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    }
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
