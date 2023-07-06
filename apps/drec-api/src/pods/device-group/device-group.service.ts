@@ -236,7 +236,7 @@ export class DeviceGroupService {
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id')
-     
+
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
@@ -896,7 +896,7 @@ export class DeviceGroupService {
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
-    
+
     const fuelCode = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode.trim() : ''
       )),
@@ -913,7 +913,7 @@ export class DeviceGroupService {
     const deviceIdsInt = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.id)),
     );
-   
+
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
@@ -1357,12 +1357,12 @@ export class DeviceGroupService {
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
-     
+
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
         if (records[index].externalId) {
           records[index].externalId = records[index].externalId.trim();
-        }      
+        }
         const errors = await validate(singleRecord);
         if (errors.length > 0) {
 
@@ -1405,14 +1405,20 @@ export class DeviceGroupService {
 
           console.log(!isValidUTCDateFormat(singleRecord.commissioningDate));
           if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
+            const hasValidSeconds = moment(singleRecord.commissioningDate).seconds() < 60;
+            const hasValidMinutes = moment(singleRecord.commissioningDate).minutes() < 60;
             recordsErrors[index].isError = true;
+            if (!hasValidMinutes) {
+              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid minutes value." } })
+            }
+           else if (!hasValidSeconds) {
+              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid seconds value." } })
+            } 
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
           if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
-
             recordsErrors[index].isError = true;
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commissioning date, commissioning is greater than current date" } })
-
           }
         }
         if (singleRecord.capacity <= 0) {
