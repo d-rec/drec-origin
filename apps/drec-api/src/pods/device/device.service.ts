@@ -102,7 +102,7 @@ export class DeviceService {
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
 
-    if (pagenumber != undefined && Object.keys(filterDto).length != 0) {
+    if ( Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
       }

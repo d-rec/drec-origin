@@ -35,11 +35,11 @@ export class FilterDTO {
   capacity: number;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Start date Commissioning Date filter' })
+  @ApiPropertyOptional({ description: 'Start date Commissioning Date filter 2020-01-01T00:00:00Z' })
   start_date: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'End date Commissioning Date filter' })
+  @ApiPropertyOptional({ description: 'End date Commissioning Date filter 2020-01-01T00:00:00Z' })
   end_date: string;
 
   @IsOptional()
