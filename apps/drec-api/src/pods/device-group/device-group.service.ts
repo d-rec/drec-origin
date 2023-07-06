@@ -119,7 +119,6 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
-    //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
     private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
@@ -127,8 +126,6 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-    //private readService: ReadsService,
-    //  private readonly readsService: ReadsService
     @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
 
   ) { }
@@ -239,9 +236,7 @@ export class DeviceGroupService {
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id')
-      // .offset(skip)
-      // .limit(pageSize);
-      // //console.log(queryBuilder);
+     
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
@@ -282,14 +277,21 @@ export class DeviceGroupService {
             if (groupfilterDto.offTaker) {
               console.log(typeof groupfilterDto.offTaker)
               console.log(groupfilterDto.offTaker)
-              if (typeof groupfilterDto.offTaker === 'string') {
-                console.log("272")
-                qb.orWhere('dg.offTakers = :offTaker', { offTaker: [groupfilterDto.offTaker] });
+              const newoffTaker = groupfilterDto.offTaker.toString()
+              console.log(typeof newoffTaker)
+              const offTakerArray = newoffTaker.split(',');
+              qb.orWhere(new Brackets(qb => {
 
-              }
-              else if (typeof groupfilterDto.offTaker === 'object') {
-                qb.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
-              }
+                offTakerArray.forEach((offTaker, index) => {
+                  if (index === 0) {
+                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+                  } else {
+                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+                  }
+                });
+              }));
             }
             if (groupfilterDto.start_date) {
 
@@ -346,18 +348,15 @@ export class DeviceGroupService {
     console.log("totalCountQuery", totalCountQuery);
     const totalPages = Math.ceil(totalCountQuery / pageSize);
     console.log("totalPages", totalPages);
-    if(totalCountQuery > 0){
+    if (totalCountQuery > 0) {
       if (pageNumber > totalPages) {
         throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
       }
     }
-    
 
-   // console.log(groupedData[0].sdgBenefits)
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     const finalreservation = groupedData.map((deviceGroup) => ({
-
       id: deviceGroup.dg_id,
       name: deviceGroup.dg_name,
       organizationId: deviceGroup.dg_organizationId,
@@ -389,7 +388,6 @@ export class DeviceGroupService {
       SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits))
 
     }));
-    
     const response = {
       groupedData: finalreservation,
       pageNumber,
@@ -809,44 +807,6 @@ export class DeviceGroupService {
     return devices;
   }
 
-  // public async registerBulkDevices(
-  //   orgCode: number,
-  //   newDevices: NewDeviceDTO[],
-  // ): Promise<DeviceGroupDTO[]> {
-  //   const devices: DeviceDTO[] = await Promise.all(
-  //     newDevices.map(
-  //       async (device: NewDeviceDTO) =>
-  //         await this.deviceService.register(orgCode, device),
-  //     ),
-  //   );
-
-  //   // Create groups automatically based on criteria
-  //   const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
-  //     devices,
-  //     (item) => {
-  //       return [
-  //         item['organizationId'],
-  //         item['countryCode'],
-  //         item['fuelCode'],
-  //         // item['standardCompliance'],
-  //         //item['installationConfiguration'],
-  //         item['offTaker'],
-  //       ];
-  //     },
-  //   );
-  //   const createdDeviceGroups: DeviceGroupDTO[] = await Promise.all(
-  //     groupedDevicesByProps.map(
-  //       async (groupedDeviceList: DeviceDTO[]) =>
-  //         await this.create(
-  //           orgCode,
-  //           this.createDeviceGroupFromDevices(groupedDeviceList),
-  //           true,
-  //         ),
-  //     ),
-  //   );
-  //   return createdDeviceGroups;
-  // }
-
   private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
     return Boolean(await this.findOne(conditions));
   }
@@ -936,19 +896,7 @@ export class DeviceGroupService {
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
-    // const sectors = Array.from(
-    //   new Set(devices.map((device: DeviceDTO) => device.sector)),
-    // );
-
-    // const labels: string[] = [];
-
-    // devices.map((device: DeviceDTO) => {
-    //   if (!device.labels) {
-    //     return;
-    //   }
-    //   return labels.push(device.labels);
-    // });
-
+    
     const fuelCode = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode.trim() : ''
       )),
@@ -965,9 +913,7 @@ export class DeviceGroupService {
     const deviceIdsInt = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.id)),
     );
-    // const integratorName = devices[0].integrator
-    //   ? `${devices[0].integrator}-`
-    //   : '';
+   
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
@@ -1411,18 +1357,13 @@ export class DeviceGroupService {
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
-      //////console.log("completed");
-      //////console.log("error",error);
-      //////console.log("data end transmissiodsdddddddddddn",records);
+     
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
         if (records[index].externalId) {
           records[index].externalId = records[index].externalId.trim();
-        }
-        //////console.log("waiting");
+        }      
         const errors = await validate(singleRecord);
-        // console.log("validation errors", errors);
-        // errors is an array of validation errors
         if (errors.length > 0) {
 
           errors.forEach(ele => {
@@ -1461,8 +1402,7 @@ export class DeviceGroupService {
           recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
-          // console.log("commissioningDate");
-          //  console.log(singleRecord.commissioningDate);
+
           console.log(!isValidUTCDateFormat(singleRecord.commissioningDate));
           if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
             recordsErrors[index].isError = true;
@@ -1491,7 +1431,6 @@ export class DeviceGroupService {
         })
       });
 
-      // console.log(records);
       const noErrorRecords = records.filter(
         (record, index) => recordsErrors[index].isError === false,
       );
@@ -1509,9 +1448,6 @@ export class DeviceGroupService {
           }
         });
       }
-      // console.log("listofExistingDevices", listofExistingDevices);
-
-
       var recordsCopy = cloneDeep(records);
       recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
       const duplicatesExternalId: any = [];
@@ -1537,7 +1473,6 @@ export class DeviceGroupService {
 
         }
       }
-      // console.log("duplicatesExternalId", duplicatesExternalId);
 
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
@@ -1586,23 +1521,15 @@ export class DeviceGroupService {
         recordsErrors,
         successfullyAddedRowsAndExternalIds
       );
-      //}
-
-      //////console.log("osdksnd if ");
-
       this.updateJobStatus(
         filesAddedForProcessing.jobId,
         StatusCSV.Completed,
       );
     })
 
-
-
-    // },1);
   }
 
   csvStringToJSON(csvFileContentInString: string) {
-
     // Convert the data to String and
     // split it in an array
     var array = csvFileContentInString.split("\r");
@@ -1953,16 +1880,11 @@ export class DeviceGroupService {
 
   async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
     const pageSize = 10;
-    // const pageNumber = 2
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
     }
-
     const skip = (pageNumber - 1) * pageSize;
     console.log(skip)
-
-
-    //const totalPages = Math.ceil(totalCountQuery / limit);
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
@@ -1987,7 +1909,7 @@ export class DeviceGroupService {
       if (role === 'Buyer') {
         where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
       }
-     
+
       where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
@@ -2009,7 +1931,7 @@ export class DeviceGroupService {
               console.log(typeof newCountry)
               const CountryArray = newCountry.split(',');
               qb.orWhere(new Brackets(qb => {
-                
+
                 CountryArray.forEach((country, index) => {
                   if (index === 0) {
                     qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
@@ -2019,8 +1941,8 @@ export class DeviceGroupService {
                 });
               }));
 
-             // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
-           
+              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
+
             }
           }
           if ((filterDto.fuelCode)) {
@@ -2030,7 +1952,7 @@ export class DeviceGroupService {
             console.log(typeof newfuelCode)
             const fuelCodeArray = newfuelCode.split(',');
             qb.orWhere(new Brackets(qb => {
-              
+
               fuelCodeArray.forEach((fuelCode, index) => {
                 if (index === 0) {
                   qb.where(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
@@ -2039,16 +1961,16 @@ export class DeviceGroupService {
                 }
               });
             }));
-          //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
+            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
 
           }
           if (filterDto.offTaker) {
-           // console.log(typeof filterDto.offTaker);
+            // console.log(typeof filterDto.offTaker);
             const newoffTaker = filterDto.offTaker.toString()
             console.log(typeof newoffTaker)
             const offTakerArray = newoffTaker.split(',');
             qb.orWhere(new Brackets(qb => {
-              
+
               offTakerArray.forEach((offTaker, index) => {
                 if (index === 0) {
                   qb.where(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
@@ -2057,7 +1979,7 @@ export class DeviceGroupService {
                 }
               });
             }));
-           // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
+            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
 
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
@@ -2109,7 +2031,7 @@ export class DeviceGroupService {
     console.log("totalCountQuery", totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    
+
     console.log(totalPages);
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
@@ -2200,7 +2122,7 @@ export class DeviceGroupService {
       if (role === 'Buyer') {
         where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
       }
-     
+
       where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
@@ -2222,7 +2144,7 @@ export class DeviceGroupService {
               console.log(typeof newCountry)
               const CountryArray = newCountry.split(',');
               qb.orWhere(new Brackets(qb => {
-                
+
                 CountryArray.forEach((country, index) => {
                   if (index === 0) {
                     qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
@@ -2232,8 +2154,8 @@ export class DeviceGroupService {
                 });
               }));
 
-             // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
-           
+              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
+
             }
           }
           if ((filterDto.fuelCode)) {
@@ -2243,34 +2165,34 @@ export class DeviceGroupService {
             console.log(typeof newfuelCode)
             const fuelCodeArray = newfuelCode.split(',');
             qb.orWhere(new Brackets(qb => {
-              
+
               fuelCodeArray.forEach((fuelCode, index) => {
                 if (index === 0) {
-                  qb.where(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                  qb.where(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
                 } else {
-                  qb.orWhere(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                  qb.orWhere(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
                 }
               });
             }));
-          //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
+            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
 
           }
           if (filterDto.offTaker) {
-           // console.log(typeof filterDto.offTaker);
+            // console.log(typeof filterDto.offTaker);
             const newoffTaker = filterDto.offTaker.toString()
             console.log(typeof newoffTaker)
             const offTakerArray = newoffTaker.split(',');
             qb.orWhere(new Brackets(qb => {
-              
+
               offTakerArray.forEach((offTaker, index) => {
                 if (index === 0) {
-                  qb.where(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                  qb.where(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
                 } else {
-                  qb.orWhere(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                  qb.orWhere(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
                 }
               });
             }));
-           // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
+            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
 
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
