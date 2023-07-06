@@ -41,6 +41,7 @@ import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { JwtOrClientIdSecretAuthGuard } from '../../guards/JWTAndClientIdAndSecretGuard';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -251,7 +252,7 @@ export class ReadsController extends BaseReadsController {
     description: 'New meter reads for historical data, Delta readings and Aggregate Readings',
     type: [NewIntmediateMeterReadDTO],
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(JwtOrClientIdSecretAuthGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   public async newstoreRead(
     @Param('id') id: string,
