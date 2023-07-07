@@ -43,6 +43,7 @@
               <input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
                 formControlName="countryCode" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
               <mat-autocomplete #auto="matAutocomplete">
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
                   {{code.country}}
                 </mat-option>
@@ -54,7 +55,7 @@
               <mat-label class="text-capitalize">Fuel Code</mat-label>
 
               <mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
-
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of fuellist" [value]="code.code">
                   {{code.name}}
                 </mat-option>
@@ -66,7 +67,7 @@
               <mat-label class="text-capitalize">Device Type Code</mat-label>
 
               <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()">
-
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                   {{code.name}}
                 </mat-option>
@@ -79,7 +80,7 @@
               <mat-label class="text-capitalize">Off Taker</mat-label>
 
               <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
-
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of offtaker" [value]="code">
                   {{code}}
                 </mat-option>
@@ -88,7 +89,7 @@
           </div>
           <div class="col-md-3">
             <mat-form-field>
-              <mat-label>capacity(Kw)</mat-label>
+              <mat-label>Capacity(Kw)</mat-label>
               <input matInput (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
             </mat-form-field>
           </div>
@@ -97,7 +98,7 @@
               <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
               <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
-
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.value">{{sdgb.value}}</mat-option>
 
               </mat-select>
@@ -134,7 +135,7 @@
         </div>
           <div class="col-md-12 mb-3  d-flex justify-content-end">
             <div class="">
-              <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getDeviceListData()"
+              <button class="btn-primary me-2 btn text-capitalize px-4" (click)="DisplayListFilter()"
                 [disabled]="!isAnyFieldFilled">Filter</button>
             </div>
             <div class="">
@@ -185,9 +186,6 @@
             <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
           </ng-container>
 
-
-
-
           <ng-container matColumnDef="fuelCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Fuel Code </th>
             <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
@@ -201,6 +199,10 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Capacity(Kw) </th>
             <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
           </ng-container>
+          <ng-container matColumnDef="SDGBenefits">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> SDGBenefits </th>
+            <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td>
+        </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
@@ -214,9 +216,14 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;">
           </tr>
         </table>
-        <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+        <!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
           aria-label="Select page">
-        </mat-paginator>
+        </mat-paginator> -->
+        <hr>
+        <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+			
+      Total Pages:{{totalPages}}
+        <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
       </div>
     </mat-card-content>
     <mat-card-footer></mat-card-footer>

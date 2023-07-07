@@ -30,7 +30,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog } from './dto'
+import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog,CertificatelogResponse } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
@@ -230,17 +230,16 @@ export class CertificateLogController {
 
 
     /* for developre*/
-    @Get('/issuer/certifiedfordeveloper')
+    @Get('/issuer/certifiedlogOfdevices')
     @UseGuards(AuthGuard('jwt'))
-    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
+    @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
     async getCertificatesForDeveloper(
 
         @UserDecorator() user: ILoggedInUser,
         @Query(ValidationPipe) filterDto: FilterDTO,
         @Query('pageNumber') pageNumber: number,
-    )/*: Promise<CertificateNewWithPerDeviceLog[]>*/ {
-        console.log("238")
-        //pageNumber = 1;
-        return this.certificateLogService.getCertifiedlogofDeveloperDevice(user.organizationId,filterDto, pageNumber);
+    ): Promise<CertificatelogResponse> {
+        console.log("238");
+        return this.certificateLogService.getCertifiedlogofDevices(user,filterDto, pageNumber);
     }
 }

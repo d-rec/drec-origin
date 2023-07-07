@@ -17,7 +17,7 @@ import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
 import { DateTime } from 'luxon';
-import { CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog } from './dto'
+import { CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog,CertificatelogResponse } from './dto'
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto'
 import { grouplog } from './grouplog';
@@ -25,14 +25,17 @@ import { issuercertificatelog } from './issuercertificate';
 import { OffChainCertificateService, IGetAllCertificatesOptions, ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { time } from 'console';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { countryCodesList } from '../../models/country-code';
-import { CountryCodeNameDTO } from '../countrycode/dto/country-code.dto'
+import { CountryCodeNameDTO } from '../countrycode/dto/country-code.dto';
+import { OrganizationService } from '../organization/organization.service'
+import { ILoggedInUser } from '../../models';
+
+
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
 }
@@ -52,6 +55,7 @@ export class CertificateLogService {
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
+    private organizationService: OrganizationService,
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
 
   ) { }
@@ -180,14 +184,7 @@ export class CertificateLogService {
             console.log(devicelog)
             devicelog.forEach(async (singleDeviceLogEle) => {
               singleDeviceLogEle.externalId = device.developerExternalId
-              // if (device.timezone != null) {
-              //   singleDeviceLogEle['timezone'] = device.timezone
-              // } else {
-              //   const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(entry => entry.countryCode === device.countryCode);
-              //   singleDeviceLogEle['timezone'] = countryCodeFound.timezones[0].name;
-              // }
               singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-
               certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
 
             });
@@ -259,12 +256,6 @@ export class CertificateLogService {
             const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(groupid), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
             devicelog.forEach(singleDeviceLogEle => {
               singleDeviceLogEle.externalId = device.developerExternalId
-              // if (device.timezone != null) {
-              //   singleDeviceLogEle['timezone'] = device.timezone
-              // } else {
-              //   const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(entry => entry.countryCode === device.countryCode);
-              //   singleDeviceLogEle['timezone'] = countryCodeFound.timezones[0].name;
-              // }
               singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
 
               certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
@@ -587,30 +578,34 @@ export class CertificateLogService {
 
   //add function to get the certified log which device of developer added in reservation for developer
 
-  async getCertifiedlogofDeveloperDevice(orgId: number, filterDto:FilterDTO,pageNumber) {
-    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(orgId,filterDto, pageNumber)
-    console.log("getnewreservationinfo",getnewreservationinfo);
-    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(orgId, pageNumber)
-    console.log("getoldreservationinfo", getoldreservationinfo);
+  async getCertifiedlogofDevices(user: ILoggedInUser, filterDto: FilterDTO, pageNumber) {
+
+    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+    console.log("getnewreservationinfo", getnewreservationinfo.deviceGroups.length);
+    console.log("getnewreservationinfo", getnewreservationinfo);
+  const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+   console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
     if (getoldreservationinfo.deviceGroups.length > 0) {
-      return this.getDeveloperfindreservationcertified(getoldreservationinfo);
-    } else if (getnewreservationinfo.deviceGroups.length > 0) {
+   
+      return this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
+    } 
+     if (getnewreservationinfo.deviceGroups.length > 0) {
       console.log("580");
-      return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo);
+      return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo, user.role);
     }
   }
 
 
-  async getDeveloperfindreservationcertified(certifiedreservation: Certificate[]): Promise<CertificateWithPerdevicelog[]> {
+  async getDeveloperfindreservationcertified(certifiedreservation, role): Promise<CertificatelogResponse> {
     let finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
-      certifiedreservation.map(async (group: any, index: number) => {
+      certifiedreservation.deviceGroups.map(async (group: any, index: number) => {
         console.log(typeof group.internalCertificateId)
         console.log("getreservationinfo", group.internalCertificateId);
         let newq = await this.certificaterrepository
           .createQueryBuilder('issuar')
           .where(`issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`)
-          .limit(10);
+
         const groupedDatasql = await newq.getQuery();
         console.log(groupedDatasql)
         const result = await newq.getMany();
@@ -639,35 +634,38 @@ export class CertificateLogService {
                 const device = await this.deviceService.findOne(deviceid);
 
                 let devicelog;
-                if (group.developerdeviceIds.find(ele => ele === deviceid)) {
-                  console.log("oldlog exist in developer");
-                  const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate);
-                  devicelog.forEach(singleDeviceLogEle => {
-                    singleDeviceLogEle.externalId = device.developerExternalId
-                    // if (device.timezone != null) {
-                    //   singleDeviceLogEle['timezone'] = device.timezone
-                    // }
-                    singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-                    certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
-                  });
-                }
-                else {
-                  console.log("oldlog exist in developer");
-                  let totalvalue;
-                  const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate);
-                  if (devicelog.length > 0) {
-                    const totalReadValue = devicelog.reduce(
-                      (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
-                      0,
-                    );
-                    devicelog[0].readvalue_watthour = totalReadValue;
-                    devicelog[0].externalId = 'Other Devices';
-                    devicelog['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-                    certifiedlist.perDeviceCertificateLog.push(devicelog[0])
+                if (role === 'OrganizationAdmin') {
+                  if (group.developerdeviceIds.find(ele => ele === deviceid)) {
+                    console.log("oldlog exist in developer");
+                    const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate);
+                    devicelog.forEach(singleDeviceLogEle => {
+                      singleDeviceLogEle.externalId = device.developerExternalId
+                      // if (device.timezone != null) {
+                      //   singleDeviceLogEle['timezone'] = device.timezone
+                      // }
+                      singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
+                      certifiedlist.perDeviceCertificateLog.push(singleDeviceLogEle);
+                    });
+                  }
+                  else {
+                    console.log("oldlog exist in developer");
+                    let totalvalue;
+                    const devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate);
+                    if (devicelog.length > 0) {
+                      const totalReadValue = devicelog.reduce(
+                        (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
+                        0,
+                      );
+                      devicelog[0].readvalue_watthour = totalReadValue;
+                      devicelog[0].externalId = 'Other Devices';
+                      devicelog['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
+                      certifiedlist.perDeviceCertificateLog.push(devicelog[0])
+
+                    }
 
                   }
-
                 }
+                if (role === 'Buyer') { }
 
                 //   return devicelog;
               })
@@ -680,27 +678,31 @@ export class CertificateLogService {
         return res;
       })
     )
-    return finalcertificatesInReservationWithLog
+    const response = {
+      certificatelog: finalcertificatesInReservationWithLog,
+      currentpage: certifiedreservation.pageNumber,
+      totalPages: certifiedreservation.totalPages,
+      totalCount: certifiedreservation.totalCount
+    }
+    return response;
+    //return finalcertificatesInReservationWithLog
   }
 
-  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo): Promise<any> {
-
+  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getreservationinfo, role): Promise<CertificatelogResponse> {
     let finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
       getreservationinfo.deviceGroups.map(async (group: any, index: number) => {
         console.log(typeof group.internalCertificateId)
-        // console.log("getreservationinfo", group.internalCertificateId);
+
         let newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(`crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`)
-        // .limit(10);
         const groupedDatasql = await newq.getQuery();
         console.log(groupedDatasql)
         const result = await newq.getMany();
         // console.log(result)
         let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> = [];
         result.forEach(ele => certificatesInReservationWithLog.push({ ...ele, perDeviceCertificateLog: [], certificateStartDate: '', certificateEndDate: '' }));
-
         await Promise.all(
           result.map(async (certifiedlist: ICertificateReadModel<ICertificateMetadata>, index: number) => {
             certificatesInReservationWithLog[index].certificateStartDate = new Date(certifiedlist.generationStartTime * 1000).toISOString();
@@ -730,35 +732,37 @@ export class CertificateLogService {
               obj.deviceIds.map(async (deviceid: number) => {
                 const device = await this.deviceService.findOne(deviceid);
                 let devicelog;
-                if (group.developerdeviceIds.find(ele => ele === deviceid)) {
+                if (role === 'OrganizationAdmin') {
+                  if (group.developerdeviceIds.find(ele => ele === deviceid)) {
 
+                    devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
+                    devicelog.forEach(singleDeviceLogEle => {
+                      singleDeviceLogEle.externalId = device.developerExternalId
+                      singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
+                      certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
+                    });
+                  }
+                  else {
+                    devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
+                    if (devicelog.length > 0) {
+                      const totalReadValue = devicelog.reduce(
+                        (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
+                        0,
+                      );
+                      devicelog[0].readvalue_watthour = totalReadValue;
+                      devicelog[0].externalId = 'Other Devices';
+                      devicelog['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
+                      certificatesInReservationWithLog[index].perDeviceCertificateLog.push(devicelog[0])
+                    }
+                  }
+                }
+                if (role === 'Buyer') {
                   devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
                   devicelog.forEach(singleDeviceLogEle => {
                     singleDeviceLogEle.externalId = device.developerExternalId
-                    // if (device.timezone != null) {
-                    //   singleDeviceLogEle['timezone'] = device.timezone
-                    // } else {
-                    //   const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(entry => entry.countryCode === device.countryCode);
-                    //   singleDeviceLogEle['timezone'] = countryCodeFound.timezones[0].name;
-                    // }
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
                     certificatesInReservationWithLog[index].perDeviceCertificateLog.push(singleDeviceLogEle);
                   });
-                }
-                else {
-                  devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
-
-                  if (devicelog.length > 0) {
-                    const totalReadValue = devicelog.reduce(
-                      (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
-                      0,
-                    );
-                    devicelog[0].readvalue_watthour = totalReadValue;
-                    devicelog[0].externalId = 'Other Devices';
-                    devicelog['timezone'] = getLocalTimeZoneFromDevice(device.createdAt, device);
-                    certificatesInReservationWithLog[index].perDeviceCertificateLog.push(devicelog[0])
-
-                  }
                 }
                 return devicelog;
               })
@@ -769,11 +773,11 @@ export class CertificateLogService {
         );
       })
     )
-
     const response = {
       certificatelog: finalcertificatesInReservationWithLog,
       currentpage: getreservationinfo.pageNumber,
       totalPages: getreservationinfo.totalPages,
+      totalCount: getreservationinfo.totalCount
     }
     return response;
     //return finalcertificatesInReservationWithLog

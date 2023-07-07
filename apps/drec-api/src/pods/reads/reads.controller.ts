@@ -375,7 +375,10 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-
+      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
+      device.commissioningDate = momentTimeZone
+        .tz(new Date(device?.commissioningDate), measurements.timezone)
+        .format();
     }
 
     //check for according to read type if start time stamp and end time stamps are sent
@@ -450,6 +453,8 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (!allStartDatesAreBeforeEnddate) {
+
+
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -460,11 +465,12 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (!allDatesAreBeforeCreatedAt) {
+
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
               success: false,
-              message: `For History reading starttimestamp and endtimestamp should be prior to device onboarding date. One or more measurements endtimestamp and or starttimestamp is greater than device onboarding date${device?.createdAt}`,
+              message: `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
             })
           );
         });
@@ -481,11 +487,12 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (!historyallStartDatesAreAftercommissioningDate) {
+
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
               success: false,
-              message: `One or more measurements starttimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+              message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
             })
           );
         });
@@ -562,6 +569,9 @@ export class ReadsController extends BaseReadsController {
             }),
           );
         });
+      }
+      if (measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== '') {
+        enddate = momentTimeZone.tz(enddate, measurements.timezone);
       }
       if (!allDatesAreAfterCreatedAt) {
         return new Promise((resolve, reject) => {

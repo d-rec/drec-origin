@@ -76,8 +76,10 @@ export class AddreadComponent implements OnInit {
   }
   DisplayList() {
     const deviceurl = 'device/my';
+    console.log(deviceurl);
     this.deviceservice.GetMyDevices(deviceurl).subscribe(
       (data) => {
+        console.log("data",data)
         // display list in the console 
         this.data = data;
       }

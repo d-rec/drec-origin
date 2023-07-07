@@ -5,11 +5,12 @@ import {
   Logger,
   ConflictException,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindOneOptions, Repository, In, IsNull, Not, FindOperator,
-  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, ILike
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, MoreThanOrEqual, ILike
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -101,31 +102,27 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
-    console.log(pagenumber);
-    console.log(Object.keys(filterDto).length);
-    // if (pagenumber) {
-    if (filterDto || Object.keys(filterDto).length != 0) {
-      //let pgno=pagenumber;
+
+    if ( Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
       }
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
-      console.log(query);
       let where: any = query.where
       where = { ...where, organizationId };
-      console.log(where);
       query.where = where;
-      console.log({
-        ...query, skip: (pagenumber - 1) * limit,
-        take: limit
-      });
+     // console.log(query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit
       });
-      //devices.externalId = devices.developerExternalId
-      const totalPages = Math.ceil(totalCount / 20);
+      console.log((pagenumber - 1) * limit);
+     console.log(totalCount);
+      const totalPages = Math.ceil(totalCount / limit);
+       if (pagenumber > totalPages) {
+      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    }
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
@@ -483,39 +480,55 @@ export class DeviceService {
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
     const limit = 20;
-    // const page = 1;
+
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
-      deviceTypeCode: filter.deviceTypeCode,
-      //installationConfiguration: filter.installationConfiguration,
-      capacity: filter.capacity,
+     // deviceTypeCode: filter.deviceTypeCode,
+      capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-      offTaker: filter.offTaker,
-      //sector: filter.sector,
-      // labels: filter.labels,
-      //standardCompliance: filter.standardCompliance,
+     // offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-      commissioningDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-      // SDGBenefits:
 
     });
+    console.log(filter.end_date);
+    if (filter.start_date != null && filter.end_date === undefined) {
+      console.log(filter.start_date);
+      where.commissioningDate = MoreThanOrEqual(filter.start_date);
 
+    }
+    if (filter.start_date === undefined && filter.end_date != null) {
+      where.commissioningDate = LessThanOrEqual(filter.end_date);
+    }
+    if (filter.start_date != null && filter.end_date != null) {
+      where.commissioningDate = filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date)
+    }
     if (filter.SDGBenefits) {
       console.log(typeof filter.SDGBenefits)
-      console.log(filter.SDGBenefits)
       const newsdg = filter.SDGBenefits.toString()
-      console.log(typeof newsdg)
-      //const sdgBenefitsString: string = filter.SDGBenefits;
       const sdgBenefitsArray = newsdg.split(',');
-      console.log(typeof newsdg)
       console.log(sdgBenefitsArray)
-      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'${term.trim()}'`)}])`);
-      //where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'%${term}%'`)}])`);
+      // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
     }
-    console.log(where)
+    if (filter.deviceTypeCode) {
+      console.log(typeof filter.deviceTypeCode)
+      const newdtype = filter.deviceTypeCode.toString()
+      const newdtypeArray = newdtype.split(',');
+      console.log(newdtypeArray)
+      where.deviceTypeCode = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newdtypeArray.map(term => `'%${term}%'`)}])`);
+      
+    }
+    if (filter.offTaker) {
+      console.log(typeof filter.offTaker)
+      const newoffTaker = filter.offTaker.toString()
+      const newoffTakerArray = newoffTaker.split(',');
+      console.log(newoffTakerArray)
+      where.offTaker = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map(term => `'%${term}%'`)}])`);
+      
+    }
+    //console.log(where)
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -523,6 +536,7 @@ export class DeviceService {
       }
 
     };
+    console.log(query)
     return query;
   }
   private getRawFilter(
@@ -955,11 +969,19 @@ export class DeviceService {
         }))
       .orderBy('Device.externalId')
       .getMany();
-    return rows.map(row => ({
-      externalId: row.developerExternalId,
-      organizationId: row.organizationId
+      console.log(rows);
+      const newDevices = [];
+      await rows.map((device: Device) => {
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+    return newDevices;
+    // rows.map(row => ({
+    //   externalId: row.developerExternalId,
+    //   organizationId: row.organizationId
 
-    }));
+    // }));
   }
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number, deviceId: string

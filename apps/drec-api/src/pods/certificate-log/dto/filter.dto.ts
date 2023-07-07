@@ -25,9 +25,16 @@ export class FilterDTO {
   @IsOptional()
   @ApiPropertyOptional({
     type: Number,
-    description: 'Search number for capacity',
+    description: 'Amount Read from ',
   })
-  capacity: number;
+  fromAmountread: number;
+  
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: Number,
+    description: 'Amount Read to ',
+  })
+  toAmountread: number;
 
   @IsOptional()
   @ApiPropertyOptional({

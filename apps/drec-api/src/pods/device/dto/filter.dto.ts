@@ -16,7 +16,7 @@ export class FilterDTO {
   fuelCode: FuelCode;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode })
+  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode, isArray:true })
   deviceTypeCode: DevicetypeCode;
 
   // @IsOptional()
@@ -35,11 +35,11 @@ export class FilterDTO {
   capacity: number;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Start date Commissioning Date filter' })
+  @ApiPropertyOptional({ description: 'Start date Commissioning Date filter 2020-01-01T00:00:00Z' })
   start_date: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'End date Commissioning Date filter' })
+  @ApiPropertyOptional({ description: 'End date Commissioning Date filter 2020-01-01T00:00:00Z' })
   end_date: string;
 
   @IsOptional()
@@ -51,6 +51,7 @@ export class FilterDTO {
     type: OffTaker,
     description: 'Off-taker',
     enum: OffTaker,
+     isArray:true
   })
   offTaker: OffTaker;
 

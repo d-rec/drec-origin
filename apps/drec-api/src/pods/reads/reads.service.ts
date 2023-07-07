@@ -493,8 +493,13 @@ export class ReadsService {
         } else {
           await new Promise((resolve, reject) => {
             measurement.reads.forEach((element, measurmentreadindex) => {
+              console.log("endtimestamp", element.endtimestamp);
+              console.log(typeof element.endtimestamp);
+              console.log("timestamp", final.timestamp);
+              console.log(typeof final.timestamp);
+              console.log("Stimestamp",final.timestamp.toISOString());
+              console.log(typeof final.timestamp.toISOString());
               if (final && final['timestamp']) {
-
                 //@ts-ignore
                 if (new Date(element.endtimestamp).getTime() < new Date(final.timestamp).getTime()) {
                   return reject(
@@ -502,8 +507,7 @@ export class ReadsService {
                       success: false,
                       message:
                         //@ts-ignore
-                        `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`
-
+                        `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`
                     }),
                   );
                 }

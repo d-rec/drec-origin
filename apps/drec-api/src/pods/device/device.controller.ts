@@ -134,7 +134,7 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+@ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],

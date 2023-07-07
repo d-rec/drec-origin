@@ -9,6 +9,7 @@ import {DeviceModule} from'../device/device.module';
 import { OffChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import {DeviceGroup} from '../device-group/device-group.entity'
+import {OrganizationModule} from '../organization/organization.module';
 
 
 @Module({
@@ -18,7 +19,8 @@ import {DeviceGroup} from '../device-group/device-group.entity'
     TypeOrmModule.forFeature([CheckCertificateIssueDateLogForDeviceEntity,Certificate,CertificateReadModelEntity,DeviceGroup]),
     DeviceGroupModule,
     DeviceModule,
-    OffChainCertificateModule
+    OffChainCertificateModule,
+    OrganizationModule
   ],
   controllers: [CertificateLogController],
   providers: [CertificateLogService]

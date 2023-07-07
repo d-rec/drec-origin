@@ -33,7 +33,7 @@ import {
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO
 } from './dto';
-
+//import { jsonbBuildObject, jsonbBuildArray, jsonbPath, jsonbArrayElements } from 'typeorm-plus';
 import { defaults, cloneDeep } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
@@ -101,6 +101,9 @@ import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import { Certificate } from '@energyweb/issuer-api';
+
+
+
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -116,7 +119,6 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
-    //@Inject('OrganizationService') private readonly organizationService: OrganizationService,
     private deviceService: DeviceService,
     private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
@@ -124,8 +126,6 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-    //private readService: ReadsService,
-    //  private readonly readsService: ReadsService
     @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
 
   ) { }
@@ -198,14 +198,6 @@ export class DeviceGroupService {
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id')
-
-      // this.repository.createQueryBuilder('dg')
-      //   .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-      //   .select(['dg.*', 'd.SDGBenefits'])
-      //   .orderBy('dg.id', 'ASC')
-      //   .offset(skip)
-      //   .limit(pageSize);
-      // //console.log(queryBuilder);
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
@@ -244,9 +236,7 @@ export class DeviceGroupService {
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id')
-      // .offset(skip)
-      // .limit(pageSize);
-      // //console.log(queryBuilder);
+
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId
@@ -287,14 +277,21 @@ export class DeviceGroupService {
             if (groupfilterDto.offTaker) {
               console.log(typeof groupfilterDto.offTaker)
               console.log(groupfilterDto.offTaker)
-              if (typeof groupfilterDto.offTaker === 'string') {
-                console.log("272")
-                qb.orWhere('dg.offTakers = :offTaker', { offTaker: [groupfilterDto.offTaker] });
+              const newoffTaker = groupfilterDto.offTaker.toString()
+              console.log(typeof newoffTaker)
+              const offTakerArray = newoffTaker.split(',');
+              qb.orWhere(new Brackets(qb => {
 
-              }
-              else if (typeof groupfilterDto.offTaker === 'object') {
-                qb.orWhere('dg.offTakers @> ARRAY[:...offtaker]', { offtaker: groupfilterDto.offTaker })
-              }
+                offTakerArray.forEach((offTaker, index) => {
+                  if (index === 0) {
+                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+                  } else {
+                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+                  }
+                });
+              }));
             }
             if (groupfilterDto.start_date) {
 
@@ -351,15 +348,15 @@ export class DeviceGroupService {
     console.log("totalCountQuery", totalCountQuery);
     const totalPages = Math.ceil(totalCountQuery / pageSize);
     console.log("totalPages", totalPages);
-    if (pageNumber > totalPages) {
-      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    if (totalCountQuery > 0) {
+      if (pageNumber > totalPages) {
+        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+      }
     }
 
-    console.log(groupedData[0].sdgBenefits)
     console.log(Array.isArray(deviceGroups))
     // If deviceGroups is not an array, return an empty array
     const finalreservation = groupedData.map((deviceGroup) => ({
-
       id: deviceGroup.dg_id,
       name: deviceGroup.dg_name,
       organizationId: deviceGroup.dg_organizationId,
@@ -391,7 +388,6 @@ export class DeviceGroupService {
       SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits))
 
     }));
-    console.log(groupedData);
     const response = {
       groupedData: finalreservation,
       pageNumber,
@@ -407,30 +403,6 @@ export class DeviceGroupService {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
-  //   async getReservedOrUnreserved(
-  //     filterDto: UnreservedDeviceGroupsFilterDTO,
-  //     buyerId?: number,
-  //   ): Promise<SelectableDeviceGroupDTO[]> {
-  //     const query = this.getUnreservedFilteredQuery(filterDto, buyerId);
-  //     const deviceGroups = await this.repository.find(query);
-
-  //     const res = await Promise.all(
-  //       deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-  //         const organization = await this.organizationService.findOne(
-  //           deviceGroup.organizationId,
-  //         );
-  //         return {
-  //           ...deviceGroup,
-  //           organization: {
-  //             name: organization.name,
-  //             blockchainAccountAddress: organization.blockchainAccountAddress,
-  //           },
-  //           selected: false,
-  //         };
-  //       }),
-  //     );
-  //     return res;
-  //  }
 
   async createCSVJobForFile(
     userId: number,
@@ -477,71 +449,6 @@ export class DeviceGroupService {
       jobId: jobId,
     });
   }
-  // async reserveGroup(
-  //   data: ReserveGroupsDTO,
-  //   buyerId: number,
-  //   blockchainAccountAddress?: string,
-  // ): Promise<DeviceGroupDTO[]> {
-  //   const deviceGroups = await this.repository.findByIds(data.groupsIds);
-  //   const updatedDeviceGroups: DeviceGroupDTO[] = [];
-
-  //   await Promise.all(
-  //     deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-  //       deviceGroup.buyerId = buyerId;
-  //       if (blockchainAccountAddress) {
-  //         deviceGroup.buyerAddress = blockchainAccountAddress;
-  //       }
-  //       const updatedGroup = await this.repository.save(deviceGroup);
-  //       updatedDeviceGroups.push(updatedGroup);
-  //     }),
-  //   );
-  //   return updatedDeviceGroups;
-  // }
-
-  // async unreserveGroup(
-  //   data: ReserveGroupsDTO,
-  //   buyerId: number,
-  // ): Promise<DeviceGroupDTO[]> {
-  //   const deviceGroups = await this.repository.find({
-  //     where: { id: In(data.groupsIds), buyerId }
-  //   });
-  //   const updatedDeviceGroups: DeviceGroupDTO[] = [];
-  //   await Promise.all(
-  //     deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-  //       if (deviceGroup.buyerId === buyerId) {
-  //         deviceGroup.buyerId = null;
-  //         deviceGroup.buyerAddress = null;
-  //         await this.repository.save(deviceGroup);
-  //       }
-  //       const updatedGroup = await this.repository.save(deviceGroup);
-  //       updatedDeviceGroups.push(updatedGroup);
-  //     }),
-  //   );
-  //   return updatedDeviceGroups;
-  // }
-  /*
-  based on old implementation
-    async unreserveGroup(
-      data: ReserveGroupsDTO,
-      buyerId: number,
-    ): Promise<DeviceGroupDTO[]> {
-      const deviceGroups = await this.repository.findByIds(data.groupsIds);
-      const updatedDeviceGroups: DeviceGroupDTO[] = [];
-  
-      await Promise.all(
-        deviceGroups.map(async (deviceGroup: DeviceGroupDTO) => {
-          if (deviceGroup.buyerId === buyerId) {
-            deviceGroup.buyerId = null;
-            deviceGroup.buyerAddress = null;
-            await this.repository.save(deviceGroup);
-          }
-          const updatedGroup = await this.repository.save(deviceGroup);
-          updatedDeviceGroups.push(updatedGroup);
-        }),
-      );
-      return updatedDeviceGroups;
-    }
-    */
 
   async create(
     organizationId: number,
@@ -692,19 +599,6 @@ export class DeviceGroupService {
     let allDevicesAvailableforBuyerReservation: boolean = true;
     let unavailableDeviceIds: Array<number> = [];
     let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
-    // await Promise.all(devices.map(async (ele, index) => {
-
-    //     const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, group.reservationStartDate, group.reservationEndDate);
-    //     if (certifieddevices.length > 0 && certifieddevices != undefined) {
-    //       allDevicesAvailableforBuyerReservation = false;
-    //       unavailableDeviceIds.push(ele.id);
-    //       unavailableDeviceIdsDueToCertificateAlreadyIssued.push(ele.id);
-    //     }
-    //     return ele;
-    //   })
-    //   );
-
-    // devices = devices.filter(deviceSingle => unavailableDeviceIds.find(unavailableid => deviceSingle.id === unavailableid) === undefined ? true : false);
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       return new Promise((resolve, reject) => {
@@ -744,8 +638,6 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
       ); // hours
-      ////console.log("meteredTimePeriodInHours", meteredTimePeriodInHours);
-      ////console.log("aggregatedCapacity*meteredTimePeriodInHours", aggregatedCapacity * meteredTimePeriodInHours, " group.targetCapacityInMegaWattHour *1000", group.targetCapacityInMegaWattHour * 1000);
       let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour * 1000;
       if (aggregatedCapacity * meteredTimePeriodInHours < targetCapacityInKiloWattHour) {
         smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
@@ -780,129 +672,11 @@ export class DeviceGroupService {
         deviceGroup,
       );
       responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0 ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ') : '';
-      // responseDeviceGroupDTO.unavailableDeviceIDsDueToCertificatesAlreadyCreatedInDateRange = unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0 ? unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ') : '';
-
       delete responseDeviceGroupDTO["deviceIdsInt"];
       return responseDeviceGroupDTO;
     }
   }
 
-  // async createMultiple(
-  //   organizationId: number,
-  //   groups: AddGroupDTO[],
-  // ): Promise<DeviceGroupDTO[]> {
-  //   return await Promise.all(
-  //     groups.map(async (group: AddGroupDTO) => {
-  //       const devices = await this.deviceService.findByIds(group.deviceIds);
-  //       return await this.create(
-  //         organizationId,
-  //         this.createDeviceGroupFromDevices(devices, group.name),
-  //       );
-  //     }),
-  //   );
-  // }
-
-  // async addDevices(
-  //   id: number,
-  //   organizationId: number,
-  //   data: DeviceIdsDTO,
-  // ): Promise<DeviceGroupDTO | void> {
-  //   const deviceGroup = await this.findDeviceGroupById(id, organizationId);
-
-  //   const ownerCode = (
-  //     (await this.deviceService.findForGroup(id)) as Device[]
-  //   )[0]?.organizationId;
-  //   // const devices = await this.deviceService.findByIds(data.deviceIds);
-  //   let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(data.deviceIds);
-  //   if (!data?.deviceIds?.length) {
-  //     return;
-  //   }
-  //   let allDevicesAvailableforBuyerReservation: boolean = true;
-  //   let unavailableDeviceIds: Array<number> = [];
-  //   await new Promise((resolve, reject) => {
-  //     devices.forEach(async (ele, index) => {
-
-  //       const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(ele.externalId, deviceGroup.reservationStartDate, deviceGroup.reservationEndDate);
-  //       //console.log("certifieddevices")
-  //       //console.log(certifieddevices);
-  //       if (certifieddevices.length > 0 && certifieddevices != undefined) {
-  //         allDevicesAvailableforBuyerReservation = false;
-  //         unavailableDeviceIds.push(ele.id);
-  //       }
-  //       if (index == devices.length - 1) {
-  //         resolve(true);
-  //       }
-  //     })
-  //   });
-  //   if (!allDevicesAvailableforBuyerReservation) {
-  //     return new Promise((resolve, reject) => {
-  //       reject(new ConflictException({
-  //         success: false,
-  //         message: 'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + '  are already generated certificate , please add other devicess',
-  //       }))
-  //     })
-  //   }
-
-  //   await Promise.all(
-  //     devices.map(async (device: Device) => {
-  //       await this.deviceService.addToGroup(device, id, ownerCode);
-  //     }),
-  //   );
-  //   deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-  //   const aggregatedCapacity = Math.floor(
-  //     deviceGroup.devices.reduce(
-  //       (accumulator, currentValue: DeviceDTO) =>
-  //         accumulator + currentValue.capacity,
-  //       0,
-  //     ),
-  //   );
-  //   deviceGroup.aggregatedCapacity = aggregatedCapacity;
-  //   const averageYieldValue = Math.floor(
-  //     deviceGroup.devices.reduce(
-  //       (accumulator, currentValue: DeviceDTO) =>
-  //         accumulator + currentValue.yieldValue,
-  //       0,
-  //     ) / devices.length,
-  //   );
-  //   deviceGroup.yieldValue = averageYieldValue
-  //   const updatedGroup = await this.repository.save(deviceGroup);
-  //   return updatedGroup;
-  // }
-
-  // async removeDevices(
-  //   id: number,
-  //   organizationId: number,
-  //   data: DeviceIdsDTO,
-  // ): Promise<DeviceGroupDTO | void> {
-  //   const deviceGroup = await this.findDeviceGroupById(id, organizationId);
-  //   if (!data?.deviceIds?.length) {
-  //     return;
-  //   }
-  //   await Promise.all(
-  //     data.deviceIds.map(async (deviceId: number) => {
-  //       await this.deviceService.removeFromGroup(deviceId, id);
-  //     }),
-  //   );
-  //   deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
-  //   const aggregatedCapacity = Math.floor(
-  //     deviceGroup.devices.reduce(
-  //       (accumulator, currentValue: DeviceDTO) =>
-  //         accumulator + currentValue.capacity,
-  //       0,
-  //     ),
-  //   );
-  //   deviceGroup.aggregatedCapacity = aggregatedCapacity;
-  //   const averageYieldValue = Math.floor(
-  //     deviceGroup.devices.reduce(
-  //       (accumulator, currentValue: DeviceDTO) =>
-  //         accumulator + currentValue.yieldValue,
-  //       0,
-  //     ),
-  //   );
-  //   deviceGroup.yieldValue = averageYieldValue
-  //   const updatedGroup = await this.repository.save(deviceGroup);
-  //   return updatedGroup;
-  // }
 
   async update(
     id: number,
@@ -1033,44 +807,6 @@ export class DeviceGroupService {
     return devices;
   }
 
-  // public async registerBulkDevices(
-  //   orgCode: number,
-  //   newDevices: NewDeviceDTO[],
-  // ): Promise<DeviceGroupDTO[]> {
-  //   const devices: DeviceDTO[] = await Promise.all(
-  //     newDevices.map(
-  //       async (device: NewDeviceDTO) =>
-  //         await this.deviceService.register(orgCode, device),
-  //     ),
-  //   );
-
-  //   // Create groups automatically based on criteria
-  //   const groupedDevicesByProps: DeviceDTO[][] = groupByProps(
-  //     devices,
-  //     (item) => {
-  //       return [
-  //         item['organizationId'],
-  //         item['countryCode'],
-  //         item['fuelCode'],
-  //         // item['standardCompliance'],
-  //         //item['installationConfiguration'],
-  //         item['offTaker'],
-  //       ];
-  //     },
-  //   );
-  //   const createdDeviceGroups: DeviceGroupDTO[] = await Promise.all(
-  //     groupedDevicesByProps.map(
-  //       async (groupedDeviceList: DeviceDTO[]) =>
-  //         await this.create(
-  //           orgCode,
-  //           this.createDeviceGroupFromDevices(groupedDeviceList),
-  //           true,
-  //         ),
-  //     ),
-  //   );
-  //   return createdDeviceGroups;
-  // }
-
   private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
     return Boolean(await this.findOne(conditions));
   }
@@ -1160,18 +896,6 @@ export class DeviceGroupService {
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
-    // const sectors = Array.from(
-    //   new Set(devices.map((device: DeviceDTO) => device.sector)),
-    // );
-
-    // const labels: string[] = [];
-
-    // devices.map((device: DeviceDTO) => {
-    //   if (!device.labels) {
-    //     return;
-    //   }
-    //   return labels.push(device.labels);
-    // });
 
     const fuelCode = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode.trim() : ''
@@ -1189,9 +913,7 @@ export class DeviceGroupService {
     const deviceIdsInt = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.id)),
     );
-    // const integratorName = devices[0].integrator
-    //   ? `${devices[0].integrator}-`
-    //   : '';
+
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
@@ -1635,18 +1357,13 @@ export class DeviceGroupService {
 
       // csvLine =>  "1,2,3" and "4,5,6"
     }).on('done', async (error: any) => {
-      //////console.log("completed");
-      //////console.log("error",error);
-      //////console.log("data end transmissiodsdddddddddddn",records);
+
       for (let index = 0; index < records.length; index++) {
         let singleRecord = records[index];
         if (records[index].externalId) {
           records[index].externalId = records[index].externalId.trim();
         }
-        //////console.log("waiting");
         const errors = await validate(singleRecord);
-        // console.log("validation errors", errors);
-        // errors is an array of validation errors
         if (errors.length > 0) {
 
           errors.forEach(ele => {
@@ -1685,18 +1402,23 @@ export class DeviceGroupService {
           recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
         }
         if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
-          // console.log("commissioningDate");
-          //  console.log(singleRecord.commissioningDate);
+
           console.log(!isValidUTCDateFormat(singleRecord.commissioningDate));
           if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
+            const hasValidSeconds = moment(singleRecord.commissioningDate).seconds() < 60;
+            const hasValidMinutes = moment(singleRecord.commissioningDate).minutes() < 60;
             recordsErrors[index].isError = true;
+            if (!hasValidMinutes) {
+              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid minutes value." } })
+            }
+           else if (!hasValidSeconds) {
+              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid seconds value." } })
+            } 
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
           if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
-
             recordsErrors[index].isError = true;
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commissioning date, commissioning is greater than current date" } })
-
           }
         }
         if (singleRecord.capacity <= 0) {
@@ -1715,7 +1437,6 @@ export class DeviceGroupService {
         })
       });
 
-      // console.log(records);
       const noErrorRecords = records.filter(
         (record, index) => recordsErrors[index].isError === false,
       );
@@ -1733,9 +1454,6 @@ export class DeviceGroupService {
           }
         });
       }
-      // console.log("listofExistingDevices", listofExistingDevices);
-
-
       var recordsCopy = cloneDeep(records);
       recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
       const duplicatesExternalId: any = [];
@@ -1761,7 +1479,6 @@ export class DeviceGroupService {
 
         }
       }
-      // console.log("duplicatesExternalId", duplicatesExternalId);
 
       let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
       //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
@@ -1810,23 +1527,15 @@ export class DeviceGroupService {
         recordsErrors,
         successfullyAddedRowsAndExternalIds
       );
-      //}
-
-      //////console.log("osdksnd if ");
-
       this.updateJobStatus(
         filesAddedForProcessing.jobId,
         StatusCSV.Completed,
       );
     })
 
-
-
-    // },1);
   }
 
   csvStringToJSON(csvFileContentInString: string) {
-
     // Convert the data to String and
     // split it in an array
     var array = csvFileContentInString.split("\r");
@@ -2175,35 +1884,46 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId, filterDto, pageNumber): Promise<any> {
-    const pageSize = 20;
-    // const pageNumber = 2
+  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
+    const pageSize = 10;
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
     }
-
     const skip = (pageNumber - 1) * pageSize;
     console.log(skip)
-
-
-    //const totalPages = Math.ceil(totalCountQuery / limit);
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-      .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-      .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'crm.internalCertificateId'])
-      .orderBy('dg.id', 'ASC')
+      .innerJoin(
+        CheckCertificateIssueDateLogForDeviceGroupEntity,
+        'dg_log',
+        'dg_log.groupId = dg.id'
+      )
+      .innerJoin(
+        CertificateReadModelEntity,
+        'crm',
+        'dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
+      )
+      .select('DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId')
+      .orderBy('dg.id, crm.internalCertificateId, dg_log.readvalue_watthour', 'ASC')
+
     queryBuilder.where((qb) => {
-      qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      let where_orgnaizationId: any;
+      if (role === 'OrganizationAdmin') {
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      }
+      if (role === 'Buyer') {
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+      }
+
+      where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
-
           if (filterDto.country) {
             const string = filterDto.country;
             const values = string.split(",");
             console.log(values);
             let CountryInvalid = false;
-            
             filterDto.country = filterDto.country.toUpperCase();
             if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
               let countries = countryCodesList;
@@ -2211,45 +1931,81 @@ export class DeviceGroupService {
                 CountryInvalid = true;
               }
             }
-                     
+
             if (!CountryInvalid) {
-              qb.orWhere('dg.countryCode = :countrycode', { countrycode: filterDto.fuelCode });
+              const newCountry = filterDto.country.toString()
+              console.log(typeof newCountry)
+              const CountryArray = newCountry.split(',');
+              qb.orWhere(new Brackets(qb => {
+
+                CountryArray.forEach((country, index) => {
+                  if (index === 0) {
+                    qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  } else {
+                    qb.orWhere(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  }
+                });
+              }));
+
+              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
+
             }
           }
-          if ((filterDto.fuelCode)) {          
+          if ((filterDto.fuelCode)) {
             console.log(typeof filterDto.fuelCode);
-            filterDto.fuelCode.toString()
-            qb.orWhere(`d.fuelCode = :fuelcode`, { fuelcode: filterDto.fuelCode });
-           
+            console.log(typeof filterDto.fuelCode);
+            const newfuelCode = filterDto.fuelCode.toString()
+            console.log(typeof newfuelCode)
+            const fuelCodeArray = newfuelCode.split(',');
+            qb.orWhere(new Brackets(qb => {
+
+              fuelCodeArray.forEach((fuelCode, index) => {
+                if (index === 0) {
+                  qb.where(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                } else {
+                  qb.orWhere(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
+                }
+              });
+            }));
+            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
+
           }
           if (filterDto.offTaker) {
-            console.log(typeof filterDto.offTaker)
-            console.log(filterDto.offTaker)
-           
-            console.log("272")
-            qb.orWhere('d.offTakers = :offTaker', { offTaker: filterDto.offTaker });
-          
+            // console.log(typeof filterDto.offTaker);
+            const newoffTaker = filterDto.offTaker.toString()
+            console.log(typeof newoffTaker)
+            const offTakerArray = newoffTaker.split(',');
+            qb.orWhere(new Brackets(qb => {
+
+              offTakerArray.forEach((offTaker, index) => {
+                if (index === 0) {
+                  qb.where(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                } else {
+                  qb.orWhere(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
+                }
+              });
+            }));
+            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
+
           }
           const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
           const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-          if (filterDto.start_date) {
+          if (filterDto.start_date && filterDto.end_date === undefined) {
+            qb.orWhere("crm.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
+          }
+          if (filterDto.end_date && filterDto.start_date === undefined) {
+            qb.orWhere("crm.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
+          }
+          if (filterDto.start_date && filterDto.end_date) {
             qb.orWhere("crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
           }
-          if (filterDto.end_date) {
-            qb.orWhere("crm.generationEndTime  BETWEEN :certificateStartDate2  AND :certificateEndDate2", { certificateStartDate2: startTimestamp, certificateEndDate2: endTimestamp })
-          }
+          if (filterDto.SDGBenefits) {
+            console.log(filterDto.SDGBenefits);
 
-          if (filterDto.sdgbenefit) {
-            console.log(filterDto.sdgbenefit);
-
-            const newsdg = filterDto.sdgbenefit.toString()
+            const newsdg = filterDto.SDGBenefits.toString()
             console.log(typeof newsdg)
-
             const sdgBenefitsArray = newsdg.split(',');
-
             const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
-            console.log(sdgBenefitString);
-
             qb.orWhere(new Brackets(qb => {
               sdgBenefitsArray.forEach((benefit, index) => {
                 if (index === 0) {
@@ -2261,78 +2017,245 @@ export class DeviceGroupService {
             }));
 
           }
-
+          if (filterDto.fromAmountread && filterDto.toAmountread) {
+            qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
+          }
+          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
+            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
+          }
+          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
+            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
+          }
         }));
 
     })
     const totalCountQuery = await queryBuilder.getRawMany();
-    // const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize);
-    // console.log(groupedDatasql); 
+    const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
+    console.log(groupedDatasql);
     const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
-    // const totalCountQuery =  queryBuilder.getSql();
-   // this.repository.createQueryBuilder('dg')
-    // .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
-    // .innerJoin(CertificateReadModelEntity, 'crm', 'CAST(crm.deviceId AS INTEGER) = dg.id')
-    // .where(`d.organizationId = :orgId`,{ orgId: orgId })
-    // .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)');
-    console.log("totalCountQuery", totalCountQuery);
     const totalCount = totalCountQuery.length;
     console.log("totalCountQuery", totalCount);
-
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    if (pageNumber > totalPages) {
-      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    }
+
     console.log(totalPages);
-    let deviceGroups = groupedData.reduce((acc, curr) => {
+    let deviceGroups: any;
+    if (role === 'OrganizationAdmin') {
+      deviceGroups = groupedData.reduce((acc, curr) => {
 
-      const existing = acc.find(item => item.dg_id === curr.dg_id);
+        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
 
-      if (existing) {
-        let newobj = {};
+        if (existing) {
+          let newobj = {};
 
-        const existing1 = acc.find(item => item.id === curr.id);
-        if (existing1) {
-          existing.developerdeviceIds.push(curr.id);
+          const existing1 = acc.find(item => item.id === curr.id);
+          if (existing1) {
+            existing.developerdeviceIds.push(curr.id);
+          }
+          existing.internalCertificateId.push(curr.internalCertificateId)
+
+        } else {
+
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            // deviceIdsInt: curr.deviceIdsInt,
+            developerdeviceIds: [curr.id],
+            internalCertificateId: [curr.internalCertificateId]
+          });
+
         }
-        existing.internalCertificateId.push(curr.crm_internalCertificateId)
-        
-      } else {
+        return acc;
+      }, []);
+    }
+    if (role === 'Buyer') {
+      deviceGroups = groupedData.reduce((acc, curr) => {
 
-        acc.push({
-          dg_id: curr.dg_id,
-          name: curr.dg_name,
-          deviceIdsInt: curr.dg_deviceIdsInt,
-          // deviceIdsInt: curr.deviceIdsInt,
-          developerdeviceIds: [curr.id],
-          internalCertificateId: [curr.crm_internalCertificateId]
-        });
-        
-      }
-      return acc;
-    }, []);
+        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
+
+        if (existing) {
+          existing.internalCertificateId.push(curr.internalCertificateId)
+        } else {
+
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            internalCertificateId: [curr.internalCertificateId]
+          });
+
+        }
+        return acc;
+      }, []);
+    }
+
     const response = {
       deviceGroups,
       pageNumber,
       totalPages,
+      totalCount
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId, pageNumber): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
+    const pageSize = 10;
+    // const pageNumber = 2
+    if (pageNumber <= 0) {
+      throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
+    }
+
+    const skip = (pageNumber - 1) * pageSize;
+    console.log(skip)
 
     let queryBuilder: any;
     queryBuilder = this.repository.createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
+      .innerJoin(
+        CheckCertificateIssueDateLogForDeviceGroupEntity,
+        'dg_log',
+        'dg_log.groupId = dg.id'
+      )
       .innerJoin(Certificate, 'issuer', 'CAST(issuer.deviceId AS INTEGER) = dg.id')
-      .select(['dg.id', 'dg.name', 'dg.deviceIdsInt', 'd.*', 'issuer.id'])
-      .orderBy('dg.id', 'ASC')
-      .where(`d.organizationId = :orgId`, { orgId: orgId })
-      .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-      .limit(5)
-    const groupedDatasql = await queryBuilder.getSql();
-    // console.log(groupedDatasql);
-    const groupedData = await queryBuilder.getRawMany();
+      .select('DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id')
+      .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC')
+
+    queryBuilder.where((qb) => {
+      let where_orgnaizationId: any;
+      if (role === 'OrganizationAdmin') {
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+      }
+      if (role === 'Buyer') {
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+      }
+
+      where_orgnaizationId
+        .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
+        .andWhere(new Brackets(qb => {
+          if (filterDto.country) {
+            const string = filterDto.country;
+            const values = string.split(",");
+            console.log(values);
+            let CountryInvalid = false;
+            filterDto.country = filterDto.country.toUpperCase();
+            if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
+              let countries = countryCodesList;
+              if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
+                CountryInvalid = true;
+              }
+            }
+
+            if (!CountryInvalid) {
+              const newCountry = filterDto.country.toString()
+              console.log(typeof newCountry)
+              const CountryArray = newCountry.split(',');
+              qb.orWhere(new Brackets(qb => {
+
+                CountryArray.forEach((country, index) => {
+                  if (index === 0) {
+                    qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  } else {
+                    qb.orWhere(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
+                  }
+                });
+              }));
+
+              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
+
+            }
+          }
+          if ((filterDto.fuelCode)) {
+            console.log(typeof filterDto.fuelCode);
+            console.log(typeof filterDto.fuelCode);
+            const newfuelCode = filterDto.fuelCode.toString()
+            console.log(typeof newfuelCode)
+            const fuelCodeArray = newfuelCode.split(',');
+            qb.orWhere(new Brackets(qb => {
+
+              fuelCodeArray.forEach((fuelCode, index) => {
+                if (index === 0) {
+                  qb.where(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
+                } else {
+                  qb.orWhere(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
+                }
+              });
+            }));
+            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
+
+          }
+          if (filterDto.offTaker) {
+            // console.log(typeof filterDto.offTaker);
+            const newoffTaker = filterDto.offTaker.toString()
+            console.log(typeof newoffTaker)
+            const offTakerArray = newoffTaker.split(',');
+            qb.orWhere(new Brackets(qb => {
+
+              offTakerArray.forEach((offTaker, index) => {
+                if (index === 0) {
+                  qb.where(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
+                } else {
+                  qb.orWhere(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
+                }
+              });
+            }));
+            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
+
+          }
+          const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
+          const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
+          if (filterDto.start_date && filterDto.end_date === undefined) {
+            qb.orWhere("issuer.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
+          }
+          if (filterDto.end_date && filterDto.start_date === undefined) {
+            qb.orWhere("issuer.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
+          }
+          if (filterDto.start_date && filterDto.end_date) {
+            qb.orWhere("issuer.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
+          }
+          if (filterDto.SDGBenefits) {
+            console.log(filterDto.SDGBenefits);
+
+            const newsdg = filterDto.SDGBenefits.toString()
+            console.log(typeof newsdg)
+            const sdgBenefitsArray = newsdg.split(',');
+            const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
+            qb.orWhere(new Brackets(qb => {
+              sdgBenefitsArray.forEach((benefit, index) => {
+                if (index === 0) {
+                  qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                } else {
+                  qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+                }
+              });
+            }));
+
+          }
+          if (filterDto.fromAmountread && filterDto.toAmountread) {
+            qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
+          }
+          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
+            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
+          }
+          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
+            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
+          }
+        }));
+
+    })
+    const totalCountQuery = await queryBuilder.getRawMany();
+    const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
+    console.log(groupedDatasql);
+    const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    const totalCount = totalCountQuery.length;
+    console.log("totalCountQuery", totalCount);
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    // if (pageNumber > totalPages) {
+    //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+    // }
+    console.log(totalPages);
+
+
     // console.log(groupedData)
     let deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find(item => item.dg_id === curr.dg_id);
@@ -2357,11 +2280,12 @@ export class DeviceGroupService {
       }
       return acc;
     }, []);
-    const totalPages = 10;
+    // const totalPages = 10;
     const response = {
       deviceGroups,
       pageNumber,
       totalPages,
+      totalCount
     };
     return response;
   }
