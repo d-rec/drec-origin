@@ -115,7 +115,10 @@ export class DeviceService {
      // console.log(query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
-        take: limit
+        take: limit,
+        order: {
+          createdAt: 'DESC',
+        }
       });
       console.log((pagenumber - 1) * limit);
      console.log(totalCount);
