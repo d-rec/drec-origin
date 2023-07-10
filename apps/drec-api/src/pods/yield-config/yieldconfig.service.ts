@@ -46,7 +46,7 @@ export class YieldConfigService {
       countryName: data.countryName,
       yieldValue: data.yieldValue,
       created_By: loggedUser.id,
-      
+      status:data.status
     });
 
 
@@ -74,11 +74,11 @@ export class YieldConfigService {
     return yieldvalue;
   }
   async findById(id: number): Promise<IYieldConfig> {
-    const user = this.findOne({ id });
-    if (!user) {
-      throw new NotFoundException(`No user found with id ${id}`);
+    const yieldvaluebyId = this.findOne({ id });
+    if (!yieldvaluebyId) {
+      throw new NotFoundException(`No Yield value found with id ${id}`);
     }
-    return user;
+    return yieldvaluebyId;
   }
 
   async findByCountryCode(countryCode:string) {
