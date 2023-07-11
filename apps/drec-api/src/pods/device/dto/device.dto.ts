@@ -59,7 +59,7 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   @Matches(/^-?\d+(\.\d{1,2})?$/, {
     message:
-      'longitude should be number',
+      'latitude should be number',
   })
   latitude: string;
 

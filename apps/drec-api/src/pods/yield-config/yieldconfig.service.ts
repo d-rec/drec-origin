@@ -105,7 +105,7 @@ export class YieldConfigService {
 
     await this.repository.update(id, {
       yieldValue: data.yieldValue,
-      status: data.status,
+     // status: data.status,
       updated_By:user.id
     });
 
