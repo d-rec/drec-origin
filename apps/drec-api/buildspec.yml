@@ -22,3 +22,6 @@ phases:
       - npm i -g pnpm
       - npm install --legacy-peer-deps
       - npm run build -- --configuration=$environment
+      - rm -rf ./deployment
+      - mkdir ./deployment
+      - rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
