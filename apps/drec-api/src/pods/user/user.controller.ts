@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Req,
   Post,
   Body,
   Put,
@@ -12,7 +13,8 @@ import {
   HttpStatus,
   UseGuards,
   UseInterceptors,
-  ConflictException
+  ConflictException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -35,6 +37,8 @@ import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO, UpdateChangePasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
+
+import { Request } from 'express';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -138,7 +142,19 @@ export class UserController {
   })
   public async newregister(
     @Body() userRegistrationData: CreateUserORGDTO,
+    @Req() request: Request
   ): Promise<UserDTO> {
+    let clientExist:boolean=false;
+    let client;
+    if(request.headers['client_id'] && request.headers['client_secret'])
+    {
+      if(!request.headers['client_secret'] || !request.headers['client_id'])
+      {
+        throw new UnauthorizedException('Invalid client credentials');
+      }
+      client=await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+
+    }
     console.log(userRegistrationData);
     if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
       return new Promise((resolve, reject) => {
@@ -151,12 +167,12 @@ export class UserController {
       });
     }
 
-    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+    if (userRegistrationData.organizationType.toLowerCase() != "Buyer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "Developer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "ApiUser".toLowerCase()) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: `organizationType value should be Developer/Buyer`,
+            message: `organizationType value should be Developer/Buyer/ApiUser`,
           })
         );
       });
@@ -170,6 +186,10 @@ export class UserController {
           })
         );
       });
+    }
+    if(clientExist)
+    {
+      userRegistrationData['client']=client;
     }
     return this.userService.newcreate(userRegistrationData);
   }

@@ -18,9 +18,9 @@ export class OauthClientCredentials {
   client_secret: string;
 
   @Column()
-  userid:number;
+  api_user_id:string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'userid' })
+  @JoinColumn({ name: 'api_user_id' })
   user: User;
 }

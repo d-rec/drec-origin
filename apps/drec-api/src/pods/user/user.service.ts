@@ -31,6 +31,7 @@ import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { IEmailConfirmationToken } from '../../models';
+import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -40,6 +41,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     private readonly emailConfirmationService: EmailConfirmationService,
+    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
 
@@ -86,6 +88,13 @@ export class UserService {
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
+    let api_user:any;
+    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase())
+    {
+      console.log("came here iasjdajsdojsdojasd");
+      api_user=await this.oauthClientCredentialsService.createAPIUser();
+      console.log("api_user",api_user);
+    }
     var org_id;
    // if (data.secretKey != null) {
       const orgdata = {
@@ -96,7 +105,14 @@ export class UserService {
         address: data.orgAddress
 
       }
-
+      if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase())
+      {
+        orgdata['api_user_id']= api_user.api_user_id;      
+      }
+      else if(data['client'])
+      {
+        orgdata['api_user_id']= data['client'].userid;
+      }
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name) ) {
         throw new ConflictException({
           success: false,
@@ -123,9 +139,12 @@ export class UserService {
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
       role = Role.Buyer
       roleId = 4;
-    } else {
+    } else if(data.organizationType === 'Developer' || data.organizationType === 'Developer'){
       role = Role.OrganizationAdmin
       roleId = 2;
+    }else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
+      role = Role.ApiUser
+      roleId = 6;
     }
 
     const user = await this.repository.save({
@@ -138,6 +157,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
+      api_user_id: api_user? api_user.api_user_id : data['client'] ?data['client'].userid: null    
 
     });
     this.logger.debug(
@@ -147,6 +167,15 @@ export class UserService {
       await this.emailConfirmationService.create(user,true);
     }else{
       await this.emailConfirmationService.create(user,false);
+    }
+    if(api_user)
+    {
+      let clienCredentialsData=this.oauthClientCredentialsService.generateClientCredentials();
+      this.oauthClientCredentialsService.store(clienCredentialsData.client_id,clienCredentialsData.client_secret,api_user.api_user_id);
+      let newUser=new User(user);
+      newUser['client_id']=clienCredentialsData.client_id;
+      newUser['client_secret']=clienCredentialsData.client_secret;
+      return newUser;
     }
     
     return new User(user);
@@ -163,6 +192,22 @@ export class UserService {
         message,
       });
     }
+  }
+
+  async validateClient(client_id,client_secret)
+  {
+    this.oauthClientCredentialsService.findOneByclient_id
+    const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
+    if (!client) {
+      throw new UnauthorizedException('Invalid client credentials');
+    }
+    client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
+    console.log("client.client_secret",client.client_secret);
+    console.log("clientSecret",client_secret);
+    if (client.client_secret !== client_secret) {
+      throw new UnauthorizedException('Invalid client credentials');
+    }
+    return client;
   }
 
 

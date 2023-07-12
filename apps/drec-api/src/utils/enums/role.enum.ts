@@ -5,6 +5,7 @@ export enum Role {
   Buyer = 'Buyer',
   Admin = 'Admin',
   Intermediary = 'Intermediary',
+  ApiUser="ApiUser"
 
 }
 export enum RoleStatus {

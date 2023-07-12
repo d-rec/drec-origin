@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { ApiUserEntity } from './api-user.entity';
+import { v4 as uuid } from 'uuid';
 
 const algorithm = 'aes-256-cbc';
 
@@ -11,14 +13,23 @@ export class OauthClientCredentialsService {
     constructor(
         @InjectRepository(OauthClientCredentials)
         private readonly clientCredentialsRepository: Repository<OauthClientCredentials>,
+        @InjectRepository(ApiUserEntity)
+        private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     ) { }
 
+    async createAPIUser():Promise<ApiUserEntity> 
+    {
+        //@ts-ignore
+        return await this.apiUserEntityRepository.save({api_user_id:uuid()});
 
-    async store(client_id: string, client_secret: string, userid: number): Promise<OauthClientCredentials> {
+    }
+
+
+    async store(client_id: string, client_secret: string, userid: string): Promise<OauthClientCredentials> {
         const clientCredentials = new OauthClientCredentials();
         clientCredentials.client_id = client_id;
         clientCredentials.client_secret = client_secret;
-        clientCredentials.userid = 1;
+        clientCredentials.api_user_id = userid;
         return await this.clientCredentialsRepository.save(clientCredentials);
     }
 
@@ -43,7 +54,7 @@ export class OauthClientCredentialsService {
             // Handle error, throw exception, etc.
         }
         clientCredentials.client_id = client_id;
-        clientCredentials.client_secret = client_secret;
+        clientCredentials.client_secret = this.encryptclient_secret(client_secret);
         return await this.clientCredentialsRepository.save(clientCredentials);
     }
 
@@ -53,7 +64,7 @@ export class OauthClientCredentialsService {
         const client_id = randomBytes(16).toString('hex');
         const client_secret = randomBytes(32).toString('hex');
         console.log('sdfasd',client_id,client_secret);
-        return { client_id, client_secret: this.encryptclient_secret(client_secret) };
+        return { client_id, client_secret: client_secret };
 
     }
 

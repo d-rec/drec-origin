@@ -49,6 +49,7 @@ import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/histor
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
+import { ApiUserEntity } from './pods/user/api-user.entity';
 
 
 const getEnvFilePath = () => {
@@ -71,6 +72,7 @@ const getEnvFilePath = () => {
 export const entities = [
   User,
   OauthClientCredentials,
+  ApiUserEntity,
   Organization,
   Invitation,
   EmailConfirmation,

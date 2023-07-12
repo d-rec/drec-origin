@@ -134,4 +134,8 @@ export class Organization
   @Column('simple-array', { nullable: true })
   @IsArray()
   documentIds: string[];
+
+ 
+  @Column()
+  api_user_id: string;
 }
