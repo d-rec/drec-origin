@@ -18,15 +18,5 @@ phases:
       - export PATH=$PWD/:$PATH
   build:
     commands:
-      - npm i -g @microsoft/rush
-      - npm i -g pnpm
-      - npm i -g yarn
-      - cd ./apps/drec-api
-      - pwd
-      - npm install --legacy-peer-deps
-      - npm run build
-      - rm -rf ./deployment
-      - mkdir ./deployment
-      - rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
       - chmod +x ./buildscript.sh
-      - ./buildscript.sh
+      - ./buildscript.sh drec-api $environment
