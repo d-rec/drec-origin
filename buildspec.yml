@@ -16,6 +16,10 @@ phases:
       - curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_amd64
       - chmod +x ./aws-iam-authenticator
       - export PATH=$PWD/:$PATH
+  pre_build:
+    commands:
+      - export KUBECONFIG=$HOME/.kube/config
+      - aws eks update-kubeconfig --name drec
   build:
     commands:
       - echo $docker_password | docker login --username $docker_username --password-stdin
