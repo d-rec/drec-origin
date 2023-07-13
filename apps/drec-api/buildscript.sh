@@ -8,8 +8,9 @@ if [[ -z "$ENV" ]]; then
 fi
 echo "ENV $ENV"
 
-
-BUILD_NUMBER=$environment-$(cat version)
+MAJOR=$((1000 + RANDOM % 9999))
+MINOR=$((RANDOM % 9999))
+BUILD_NUMBER=$MAJOR.$MINOR
 #DOCKERFILE="Dockerfile.$IMAGE"
 if [ $IMAGE == "drec-api" ]; then
   DOCKERFILE="Dockerfile"
