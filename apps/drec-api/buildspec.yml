@@ -20,7 +20,7 @@ phases:
     commands:
       - npm i -g @microsoft/rush
       - npm i -g pnpm
-      - cd apps/drec-api
+      - cd ./apps/drec-api
       - npm install --legacy-peer-deps
       - npm run build -- --configuration=$environment
       - rm -rf ./deployment
