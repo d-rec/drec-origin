@@ -28,7 +28,7 @@ docker tag $IMAGE:$BUILD_NUMBER 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IM
 
 docker push 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IMAGE:$BUILD_NUMBER
 
-template=`cat "$IMAGE-$ENV.yaml" | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g"`
+template=`cat ./apps/drec-api/"$IMAGE-$ENV.yaml" | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g"`
 
 echo "Deploying into k8s"
 echo "$template" | kubectl apply -f -
