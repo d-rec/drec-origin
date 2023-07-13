@@ -20,8 +20,13 @@ phases:
     commands:
       - npm i -g @microsoft/rush
       - npm i -g pnpm
+      - cd apps/drec-api
       - npm install --legacy-peer-deps
       - npm run build -- --configuration=$environment
       - rm -rf ./deployment
       - mkdir ./deployment
       - rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
+  build:
+    commands:
+      - chmod +x ./buildscript.sh
+      - ./buildscript.sh
