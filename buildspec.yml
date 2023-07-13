@@ -18,5 +18,6 @@ phases:
       - export PATH=$PWD/:$PATH
   build:
     commands:
+      - echo $docker_password | docker login --username $docker_username --password-stdin
       - chmod +x ./buildscript.sh
       - ./buildscript.sh drec-api $environment
