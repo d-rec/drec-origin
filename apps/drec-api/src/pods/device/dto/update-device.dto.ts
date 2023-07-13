@@ -48,7 +48,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'latitude should be number',
   })
@@ -57,7 +57,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'longitude should be number',
   })

@@ -57,7 +57,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'latitude should be number',
   })
@@ -66,7 +66,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'longitude should be number',
   })
