@@ -23,7 +23,7 @@ phases:
       - cd ./apps/drec-api
       - pwd
       - npm install --legacy-peer-deps
-      - npm run build -- --configuration=$environment
+      - npm run build
       - rm -rf ./deployment
       - mkdir ./deployment
       - rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
