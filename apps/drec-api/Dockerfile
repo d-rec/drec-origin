@@ -16,6 +16,7 @@ RUN npm run build
 RUN rm -rf ./deployment
 RUN mkdir ./deployment
 RUN rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
+RUN yarn add swagger-ui-express
 
 # RUN mkdir /var/deployment
 # COPY ./ /var/deployment
