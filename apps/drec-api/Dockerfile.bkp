@@ -1,0 +1,10 @@
+FROM node:14-alpine
+
+RUN apk --no-cache add bash
+
+RUN mkdir /var/deployment
+COPY ./ /var/deployment
+
+WORKDIR /var/deployment/apps/drec-api
+
+CMD ["/bin/bash","-c", "bin/drec-api"]

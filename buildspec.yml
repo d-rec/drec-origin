@@ -18,7 +18,10 @@ phases:
       - export PATH=$PWD/:$PATH
   pre_build:
     commands:
-      - npm i -g @microsoft/rush
-      - npm i -g pnpm
-      - npm install --legacy-peer-deps
-      - npm run build -- --configuration=$environment
+      - export KUBECONFIG=$HOME/.kube/config
+      - aws eks update-kubeconfig --name drec
+  build:
+    commands:
+      - echo $docker_password | docker login --username $docker_username --password-stdin
+      - chmod +x ./buildscript.sh
+      - ./buildscript.sh drec-api $environment

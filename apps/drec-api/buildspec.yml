@@ -16,12 +16,7 @@ phases:
       - curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_amd64
       - chmod +x ./aws-iam-authenticator
       - export PATH=$PWD/:$PATH
-  pre_build:
+  build:
     commands:
-      - npm i -g @microsoft/rush
-      - npm i -g pnpm
-      - npm install --legacy-peer-deps
-      - npm run build -- --configuration=$environment
-      - rm -rf ./deployment
-      - mkdir ./deployment
-      - rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
+      - chmod +x ./buildscript.sh
+      - ./buildscript.sh
