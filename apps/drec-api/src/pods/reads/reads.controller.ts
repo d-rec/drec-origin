@@ -375,7 +375,7 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
+      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).format().toDate();
       device.commissioningDate = momentTimeZone
         .tz(new Date(device?.commissioningDate), measurements.timezone)
         .format();
@@ -516,6 +516,7 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreAftercommissioningDate: boolean = true;
       let allEndDatesAreBeforSystemDate: boolean = true;
       let enddate: any;
+      let currentdate:Date = new Date();
       measurements.reads.forEach(ele => {
         console.log("512", ele)
         //@ts-ignore
@@ -572,6 +573,8 @@ export class ReadsController extends BaseReadsController {
       }
       if (measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== '') {
         enddate = momentTimeZone.tz(enddate, measurements.timezone);
+        currentdate= momentTimeZone.tz(currentdate, measurements.timezone).toDate();
+
       }
       if (!allDatesAreAfterCreatedAt) {
         return new Promise((resolve, reject) => {
@@ -598,7 +601,7 @@ export class ReadsController extends BaseReadsController {
           reject(
             new ConflictException({
               success: false,
-              message: `One or more measurements endtimestamp ${enddate} is greater than current date`,
+              message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
             })
           );
         });
