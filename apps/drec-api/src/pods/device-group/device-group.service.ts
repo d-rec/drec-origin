@@ -2256,7 +2256,7 @@ export class DeviceGroupService {
     console.log(totalPages);
 
 
-    // console.log(groupedData)
+   console.log(groupedData)
     let deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find(item => item.dg_id === curr.dg_id);
       if (existing) {
@@ -2269,9 +2269,9 @@ export class DeviceGroupService {
         // existing.certificatelog.push(newobj);
       } else {
         acc.push({
-          dg_id: curr.dg_id,
-          name: curr.dg_name,
-          deviceIdsInt: curr.dg_deviceIdsInt,
+          dg_id: curr.devicegroupid,
+          name: curr.name,
+          deviceIdsInt: curr.deviceIdsInt,
           // deviceIdsInt: curr.deviceIdsInt,
           developerdeviceIds: [curr.id],
           internalCertificateId: [curr.id]
