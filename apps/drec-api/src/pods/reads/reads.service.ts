@@ -497,7 +497,7 @@ export class ReadsService {
               console.log(typeof element.endtimestamp);
               console.log("timestamp", final.timestamp);
               console.log(typeof final.timestamp);
-              console.log("Stimestamp",final.timestamp.toISOString());
+              console.log("Stimestamp", final.timestamp.toISOString());
               console.log(typeof final.timestamp.toISOString());
               if (final && final['timestamp']) {
                 //@ts-ignore
@@ -659,51 +659,6 @@ export class ReadsService {
     }
 
 
-    // if (!final) {
-    //   if (measurement.type === "History") {
-    //     return {
-    //       reads: reads.filter((read: any) =>
-    //         this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-    //       ),
-    //       unit: measurement.unit,
-
-    //     };
-    //   } 
-    //   if (measurement.type === "History"){
-
-    //   }
-    //   else {
-
-
-    //     return {
-    //       reads: reads.filter((read: ReadDTO) =>
-    //         this.firstvalidateEnergy(read, device),
-    //       ),
-    //       unit: measurement.unit
-    //     }
-    //   }
-    // }
-    // else {
-    //   if (measurement.type === "History") {
-
-    //     return {
-    //       reads: reads.filter((read: any) =>
-
-    //         this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-
-    //       ),
-    //       unit: measurement.unit,
-    //     };
-    //   } else {
-    //     return {
-    //       reads: reads.filter((read: ReadDTO) =>
-    //         this.NewvalidateEnergy(read, final, device),
-    //       ),
-    //       unit: measurement.unit,
-    //     };
-    //   }
-    // }
-
   }
 
   async NewfindLatestRead(meterId: string, deviceregisterdate: Date): Promise<ReadDTO | void> {
@@ -718,15 +673,15 @@ export class ReadsService {
   }
 
   async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date): Promise<Array<{ timestamp: Date, value: number }>> {
+   
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${startdate.getTime() / 1000}000000000, stop: ${enddate.getTime() / 1000}000000000)
+      |> range(start: ${startdate.getTime() }, stop: ${enddate.getTime()})
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
       |> last()`;
     return await this.execute(fluxQuery);
   }
 
   async execute(query: any) {
-
     const data = await this.dbReader.collectRows(query);
     return data.map((record: any) => ({
       timestamp: new Date(record._time),
@@ -801,17 +756,20 @@ export class ReadsService {
       capacity: number,
       meteredTimePeriod: number,
       deviceAge: number,
-      degradation: number,
+      degradationPercentage: number,
       yieldValue: number,
     ) => {
-      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      // Max calculated energy formula
+      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
+      this.logger.debug("New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)")
       return (
-        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+        capacity * meteredTimePeriod * (yieldValue / 8760) * Math.pow((1 - degradationPercentage), deviceAge - 1)
       );
     };
-    //console.log("newvalidateEnergy")
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
+    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -832,30 +790,28 @@ export class ReadsService {
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-
-
     const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradation,
+      degradationPercentage,
       yieldValue,
     );
-
+    const finalmax = maxEnergy * (120 / 100)
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+    if (Math.round(read.value + margin * read.value) < finalmax) {
 
-      return Math.round(read.value + margin * read.value) < maxEnergy;
+      return Math.round(read.value + margin * read.value) < finalmax;
     } else {
       throw new ConflictException({
         success: false,
-        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
       });
     }
   }
@@ -869,17 +825,19 @@ export class ReadsService {
       capacity: number,
       meteredTimePeriod: number,
       deviceAge: number,
-      degradation: number,
+      degradationPercentage: number,
       yieldValue: number,
     ) => {
-      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      // Max calculated energy formula
+      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
+      this.logger.debug("New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)")
       return (
-        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+        capacity * meteredTimePeriod * (yieldValue / 8760) * Math.pow((1 - degradationPercentage), deviceAge - 1)
       );
     };
-    //console.log("newvalidateEnergy")
-
     const degradation = 0.5; // [%/year]
+    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -901,23 +859,23 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradation,
+      degradationPercentage,
       yieldValue,
     );
-
+    const finalmax = maxEnergy * (120 / 100)
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    this.logger.debug(`${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+    if (Math.round(read.value + margin * read.value) < finalmax) {
 
-      return Math.round(read.value + margin * read.value) < maxEnergy;
+      return Math.round(read.value + margin * read.value) < finalmax;
     } else {
       throw new ConflictException({
         success: false,
-        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+        message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
       });
     }
 
@@ -936,17 +894,21 @@ export class ReadsService {
       capacity: number,
       meteredTimePeriod: number,
       deviceAge: number,
-      degradation: number,
+      degradationPercentage: number,
       yieldValue: number,
     ) => {
-      // Max calculated energy formula = Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      // Max calculated energy formula
+      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
+      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
+      this.logger.debug("New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)")
       return (
-        capacity * meteredTimePeriod * deviceAge * degradation * yieldValue
+        capacity * meteredTimePeriod * (yieldValue / 8760) * Math.pow((1 - degradationPercentage), deviceAge - 1)
       );
     };
 
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
+    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt 
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -963,17 +925,17 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradation,
+      degradationPercentage,
       yieldValue,
     );
-
+    const finalmax = maxEnergy * (120 / 100)
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < maxEnergy) {
+    if (Math.round(read.value + margin * read.value) < finalmax) {
       this.historyrepository.save({
         type: measurement.type,
         externalId: device.externalId,
@@ -1008,11 +970,11 @@ export class ReadsService {
         }
 
       }
-      return Math.round(read.value + margin * read.value) < maxEnergy;
+      return Math.round(read.value + margin * read.value) < finalmax;
     } else {
       throw new ConflictException({
         success: false,
-        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
+        message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
       });
     }
 

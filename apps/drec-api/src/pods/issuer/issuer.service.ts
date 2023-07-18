@@ -115,7 +115,9 @@ export class IssuerService {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
     const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
-    //this.logger.debug("groupsrequestall",groupsrequestall);
+  //  console.log(groupsrequestall)
+   // this.logger.debug("groupsrequestall",groupsrequestall);
+
     await Promise.all(
       groupsrequestall.map(async (grouprequest: DeviceGroupNextIssueCertificate) => {
         const group = await this.groupService.findOne(
@@ -134,7 +136,7 @@ export class IssuerService {
         }
         console.log("countryDevicegroup")
         var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
-       
+       // console.log(countryDevicegroup);
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
@@ -465,7 +467,7 @@ export class IssuerService {
           end: endDate.toString(),
         };
         let allReadsForDeviceBetweenTimeRange: Array<{ timestamp: Date, value: number }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
-        //console.log("475readdata", index, allReadsForDeviceBetweenTimeRange);
+       // console.log("475readdata", index, allReadsForDeviceBetweenTimeRange);
         if (device.meterReadtype === 'Delta'|| allReadsForDeviceBetweenTimeRange.length >0) {
           const FirstDeltaRead = await this.readservice.getDeltaMeterReadsFirstEntryOfDevice(device.externalId)
           allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(v => !(
@@ -475,7 +477,7 @@ export class IssuerService {
         //console.log("400")
         //console.log(endDate.toString())
         const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(device.externalId, new Date(startDate.toString()), new Date(endDate.toString()));
-        //console.log("certifieddevices");
+     //  console.log("certifieddevices");
         if (certifieddevices.length > 0 && allReadsForDeviceBetweenTimeRange.length >0 ) {
 
           allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(ele => {
@@ -494,7 +496,7 @@ export class IssuerService {
             }
           });
         }
-        //console.log("afterallReadsForDeviceBetweenTimeRange");
+       // console.log("afterallReadsForDeviceBetweenTimeRange");
        
         allDevicesCompleteReadsBetweenTimeRange[index] = allReadsForDeviceBetweenTimeRange;
         let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
@@ -557,7 +559,7 @@ export class IssuerService {
           let endTimestampToCheck = new Date(allDevicesCompleteReadsBetweenTimeRange[index][0].timestamp.getTime() - 1);
           let startTimeToCheck = device.createdAt;
           previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId, new Date(startTimeToCheck), endTimestampToCheck);
-          //console.log("device previous reading", device.externalId, previousReading);
+        // console.log("device previous reading", device.externalId, previousReading);
           //console.log("device.meterReadtype", device.meterReadtype);
           if (previousReading.length == 0) {
             if (device.meterReadtype === ReadType.Delta) {

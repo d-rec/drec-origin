@@ -375,7 +375,7 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).format().toDate();
+      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
       device.commissioningDate = momentTimeZone
         .tz(new Date(device?.commissioningDate), measurements.timezone)
         .format();
