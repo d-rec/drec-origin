@@ -233,7 +233,7 @@ export class UserController {
   @ApiParam({ name: 'token', type: String })
   public async confirmToken(
     @Param('token') token: IEmailConfirmationToken['token'],
-  ): Promise<EmailConfirmationResponse> {
+  ) {
     return this.emailConfirmationService.confirmEmail(token);
   }
 

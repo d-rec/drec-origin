@@ -14,7 +14,10 @@ import { EmailConfirmationResponse } from '../../utils/enums';
 
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
-
+export interface SuccessResponse {
+  success:boolean,
+  message:string,
+}
 @Injectable()
 export class EmailConfirmationService {
   private readonly logger = new Logger(EmailConfirmationService.name);
@@ -84,7 +87,7 @@ if(inviteuser){
   }
   async confirmEmail(
     token: IEmailConfirmationToken['token'],
-  ): Promise<EmailConfirmationResponse> {
+  ): Promise<SuccessResponse> {
     const emailConfirmation = await this.repository.findOne({ token });
 
     if (!emailConfirmation) {
@@ -95,20 +98,28 @@ if(inviteuser){
     }
 
     if (emailConfirmation.confirmed === true) {
-      return EmailConfirmationResponse.AlreadyConfirmed;
+      return {
+        success: false,
+        message: EmailConfirmationResponse.AlreadyConfirmed,
+      };
     }
 
     if (
       emailConfirmation.expiryTimestamp < Math.floor(DateTime.now().toSeconds())
     ) {
-      return EmailConfirmationResponse.Expired;
+      return {
+        success: false,
+        message: EmailConfirmationResponse.Expired,
+      };
     }
 
     await this.repository.update(emailConfirmation.id, {
       confirmed: true,
     });
 
-    return EmailConfirmationResponse.Success;
+    return  {
+      success: true,
+      message:EmailConfirmationResponse.Success}
   }
 
   public async sendConfirmationEmail(

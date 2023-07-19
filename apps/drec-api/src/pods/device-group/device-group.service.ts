@@ -293,12 +293,28 @@ export class DeviceGroupService {
                 });
               }));
             }
-            if (groupfilterDto.start_date) {
+            // if (groupfilterDto.start_date) {
 
-              qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-            }
-            if (groupfilterDto.end_date) {
-              qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
+            //   qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
+            // }
+            // if (groupfilterDto.end_date) {
+            //   qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
+            // }
+            if (groupfilterDto.start_date && groupfilterDto.end_date) {
+              qb.orWhere(new Brackets((db) => {
+                db.where(
+                  new Brackets((db1) => {
+                    db1.where("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
+                      .orWhere("dg.reservationStartDate = :reservationStartDate", { reservationStartDate: groupfilterDto.start_date })
+                  })
+                )
+                  .andWhere(
+                    new Brackets((db2) => {
+                      db2.where("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
+                        .orWhere("dg.reservationEndDate = :reservationStartDate ", { reservationStartDate: groupfilterDto.end_date })
+                    })
+                  )
+              }))
             }
 
             if (groupfilterDto.sdgbenefit) {
@@ -1411,9 +1427,9 @@ export class DeviceGroupService {
             if (!hasValidMinutes) {
               recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid minutes value." } })
             }
-           else if (!hasValidSeconds) {
+            else if (!hasValidSeconds) {
               recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid seconds value." } })
-            } 
+            }
             recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
           }
           if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
@@ -2256,7 +2272,7 @@ export class DeviceGroupService {
     console.log(totalPages);
 
 
-   console.log(groupedData)
+    console.log(groupedData)
     let deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find(item => item.dg_id === curr.dg_id);
       if (existing) {
