@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository,FindConditions, } from 'typeorm';
+import { Repository, FindConditions, } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse } from '../../utils/enums';
@@ -15,8 +15,8 @@ import { EmailConfirmationResponse } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 export interface SuccessResponse {
-  success:boolean,
-  message:string,
+  success: boolean,
+  message: string,
 }
 @Injectable()
 export class EmailConfirmationService {
@@ -26,14 +26,14 @@ export class EmailConfirmationService {
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
-  public async create(user: User,inviteuser?:Boolean): Promise<EmailConfirmation> {
+  public async create(user: User, inviteuser?: Boolean): Promise<EmailConfirmation> {
     const exists = await this.repository.findOne({
-      where:{
+      where: {
         user: { email: user.email }
       },
-      relations:['user']
+      relations: ['user']
     });
 
     if (exists) {
@@ -51,9 +51,9 @@ export class EmailConfirmationService {
       token,
       expiryTimestamp,
     });
-if(inviteuser){
-  await this.sendResetPasswordRequest(user.email,token);
-}
+    if (inviteuser) {
+      await this.sendResetPasswordRequest(user.email, token);
+    }
     await this.sendConfirmationEmail(user.email);
 
     return emailConfirmation;
@@ -117,9 +117,10 @@ if(inviteuser){
       confirmed: true,
     });
 
-    return  {
+    return {
       success: true,
-      message:EmailConfirmationResponse.Success}
+      message: EmailConfirmationResponse.Success
+    }
   }
 
   public async sendConfirmationEmail(
@@ -179,12 +180,12 @@ if(inviteuser){
     email: string,
     token: string,
   ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}`;
+    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}`;
 
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Reset your Password`,
-      html: `Welcome to the marketplace! Please used token below to reset your Password: <br/> <br/> <h4>Token:${token}</h4> .`,
+      html: `Welcome to the marketplace! Please used token below to reset your Password: <br/> <h4>Token:${token}</h4> <br/><a href="${url}">${url}</a>.`,
     });
 
     if (result) {
@@ -199,4 +200,39 @@ if(inviteuser){
       ),
     };
   }
+
+  public async ConfirmationEmailForResetPassword(
+    email: IUser['email'],
+  ): Promise<ISuccessResponse> {
+    const currentToken = await this.getByEmail(email);
+
+    if (!currentToken) {
+      return {
+        message: 'Token not found Or Your email not register',
+        success: false,
+      };
+    }
+
+    let { token, expiryTimestamp } = currentToken;
+    const { id, confirmed } = currentToken;
+    console.log(expiryTimestamp);
+    console.log(Math.floor(DateTime.now().toSeconds()));
+    console.log(expiryTimestamp < Math.floor(DateTime.now().toSeconds()))
+    // if (confirmed === true) {
+    if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
+      const newToken = this.generateEmailToken();
+      await this.repository.update(id, newToken);
+
+      ({ token, expiryTimestamp } = newToken);
+    }
+
+    await this.sendResetPasswordRequest(email.toLowerCase(), token);
+    // }
+
+    return {
+      success: true,
+      message: 'Password Reset Mail has been sent to your authorized Email.',
+    };
+  }
+
 }

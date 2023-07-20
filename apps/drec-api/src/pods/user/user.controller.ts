@@ -6,6 +6,7 @@ import {
   Get,
   Post,
   Body,
+  Query,
   Put,
   Param,
   ParseIntPipe,
@@ -32,10 +33,10 @@ import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO, UpdateChangePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO, UpdateChangePasswordDTO,ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
-
+import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
@@ -174,7 +175,7 @@ export class UserController {
     return this.userService.newcreate(userRegistrationData);
   }
 
-  
+
 
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
@@ -248,5 +249,17 @@ export class UserController {
     @UserDecorator() { email }: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     return this.emailConfirmationService.sendConfirmationEmail(email);
+  }
+  @Post('forget-password')
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: `Resend a confirmation email`,
+  })
+  public async Forgetpassword(
+    @Body() body: ForgetPasswordDTO
+  ): Promise<SuccessResponseDTO> {
+    return this.userService.geytokenforResetPassword(body.email);
   }
 }
