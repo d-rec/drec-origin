@@ -80,8 +80,8 @@ export class DeviceService {
 
     await devices.map((device: Device) => {
 
-      device.externalId = device.developerExternalId
-      delete device["developerExternalId"];
+     // device.externalId = device.developerExternalId
+     // delete device["developerExternalId"];
       newDevices.push(device);
     })
 
