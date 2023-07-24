@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module,MiddlewareConsumer, NestModule,HttpModule  } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -48,6 +48,7 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
+
 
 
 const getEnvFilePath = () => {
@@ -130,6 +131,7 @@ const QueueingModule = () => {
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
       envFilePath: getEnvFilePath(),
       isGlobal: true,
@@ -158,8 +160,12 @@ const QueueingModule = () => {
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,
+    
    
   ],
   providers:[OnApplicationBootstrapHookService]
 })
-export class DrecModule {}
+export class DrecModule {
+  
+
+}

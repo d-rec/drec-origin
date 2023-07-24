@@ -6,6 +6,7 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
+  HttpService,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -40,6 +41,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
+import {regenerateToken} from '../../utils/evident-login';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { DateTime } from 'luxon';
@@ -49,6 +51,8 @@ import { SDGBenefits } from '../../models/Sdgbenefit'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { Observable } from 'rxjs';
+import { AxiosRequestConfig } from 'axios';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -58,6 +62,7 @@ export class DeviceService {
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+    private httpService: HttpService
 
   ) { }
 
@@ -156,6 +161,68 @@ export class DeviceService {
     })
     return newDevices
   }
+
+  @Cron('*/30 * * * * *') // Cron pattern for running every 30 seconds
+  async fetchDataCronJob() {
+    try {
+      const data = await this.fetchDataFromApi();
+      console.log('Fetched data:', data);
+    } catch (error) {
+      console.error('Error fetching data:', error.message);
+    }
+  }
+  async fetchDataFromApi(): Promise<any> {
+    console.log("hitting api");
+    const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
+    let jwtToken = await regenerateToken(this.httpService);
+    console.log("jwtToken",jwtToken);
+    const headers = {
+      // Add your custom headers here
+      'Authorization': `Bearer ${jwtToken}`
+    };
+
+    const response = await this.httpService.get(apiUrl,{headers}).toPromise();
+    return response.data;
+  }
+
+
+
+  @Cron('*/30 * * * * *')
+  async postData(): Promise<Observable<any>> {
+    const device = await this.repository.findOne({
+      where: { IREC_Status:'NotRegistered' },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    if(device)
+    {
+      let jwtToken = await regenerateToken(this.httpService);
+      const headers = {
+        'Content-Type': 'application/json', // Set the Content-Type header for JSON data
+        'Authorization': `Bearer ${jwtToken}`
+        // Add any other custom headers if needed
+      };
+  
+      const requestBody ={
+        "name": device.externalId,
+        "fuel": device.fuelCode
+      }
+   
+     console.log("jwtToken",jwtToken);
+  
+      const config: AxiosRequestConfig = {
+        headers, // Set the headers in the config object
+        
+      };
+  
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;// Replace with your API endpoint
+      return this.httpService.post(url, requestBody, config); //
+    }
+    
+  }
+
+
 
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
