@@ -167,6 +167,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true })
   version: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  IREC_Status: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  IREC_ID: string;
+
   @Column({ nullable: true })
   updatedAt: Date;
 
