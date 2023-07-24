@@ -164,4 +164,13 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   meterReadtype?: string;
+
+  @IsString()
+  @IsOptional()
+  IREC_Status?: string;
+  
+
+  @IsString()
+  @IsOptional()
+  IREC_ID?: string;
 }
