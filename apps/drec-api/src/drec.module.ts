@@ -48,7 +48,8 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-
+import {IrecDevicesInformationEntity} from './pods/device/irec_devices_information.entity';
+import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_information.entity'
 
 
 const getEnvFilePath = () => {
@@ -88,7 +89,9 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
-  DeltaFirstRead,
+  DeltaFirstRead,,
+  IrecDevicesInformationEntity,
+  IrecErrorLogInformationEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities

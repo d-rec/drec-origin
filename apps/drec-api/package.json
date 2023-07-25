@@ -43,7 +43,7 @@
     "drec-backend": "./bin/drec-api"
   },
   "dependencies": {
-    "@mapbox/timespace":"2.0.4",
+    "@mapbox/timespace": "2.0.4",
     "@energyweb/energy-api-influxdb": "0.8.0",
     "@energyweb/issuer": "7.0.1",
     "@energyweb/issuer-api": "0.4.1-alpha.1634225870.0",
@@ -103,9 +103,8 @@
     "uuid": "8.3.2",
     "moment-timezone": "0.5.40",
     "@ethersproject/bignumber": "5.3.0",
-    "crypto-js":"4.1.1",
-    "jsonwebtoken":"9.0.1"
-
+    "crypto-js": "4.1.1",
+    "jsonwebtoken": "9.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",

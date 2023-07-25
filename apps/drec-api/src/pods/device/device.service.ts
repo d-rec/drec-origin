@@ -25,7 +25,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, ReadType, Role, SDGBenefitsList } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role, SDGBenefitsList, IRECDeviceStatus } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -41,7 +41,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
-import {regenerateToken} from '../../utils/evident-login';
+import { regenerateToken } from '../../utils/evident-login';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { DateTime } from 'luxon';
@@ -53,6 +53,8 @@ import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
+import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
+import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -62,7 +64,11 @@ export class DeviceService {
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
-    private httpService: HttpService
+    private httpService: HttpService,
+    @InjectRepository(IrecDevicesInformationEntity)
+    private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
+    @InjectRepository(IrecErrorLogInformationEntity)
+    private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
 
   ) { }
 
@@ -85,8 +91,8 @@ export class DeviceService {
 
     await devices.map((device: Device) => {
 
-     // device.externalId = device.developerExternalId
-     // delete device["developerExternalId"];
+      // device.externalId = device.developerExternalId
+      // delete device["developerExternalId"];
       newDevices.push(device);
     })
 
@@ -108,7 +114,7 @@ export class DeviceService {
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
 
-    if ( Object.keys(filterDto).length != 0) {
+    if (Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
       }
@@ -117,7 +123,7 @@ export class DeviceService {
       let where: any = query.where
       where = { ...where, organizationId };
       query.where = where;
-     // console.log(query);
+      // console.log(query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit,
@@ -126,11 +132,11 @@ export class DeviceService {
         }
       });
       console.log((pagenumber - 1) * limit);
-     console.log(totalCount);
+      console.log(totalCount);
       const totalPages = Math.ceil(totalCount / limit);
-       if (pagenumber > totalPages) {
-      throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    }
+      if (pagenumber > totalPages) {
+        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+      }
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
@@ -175,55 +181,149 @@ export class DeviceService {
     console.log("hitting api");
     const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
     let jwtToken = await regenerateToken(this.httpService);
-    console.log("jwtToken",jwtToken);
+    console.log("jwtToken", jwtToken);
     const headers = {
       // Add your custom headers here
       'Authorization': `Bearer ${jwtToken}`
     };
 
-    const response = await this.httpService.get(apiUrl,{headers}).toPromise();
+    const response = await this.httpService.get(apiUrl, { headers }).toPromise();
     return response.data;
   }
 
 
 
-  @Cron('*/30 * * * * *')
-  async postData(): Promise<Observable<any>> {
+  //@Cron('*/30 * * * * *')
+  async I_recPostData(deviceId): Promise<any> {
     const device = await this.repository.findOne({
-      where: { IREC_Status:'NotRegistered' },
+      where: { id: deviceId, IREC_Status: 'NotRegistered' },
       order: {
         createdAt: 'DESC',
       },
     });
-    if(device)
-    {
+    console.log("device", device);
+
+    if (device) {
+      let jwtToken = await regenerateToken(this.httpService);
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      };
+      const requestBody = {
+        name: `${device.externalId}`,
+        fuel: `/fuels/${device.fuelCode}`
+      };
+      const config: AxiosRequestConfig = {
+        headers,
+      };
+
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
+
+      try {
+        const response = await this.httpService.post(url, requestBody, config).toPromise();
+        console.log("response", response.data);
+        const data = response.data;
+        device.IREC_ID = data.code;
+        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+        await this.repository.save(device);
+        let irecdeviceaddDto = new IrecDevicesInformationEntity();
+        irecdeviceaddDto.IREC_id = data.code,
+          irecdeviceaddDto.event = 'register',
+          irecdeviceaddDto.request = requestBody,
+          irecdeviceaddDto.responses = data
+        await this.irecinforepository.save({
+          ...irecdeviceaddDto
+        })
+
+        return {
+          status: true,
+          message: 'Device Added Successfully in I-REC',
+          IREC_ID: data.code
+        };
+      } catch (error) {
+        console.log("error", error.);
+        let irecdeviceerrorlogDto = new  IrecErrorLogInformationEntity();
+      
+        irecdeviceerrorlogDto.event = 'register',
+        irecdeviceerrorlogDto.request = requestBody,
+        irecdeviceerrorlogDto.error_log_responses = error
+        await this.irecerrorlogrepository.save({
+          ...irecdeviceerrorlogDto
+        })
+        return {
+          status: false,
+          message: 'Device Added Failure in I-REC, ' + error,
+
+        };
+      }
+    }
+
+    return { status: false, message: 'device not found' };
+  }
+
+  //this function for add device details into irec 
+  async I_RECDeviceDetailsPostData(deviceId): Promise<Observable<any>> {
+    const device = await this.repository.findOne({
+      where: { id: deviceId, IREC_Status: 'NotRegistered' },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    console.log("device", device);
+    if (device) {
       let jwtToken = await regenerateToken(this.httpService);
       const headers = {
         'Content-Type': 'application/json', // Set the Content-Type header for JSON data
         'Authorization': `Bearer ${jwtToken}`
         // Add any other custom headers if needed
       };
-  
-      const requestBody ={
-        "name": device.externalId,
-        "fuel": device.fuelCode
+      //let deId=device.externalId
+      const requestBody = {
+        "deviceType": "/device_types/01H65MR128R0HGEAJZ62CH5820",
+        "fuel": "/fuels/01H65MR128R0HGEAJZ62CH5821",
+        "device": "/devices/01H65MR128R0HGEAJZ62CH5822",
+        "registrant": "/registrants/01H65MR128R0HGEAJZ62CH5823",
+        "issuer": "/issuers/01H65MR128R0HGEAJZ62CH5824",
+        "name": "Wind Device",
+        "capacity": "1000000.000000",
+        "supported": true,
+        "latitude": 51.476688,
+        "longitude": 0.00013,
+        "registrationDate": "2020-01-01",
+        "commissioningDate": "2020-01-01",
+        "status": "Approved",
+        "active": true,
+        "address1": "Greenwich Park, London",
+        "country": "/countries/01H65MR128R0HGEAJZ62CH5825",
       }
-   
-     console.log("jwtToken",jwtToken);
-  
+      console.log("requestBody", requestBody);
+      // console.log("jwtToken", jwtToken);
+
       const config: AxiosRequestConfig = {
         headers, // Set the headers in the config object
-        
+
       };
-  
+
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;// Replace with your API endpoint
-      return this.httpService.post(url, requestBody, config); //
+      console.log(url)
+      let data: any;
+      let response = this.httpService.post(url, requestBody, config).subscribe(response => {
+
+        console.log("response", response.data);
+        data = response.data;
+        device.IREC_ID = data.code
+        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated
+
+      }, error => {
+        console.log("error", error.data);
+
+      });
+      await this.repository.save(device);
+      // console.log("response from irec", response._subscribe)
+      return data
     }
-    
+
   }
-
-
-
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
     deviceIds: Array<number>,
@@ -553,10 +653,10 @@ export class DeviceService {
 
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
-     // deviceTypeCode: filter.deviceTypeCode,
+      // deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-     // offTaker: filter.offTaker,
+      // offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
 
     });
@@ -588,7 +688,7 @@ export class DeviceService {
       const newdtypeArray = newdtype.split(',');
       console.log(newdtypeArray)
       where.deviceTypeCode = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newdtypeArray.map(term => `'%${term}%'`)}])`);
-      
+
     }
     if (filter.offTaker) {
       console.log(typeof filter.offTaker)
@@ -596,7 +696,7 @@ export class DeviceService {
       const newoffTakerArray = newoffTaker.split(',');
       console.log(newoffTakerArray)
       where.offTaker = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map(term => `'%${term}%'`)}])`);
-      
+
     }
     //console.log(where)
     const query: FindManyOptions<Device> = {
@@ -1039,13 +1139,13 @@ export class DeviceService {
         }))
       .orderBy('Device.externalId')
       .getMany();
-      console.log(rows);
-      const newDevices = [];
-      await rows.map((device: Device) => {
-        device.externalId = device.developerExternalId
-        delete device["developerExternalId"];
-        newDevices.push(device);
-      })
+    console.log(rows);
+    const newDevices = [];
+    await rows.map((device: Device) => {
+      device.externalId = device.developerExternalId
+      delete device["developerExternalId"];
+      newDevices.push(device);
+    })
     return newDevices;
     // rows.map(row => ({
     //   externalId: row.developerExternalId,

@@ -30,7 +30,7 @@ import {
 } from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
-
+import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
@@ -42,7 +42,7 @@ import { ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
-
+import {DeviceService} from '../device/device.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -52,6 +52,7 @@ export class AdminController {
   constructor(
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   @Get('/users')
@@ -207,4 +208,20 @@ export class AdminController {
 
     return ResponseSuccess();
   }
+  // api for device registration into I-REC
+  @Post('/add/device-into-Irec/:id')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    // type: CreateUserDTO,
+   // type: CreateUserORGDTO,
+    description: 'Returns a new created device in I-REC',
+  })
+  public async IrecdeviceRegister(
+    @Param('id') id: number,
+   // @Body() irecDevice: {deviceid:number}
+  ): Promise<any> {
+    return await this.deviceService.I_recPostData(id);
+  }
+
 }
