@@ -241,7 +241,7 @@ export class DeviceService {
           IREC_ID: data.code
         };
       } catch (error) {
-        console.log("error", error.);
+        console.log("error", error);
         let irecdeviceerrorlogDto = new  IrecErrorLogInformationEntity();
       
         irecdeviceerrorlogDto.event = 'register',
