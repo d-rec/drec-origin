@@ -181,7 +181,7 @@ export class DeviceService {
     console.log("hitting api");
     const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
     let jwtToken = await regenerateToken(this.httpService);
-    console.log("jwtToken", jwtToken);
+   
     const headers = {
       // Add your custom headers here
       'Authorization': `Bearer ${jwtToken}`
@@ -264,7 +264,7 @@ export class DeviceService {
   //this function for add device details into irec 
   async I_RECDeviceDetailsPostData(deviceId): Promise<Observable<any>> {
     const device = await this.repository.findOne({
-      where: { id: deviceId, IREC_Status: 'NotRegistered' },
+      where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },
       order: {
         createdAt: 'DESC',
       },
@@ -277,24 +277,25 @@ export class DeviceService {
         'Authorization': `Bearer ${jwtToken}`
         // Add any other custom headers if needed
       };
+     let irec_capacity = device.capacity/1000;
       //let deId=device.externalId
       const requestBody = {
-        "deviceType": "/device_types/01H65MR128R0HGEAJZ62CH5820",
-        "fuel": "/fuels/01H65MR128R0HGEAJZ62CH5821",
-        "device": "/devices/01H65MR128R0HGEAJZ62CH5822",
-        "registrant": "/registrants/01H65MR128R0HGEAJZ62CH5823",
-        "issuer": "/issuers/01H65MR128R0HGEAJZ62CH5824",
-        "name": "Wind Device",
-        "capacity": "1000000.000000",
+        "deviceType": "/device_types/"+device.deviceTypeCode,
+        "fuel": "/fuels/",
+        "device": "/devices/",
+        "registrant": "/registrants/",
+        "issuer": "/issuers/",
+        "name": device.externalId,
+        "capacity": irec_capacity,
         "supported": true,
-        "latitude": 51.476688,
-        "longitude": 0.00013,
-        "registrationDate": "2020-01-01",
-        "commissioningDate": "2020-01-01",
-        "status": "Approved",
+        "latitude": device.latitude,
+        "longitude": device.longitude,
+        "registrationDate": device.createdAt,
+        "commissioningDate": device.commissioningDate,
+        "status": IRECDeviceStatus.Submitted,
         "active": true,
-        "address1": "Greenwich Park, London",
-        "country": "/countries/01H65MR128R0HGEAJZ62CH5825",
+        "address1": device.address,
+        "country": "/countries/"+device.countryCode,
       }
       console.log("requestBody", requestBody);
       // console.log("jwtToken", jwtToken);

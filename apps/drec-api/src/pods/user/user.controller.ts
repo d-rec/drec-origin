@@ -130,50 +130,50 @@ export class UserController {
     return this.userService.newcreate(userRegistrationData);
   }
 
-  @Post('registerWithOrganization')
-  @ApiBody({ type: CreateUserORGDTO })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: UserDTO,
-    description: 'Register a user',
-  })
-  public async newregister(
-    @Body() userRegistrationData: CreateUserORGDTO,
-  ): Promise<UserDTO> {
-    console.log(userRegistrationData);
-    if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-          })
-        );
-      });
-    }
+  // @Post('registerWithOrganization')
+  // @ApiBody({ type: CreateUserORGDTO })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   type: UserDTO,
+  //   description: 'Register a user',
+  // })
+  // public async newregister(
+  //   @Body() userRegistrationData: CreateUserORGDTO,
+  // ): Promise<UserDTO> {
+  //   console.log(userRegistrationData);
+  //   if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `organizationType should not be empty`,
+  //         })
+  //       );
+  //     });
+  //   }
 
-    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer`,
-          })
-        );
-      });
-    }
-    if (userRegistrationData.orgName.trim() === "") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-          })
-        );
-      });
-    }
-    return this.userService.newcreate(userRegistrationData);
-  }
+  //   if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `organizationType value should be Developer/Buyer`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   if (userRegistrationData.orgName.trim() === "") {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `orgName should not be empty`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return this.userService.newcreate(userRegistrationData);
+  // }
 
 
 

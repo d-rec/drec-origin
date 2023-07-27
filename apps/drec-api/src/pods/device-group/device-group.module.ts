@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceModule } from '../device/device.module';
 import {ReadsModule} from '../reads/reads.module';
-import { DeviceGroupController } from './device-group.controller';
+//import { DeviceGroupController } from './device-group.controller';
 import { BuyerReservationController} from './buyer-reservation.controller'
 import { DeviceGroup } from './device-group.entity';
 import { DeviceGroupService } from './device-group.service';
@@ -40,7 +40,7 @@ import {Certificate} from '@energyweb/issuer-api';
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],
-  controllers: [DeviceGroupController,BuyerReservationController],
+  controllers: [BuyerReservationController],
 })
 export class DeviceGroupModule {}
  
