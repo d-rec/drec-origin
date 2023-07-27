@@ -30,3 +30,10 @@ export class UpdateChangePasswordDTO {
   @Match('newPassword')
   confirmPassword?: string;
 }
+export class ForgetPasswordDTO {
+  @ApiProperty({ type: String })
+  @IsEmail()
+  email: string;
+
+}
+

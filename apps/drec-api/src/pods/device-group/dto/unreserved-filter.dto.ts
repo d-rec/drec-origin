@@ -7,66 +7,82 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
+  FuelCode,
+  SDGBenefitsList
 } from '../../../utils/enums';
-
+import { countryCodesList } from '../../../models/country-code'
+//import {SDGBenefits} from '../../../models/Sdgbenefit'
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
-  @ApiPropertyOptional({ type: String, description: 'Country Code' })
+  @ApiPropertyOptional({ type: String, description: 'Filter with multiple Country Code :"IND,CAN"' })
   country: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: String, description: 'Fuel Code' })
-  fuelCode: string;
-
-  @IsOptional()
-  @ApiPropertyOptional({
-    type: Installation,
-    description: 'Installation configuration',
-    enum: Installation,
+  @ApiPropertyOptional({ 
+    description: 'Fuel Code',
+    enum: FuelCode,
+    isArray:true
   })
-  installationConfiguration: Installation;
+  fuelCode: string[];
 
   @IsOptional()
   @ApiPropertyOptional({
     type: OffTaker,
     description: 'Off-taker',
     enum: OffTaker,
+    isArray:true
   })
   offTaker: OffTaker;
 
   @IsOptional()
-  @ApiPropertyOptional({
-    type: Sector,
-    description: 'Off-takers sectors',
-    enum: Sector,
-  })
-  sector: Sector;
+  @ApiPropertyOptional({ description: 'Start date reservationStartDate filter' })
+  start_date: Date;
+
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'End date reservationEndDate filter' })
+  end_date: Date;
 
   @IsOptional()
   @ApiPropertyOptional({
-    type: StandardCompliance,
-    description: 'Standard Compliance',
-    enum: StandardCompliance,
+    description: 'SDG Benefit',
+    enum: SDGBenefitsList,
+    isArray:true
   })
-  standardCompliance: StandardCompliance;
+  sdgbenefit: string[];
 
-  @IsOptional()
-  @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })
-  gridInterconnection: boolean;
-
-  @IsOptional()
   @ApiPropertyOptional({
-    type: CommissioningDateRange,
-    description: 'Commissioning DateRange',
-    enum: CommissioningDateRange,
-  })
-  commissioningDateRange: CommissioningDateRange;
+    description: 'Reservation Active or Deactive',
+    enum:['All','Active','Deactive'],
 
-  @IsOptional()
-  @ApiPropertyOptional({
-    type: CapacityRange,
-    description: 'Capacity Range',
-    enum: CapacityRange,
   })
-  capacityRange: CapacityRange;
+  @IsOptional()
+  reservationActive: string;
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: OffTaker,
+  //   description: 'Off-taker',
+  //   enum: OffTaker,
+  // })
+  // SDG: OffTaker;
+ 
+
+  // @IsOptional()
+  // @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })
+  // gridInterconnection: boolean;
+
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: CommissioningDateRange,
+  //   description: 'Commissioning DateRange',
+  //   enum: CommissioningDateRange,
+  // })
+  // commissioningDateRange: CommissioningDateRange;
+
+  // @IsOptional()
+  // @ApiPropertyOptional({
+  //   type: CapacityRange,
+  //   description: 'Capacity Range',
+  //   enum: CapacityRange,
+  // })
+  // capacityRange: CapacityRange;
 }

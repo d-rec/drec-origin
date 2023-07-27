@@ -44,7 +44,7 @@ export class IntmediateMeterReadDTO
   @ApiProperty({ type: String })
   @Column()
   @IsString()
-  deviceId: string;
+  externalId: string;
 
 }
 

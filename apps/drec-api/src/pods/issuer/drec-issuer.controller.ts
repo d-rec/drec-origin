@@ -1,27 +1,27 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Patch,
-    HttpStatus,
-    Param,
-    Body,
-    UseGuards,
-    Delete,
-    Query,
-    ValidationPipe,
-    ConflictException
-  } from '@nestjs/common';
-  import {
-    ApiBearerAuth,
-    ApiNotFoundResponse,
-    ApiResponse,
-    ApiOkResponse,
-    ApiSecurity,
-    ApiTags,
-    ApiBody,
-  } from '@nestjs/swagger';
-  import { AuthGuard } from '@nestjs/passport';
+  Controller,
+  Get,
+  Post,
+  Patch,
+  HttpStatus,
+  Param,
+  Body,
+  UseGuards,
+  Delete,
+  Query,
+  ValidationPipe,
+  ConflictException
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiOkResponse,
+  ApiSecurity,
+  ApiTags,
+  ApiBody,
+} from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 
@@ -31,37 +31,33 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 @Controller('drec-issuer')
 export class DrecIssuerController {
 
-    constructor(private readonly issuerService: IssuerService)
-    {
+  constructor(private readonly issuerService: IssuerService) {
 
-    }
+  }
 
-@Get('/ongoing')
+  @Get('/ongoing')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForOngoing(){
+  async simpleGetCallForOngoing() {
 
     console.log("got hit from cloudwatch ongoing");
-  
+
 
     return new Promise((resolve, reject) => {
 
-        this.invokeIssuerCronOngoing();
-        resolve("successfully Hitddd the ongoing API");   
+      this.invokeIssuerCronOngoing();
+      resolve("successfully Hitddd the ongoing API");
     })
 
   }
 
-  async invokeIssuerCronOngoing()
-  {
-    try
-    {
-        await this.issuerService.handleCron();
+  async invokeIssuerCronOngoing() {
+    try {
+      await this.issuerService.handleCron();
     }
-    catch(e)
-    {
-        console.error("caught exception in cron ongoing", e);
+    catch (e) {
+      console.error("caught exception in cron ongoing", e);
     }
   }
 
@@ -69,15 +65,15 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForHistory(){
+  async simpleGetCallForHistory() {
 
     console.log("got hit from cloudwatch history");
-  
+
 
     return new Promise((resolve, reject) => {
 
-        this.invokeIssuerCronForHistory();
-        resolve("successfully Hitthe history API");   
+      this.invokeIssuerCronForHistory();
+      resolve("successfully Hitthe history API");
     })
 
   }
@@ -88,29 +84,55 @@ export class DrecIssuerController {
     //type:[ReIssueCertificateDTO]
   })
   @ApiBody({ type: ReIssueCertificateDTO })
-  async reIssueCertificates( @Body() certificateData){
+  async reIssueCertificates(@Body() certificateData) {
 
-    
-  
+
+
 
     return new Promise((resolve, reject) => {
 
       //@ts-ignore
-        this.issuerService.issueCertificateFromAPI(certificateData);
-        resolve("hit the issueance data");   
+      this.issuerService.issueCertificateFromAPI(certificateData);
+      resolve("hit the issueance data");
     })
 
   }
 
-  async invokeIssuerCronForHistory()
-  {
-    try
-    {
-        await this.issuerService.handleCronForHistoricalIssuance();
+  async invokeIssuerCronForHistory() {
+    try {
+      await this.issuerService.handleCronForHistoricalIssuance();
     }
-    catch(e)
-    {
-        console.error("caught exception in cron history",e);
+    catch (e) {
+      console.error("caught exception in cron history", e);
     }
   }
+
+
+
+  @Get('/lateongoing')
+  @ApiOkResponse({
+    description: 'Simple Get For Issuer API',
+  })
+  async simpleGetCallForlateOngoing() {
+
+    console.log("got hit from cloudwatch ongoing");
+
+
+    return new Promise((resolve, reject) => {
+
+      this.invokeIssuerCronlateOngoing();
+      resolve("successfully Hitddd the late ongoing API");
+    })
+
+  }
+
+  async invokeIssuerCronlateOngoing() {
+    try {
+      await this.issuerService.handleCronForOngoingLateIssuance();
+    }
+    catch (e) {
+      console.error("caught exception in cron ongoing", e);
+    }
+  }
+
 }

@@ -20,6 +20,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -57,7 +58,7 @@ import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceDescription, ILoggedInUser } from '../../models';
+import { DeviceDescription, ILoggedInUser,BuyerReservationCertificateGenerationFrequency } from '../../models';
 import { NewDeviceDTO } from '../device/dto';
 import { File, FileService } from '../file';
 
@@ -99,36 +100,12 @@ export class DeviceGroupController {
     return this.deviceGroupService.getAll();
   }
 
-  @Get('/unreserved')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.Buyer)
-  @ApiOkResponse({
-    type: [SelectableDeviceGroupDTO],
-    description: 'Returns all unreserved Device Groups',
-  })
-  async getUnreserved(
-    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto);
-  }
 
-  @Get('/reserved')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.Buyer)
-  @ApiOkResponse({
-    type: [SelectableDeviceGroupDTO],
-    description: 'Returns all reserved Device Groups',
-  })
-  async getReserved(
-    @UserDecorator() { id }: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: UnreservedDeviceGroupsFilterDTO,
-  ): Promise<SelectableDeviceGroupDTO[]> {
-    return this.deviceGroupService.getReservedOrUnreserved(filterDto, id);
-  }
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
@@ -136,22 +113,27 @@ export class DeviceGroupController {
   })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
-  ): Promise<DeviceGroupDTO[]> {
+    @Query(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    })) filterDto: UnreservedDeviceGroupsFilterDTO,
+    
+    @Query('pagenumber') pagenumber: number| null,
+  )/*: Promise<DeviceGroupDTO[]> */{
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
-          organizationId,
-        );
+          organizationId);
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(id);
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
       default:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
-          organizationId,
-        );
+          organizationId);
     }
   }
+  
 
   @Get('/:id')
   @ApiOkResponse({
@@ -240,105 +222,79 @@ export class DeviceGroupController {
       }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
-    console.log("188");
+    //console.log("188");
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       throw new ConflictException({
         success: false,
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10*3));
+    let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
-      console.log("198");
+      //console.log("198");
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {
-      console.log("206");
+      //console.log("206");
       throw new ConflictException({
         success: false,
         message: 'User does not has organization associated',
       });
     }
-   
-    console.log(deviceGroupToRegister.blockchainAddress);
-    
-    if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined &&deviceGroupToRegister.blockchainAddress.trim()!=="" ) {
-      console.log("deviceGroupToRegister.blockchainAddress");
-      deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-     
-      return await this.deviceGroupService.createOne(
-        organizationId,
-        deviceGroupToRegister,
-        user.id,
-        deviceGroupToRegister.blockchainAddress
-      );
+    const frequency = deviceGroupToRegister.frequency.toLowerCase();
+    if (frequency === BuyerReservationCertificateGenerationFrequency.monthly || frequency === BuyerReservationCertificateGenerationFrequency.quarterly||frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
 
-    } else {
-      console.log(user.blockchainAccountAddress);
-      if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
-        console.log("user.blockchainAddress")
-        return await this.deviceGroupService.createOne(
-          organizationId,
-          deviceGroupToRegister,
-          user.id,
-          user.blockchainAccountAddress
-        );
-
-      } else {
-
-        throw new ConflictException({
-          success: false,
-          message: 'No blockchain address sent and no blockchain address attached to this account',
-        });
-      }
+      throw new ConflictException({
+        success: false,
+        message: 'This frequency is currently not supported',
+      });
     }
-
-  }
-
-
-
-  @Post('multiple')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns a new created Device group',
-  })
-  @ApiBody({ type: [AddGroupDTO] })
-  public async createMultiple(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceGroupsToRegister: AddGroupDTO[],
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.createMultiple(
+    console.log(deviceGroupToRegister.blockchainAddress);
+    //@ts-ignore
+    console.log(process.env.DREC_BLOCKCHAIN_ADDRESS);
+    return await this.deviceGroupService.createOne(
       organizationId,
-      deviceGroupsToRegister,
+      deviceGroupToRegister,
+      user.id,
+      //@ts-ignore
+      process.env.DREC_BLOCKCHAIN_ADDRESS,
+      
     );
+    // if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
+    //   console.log("deviceGroupToRegister.blockchainAddress");
+    //   deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
+
+    //   return await this.deviceGroupService.createOne(
+    //     organizationId,
+    //     deviceGroupToRegister,
+    //     user.id,
+    //     deviceGroupToRegister.blockchainAddress
+    //   );
+
+    // } else {
+    //   //console.log(user.blockchainAccountAddress);
+    //   if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
+    //     //console.log("user.blockchainAddress")
+    //     return await this.deviceGroupService.createOne(
+    //       organizationId,
+    //       deviceGroupToRegister,
+    //       user.id,
+    //       user.blockchainAccountAddress
+    //     );
+
+    //   } else {
+
+    //     throw new ConflictException({
+    //       success: false,
+    //       message: 'No blockchain address sent and no blockchain address attached to this account',
+    //     });
+    //   }
+    // }
+
   }
-
-  @Post('bulk-devices')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns auto-created device groups',
-  })
-  @ApiBody({ type: [NewDeviceDTO] })
-  public async createBulk(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() devicesToRegister: NewDeviceDTO[],
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.registerBulkDevices(
-      organizationId,
-      devicesToRegister,
-    );
-  }
-
-
 
 
   @Post('process-creation-bulk-devices-csv')
@@ -366,7 +322,7 @@ export class DeviceGroupController {
     }
 
     //let response:any = await this.fileService.GetuploadS3(fileToProcess.fileName);
-   // let response = await this.fileService.get(fileToProcess.fileName, user);
+    // let response = await this.fileService.get(fileToProcess.fileName, user);
 
 
     console.log(fileToProcess.fileName);
@@ -394,80 +350,9 @@ export class DeviceGroupController {
 
     return jobCreated;
   }
-  @Post('/reserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Returns a new created Device group',
-  })
-  public async reserve(
-    @UserDecorator()
-    { id, blockchainAccountAddress }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.reserveGroup(
-      ids,
-      id,
-      blockchainAccountAddress,
-    );
-  }
 
-  @Post('/unreserve')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Buyer)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceGroupDTO],
-    description: 'Unreserves device groups from buyer',
-  })
-  public async unreserve(
-    @UserDecorator()
-    { id }: ILoggedInUser,
-    @Body() ids: ReserveGroupsDTO,
-  ): Promise<DeviceGroupDTO[]> {
-    return await this.deviceGroupService.unreserveGroup(ids, id);
-  }
-  @Post('/add/:id')
-  @UseGuards(AuthGuard('jwt'))
-  //@Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: DeviceGroupDTO,
-    description: 'Returns a new created Device group',
-  })
-  public async addDevices(
-    @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceIds: DeviceIdsDTO,
-  ): Promise<DeviceGroupDTO | void> {
-    return await this.deviceGroupService.addDevices(
-      id,
-      organizationId,
-      deviceIds,
-    );
-  }
 
-  @Post('/remove/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: DeviceGroupDTO,
-    description: 'Returns a new created Device group',
-  })
-  public async removeDevices(
-    @Param('id') id: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() deviceIds: DeviceIdsDTO,
-  ): Promise<DeviceGroupDTO | void> {
-    return await this.deviceGroupService.removeDevices(
-      id,
-      organizationId,
-      deviceIds,
-    );
-  }
+
 
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'))
@@ -541,12 +426,12 @@ export class DeviceGroupController {
     @Param('id') jobId: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<JobFailedRowsDTO | undefined> {
-    console.log("jobId", jobId);
+    //console.log("jobId", jobId);
 
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
-    console.log("data", data);
+    //console.log("data", data);
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
@@ -563,8 +448,8 @@ export class DeviceGroupController {
     description: 'Returns created jobs of an organization',
   })
   public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log("user", user);
-    console.log("organization", organizationId);
+    //console.log("user", user);
+    //console.log("organization", organizationId);
 
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({

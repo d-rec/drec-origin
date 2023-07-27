@@ -34,7 +34,7 @@ export class AddDevicesComponent {
   public stepSecond = 1;
  numberregex: RegExp =/[0-9]+(\.[0-9]*){0,1}/
   //public color: ThemePalette = 'primary';
-  offtaker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,private deviceService: DeviceService, private router: Router, private toastrService: ToastrService) { }
 
@@ -66,7 +66,7 @@ export class AddDevicesComponent {
       deviceTypeCode: [null],
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
-      gridInterconnection: true,
+      gridInterconnection: [true],
       offTaker: [null],
       impactStory: [null],
       data: [null],
@@ -122,7 +122,6 @@ export class AddDevicesComponent {
       gridInterconnection: true,
       offTaker: [null],
       impactStory: [null],
-      data: [null],
       images: [null],
       deviceDescription: [null],
       energyStorage: true,
@@ -165,7 +164,6 @@ export class AddDevicesComponent {
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
         this.countrylist = data;
 
       }
@@ -176,7 +174,7 @@ export class AddDevicesComponent {
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
-        console.log(data)
+        
         this.sdgblist = data;
 
       }
@@ -205,16 +203,30 @@ export class AddDevicesComponent {
     )
   }
   onSubmit() {
-    console.log(this.deviceForms.value.length);
-
-    this.deviceForms.value.forEach((element: any) => {
-      console.log(element);
+  
+    const formArray = this.myform.get('devices') as FormArray;
+    const deviceArray = this.myform.value.devices;
+    deviceArray.forEach((element: any,index:number) => {
+     
       this.deviceService.Postdevices(element).subscribe({
         next: data => {
-          console.log(data)
+         
+        //  const formGroup = formArray.at(index);
           // this.deviceForms.reset();
-          this.toastrService.success('Add Successfully !!', 'Device! ' + element.externalId);
+          this.toastrService.success('Added Successfully !!', 'Device! ' + element.externalId);
+          // formGroup.reset();
+          // while (formArray.length > 1) {
+          //   formArray.removeAt(1);
+          // }
+        
+          const index1 = deviceArray.indexOf(element);
+          deviceArray.splice(index, 1);
 
+          // Check if formDataArray is empty
+          if (deviceArray.length === 0) {
+            // Navigate to the list UI page
+            this.router.navigate(['/device/AllList']);
+          }
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)

@@ -23,7 +23,7 @@ export class EditDeviceComponent implements OnInit {
   shownomore: any;
   showaddmore: any;
   public sdgblist: any;
-  id:number;
+  id: number;
   externalid: any;
   showinput: boolean = true;
   externalId: any;
@@ -36,7 +36,7 @@ export class EditDeviceComponent implements OnInit {
   fuelCode: any;
   deviceTypeCode: any;
   capacity: any;
-  SDGBenefits: any=[];
+  SDGBenefits: any = [];
   commissioningDate: any;
   qualityLabels: any;
   offTaker: any;
@@ -44,18 +44,26 @@ export class EditDeviceComponent implements OnInit {
   impactStory: any;
 
   deviceDescription: any;
-  energyStorage: any;
+  energyStorage: boolean = true;
   energyStorageCapacity: any;
-
-  offteker = ['School', 'HealthFacility', 'Residential', 'Commercial', 'Industrial', 'PublicSector', 'Agriculture']
+  frommydevice: boolean = false;
+  frombulk: boolean = false;
+  offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService, private router: Router,
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute,) {
-    // this.activatedRoute.queryParams.subscribe(params => {
-    //   this.externalid = params['id'];
-    // });
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['fromdevices'] != undefined) {
+        this.frommydevice = params['fromdevices'];
+        console.log(this.frommydevice);
+      }
+      if (params['frombulk'] != undefined) {
+        this.frombulk = params['frombulk'];
+        console.log(this.frombulk);
+      }
+    });
     this.externalid = this.activatedRoute.snapshot.params['id'];
   }
 
@@ -82,10 +90,9 @@ export class EditDeviceComponent implements OnInit {
       gridInterconnection: [true],
       offTaker: [null],
       impactStory: [null],
-      data: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: [true],
+      energyStorage: [],
       energyStorageCapacity: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])
@@ -101,7 +108,7 @@ export class EditDeviceComponent implements OnInit {
 
 
   }
- checkValidation(input: string) {
+  checkValidation(input: string) {
     const validation = this.myform.get(input)?.invalid && (this.myform.get(input)?.dirty || this.myform.get(input)?.touched)
     return validation;
   }
@@ -113,10 +120,10 @@ export class EditDeviceComponent implements OnInit {
   DisplayList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
+      (data1) => {
         // display list in the console 
-        console.log(data)
-        this.countrylist = data;
+        console.log(data1)
+        this.countrylist = data1;
 
       }
     )
@@ -124,10 +131,10 @@ export class EditDeviceComponent implements OnInit {
   DisplaySDGBList() {
 
     this.authService.GetMethod('sdgbenefit/code').subscribe(
-      (data) => {
+      (data2) => {
         // display list in the console 
-        console.log(data)
-        this.sdgblist = data;
+        console.log(data2)
+        this.sdgblist = data2;
 
       }
     )
@@ -135,10 +142,10 @@ export class EditDeviceComponent implements OnInit {
   DisplayfuelList() {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data) => {
+      (data3) => {
         // display list in the console 
 
-        this.fuellist = data;
+        this.fuellist = data3;
 
       }
     )
@@ -146,24 +153,24 @@ export class EditDeviceComponent implements OnInit {
   DisplaytypeList() {
 
     this.authService.GetMethod('device/device-type').subscribe(
-      (data) => {
+      (data4) => {
         // display list in the console 
 
-        this.devicetypelist = data;
+        this.devicetypelist = data4;
 
       }
     )
   }
-  shownewExternalidInput:boolean=false;
-  showcancelicon:boolean=false;
-  editExternalid(){
-    this.shownewExternalidInput=true;
-    this.showcancelicon=true;
+  shownewExternalidInput: boolean = false;
+  showcancelicon: boolean = false;
+  editExternalid() {
+    this.shownewExternalidInput = true;
+    this.showcancelicon = true;
   }
-  hideeditExternalid(){
-    this.shownewExternalidInput=false;
-    this.myform.value.externalId=this.externalId;
-    this.showcancelicon=false;
+  hideeditExternalid() {
+    this.shownewExternalidInput = false;
+    this.myform.value.externalId = this.externalId;
+    this.showcancelicon = false;
     console.log(this.myform);
   }
   addmore() {
@@ -187,51 +194,57 @@ export class EditDeviceComponent implements OnInit {
   getDeviceinfo() {
     this.deviceService.getDeviceInfoBYexternalId(this.externalid).subscribe(
       (data) => {
-       
-        this.id = data.id
-        this.externalId = data.externalId
-        this.status = data.status
-        this.projectName = data.projectName
-        this.address = data.address
-        this.latitude = data.latitude
-        this.longitude = data.longitude
-        this.countryCode = data.countryCode
-        this.fuelCode = data.fuelCode
-        this.deviceTypeCode = data.deviceTypeCode
-        this.capacity = data.capacity
+        console.log(data);
+        this.id = data.id;
+        this.externalId = data.externalId;
+        this.status = data.status;
+        this.projectName = data.projectName;
+        this.address = data.address;
+        this.latitude = data.latitude;
+        this.longitude = data.longitude;
+        this.countryCode = data.countryCode;
+        this.fuelCode = data.fuelCode;
+        this.deviceTypeCode = data.deviceTypeCode;
+        this.capacity = data.capacity;
         data.SDGBenefits.forEach(
           (sdgbname: string, index: number) => {
             //@ts-ignore
-            let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());          
-              data.SDGBenefits[index] = foundEle.name           
+            let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());
+            data.SDGBenefits[index] = foundEle.name
             console.log(data.SDGBenefits);
           });
-          this.SDGBenefits =data.SDGBenefits;          
-        this.commissioningDate = data.commissioningDate
-        this.offTaker = data.offTaker
-        this.qualityLabels = data.qualityLabels
-        this.impactStory = data.impactStory
-        this.gridInterconnection = data.gridInterconnection
-        this.deviceDescription = data.deviceDescription
-        this.energyStorage = data.energyStorage
-        this.energyStorageCapacity = data.energyStorageCapacity
+        this.SDGBenefits = data.SDGBenefits;
+        this.commissioningDate = data.commissioningDate;
+        this.offTaker = data.offTaker;
+        this.qualityLabels = data.qualityLabels;
+        this.impactStory = data.impactStory;
+        this.gridInterconnection = data.gridInterconnection;
+        this.deviceDescription = data.deviceDescription;
+        if (data.energyStorage != null) {
+          this.energyStorage = data.energyStorage;
+        } else {
+          this.energyStorage = false;
+        }
+
+        console.log(this.energyStorage);
+        this.energyStorageCapacity = data.energyStorageCapacity;
 
 
       })
 
   }
   onSubmit() {
-   
+
     console.log(this.myform);
-    if(this.myform.value.externalId===null){
-      this.myform.value.externalId=this.externalId;
+    if (this.myform.value.externalId === null) {
+      this.myform.removeControl('externalId');
     }
     console.log(this.myform);
     this.deviceService.Patchdevices(this.externalid, this.myform.value).subscribe({
       next: (data: any) => {
         console.log(data)
         // this.deviceForms.reset();
-        this.toastrService.success('Update Successfully !!', 'Device! ' + this.myform.value.externalId);
+        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.myform.value.externalId);
         this.router.navigate(['device/AllList']);
       },
       error: (err: any): void => {                          //Error callback
@@ -240,5 +253,13 @@ export class EditDeviceComponent implements OnInit {
       }
     });
     // })
+  }
+  reset() {
+    if(this.frombulk){
+      this.router.navigate(['/device/bulk_upload']);
+    }else{
+      this.router.navigate(['/device/AllList']);
+    }
+    
   }
 }

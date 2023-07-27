@@ -14,9 +14,6 @@
         right: 10px;
         width: fit-content;
         // margin-top: -50px !important;
-        .filetr-desc{
-           
-        }
     }
     .mat-body-cont{
         padding: 0px 16px 23px !important;
@@ -37,3 +34,12 @@
     transform: translate(-50%, -50%);
     z-index: 5;
 }
+
+.mat-elevation-z8{
+  width: 100%;
+  overflow: scroll;
+  mat-paginator{
+    display: initial !important;
+  }
+}
+

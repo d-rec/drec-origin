@@ -30,7 +30,7 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
-import { IEmailConfirmationToken } from '../../models';
+import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -84,37 +84,37 @@ export class UserService {
   //   return new User(user);
   // }
   public async newcreate(data: CreateUserORGDTO,
-    status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
+    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     var org_id;
-    if (data.secretKey != null) {
-      const orgdata = {
-        name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
-        secretKey: data.secretKey,
-        orgEmail: data.email,
-        address: data.orgAddress
-
-      }
-
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) || await this.organizationService.FindBysecretkey(orgdata.secretKey)) {
-        throw new ConflictException({
-          success: false,
-          message: `Organization "${data.orgName}" Or secretkey "${data.secretKey}" is already existed,please use another Organization name Or secretkey`,
-        });
-
-      } else {
-
-        const org = await this.organizationService.newcreate(orgdata)
-        org_id = org.id;
-        this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-        );
-
-
-      }
+    // if (data.secretKey != null) {
+    const orgdata = {
+      name: data.orgName !== undefined ? data.orgName : '',
+      organizationType: data.organizationType,
+      // secretKey: data.secretKey,
+      orgEmail: data.email,
+      address: data.orgAddress
 
     }
+
+    if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      throw new ConflictException({
+        success: false,
+        message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+      });
+
+    } else {
+
+      const org = await this.organizationService.newcreate(orgdata)
+      org_id = org.id;
+      this.logger.debug(
+        `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+      );
+
+
+    }
+
+    //  }
     this.logger.debug(
       `Successfully registered a new organization with id ${org_id}`,
     );
@@ -143,13 +143,11 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new organization with id ${JSON.stringify(user)}`,
     );
-    if(inviteuser){
-      await this.emailConfirmationService.create(user,true);
-    }else{
-      await this.emailConfirmationService.create(user,false);
+    if (inviteuser) {
+      await this.emailConfirmationService.create(user, true);
+    } else {
+      await this.emailConfirmationService.create(user, false);
     }
-    
-
 
     return new User(user);
   }
@@ -253,14 +251,14 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email}: UpdateUserProfileDTO,
+    { firstName, lastName, email }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
-     
+
       firstName,
       lastName,
       email,
-      
+
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -318,31 +316,30 @@ export class UserService {
   ): Promise<ExtendedBaseEntity & IUser> {
     const emailConfirmation = await this.emailConfirmationService.findOne({ token });
     console.log("emailConfirmation")
-    console.log(emailConfirmation)
-   
-      //const _user = await this.findById(emailConfirmation.id);
-      console.log(emailConfirmation)
-      if (emailConfirmation) {
-        const updateEntity = new User({
-          password: this.hashPassword(user.newPassword),
+
+    //const _user = await this.findById(emailConfirmation.id);
+  
+    if (emailConfirmation) {
+      const updateEntity = new User({
+        password: this.hashPassword(user.newPassword),
+      });
+
+      const validationErrors = await validate(updateEntity, {
+        skipUndefinedProperties: true,
+      });
+
+      if (validationErrors.length > 0) {
+        throw new UnprocessableEntityException({
+          success: false,
+          errors: validationErrors,
         });
-
-        const validationErrors = await validate(updateEntity, {
-          skipUndefinedProperties: true,
-        });
-
-        if (validationErrors.length > 0) {
-          throw new UnprocessableEntityException({
-            success: false,
-            errors: validationErrors,
-          });
-        }
-
-        await this.repository.update(emailConfirmation.user.id, updateEntity);
-        return emailConfirmation.user;
-
       }
-    
+
+      await this.repository.update(emailConfirmation.user.id, updateEntity);
+      return emailConfirmation.user;
+
+    }
+
     throw new ConflictException({
       success: false,
       errors: `User Not exist .`,
@@ -412,7 +409,7 @@ export class UserService {
     }
 
     await this.repository.update(id, {
-     
+
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
@@ -444,5 +441,12 @@ export class UserService {
     }
 
     return user;
+  }
+  public async geytokenforResetPassword(email): Promise<ISuccessResponse> {
+
+
+    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(email);
+
+
   }
 }

@@ -1,0 +1,22 @@
+version: 0.2
+env:
+  parameter-store:
+    docker_username: /powertrust/docker/username
+    docker_password: /powertrust/docker/password
+phases:
+  install:
+    # runtime-versions:
+    #   nodejs: 18
+    #   docker: 18
+    commands:
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x ./kubectl
+      - curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_amd64
+      - chmod +x ./aws-iam-authenticator
+      - export PATH=$PWD/:$PATH
+  build:
+    commands:
+      - chmod +x ./buildscript.sh
+      - ./buildscript.sh

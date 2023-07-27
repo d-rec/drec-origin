@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn,BeforeUpdate } from 'typeorm';
 import {
   DeviceStatus,
   Installation,
@@ -40,10 +40,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Exclude()
   developerExternalId?: string;
 
-  @Column({ nullable: true, default: DeviceStatus.Active })
-  @IsNotEmpty()
-  @IsEnum(DeviceStatus)
-  status: DeviceStatus;
+  // @Column({ nullable: true, default: DeviceStatus.Active })
+  // @IsNotEmpty()
+  // @IsEnum(DeviceStatus)
+  // status: DeviceStatus;
 
   @Column()
   organizationId: number;
@@ -121,16 +121,16 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @Column('int', { nullable: true, array: true })
   // generatorsIds: number[];
 
-  @Column({ nullable: true })
-  @IsString()
-  labels: string;
+  // @Column({ nullable: true })
+  // @IsString()
+  // labels: string;
 
   @Column({ nullable: true })
   @IsString()
   impactStory: string;
 
-  @Column({ nullable: true })
-  data: string;
+  // @Column({ nullable: true })
+  // data: string;
 
   @Column('simple-array', { nullable: true })
   images: string[];
@@ -138,9 +138,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'int', nullable: true })
   groupId: number | null;
 
-  @Column({ nullable: true })
-  @IsEnum(Integrator)
-  integrator: Integrator;
+  // @Column({ nullable: true })
+  // @IsEnum(Integrator)
+  // integrator: Integrator;
 
   @Column({ nullable: true })
   @IsEnum(DeviceDescription)
@@ -155,12 +155,29 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', nullable: true})
   meterReadtype: string;
+
+  @Column({ type: 'varchar', nullable: true})
+  timezone: string;
 
   @Column()
   createdAt: Date;
 
   @Column({ type: 'varchar', nullable: true })
   version: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  IREC_Status: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  IREC_ID: string;
+
+  @Column({ nullable: true })
+  updatedAt: Date;
+
+  // @BeforeUpdate()
+  // updateTimestamp() {
+  //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
+  // }
 }

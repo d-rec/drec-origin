@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module,MiddlewareConsumer, NestModule,HttpModule  } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import path from 'path';
-import { entities as IssuerEntities } from '@energyweb/issuer-api';
+import { BlockchainPropertiesModule, entities as IssuerEntities } from '@energyweb/issuer-api';
+import {OnChainCertificateEntities,OffChainCertificateEntities, OnChainCertificateModule} from '@energyweb/origin-247-certificate';
+
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
@@ -32,10 +34,6 @@ import { AccessControlLayerModuleServiceModule } from './pods/access-control-lay
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
 import { ACLModulePermissions } from './pods/permission/permission.entity';
 import { PermissionModule } from './pods/permission/permission.module';
-import { TestapiModule } from './pods/testapi/testapi.module';
-import { Testapi } from './pods/testapi/entities/testapi.entity';
-import { DeveloperScecificGroupingDeviceNotForBuyerReservationModule } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/develeoper-specific-grouping-devices-not-for-buyer-reservation.module';
-import { DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity } from './pods/developer-specific-grouping-device-not-for-buyer-reservation/developer_specific_group_device_only_for_managing_not_for_buyer_reservation.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
@@ -49,6 +47,10 @@ import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
 import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
+import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
+import {IrecDevicesInformationEntity} from './pods/device/irec_devices_information.entity';
+import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_information.entity'
+
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -78,8 +80,6 @@ export const entities = [
   YieldConfig,
   AClModules,
   ACLModulePermissions,
-  Testapi,
-  DeveloperSpecificGroupingDevicesOnlyForManagerialPurposeButNotForBuyerReservationEntity,
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
@@ -89,8 +89,12 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
-  DeltaFirstRead,
+  DeltaFirstRead,,
+  IrecDevicesInformationEntity,
+  IrecErrorLogInformationEntity,
   ...IssuerEntities,
+  ...OnChainCertificateEntities,
+  ...OffChainCertificateEntities
 ];
 
 const OriginAppTypeOrmModule = () => {
@@ -116,14 +120,21 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
+let redisOptions= {
+  host:process.env.REDIS_URL ?? 'localhost',
+  port: 6379
+}
+
 const QueueingModule = () => {
   return BullModule.forRoot({
-    redis: process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
+    redis: redisOptions 
+    //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
   });
 };
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
       envFilePath: getEnvFilePath(),
       isGlobal: true,
@@ -147,11 +158,17 @@ const QueueingModule = () => {
     YieldConfigModule,
     AccessControlLayerModuleServiceModule,
     PermissionModule,
-    TestapiModule,
-    DeveloperScecificGroupingDeviceNotForBuyerReservationModule,
     CountrycodeModule,
     SdgbenefitModule,
-    CertificateLogModule
+    CertificateLogModule,
+    OnChainCertificateModule,
+    BlockchainPropertiesModule,
+    
+   
   ],
+  providers:[OnApplicationBootstrapHookService]
 })
-export class DrecModule {}
+export class DrecModule {
+  
+
+}

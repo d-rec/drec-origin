@@ -7,8 +7,8 @@
                 </h2>
             </div>
             <div>
-                <button class="btn btn-dark justify-content-end px-4" (click)="adddevice()">
-                    <mat-icon class="align-middle">add_circle</mat-icon> Add More Device
+                <button class="btn btn-dark justify-content-end  d-flex align-items-center px-4" (click)="adddevice()">
+                    <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More Device
                 </button>
             </div>
 
@@ -37,7 +37,7 @@
                                 </div>
                                 <div>
                                     <button class="btn btn-danger danger-btn justify-content-end btn-sm"
-                                        (click)='deletePhone(i)'>
+                                        (click)='deletePhone(i)' *ngIf="deviceForms.controls.length>1">
                                         <mat-icon class="align-middle">delete</mat-icon>
                                     </button>
                                 </div>
@@ -50,7 +50,8 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">project Name</mat-label>
-                                            <input matInput autocomplete="off" placeholder="projectName" formControlName='projectName'>
+                                            <input matInput autocomplete="off" 
+                                                formControlName='projectName'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -58,7 +59,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">External ID</mat-label>
-                                            <input matInput placeholder="name" formControlName='externalId'>
+                                            <input matInput  formControlName='externalId'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
                                             <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
@@ -108,7 +109,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Capacity(kW)</mat-label>
-                                            <input matInput placeholder="capacity" type="number"
+                                            <input matInput  type="number"
                                                 formControlName='capacity' [min]=1 autocomplete="off">
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
@@ -119,7 +120,7 @@
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">off Taker</mat-label>
 
-                                            <mat-select formControlName='offTaker' placeholder="offTaker">
+                                            <mat-select formControlName='offTaker' >
 
                                                 <mat-option *ngFor="let code of offtaker" [value]="code">
                                                     {{code}}
@@ -132,7 +133,7 @@
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Fuel Code</mat-label>
 
-                                            <mat-select formControlName='fuelCode' placeholder="fuelCode">
+                                            <mat-select formControlName='fuelCode' >
 
                                                 <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                                     {{code.name}}
@@ -145,7 +146,7 @@
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-                                            <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode">
+                                            <mat-select formControlName='deviceTypeCode' >
 
                                                 <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                                                     {{code.name}}
@@ -158,7 +159,8 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">impact Story</mat-label>
-                                            <input matInput placeholder="impactStory" formControlName='impactStory' autocomplete="off">
+                                            <input matInput  formControlName='impactStory'
+                                                autocomplete="off">
                                         </mat-form-field>
                                     </div>
 
@@ -167,7 +169,7 @@
                                             <mat-label class="text-capitalize">Device Description</mat-label>
 
                                             <mat-select formControlName='deviceDescription'
-                                                placeholder="deviceDescription">
+                                               >
 
                                                 <mat-option *ngFor="let code of devicedescription" [value]="code">
                                                     {{code}}
@@ -197,14 +199,14 @@
 
                                     <div class="col-md-3">
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="addmore(i)" *ngIf="showaddmore[i]">
                                             Add more details <mat-icon
                                                 class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                         </button>
 
                                         <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                            class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
                                             (click)="nomore(i)" *ngIf="shownomore[i]">
                                             hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
                                         </button>
@@ -218,7 +220,8 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Address</mat-label>
-                                            <input autocomplete="off" matInput placeholder="address" formControlName='address'>
+                                            <input autocomplete="off" matInput 
+                                                formControlName='address'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <!-- <mat-hint>Hint</mat-hint> -->
                                         </mat-form-field>
@@ -227,7 +230,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Latitude</mat-label>
-                                            <input matInput placeholder="latitude" formControlName='latitude'>
+                                            <input matInput  formControlName='latitude'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <mat-error>please enter the valid value</mat-error>
                                         </mat-form-field>
@@ -236,60 +239,43 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">longitude</mat-label>
-                                            <input matInput placeholder="longitude" formControlName='longitude'>
+                                            <input matInput  formControlName='longitude'>
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                             <mat-error>please enter the valid value</mat-error>
                                         </mat-form-field>
                                     </div>
 
                                     <div class="col-md-3">
-
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Quality Labels</mat-label>
-                                            <input matInput placeholder="qualityLabels" formControlName='qualityLabels'>
+                                            <input matInput  formControlName='qualityLabels'>
                                         </mat-form-field>
                                     </div>
 
                                 </div>
 
-
                                 <div class="example-container1 row" *ngIf="addmoredetals[i]">
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">grid Inter connection</mat-label>
-                                            <input matInput placeholder="gridInterconnection"
-                                                formControlName='gridInterconnection'>
-                                        </mat-form-field>
+                                    <div class="col-md-3 d-flex flex-column">
+                                        <span>Grid Inter-connection:</span>
+                                        <mat-radio-group formControlName='gridInterconnection'>
+                                            <mat-radio-button [value]=true>Yes</mat-radio-button>
+                                            <mat-radio-button [value]=false>No</mat-radio-button>
+                                        </mat-radio-group>
                                     </div>
+                                    <div class="col-md-3 d-flex flex-column">
+                                        <span>Energy Storage:</span>
+                                        <mat-radio-group formControlName='energyStorage'
+                                            (ngModelChange)="showenergycapacity_input(i,$event)">
+                                            <mat-radio-button [value]=true>Yes</mat-radio-button>
+                                            <mat-radio-button [value]=false>No</mat-radio-button>
+                                        </mat-radio-group>
 
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Data</mat-label>
-                                            <input matInput placeholder="data" formControlName='data'>
-                                        </mat-form-field>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <!--  <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Energy Storage</mat-label>
-                                           <input matInput placeholder="energyStorage" formControlName='energyStorage'> -->
-                                         
-                                           <mat-radio-group  formControlName='energyStorage' (ngModelChange)="showenergycapacity_input(i,$event)">
-                                            <span >Energy Storage:</span>
-
-                                            <mat-radio-button [value]=true checked>True</mat-radio-button>
-                                                <mat-radio-button [value]=false>False</mat-radio-button>
-                                            </mat-radio-group>
-                                        <!-- </mat-form-field>
-                                         -->
-                                        
                                     </div>
 
                                     <div class="col-md-3" *ngIf="showinput[i]">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                                            <input matInput autocomplete="off" placeholder="energyStorageCapacity" type="number"
-                                                formControlName='energyStorageCapacity'>
+                                            <input matInput autocomplete="off"  type="number" formControlName='energyStorageCapacity'>
                                         </mat-form-field>
                                     </div>
                                 </div>
@@ -301,10 +287,10 @@
                 </div>
             </mat-card-content>
             <mat-card-footer>
-                <div class="example-container row">
+                <div class="example-container mt-3  ">
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn-primary btn text-capitalize px-4"
-                            [disabled]="myform.invalid">submit</button>
+                            [disabled]="myform.invalid">Submit</button>
                     </div>
                 </div>
             </mat-card-footer>

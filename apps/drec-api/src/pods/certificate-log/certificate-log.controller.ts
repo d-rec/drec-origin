@@ -19,6 +19,7 @@ import {
     ApiOkResponse,
     ApiSecurity,
     ApiTags,
+    ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
@@ -29,8 +30,13 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog } from './dto'
+import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog,CertificatelogResponse } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
+import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
+import { PermissionGuard } from '../../guards/PermissionGuard';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { deviceFilterDTO } from './dto/deviceFilter.dto';
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -87,13 +93,14 @@ export class CertificateLogController {
     }
     @Get('/issuer/certified/:groupUid')
     @UseGuards(AuthGuard('jwt'))
-    @ApiOkResponse({ type: [CertificateWithPerdevicelog], description: 'Returns issuer Certificate of groupId' })
+    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getissueCertificate(
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
-    ): Promise<CertificateWithPerdevicelog[]> {
+    ): Promise<CertificateNewWithPerDeviceLog[]> {
+        console.log("101")
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-        console.log(regexExp.test(groupuId));
+        //console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
@@ -103,8 +110,8 @@ export class CertificateLogController {
             })
         }
         const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
-        console.log("devicegroup");
-        console.log(devicegroup);
+        //console.log("devicegroup");
+        //console.log(devicegroup);
 
 
         if (devicegroup === null || devicegroup.buyerId != user.id) {
@@ -116,9 +123,39 @@ export class CertificateLogController {
             })
         }
         // setTimeout(() => {
-          
+
         // }, 2000)
-        return await this.certificateLogService.getfindreservationcertified(devicegroup.id.toString());
+        return await this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
+    }
+
+    @Get('/issuer/certified/new/:groupUid')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
+    async getCertificatesFromUpdatedCertificateTables(
+        @Param('groupUid') groupuId: string,
+        @UserDecorator() user: ILoggedInUser,
+    ): Promise<CertificateNewWithPerDeviceLog[]> {
+        console.log("138")
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+        if (groupuId === null || !regexExp.test(groupuId)) {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: ' Please Add the valid UID ,invalid group uid value was sent',
+                }))
+            })
+        }
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
+        if (devicegroup === null || devicegroup.buyerId != user.id) {
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: 'Group UId is not of this buyer, invalid value was sent',
+                }))
+            })
+        }
+
+        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
     @Get('/redemption-report')
@@ -134,11 +171,75 @@ export class CertificateLogController {
         return this.certificateLogService.getCertificateRedemptionReport(id);
     }
 
-    
+
     // @Get('/missingCertificate')
     // findAll() {
     //     return this.certificateLogService.getmissingtoken();
     // }
 
 
+    /* */
+    @Get('/certificateReadModule')
+    @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+    @Permission('Read')
+    @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Returns the certificate_read_module table',
+    })
+    @ApiQuery({
+        name: 'certificateStartDate',
+        required: false,
+    })
+    @ApiQuery({
+        name: 'certiifcateEndDate',
+        required: false,
+    })
+    @ApiQuery({
+        name: 'pageNumber',
+        type: Number,
+        required: true,
+    })
+    @ApiQuery({
+        name: 'targetVolumeCertificateGenerationRequestedInMegaWattHour',
+        type: Number,
+        required: false,
+    })
+    @ApiQuery({
+        name: 'deviceFilter',
+        type: Object,
+        required: false,
+    })
+    async GetCertificateReadModule(
+        @UserDecorator() { organizationId }: ILoggedInUser,
+        @Query('pageNumber') pageNumber: number,
+        @Query('certificateStartDate') generationStartTime?: string,
+        @Query('certiifcateEndDate') generationEndTime?: string,
+        @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour') targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
+        @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
+    ) {
+        return await this.certificateLogService.getsCertificateReadModule(
+            organizationId.toString(),
+            pageNumber,
+            deviceFilter,
+            generationStartTime,
+            generationEndTime,
+            targetVolumeCertificateGenerationRequestedInMegaWattHour,
+        );
+    }
+
+
+    /* for developre*/
+    @Get('/issuer/certifiedlogOfdevices')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
+    async getCertificatesForDeveloper(
+
+        @UserDecorator() user: ILoggedInUser,
+        @Query(ValidationPipe) filterDto: FilterDTO,
+        @Query('pageNumber') pageNumber: number,
+    ): Promise<CertificatelogResponse> {
+        console.log("238");
+        return this.certificateLogService.getCertifiedlogofDevices(user,filterDto, pageNumber);
+    }
 }

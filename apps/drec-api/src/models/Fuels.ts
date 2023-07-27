@@ -4,10 +4,10 @@ export const IREC_FUEL_TYPES: CodeNameDTO[] = [
 
   { code: 'ES100', name: 'Solar' },
 
-  {
-    code: 'ES990',
-    name: 'Co-fired with fossil: Solar thermal concentration',
-  }
+  // {
+  //   code: 'ES990',
+  //   name: 'Co-fired with fossil: Solar thermal concentration',
+  // }
   
 ];
 

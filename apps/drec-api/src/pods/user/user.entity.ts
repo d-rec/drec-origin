@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne,OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne,OneToMany,BeforeUpdate } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
@@ -80,4 +80,13 @@ export class User extends ExtendedBaseEntity implements IUser {
   permissions?:PermissionString;
  
   moduleName: string;
+
+  @Column({ nullable: true })
+  updatedAt: Date;
+
+  // @BeforeUpdate()
+  // updateTimestamp() {
+  //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
+  // }
+
 }

@@ -19,7 +19,7 @@ import {
   CapacityRange,
   CommissioningDateRange,
 } from '../../../utils/enums';
-
+import { Exclude } from 'class-transformer';
 export class NewDeviceGroupDTO
   implements Omit<IDeviceGroup, 'id' | 'organizationId'>
 {
@@ -32,13 +32,13 @@ export class NewDeviceGroupDTO
   @Min(1, { each: true })
   deviceIds: number[];
 
-  @ApiProperty()
-  @IsString()
-  countryCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  countryCode: string[];
 
-  @ApiProperty()
-  @IsString()
-  fuelCode: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  fuelCode: string[];
 
   // @ApiProperty()
   // @IsEnum(StandardCompliance)
@@ -96,15 +96,15 @@ export class NewDeviceGroupDTO
   @IsNotEmpty()
   commissioningDateRange: CommissioningDateRange[];
 
-  @ApiProperty({ default: 1000 })
-  @IsNumber()
-  @IsOptional()
-  yieldValue: number;
+  // @ApiProperty({ default: 1000 })
+  // @IsNumber()
+  // @IsOptional()
+  // yieldValue: number;
 
-  @ApiProperty({ type: [String] })
-  @IsArray()
-  @IsOptional()
-  labels: string[];
+  // @ApiProperty({ type: [String] })
+  // @IsArray()
+  // @IsOptional()
+  // labels: string[];
 
 
   @ApiProperty({ type: String })
@@ -151,7 +151,11 @@ export class NewDeviceGroupDTO
   @IsOptional()
   devicegroup_uid?: string | null | undefined;
 
- 
+  @ApiProperty({ type: [Number] })
+  @Exclude()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  deviceIdsInt?: number[];
 
 
   // @ApiProperty({ type: String })

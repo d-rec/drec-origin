@@ -1,7 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceModule } from '../device/device.module';
-import { DeviceGroupController } from './device-group.controller';
+import {ReadsModule} from '../reads/reads.module';
+//import { DeviceGroupController } from './device-group.controller';
 import { BuyerReservationController} from './buyer-reservation.controller'
 import { DeviceGroup } from './device-group.entity';
 import { DeviceGroupService } from './device-group.service';
@@ -12,25 +13,34 @@ import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.
 import { YieldConfigModule } from '../yield-config/yieldconfig.module';
 import {DeviceGroupNextIssueCertificate} from './device_group_issuecertificate.entity';
 import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './check_certificate_issue_date_log_for_device_group.entity';
-import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity'
+import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_date_log.entity';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import {CheckCertificateIssueDateLogForDeviceEntity} from '../device/check_certificate_issue_date_log_for_device.entity'
+import {Certificate} from '@energyweb/issuer-api';
 @Module({
   imports: [
+   
     TypeOrmModule.forFeature([
       DeviceGroup,
       DeviceCsvFileProcessingJobsEntity,
       DeviceCsvProcessingFailedRowsEntity,
       DeviceGroupNextIssueCertificate,
       CheckCertificateIssueDateLogForDeviceGroupEntity,
-      HistoryDeviceGroupNextIssueCertificate
+      HistoryDeviceGroupNextIssueCertificate,
+      CertificateReadModelEntity,
+      CheckCertificateIssueDateLogForDeviceEntity,
+      Certificate,
     ]),
     forwardRef(() => DeviceModule),
+    
     OrganizationModule,
     YieldConfigModule,
-    FileModule
+    FileModule,
+    
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],
-  controllers: [DeviceGroupController,BuyerReservationController],
+  controllers: [BuyerReservationController],
 })
 export class DeviceGroupModule {}
  

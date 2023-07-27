@@ -48,7 +48,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'latitude should be number',
   })
@@ -57,7 +57,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'longitude should be number',
   })
@@ -111,7 +111,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector,Agriculture',
+      'Valid OffTaker values are  School , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture',
   })
   @IsOptional()
   offTaker: OffTaker;
@@ -164,4 +164,13 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   meterReadtype?: string;
+
+  @IsString()
+  @IsOptional()
+  IREC_Status?: string;
+  
+
+  @IsString()
+  @IsOptional()
+  IREC_ID?: string;
 }

@@ -2,7 +2,7 @@ export interface OrganizationInformation
 {
     id: number;
     name: string;
-    secretKey: string;
+  //  secretKey: string;
     address: string;
     zipCode: string;
     city: string;

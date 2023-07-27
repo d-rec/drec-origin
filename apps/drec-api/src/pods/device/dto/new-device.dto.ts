@@ -51,7 +51,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'latitude should be number',
   })
@@ -59,7 +59,7 @@ export class NewDeviceDTO
   
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d+(\.\d{1,2})?$/, {
+  @Matches(/^-?\d+(\.\d{1,})?$/, {
     message:
       'longitude should be number',
   })
@@ -111,7 +111,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , HealthFacility , Residential , Commercial , Industrial , PublicSector,Agriculture',
+      'Valid OffTaker values are  School , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture',
   })
   @IsOptional()
   offTaker: OffTaker;
@@ -144,10 +144,10 @@ export class NewDeviceDTO
   @IsOptional()
   impactStory: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  data: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // data: string;
 
   @ApiProperty()
   @IsArray()

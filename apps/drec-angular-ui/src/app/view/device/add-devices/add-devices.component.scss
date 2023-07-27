@@ -54,12 +54,15 @@ input.example-right-align {
   border-radius: 50px!important;
   padding: 3px;
   font-size: 10px!important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   .material-icons{
     font-size: 18px !important;
   }
   .mat-icon{
-    height: 19px;
-    width: 19px;
+    height: 20px;
+    width: 20px;
   }
 }
 .btn-outline-danger{

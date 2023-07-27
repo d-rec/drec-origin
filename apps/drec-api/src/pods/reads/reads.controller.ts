@@ -40,6 +40,7 @@ import * as momentTimeZone from 'moment-timezone';
 import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -96,9 +97,12 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-/* */
-@Get('new/:externalId')
-  @ApiQuery({ name: 'pagenumber',type:Number,required:false})
+  /* */
+  @Get('new/:externalId')
+
+  @ApiQuery({ name: 'Month', type: Number, required: false })
+  @ApiQuery({ name: 'Year', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -108,15 +112,28 @@ export class ReadsController extends BaseReadsController {
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: filterNoOffLimit,
-    @Query('pagenumber')pagenumber:number|null,
+    @Query('pagenumber') pagenumber: number | null,
+    @Query('Month') month: number | null,
+    @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
-  ): Promise<ReadDTO[]> {
+  )
+  /*: Promise<ReadDTO[]>*/ {
+
     //finding the device details throught the device service
-    filter.offset=0;
-    filter.limit=5;
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
-    console.log("getmeterdevice");
-    console.log(device);
+    filter.offset = 0;
+    filter.limit = 5;
+    let device: DeviceDTO | null;
+    if (month && !year) {
+      throw new HttpException('Year is required when month is given', 400)
+    }
+    if (user.role === 'Buyer') {
+      device = await this.deviceService.findOne(parseInt(meterId));
+
+    } else {
+      device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+    }
+    // console.log("getmeterdevice");
+    // console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -128,9 +145,26 @@ export class ReadsController extends BaseReadsController {
         );
       });
     }
-     return this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt,pagenumber);
+
+    if (filter.readType === 'accumulated' && filter.accumulationType) {
+      return this.internalReadsService.getAccumulatedReads(device.externalId, user.organizationId, device.developerExternalId, filter.accumulationType, month, year);
+    }
+
+    else if (filter.readType === 'meterReads') {
+      let timezone = getLocalTimeZoneFromDevice(filter.start, device);
+      console.log("the timezone we got from all reads is:::" + timezone);
+      const returnedObject = await this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt, pagenumber);
+      console.log("THE RETURNED OBJECT KEYS:::" + Object.keys(returnedObject));
+      Object.assign(returnedObject, { "timezone": timezone });
+      console.log("THE CHANGED OBJECT KEYS::::::" + Object.keys(returnedObject));
+      return returnedObject;
+    }
+
+    else {
+      throw new HttpException('Invalid readType parameter', 400);
+    }
   }
-/* */
+  /* */
 
 
   // @Get('/:meter/difference')
@@ -236,7 +270,7 @@ export class ReadsController extends BaseReadsController {
     }
     id = id.trim();
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id, user.organizationId);
-    console.log(device);
+    //console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -254,7 +288,7 @@ export class ReadsController extends BaseReadsController {
       let allTimezoneNamesLowerCase: Array<string> = [];
       //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz.names().forEach(ele => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      console.log(allTimezoneNamesLowerCase);
+      //console.log(allTimezoneNamesLowerCase);
       if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
         return new Promise((resolve, reject) => {
           reject(
@@ -284,17 +318,7 @@ export class ReadsController extends BaseReadsController {
                   })
                 }
               }
-              if (new Date(ele[key]).getTime() > new Date().getTime()) {
-               
-                const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
-                throw new ConflictException({
-                  success: false,
-                  message: `One or more measurements endtimestamp ${ele[key]} is greater than current date ${moment(cur).format('YYYY-MM-DD HH:mm:ss')}`,
-                })
-
-
-              }
               //@ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
@@ -307,6 +331,7 @@ export class ReadsController extends BaseReadsController {
 
                 let dateTime;
                 dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
+                console.log("dateTime", dateTime);
                 if (!dateTime.isValid()) {
                   dateInvalid = true;
                   throw new ConflictException({
@@ -332,6 +357,7 @@ export class ReadsController extends BaseReadsController {
                   }
                   //@ts-ignore
                   ele[key] = utcString;
+                  console.log(key, ele[key])
                 }
 
               }
@@ -349,173 +375,35 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
-
+      device.createdAt = momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
+      device.commissioningDate = momentTimeZone
+        .tz(new Date(device?.commissioningDate), measurements.timezone)
+        .format();
     }
 
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
       let datesContainingNullOrEmptyValues: boolean = false;
+      let datevalid: boolean = true;
+      let allDatesAreBeforeCreatedAt: boolean = true;
+      let allStartDatesAreBeforeEnddate: boolean = true;
+      let readvalue: boolean = true;
+      let historyallStartDatesAreAftercommissioningDate: boolean = true;
+      let historyallEndDatesAreAftercommissioningDate: boolean = true;
       measurements.reads.forEach(ele => {
         //@ts-ignore
         if (ele.starttimestamp === null || ele.starttimestamp === undefined || ele.starttimestamp === "" || ele.endtimestamp === null || ele.endtimestamp === undefined || ele.endtimestamp === "") {
           datesContainingNullOrEmptyValues = true;
         }
-      });
-
-
-
-      if (datesContainingNullOrEmptyValues) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: 'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
-            }),
-          );
-        });
-      }
-    }
-    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
-      let datesContainingNullOrEmptyValues: boolean = false;
-      measurements.reads.forEach(ele => {
-        //@ts-ignore
-        if (ele.endtimestamp === null || ele.endtimestamp === undefined || ele.endtimestamp === "") {
-          datesContainingNullOrEmptyValues = true;
-        }
-      });
-      if (datesContainingNullOrEmptyValues) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
-            }),
-          );
-        });
-      }
-    }
-    // Date format vaildation
-    if (measurements.type === ReadType.History) {
-
-      let datevalid: boolean = true;
-
-      measurements.reads.forEach(ele => {
-
-
         //@ts-ignore
         let startdateformate = isValidUTCDateFormat(ele.starttimestamp)
         //dateFormateToCheck.test(ele.starttimestamp);
-
-
         //@ts-ignore
         let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
         }
-        // moment().format('YYYY-MM-DDTHH:mm:ssZ');
-
-        // const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
-        // const fromDateFormat = moment(ele.starttimestamp).format(dateFormat);
-        // const toDateFormat = moment(new Date(ele.endtimestamp)).format(dateFormat);
-
-        // var reqstartDate = moment(fromDateFormat, dateFormat, true).isValid();
-
-
-        // var reqendtDate = moment(toDateFormat, dateFormat, true).isValid();
-
-        // if (!reqstartDate || !reqendtDate) {
-        //   datevalid2 = false;
-        // }
-
-      })
-
-      if (!datevalid) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
-      }
-    }
-    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
-      let datevalid1: boolean = true;
-
-      measurements.reads.forEach(ele => {
-
-        //@ts-ignore
-        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
-
-        if (!enddateformate) {
-          datevalid1 = false;
-        }
-
-
-      })
-
-      if (!datevalid1) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
-      }
-
-    }
-    // Device onboarding and system date validation
-    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
-      let allDatesAreAfterCreatedAt: boolean = true;
-      measurements.reads.forEach(ele => {
-        if (device && device.createdAt) {
-          if (new Date(ele.endtimestamp).getTime() <= new Date(device.createdAt).getTime()) {
-            allDatesAreAfterCreatedAt = false;
-          }
-        }
-      })
-      if (!allDatesAreAfterCreatedAt) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `One or more measurements endtimestamp is less than or equal to device onboarding date${device?.createdAt}`,
-            })
-          );
-        });
-      }
-    }
-    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
-      let allEndDatesAreBeforSystemDate: boolean = true;
-      measurements.reads.forEach(ele => {
-        if (device && device.createdAt) {
-
-          if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
-            allEndDatesAreBeforSystemDate = false;
-          }
-        }
-      })
-      if (!allEndDatesAreBeforSystemDate) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `One or more measurements endtimestamp is greater than current date`,
-            })
-          );
-        });
-      }
-    }
-
-    if (measurements.type === ReadType.History) {
-      let allDatesAreBeforeCreatedAt: boolean = true;
-      let allStartDatesAreBeforeEnddate: boolean = true;
-      let readvalue: boolean = true;
-      measurements.reads.forEach(ele => {
         if (device && device.createdAt) {
           if (new Date(ele.endtimestamp).getTime() > new Date(device.createdAt).getTime()) {
             allDatesAreBeforeCreatedAt = false;
@@ -531,8 +419,42 @@ export class ReadsController extends BaseReadsController {
         if (ele.value < 0) {
           readvalue = false;
         }
-      })
+        if (device && device.commissioningDate) {
+          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+
+          if (new Date(ele.starttimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallStartDatesAreAftercommissioningDate = false;
+          }
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            historyallEndDatesAreAftercommissioningDate = false;
+          }
+        }
+      });
+
+
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: 'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
+            }),
+          );
+        });
+      }
+      if (!datevalid) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
       if (!allStartDatesAreBeforeEnddate) {
+
+
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -543,11 +465,12 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (!allDatesAreBeforeCreatedAt) {
+
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
               success: false,
-              message: `For History reading starttimestamp and endtimestamp should be prior to device onboarding date. One or more measurements endtimestamp and or starttimestamp is greater than device onboarding date${device?.createdAt}`,
+              message: `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
             })
           );
         });
@@ -563,7 +486,128 @@ export class ReadsController extends BaseReadsController {
           );
         });
       }
+      if (!historyallStartDatesAreAftercommissioningDate) {
+
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
+            })
+          );
+        });
+      }
+      if (!historyallEndDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+            })
+          );
+        });
+      }
     }
+    if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
+      console.log("505")
+      let datesContainingNullOrEmptyValues: boolean = false;
+      let datevalid1: boolean = true;
+      let allDatesAreAfterCreatedAt: boolean = true;
+      let allDatesAreAftercommissioningDate: boolean = true;
+      let allEndDatesAreBeforSystemDate: boolean = true;
+      let enddate: any;
+      let currentdate:Date = new Date();
+      measurements.reads.forEach(ele => {
+        console.log("512", ele)
+        //@ts-ignore
+        if (ele.endtimestamp === null || ele.endtimestamp === undefined || ele.endtimestamp === "") {
+          datesContainingNullOrEmptyValues = true;
+        }
+        //@ts-ignore
+        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+
+        if (!enddateformate) {
+          datevalid1 = false;
+        }
+        //check validation with onboarding date
+        if (device && device.createdAt) {
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.createdAt).getTime()) {
+            allDatesAreAfterCreatedAt = false;
+            enddate = ele.endtimestamp
+          }
+        }
+        //check validation with commissioning Date 
+        if (device && device.commissioningDate) {
+          if (new Date(ele.endtimestamp).getTime() <= new Date(device.commissioningDate).getTime()) {
+            allDatesAreAftercommissioningDate = false;
+            enddate = ele.endtimestamp
+          }
+        }
+
+        //check validation with System Date 
+        if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
+          allEndDatesAreBeforSystemDate = false;
+          enddate = ele.endtimestamp
+        }
+
+      });
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
+            }),
+          );
+        });
+      }
+      if (!datevalid1) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
+      if (measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== '') {
+        enddate = momentTimeZone.tz(enddate, measurements.timezone);
+        currentdate= momentTimeZone.tz(currentdate, measurements.timezone).toDate();
+
+      }
+      if (!allDatesAreAfterCreatedAt) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
+            })
+          );
+        });
+      }
+      if (!allDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+            })
+          );
+        });
+      }
+      if (!allEndDatesAreBeforSystemDate) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
+            })
+          );
+        });
+      }
+    }
+
     // negative value validation
     if (measurements.type === ReadType.History || measurements.type === ReadType.Delta) {
 
@@ -614,13 +658,20 @@ export class ReadsController extends BaseReadsController {
     description: 'Returns the latest meter read of the given device',
   })
   @UseGuards(AuthGuard('jwt'))
-  public async getLatestMeterRead(  
-  @Param("externalId") externalId:string,
-  @UserDecorator() user: ILoggedInUser,
-  )
-  {
+  public async getLatestMeterRead(
+    @Param("externalId") externalId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ) {
 
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+    let device: DeviceDTO | null
+    if (user.role === 'Buyer') {
+
+      device = await this.deviceService.findOne(parseInt(externalId));
+
+    } else {
+      device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+
+    }
 
     if (device === null) {
 
@@ -638,28 +689,32 @@ export class ReadsController extends BaseReadsController {
     let latestReadObject;
     let latestRead;
 
-   deviceExternalId=device.externalId;
-  console.log("externalId::"+deviceExternalId);
+    deviceExternalId = device.externalId;
+    console.log("externalId::" + deviceExternalId);
 
-    if(!device.meterReadtype)
-    {
-      throw new HttpException('Read not found',400)
+    if (!device.meterReadtype) {
+      throw new HttpException('Read not found', 400)
     }
-    else{
+    else {
 
-          latestReadObject=await this.internalReadsService.latestread(deviceExternalId,device.createdAt);
+      latestReadObject = await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
 
-              console.log(latestReadObject)
+      if (typeof latestReadObject === 'undefined' || latestReadObject.length == 0) {
+        throw new HttpException('Read Not found', 400)
+      }
+      if (user.role === 'Buyer') {
+        return {
+          externalId: device.developerExternalId,
+          timestamp: latestReadObject[0].timestamp,
+          value: latestReadObject[0].value
+        }
+      }
 
-            if(typeof latestReadObject==='undefined' || latestReadObject.length==0)   
-              {
-                throw new HttpException('Read Not found', 400)
-              }
-          return {
-            "enddate":latestReadObject[0].timestamp,
-            "value":latestReadObject[0].value
-          }
-      }   
-}
+      return {
+        "enddate": latestReadObject[0].timestamp,
+        "value": latestReadObject[0].value
+      }
+    }
+  }
 
 }

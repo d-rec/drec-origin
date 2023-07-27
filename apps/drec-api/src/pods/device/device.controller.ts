@@ -51,8 +51,10 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { CountrycodeService } from '../countrycode/countrycode.service';
-import { countrCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
+import { DeviceGroup } from '../device-group/device-group.entity';
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -67,30 +69,26 @@ export class DeviceController {
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin)
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
-  ): Promise<DeviceDTO[]> {
-    return this.deviceService.find(filterDto);
+    @Query('pagenumber') pagenumber: number | null,
+  )/*: Promise<DeviceDTO[]>*/ {
+    return this.deviceService.find(filterDto, pagenumber);
   }
-  // @Get('/devicegroup')
-  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  // @Roles(Role.Admin)
-  // @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
-  // async getAllgroupdevcie(
-
-  // ): Promise<DeviceDTO[]> {
-  //   return this.deviceService.NewfindForGroup(1);
-  // }
+ 
   @Get('/ungrouped/buyerreservation')
   @UseGuards(AuthGuard('jwt'))
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
-    @Query(ValidationPipe) filterDto: BuyerDeviceFilterDTO,
+    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query('pagenumber') pagenumber: number | null,
   ): Promise<DeviceDTO[]> {
-    return this.deviceService.finddeviceForBuyer(filterDto);
+   
+    return this.deviceService.finddeviceForBuyer(filterDto,pagenumber);
   }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -136,15 +134,47 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+@ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
     description: 'Returns my Devices',
   })
   async getMyDevices(
+    @Query(ValidationPipe) filterDto: FilterDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<DeviceDTO[]> {
-    return await this.deviceService.getOrganizationDevices(organizationId);
+    @Query('pagenumber') pagenumber: number | null
+  )/*: Promise<DeviceDTO[]>*/ {
+    console.log(filterDto);
+    if(filterDto.country){
+      filterDto.country = filterDto.country.toUpperCase();
+      console.log(filterDto.country);
+      if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
+        let countries = countryCodesList;
+        if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+              }),
+            );
+          });
+        }
+      } else {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            }),
+          );
+        });
+      }
+    }
+  
+
+    return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
   }
 
   @Get('/:id')
@@ -157,7 +187,11 @@ export class DeviceController {
     description: `The device with the code doesn't exist`,
   })
   async get(@Param('id') id: number): Promise<DeviceDTO | null> {
-    return this.deviceService.findOne(id);
+    const devicedata = await this.deviceService.findOne(id);
+    console.log(devicedata);
+    devicedata.externalId = devicedata.developerExternalId;
+    delete devicedata["developerExternalId"];
+    return devicedata
   }
 
   @Get('externalId/:id')
@@ -203,7 +237,7 @@ export class DeviceController {
       });
     }
 
- 
+
     if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       return new Promise((resolve, reject) => {
         reject(
@@ -229,7 +263,7 @@ export class DeviceController {
     }
     deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
     if (deviceToRegister.countryCode && typeof deviceToRegister.countryCode === "string" && deviceToRegister.countryCode.length === 3) {
-      let countries = countrCodesList;
+      let countries = countryCodesList;
       if (countries.find(ele => ele.countryCode === deviceToRegister.countryCode) === undefined) {
         return new Promise((resolve, reject) => {
           reject(
@@ -255,70 +289,26 @@ export class DeviceController {
         reject(
           new ConflictException({
             success: false,
-            message: ' Invalid Capacity',
+            message: ' Invalid Capacity or energy Storage Capacity',
           }),
         );
       });
     }
-    if (deviceToRegister.capacity <= 0) {
+    if (deviceToRegister.capacity <= 0 || deviceToRegister.energyStorageCapacity < 0) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: ' Invalid Capacity, it should be greater than 0',
+            message: ' Invalid Capacity or energy Storage Capacity, it should be greater than 0',
           }),
         );
       });
     }
-    if (deviceToRegister.version === null || deviceToRegister.version === undefined) {
+    if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
-    // .catch((error) => {
-    //   console.log(error.error);
-    // //  return error
-    //   return new Promise((resolve, reject) => {
-    //           reject(
-    //             new ConflictException({
-    //               success: false,
-    //               message: error,
-    //             }),
-    //           );
-    //         });
-    //   //   if (error && error.code && error.detail) {
-    //   //     return new Promise((resolve, reject) => {
-    //   //       reject(
-    //   //         new ConflictException({
-    //   //           success: false,
-    //   //           message: error.detail,
-    //   //         }),
-    //   //       );
-    //   //     });
-    //   //   } else {
-    //   //     console.log("error", error);
-    //   //     return new Promise((resolve, reject) => {
-    //   //       reject({ error: true });
-    //   //     });
-    //   //}
-    // });
-
-    //}
-    // catch(e)
-    // {
-    //   if(e && e.code && e.detail)
-    //   {
-    //     return new Promise((resolve,reject)=>{
-    //       reject(new ConflictException({
-    //         success: false,
-    //         message:e.detail}))
-    //     })
-    // }
-    // else
-    //   return new Promise((resolve,reject)=>{
-    //     reject({error:true});
-    //   })
-
-    // }
+  
   }
 
 
@@ -338,38 +328,43 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     console.log(deviceToUpdate);
-    deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
-    if (deviceToUpdate.externalId.trim() === "") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `externalId should not be empty`,
-          })
-        );
-      });
-    }
-    const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
-      deviceToUpdate.externalId,
-      user.organizationId
-    );
-    console.log(checkexternalid)
-    if (checkexternalid != undefined) {
-      console.log("236");
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `ExternalId already exist in this organization, can't update with same external id ${ deviceToUpdate.externalId}`,
 
-          })
-        );
-      });
+    if (deviceToUpdate.externalId) {
+      deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
+      if (deviceToUpdate.externalId === "") {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `externalId should not be empty`,
+            })
+          );
+        });
+      }
+
+      const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId
+      );
+      console.log(checkexternalid)
+      if (checkexternalid != undefined && checkexternalid.developerExternalId === externalId.trim()) {
+        console.log("236");
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
+
+            })
+          );
+        });
+      }
     }
+
     if (deviceToUpdate.countryCode != undefined) {
       deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
       if (deviceToUpdate.countryCode && typeof deviceToUpdate.countryCode === "string" && deviceToUpdate.countryCode.length === 3) {
-        let countries = countrCodesList;
+        let countries = countryCodesList;
         if (countries.find(ele => ele.countryCode === deviceToUpdate.countryCode) === undefined) {
           return new Promise((resolve, reject) => {
             reject(
@@ -450,40 +445,145 @@ export class DeviceController {
   }
 
 
-/**/
+  /**/
 
 
-@Put('/my/deviceOnBoardingDate')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
-@Permission('Write')
-@ACLModules('DEVICE_MANAGEMENT_CRUDL')
-@ApiResponse({
-  status: HttpStatus.OK,
-  description: "change the device's OnBoarding date",
-})
+  @Put('/my/deviceOnBoardingDate')
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "change the device's OnBoarding date",
+  })
 
-@ApiQuery({ name: 'deviceId', description: 'Device Id' })
-@ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
-async changeOnBoardingDate(
-  @UserDecorator() { organizationId }: ILoggedInUser,
-  @Query('deviceId') deviceId,
-  @Query('givenDate') givenDate
-  )
- {
-  if(process.env.MODE!='dev')
-  {
-    throw new HttpException("Currently not in dev environment",400)
-  }
-  let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
-  console.log("THE DEVICE FROM ExTERNALID IS::::::::::::"+device.externalId);
-  if (!device) {
-    throw new HttpException("Device dosen't exist", 400);
-  }
-  const deviceExternalId = device.externalId;
-  const deviceOnboardedDate = device.createdAt;
-  return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
+  @ApiQuery({ name: 'deviceId', description: 'Device Id' })
+  @ApiQuery({ name: 'givenDate', description: 'Update the OnBoarding date', type: Date, })
+  async changeOnBoardingDate(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('deviceId') deviceId,
+    @Query('givenDate') givenDate
+  ) {
+    if (process.env.MODE != 'dev') {
+      throw new HttpException("Currently not in dev environment", 400)
+    }
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
+    console.log("THE DEVICE FROM ExTERNALID IS::::::::::::" + device.externalId);
+    if (!device) {
+      throw new HttpException("Device dosen't exist", 400);
+    }
+    const deviceExternalId = device.externalId;
+    const deviceOnboardedDate = device.createdAt;
+    return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
   }
 
-/* */
+  /* */
+
+  //////////////////////////////////////////////////
+
+
+  // @Get('/autocomplete')
+  //   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  //   @Permission('Read')
+  //   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  //   @ApiResponse({
+  //     status: HttpStatus.OK,
+  //     type: [DeviceDTO],
+  //     description: 'Returns auto corrected externalIDs and other data',
+  //   })
+
+  //   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
+
+  //   async autocomplete(
+  //     @UserDecorator() { organizationId }: ILoggedInUser,
+  //     // @Query('externalId') externalId :Number,
+
+  //   ){
+  //     return await this.deviceService.atto(organizationId);
+  //   }
+
+
+  @Get('/my/autocomplete')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Auto-Complete',
+  })
+
+  @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
+
+  async autocomplete(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('externalId') externalId: String,
+  ) {
+    return await this.deviceService.atto(organizationId, externalId);
+  }
+
+
+  @Get('/certifiedlog/first&lastdate')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Certified log date rang of Device',
+  })
+  async certifiedlogdaterang(
+    @UserDecorator() user: ILoggedInUser,
+    @Query('externalId') externalId: number,
+    @Query('groupUid') groupuId: string,
+  ): Promise<any> {
+    // console.log(externalId);
+    // console.log(groupuId)
+
+    const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+    if (groupuId === null || !regexExp.test(groupuId)) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: ' Please Add the valid UID ,invalid group uid value was sent',
+        }))
+      })
+    }
+
+    let device: DeviceDTO | null
+
+    device = await this.deviceService.findOne(externalId);
+    /// console.log(device);
+    if (device === null) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'device not found, invalid value was sent',
+        }))
+      })
+    }
+    let group: DeviceGroup | null
+    group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
+    // console.log(group);
+    if (group === null || group.buyerId != user.id) {
+      return new Promise((resolve, reject) => {
+        reject(new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
+        }))
+      })
+    }
+    return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+  }
+  // @Get('/certified/date-range-log')
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: 'Returns Auto-Complete',
+  // })
+  // async devicecertifiedlogdaterange() {
+
+  //   return "await this.deviceService.atto(organizationId, externalId)";
+  // }
+  /////////////////////////////////////////////////
+
 
 }

@@ -14,7 +14,7 @@ export interface IDevice {
   id: number;
   externalId: string;
   developerExternalId?:string;
-  status: DeviceStatus;
+  //status: DeviceStatus;
   organizationId: number;
   projectName: string;
   address?: string;
@@ -33,13 +33,13 @@ export interface IDevice {
   //standardCompliance: StandardCompliance;
   yieldValue: number;
   //generatorsIds?: number[];
-  labels?: string;
+  //labels?: string;
   impactStory?: string;
-  data?: string;
+  //data?: string;
   images?: string[];
   groupId?: number | null;
   deviceDescription?: DeviceDescription;
-  integrator?: Integrator;
+  //integrator?: Integrator;
   energyStorage?: boolean;
   energyStorageCapacity?: number;
   SDGBenefits?: string[];
@@ -47,6 +47,7 @@ export interface IDevice {
   meterReadtype?: string;
   createdAt?:Date;
   version?:string;
+  timezone?:string;
 }
 
 export enum DeviceDescription {

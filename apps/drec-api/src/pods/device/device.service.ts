@@ -5,9 +5,14 @@ import {
   Logger,
   ConflictException,
   HttpException,
+  HttpStatus,
+  HttpService,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, In, IsNull, Not, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual } from 'typeorm';
+import {
+  FindOneOptions, Repository, In, IsNull, Not, FindOperator,
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, MoreThanOrEqual, ILike
+} from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
 import { defaults } from 'lodash';
@@ -20,7 +25,7 @@ import {
   BuyerDeviceFilterDTO,
 } from './dto';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
-import { DeviceOrderBy, Integrator, ReadType, Role } from '../../utils/enums';
+import { DeviceOrderBy, Integrator, ReadType, Role, SDGBenefitsList, IRECDeviceStatus } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
   DeviceKey,
@@ -36,6 +41,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
 import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
+import { regenerateToken } from '../../utils/evident-login';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { SingleDeviceIssuanceStatus } from '../../utils/enums'
 import { DateTime } from 'luxon';
@@ -45,6 +51,10 @@ import { SDGBenefits } from '../../models/Sdgbenefit'
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { Observable } from 'rxjs';
+import { AxiosRequestConfig } from 'axios';
+import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
+import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -54,12 +64,44 @@ export class DeviceService {
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+    private httpService: HttpService,
+    @InjectRepository(IrecDevicesInformationEntity)
+    private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
+    @InjectRepository(IrecErrorLogInformationEntity)
+    private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
 
   ) { }
 
-  public async find(filterDto: FilterDTO): Promise<Device[]> {
-    const query = this.getFilteredQuery(filterDto);
-    return this.repository.find(query);
+  public async find(filterDto: FilterDTO, pagenumber: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
+    const limit = 20;
+    let query = await this.getFilteredQuery(filterDto)
+    if (pagenumber) {
+      query = {
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      }
+    }
+
+    console.log(query);
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+    //devices.externalId = devices.developerExternalId
+    const totalPages = Math.ceil(totalCount / 20);
+    const currentPage = pagenumber;
+    const newDevices = [];
+
+    await devices.map((device: Device) => {
+
+      // device.externalId = device.developerExternalId
+      // delete device["developerExternalId"];
+      newDevices.push(device);
+    })
+
+    return {
+      devices: newDevices,
+      currentPage,
+      totalPages,
+      totalCount
+    };
   }
 
   public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
@@ -70,51 +112,219 @@ export class DeviceService {
     });
   }
 
-  async getOrganizationDevices(organizationId: number): Promise<Device[]> {
-    console.log(organizationId);
+  async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
+
+    if (Object.keys(filterDto).length != 0) {
+      if (pagenumber === null || pagenumber === undefined) {
+        pagenumber = 1
+      }
+      const limit = 20;
+      const query = await this.getFilteredQuery(filterDto);
+      let where: any = query.where
+      where = { ...where, organizationId };
+      query.where = where;
+      // console.log(query);
+      const [devices, totalCount] = await this.repository.findAndCount({
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit,
+        order: {
+          createdAt: 'DESC',
+        }
+      });
+      console.log((pagenumber - 1) * limit);
+      console.log(totalCount);
+      const totalPages = Math.ceil(totalCount / limit);
+      if (pagenumber > totalPages) {
+        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+      }
+      const currentPage = pagenumber;
+      const newDevices = [];
+      await devices.map((device: Device) => {
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        newDevices.push(device);
+      })
+      return {
+        devices: newDevices,
+        currentPage,
+        totalPages,
+        totalCount
+      };
+    }
+
     const devices = await this.repository.find({
       where: { organizationId },
+      order: {
+        createdAt: 'DESC',
+      },
     });
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
-
     await devices.map((device: Device) => {
-
       device.externalId = device.developerExternalId
       delete device["developerExternalId"];
       newDevices.push(device);
     })
-
-    // let totalamountofreads = [];
-    //     await Promise.all(
-    //       devices.map(async (device: Device) => {
-
-    //         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
-    //           {
-    //             where: { deviceid: device.externalId }
-    //           }
-    //         )
-    //         const totalcertifiedReadValue = certifiedamountofread.reduce(
-    //           (accumulator, currentValue) => accumulator + currentValue.readvalue_watthour,
-    //           0,
-    //         );
-    //         let totalamount= await this.getallread(device.externalId);
-    //         const totalReadValue = totalamount.reduce(
-    //           (accumulator, currentValue) => accumulator + currentValue.value,
-    //           0,
-    //         );
-    //         totalamountofreads.push({
-    //           devicename: device.externalId,
-    //           totalcertifiedReadValue: totalcertifiedReadValue,
-    //           totalReadValue:totalReadValue
-    //         })
-
-    //       }))
-
-    // console.log(totalamountofreads);
-    return newDevices;
+    return newDevices
   }
 
+  @Cron('*/30 * * * * *') // Cron pattern for running every 30 seconds
+  async fetchDataCronJob() {
+    try {
+      const data = await this.fetchDataFromApi();
+      console.log('Fetched data:', data);
+    } catch (error) {
+      console.error('Error fetching data:', error.message);
+    }
+  }
+  async fetchDataFromApi(): Promise<any> {
+    console.log("hitting api");
+    const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
+    let jwtToken = await regenerateToken(this.httpService);
+   
+    const headers = {
+      // Add your custom headers here
+      'Authorization': `Bearer ${jwtToken}`
+    };
+
+    const response = await this.httpService.get(apiUrl, { headers }).toPromise();
+    return response.data;
+  }
+
+
+
+  //@Cron('*/30 * * * * *')
+  async I_recPostData(deviceId): Promise<any> {
+    const device = await this.repository.findOne({
+      where: { id: deviceId, IREC_Status: 'NotRegistered' },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    console.log("device", device);
+
+    if (device) {
+      let jwtToken = await regenerateToken(this.httpService);
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      };
+      const requestBody = {
+        name: `${device.externalId}`,
+        fuel: `/fuels/${device.fuelCode}`
+      };
+      const config: AxiosRequestConfig = {
+        headers,
+      };
+
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
+
+      try {
+        const response = await this.httpService.post(url, requestBody, config).toPromise();
+        console.log("response", response.data);
+        const data = response.data;
+        device.IREC_ID = data.code;
+        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+        await this.repository.save(device);
+        let irecdeviceaddDto = new IrecDevicesInformationEntity();
+        irecdeviceaddDto.IREC_id = data.code,
+          irecdeviceaddDto.event = 'register',
+          irecdeviceaddDto.request = requestBody,
+          irecdeviceaddDto.responses = data
+        await this.irecinforepository.save({
+          ...irecdeviceaddDto
+        })
+
+        return {
+          status: true,
+          message: 'Device Added Successfully in I-REC',
+          IREC_ID: data.code
+        };
+      } catch (error) {
+        console.log("error", error);
+        let irecdeviceerrorlogDto = new  IrecErrorLogInformationEntity();
+      
+        irecdeviceerrorlogDto.event = 'register',
+        irecdeviceerrorlogDto.request = requestBody,
+        irecdeviceerrorlogDto.error_log_responses = error
+        await this.irecerrorlogrepository.save({
+          ...irecdeviceerrorlogDto
+        })
+        return {
+          status: false,
+          message: 'Device Added Failure in I-REC, ' + error,
+
+        };
+      }
+    }
+
+    return { status: false, message: 'device not found' };
+  }
+
+  //this function for add device details into irec 
+  async I_RECDeviceDetailsPostData(deviceId): Promise<Observable<any>> {
+    const device = await this.repository.findOne({
+      where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    console.log("device", device);
+    if (device) {
+      let jwtToken = await regenerateToken(this.httpService);
+      const headers = {
+        'Content-Type': 'application/json', // Set the Content-Type header for JSON data
+        'Authorization': `Bearer ${jwtToken}`
+        // Add any other custom headers if needed
+      };
+     let irec_capacity = device.capacity/1000;
+      //let deId=device.externalId
+      const requestBody = {
+        "deviceType": "/device_types/"+device.deviceTypeCode,
+        "fuel": "/fuels/",
+        "device": "/devices/",
+        "registrant": "/registrants/",
+        "issuer": "/issuers/",
+        "name": device.externalId,
+        "capacity": irec_capacity,
+        "supported": true,
+        "latitude": device.latitude,
+        "longitude": device.longitude,
+        "registrationDate": device.createdAt,
+        "commissioningDate": device.commissioningDate,
+        "status": IRECDeviceStatus.Submitted,
+        "active": true,
+        "address1": device.address,
+        "country": "/countries/"+device.countryCode,
+      }
+      console.log("requestBody", requestBody);
+      // console.log("jwtToken", jwtToken);
+
+      const config: AxiosRequestConfig = {
+        headers, // Set the headers in the config object
+
+      };
+
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;// Replace with your API endpoint
+      console.log(url)
+      let data: any;
+      let response = this.httpService.post(url, requestBody, config).subscribe(response => {
+
+        console.log("response", response.data);
+        data = response.data;
+        device.IREC_ID = data.code
+        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated
+
+      }, error => {
+        console.log("error", error.data);
+
+      });
+      await this.repository.save(device);
+      // console.log("response from irec", response._subscribe)
+      return data
+    }
+
+  }
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
     deviceIds: Array<number>,
@@ -134,7 +344,7 @@ export class DeviceService {
 
     });
   }
-  public async NewfindForGroup(groupId: number, endDate: string): Promise<{ [key: string]: Device[] }> {
+  public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
 
     let groupdevice: Array<any> = await this.repository.find({
       where: { groupId },
@@ -152,7 +362,7 @@ export class DeviceService {
   }
 
   private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
-    console.log(array)
+    ////console.log(array)
 
     return array.reduce((result: any, currentValue: any) => {
 
@@ -168,7 +378,7 @@ export class DeviceService {
   }
 
   public async findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(ids: number[]): Promise<Device[]> {
-    console.log("ids", ids)
+    //console.log("ids", ids)
     return await this.repository.find({
       where: {
         //id: In(ids), groupId: IsNull()
@@ -208,7 +418,7 @@ export class DeviceService {
     meterIdList: Array<string>,
     organizationId: number
   ): Promise<Array<DeviceDTO | null>> {
-    console.log("meterIdList", meterIdList);
+    //console.log("meterIdList", meterIdList);
     return (
       (await this.repository.find({
         where: { developerExternalId: In(meterIdList), organizationId: organizationId },
@@ -232,8 +442,8 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
-    console.log(orgCode);
-    console.log(newDevice);
+    //console.log(orgCode);
+    //console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     let sdgbbenifitslist = SDGBenefits;
@@ -245,7 +455,7 @@ export class DeviceService {
 
       }
     });
-    console.log(checkexternalid)
+    //console.log(checkexternalid)
     if (checkexternalid != undefined) {
       console.log("236");
       return new Promise((resolve, reject) => {
@@ -265,7 +475,7 @@ export class DeviceService {
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
-    console.log(newDevice.developerExternalId)
+    //console.log(newDevice.developerExternalId)
     //@ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = []
@@ -306,13 +516,13 @@ export class DeviceService {
           },
         }
         : undefined;
-    console.log(rule);
-    let currentDevice = await this.findDeviceByDeveloperExternalId(externalId, organizationId);
+    //console.log(rule);
+    let currentDevice = await this.findDeviceByDeveloperExternalId(externalId.trim(), organizationId);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${externalId}`);
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
-    console.log(updateDeviceDTO.countryCode);
+    //console.log(updateDeviceDTO.countryCode);
     // const code = updateDeviceDTO.countryCode.toUpperCase();
     updateDeviceDTO.externalId = currentDevice.externalId;
     let sdgbbenifitslist = SDGBenefits;
@@ -340,7 +550,7 @@ export class DeviceService {
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
-    console.log(result);
+    //console.log(result);
     return result;
   }
 
@@ -440,32 +650,76 @@ export class DeviceService {
   }
 
   private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
+    const limit = 20;
+
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
-      deviceTypeCode: filter.deviceTypeCode,
-      //installationConfiguration: filter.installationConfiguration,
-      capacity: filter.capacity,
+      // deviceTypeCode: filter.deviceTypeCode,
+      capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-      offTaker: filter.offTaker,
-      //sector: filter.sector,
-      labels: filter.labels,
-      //standardCompliance: filter.standardCompliance,
+      // offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-      commissioningDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
 
     });
+    console.log(filter.end_date);
+    if (filter.start_date != null && filter.end_date === undefined) {
+      console.log(filter.start_date);
+      where.commissioningDate = MoreThanOrEqual(filter.start_date);
+
+    }
+    if (filter.start_date === undefined && filter.end_date != null) {
+      where.commissioningDate = LessThanOrEqual(filter.end_date);
+    }
+    if (filter.start_date != null && filter.end_date != null) {
+      where.commissioningDate = filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date)
+    }
+    if (filter.SDGBenefits) {
+      console.log(typeof filter.SDGBenefits)
+      const newsdg = filter.SDGBenefits.toString()
+      const sdgBenefitsArray = newsdg.split(',');
+      console.log(sdgBenefitsArray)
+      where.SDGBenefits = Raw(alias => `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map(term => `'%${term}%'`)}])`);
+      // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
+    }
+    if (filter.deviceTypeCode) {
+      console.log(typeof filter.deviceTypeCode)
+      const newdtype = filter.deviceTypeCode.toString()
+      const newdtypeArray = newdtype.split(',');
+      console.log(newdtypeArray)
+      where.deviceTypeCode = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newdtypeArray.map(term => `'%${term}%'`)}])`);
+
+    }
+    if (filter.offTaker) {
+      console.log(typeof filter.offTaker)
+      const newoffTaker = filter.offTaker.toString()
+      const newoffTakerArray = newoffTaker.split(',');
+      console.log(newoffTakerArray)
+      where.offTaker = Raw(alias => `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map(term => `'%${term}%'`)}])`);
+
+    }
+    //console.log(where)
     const query: FindManyOptions<Device> = {
       where,
       order: {
         organizationId: 'ASC',
-      },
+      }
+
     };
+    console.log(query)
     return query;
   }
+  private getRawFilter(
+    filter:
+      | String
+    ,
+  ): FindOperator<any> {
 
+    return Raw((alias) => `${alias} = Any(SDGBenefits)`, {
+      SDGBenefits: [filter]
+    });
+  }
   public async addGroupIdToDeviceForReserving(
     currentDevice: Device,
     groupId: number
@@ -556,9 +810,26 @@ export class DeviceService {
     return await this.repository.save(devicereadtype);
 
   }
+  public async updatetimezone(
+    deviceId: string,
+    timeZone: string,
+  ): Promise<Device> {
 
+    const devicereadtype = await this.repository.findOne({
+      where: {
+        externalId: deviceId,
+      }
+    });
+    if (!devicereadtype) {
+      throw new NotFoundException(`No device found with id ${deviceId}`);
+    }
+    devicereadtype.timezone = timeZone;
+
+    return await this.repository.save(devicereadtype);
+
+  }
   //
-  private getBuyerFilteredQuery(filter: BuyerDeviceFilterDTO): FindManyOptions<Device> {
+  private getBuyerFilteredQuery(filter: FilterDTO, pagenumber, limit): FindManyOptions<Device> {
     const where: FindConditions<Device> = cleanDeep({
 
       fuelCode: filter.fuelCode,
@@ -566,37 +837,53 @@ export class DeviceService {
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
-
-
+      commissioningDate:
+        filter.start_date &&
+        filter.end_date &&
+        Between(filter.start_date, filter.end_date),
     });
-    console.log(where);
+    //console.log(where);
     const query: FindManyOptions<Device> = {
       where,
       order: {
         organizationId: 'ASC',
       },
+      skip: (pagenumber - 1) * limit,
+      take: limit,
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: BuyerDeviceFilterDTO): Promise<Device[]> {
-
-    let query = this.getBuyerFilteredQuery(filterDto);
-
+  public async finddeviceForBuyer(filterDto: FilterDTO, pagenumber): Promise<any> {
+    const limit = 20;
+    let query = this.getFilteredQuery(filterDto);
+    if (pagenumber) {
+      query = {
+        ...query, skip: (pagenumber - 1) * limit,
+        take: limit
+      }
+    }
     let where: any = query.where
 
     where = { ...where, groupId: null };
 
     query.where = where;
-    const unreservedevices = await this.repository.find(query)
-    const newunreservedevicesDevices = [];
 
-    await unreservedevices.map((device: Device) => {
+    const [devices, totalCount] = await this.repository.findAndCount(query);
 
-      device.externalId = device.developerExternalId
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = pagenumber;
+
+    const newUnreservedDevices = devices.map((device: Device) => {
+      device.externalId = device.developerExternalId;
       delete device["developerExternalId"];
-      newunreservedevicesDevices.push(device);
-    })
-    return newunreservedevicesDevices;
+      return device;
+    });
+    return {
+      devices: newUnreservedDevices,
+      currentPage,
+      totalPages,
+      totalCount
+    };
   }
 
 
@@ -618,7 +905,7 @@ export class DeviceService {
   //   //     certificate_issuance_enddate: startDate && endDate && Between(startDate, endDate),
   //   //   },
   //   // });
-  //   console.log(deviceid)
+  //   //console.log(deviceid)
   //   const groupId = this.checkdevcielogcertificaterepository
   //     .createQueryBuilder()
   //     .where("deviceid = :deviceid", { deviceid: deviceid })
@@ -631,7 +918,7 @@ export class DeviceService {
 
   //       }),
   //     ).getMany();
-  //   console.log(groupId);
+  //   //console.log(groupId);
   //   return groupId
   // }
   public async getCheckCertificateIssueDateLogForDevice(deviceid: string,
@@ -649,7 +936,7 @@ export class DeviceService {
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
           readvalue_watthour: s.device_readvalue_watthour,
           status: s.device_status,
-          deviceid: s.device_deviceid
+          deviceid: s.device_externalId
         };
         return item;
       });
@@ -667,7 +954,7 @@ export class DeviceService {
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
-      where("device.deviceid = :deviceid", { deviceid: deviceid })
+      where("device.externalId = :deviceid", { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
           db.where("device.status ='Requested' OR device.status ='Succeeded'")
@@ -681,8 +968,8 @@ export class DeviceService {
 
         }),
       )
-    //   console.log(query)
-    // console.log(query.getQuery())
+    //   //console.log(query)
+    // //console.log(query.getQuery())
     return query;
   }
 
@@ -718,7 +1005,7 @@ export class DeviceService {
   }
 
   async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
-    console.log(organizationId);
+    //console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
     });
@@ -728,7 +1015,7 @@ export class DeviceService {
 
         let certifiedamountofread = await this.checkdevcielogcertificaterepository.find(
           {
-            where: { deviceid: device.externalId }
+            where: { externalId: device.externalId }
           }
         )
         const totalcertifiedReadValue = certifiedamountofread.reduce(
@@ -741,14 +1028,14 @@ export class DeviceService {
           0,
         );
         totalamountofreads.push({
-          devicename: device.externalId,
+          externalId: device.developerExternalId,
           totalcertifiedReadValue: totalcertifiedReadValue,
           totalReadValue: totalReadValue
         })
 
       }))
 
-    console.log(totalamountofreads);
+    //console.log(totalamountofreads);
     return totalamountofreads;
   }
 
@@ -791,7 +1078,7 @@ export class DeviceService {
 
   async getNumberOfHistReads(deviceId): Promise<number> {
     const query = this.historyrepository.createQueryBuilder("devicehistory")
-      .where("devicehistory.deviceId = :deviceId", { deviceId });
+      .where("devicehistory.externalId = :deviceId", { deviceId });
     const count = await query.getCount();
     return count;
   }
@@ -824,7 +1111,7 @@ export class DeviceService {
 
 
   async changecreatedAtDate(onboardedDate, givenDate, externalId) {
-    console.log("THE EXTERNALID IS::::::::::::::::::::::::"+externalId);
+    console.log("THE EXTERNALID IS::::::::::::::::::::::::" + externalId);
     const sixMonthsAgo = new Date(onboardedDate);
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -839,4 +1126,79 @@ export class DeviceService {
     return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
   }
   /* */
+
+  ////////////////////////////////////////
+
+  public async atto(organizationId, externalId) {
+    const queryBuilder = this.repository.createQueryBuilder('Device');
+    const rows = await queryBuilder
+      .where("Device.organizationId = :organizationId", { organizationId })
+      .andWhere(
+        new Brackets(qb => {
+          qb.where("Device.developerExternalId = :externalId", { externalId })
+            .orWhere("Device.developerExternalId LIKE :pattern", { pattern: `${externalId}%` });
+        }))
+      .orderBy('Device.externalId')
+      .getMany();
+    console.log(rows);
+    const newDevices = [];
+    await rows.map((device: Device) => {
+      device.externalId = device.developerExternalId
+      delete device["developerExternalId"];
+      newDevices.push(device);
+    })
+    return newDevices;
+    // rows.map(row => ({
+    //   externalId: row.developerExternalId,
+    //   organizationId: row.organizationId
+
+    // }));
+  }
+  async getLastCertifiedDevicelogBYgroupId(
+    groupId: number, deviceId: string
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+    return this.checkdevcielogcertificaterepository.findOne(
+      {
+        where: {
+          groupId: groupId,
+          externalId: deviceId,
+
+        },
+        order: {
+          certificate_issuance_enddate: 'DESC'
+        }
+      })
+
+  }
+  async getcertifieddevicedaterange(device, groupId): Promise<any> {
+    // // const query = {
+    // //   select: ['MIN(entryTime) AS firstEntryTime', 'MAX(entryTime) AS lastEntryTime'],
+    // //   where: { deviceid: externalId, groupId },
+    // // };
+    // const query: FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> = {
+    //   select: ['MIN(checkCertificateIssueDateLogForDevice.certificate_issuance_startdate) AS firststartdateTime', 'MAX(checkCertificateIssueDateLogForDevice.certificate_issuance_enddate) AS lastenddateTime'],
+    //   where: { deviceid: externalId, groupId },
+    // };
+    // const result = await this.checkdevcielogcertificaterepository.find(query);
+    // console.log(result)
+    // return result[0];
+    //console.log(device);
+    //console.log(groupId)
+    // const result = this.checkdevcielogcertificaterepository.find({
+    //   where: {
+    //     deviceid: externalId,
+    //     groupId: groupId[]
+    //   }
+    // })
+    const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
+      .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
+      .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
+      .where('deviceData.externalId= :externalId', { externalId: device.externalId })
+      .andWhere('deviceData.groupId= :groupId', { groupId });
+
+    const result = await queryBuilder.getRawOne();
+    let finalresult = { ...result, extenalId: device.developerExternalId }
+    return finalresult;
+  }
+  ///////////////////
 }

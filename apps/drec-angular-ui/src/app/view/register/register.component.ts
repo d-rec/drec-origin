@@ -49,11 +49,11 @@ export class RegisterComponent implements OnInit {
         email: new FormControl(null, [Validators.required, Validators.pattern(this.emailregex)]),
         password: new FormControl(null, [Validators.required, this.checkPassword]),
         confirmPassword: new FormControl("", [Validators.required, this.checkconfirmPassword]),
-        secretKey: new FormControl(null, [Validators.required, this.checksecretKey]),
+
       },
       {
         validators: (control) => {
-         
+
           if (control.value.password !== control.value.confirmPassword) {
             //@ts-ignore
             control.get("confirmPassword").setErrors({ notSame: true });
@@ -80,26 +80,26 @@ export class RegisterComponent implements OnInit {
       this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
-   // console.log(this.registerForm.value)
-   
+    // console.log(this.registerForm.value)
+
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-   // console.log(this.registerForm.value.password);
-   //this.registerForm.value.password = this.registerForm.value.password?:'';
+    // console.log(this.registerForm.value.password);
+    //this.registerForm.value.password = this.registerForm.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
   }
   getErrorcheckconfirmPassword() {
     return this.registerForm.get('confirmPassword')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
       this.registerForm.get('confirmPassword')?.hasError('Confirmrequirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
-      this.registerForm.get('confirmPassword')?.hasError('notSame') ? ' confirmPassword Does not match': '';
+        this.registerForm.get('confirmPassword')?.hasError('notSame') ? ' confirmPassword Does not match' : '';
   }
 
-  checksecretKey(control: any) {
-    let enteredsecretKey = control.value
-    let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
-    return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'keyrequirements': true } : null;
-  }
+  // checksecretKey(control: any) {
+  //   let enteredsecretKey = control.value
+  //   let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
+  //   return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'keyrequirements': true } : null;
+  // }
   getErrorsecretKey() {
     return this.registerForm.get('secretKey')?.hasError('required') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' :
       this.registerForm.get('secretKey')?.hasError('keyrequirements') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' : '';
@@ -118,7 +118,13 @@ export class RegisterComponent implements OnInit {
       next: data => {
         console.log(data)
         this.registerForm.reset();
-        this.toastrService.success('Successfully!!', 'Registration');
+        const formControls = this.registerForm.controls;
+        Object.keys(formControls).forEach(key => {
+          const control = formControls[key];
+          control.setErrors(null);
+        });
+        this.toastrService.success('Successfully!!', 'User Registration');
+
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)

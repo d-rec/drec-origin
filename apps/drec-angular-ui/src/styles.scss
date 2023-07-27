@@ -12,8 +12,18 @@ h4,
 h5,
 h6,
 p {
-    font-family: 'Montserrat', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
 }
+.mat-typography,
+.mat-button,
+.mat-input-element,
+.mat-select,
+.mat-checkbox-label,
+.mat-radio-label,
+.mat-table {
+    font-family: 'Poppins', sans-serif !important;
+}
+
 
 // Variables
 // Colors
@@ -34,6 +44,7 @@ $f-16: 16px;
 html,
 body {
     height: 100%;
+    font-family: 'Poppins', sans-serif !important;
 }
 
 // body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -319,4 +330,49 @@ border-left-color:$primary!important ;
 // }
 .mat-expansion-panel-header:hover{
     background: #ffc3009e !important;
+}
+.add-reservation{
+ 
+    .mdc-data-table__cell, .mdc-data-table__header-cell{
+        border: 0px !important;
+    }
+    tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12)!important;
+    }
+    .mat-mdc-table .mdc-data-table__row{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12)!important;
+    }
+   
+}
+.mat-mdc-dialog-surface.mdc-dialog__surface::-webkit-scrollbar{
+    display: none !important;
+}
+
+// this is for all-device component table heading left 
+.alldevice-component{
+    .mat-sort-header-content{
+        text-align: left;
+    }
+}
+
+// this is for edit icon color 
+.edit-icon {
+
+    color: $primary;
+}
+.edit-icon:hover {
+
+    color: $primary;
+}
+// this is for spinner 
+.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle, .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic{
+    stroke:  $primary !important;
+}
+
+// this is for date selector button 
+
+.mat-stroked-button:not(:disabled){
+    background-color: $primary !important;
+    border: 1px solid $primary !important;
+    color: $gray !important;
 }

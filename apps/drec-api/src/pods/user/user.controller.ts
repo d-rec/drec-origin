@@ -6,6 +6,7 @@ import {
   Get,
   Post,
   Body,
+  Query,
   Put,
   Param,
   ParseIntPipe,
@@ -32,10 +33,10 @@ import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import { ActiveUserGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO, UpdateChangePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO, UpdateChangePasswordDTO,ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
-
+import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
@@ -129,72 +130,52 @@ export class UserController {
     return this.userService.newcreate(userRegistrationData);
   }
 
-  @Post('registerWithOrganization')
-  @ApiBody({ type: CreateUserORGDTO })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: UserDTO,
-    description: 'Register a user',
-  })
-  public async newregister(
-    @Body() userRegistrationData: CreateUserORGDTO,
-  ): Promise<UserDTO> {
-    console.log(userRegistrationData);
-    if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-          })
-        );
-      });
-    }
+  // @Post('registerWithOrganization')
+  // @ApiBody({ type: CreateUserORGDTO })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   type: UserDTO,
+  //   description: 'Register a user',
+  // })
+  // public async newregister(
+  //   @Body() userRegistrationData: CreateUserORGDTO,
+  // ): Promise<UserDTO> {
+  //   console.log(userRegistrationData);
+  //   if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `organizationType should not be empty`,
+  //         })
+  //       );
+  //     });
+  //   }
 
-    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer`,
-          })
-        );
-      });
-    }
-    if (userRegistrationData.orgName.trim() === "") {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-          })
-        );
-      });
-    }
-    return this.userService.newcreate(userRegistrationData);
-  }
+  //   if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `organizationType value should be Developer/Buyer`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   if (userRegistrationData.orgName.trim() === "") {
+  //     return new Promise((resolve, reject) => {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: `orgName should not be empty`,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return this.userService.newcreate(userRegistrationData);
+  // }
 
-  @Put()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBody({ type: UpdateOwnUserSettingsDTO })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: UserDTO,
-    description: `Update you own user settings`,
-  })
-  public async updateOwnUserSettings(
-    @UserDecorator() user: ILoggedInUser,
-    @Body() body: UpdateOwnUserSettingsDTO,
-  ): Promise<UserDTO | null> {
-    try {
-      if (typeof body.notifications !== 'undefined') {
-        await this.userService.setNotifications(user.id, body.notifications);
-      }
-      return this.userService.findById(user.id);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
+
 
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
@@ -253,7 +234,7 @@ export class UserController {
   @ApiParam({ name: 'token', type: String })
   public async confirmToken(
     @Param('token') token: IEmailConfirmationToken['token'],
-  ): Promise<EmailConfirmationResponse> {
+  ) {
     return this.emailConfirmationService.confirmEmail(token);
   }
 
@@ -268,5 +249,17 @@ export class UserController {
     @UserDecorator() { email }: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     return this.emailConfirmationService.sendConfirmationEmail(email);
+  }
+  @Post('forget-password')
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: `Resend a confirmation email`,
+  })
+  public async Forgetpassword(
+    @Body() body: ForgetPasswordDTO
+  ): Promise<SuccessResponseDTO> {
+    return this.userService.geytokenforResetPassword(body.email);
   }
 }

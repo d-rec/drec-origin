@@ -1,5 +1,5 @@
 <div class="body-bg">
-    <mat-card>
+    <mat-card class="mb-3">
         <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
             <div>
@@ -38,12 +38,12 @@
                                     <mat-label class="text-capitalize">Current External ID</mat-label>
                                     <input matInput [value]="externalId" readonly>
                                   
-                                        <mat-icon matSuffix (click)="editExternalid()"
+                                        <mat-icon class="edit-icon" matSuffix (click)="editExternalid()"
                                             *ngIf="!showcancelicon" style="cursor: pointer;"  matTooltip="Yes"
                                             matTooltipPosition="above">edit</mat-icon>
                                         <mat-icon matSuffix (click)="hideeditExternalid()"
                                             *ngIf="showcancelicon" style="cursor: pointer;"  matTooltip="No"
-                                            matTooltipPosition="above">cancel</mat-icon>
+                                            matTooltipPosition="above" >cancel</mat-icon>
                                   
 
                                     <!-- <mat-hint>Hint</mat-hint> -->
@@ -70,7 +70,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">project Name</mat-label>
                                     <input matInput autocomplete="off" placeholder="projectName"
-                                        formControlName='projectName' [ngModel]="projectName">
+                                        formControlName='projectName' [(ngModel)]="projectName">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -80,7 +80,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Select country Code</mat-label>
-                                    <mat-select formControlName='countryCode' [ngModel]="countryCode">
+                                    <mat-select formControlName='countryCode' [(ngModel)]="countryCode">
                                         <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
                                             {{code.country}}
                                         </mat-option>
@@ -104,7 +104,7 @@
                                     <mat-label class="text-capitalize">commissioning Date</mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                                         formControlName="commissioningDate" [max]="maxDate"
-                                        [ngModel]="commissioningDate">
+                                        [(ngModel)]="commissioningDate">
                                     <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                                     <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -117,7 +117,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">capacity</mat-label>
-                                    <input matInput placeholder="capacity" type="number" [ngModel]="capacity"
+                                    <input matInput placeholder="capacity" type="number" [(ngModel)]="capacity"
                                         formControlName='capacity' [min]=1>
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
@@ -128,7 +128,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">off Taker</mat-label>
 
-                                    <mat-select formControlName='offTaker' placeholder="offTaker" [ngModel]="offTaker">
+                                    <mat-select formControlName='offTaker' placeholder="offTaker" [(ngModel)]="offTaker">
 
                                         <mat-option *ngFor="let code of offteker" [value]="code">
                                             {{code}}
@@ -141,7 +141,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Fuel Code</mat-label>
 
-                                    <mat-select formControlName='fuelCode' placeholder="fuelCode" [ngModel]="fuelCode">
+                                    <mat-select formControlName='fuelCode' placeholder="fuelCode" [(ngModel)]="fuelCode">
 
                                         <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                             {{code.name}}
@@ -155,7 +155,7 @@
                                     <mat-label class="text-capitalize">Device Type Code</mat-label>
 
                                     <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode"
-                                        [ngModel]="deviceTypeCode">
+                                    [(ngModel)]="deviceTypeCode">
 
                                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                                             {{code.name}}
@@ -169,7 +169,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">impact Story</mat-label>
                                     <input matInput placeholder="impactStory" formControlName='impactStory'
-                                        [ngModel]="impactStory">
+                                    [(ngModel)]="impactStory">
                                 </mat-form-field>
                             </div>
 
@@ -177,7 +177,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Device Description</mat-label>
 
-                                    <mat-select formControlName='deviceDescription' [ngModel]="deviceDescription"
+                                    <mat-select formControlName='deviceDescription' [(ngModel)]="deviceDescription"
                                         placeholder="deviceDescription">
 
                                         <mat-option *ngFor="let code of devicediscription" [value]="code">
@@ -208,13 +208,13 @@
 
                             <div class="col-md-3">
                                 <button
-                                    class="btn py-2 pb-3 fw-bold btn-outline-primary d-block w-100 text-capitalize align-middle cursor-pointer"
+                                    class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                                     (click)="addmore()" *ngIf="showaddmore">
                                     Add more details <mat-icon class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
                                 </button>
 
                                 <button
-                                    class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                    class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
                                     (click)="nomore()" *ngIf="shownomore">
                                     hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
                                 </button>
@@ -229,7 +229,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Address</mat-label>
                                     <input autocomplete="off" matInput placeholder="address" formControlName='address'
-                                        [ngModel]="address">
+                                    [(ngModel)]="address">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
@@ -239,7 +239,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Latitude</mat-label>
                                     <input matInput placeholder="latitude" formControlName='latitude'
-                                        [ngModel]="latitude">
+                                    [(ngModel)]="latitude">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <mat-error>please enter the valid value</mat-error>
                                 </mat-form-field>
@@ -249,7 +249,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">longitude</mat-label>
                                     <input matInput placeholder="longitude" formControlName='longitude'
-                                        [ngModel]="longitude">
+                                    [(ngModel)]="longitude">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <mat-error>please enter the valid value</mat-error>
                                 </mat-form-field>
@@ -260,7 +260,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Quality Labels</mat-label>
                                     <input matInput placeholder="qualityLabels" formControlName='qualityLabels'
-                                        [ngModel]="qualityLabels">
+                                    [(ngModel)]="qualityLabels">
                                 </mat-form-field>
                             </div>
 
@@ -268,32 +268,29 @@
 
 
                         <div class="example-container1 row" *ngIf="addmoredetals">
-                            <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">grid Inter connection</mat-label>
-                                    <input matInput placeholder="gridInterconnection"
-                                        formControlName='gridInterconnection' [ngModel]="gridInterconnection">
-                                </mat-form-field>
+                            <div class="col-md-3  d-flex flex-column">
+                                <span >Grid Inter-connection:</span>
+                                <mat-radio-group  formControlName='gridInterconnection' [(ngModel)]="gridInterconnection">
+                                   
+
+                                    <mat-radio-button [value]=true >Yes</mat-radio-button>
+                                        <mat-radio-button [value]=false>No</mat-radio-button>
+                                    </mat-radio-group>
                             </div>
 
-                            <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Data</mat-label>
-                                    <input matInput placeholder="data" formControlName='data'>
-                                </mat-form-field>
-                            </div>
+                           
 
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-flex flex-column ">
                                 <!--  <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage</mat-label>
                                            <input matInput placeholder="energyStorage" formControlName='energyStorage'> -->
-
-                                <mat-radio-group formControlName='energyStorage' [ngModel]="energyStorage"
+                                           <span>Energy Storage:</span>
+                                <mat-radio-group formControlName='energyStorage' [(ngModel)]="energyStorage"
                                     (ngModelChange)="showenergycapacity_input($event)">
-                                    <span>Energy Storage:</span>
+                                   
 
-                                    <mat-radio-button [value]=true checked>True</mat-radio-button>
-                                    <mat-radio-button [value]=false>False</mat-radio-button>
+                                    <mat-radio-button [value]=true >Yes</mat-radio-button>
+                                    <mat-radio-button [value]=false>NO</mat-radio-button>
                                 </mat-radio-group>
                                 <!-- </mat-form-field>
                                          -->
@@ -304,7 +301,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
                                     <input matInput autocomplete="off" placeholder="energyStorageCapacity"
-                                        [ngModel]="energyStorageCapacity" type="number"
+                                    [(ngModel)]="energyStorageCapacity" type="number"
                                         formControlName='energyStorageCapacity'>
                                 </mat-form-field>
                             </div>
@@ -314,15 +311,20 @@
                     <!-- <mat-card-footer></mat-card-footer> -->
                 </mat-card>
                 <!-- </div> -->
+                <mat-card-footer>
+                    <div class="example-container mt-3 row">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn-primary btn text-capitalize px-4">Update</button>&nbsp;&nbsp;
+                            <button class="btn btn-dark"  (click)="reset()">
+                                Cancel
+                              </button>
+                        </div>
+                        
+                    </div>
+                </mat-card-footer>
 
             </mat-card-content>
-            <mat-card-footer>
-                <div class="example-container row">
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4">submit</button>
-                    </div>
-                </div>
-            </mat-card-footer>
+         
         </form>
     </mat-card>
 </div>
