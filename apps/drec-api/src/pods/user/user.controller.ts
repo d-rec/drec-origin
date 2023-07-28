@@ -144,7 +144,6 @@ export class UserController {
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request
   ): Promise<UserDTO> {
-    let clientExist:boolean=false;
     let client;
     if(request.headers['client_id'] && request.headers['client_secret'])
     {
@@ -153,6 +152,7 @@ export class UserController {
         throw new UnauthorizedException('Invalid client credentials');
       }
       client=await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+
 
     }
     console.log(userRegistrationData);
@@ -187,8 +187,9 @@ export class UserController {
         );
       });
     }
-    if(clientExist)
+    if(client)
     {
+      console.log("asas",client);
       userRegistrationData['client']=client;
     }
     return this.userService.newcreate(userRegistrationData);

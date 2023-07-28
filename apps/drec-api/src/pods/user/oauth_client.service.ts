@@ -28,7 +28,7 @@ export class OauthClientCredentialsService {
     async store(client_id: string, client_secret: string, userid: string): Promise<OauthClientCredentials> {
         const clientCredentials = new OauthClientCredentials();
         clientCredentials.client_id = client_id;
-        clientCredentials.client_secret = client_secret;
+        clientCredentials.client_secret = this.encryptclient_secret(client_secret);
         clientCredentials.api_user_id = userid;
         return await this.clientCredentialsRepository.save(clientCredentials);
     }
@@ -63,7 +63,6 @@ export class OauthClientCredentialsService {
     generateClientCredentials(): { client_id: string, client_secret: string } {
         const client_id = randomBytes(16).toString('hex');
         const client_secret = randomBytes(32).toString('hex');
-        console.log('sdfasd',client_id,client_secret);
         return { client_id, client_secret: client_secret };
 
     }

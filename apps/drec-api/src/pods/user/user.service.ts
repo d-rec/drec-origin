@@ -87,6 +87,7 @@ export class UserService {
   // }
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
+      console.log(data['client']);
     await this.checkForExistingUser(data.email);
     let api_user:any;
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase())
@@ -111,7 +112,7 @@ export class UserService {
       }
       else if(data['client'])
       {
-        orgdata['api_user_id']= data['client'].userid;
+        orgdata['api_user_id']= data['client'].api_user_id;
       }
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name) ) {
         throw new ConflictException({
@@ -157,7 +158,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user? api_user.api_user_id : data['client'] ?data['client'].userid: null    
+      api_user_id: api_user? api_user.api_user_id : data['client'] ?data['client'].api_user_id: null    
 
     });
     this.logger.debug(
