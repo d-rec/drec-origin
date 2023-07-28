@@ -208,7 +208,7 @@ export class EmailConfirmationService {
 
     if (!currentToken) {
       return {
-        message: 'Token not found Or Your email not register',
+        message: "Email not found or Email not registered",
         success: false,
       };
     }
