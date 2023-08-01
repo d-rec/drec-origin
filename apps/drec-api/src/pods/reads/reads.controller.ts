@@ -159,7 +159,6 @@ export class ReadsController extends BaseReadsController {
       console.log("THE CHANGED OBJECT KEYS::::::" + Object.keys(returnedObject));
       return returnedObject;
     }
-
     else {
       throw new HttpException('Invalid readType parameter', 400);
     }

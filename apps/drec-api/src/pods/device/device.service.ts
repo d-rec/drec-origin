@@ -209,6 +209,13 @@ export class DeviceService {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${jwtToken}`
       };
+      if(device.fuelCode===null){
+        return {
+          status: false,
+          message: 'Device Added Failure in I-REC,Item not found for fuel',
+
+        };
+      }
       const requestBody = {
         name: `${device.externalId}`,
         fuel: `/fuels/${device.fuelCode}`
