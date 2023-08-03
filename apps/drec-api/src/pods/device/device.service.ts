@@ -168,28 +168,29 @@ export class DeviceService {
     return newDevices
   }
 
-  @Cron('*/30 * * * * *') // Cron pattern for running every 30 seconds
-  async fetchDataCronJob() {
-    try {
-      const data = await this.fetchDataFromApi();
-      console.log('Fetched data:', data);
-    } catch (error) {
-      console.error('Error fetching data:', error.message);
-    }
-  }
-  async fetchDataFromApi(): Promise<any> {
-    console.log("hitting api");
-    const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
-    let jwtToken = await regenerateToken(this.httpService);
+  // Cron pattern for running every 30 seconds
+  // @Cron('*/30 * * * * *') 
+  // async fetchDataCronJob() {
+  //   try {
+  //     const data = await this.fetchDataFromApi();
+  //     console.log('Fetched data:', data);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error.message);
+  //   }
+  // }
+  // async fetchDataFromApi(): Promise<any> {
+  //   console.log("hitting api");
+  //   const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
+  //   let jwtToken = await regenerateToken(this.httpService);
    
-    const headers = {
-      // Add your custom headers here
-      'Authorization': `Bearer ${jwtToken}`
-    };
+  //   const headers = {
+  //     // Add your custom headers here
+  //     'Authorization': `Bearer ${jwtToken}`
+  //   };
 
-    const response = await this.httpService.get(apiUrl, { headers }).toPromise();
-    return response.data;
-  }
+  //   const response = await this.httpService.get(apiUrl, { headers }).toPromise();
+  //   return response.data;
+  // }
 
 
 
@@ -209,6 +210,7 @@ export class DeviceService {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${jwtToken}`
       };
+      console.log(jwtToken);
       if(device.fuelCode===null){
         return {
           status: false,
@@ -225,11 +227,11 @@ export class DeviceService {
       };
 
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
-
+      console.log(url);
       try {
-        const response = await this.httpService.post(url, requestBody, config).toPromise();
-        console.log("response", response.data);
-        const data = response.data;
+        const response = await this.httpService.post(url, requestBody, config);
+        console.log("response", response);
+        const data = response;
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
@@ -332,6 +334,7 @@ export class DeviceService {
     }
 
   }
+  
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
     deviceIds: Array<number>,
