@@ -167,8 +167,7 @@ export class DeviceService {
     })
     return newDevices
   }
-
-  // Cron pattern for running every 30 seconds
+// Cron pattern for running every 30 seconds
   // @Cron('*/30 * * * * *') 
   // async fetchDataCronJob() {
   //   try {
@@ -229,9 +228,9 @@ export class DeviceService {
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
       console.log(url);
       try {
-        const response = await this.httpService.post(url, requestBody, config);
+        const response = await this.httpService.post(url, requestBody, config).toPromise();
         console.log("response", response);
-        const data = response;
+        const data = response.data;
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
