@@ -203,7 +203,7 @@ export class DeviceService {
     });
     console.log("device", device);
 
-    if (device) {
+    // if (device) {
       console.log("207")
       let jwtToken = await regenerateToken(this.httpService);
       const headers = {
@@ -265,9 +265,9 @@ export class DeviceService {
 
         };
       }
-    }
+    // }
 
-    return { status: false, message: 'device not found' };
+    //return { status: false, message: 'device not found' };
   }
 
   //this function for add device details into irec 
@@ -572,6 +572,15 @@ export class DeviceService {
       where: { groupId: null, organizationId },
     });
     return this.groupDevices(orderFilterDto, devices);
+  }
+  async findUngroupedById(
+    id: number,
+    
+  ): Promise<boolean> {
+    const devices = await this.repository.find({
+      where: { groupId: null, id },
+    });
+    return devices;
   }
 
   getDeviceTypes(): CodeNameDTO[] {
@@ -1214,19 +1223,19 @@ export class DeviceService {
 
 
   async remove(id: number): Promise<void> {
-    const devices = await this.findForGroup(deviceGroup.id);
+    // const devices = await this.findForGroup(deviceGroup.id);
     
-    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
+    // const deviceGroup = await this.findDeviceGroupById(id, organizationId);
 
     
-    await Promise.all(
-      devices.map(async (device: Device) => {
-        return await this.deviceService.removeFromGroup(
-          device.id,
-          deviceGroup.id,
-        );
-      }),
-    );
+    // await Promise.all(
+    //   devices.map(async (device: Device) => {
+    //     return await this.deviceService.removeFromGroup(
+    //       device.id,
+    //       deviceGroup.id,
+    //     );
+    //   }),
+    // );
     await this.repository.delete(id);
   }
 }
