@@ -204,6 +204,7 @@ export class DeviceService {
     console.log("device", device);
 
     if (device) {
+      console.log("207")
       let jwtToken = await regenerateToken(this.httpService);
       const headers = {
         'Content-Type': 'application/json',
@@ -1210,4 +1211,22 @@ export class DeviceService {
     return finalresult;
   }
   ///////////////////
+
+
+  async remove(id: number): Promise<void> {
+    const devices = await this.findForGroup(deviceGroup.id);
+    
+    const deviceGroup = await this.findDeviceGroupById(id, organizationId);
+
+    
+    await Promise.all(
+      devices.map(async (device: Device) => {
+        return await this.deviceService.removeFromGroup(
+          device.id,
+          deviceGroup.id,
+        );
+      }),
+    );
+    await this.repository.delete(id);
+  }
 }
