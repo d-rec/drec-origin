@@ -5,6 +5,7 @@ env:
     docker_password: /powertrust/docker/password
 phases:
   install:
+    on-failure: ABORT
     # runtime-versions:
     #   nodejs: 18
     #   docker: 18
@@ -17,10 +18,12 @@ phases:
       - chmod +x ./aws-iam-authenticator
       - export PATH=$PWD/:$PATH
   pre_build:
+    on-failure: ABORT
     commands:
       - export KUBECONFIG=$HOME/.kube/config
       - aws eks update-kubeconfig --name drec
   build:
+    on-failure: ABORT
     commands:
       - echo $docker_password | docker login --username $docker_username --password-stdin
       - chmod +x ./buildscript.sh
