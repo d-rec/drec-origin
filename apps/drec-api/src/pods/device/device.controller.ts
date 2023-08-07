@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Patch,
+  Delete,
   HttpStatus,
   Param,
   Body,
@@ -77,7 +78,7 @@ export class DeviceController {
   )/*: Promise<DeviceDTO[]>*/ {
     return this.deviceService.find(filterDto, pagenumber);
   }
- 
+
   @Get('/ungrouped/buyerreservation')
   @UseGuards(AuthGuard('jwt'))
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -87,8 +88,8 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
   ): Promise<DeviceDTO[]> {
-   
-    return this.deviceService.finddeviceForBuyer(filterDto,pagenumber);
+
+    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
   }
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -134,7 +135,7 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-@ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -146,7 +147,7 @@ export class DeviceController {
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
     console.log(filterDto);
-    if(filterDto.country){
+    if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
       console.log(filterDto.country);
       if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
@@ -172,7 +173,7 @@ export class DeviceController {
         });
       }
     }
-  
+
 
     return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
   }
@@ -308,7 +309,7 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     return await this.deviceService.register(organizationId, deviceToRegister);
-  
+
   }
 
 
@@ -427,6 +428,40 @@ export class DeviceController {
       deviceToUpdate,
     );
   }
+
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Remove device group',
+  })
+  @ApiNotFoundResponse({ description: `No device group found` })
+  public async remove(
+    @Param('id') id: number,
+    @UserDecorator() { organizationId, role }: ILoggedInUser,
+  ): Promise<any> {
+    const checkisungroup = this.deviceService.findUngroupedById(id)
+    console.log(checkisungroup)
+    if (checkisungroup) {
+      let fitlerop: any;
+      if (role === 'Admin') {
+        fitlerop = {
+          groupId: null
+        }
+      }else{
+        fitlerop = {
+          groupId: null,
+          organizationId: organizationId
+        } 
+      }
+      return await this.deviceService.remove(id,fitlerop);
+   
+    }
+
+  }
+
 
   @Get('/my/totalamountread')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)

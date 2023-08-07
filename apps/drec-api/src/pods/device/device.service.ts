@@ -55,6 +55,7 @@ import { Observable } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
+import { SuccessResponse } from '../email-confirmation/email-confirmation.service';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -167,7 +168,7 @@ export class DeviceService {
     })
     return newDevices
   }
-// Cron pattern for running every 30 seconds
+  // Cron pattern for running every 30 seconds
   // @Cron('*/30 * * * * *') 
   // async fetchDataCronJob() {
   //   try {
@@ -181,7 +182,7 @@ export class DeviceService {
   //   console.log("hitting api");
   //   const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
   //   let jwtToken = await regenerateToken(this.httpService);
-   
+
   //   const headers = {
   //     // Add your custom headers here
   //     'Authorization': `Bearer ${jwtToken}`
@@ -204,67 +205,67 @@ export class DeviceService {
     console.log("device", device);
 
     // if (device) {
-      console.log("207")
-      let jwtToken = await regenerateToken(this.httpService);
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwtToken}`
-      };
-      console.log(jwtToken);
-      if(device.fuelCode===null){
-        return {
-          status: false,
-          message: 'Device Added Failure in I-REC,Item not found for fuel',
+    console.log("207")
+    let jwtToken = await regenerateToken(this.httpService);
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwtToken}`
+    };
+    console.log(jwtToken);
+    if (device.fuelCode === null) {
+      return {
+        status: false,
+        message: 'Device Added Failure in I-REC,Item not found for fuel',
 
-        };
-      }
-      const requestBody = {
-        name: `${device.externalId}`,
-        fuel: `/fuels/${device.fuelCode}`
       };
-      const config: AxiosRequestConfig = {
-        headers,
+    }
+    const requestBody = {
+      name: `${device.externalId}`,
+      fuel: `/fuels/${device.fuelCode}`
+    };
+    const config: AxiosRequestConfig = {
+      headers,
+    };
+
+    const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
+    console.log(url);
+    try {
+      const response = await this.httpService.post(url, requestBody, config).toPromise();
+      console.log("response", response);
+      const data = response.data;
+      device.IREC_ID = data.code;
+      device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+      await this.repository.save(device);
+      let irecdeviceaddDto = new IrecDevicesInformationEntity();
+      irecdeviceaddDto.IREC_id = data.code,
+        irecdeviceaddDto.event = 'register',
+        irecdeviceaddDto.request = requestBody,
+        irecdeviceaddDto.responses = data
+      await this.irecinforepository.save({
+        ...irecdeviceaddDto
+      })
+
+      return {
+        status: true,
+        message: 'Device Added Successfully in I-REC',
+        IREC_ID: data.code
       };
+    } catch (error) {
+      console.log("error", error);
+      let irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
 
-      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
-      console.log(url);
-      try {
-        const response = await this.httpService.post(url, requestBody, config).toPromise();
-        console.log("response", response);
-        const data = response.data;
-        device.IREC_ID = data.code;
-        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
-        await this.repository.save(device);
-        let irecdeviceaddDto = new IrecDevicesInformationEntity();
-        irecdeviceaddDto.IREC_id = data.code,
-          irecdeviceaddDto.event = 'register',
-          irecdeviceaddDto.request = requestBody,
-          irecdeviceaddDto.responses = data
-        await this.irecinforepository.save({
-          ...irecdeviceaddDto
-        })
-
-        return {
-          status: true,
-          message: 'Device Added Successfully in I-REC',
-          IREC_ID: data.code
-        };
-      } catch (error) {
-        console.log("error", error);
-        let irecdeviceerrorlogDto = new  IrecErrorLogInformationEntity();
-      
-        irecdeviceerrorlogDto.event = 'register',
+      irecdeviceerrorlogDto.event = 'register',
         irecdeviceerrorlogDto.request = requestBody,
         irecdeviceerrorlogDto.error_log_responses = error
-        await this.irecerrorlogrepository.save({
-          ...irecdeviceerrorlogDto
-        })
-        return {
-          status: false,
-          message: 'Device Added Failure in I-REC, ' + error,
+      await this.irecerrorlogrepository.save({
+        ...irecdeviceerrorlogDto
+      })
+      return {
+        status: false,
+        message: 'Device Added Failure in I-REC, ' + error,
 
-        };
-      }
+      };
+    }
     // }
 
     //return { status: false, message: 'device not found' };
@@ -286,10 +287,10 @@ export class DeviceService {
         'Authorization': `Bearer ${jwtToken}`
         // Add any other custom headers if needed
       };
-     let irec_capacity = device.capacity/1000;
+      let irec_capacity = device.capacity / 1000;
       //let deId=device.externalId
       const requestBody = {
-        "deviceType": "/device_types/"+device.deviceTypeCode,
+        "deviceType": "/device_types/" + device.deviceTypeCode,
         "fuel": "/fuels/",
         "device": "/devices/",
         "registrant": "/registrants/",
@@ -304,7 +305,7 @@ export class DeviceService {
         "status": IRECDeviceStatus.Submitted,
         "active": true,
         "address1": device.address,
-        "country": "/countries/"+device.countryCode,
+        "country": "/countries/" + device.countryCode,
       }
       console.log("requestBody", requestBody);
       // console.log("jwtToken", jwtToken);
@@ -334,7 +335,7 @@ export class DeviceService {
     }
 
   }
-  
+
 
   public async findForDevicesWithDeviceIdAndOrganizationId(
     deviceIds: Array<number>,
@@ -575,12 +576,15 @@ export class DeviceService {
   }
   async findUngroupedById(
     id: number,
-    
+    organizationId?: number
   ): Promise<boolean> {
     const devices = await this.repository.find({
       where: { groupId: null, id },
     });
-    return devices;
+    if (devices) {
+      return true;
+    }
+
   }
 
   getDeviceTypes(): CodeNameDTO[] {
@@ -1222,20 +1226,39 @@ export class DeviceService {
   ///////////////////
 
 
-  async remove(id: number): Promise<void> {
-    // const devices = await this.findForGroup(deviceGroup.id);
-    
-    // const deviceGroup = await this.findDeviceGroupById(id, organizationId);
+  async remove(id: number, filterop): Promise<any> {
 
-    
-    // await Promise.all(
-    //   devices.map(async (device: Device) => {
-    //     return await this.deviceService.removeFromGroup(
-    //       device.id,
-    //       deviceGroup.id,
-    //     );
-    //   }),
-    // );
-    await this.repository.delete(id);
+    let checkdeviceunreserve = await this.findOne(id, filterop)
+    console.log(checkdeviceunreserve)
+    if (!checkdeviceunreserve) {
+      const message = `Device id: ${checkdeviceunreserve.developerExternalId} already part of the reservation , you cannot delete it`;
+      this.logger.error(message);
+      return {
+        success: false,
+        message,
+      };
+
+    }
+    let certifiedamountofread = await this.checkdevcielogcertificaterepository.findOne(
+      {
+        where: { externalId: checkdeviceunreserve.externalId }
+      }
+    )
+
+    if (certifiedamountofread) {
+      const message = `Device id: ${checkdeviceunreserve.developerExternalId} already certified in reservation , you cannot delete it`;
+      this.logger.error(message);
+      return {
+        success: false,
+        message,
+      };
+
+    }
+     await this.repository.delete(id);
+    return {
+      success: true,
+      message: "device deleted Successfully",
+
+    }
   }
 }
