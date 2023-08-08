@@ -196,6 +196,7 @@ export class DeviceService {
 
   //@Cron('*/30 * * * * *')
   async I_recPostData(deviceId): Promise<any> {
+    console.log("Adding device to IRec");
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'NotRegistered' },
       order: {
