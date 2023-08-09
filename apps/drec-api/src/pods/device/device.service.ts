@@ -168,6 +168,18 @@ export class DeviceService {
     })
     return newDevices
   }
+
+
+  public getatleastonedeviceinOrg(organizationId: number): Promise<Device[]> {
+    return this.repository.find({
+      where: { organizationId },
+      order: {
+        id: 'DESC',
+      },
+      take: 1
+    });
+
+  }
   // Cron pattern for running every 30 seconds
   // @Cron('*/30 * * * * *') 
   // async fetchDataCronJob() {
@@ -454,7 +466,7 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
   ): Promise<Device> {
-    //console.log(orgCode);
+    console.log(orgCode);
     //console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;

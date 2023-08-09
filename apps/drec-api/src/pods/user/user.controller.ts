@@ -262,4 +262,6 @@ export class UserController {
   ): Promise<SuccessResponseDTO> {
     return this.userService.geytokenforResetPassword(body.email);
   }
+
+  
 }

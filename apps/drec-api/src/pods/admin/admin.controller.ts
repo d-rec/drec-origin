@@ -42,7 +42,8 @@ import { ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
-import {DeviceService} from '../device/device.service'
+import { DeviceService } from '../device/device.service'
+import { DeviceGroupService } from '../device-group/device-group.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -53,7 +54,8 @@ export class AdminController {
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
-  ) {}
+    private readonly devicegroupService: DeviceGroupService,
+  ) { }
 
   @Get('/users')
   @Roles(Role.Admin)
@@ -208,18 +210,53 @@ export class AdminController {
 
     return ResponseSuccess();
   }
+
+  @Delete('/user/:id')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an organization',
+  })
+  async deleteUser(
+    @Param('id', new ParseIntPipe()) userid: number,
+  ): Promise<SuccessResponseDTO> {
+
+    const user = await this.userService.findById(userid);
+
+    if (!user) {
+      throw new NotFoundException('Does not exist');
+    }
+    if (user.role === Role.Buyer) {
+      const buyerresrvation = this.devicegroupService.findOne({organizationId:user.organization.id})
+      if (buyerresrvation) {
+        throw new NotFoundException('This User is part of resvation,So you cannot Remove');
+        
+      }
+
+    } else if (user.role === Role.OrganizationAdmin) {
+      const deviceoforg = this.deviceService.getatleastonedeviceinOrg(user.organization.id)
+      if (deviceoforg) {
+        throw new NotFoundException('This User is part of resvation,So you cannot Remove');
+      }
+    }
+
+    await this.userService.remove(user.id);
+
+    return ResponseSuccess();
+  }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
   @Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
-   // type: CreateUserORGDTO,
+    // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
   public async IrecdeviceRegister(
     @Param('id') id: number,
-   // @Body() irecDevice: {deviceid:number}
+    // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
     return await this.deviceService.I_recPostData(id);
   }

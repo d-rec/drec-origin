@@ -226,6 +226,7 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
+    console.log(deviceToRegister);
     deviceToRegister.externalId = deviceToRegister.externalId.trim();
     if (deviceToRegister.externalId.trim() === "") {
       return new Promise((resolve, reject) => {
@@ -308,6 +309,14 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
+    //@ts-ignore
+   if(deviceToRegister.organizationId){
+    console.log("314")
+    //@ts-ignore
+    console.log(deviceToRegister.organizationId)
+     //@ts-ignore
+    organizationId=deviceToRegister.organizationId
+   }
     return await this.deviceService.register(organizationId, deviceToRegister);
 
   }

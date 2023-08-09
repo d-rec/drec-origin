@@ -248,6 +248,10 @@ export class UserService {
   async removeFromOrganization(userId: number): Promise<void> {
     await this.repository.update(userId, { organization: undefined });
   }
+  
+  async remove(userId: number): Promise<void> {
+    await this.repository.delete(userId);
+  }
 
   async updateProfile(
     id: number,
