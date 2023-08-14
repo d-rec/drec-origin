@@ -41,6 +41,7 @@ import { Iintermediate, NewReadDTO } from '../../models';
 import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { updateInviteStatusDTO } from '../invitation/dto/invite.dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -126,14 +127,16 @@ export class ReadsController extends BaseReadsController {
     if (month && !year) {
       throw new HttpException('Year is required when month is given', 400)
     }
-    if (user.role === 'Buyer') {
+    console.log(user.role);
+    if (user.role === 'Buyer' || user.role === 'Admin') {
+
       device = await this.deviceService.findOne(parseInt(meterId));
 
     } else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     }
-    // console.log("getmeterdevice");
-    // console.log(device);
+    console.log("getmeterdevice");
+    console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {
@@ -250,10 +253,18 @@ export class ReadsController extends BaseReadsController {
     description: 'New meter reads for historical data, Delta readings and Aggregate Readings',
     type: [NewIntmediateMeterReadDTO],
   })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: Number,
+    description: 'This query parameter is used to for admin...',
+
+  })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   public async newstoreRead(
     @Param('id') id: string,
+    @Query('organizationId') organizationId: number | null,
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
@@ -268,7 +279,11 @@ export class ReadsController extends BaseReadsController {
       });
     }
     id = id.trim();
-    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id, user.organizationId);
+    console.log('organizationId',organizationId)
+    if (organizationId === null || organizationId === undefined|| isNaN(organizationId)) {
+      organizationId = user.organizationId
+    }
+    let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
     //console.log(device);
     if (device === null) {
 
@@ -515,7 +530,7 @@ export class ReadsController extends BaseReadsController {
       let allDatesAreAftercommissioningDate: boolean = true;
       let allEndDatesAreBeforSystemDate: boolean = true;
       let enddate: any;
-      let currentdate:Date = new Date();
+      let currentdate: Date = new Date();
       measurements.reads.forEach(ele => {
         console.log("512", ele)
         //@ts-ignore
@@ -572,7 +587,7 @@ export class ReadsController extends BaseReadsController {
       }
       if (measurements.timezone !== null && measurements.timezone !== undefined && measurements.timezone.toString().trim() !== '') {
         enddate = momentTimeZone.tz(enddate, measurements.timezone);
-        currentdate= momentTimeZone.tz(currentdate, measurements.timezone).toDate();
+        currentdate = momentTimeZone.tz(currentdate, measurements.timezone).toDate();
 
       }
       if (!allDatesAreAfterCreatedAt) {
@@ -628,7 +643,7 @@ export class ReadsController extends BaseReadsController {
       }
     }
     // device organization and user organization validation
-    if (device && device.organizationId !== user.organizationId) {
+    if (device && device.organizationId !== organizationId) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -652,6 +667,7 @@ export class ReadsController extends BaseReadsController {
     return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
   @Get('/latestread/:externalId')
+
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',
@@ -659,12 +675,12 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthGuard('jwt'))
   public async getLatestMeterRead(
     @Param("externalId") externalId: string,
+
     @UserDecorator() user: ILoggedInUser,
   ) {
-
     let device: DeviceDTO | null
-    if (user.role === 'Buyer') {
-
+    if (user.role === 'Buyer' || user.role === 'Admin') {
+      // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
 
     } else {

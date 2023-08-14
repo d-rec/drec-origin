@@ -245,10 +245,25 @@ export class UserService {
     });
   }
 
+
+  public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
+    return this.repository.find({
+      where: {
+        id: { $ne: userId },
+        organizationId
+      },
+      order: {
+        id: 'DESC',
+      },
+      take: 1
+    });
+
+  }
+
   async removeFromOrganization(userId: number): Promise<void> {
     await this.repository.update(userId, { organization: undefined });
   }
-  
+
   async remove(userId: number): Promise<void> {
     await this.repository.delete(userId);
   }
@@ -322,7 +337,7 @@ export class UserService {
     console.log("emailConfirmation")
 
     //const _user = await this.findById(emailConfirmation.id);
-  
+
     if (emailConfirmation) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),

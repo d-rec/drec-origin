@@ -25,6 +25,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiQuery,
+  ApiHideProperty
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -310,13 +311,13 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     //@ts-ignore
-   if(deviceToRegister.organizationId){
-    console.log("314")
-    //@ts-ignore
-    console.log(deviceToRegister.organizationId)
-     //@ts-ignore
-    organizationId=deviceToRegister.organizationId
-   }
+    if (deviceToRegister.organizationId) {
+      console.log("314")
+      //@ts-ignore
+      console.log(deviceToRegister.organizationId)
+      //@ts-ignore
+      organizationId = deviceToRegister.organizationId
+    }
     return await this.deviceService.register(organizationId, deviceToRegister);
 
   }
@@ -459,14 +460,14 @@ export class DeviceController {
         fitlerop = {
           groupId: null
         }
-      }else{
+      } else {
         fitlerop = {
           groupId: null,
           organizationId: organizationId
-        } 
+        }
       }
-      return await this.deviceService.remove(id,fitlerop);
-   
+      return await this.deviceService.remove(id, fitlerop);
+
     }
 
   }
@@ -563,7 +564,9 @@ export class DeviceController {
   async autocomplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: String,
+
   ) {
+    
     return await this.deviceService.atto(organizationId, externalId);
   }
 

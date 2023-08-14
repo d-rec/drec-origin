@@ -22,6 +22,7 @@ import {
   ApiNotFoundResponse,
   ApiResponse,
   ApiTags,
+  ApiQuery
 } from '@nestjs/swagger';
 
 import {
@@ -228,21 +229,29 @@ export class AdminController {
       throw new NotFoundException('Does not exist');
     }
     if (user.role === Role.Buyer) {
-      const buyerresrvation = this.devicegroupService.findOne({organizationId:user.organization.id})
+      const buyerresrvation = this.devicegroupService.findOne({ organizationId: user.organization.id })
+
       if (buyerresrvation) {
-        throw new NotFoundException('This User is part of resvation,So you cannot Remove');
-        
+        throw new NotFoundException('This User is part of resvation,So you cannot Remove this user and organization');
+
       }
 
     } else if (user.role === Role.OrganizationAdmin) {
+
       const deviceoforg = this.deviceService.getatleastonedeviceinOrg(user.organization.id)
       if (deviceoforg) {
-        throw new NotFoundException('This User is part of resvation,So you cannot Remove');
+        throw new NotFoundException('Some device are available in organization ');
+      }
+    }
+    else {
+      const manyotheruserinorg = this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+      if (manyotheruserinorg) {
+        throw new NotFoundException('due to Some more user are available in organization, so you can Remove');
       }
     }
 
     await this.userService.remove(user.id);
-
+    await this.organizationService.remove(user.organization.id);
     return ResponseSuccess();
   }
   // api for device registration into I-REC
@@ -261,4 +270,27 @@ export class AdminController {
     return await this.deviceService.I_recPostData(id);
   }
 
+
+  @Get('/devices/autocomplete')
+  @Roles(Role.Admin)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Auto-Complete',
+  })
+
+  @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
+
+  async autocomplete(
+   // @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('externalId') externalId: String,
+    @Query('organizationId') organizationId: number,
+  ) {
+    //@ts-ignore
+    console.log("adminaddorgId",organizationId)
+    // if (adminaddorgId != null || adminaddorgId != undefined) {
+    //   organizationId = adminaddorgId;
+    // }
+    return await this.deviceService.atto(organizationId, externalId);
+  }
 }
