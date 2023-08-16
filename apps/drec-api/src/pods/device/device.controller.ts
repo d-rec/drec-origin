@@ -25,7 +25,8 @@ import {
   ApiSecurity,
   ApiTags,
   ApiQuery,
-  ApiHideProperty
+  ApiHideProperty,
+  ApiBody
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -40,7 +41,10 @@ import {
   GroupedDevicesDTO,
   BuyerDeviceFilterDTO
 } from './dto';
+import {
+  CSVBulkUploadDTO,
 
+} from '../device-group/dto';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard'
@@ -57,6 +61,8 @@ import { countryCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
+
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -631,6 +637,53 @@ export class DeviceController {
   //   return "await this.deviceService.atto(organizationId, externalId)";
   // }
   /////////////////////////////////////////////////
+  @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
+  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
+  //@Permission('Write')
+  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created devices from csv',
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV
+    (@UserDecorator() user: ILoggedInUser,
+      @Param('organizationId') organizationId: number | null,
+      @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+    if (organizationId === null || organizationId === undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          'User needs to have organization added'
+      })
+    }
+    console.log(fileToProcess.fileName);
+    if (fileToProcess.fileName == undefined) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'File Not Found'
+      })
 
+    }
+    if (!fileToProcess.fileName.endsWith('.csv')) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'Invalid file'
+      })
+
+    }
+    let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
+
+    return jobCreated;
+  }
 
 }

@@ -80,7 +80,17 @@ export class AdminController {
   async getAllOrganizations(): Promise<OrganizationDTO[]> {
     return await this.organizationService.getAll();
   }
-
+  @Get('/organizations/user/:organizationId')
+  @Roles(Role.Admin)
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: 'Returns all User Of Organizations',
+  })
+  async getAllUserOrganizations(
+    @Param('organizationId', new ParseIntPipe()) organizationId: number,
+  ):  Promise<UserDTO[]> {
+    return this.organizationService.findOrganizationUsers(organizationId);
+  }
   @Get('/organizations/:id')
   @Roles(Role.Admin)
   @ApiResponse({
@@ -293,4 +303,7 @@ export class AdminController {
     // }
     return await this.deviceService.atto(organizationId, externalId);
   }
+
+
+ 
 }
