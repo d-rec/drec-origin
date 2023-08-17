@@ -265,6 +265,8 @@ export class UserService {
   }
 
   async remove(userId: number): Promise<void> {
+
+    await this.emailConfirmationService.remove(userId)
     await this.repository.delete(userId);
   }
 

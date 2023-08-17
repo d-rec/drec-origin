@@ -248,8 +248,9 @@ export class AdminController {
 
     } else if (user.role === Role.OrganizationAdmin) {
 
-      const deviceoforg = this.deviceService.getatleastonedeviceinOrg(user.organization.id)
-      if (deviceoforg) {
+      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
+      console.log("deviceoforg",deviceoforg)
+      if (deviceoforg.length>0) {
         throw new NotFoundException('Some device are available in organization ');
       }
     }
@@ -259,7 +260,7 @@ export class AdminController {
         throw new NotFoundException('due to Some more user are available in organization, so you can Remove');
       }
     }
-
+   // await this.EmailSer.remove(user.id);
     await this.userService.remove(user.id);
     await this.organizationService.remove(user.organization.id);
     return ResponseSuccess();

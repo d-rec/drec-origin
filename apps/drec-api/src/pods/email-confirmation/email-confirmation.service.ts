@@ -234,5 +234,11 @@ export class EmailConfirmationService {
       message: 'Password Reset Mail has been sent to your authorized Email.',
     };
   }
+  async remove(userId: number): Promise<void> {
+
+    const allemialconfirm = await this.get(userId)
+    console.log('allemialconfirl', allemialconfirm.id)
+    await this.repository.delete(allemialconfirm.id);
+  }
 
 }
