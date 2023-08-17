@@ -73,9 +73,9 @@ export class DeviceService {
 
   ) { }
 
-  public async find(filterDto: FilterDTO, pagenumber: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
+  public async find(filterDto: FilterDTO, pagenumber: number,OrgId?:number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
     const limit = 20;
-    let query = await this.getFilteredQuery(filterDto)
+    let query = await this.getFilteredQuery(filterDto,OrgId)
     if (pagenumber) {
       query = {
         ...query, skip: (pagenumber - 1) * limit,
@@ -84,16 +84,20 @@ export class DeviceService {
     }
 
     console.log(query);
-    const [devices, totalCount] = await this.repository.findAndCount(query);
+    const [devices, totalCount] = await this.repository.findAndCount({
+      relations: ['organization'],
+      ...query
+    });
+    //  const [devices, totalCount] = await this.repository.findAndCount({relations: ['organization'],query});
     //devices.externalId = devices.developerExternalId
     const totalPages = Math.ceil(totalCount / 20);
     const currentPage = pagenumber;
     const newDevices = [];
 
     await devices.map((device: Device) => {
-
+      device['organizationname'] = device.organization.name
       // device.externalId = device.developerExternalId
-      // delete device["developerExternalId"];
+      delete device["organization"];
       newDevices.push(device);
     })
 
@@ -685,7 +689,7 @@ export class DeviceService {
     return name;
   }
 
-  private getFilteredQuery(filter: FilterDTO): FindManyOptions<Device> {
+  private getFilteredQuery(filter: FilterDTO, orgId?: number): FindManyOptions<Device> {
     const limit = 20;
 
     const where: FindConditions<Device> = cleanDeep({
@@ -697,6 +701,9 @@ export class DeviceService {
       countryCode: filter.country && getCodeFromCountry(filter.country),
 
     });
+    if (orgId != null || orgId != undefined) {
+      where.organizationId = orgId
+    }
     console.log(filter.end_date);
     if (filter.start_date != null && filter.end_date === undefined) {
       console.log(filter.start_date);
@@ -739,7 +746,7 @@ export class DeviceService {
     const query: FindManyOptions<Device> = {
       where,
       order: {
-        organizationId: 'ASC',
+        organizationId: 'DESC',
       }
 
     };
@@ -1267,7 +1274,7 @@ export class DeviceService {
       };
 
     }
-     await this.repository.delete(id);
+    await this.repository.delete(id);
     return {
       success: true,
       message: "device deleted Successfully",

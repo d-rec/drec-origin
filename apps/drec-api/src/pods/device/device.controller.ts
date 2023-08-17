@@ -78,12 +78,14 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
+    @Query('OrganizationId') OrgId: number | null,
   )/*: Promise<DeviceDTO[]>*/ {
-    return this.deviceService.find(filterDto, pagenumber);
+    return this.deviceService.find(filterDto, pagenumber,OrgId);
   }
 
   @Get('/ungrouped/buyerreservation')

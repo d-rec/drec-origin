@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn,BeforeUpdate } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn,BeforeUpdate,ManyToOne, JoinColumn  } from 'typeorm';
 import {
   DeviceStatus,
   Installation,
@@ -11,16 +11,11 @@ import {
   DevicetypeCode
 } from '../../utils/enums';
 import {
-  IsEnum,
-  IsBoolean,
-  IsString,
-  IsNotEmpty,
-  IsNumber,
-  IsArray
+  IsEnum, IsBoolean,IsString, IsNotEmpty, IsNumber,IsArray
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
-
+import {Organization} from '../organization/organization.entity'
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -47,6 +42,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   organizationId: number;
+  @ManyToOne(() => Organization, { eager: true }) // Make sure you have the correct type for Organization
+  @JoinColumn({ name: 'organizationId' }) // Make sure the column name matches your database schema
+  organization: Organization; 
 
   @Column({ nullable: true })
   @IsString()

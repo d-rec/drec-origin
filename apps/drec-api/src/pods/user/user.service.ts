@@ -330,10 +330,10 @@ export class UserService {
 
 
   async updatechangePassword(
-    token: IEmailConfirmationToken['token'],
+    emailConfirmation:UserDTO ,
     user: UserChangePasswordUpdate,
-  ): Promise<ExtendedBaseEntity & IUser> {
-    const emailConfirmation = await this.emailConfirmationService.findOne({ token });
+  ): Promise<UserDTO> {
+   // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
     console.log("emailConfirmation")
 
     //const _user = await this.findById(emailConfirmation.id);
@@ -354,8 +354,8 @@ export class UserService {
         });
       }
 
-      await this.repository.update(emailConfirmation.user.id, updateEntity);
-      return emailConfirmation.user;
+      await this.repository.update(emailConfirmation.id, updateEntity);
+      return emailConfirmation;
 
     }
 
