@@ -11,7 +11,7 @@ import { Repository, FindConditions, } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse } from '../../utils/enums';
-
+import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 export interface SuccessResponse {
@@ -28,7 +28,7 @@ export class EmailConfirmationService {
     private mailService: MailService,
   ) { }
 
-  public async create(user: User, inviteuser?: Boolean): Promise<EmailConfirmation> {
+  public async create(user: User): Promise<EmailConfirmation> {
     const exists = await this.repository.findOne({
       where: {
         user: { email: user.email }
@@ -51,10 +51,13 @@ export class EmailConfirmationService {
       token,
       expiryTimestamp,
     });
-    if (inviteuser) {
-      await this.sendResetPasswordRequest(user.email, token);
-    }
-    await this.sendConfirmationEmail(user.email);
+    // if (inviteuser) {
+    //   //  await this.sendResetPasswordRequest(user.email, token);
+    //   await this.sendInvitation(orgname, user.email, token);
+    // } else {
+      await this.sendConfirmationEmail(user.email);
+   // }
+
 
     return emailConfirmation;
   }
@@ -135,7 +138,6 @@ export class EmailConfirmationService {
       };
     }
 
-    let { token, expiryTimestamp } = currentToken;
     const { id, confirmed } = currentToken;
 
     if (confirmed === true) {
@@ -144,14 +146,8 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-
-    if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
-      const newToken = this.generateEmailToken();
-      await this.repository.update(id, newToken);
-
-      ({ token, expiryTimestamp } = newToken);
-    }
-
+    let { token, expiryTimestamp } = await this.generatetoken(currentToken,id)
+    
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
     return {
@@ -159,6 +155,48 @@ export class EmailConfirmationService {
     };
   }
 
+  public async ConfirmationEmailForResetPassword(
+    email: IUser['email'],
+  ): Promise<ISuccessResponse> {
+    const currentToken = await this.getByEmail(email);
+
+    if (!currentToken) {
+      return {
+        message: "Email not found or Email not registered",
+        success: false,
+      };
+    }
+    const { id, confirmed } = currentToken;
+    let { token, expiryTimestamp } = await this.generatetoken(currentToken,id);
+    
+    await this.sendResetPasswordRequest(email.toLowerCase(), token);
+    
+    return {
+      success: true,
+      message: 'Password Reset Mail has been sent to your authorized Email.',
+    };
+  }
+  public async generatetoken(currentToken,id) {
+    let { token, expiryTimestamp }=currentToken;
+    
+
+    if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
+      const newToken = this.generateEmailToken();
+      await this.repository.update(id, newToken);
+
+     return ({ token, expiryTimestamp } = newToken);
+    }
+
+
+  }
+  generateEmailToken(): IEmailConfirmationToken {
+    return {
+      token: crypto.randomBytes(64).toString('hex'),
+      expiryTimestamp: Math.floor(
+        DateTime.now().plus({ hours: 8 }).toSeconds(),
+      ),
+    };
+  }
   private async sendConfirmEmailRequest(
     email: string,
     token: string,
@@ -192,48 +230,8 @@ export class EmailConfirmationService {
       this.logger.log(`Notification email sent to ${email}.`);
     }
   }
-  generateEmailToken(): IEmailConfirmationToken {
-    return {
-      token: crypto.randomBytes(64).toString('hex'),
-      expiryTimestamp: Math.floor(
-        DateTime.now().plus({ hours: 8 }).toSeconds(),
-      ),
-    };
-  }
 
-  public async ConfirmationEmailForResetPassword(
-    email: IUser['email'],
-  ): Promise<ISuccessResponse> {
-    const currentToken = await this.getByEmail(email);
 
-    if (!currentToken) {
-      return {
-        message: "Email not found or Email not registered",
-        success: false,
-      };
-    }
-
-    let { token, expiryTimestamp } = currentToken;
-    const { id, confirmed } = currentToken;
-    console.log(expiryTimestamp);
-    console.log(Math.floor(DateTime.now().toSeconds()));
-    console.log(expiryTimestamp < Math.floor(DateTime.now().toSeconds()))
-    // if (confirmed === true) {
-    if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
-      const newToken = this.generateEmailToken();
-      await this.repository.update(id, newToken);
-
-      ({ token, expiryTimestamp } = newToken);
-    }
-
-    await this.sendResetPasswordRequest(email.toLowerCase(), token);
-    // }
-
-    return {
-      success: true,
-      message: 'Password Reset Mail has been sent to your authorized Email.',
-    };
-  }
   async remove(userId: number): Promise<void> {
 
     const allemialconfirm = await this.get(userId)
@@ -241,4 +239,50 @@ export class EmailConfirmationService {
     await this.repository.delete(allemialconfirm.id);
   }
 
+
+  // private async sendInvitation(
+  //   organization: string,
+  //   email: string,
+  //   token: string,
+  // ): Promise<void> {
+  //   const url = `${process.env.UI_BASE_URL}`;
+
+  //   const result = await this.mailService.send({
+  //     to: email,
+  //     subject: `[Origin] Organization invitation`,
+  //     html: `Organization <b>${organization}</b> has invited you to join. To accept the invitation,<br> 
+  //    <b> Please click the button to confirm your email: </b> <a href="${url}/confirm-email?token=${token}">Confirme</a>.<br>
+  //     <b> and Please change password: </b> <a href="${url}/reset-password?token=${token}&email=${email}">Add Password</a><br>
+  //    and then login and visit`,
+  //   });
+
+  //   if (result) {
+  //     this.logger.log(`Notification email sent to ${email}.`);
+  //   }
+  // }
+
+  public async sendInvitation(
+    organization: string,
+    email: string,
+    token: string
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}`;
+
+    const htmlTemplate = `
+      <p>Organization <b>${organization}</b> has invited you to join.</p>
+      <p>To accept the invitation, please change your password using the following link :</p>
+      <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
+      <p>After changing your password, you can log in and visit the your invitation details in website.</p>
+    `;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Organization Invitation`,
+      html: htmlTemplate,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
+    }
+  }
 }

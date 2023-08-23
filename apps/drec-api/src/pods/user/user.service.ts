@@ -87,34 +87,34 @@ export class UserService {
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     var org_id;
-    // if (data.secretKey != null) {
-    const orgdata = {
-      name: data.orgName !== undefined ? data.orgName : '',
-      organizationType: data.organizationType,
-      // secretKey: data.secretKey,
-      orgEmail: data.email,
-      address: data.orgAddress
+    if (!inviteuser) {
+      const orgdata = {
+        name: data.orgName !== undefined ? data.orgName : '',
+        organizationType: data.organizationType,
+        // secretKey: data.secretKey,
+        orgEmail: data.email,
+        address: data.orgAddress
+
+      }
+
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+        throw new ConflictException({
+          success: false,
+          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+        });
+
+      } else {
+
+        const org = await this.organizationService.newcreate(orgdata)
+        org_id = org.id;
+        this.logger.debug(
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+
+
+      }
 
     }
-
-    if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
-      throw new ConflictException({
-        success: false,
-        message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
-      });
-
-    } else {
-
-      const org = await this.organizationService.newcreate(orgdata)
-      org_id = org.id;
-      this.logger.debug(
-        `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-      );
-
-
-    }
-
-    //  }
     this.logger.debug(
       `Successfully registered a new organization with id ${org_id}`,
     );
@@ -143,11 +143,11 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new organization with id ${JSON.stringify(user)}`,
     );
-    if (inviteuser) {
-      await this.emailConfirmationService.create(user, true);
-    } else {
-      await this.emailConfirmationService.create(user, false);
-    }
+    // if (inviteuser) {
+    //   await this.emailConfirmationService.create(user, data.orgName, true);
+    // } else {
+      await this.emailConfirmationService.create(user);
+   // }
 
     return new User(user);
   }
@@ -332,10 +332,10 @@ export class UserService {
 
 
   async updatechangePassword(
-    emailConfirmation:UserDTO ,
+    emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
-   // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
+    // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
     console.log("emailConfirmation")
 
     //const _user = await this.findById(emailConfirmation.id);
@@ -470,4 +470,19 @@ export class UserService {
 
 
   }
+
+  public async sentinvitiontoUser(orgname, email) {
+    const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
+console.log("hgtdfd",getcurrenttoken);
+    if (!getcurrenttoken) {
+      return {
+        message: 'Token not found',
+        success: false,
+      };
+    }
+    const { id, confirmed } = getcurrenttoken;
+    let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    await this.emailConfirmationService.sendInvitation(orgname, email, token);
+  }
+
 }
