@@ -43,7 +43,7 @@ export class EmailConfirmationService {
       });
     }
 
-    const { token, expiryTimestamp } = this.generateEmailToken();
+    const { token, expiryTimestamp } = await this.generateEmailToken();
 
     const emailConfirmation = await this.repository.save({
       user,
@@ -55,8 +55,8 @@ export class EmailConfirmationService {
     //   //  await this.sendResetPasswordRequest(user.email, token);
     //   await this.sendInvitation(orgname, user.email, token);
     // } else {
-      await this.sendConfirmationEmail(user.email);
-   // }
+    await this.sendConfirmationEmail(user.email);
+    // }
 
 
     return emailConfirmation;
@@ -130,7 +130,7 @@ export class EmailConfirmationService {
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
     const currentToken = await this.getByEmail(email);
-
+    console.log(currentToken)
     if (!currentToken) {
       return {
         message: 'Token not found',
@@ -139,15 +139,15 @@ export class EmailConfirmationService {
     }
 
     const { id, confirmed } = currentToken;
-
+    console.log(confirmed)
     if (confirmed === true) {
       throw new BadRequestException({
         success: false,
         message: `Email already confirmed`,
       });
     }
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken,id)
-    
+    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id)
+
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
     return {
@@ -167,24 +167,27 @@ export class EmailConfirmationService {
       };
     }
     const { id, confirmed } = currentToken;
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken,id);
-    
+    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
+
     await this.sendResetPasswordRequest(email.toLowerCase(), token);
-    
+
     return {
       success: true,
       message: 'Password Reset Mail has been sent to your authorized Email.',
     };
   }
-  public async generatetoken(currentToken,id) {
-    let { token, expiryTimestamp }=currentToken;
-    
+  public async generatetoken(currentToken, id) {
+   
+    let { token, expiryTimestamp } = currentToken;
+
 
     if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
       const newToken = this.generateEmailToken();
       await this.repository.update(id, newToken);
 
-     return ({ token, expiryTimestamp } = newToken);
+      return ({ token, expiryTimestamp } = newToken);
+    }else{
+      return ({ token, expiryTimestamp } = currentToken);
     }
 
 

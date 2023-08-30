@@ -22,7 +22,7 @@ import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
-
+import {UserRole} from './user_role.entity';
 import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
@@ -39,6 +39,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
+    @InjectRepository(UserRole) private readrepository : Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
@@ -115,9 +116,7 @@ export class UserService {
       }
 
     }
-    this.logger.debug(
-      `Successfully registered a new organization with id ${org_id}`,
-    );
+   
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
@@ -141,7 +140,7 @@ export class UserService {
 
     });
     this.logger.debug(
-      `Successfully registered a new organization with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(user)}`,
     );
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
@@ -372,13 +371,18 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    var roleId;
-    if (role === Role.DeviceOwner) {
-      roleId = 3
-    } else {
-      roleId = 5
-    }
-    await this.repository.update(userId, { role, roleId });
+    const getrole=await this.readrepository.findOne({name:role})
+    console.log(getrole);
+    // var roleId;
+    // if (role === Role.DeviceOwner) {
+    //   roleId = 3
+    // }if else (role === Role.OrganizationAdmin) {
+    //   roleId = 3
+    // }
+    //  else {
+    //   roleId = 5
+    // }
+    await this.repository.update(userId, { role, roleId:getrole.id });
     return this.findOne({ id: userId });
   }
 
@@ -402,7 +406,8 @@ export class UserService {
     const { organizationName, status } = filterDto;
     const query = this.repository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.organization', 'organization');
+      .leftJoinAndSelect('user.organization', 'organization')
+      .orderBy('user.createdAt','DESC');
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });

@@ -96,11 +96,11 @@ export class PermissionService {
 
             }
         } else {
-            // throw new ConflictException({
-            //     success: false,
-            //     message: `Permission For ModuleId  and Role already exist`,
-            // });
-            return userpermission;
+            throw new ConflictException({
+                success: false,
+                message: `Permission For ModuleId  and Role already exist`,
+            });
+           // return userpermission;
             //throw new NotFoundException(`Permission For ModuleId  and Role already exist`);
         }
 

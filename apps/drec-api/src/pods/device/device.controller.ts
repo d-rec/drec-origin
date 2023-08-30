@@ -75,8 +75,10 @@ export class DeviceController {
   ) { }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
@@ -103,6 +105,8 @@ export class DeviceController {
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     type: [GroupedDevicesDTO],
     description: 'Returns all ungrouped Devices',

@@ -64,6 +64,18 @@ export class InvitationService {
       });
 
     }
+   
+    const orginvitee = await this.invitationRepository.findOne( {
+      where: {
+        email: lowerCaseEmail,
+        organization:inviteorg
+      },
+      relations: ['organization'],
+    });
+    //console.log(invitation)
+    if (orginvitee) {
+      throw new BadRequestException(`Requested invitation User ${lowerCaseEmail} is already exist`);
+    }
     this.ensureIsNotMember(lowerCaseEmail, organization);
     var saveinviteuser: any = {};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
