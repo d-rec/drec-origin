@@ -62,6 +62,36 @@ export class EmailConfirmationService {
     return emailConfirmation;
   }
 
+// create function when orguseradmin direct added by super admin so confirm email true
+  public async admincreate(user: User,password:string): Promise<EmailConfirmation> {
+    const exists = await this.repository.findOne({
+      where: {
+        user: { email: user.email }
+      },
+      relations: ['user']
+    });
+
+    if (exists) {
+      throw new ConflictException({
+        success: false,
+        message: `Email confirmation for user with email ${user.email} already exists`,
+      });
+    }
+
+    const { token, expiryTimestamp } = await this.generateEmailToken();
+
+    const emailConfirmation = await this.repository.save({
+      user,
+      confirmed: true,
+      token,
+      expiryTimestamp,
+    });
+
+    await this.sendadminConfirmEmailRequest(user.email, password);
+
+    return emailConfirmation;
+  }
+
   async get(userId: IUser['id']): Promise<EmailConfirmation | undefined> {
     const all = await this.repository.find({ relations: ['user'] });
 
@@ -200,6 +230,7 @@ export class EmailConfirmationService {
       ),
     };
   }
+
   private async sendConfirmEmailRequest(
     email: string,
     token: string,
@@ -210,6 +241,26 @@ export class EmailConfirmationService {
       to: email,
       subject: `[Origin] Confirm your email address`,
       html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}">${url}</a>.`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
+    }
+  }
+
+  private async sendadminConfirmEmailRequest(
+    email: string,
+    password: string,
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}/login`;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Welcome TO D-REC`,
+      html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
+      <p>UserName:<b>${email}</b></p> 
+      <p> PassWord:<b>${password}</b></p>
+      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Login</a>.</p>`,
     });
 
     if (result) {

@@ -116,7 +116,7 @@ export class AdminController {
     description: 'Returns a new created user',
   })
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
-    return await this.userService.newcreate(newUser);
+    return await this.userService.adminnewcreate(newUser);
   }
 
   @Post('/seed/users')

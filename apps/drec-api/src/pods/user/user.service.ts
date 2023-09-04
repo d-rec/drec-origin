@@ -151,6 +151,70 @@ export class UserService {
     return new User(user);
   }
 
+  public async adminnewcreate(data: CreateUserORGDTO,
+    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
+    var org_id;
+    if (!inviteuser) {
+      const orgdata = {
+        name: data.orgName !== undefined ? data.orgName : '',
+        organizationType: data.organizationType,
+        // secretKey: data.secretKey,
+        orgEmail: data.email,
+        address: data.orgAddress
+
+      }
+
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+        throw new ConflictException({
+          success: false,
+          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+        });
+
+      } else {
+
+        const org = await this.organizationService.newcreate(orgdata)
+        org_id = org.id;
+        this.logger.debug(
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+      }
+    }
+   
+    var role;
+    var roleId;
+    if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
+      role = Role.Buyer
+      roleId = 4;
+    } else {
+      role = Role.OrganizationAdmin
+      roleId = 2;
+    }
+
+    const user = await this.repository.save({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email.toLowerCase(),
+      password: this.hashPassword(data.password),
+      notifications: true,
+      status: status || UserStatus.Active,
+      role: role,
+      roleId: roleId,
+      organization: org_id ? { id: org_id } : {},
+
+    });
+    this.logger.debug(
+      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+    );
+    // if (inviteuser) {
+    //   await this.emailConfirmationService.create(user, data.orgName, true);
+    // } else {
+      await this.emailConfirmationService.admincreate(user,data.password);
+   // }
+
+    return new User(user);
+  }
+  
   private async checkForExistingUser(email: string): Promise<void> {
     const isExistingUser = await this.hasUser({ email });
     if (isExistingUser) {
