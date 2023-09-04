@@ -23,7 +23,7 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-inviteuseradd:Boolean=false;
+  inviteuseradd: Boolean = false;
   constructor(
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
@@ -39,11 +39,18 @@ inviteuseradd:Boolean=false;
     role: OrganizationRole,
     firstName: string,
     lastName: string,
-    permission: NewPermissionDTO[],
+    orgId?: number
+    // permission: NewPermissionDTO[],
   ): Promise<void> {
     const sender = await this.userService.findByEmail(user.email);
+    let inviteorg: number;
+    if (user.role === 'Admin') {
+      inviteorg = orgId;
+    } else {
+      inviteorg = user.organizationId;
+    }
     const organization = await this.organizationService.findOne(
-      user.organizationId,
+      inviteorg,
     );
 
     const lowerCaseEmail = email.toLowerCase();
@@ -56,6 +63,18 @@ inviteuseradd:Boolean=false;
         message: `User ${lowerCaseEmail} is already part of the  organization`,
       });
 
+    }
+   
+    const orginvitee = await this.invitationRepository.findOne( {
+      where: {
+        email: lowerCaseEmail,
+        organization:inviteorg
+      },
+      relations: ['organization'],
+    });
+    //console.log(invitation)
+    if (orginvitee) {
+      throw new BadRequestException(`Requested invitation User ${lowerCaseEmail} is already exist`);
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
     var saveinviteuser: any = {};
@@ -74,46 +93,47 @@ inviteuseradd:Boolean=false;
       lastName: lastName,
       email: email.toLowerCase(),
       password: randPassword,
-      orgName: '',
+      orgName: organization.name,
       organizationType: '',
-     // orgAddress:''
-    
+      // orgAddress:''
+
     }
     var userid: any;
+    console.log("invitee",invitee)
     if (invitee) {
       userid = invitee
-    
+
     } else {
-      userid = await this.userService.newcreate(inviteuser,UserStatus.Pending,true);
-      
+      userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+
     }
+    await this.userService.sentinvitiontoUser(organization.name, lowerCaseEmail);
+    // const newpermission: any = [];
+    // await permission.forEach((element) => {
+    //   newpermission.push({
+    //     aclmodulesId: element.aclmodulesId,
+    //     entityType: element.entityType,
+    //     entityId: userid.id,
+    //     permissions: element.permissions,
+    //     status: 0
+    //   })
+    // })
+    // var permissionId: any = [];
 
-    const newpermission: any = [];
-    await permission.forEach((element) => {
-      newpermission.push({
-        aclmodulesId: element.aclmodulesId,
-        entityType: element.entityType,
-        entityId: userid.id,
-        permissions: element.permissions,
-        status: 0
-      })
-    })
-    var permissionId: any = [];
-   
-    await Promise.all(
-      newpermission.map(
-        async (newpermission: NewPermissionDTO) => {
-          //console.log(newpermission)
-          const perId = await this.PermissionService.create(newpermission, user)
-          //console.log(perId);
-          permissionId.push(perId.id);
-        }),
-    );
+    // await Promise.all(
+    //   newpermission.map(
+    //     async (newpermission: NewPermissionDTO) => {
+    //       //console.log(newpermission)
+    //       const perId = await this.PermissionService.create(newpermission, user)
+    //       //console.log(perId);
+    //       permissionId.push(perId.id);
+    //     }),
+    // );
 
-//console.log(permissionId);
-    await this.invitationRepository.update(saveinviteuser.id, { permissionId });
+    //console.log(permissionId);
+    // await this.invitationRepository.update(saveinviteuser.id, { permissionId });
 
-    await this.sendInvitation(organization, lowerCaseEmail);
+    //
   }
 
   public async update(
@@ -148,13 +168,13 @@ inviteuseradd:Boolean=false;
         invitation.organization.id,
       );
       await this.userService.changeRole(user.id, invitation.role);
-      const pre = invitation.permissionId;
-      //console.log(pre);
-      await Promise.all(
-        pre.map(
-          async (pre: number) =>
-            await this.PermissionService.updatepermissionstatus(pre)),
-      );
+      // const pre = invitation.permissionId;
+      // //console.log(pre);
+      // await Promise.all(
+      //   pre.map(
+      //     async (pre: number) =>
+      //       await this.PermissionService.updatepermissionstatus(pre)),
+      // );
     }
 
     invitation.status = status;
@@ -194,7 +214,7 @@ inviteuseradd:Boolean=false;
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Organization invitation`,
-      html: `Organization ${organization.name} has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>
+      html: `Organization <b>${organization.name}</b> has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>
       `,
     });
 

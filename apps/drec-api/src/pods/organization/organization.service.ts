@@ -215,9 +215,7 @@ export class OrganizationService {
       this.logger.debug(
         `Successfully registered a new organization with id ${organizationToRegister.name}`,
       );
-      this.logger.debug(
-        `successfully registered new organization with id ${stored.id}`,
-      );
+     
       return stored;
     } catch (error) {
       console.log(error)

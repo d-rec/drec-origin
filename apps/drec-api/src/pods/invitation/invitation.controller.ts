@@ -11,6 +11,7 @@ import {
   Put,
   UseGuards,
   UseInterceptors,
+  Query
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -25,6 +26,7 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiQuery
 } from '@nestjs/swagger';
 import { InvitationService } from './invitation.service';
 import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
@@ -104,8 +106,16 @@ export class InvitationController {
     type: SuccessResponseDTO,
     description: 'Invites a user',
   })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: Number,
+    description: 'This query parameter is used to for admin...',
+
+  })
   async invite(
-    @Body() { email, role,firstName,lastName,permissions }: InviteDTO,
+    @Body() { email, role,firstName,lastName }: InviteDTO,
+    @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     if (!loggedUser.hasOrganization) {
@@ -123,13 +133,18 @@ export class InvitationController {
     }
 
     try {
-      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,permissions);
+      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,organizationId);
     } catch (error) {
+      console.log(error)
       this.logger.error(error.toString());
+      this.logger.error(error.toString() instanceof AlreadyPartOfOrganizationError);
+     //// if (error instanceof AlreadyPartOfOrganizationError) {
 
-      if (error instanceof AlreadyPartOfOrganizationError) {
-        throw new ForbiddenException({ message: error.message });
-      }
+      console.log("error")
+
+        throw new ForbiddenException({ message: error.message,status:error.status });
+     ///// }
+    //  return error
     }
 
     return ResponseSuccess();

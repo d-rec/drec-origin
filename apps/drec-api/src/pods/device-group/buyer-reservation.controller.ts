@@ -446,7 +446,8 @@ export class BuyerReservationController {
     type: [DeviceCsvFileProcessingJobsEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+  public async getAllCsvJobsBelongingToOrganization(
+    @UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
     console.log("user", user);
     console.log("organization", organizationId);
 
@@ -456,6 +457,9 @@ export class BuyerReservationController {
         message:
           'User needs to have organization added'
       })
+    }
+    if(user.role==='Admin'){
+      return this.deviceGroupService.getAllCSVJobsForAdmin();
     }
     return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }

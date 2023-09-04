@@ -7,8 +7,8 @@ if [[ -z "$ENV" ]]; then
    ENV="dev"
 fi
 echo "ENV $ENV"
-MAJOR=$((1000 + RANDOM % 9999))
-MINOR=$((RANDOM % 9999))
+MAJOR=$((1000 + RANDOM % 
+MINOR=$((RANDOM % 
 BUILD_NUMBER=$MAJOR.$MINOR
 #DOCKERFILE="Dockerfile.$IMAGE"
 if [ $IMAGE == "drec-api" ]; then

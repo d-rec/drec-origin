@@ -22,7 +22,7 @@ import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
-
+import {UserRole} from './user_role.entity';
 import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
@@ -39,6 +39,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
+    @InjectRepository(UserRole) private readrepository : Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
@@ -87,37 +88,35 @@ export class UserService {
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
     var org_id;
-    // if (data.secretKey != null) {
-    const orgdata = {
-      name: data.orgName !== undefined ? data.orgName : '',
-      organizationType: data.organizationType,
-      // secretKey: data.secretKey,
-      orgEmail: data.email,
-      address: data.orgAddress
+    if (!inviteuser) {
+      const orgdata = {
+        name: data.orgName !== undefined ? data.orgName : '',
+        organizationType: data.organizationType,
+        // secretKey: data.secretKey,
+        orgEmail: data.email,
+        address: data.orgAddress
+
+      }
+
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+        throw new ConflictException({
+          success: false,
+          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+        });
+
+      } else {
+
+        const org = await this.organizationService.newcreate(orgdata)
+        org_id = org.id;
+        this.logger.debug(
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+
+
+      }
 
     }
-
-    if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
-      throw new ConflictException({
-        success: false,
-        message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
-      });
-
-    } else {
-
-      const org = await this.organizationService.newcreate(orgdata)
-      org_id = org.id;
-      this.logger.debug(
-        `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-      );
-
-
-    }
-
-    //  }
-    this.logger.debug(
-      `Successfully registered a new organization with id ${org_id}`,
-    );
+   
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
@@ -141,17 +140,81 @@ export class UserService {
 
     });
     this.logger.debug(
-      `Successfully registered a new organization with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(user)}`,
     );
-    if (inviteuser) {
-      await this.emailConfirmationService.create(user, true);
-    } else {
-      await this.emailConfirmationService.create(user, false);
-    }
+    // if (inviteuser) {
+    //   await this.emailConfirmationService.create(user, data.orgName, true);
+    // } else {
+      await this.emailConfirmationService.create(user);
+   // }
 
     return new User(user);
   }
 
+  public async adminnewcreate(data: CreateUserORGDTO,
+    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
+    await this.checkForExistingUser(data.email);
+    var org_id;
+    if (!inviteuser) {
+      const orgdata = {
+        name: data.orgName !== undefined ? data.orgName : '',
+        organizationType: data.organizationType,
+        // secretKey: data.secretKey,
+        orgEmail: data.email,
+        address: data.orgAddress
+
+      }
+
+      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+        throw new ConflictException({
+          success: false,
+          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+        });
+
+      } else {
+
+        const org = await this.organizationService.newcreate(orgdata)
+        org_id = org.id;
+        this.logger.debug(
+          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+        );
+      }
+    }
+   
+    var role;
+    var roleId;
+    if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
+      role = Role.Buyer
+      roleId = 4;
+    } else {
+      role = Role.OrganizationAdmin
+      roleId = 2;
+    }
+
+    const user = await this.repository.save({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email.toLowerCase(),
+      password: this.hashPassword(data.password),
+      notifications: true,
+      status: status || UserStatus.Active,
+      role: role,
+      roleId: roleId,
+      organization: org_id ? { id: org_id } : {},
+
+    });
+    this.logger.debug(
+      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+    );
+    // if (inviteuser) {
+    //   await this.emailConfirmationService.create(user, data.orgName, true);
+    // } else {
+      await this.emailConfirmationService.admincreate(user,data.password);
+   // }
+
+    return new User(user);
+  }
+  
   private async checkForExistingUser(email: string): Promise<void> {
     const isExistingUser = await this.hasUser({ email });
     if (isExistingUser) {
@@ -245,8 +308,29 @@ export class UserService {
     });
   }
 
+
+  public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
+    return this.repository.find({
+      where: {
+        id: { $ne: userId },
+        organizationId
+      },
+      order: {
+        id: 'DESC',
+      },
+      take: 1
+    });
+
+  }
+
   async removeFromOrganization(userId: number): Promise<void> {
     await this.repository.update(userId, { organization: undefined });
+  }
+
+  async remove(userId: number): Promise<void> {
+
+    await this.emailConfirmationService.remove(userId)
+    await this.repository.delete(userId);
   }
 
   async updateProfile(
@@ -311,14 +395,14 @@ export class UserService {
 
 
   async updatechangePassword(
-    token: IEmailConfirmationToken['token'],
+    emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
-  ): Promise<ExtendedBaseEntity & IUser> {
-    const emailConfirmation = await this.emailConfirmationService.findOne({ token });
+  ): Promise<UserDTO> {
+    // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
     console.log("emailConfirmation")
 
     //const _user = await this.findById(emailConfirmation.id);
-  
+
     if (emailConfirmation) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
@@ -335,8 +419,8 @@ export class UserService {
         });
       }
 
-      await this.repository.update(emailConfirmation.user.id, updateEntity);
-      return emailConfirmation.user;
+      await this.repository.update(emailConfirmation.id, updateEntity);
+      return emailConfirmation;
 
     }
 
@@ -351,13 +435,18 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    var roleId;
-    if (role === Role.DeviceOwner) {
-      roleId = 3
-    } else {
-      roleId = 5
-    }
-    await this.repository.update(userId, { role, roleId });
+    const getrole=await this.readrepository.findOne({name:role})
+    console.log(getrole);
+    // var roleId;
+    // if (role === Role.DeviceOwner) {
+    //   roleId = 3
+    // }if else (role === Role.OrganizationAdmin) {
+    //   roleId = 3
+    // }
+    //  else {
+    //   roleId = 5
+    // }
+    await this.repository.update(userId, { role, roleId:getrole.id });
     return this.findOne({ id: userId });
   }
 
@@ -381,7 +470,8 @@ export class UserService {
     const { organizationName, status } = filterDto;
     const query = this.repository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.organization', 'organization');
+      .leftJoinAndSelect('user.organization', 'organization')
+      .orderBy('user.createdAt','DESC');
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
@@ -449,4 +539,19 @@ export class UserService {
 
 
   }
+
+  public async sentinvitiontoUser(orgname, email) {
+    const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
+console.log("hgtdfd",getcurrenttoken);
+    if (!getcurrenttoken) {
+      return {
+        message: 'Token not found',
+        success: false,
+      };
+    }
+    const { id, confirmed } = getcurrenttoken;
+    let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    await this.emailConfirmationService.sendInvitation(orgname, email, token);
+  }
+
 }

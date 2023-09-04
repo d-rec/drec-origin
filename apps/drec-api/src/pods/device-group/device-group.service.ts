@@ -446,7 +446,16 @@ export class DeviceGroupService {
       },
     });
   }
+  async getAllCSVJobsForAdmin(
+    
+  ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
 
+    return await this.repositoyCSVJobProcessing.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
   async createFailedRowDetailsForCSVJob(
     jobId: number,
     errorDetails: Array<any>,
