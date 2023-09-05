@@ -332,7 +332,7 @@ export class EmailConfirmationService {
     const htmlTemplate = `
     <p>Organization <b>${organization}</b> has invited you to join.</p>
     <p>To accept the invitation, please click  the following link :</p>
-    <p><a href="${url}/user/acceptInvitaion?token=${token}&invitaionId=${invitationId}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Accept</a></p>
+    <p><a href="${url}/user/acceptInvitaion?email=${email}&invitaionId=${invitationId}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Accept</a></p>
     
   `;
 

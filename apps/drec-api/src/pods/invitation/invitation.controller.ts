@@ -73,13 +73,13 @@ export class InvitationController {
     return invitations;
   }
 
-  @Put(':id/:status')
+  @Put(':id')
  // @UseGuards(AuthGuard('jwt'))
-  @ApiParam({
-    name: 'status',
-    enum: OrganizationInvitationStatus,
-    enumName: 'OrganizationInvitationStatus',
-  })
+  // @ApiParam({
+  //   name: 'status',
+  //   enum: OrganizationInvitationStatus,
+  //   enumName: 'OrganizationInvitationStatus',
+  // })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,

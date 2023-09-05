@@ -87,7 +87,8 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    var randPassword = 'pass@123'
+    //Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
@@ -143,6 +144,7 @@ export class InvitationService {
   ): Promise<ISuccessResponse> {
     const lowerCaseEmail = user.email.toLowerCase();
     const userinvite = await this.userService.findByEmail(lowerCaseEmail)
+    console.log(userinvite);
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
