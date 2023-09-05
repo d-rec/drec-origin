@@ -318,16 +318,23 @@ export class EmailConfirmationService {
   public async sendInvitation(
     organization: string,
     email: string,
-    token: string
+    token: string,
+    invitationId:number
   ): Promise<void> {
     const url = `${process.env.UI_BASE_URL}`;
 
+    // const htmlTemplate = `
+    //   <p>Organization <b>${organization}</b> has invited you to join.</p>
+    //   <p>To accept the invitation, please change your password using the following link :</p>
+    //   <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
+    //   <p>After changing your password, you can log in and visit the your invitation details in website.</p>
+    // `;
     const htmlTemplate = `
-      <p>Organization <b>${organization}</b> has invited you to join.</p>
-      <p>To accept the invitation, please change your password using the following link :</p>
-      <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
-      <p>After changing your password, you can log in and visit the your invitation details in website.</p>
-    `;
+    <p>Organization <b>${organization}</b> has invited you to join.</p>
+    <p>To accept the invitation, please click  the following link :</p>
+    <p><a href="${url}/user/acceptInvitaion?token=${token}&invitaionId=${invitationId}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Accept</a></p>
+    
+  `;
 
     const result = await this.mailService.send({
       to: email,
