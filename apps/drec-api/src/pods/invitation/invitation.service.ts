@@ -15,7 +15,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { InviteDTO } from './dto/invite.dto';
+import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
@@ -64,11 +64,11 @@ export class InvitationService {
       });
 
     }
-   
-    const orginvitee = await this.invitationRepository.findOne( {
+
+    const orginvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
-        organization:inviteorg
+        organization: inviteorg
       },
       relations: ['organization'],
     });
@@ -87,7 +87,8 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    var randPassword = 'pass@123'
+    //Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
@@ -99,7 +100,7 @@ export class InvitationService {
 
     }
     var userid: any;
-    console.log("invitee",invitee)
+    console.log("invitee", invitee)
     if (invitee) {
       userid = invitee
 
@@ -107,7 +108,7 @@ export class InvitationService {
       userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     }
-    await this.userService.sentinvitiontoUser(organization.name, lowerCaseEmail);
+    await this.userService.sentinvitiontoUser(organization, lowerCaseEmail, saveinviteuser.id);
     // const newpermission: any = [];
     // await permission.forEach((element) => {
     //   newpermission.push({
@@ -137,11 +138,13 @@ export class InvitationService {
   }
 
   public async update(
-    user: ILoggedInUser,
+    user: updateInviteStatusDTO,
     invitationId: string,
-    status: OrganizationInvitationStatus,
+    // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
     const lowerCaseEmail = user.email.toLowerCase();
+    const userinvite = await this.userService.findByEmail(lowerCaseEmail)
+    console.log(userinvite);
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
@@ -162,12 +165,12 @@ export class InvitationService {
       );
     }
 
-    if (status === OrganizationInvitationStatus.Accepted) {
+    if (user.status === OrganizationInvitationStatus.Accepted) {
       await this.userService.addToOrganization(
-        user.id,
+        userinvite.id,
         invitation.organization.id,
       );
-      await this.userService.changeRole(user.id, invitation.role);
+      await this.userService.changeRole(userinvite.id, invitation.role);
       // const pre = invitation.permissionId;
       // //console.log(pre);
       // await Promise.all(
@@ -177,7 +180,7 @@ export class InvitationService {
       // );
     }
 
-    invitation.status = status;
+    invitation.status = user.status;
 
     await this.invitationRepository.save(invitation);
 

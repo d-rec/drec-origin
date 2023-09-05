@@ -42,7 +42,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { ActiveUserGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
-import { InviteDTO } from './dto/invite.dto';
+import { InviteDTO,updateInviteStatusDTO } from './dto/invite.dto';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
@@ -73,13 +73,13 @@ export class InvitationController {
     return invitations;
   }
 
-  @Put(':id/:status')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiParam({
-    name: 'status',
-    enum: OrganizationInvitationStatus,
-    enumName: 'OrganizationInvitationStatus',
-  })
+  @Put(':id')
+ // @UseGuards(AuthGuard('jwt'))
+  // @ApiParam({
+  //   name: 'status',
+  //   enum: OrganizationInvitationStatus,
+  //   enumName: 'OrganizationInvitationStatus',
+  // })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -87,13 +87,14 @@ export class InvitationController {
   })
   async updateInvitation(
     @Param('id') invitationId: string,
-    @Param('status') status: IOrganizationInvitation['status'],
-    @UserDecorator() loggedUser: ILoggedInUser,
+  //  @Param('status') status: IOrganizationInvitation['status'],
+    @Body() useracceptinvitation:updateInviteStatusDTO
+   // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     return this.organizationInvitationService.update(
-      loggedUser,
+      useracceptinvitation,
       invitationId,
-      status,
+     // status,
     );
   }
 

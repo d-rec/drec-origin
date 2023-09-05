@@ -22,7 +22,7 @@ import { Role, UserStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
-import {UserRole} from './user_role.entity';
+import { UserRole } from './user_role.entity';
 import { UserDTO } from './dto/user.dto';
 import { User } from './user.entity';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
@@ -39,7 +39,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private readrepository : Repository<UserRole>,
+    @InjectRepository(UserRole) private readrepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
@@ -116,7 +116,7 @@ export class UserService {
       }
 
     }
-   
+
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
@@ -145,8 +145,8 @@ export class UserService {
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
     // } else {
-      await this.emailConfirmationService.create(user);
-   // }
+    await this.emailConfirmationService.create(user);
+    // }
 
     return new User(user);
   }
@@ -180,7 +180,7 @@ export class UserService {
         );
       }
     }
-   
+
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
@@ -209,12 +209,12 @@ export class UserService {
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
     // } else {
-      await this.emailConfirmationService.admincreate(user,data.password);
-   // }
+    await this.emailConfirmationService.admincreate(user, data.password);
+    // }
 
     return new User(user);
   }
-  
+
   private async checkForExistingUser(email: string): Promise<void> {
     const isExistingUser = await this.hasUser({ email });
     if (isExistingUser) {
@@ -341,7 +341,7 @@ export class UserService {
 
       firstName,
       lastName,
-      email,
+      email:email.toLowerCase(),
 
     });
 
@@ -355,7 +355,12 @@ export class UserService {
         errors: validationErrors,
       });
     }
-
+    const updateuser = await this.findById(id);
+    //@ts-ignore
+    if (!(updateuser.email === email.toLowerCase())) {
+      //@ts-ignore
+      await this.checkForExistingUser(email.toLowerCase());
+    }
     await this.repository.update(id, updateEntity);
 
     return this.findOne({ id });
@@ -435,7 +440,7 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole=await this.readrepository.findOne({name:role})
+    const getrole = await this.readrepository.findOne({ name: role })
     console.log(getrole);
     // var roleId;
     // if (role === Role.DeviceOwner) {
@@ -446,7 +451,7 @@ export class UserService {
     //  else {
     //   roleId = 5
     // }
-    await this.repository.update(userId, { role, roleId:getrole.id });
+    await this.repository.update(userId, { role, roleId: getrole.id });
     return this.findOne({ id: userId });
   }
 
@@ -471,7 +476,7 @@ export class UserService {
     const query = this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
-      .orderBy('user.createdAt','DESC');
+      .orderBy('user.createdAt', 'DESC');
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
@@ -486,16 +491,23 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
-    await this.findById(id);
+
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
-
+    console.log(validationErrors);
     if (validationErrors.length > 0) {
       throw new UnprocessableEntityException({
         success: false,
         errors: validationErrors,
       });
+    }
+
+    const updateuser = await this.findById(id);
+    //@ts-ignore
+    if (!(updateuser.email === data.email)) {
+      //@ts-ignore
+      await this.checkForExistingUser(data.email);
     }
 
     await this.repository.update(id, {
@@ -540,9 +552,9 @@ export class UserService {
 
   }
 
-  public async sentinvitiontoUser(orgname, email) {
+  public async sentinvitiontoUser(orgname, email,invitationId) {
     const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
-console.log("hgtdfd",getcurrenttoken);
+    console.log("hgtdfd", getcurrenttoken);
     if (!getcurrenttoken) {
       return {
         message: 'Token not found',
@@ -551,7 +563,7 @@ console.log("hgtdfd",getcurrenttoken);
     }
     const { id, confirmed } = getcurrenttoken;
     let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(orgname, email, token);
+    await this.emailConfirmationService.sendInvitation(orgname.name, email, token,invitationId);
   }
 
 }
