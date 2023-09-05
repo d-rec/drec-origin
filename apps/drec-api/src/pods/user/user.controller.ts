@@ -255,7 +255,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: `Resend a confirmation email`,
+    description: `send a email`,
   })
   public async Forgetpassword(
     @Body() body: ForgetPasswordDTO
