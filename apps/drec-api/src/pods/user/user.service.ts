@@ -552,7 +552,7 @@ export class UserService {
 
   }
 
-  public async sentinvitiontoUser(orgname, email,invitationId) {
+  public async sentinvitiontoUser(inviteuser, email,invitationId) {
     const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
     console.log("hgtdfd", getcurrenttoken);
     if (!getcurrenttoken) {
@@ -563,7 +563,7 @@ export class UserService {
     }
     const { id, confirmed } = getcurrenttoken;
     let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(orgname.name, email, token,invitationId);
+    await this.emailConfirmationService.sendInvitation(inviteuser, email,invitationId);
   }
 
 }

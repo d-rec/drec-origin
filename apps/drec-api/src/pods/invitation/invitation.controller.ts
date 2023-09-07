@@ -100,7 +100,7 @@ export class InvitationController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.OrganizationAdmin, Role.Admin,Role.SubBuyer)
   @ApiBody({ type: InviteDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
