@@ -49,7 +49,9 @@ export class PermissionController {
     ) { }
 
     @Get()
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [ACLModulePermissions], description: 'Returns all Permission' })
     async getAll(): Promise<ACLModulePermissions[]> {
         return this.PermissionService.getAll();
@@ -59,7 +61,7 @@ export class PermissionController {
     @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
     @Roles(Role.Admin,Role.OrganizationAdmin)
     @Permission('Read')
-    @ACLModules('Add_Permission_Module_CRUDL')
+    @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
@@ -71,7 +73,9 @@ export class PermissionController {
     }
 
     @Get('/user/:id')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
@@ -87,7 +91,7 @@ export class PermissionController {
     @Roles(Role.Admin,Role.OrganizationAdmin)
     @ApiBody({ type: NewPermissionDTO })
     @Permission('Write')
-    @ACLModules('Add_Permission_Module_CRUDL')
+    @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: PermissionDTO,
@@ -102,6 +106,8 @@ export class PermissionController {
    
     @Put('/update/:id')
     @ApiBody({ type: UpdatePermissionDTO })
+    @Permission('Write')
+    @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,

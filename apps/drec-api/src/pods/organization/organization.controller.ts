@@ -41,21 +41,25 @@ import {
   isRole,
   ResponseSuccess,
 } from '../../models';
-import { ActiveUserGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/Organization')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'),PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
   @Get('/me')
+  @Permission('Read')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -64,10 +68,13 @@ export class OrganizationController {
   async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
+    console.log("With in getOrg at org controller",organizationId);
     return await this.organizationService.findOne(organizationId);
   }
 
   @Get('/users')
+  @Permission('Read')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -84,6 +91,8 @@ export class OrganizationController {
 
   @Get('/:id/invitations')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Permission('Read')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -105,6 +114,8 @@ export class OrganizationController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.OrganizationAdmin)
+  @Permission('Write')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -129,6 +140,8 @@ export class OrganizationController {
   @Put(':id/change-role/:userId')
   @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
+  @Permission('Write')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateMemberDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -160,6 +173,8 @@ export class OrganizationController {
 
   @Post('chain-address')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @Permission('Write')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: BindBlockchainAccountDTO })
   @ApiResponse({
     status: HttpStatus.OK,
