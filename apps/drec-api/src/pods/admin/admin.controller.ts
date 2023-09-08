@@ -33,7 +33,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
-import { ActiveUserGuard, RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
 import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -45,10 +45,12 @@ import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
   constructor(
@@ -60,6 +62,8 @@ export class AdminController {
 
   @Get('/users')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -73,6 +77,8 @@ export class AdminController {
 
   @Get('/organizations')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
@@ -82,6 +88,8 @@ export class AdminController {
   }
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all User Of Organizations',
@@ -93,6 +101,8 @@ export class AdminController {
   }
   @Get('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules("ADMIN_MANAGEMENT-CRUDL")
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -109,6 +119,8 @@ export class AdminController {
 
   @Post('/users')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
@@ -119,8 +131,11 @@ export class AdminController {
     return await this.userService.newcreate(newUser);
   }
 
-  @Post('/seed/users')
+  @Post('/seed/users'
+  )
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -147,6 +162,8 @@ export class AdminController {
 
   @Post('/seed/organizations')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [OrganizationDTO],
@@ -170,6 +187,8 @@ export class AdminController {
 
   @Put('/users/:id')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -185,6 +204,8 @@ export class AdminController {
 
   @Patch('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Update')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateOrganizationDTO,
@@ -203,6 +224,8 @@ export class AdminController {
 
   @Delete('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Delete')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -224,6 +247,8 @@ export class AdminController {
 
   @Delete('/user/:id')
   @Roles(Role.Admin)
+  @Permission('Delete')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -268,6 +293,8 @@ export class AdminController {
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
@@ -284,6 +311,8 @@ export class AdminController {
 
   @Get('/devices/autocomplete')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
