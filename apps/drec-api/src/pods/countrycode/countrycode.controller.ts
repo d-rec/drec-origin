@@ -25,9 +25,6 @@ import {
   import { plainToClass } from 'class-transformer';
 import {CountrycodeService}from './countrycode.service';
 import {CountryCodeNameDTO ,FilterKeyDTO} from './dto'
-import { PermissionGuard } from 'src/guards';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 @ApiTags('CountryList')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -38,9 +35,6 @@ private readonly countrycodeService:CountrycodeService
     ){}
 
     @Get('/list')
-    @UseGuards(PermissionGuard)
-    @Permission('Read')
-    @ACLModules('COUNTRY_CODE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [CountryCodeNameDTO],
