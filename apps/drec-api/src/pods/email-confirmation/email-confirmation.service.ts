@@ -240,7 +240,7 @@ export class EmailConfirmationService {
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Confirm your email address`,
-      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}">${url}</a>.`,
+      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`,
     });
 
     if (result) {
@@ -260,7 +260,7 @@ export class EmailConfirmationService {
       html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
       <p>UserName:<b>${email}</b></p> 
       <p> PassWord:<b>${password}</b></p>
-      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Login</a>.</p>`,
+      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
     });
 
     if (result) {
