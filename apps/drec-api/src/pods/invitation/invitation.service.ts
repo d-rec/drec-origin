@@ -15,7 +15,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { InviteDTO } from './dto/invite.dto';
+import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
@@ -64,11 +64,11 @@ export class InvitationService {
       });
 
     }
-   
-    const orginvitee = await this.invitationRepository.findOne( {
+
+    const orginvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
-        organization:inviteorg
+        organization: inviteorg
       },
       relations: ['organization'],
     });
@@ -99,15 +99,23 @@ export class InvitationService {
 
     }
     var userid: any;
-    console.log("invitee",invitee)
-    if (invitee) {
-      userid = invitee
+    console.log("invitee", invitee)
+    //to add for if one user invite by multiple organization 
+    // if (invitee) {
+    //   userid = invitee
 
-    } else {
-      userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+    // } else {
+    userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
+    //}
+    var updateinviteuser: updateInviteStatusDTO = {
+      email: lowerCaseEmail,
+      status: OrganizationInvitationStatus.Accepted
     }
-    await this.userService.sentinvitiontoUser(organization.name, lowerCaseEmail);
+
+    await this.update(updateinviteuser, saveinviteuser.id)
+    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    //to add permission for user role in invitaion
     // const newpermission: any = [];
     // await permission.forEach((element) => {
     //   newpermission.push({
@@ -137,11 +145,13 @@ export class InvitationService {
   }
 
   public async update(
-    user: ILoggedInUser,
+    user: updateInviteStatusDTO,
     invitationId: string,
-    status: OrganizationInvitationStatus,
+    // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
     const lowerCaseEmail = user.email.toLowerCase();
+    const userinvite = await this.userService.findByEmail(lowerCaseEmail)
+    console.log(userinvite);
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
@@ -162,12 +172,12 @@ export class InvitationService {
       );
     }
 
-    if (status === OrganizationInvitationStatus.Accepted) {
+    if (user.status === OrganizationInvitationStatus.Accepted) {
       await this.userService.addToOrganization(
-        user.id,
+        userinvite.id,
         invitation.organization.id,
       );
-      await this.userService.changeRole(user.id, invitation.role);
+      await this.userService.changeRole(userinvite.id, invitation.role);
       // const pre = invitation.permissionId;
       // //console.log(pre);
       // await Promise.all(
@@ -177,7 +187,7 @@ export class InvitationService {
       // );
     }
 
-    invitation.status = status;
+    invitation.status = user.status;
 
     await this.invitationRepository.save(invitation);
 

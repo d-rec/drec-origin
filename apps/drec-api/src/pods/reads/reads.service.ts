@@ -557,7 +557,7 @@ export class ReadsService {
                 value: Delta
               }
               const firstvalidation = this.firstvalidateEnergy(read, device)
-              if (firstvalidation) {
+              if (firstvalidation.success) {
                 await this.repository.save({
                   value: element.value,
                   deltaValue: Delta,
@@ -570,6 +570,15 @@ export class ReadsService {
                   timestamp: new Date(element.endtimestamp),
                   value: Delta
                 })
+              }else{
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message:firstvalidation.message
+                     
+
+                  }),
+                );
               }
             }
             else {
@@ -578,7 +587,7 @@ export class ReadsService {
                 value: element.value
               }
               const firstvalidation = this.firstvalidateEnergy(read, device)
-              if (firstvalidation) {
+              if (firstvalidation.success) {
                 await this.repository.save({
                   value: element.value,
                   deltaValue: Delta,
@@ -587,6 +596,15 @@ export class ReadsService {
                   datetime: element.endtimestamp.toString()
 
                 });
+              }else{
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message:firstvalidation.message
+                     
+
+                  }),
+                );
               }
             }
             if (measurmentreadindex == measurement.reads.length - 1) {
@@ -628,7 +646,7 @@ export class ReadsService {
                 value: Delta
               }
               const newvalidation = this.NewvalidateEnergy(read, final, device);
-              if (newvalidation) {
+              if (newvalidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
                   value: Delta
@@ -641,6 +659,15 @@ export class ReadsService {
                   datetime: element.endtimestamp.toString()
 
                 });
+              }else{
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message:newvalidation.message
+                     
+
+                  }),
+                );
               }
 
             }
@@ -751,7 +778,7 @@ export class ReadsService {
     read: ReadDTO,
     device: DeviceDTO,
 
-  ): boolean {
+  ):  { success: boolean; message: string } {
     const computeMaxEnergy = (
       capacity: number,
       meteredTimePeriod: number,
@@ -806,13 +833,15 @@ export class ReadsService {
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (Math.round(read.value + margin * read.value) < finalmax) {
-
-      return Math.round(read.value + margin * read.value) < finalmax;
+      return {
+        success: true,
+        message: 'Validation successful',
+      };
     } else {
-      throw new ConflictException({
+      return {
         success: false,
-        message: `${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
-      });
+        message: `Failed, MaxEnergy: ${finalmax}`,
+      };
     }
   }
   private NewvalidateEnergy(
@@ -820,7 +849,7 @@ export class ReadsService {
     final: ReadDTO,
     device: DeviceDTO,
 
-  ): boolean {
+  ): { success: boolean; message: string } {
     const computeMaxEnergy = (
       capacity: number,
       meteredTimePeriod: number,
@@ -870,13 +899,15 @@ export class ReadsService {
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (Math.round(read.value + margin * read.value) < finalmax) {
-
-      return Math.round(read.value + margin * read.value) < finalmax;
+      return {
+        success: true,
+        message: 'Validation successful',
+      };
     } else {
-      throw new ConflictException({
+      return {
         success: false,
-        message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
-      });
+        message: `Failed, MaxEnergy: ${finalmax}`,
+      };
     }
 
     // return Math.round(read.value + margin * read.value) < maxEnergy;

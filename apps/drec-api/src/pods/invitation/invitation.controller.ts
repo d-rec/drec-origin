@@ -42,9 +42,9 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
-import { InviteDTO } from './dto/invite.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { InviteDTO,updateInviteStatusDTO } from './dto/invite.dto';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
@@ -77,15 +77,15 @@ export class InvitationController {
     return invitations;
   }
 
-  @Put(':id/:status')
+  @Put(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
-  @ApiParam({
-    name: 'status',
-    enum: OrganizationInvitationStatus,
-    enumName: 'OrganizationInvitationStatus',
-  })
+  // @ApiParam({
+  //   name: 'status',
+  //   enum: OrganizationInvitationStatus,
+  //   enumName: 'OrganizationInvitationStatus',
+  // })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -93,19 +93,20 @@ export class InvitationController {
   })
   async updateInvitation(
     @Param('id') invitationId: string,
-    @Param('status') status: IOrganizationInvitation['status'],
-    @UserDecorator() loggedUser: ILoggedInUser,
+  //  @Param('status') status: IOrganizationInvitation['status'],
+    @Body() useracceptinvitation:updateInviteStatusDTO
+   // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     return this.organizationInvitationService.update(
-      loggedUser,
+      useracceptinvitation,
       invitationId,
-      status,
+     // status,
     );
   }
 
   @Post()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.OrganizationAdmin, Role.Admin,Role.SubBuyer)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })

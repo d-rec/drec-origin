@@ -4,7 +4,8 @@ export enum Role {
   OrganizationAdmin = 'OrganizationAdmin',
   Buyer = 'Buyer',
   Admin = 'Admin',
-  Intermediary = 'Intermediary',
+  SubBuyer = 'SubBuyer',
+ // Intermediary = 'Intermediary',
 
 }
 export enum RoleStatus {

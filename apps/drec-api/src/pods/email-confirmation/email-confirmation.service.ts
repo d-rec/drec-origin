@@ -62,6 +62,36 @@ export class EmailConfirmationService {
     return emailConfirmation;
   }
 
+  // create function when orguseradmin direct added by super admin so confirm email true
+  public async admincreate(user: User, password: string): Promise<EmailConfirmation> {
+    const exists = await this.repository.findOne({
+      where: {
+        user: { email: user.email }
+      },
+      relations: ['user']
+    });
+
+    if (exists) {
+      throw new ConflictException({
+        success: false,
+        message: `Email confirmation for user with email ${user.email} already exists`,
+      });
+    }
+
+    const { token, expiryTimestamp } = await this.generateEmailToken();
+
+    const emailConfirmation = await this.repository.save({
+      user,
+      confirmed: true,
+      token,
+      expiryTimestamp,
+    });
+
+    await this.sendadminConfirmEmailRequest(user.email, password);
+
+    return emailConfirmation;
+  }
+
   async get(userId: IUser['id']): Promise<EmailConfirmation | undefined> {
     const all = await this.repository.find({ relations: ['user'] });
 
@@ -177,7 +207,7 @@ export class EmailConfirmationService {
     };
   }
   public async generatetoken(currentToken, id) {
-   
+
     let { token, expiryTimestamp } = currentToken;
 
 
@@ -186,7 +216,7 @@ export class EmailConfirmationService {
       await this.repository.update(id, newToken);
 
       return ({ token, expiryTimestamp } = newToken);
-    }else{
+    } else {
       return ({ token, expiryTimestamp } = currentToken);
     }
 
@@ -200,6 +230,7 @@ export class EmailConfirmationService {
       ),
     };
   }
+
   private async sendConfirmEmailRequest(
     email: string,
     token: string,
@@ -210,6 +241,26 @@ export class EmailConfirmationService {
       to: email,
       subject: `[Origin] Confirm your email address`,
       html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}">${url}</a>.`,
+    });
+
+    if (result) {
+      this.logger.log(`Notification email sent to ${email}.`);
+    }
+  }
+
+  private async sendadminConfirmEmailRequest(
+    email: string,
+    password: string,
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}/login`;
+
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[Origin] Welcome TO D-REC`,
+      html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
+      <p>UserName:<b>${email}</b></p> 
+      <p> PassWord:<b>${password}</b></p>
+      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Login</a>.</p>`,
     });
 
     if (result) {
@@ -265,18 +316,33 @@ export class EmailConfirmationService {
   // }
 
   public async sendInvitation(
-    organization: string,
+    inviteuser: any,
     email: string,
-    token: string
-  ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}`;
 
+    invitationId: number
+  ): Promise<void> {
+    const url = `${process.env.UI_BASE_URL}/login`;
+
+    // const htmlTemplate = `
+    //   <p>Organization <b>${organization}</b> has invited you to join.</p>
+    //   <p>To accept the invitation, please change your password using the following link :</p>
+    //   <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
+    //   <p>After changing your password, you can log in and visit the your invitation details in website.</p>
+    // `;
     const htmlTemplate = `
-      <p>Organization <b>${organization}</b> has invited you to join.</p>
-      <p>To accept the invitation, please change your password using the following link :</p>
-      <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
-      <p>After changing your password, you can log in and visit the your invitation details in website.</p>
-    `;
+    <p> Dear ${email},<p>
+    <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
+    <p>Use your email and the password below to login into D-REC Initiative.<p>
+    <p>
+    Username: <b>${email}</b><br>
+    Password: <b>${inviteuser.password}<b><p>
+    <p><a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click me</a></p>
+   <hr>
+    <p>Thank you<br>
+    Best Regards
+    <br>
+    DREC initiative</p>
+  `;
 
     const result = await this.mailService.send({
       to: email,
