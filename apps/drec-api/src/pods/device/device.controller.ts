@@ -121,9 +121,6 @@ export class DeviceController {
   }
 
   @Get('/device-type')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [CodeNameDTO],
@@ -138,9 +135,6 @@ export class DeviceController {
   }
 
   @Get('/fuel-type')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [CodeNameDTO],
