@@ -14,6 +14,7 @@ import {
   NotFoundException,
   Patch,
   Post,
+  DefaultValuePipe
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -79,12 +80,17 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({name:'pageNumber',type:Number,required: false})
+  @ApiQuery({name:'limit', type:Number,required: false})
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
   })
-  async getAllOrganizations(): Promise<OrganizationDTO[]> {
-    return await this.organizationService.getAll();
+  async getAllOrganizations(
+    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
+    @Query('limit', new DefaultValuePipe(20),ParseIntPipe) limit:number,
+  )/*: Promise<OrganizationDTO[]>*/ {
+    return await this.organizationService.getAll(pageNumber,limit);
   }
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
