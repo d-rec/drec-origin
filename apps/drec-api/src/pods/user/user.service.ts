@@ -86,7 +86,7 @@ export class UserService {
   // }
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email);
+    await this.checkForExistingUser(data.email.toLowerCase());
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -153,7 +153,7 @@ export class UserService {
 
   public async adminnewcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email);
+    await this.checkForExistingUser(data.email.toLowerCase());
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -216,7 +216,9 @@ export class UserService {
   }
 
   private async checkForExistingUser(email: string): Promise<void> {
+    console.log(email);
     const isExistingUser = await this.hasUser({ email });
+    console.log(isExistingUser);
     if (isExistingUser) {
       const message = `User with email ${email} already exists`;
 

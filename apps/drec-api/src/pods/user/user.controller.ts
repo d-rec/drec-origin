@@ -93,9 +93,9 @@ export class UserController {
   // add new for adding user with organization
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
-  @UseGuards(PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  //@UseGuards(PermissionGuard)
+ // @Permission('Write')
+ // @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
