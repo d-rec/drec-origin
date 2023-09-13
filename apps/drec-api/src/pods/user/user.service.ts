@@ -462,11 +462,17 @@ export class UserService {
     return this.findOne({ role: Role.Admin });
   }
 
-  public async getUsersByFilter(filterDto: UserFilterDTO): Promise<IUser[]> {
-    const query = this.getFilteredQuery(filterDto);
+  public async getUsersByFilter(filterDto: UserFilterDTO,pageNumber : number, limit : number): Promise<{users : IUser[],currentPage : number,totalPages : number, totalCount : number}> {
+    const query = await this.getFilteredQuery(filterDto);
     try {
-      const users = await query.getMany();
-      return users;
+     let [users,totalCount] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+      const totalPages = Math.ceil(totalCount/limit);
+      return {
+        users : users,
+        currentPage : pageNumber,
+        totalPages,
+        totalCount
+      }
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
       throw new InternalServerErrorException('Failed to retrieve users');
