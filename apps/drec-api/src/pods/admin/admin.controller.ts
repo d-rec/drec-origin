@@ -277,7 +277,7 @@ export class AdminController {
       const buyerresrvation = this.devicegroupService.findOne({ organizationId: user.organization.id })
 
       if (buyerresrvation) {
-        throw new NotFoundException('This User is part of resvation,So you cannot Remove this user and organization');
+        throw new NotFoundException('This User is part of reservation,So you cannot Remove this user and organization');
 
       }
 
