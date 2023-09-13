@@ -50,9 +50,9 @@ export class UserController {
   ) { }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -63,9 +63,9 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -187,9 +187,9 @@ export class UserController {
 
 
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiBody({ type: UpdateUserProfileDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -207,9 +207,9 @@ export class UserController {
   }
 
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiBody({ type: UpdatePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -224,9 +224,9 @@ export class UserController {
   }
 
   @Put('reset/password/:token')
-  @UseGuards(PermissionGuard)
+  /*@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -260,9 +260,9 @@ export class UserController {
   }
 
   @Put('confirm-email/:token')
-  @UseGuards(PermissionGuard)
+  /*@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
@@ -276,9 +276,9 @@ export class UserController {
   }
 
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -292,9 +292,9 @@ export class UserController {
 
 
   @Post('forget-password')
-  @UseGuards(PermissionGuard)
+  /*@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,

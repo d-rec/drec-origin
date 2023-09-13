@@ -77,8 +77,22 @@ export class OrganizationService {
     return this.repository.findByIds(ids);
   }
 
-  async getAll(): Promise<Organization[]> {
-    return this.repository.find();
+  async getAll(pageNumber : number, limit : number) : Promise<{ organizations: Organization[], currentPage : number, totalPages : number, totalCount : number}>{
+    const [organizations, count] = await this.repository.findAndCount({
+      order : {
+        name : 'ASC'
+      },
+      skip : (pageNumber - 1) * limit,
+      take : limit
+    });
+
+    const totalPages = Math.ceil(count / limit);
+    return {
+      organizations,
+      currentPage : pageNumber,
+      totalPages,
+      totalCount : count
+    };
   }
 
   async remove(organizationId: number): Promise<void> {
