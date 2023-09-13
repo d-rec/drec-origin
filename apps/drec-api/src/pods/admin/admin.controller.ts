@@ -65,6 +65,8 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({name:'pageNumber',type:Number,required: false})
+  @ApiQuery({name:'limit', type:Number,required: false})
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -72,8 +74,10 @@ export class AdminController {
   })
   public async getUsers(
     @Query(ValidationPipe) filterDto: UserFilterDTO,
-  ): Promise<UserDTO[]> {
-    return this.userService.getUsersByFilter(filterDto);
+    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
+    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+  )/*: Promise<UserDTO[]>*/ {
+    return this.userService.getUsersByFilter(filterDto,pageNumber,limit);
   }
 
   @Get('/organizations')
@@ -88,7 +92,7 @@ export class AdminController {
   })
   async getAllOrganizations(
     @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(20),ParseIntPipe) limit:number,
+    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
   )/*: Promise<OrganizationDTO[]>*/ {
     return await this.organizationService.getAll(pageNumber,limit);
   }
