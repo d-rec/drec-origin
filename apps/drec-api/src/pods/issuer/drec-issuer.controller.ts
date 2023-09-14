@@ -24,7 +24,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
-import { PermissionGuard } from 'src/guards';
+import { PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
