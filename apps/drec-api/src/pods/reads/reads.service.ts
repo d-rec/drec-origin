@@ -29,7 +29,7 @@ import { NewIntmediateMeterReadDTO, IntmediateMeterReadDTO } from './dto/interme
 import { Iintermediate, NewReadDTO, IAggregateintermediate } from '../../models'
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
-import { ReadStatus } from 'src/utils/enums';
+import { ReadStatus } from '../../utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity'
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
 import { ReadFilterDTO } from './dto/filter.dto'

@@ -56,7 +56,7 @@ import { AxiosRequestConfig } from 'axios';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 import { SuccessResponse } from '../email-confirmation/email-confirmation.service';
-import { getLocalTimeZoneFromDevice } from 'src/utils/localTimeDetailsForDevice';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);

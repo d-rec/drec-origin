@@ -32,7 +32,6 @@ import {
 import { OrganizationService } from './organization.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
 import {
@@ -41,7 +40,7 @@ import {
   isRole,
   ResponseSuccess,
 } from '../../models';
-import { ActiveUserGuard, PermissionGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard,RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
