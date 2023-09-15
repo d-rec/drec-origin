@@ -574,4 +574,13 @@ export class UserService {
     await this.emailConfirmationService.sendInvitation(inviteuser, email,invitationId);
   }
 
+  public async findUserByOrganization(organizationId : number,pageNumber : number,limit : number) {
+    return await this.repository
+                  .createQueryBuilder('user')
+                  .where('user.organizationId = :organizationId',{organizationId})
+                  .orderBy('user.createdAt', 'DESC')
+                  .skip((pageNumber - 1) * limit)
+                  .take(limit)
+                  .getManyAndCount();
+  } 
 }
