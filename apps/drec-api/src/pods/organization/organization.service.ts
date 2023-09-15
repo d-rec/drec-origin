@@ -111,9 +111,17 @@ export class OrganizationService {
     return organization.users;
   }
 
-  public async findOrganizationUsers(id: number): Promise<IUser[]> {
-    const organization = await this.findOne(id);
-    return organization ? organization.users : [];
+  public async findOrganizationUsers(id: number,pageNumber : number,limit:number): Promise<{users : IUser[],currentPage : number,totalPages : number, totalCount : number}>  {
+   /* const organization = await this.findOne(id);
+    return organization ? organization.users : []; */
+    const [users, totalCount]= await this.userService.findUserByOrganization(id,pageNumber,limit);
+    const totalPages = Math.ceil(totalCount/limit);
+    return {
+      users : users,
+      currentPage : pageNumber,
+      totalPages,
+      totalCount
+    }
   }
 
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {

@@ -13,6 +13,8 @@ import {
   NotFoundException,
   Put,
   BadRequestException,
+  Query,
+  DefaultValuePipe
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,6 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiTags,
   ApiBody,
+  ApiQuery
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -74,6 +77,8 @@ export class OrganizationController {
   @Get('/users')
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ApiQuery({name:'pageNumber',type:Number,required: false})
+  @ApiQuery({name:'limit', type:Number,required: false})
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -84,8 +89,10 @@ export class OrganizationController {
   })
   async getOrganizationUsers(
     @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<UserDTO[]> {
-    return this.organizationService.findOrganizationUsers(organizationId);
+    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
+    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+  )/*: Promise<UserDTO[]>*/ {
+    return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
   }
 
   @Get('/:id/invitations')

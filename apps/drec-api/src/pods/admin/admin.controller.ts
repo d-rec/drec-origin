@@ -100,14 +100,18 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT_CRUDL")
+  @ApiQuery({name:'pageNumber',type:Number,required: false})
+  @ApiQuery({name:'limit', type:Number,required: false})
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all User Of Organizations',
   })
   async getAllUserOrganizations(
     @Param('organizationId', new ParseIntPipe()) organizationId: number,
-  ):  Promise<UserDTO[]> {
-    return this.organizationService.findOrganizationUsers(organizationId);
+    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
+    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+  )/*:  Promise<UserDTO[]>*/ {
+    return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
   }
   @Get('/organizations/:id')
   @Roles(Role.Admin)
