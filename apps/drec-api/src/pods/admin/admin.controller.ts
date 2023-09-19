@@ -296,7 +296,7 @@ export class AdminController {
     else {
       const manyotheruserinorg = this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
       if (manyotheruserinorg) {
-        throw new NotFoundException('due to Some more user are available in organization, so you can Remove');
+        throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       }
     }
    // await this.EmailSer.remove(user.id);
