@@ -51,7 +51,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
   constructor(
@@ -65,8 +65,8 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
-  @ApiQuery({name:'pageNumber',type:Number,required: false})
-  @ApiQuery({name:'limit', type:Number,required: false})
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -74,44 +74,44 @@ export class AdminController {
   })
   public async getUsers(
     @Query(ValidationPipe) filterDto: UserFilterDTO,
-    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    return this.userService.getUsersByFilter(filterDto,pageNumber,limit);
+    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
   @Get('/organizations')
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
-  @ApiQuery({name:'pageNumber',type:Number,required: false})
-  @ApiQuery({name:'limit', type:Number,required: false})
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
   })
   async getAllOrganizations(
-    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(pageNumber,limit);
+    return await this.organizationService.getAll(pageNumber, limit);
   }
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT_CRUDL")
-  @ApiQuery({name:'pageNumber',type:Number,required: false})
-  @ApiQuery({name:'limit', type:Number,required: false})
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all User Of Organizations',
   })
   async getAllUserOrganizations(
     @Param('organizationId', new ParseIntPipe()) organizationId: number,
-    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*:  Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
   @Get('/organizations/:id')
   @Roles(Role.Admin)
@@ -273,35 +273,36 @@ export class AdminController {
   ): Promise<SuccessResponseDTO> {
 
     const user = await this.userService.findById(userid);
-
+    
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    if (user.role === Role.Buyer) {
-      const buyerresrvation = this.devicegroupService.findOne({ organizationId: user.organization.id })
-
+    const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+   
+    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
+      const buyerresrvation = await this.devicegroupService.findOne({ organizationId: user.organization.id })
+     
       if (buyerresrvation) {
         throw new NotFoundException('This User is part of reservation,So you cannot Remove this user and organization');
 
       }
-
-    } else if (user.role === Role.OrganizationAdmin) {
-
       const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
-      console.log("deviceoforg",deviceoforg)
-      if (deviceoforg.length>0) {
+     
+      if (deviceoforg.length > 0) {
         throw new NotFoundException('Some device are available in organization ');
       }
-    }
-    else {
-      const manyotheruserinorg = this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
-      if (manyotheruserinorg) {
-        throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+      // if (manyotheruserinorg) {
+      //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+      // }
+      if (!(manyotheruserinorg.length>0)) {
+        // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+         await this.organizationService.remove(user.organization.id);
       }
+
     }
-   // await this.EmailSer.remove(user.id);
+  
     await this.userService.remove(user.id);
-    await this.organizationService.remove(user.organization.id);
+
     return ResponseSuccess();
   }
   // api for device registration into I-REC
@@ -336,12 +337,12 @@ export class AdminController {
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
 
   async autocomplete(
-   // @UserDecorator() { organizationId }: ILoggedInUser,
+    // @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: String,
     @Query('organizationId') organizationId: number,
   ) {
     //@ts-ignore
-    console.log("adminaddorgId",organizationId)
+    console.log("adminaddorgId", organizationId)
     // if (adminaddorgId != null || adminaddorgId != undefined) {
     //   organizationId = adminaddorgId;
     // }
@@ -349,5 +350,5 @@ export class AdminController {
   }
 
 
- 
+
 }

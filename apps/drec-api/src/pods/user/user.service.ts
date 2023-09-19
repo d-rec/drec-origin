@@ -16,6 +16,7 @@ import {
   Repository,
   FindManyOptions,
   SelectQueryBuilder,
+  Not
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
@@ -312,10 +313,11 @@ export class UserService {
 
 
   public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
+   
     return this.repository.find({
       where: {
-        id: { $ne: userId },
-        organizationId
+        id: Not(userId),
+        organization:organizationId
       },
       order: {
         id: 'DESC',
