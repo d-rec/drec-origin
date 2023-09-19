@@ -48,6 +48,7 @@ import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { OrganizationFilterDTO } from './dto/organization-filter.dto'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -91,10 +92,11 @@ export class AdminController {
     description: 'Returns all Organizations',
   })
   async getAllOrganizations(
+    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(pageNumber, limit);
+    return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
