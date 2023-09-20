@@ -5,9 +5,10 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, FindConditions } from 'typeorm';
+import { FindOneOptions, Repository, FindConditions, SelectQueryBuilder,  } from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -39,6 +40,7 @@ import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
 import { FileService } from '../file';
+import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -77,22 +79,22 @@ export class OrganizationService {
     return this.repository.findByIds(ids);
   }
 
-  async getAll(pageNumber : number, limit : number) : Promise<{ organizations: Organization[], currentPage : number, totalPages : number, totalCount : number}>{
-    const [organizations, count] = await this.repository.findAndCount({
-      order : {
-        name : 'ASC'
-      },
-      skip : (pageNumber - 1) * limit,
-      take : limit
-    });
-
-    const totalPages = Math.ceil(count / limit);
-    return {
-      organizations,
-      currentPage : pageNumber,
-      totalPages,
-      totalCount : count
-    };
+  async getAll(filterDto : OrganizationFilterDTO, pageNumber : number, limit : number) : Promise<{ organizations: Organization[], currentPage : number, totalPages : number, totalCount : number}>{
+    const query = await this.getFilteredQuery(filterDto);
+    try {
+      let [organizations, count] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+      const totalPages = Math.ceil(count / limit);
+      return {
+        organizations,
+        currentPage : pageNumber,
+        totalPages,
+        totalCount : count
+      };
+    }
+    catch (error) {
+      this.logger.error(`Failed to retrieve organizations`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve organizations');
+    }
   }
 
   async remove(organizationId: number): Promise<void> {
@@ -431,4 +433,17 @@ export class OrganizationService {
   // private async hasorg(conditions: FindConditions<Organization>) {
   //   return Boolean(await this.findOne(conditions));
   // }
+
+  private async getFilteredQuery(filterDto : OrganizationFilterDTO) : Promise<SelectQueryBuilder<Organization>> {
+    const { organizationName } = filterDto;
+    const query = this.repository
+      .createQueryBuilder('organization')
+      .leftJoinAndSelect('organization.users', 'users')
+      .orderBy('organization.name', 'ASC');
+    if(organizationName) {
+      const baseQuery = 'organization.name ILIKE :organizationName';
+      query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    return query;
+  }
 }
