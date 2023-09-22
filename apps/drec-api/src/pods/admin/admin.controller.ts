@@ -298,12 +298,14 @@ export class AdminController {
       // }
       if (!(manyotheruserinorg.length>0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
-         await this.organizationService.remove(user.organization.id);
-      }
+        await this.userService.remove(user.id);
+        await this.organizationService.remove(user.organization.id);
+     }
 
-    }
-  
-    await this.userService.remove(user.id);
+   }
+   else {
+     await this.userService.remove(user.id);
+   }
 
     return ResponseSuccess();
   }
