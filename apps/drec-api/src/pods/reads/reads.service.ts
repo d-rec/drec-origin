@@ -413,14 +413,36 @@ export class ReadsService {
             );
           }
 
-          reads.push({
+          // reads.push({
+          //   timestamp: new Date(element.endtimestamp),
+          //   value: element.value,
+          //   timeperiod: meteredTimePeriod,
+          //   startdate: requeststartdate,
+          //   enddate: requestcurrentend
+          // });
+          let read: ReadDTO = {
             timestamp: new Date(element.endtimestamp),
-            value: element.value,
-            timeperiod: meteredTimePeriod,
-            startdate: requeststartdate,
-            enddate: requestcurrentend
-          });
+            value: element.value
 
+          }
+          const historyvalidation = await this.NewhistoryvalidateEnergy(read, device, meteredTimePeriod, measurement, requeststartdate.toJSDate(), requestcurrentend.toJSDate())
+          console.log(historyvalidation)
+          if (historyvalidation) {
+            reads.push({
+              timestamp: new Date(element.endtimestamp),
+              value: element.value,
+            })
+          } else {
+            console.log("436")
+            return reject(
+              new ConflictException({
+                success: false,
+                message: 'Failed,read value is greater then from MaxEnergy'
+
+
+              }),
+            );
+          }
           if (measurmentreadindex == measurement.reads.length - 1) {
 
             resolve(true);
@@ -429,9 +451,7 @@ export class ReadsService {
         })
       });
       return {
-        reads: reads.filter((read: any) =>
-          this.NewhistoryvalidateEnergy(read, device, read.timeperiod, measurement, read.startdate, read.enddate)
-        ),
+        reads: reads,
         unit: measurement.unit,
 
       };
@@ -512,19 +532,38 @@ export class ReadsService {
                   );
                 }
               }
-              reads.push({
+              // reads.push({
+              //   timestamp: new Date(element.endtimestamp),
+              //   value: element.value
+              // })
+              let read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value
-              })
+              }
+              const newdeltavalidation = this.NewvalidateEnergy(read, final, device);
+              if (newdeltavalidation.success) {
+                reads.push({
+                  timestamp: new Date(element.endtimestamp),
+                  value: element.value
+                })
+                
+              } else {
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message: newdeltavalidation.message
+
+
+                  }),
+                );
+              }
               if (measurmentreadindex == measurement.reads.length - 1) {
                 resolve(true);
               }
             })
           });
           return {
-            reads: reads.filter((read: ReadDTO) =>
-              this.NewvalidateEnergy(read, final, device),
-            ),
+            reads: reads,
             unit: measurement.unit,
           };
 
@@ -570,12 +609,12 @@ export class ReadsService {
                   timestamp: new Date(element.endtimestamp),
                   value: Delta
                 })
-              }else{
+              } else {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message:firstvalidation.message
-                     
+                    message: firstvalidation.message
+
 
                   }),
                 );
@@ -596,12 +635,12 @@ export class ReadsService {
                   datetime: element.endtimestamp.toString()
 
                 });
-              }else{
+              } else {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message:firstvalidation.message
-                     
+                    message: firstvalidation.message
+
 
                   }),
                 );
@@ -659,12 +698,12 @@ export class ReadsService {
                   datetime: element.endtimestamp.toString()
 
                 });
-              }else{
+              } else {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message:newvalidation.message
-                     
+                    message: newvalidation.message
+
 
                   }),
                 );
@@ -700,9 +739,9 @@ export class ReadsService {
   }
 
   async findLastReadForMeterWithinRange(meterId: string, startdate: Date, enddate: Date): Promise<Array<{ timestamp: Date, value: number }>> {
-   
+
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${startdate.getTime() }, stop: ${enddate.getTime()})
+      |> range(start: ${startdate.getTime()}, stop: ${enddate.getTime()})
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
       |> last()`;
     return await this.execute(fluxQuery);
@@ -778,7 +817,7 @@ export class ReadsService {
     read: ReadDTO,
     device: DeviceDTO,
 
-  ):  { success: boolean; message: string } {
+  ): { success: boolean; message: string } {
     const computeMaxEnergy = (
       capacity: number,
       meteredTimePeriod: number,
@@ -1003,10 +1042,11 @@ export class ReadsService {
       }
       return Math.round(read.value + margin * read.value) < finalmax;
     } else {
-      throw new ConflictException({
-        success: false,
-        message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
-      });
+      return false;
+      // throw new ConflictException({
+      //   success: false,
+      //   message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+      // });
     }
 
   }

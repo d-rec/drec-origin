@@ -40,7 +40,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private readrepository: Repository<UserRole>,
+    @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
@@ -191,6 +191,9 @@ export class UserService {
       role = Role.OrganizationAdmin
       roleId = 2;
     }
+   
+    // const getrole = await this.rolerepository.findOne({ name: role })
+    // console.log(getrole);
 
     const user = await this.repository.save({
       firstName: data.firstName,
@@ -444,7 +447,7 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.readrepository.findOne({ name: role })
+    const getrole = await this.rolerepository.findOne({ name: role })
     console.log(getrole);
     // var roleId;
     // if (role === Role.DeviceOwner) {
