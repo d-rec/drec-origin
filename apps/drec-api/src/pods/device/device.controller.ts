@@ -447,6 +447,31 @@ export class DeviceController {
         );
       });
     }
+
+    if(deviceToUpdate.commissioningDate) {
+      const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+        externalId,
+        user.organizationId
+      );
+      const noOfHistRead : number = await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
+      const noOfOnGoingRead : number = await this.deviceService.getNumberOfOngReads(checkexternalid.externalId,checkexternalid.createdAt);
+      
+      if(deviceToUpdate.commissioningDate != checkexternalid.commissioningDate) {
+        if(noOfHistRead > 0 || noOfOnGoingRead > 0) {
+          throw new ConflictException({
+            success : false,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+          })
+        }
+
+        if(new Date(deviceToUpdate.commissioningDate).getTime() > new Date(checkexternalid.createdAt).getTime()) {
+          throw new ConflictException({
+            success : false,
+            message: `Invalid commissioning date, commissioning is greater than device onboarding date`
+          })
+        }
+      }
+    } 
     return await this.deviceService.update(
       user.organizationId,
       user.role,
