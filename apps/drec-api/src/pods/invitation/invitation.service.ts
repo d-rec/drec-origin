@@ -113,7 +113,7 @@ export class InvitationService {
       status: OrganizationInvitationStatus.Accepted
     }
 
-    await this.update(updateinviteuser, saveinviteuser.id)
+    //await this.update(updateinviteuser, saveinviteuser.id)
     await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
     //to add permission for user role in invitaion
     // const newpermission: any = [];

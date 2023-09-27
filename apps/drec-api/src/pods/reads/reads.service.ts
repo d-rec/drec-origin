@@ -251,7 +251,7 @@ export class ReadsService {
       );
     };
     const degradation = 0.5; // [%/year]
-    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity; // W
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -834,7 +834,7 @@ export class ReadsService {
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
-    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -904,7 +904,7 @@ export class ReadsService {
     };
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
-    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -977,7 +977,7 @@ export class ReadsService {
     this.logger.debug(JSON.stringify(read))
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
-    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
+    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt 
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();

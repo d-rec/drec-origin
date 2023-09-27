@@ -79,7 +79,7 @@ export class InvitationController {
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  @Permission('Write')
+  @Permission('Update')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   // @ApiParam({
   //   name: 'status',

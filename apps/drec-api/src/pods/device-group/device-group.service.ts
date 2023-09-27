@@ -1354,7 +1354,8 @@ export class DeviceGroupService {
             Number.isNaN(data[key]) ? 0 : parseFloat(data[key]);
           //@ts-ignore
           if (key == 'yieldValue' && dataToStore[key] === 0) {
-            dataToStore[key] = 1500;
+           // dataToStore[key] = 1500;
+            dataToStore[key] = 2000;
           }
 
           if (key === "SdgBenefits") {
