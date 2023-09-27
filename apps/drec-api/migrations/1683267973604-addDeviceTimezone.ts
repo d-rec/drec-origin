@@ -6,6 +6,9 @@ export class addDeviceTimezone1683267973604 implements MigrationInterface {
         await queryRunner.query(
             `ALTER TABLE "device" ADD COLUMN "timezone" character varying`,
         );
+        await queryRunner.query(
+            `ALTER TABLE "device" ADD COLUMN "version" character varying SET DEFAULT '1.0'`,
+        );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

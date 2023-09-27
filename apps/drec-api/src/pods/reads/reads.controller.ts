@@ -42,6 +42,9 @@ import { ReadFilterDTO } from './dto/filter.dto'
 import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { updateInviteStatusDTO } from '../invitation/dto/invite.dto';
+import { PermissionGuard } from '../../guards';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -57,6 +60,9 @@ export class ReadsController extends BaseReadsController {
   }
 
   @Get('/time-zones')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns valid time-zones list',
@@ -77,7 +83,9 @@ export class ReadsController extends BaseReadsController {
     type: [ReadDTO],
     description: 'Returns time-series of meter reads',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
@@ -109,7 +117,9 @@ export class ReadsController extends BaseReadsController {
     type: [ReadDTO],
     description: 'Returns time-series of meter reads',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: filterNoOffLimit,
@@ -254,8 +264,10 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
  
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Permission('Write')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
@@ -670,8 +682,10 @@ export class ReadsController extends BaseReadsController {
     description: 'This query parameter is used to for admin...',
 
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Permission('Write')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newstoreReadaddbyadmin(
     @Param('id') id: string,
     @Query('organizationId') organizationId: number | null,
@@ -1082,7 +1096,9 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
     @Param("externalId") externalId: string,
 

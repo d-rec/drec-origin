@@ -91,7 +91,9 @@ export class DeviceController {
   }
 
   @Get('/ungrouped/buyerreservation')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
@@ -103,7 +105,7 @@ export class DeviceController {
     return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
   }
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -209,7 +211,9 @@ export class DeviceController {
   }
 
   @Get('externalId/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -443,6 +447,31 @@ export class DeviceController {
         );
       });
     }
+
+    if(deviceToUpdate.commissioningDate) {
+      const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+        externalId,
+        user.organizationId
+      );
+      const noOfHistRead : number = await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
+      const noOfOnGoingRead : number = await this.deviceService.getNumberOfOngReads(checkexternalid.externalId,checkexternalid.createdAt);
+      
+      if(deviceToUpdate.commissioningDate != checkexternalid.commissioningDate) {
+        if(noOfHistRead > 0 || noOfOnGoingRead > 0) {
+          throw new ConflictException({
+            success : false,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+          })
+        }
+
+        if(new Date(deviceToUpdate.commissioningDate).getTime() > new Date(checkexternalid.createdAt).getTime()) {
+          throw new ConflictException({
+            success : false,
+            message: `Invalid commissioning date, commissioning is greater than device onboarding date`
+          })
+        }
+      }
+    } 
     return await this.deviceService.update(
       user.organizationId,
       user.role,
@@ -453,7 +482,9 @@ export class DeviceController {
 
 
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @Permission('Delete')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -584,7 +615,9 @@ export class DeviceController {
 
 
   @Get('/certifiedlog/first&lastdate')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
@@ -644,10 +677,10 @@ export class DeviceController {
   // }
   /////////////////////////////////////////////////
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)
-  //@Permission('Write')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Permission('Write')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,

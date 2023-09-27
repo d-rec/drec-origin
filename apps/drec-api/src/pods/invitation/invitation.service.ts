@@ -87,8 +87,7 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    var randPassword = 'pass@123'
-    //Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
@@ -101,14 +100,22 @@ export class InvitationService {
     }
     var userid: any;
     console.log("invitee", invitee)
-    if (invitee) {
-      userid = invitee
+    //to add for if one user invite by multiple organization 
+    // if (invitee) {
+    //   userid = invitee
 
-    } else {
-      userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+    // } else {
+    userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
+    //}
+    var updateinviteuser: updateInviteStatusDTO = {
+      email: lowerCaseEmail,
+      status: OrganizationInvitationStatus.Accepted
     }
-    await this.userService.sentinvitiontoUser(organization, lowerCaseEmail, saveinviteuser.id);
+
+    //await this.update(updateinviteuser, saveinviteuser.id)
+    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    //to add permission for user role in invitaion
     // const newpermission: any = [];
     // await permission.forEach((element) => {
     //   newpermission.push({

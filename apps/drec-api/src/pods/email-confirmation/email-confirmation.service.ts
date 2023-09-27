@@ -62,8 +62,8 @@ export class EmailConfirmationService {
     return emailConfirmation;
   }
 
-// create function when orguseradmin direct added by super admin so confirm email true
-  public async admincreate(user: User,password:string): Promise<EmailConfirmation> {
+  // create function when orguseradmin direct added by super admin so confirm email true
+  public async admincreate(user: User, password: string): Promise<EmailConfirmation> {
     const exists = await this.repository.findOne({
       where: {
         user: { email: user.email }
@@ -207,7 +207,7 @@ export class EmailConfirmationService {
     };
   }
   public async generatetoken(currentToken, id) {
-   
+
     let { token, expiryTimestamp } = currentToken;
 
 
@@ -216,7 +216,7 @@ export class EmailConfirmationService {
       await this.repository.update(id, newToken);
 
       return ({ token, expiryTimestamp } = newToken);
-    }else{
+    } else {
       return ({ token, expiryTimestamp } = currentToken);
     }
 
@@ -240,7 +240,7 @@ export class EmailConfirmationService {
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Confirm your email address`,
-      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}">${url}</a>.`,
+      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`,
     });
 
     if (result) {
@@ -260,7 +260,7 @@ export class EmailConfirmationService {
       html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
       <p>UserName:<b>${email}</b></p> 
       <p> PassWord:<b>${password}</b></p>
-      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Login</a>.</p>`,
+      <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
     });
 
     if (result) {
@@ -316,12 +316,12 @@ export class EmailConfirmationService {
   // }
 
   public async sendInvitation(
-    organization: string,
+    inviteuser: any,
     email: string,
-    token: string,
-    invitationId:number
+
+    invitationId: number
   ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}`;
+    const url = `${process.env.UI_BASE_URL}/login`;
 
     // const htmlTemplate = `
     //   <p>Organization <b>${organization}</b> has invited you to join.</p>
@@ -330,10 +330,18 @@ export class EmailConfirmationService {
     //   <p>After changing your password, you can log in and visit the your invitation details in website.</p>
     // `;
     const htmlTemplate = `
-    <p>Organization <b>${organization}</b> has invited you to join.</p>
-    <p>To accept the invitation, please click  the following link :</p>
-    <p><a href="${url}/user/acceptInvitaion?email=${email}&invitaionId=${invitationId}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Accept</a></p>
-    
+    <p> Dear ${email},<p>
+    <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
+    <p>Use your email and the password below to login into D-REC Initiative.<p>
+    <p>
+    Username: <b>${email}</b><br>
+    Password: <b>${inviteuser.password}<b><p>
+    <p><a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click me</a></p>
+   <hr>
+    <p>Thank you<br>
+    Best Regards
+    <br>
+    DREC initiative</p>
   `;
 
     const result = await this.mailService.send({

@@ -112,7 +112,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @IsEnum(StandardCompliance)
   // standardCompliance: StandardCompliance;
 
-  @Column({ default: 1500 })
+  //@Column({ default: 1500 })
+  @Column({ default: 2000 })
   @IsNumber()
   yieldValue: number;
 

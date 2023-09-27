@@ -104,7 +104,7 @@ export class BuyerReservationController {
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -399,7 +399,7 @@ export class BuyerReservationController {
 
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer,Role.SubBuyer)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Remove device group',

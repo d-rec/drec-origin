@@ -308,7 +308,7 @@ export class CertificateLogService {
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
-          deviceid: s.issuelog_externalId,
+         // deviceid: s.issuelog_externalId,
           groupId: s.issuelog_groupId
         };
         console.log(item);

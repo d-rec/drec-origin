@@ -114,7 +114,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture',
+    'Valid OffTaker values are  Education , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture,Off-Grid Community,Utility',
   })
   @IsOptional()
   offTaker: OffTaker;

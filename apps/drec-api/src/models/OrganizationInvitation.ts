@@ -29,7 +29,7 @@ export type OrganizationInviteUpdateData = Pick<
 >;
 
 export const ensureOrganizationRole = (role: Role): void => {
-  if (role !== Role.OrganizationAdmin && role !== Role.DeviceOwner && role !== Role.User) {
+  if (role !== Role.OrganizationAdmin && role !== Role.DeviceOwner && role !== Role.User&& role !== Role.SubBuyer) {
     throw new Error('Not an organization role');
   }
 };

@@ -30,13 +30,11 @@ export class SdgbenefitController {
 
    
   @Post()
- 
  create(@Body() createsdgbenefitDto: SdgBenefitDTO) {
    return this.SdgbenefitService.create(createsdgbenefitDto);
  }
 
  @Get()
-
  findAll() {
    return this.SdgbenefitService.findAll();
  }

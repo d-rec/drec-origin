@@ -16,6 +16,7 @@ import {
   Repository,
   FindManyOptions,
   SelectQueryBuilder,
+  Not
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
 import { Role, UserStatus } from '../../utils/enums';
@@ -39,7 +40,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private readrepository: Repository<UserRole>,
+    @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
   ) { }
@@ -86,7 +87,7 @@ export class UserService {
   // }
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email);
+    await this.checkForExistingUser(data.email.toLowerCase());
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -153,7 +154,7 @@ export class UserService {
 
   public async adminnewcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email);
+    await this.checkForExistingUser(data.email.toLowerCase());
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -190,6 +191,9 @@ export class UserService {
       role = Role.OrganizationAdmin
       roleId = 2;
     }
+   
+    // const getrole = await this.rolerepository.findOne({ name: role })
+    // console.log(getrole);
 
     const user = await this.repository.save({
       firstName: data.firstName,
@@ -216,7 +220,9 @@ export class UserService {
   }
 
   private async checkForExistingUser(email: string): Promise<void> {
+    console.log(email);
     const isExistingUser = await this.hasUser({ email });
+    console.log(isExistingUser);
     if (isExistingUser) {
       const message = `User with email ${email} already exists`;
 
@@ -310,10 +316,11 @@ export class UserService {
 
 
   public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
+   
     return this.repository.find({
       where: {
-        id: { $ne: userId },
-        organizationId
+        id: Not(userId),
+        organization:organizationId
       },
       order: {
         id: 'DESC',
@@ -440,7 +447,7 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.readrepository.findOne({ name: role })
+    const getrole = await this.rolerepository.findOne({ name: role })
     console.log(getrole);
     // var roleId;
     // if (role === Role.DeviceOwner) {
@@ -460,11 +467,17 @@ export class UserService {
     return this.findOne({ role: Role.Admin });
   }
 
-  public async getUsersByFilter(filterDto: UserFilterDTO): Promise<IUser[]> {
-    const query = this.getFilteredQuery(filterDto);
+  public async getUsersByFilter(filterDto: UserFilterDTO,pageNumber : number, limit : number): Promise<{users : IUser[],currentPage : number,totalPages : number, totalCount : number}> {
+    const query = await this.getFilteredQuery(filterDto);
     try {
-      const users = await query.getMany();
-      return users;
+     let [users,totalCount] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+      const totalPages = Math.ceil(totalCount/limit);
+      return {
+        users : users,
+        currentPage : pageNumber,
+        totalPages,
+        totalCount
+      }
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
       throw new InternalServerErrorException('Failed to retrieve users');
@@ -552,7 +565,7 @@ export class UserService {
 
   }
 
-  public async sentinvitiontoUser(orgname, email,invitationId) {
+  public async sentinvitiontoUser(inviteuser, email,invitationId) {
     const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
     console.log("hgtdfd", getcurrenttoken);
     if (!getcurrenttoken) {
@@ -563,7 +576,17 @@ export class UserService {
     }
     const { id, confirmed } = getcurrenttoken;
     let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(orgname.name, email, token,invitationId);
+    await this.emailConfirmationService.sendInvitation(inviteuser, email,invitationId);
   }
 
+  public async findUserByOrganization(organizationId : number,pageNumber : number,limit : number) {
+    return await this.repository
+                  .createQueryBuilder('user')
+                  .leftJoinAndSelect('user.organization', 'organization')
+                  .where('organization.id = :organizationId',{organizationId})
+                  .orderBy('user.createdAt', 'DESC')
+                  .skip((pageNumber - 1) * limit)
+                  .take(limit)
+                  .getManyAndCount();
+  } 
 }

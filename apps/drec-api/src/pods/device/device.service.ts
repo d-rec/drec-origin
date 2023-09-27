@@ -56,6 +56,7 @@ import { AxiosRequestConfig } from 'axios';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 import { SuccessResponse } from '../email-confirmation/email-confirmation.service';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -420,7 +421,12 @@ export class DeviceService {
     id: number,
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
-    return (await this.repository.findOne(id, options)) ?? null;
+    const device : Device = await this.repository.findOne(id,options);
+    if(!device) {
+      return null;
+    }
+    device.timezone = await getLocalTimeZoneFromDevice(device.createdAt,device);
+    return device;
   }
 
   async findReads(meterId: string): Promise<DeviceDTO | null> {
@@ -432,15 +438,18 @@ export class DeviceService {
 
   async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<Device | null> {
     //change whare condition filter by developerExternalId instead of externalId and organizationid
-    return (
-      (await this.repository.findOne({
+      const device : Device = await this.repository.findOne({
         where: {
           developerExternalId: meterId,
           organizationId: organizationId
         }
-      })) ??
-      null
-    );
+      });
+
+      if(!device) {
+        return null;
+      }
+      device.timezone = await getLocalTimeZoneFromDevice(device.createdAt,device);
+      return device;
   }
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,

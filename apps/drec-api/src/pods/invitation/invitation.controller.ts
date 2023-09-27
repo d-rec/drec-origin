@@ -40,8 +40,10 @@ import {
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
-import { ActiveUserGuard, RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { InviteDTO,updateInviteStatusDTO } from './dto/invite.dto';
 
 @ApiTags('invitation')
@@ -56,7 +58,9 @@ export class InvitationController {
   ) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -74,7 +78,9 @@ export class InvitationController {
   }
 
   @Put(':id')
- // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Update')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   // @ApiParam({
   //   name: 'status',
   //   enum: OrganizationInvitationStatus,
@@ -99,8 +105,10 @@ export class InvitationController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer)
+  @Permission('Write')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
