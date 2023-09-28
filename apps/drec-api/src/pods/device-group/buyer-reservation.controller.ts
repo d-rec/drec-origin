@@ -126,6 +126,8 @@ export class BuyerReservationController {
           organizationId);
       case Role.Buyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
+        case Role.SubBuyer:
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
       default:
