@@ -251,7 +251,7 @@ export class ReadsService {
       );
     };
     const degradation = 0.5; // [%/year]
-    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
+    const yieldValue = device.yieldValue || 1500; // [kWh/kW]
     const capacity = device.capacity; // W
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -544,7 +544,7 @@ export class ReadsService {
                   timestamp: new Date(element.endtimestamp),
                   value: element.value
                 })
-                
+
               } else {
                 return reject(
                   new ConflictException({
@@ -854,7 +854,7 @@ export class ReadsService {
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    const margin = 0.2; // Margin for comparing read value with computed max energy
+    // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -866,10 +866,10 @@ export class ReadsService {
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+    this.logger.debug(`${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
-    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < finalmax) {
+    console.log("hgfgfdt871", Math.round( read.value))
+    if (read.value < finalmax) {
       return {
         success: true,
         message: 'Validation successful',
@@ -920,7 +920,7 @@ export class ReadsService {
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    const margin = 0.2; // Margin for comparing read value with computed max energy
+   // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -932,10 +932,10 @@ export class ReadsService {
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+    this.logger.debug(`${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
     //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < finalmax) {
+    if ( read.value< finalmax) {
       return {
         success: true,
         message: 'Validation successful',
@@ -988,7 +988,7 @@ export class ReadsService {
     }
     const meteredTimePeriod = requestmeteredTimePeriod;
 
-    const margin = 0.2; // Margin for comparing read value with computed max energy
+    //const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -1000,10 +1000,11 @@ export class ReadsService {
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
-    this.logger.debug(`${read.value + margin * read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+    this.logger.debug(`${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
-    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
-    if (Math.round(read.value + margin * read.value) < finalmax) {
+   
+   
+    if ( read.value< finalmax) {
       this.historyrepository.save({
         type: measurement.type,
         externalId: device.externalId,
@@ -1038,7 +1039,7 @@ export class ReadsService {
         }
 
       }
-      return Math.round(read.value + margin * read.value) < finalmax;
+      return  read.value < finalmax;
     } else {
       return false;
       // throw new ConflictException({
