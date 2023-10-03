@@ -37,6 +37,7 @@ export class AuthService {
   }
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
+    console.log(user)
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,

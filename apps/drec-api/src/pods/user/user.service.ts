@@ -86,53 +86,50 @@ export class UserService {
   //   return new User(user);
   // }
   public async newcreate(data: CreateUserORGDTO,
-    status?: UserStatus,inviteuser?:Boolean): Promise<UserDTO> {
-      console.log(data['client']);
+    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
+    console.log(data['client']);
     await this.checkForExistingUser(data.email);
-    let api_user:any;
-    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase())
-    {
+    let api_user: any;
+    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
-      api_user=await this.oauthClientCredentialsService.createAPIUser();
-      console.log("api_user",api_user);
+      api_user = await this.oauthClientCredentialsService.createAPIUser();
+      console.log("api_user", api_user);
     }
     var org_id;
-   // if (data.secretKey != null) {
-      const orgdata = {
-        name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
-       // secretKey: data.secretKey,
-        orgEmail: data.email,
-        address: data.orgAddress
+    // if (data.secretKey != null) {
+    const orgdata = {
+      name: data.orgName !== undefined ? data.orgName : '',
+      organizationType: data.organizationType,
+      // secretKey: data.secretKey,
+      orgEmail: data.email,
+      address: data.orgAddress
 
-      }
-      if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase())
-      {
-        orgdata['api_user_id']= api_user.api_user_id;      
-      }
-      else if(data['client'])
-      {
-        orgdata['api_user_id']= data['client'].api_user_id;
-      }
-     
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name) ) {
-        throw new ConflictException({
-          success: false,
-          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
-        });
+    }
+    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
+      orgdata['api_user_id'] = api_user.api_user_id;
+    }
+    else if (data['client']) {
+      orgdata['api_user_id'] = data['client'].api_user_id;
+    }
 
-      } else {
+    if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      throw new ConflictException({
+        success: false,
+        message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+      });
 
-        const org = await this.organizationService.newcreate(orgdata)
-        org_id = org.id;
-        this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
-        );
+    } else {
+
+      const org = await this.organizationService.newcreate(orgdata)
+      org_id = org.id;
+      this.logger.debug(
+        `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+      );
 
 
-      }
+    }
 
-  //  }
+    //  }
     this.logger.debug(
       `Successfully registered a new organization with id ${org_id}`,
     );
@@ -141,14 +138,14 @@ export class UserService {
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
       role = Role.Buyer
       roleId = 4;
-    } else if(data.organizationType === 'Developer' || data.organizationType === 'Developer'){
+    } else if (data.organizationType === 'Developer' || data.organizationType === 'Developer') {
       role = Role.OrganizationAdmin
       roleId = 2;
-    }else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
+    } else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
       role = Role.ApiUser
       roleId = 6;
     }
-console.log(role,"151",roleId)
+    console.log(role, "151", roleId)
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -159,27 +156,26 @@ console.log(role,"151",roleId)
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user? api_user.api_user_id : data['client'] ?data['client'].api_user_id: null    
+      api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
 
     });
     this.logger.debug(
       `Successfully registered a new organization with id ${JSON.stringify(user)}`,
     );
-    if(inviteuser){
-      await this.emailConfirmationService.create(user,true);
-    }else{
-      await this.emailConfirmationService.create(user,false);
+    if (inviteuser) {
+      await this.emailConfirmationService.create(user, true);
+    } else {
+      await this.emailConfirmationService.create(user, false);
     }
-    if(api_user)
-    {
-      let clienCredentialsData=this.oauthClientCredentialsService.generateClientCredentials();
-      this.oauthClientCredentialsService.store(clienCredentialsData.client_id,clienCredentialsData.client_secret,api_user.api_user_id);
-      let newUser=new User(user);
-      newUser['client_id']=clienCredentialsData.client_id;
-      newUser['client_secret']=clienCredentialsData.client_secret;
+    if (api_user) {
+      let clienCredentialsData = this.oauthClientCredentialsService.generateClientCredentials();
+      this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
+      let newUser = new User(user);
+      newUser['client_id'] = clienCredentialsData.client_id;
+      newUser['client_secret'] = clienCredentialsData.client_secret;
       return newUser;
     }
-    
+
     return new User(user);
   }
 
@@ -196,18 +192,17 @@ console.log(role,"151",roleId)
     }
   }
 
-  async validateClient(client_id,client_secret)
-  {
+  async validateClient(client_id, client_secret) {
     console.log(client_id);
     console.log(client_secret);
-   // this.oauthClientCredentialsService.findOneByclient_id
+    // this.oauthClientCredentialsService.findOneByclient_id
     const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
     if (!client) {
       throw new UnauthorizedException('Invalid client credentials');
     }
     client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
-    console.log("client.client_secret",client.client_secret);
-    console.log("clientSecret",client_secret);
+    console.log("client.client_secret", client.client_secret);
+    console.log("clientSecret", client_secret);
     if (client.client_secret !== client_secret) {
       throw new UnauthorizedException('Invalid client credentials');
     }
@@ -264,7 +259,7 @@ console.log(role,"151",roleId)
       user.emailConfirmed = emailConfirmation?.confirmed || false;
     }
 
-    return user;
+    return user ?? null;
   }
 
   private hashPassword(password: string) {
@@ -300,14 +295,14 @@ console.log(role,"151",roleId)
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email}: UpdateUserProfileDTO,
+    { firstName, lastName, email }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
-     
+
       firstName,
       lastName,
       email,
-      
+
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -366,30 +361,30 @@ console.log(role,"151",roleId)
     const emailConfirmation = await this.emailConfirmationService.findOne({ token });
     console.log("emailConfirmation")
     console.log(emailConfirmation)
-   
-      //const _user = await this.findById(emailConfirmation.id);
-      console.log(emailConfirmation)
-      if (emailConfirmation) {
-        const updateEntity = new User({
-          password: this.hashPassword(user.newPassword),
+
+    //const _user = await this.findById(emailConfirmation.id);
+    console.log(emailConfirmation)
+    if (emailConfirmation) {
+      const updateEntity = new User({
+        password: this.hashPassword(user.newPassword),
+      });
+
+      const validationErrors = await validate(updateEntity, {
+        skipUndefinedProperties: true,
+      });
+
+      if (validationErrors.length > 0) {
+        throw new UnprocessableEntityException({
+          success: false,
+          errors: validationErrors,
         });
-
-        const validationErrors = await validate(updateEntity, {
-          skipUndefinedProperties: true,
-        });
-
-        if (validationErrors.length > 0) {
-          throw new UnprocessableEntityException({
-            success: false,
-            errors: validationErrors,
-          });
-        }
-
-        await this.repository.update(emailConfirmation.user.id, updateEntity);
-        return emailConfirmation.user;
-
       }
-    
+
+      await this.repository.update(emailConfirmation.user.id, updateEntity);
+      return emailConfirmation.user;
+
+    }
+
     throw new ConflictException({
       success: false,
       errors: `User Not exist .`,
@@ -459,7 +454,7 @@ console.log(role,"151",roleId)
     }
 
     await this.repository.update(id, {
-     
+
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,

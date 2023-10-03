@@ -24,7 +24,7 @@ export class ClientPasswordStrategy extends PassportStrategy {
 
   authenticate(req: any) {
     if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
-      throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"});
+     // throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"});
        //@ts-ignore
       return this.fail();
       

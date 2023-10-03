@@ -145,6 +145,7 @@ export class UserController {
     @Req() request: Request
   ): Promise<UserDTO> {
     let client;
+    console.log(request.headers);
     if(request.headers['client_id'] && request.headers['client_secret'])
     {
       if(!request.headers['client_secret'] || !request.headers['client_id'])
@@ -153,7 +154,7 @@ export class UserController {
       }
       client= await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
     }
-    if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
+    else if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
       client= await this.userService.validateClient( process.env.client_id,  process.env.client_secret);
 
     }
