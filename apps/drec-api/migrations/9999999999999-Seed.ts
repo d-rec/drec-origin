@@ -90,7 +90,7 @@ export class Seed9999999999999 implements MigrationInterface {
               '${user.firstName}', 
               '${user.lastName}', 
               '${user.telephone}', 
-              '${user.email.toLowerCase()}', 
+              '${user?.email.toLowerCase()}', 
               '${user.password}', 
               '${user.notifications}', 
               '${user.status}', 

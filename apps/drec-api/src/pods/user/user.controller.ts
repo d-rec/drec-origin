@@ -151,8 +151,10 @@ export class UserController {
       {
         throw new UnauthorizedException('Invalid client credentials');
       }
-      client=await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
-
+      client= await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+    }
+    if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
+      client= await this.userService.validateClient( process.env.client_id,  process.env.client_secret);
 
     }
     console.log(userRegistrationData);
