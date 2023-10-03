@@ -33,5 +33,12 @@
         "description":"for User role",
         "status":true
 
+    },
+    {
+        "id":6,
+        "name":"ApiUser",
+        "description":"for ApiUser role",
+        "status":true
+
     }
 ]
