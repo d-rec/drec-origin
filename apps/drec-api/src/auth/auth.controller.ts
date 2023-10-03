@@ -21,7 +21,7 @@ import { LoginDataDTO } from './dto/login-data.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(AuthGuard(['oauth2-client-password', 'local']))
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })

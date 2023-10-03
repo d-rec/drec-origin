@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { UserService } from '../pods/user/user.service';
 import { ClientPasswordStrategy } from './client-password.strategy';
+import { OauthClientCredentials } from 'src/pods/user/oauth_client_credentials.entity';
 
 
 
@@ -26,8 +27,9 @@ export class ClientCredentialsStrategy extends PassportStrategy(
      // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
      
       //this.oAuthClientCredentialService.store(clientData.client_id,clientData.client_secret,1);
-      let client= await this.validateClient(clientId, clientSecret);
-      const user = await this.userService.findById(client.userid);
+      let user : OauthClientCredentials= await this.validateClient(clientId, clientSecret);
+    /*  const user = await this.userService.findById(client.user.id);
+      console.log("user",user); */
       console.log("user",user);
       if(user)
       {
