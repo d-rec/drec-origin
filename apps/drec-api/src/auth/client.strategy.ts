@@ -10,10 +10,10 @@ import { Role } from '../utils/enums/role.enum';
 
 @Injectable()
 export class ClientCredentialsStrategy extends PassportStrategy(
-    ClientPasswordStrategy,
+  ClientPasswordStrategy,
   'oauth2-client-password',
 ) {
-  constructor(private readonly userService: UserService,private readonly authService: AuthService,private readonly oAuthClientCredentialService: OauthClientCredentialsService) {
+  constructor(private readonly userService: UserService, private readonly authService: AuthService, private readonly oAuthClientCredentialService: OauthClientCredentialsService) {
     super();
   }
 
@@ -21,20 +21,21 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     // const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
     // If client ID and client secret are present in the request, validate them
-    console.log("cleint strategy came here",clientId, clientSecret);
+    console.log("cleint strategy came here", clientId, clientSecret);
     if (clientId && clientSecret) {
-     // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
-     
+      // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
+
       //this.oAuthClientCredentialService.store(clientData.client_id,clientData.client_secret,1);
-      let client= await this.validateClient(clientId, clientSecret);
-      const user = await this.userService.findOne({api_user_id:client.api_user_id,role:Role.ApiUser});
-      console.log("clientuser",user);
-      if(user)
-      {
+      let client = await this.validateClient(clientId, clientSecret);
+      const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
+      console.log("clientuser", user);
+
+
+      if (user) {
         return user;
       }
       return null;
-      
+
     }
     const user = await this.validateClient(clientId, clientSecret);
     if (!user) {
@@ -50,8 +51,8 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       throw new UnauthorizedException('Invalid client credentials');
     }
     client.client_secret = this.oAuthClientCredentialService.decryptclient_secret(client.client_secret);
-    console.log("client.client_secret",client.client_secret);
-    console.log("clientSecret",clientSecret);
+    console.log("client.client_secret", client.client_secret);
+    console.log("clientSecret", clientSecret);
     if (client.client_secret !== clientSecret) {
       throw new UnauthorizedException('Invalid client credentials');
     }
