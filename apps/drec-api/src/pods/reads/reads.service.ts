@@ -437,7 +437,7 @@ export class ReadsService {
             return reject(
               new ConflictException({
                 success: false,
-                message: 'Failed,read value is greater then from MaxEnergy'
+                message: 'Failed,read value is greater than from MaxEnergy'
               }),
             );
           }

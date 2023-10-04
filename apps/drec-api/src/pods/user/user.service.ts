@@ -117,7 +117,11 @@ export class UserService {
       }
 
     }
-
+    //@ts-ignore
+    if (data.orgid) {
+      //@ts-ignore
+      org_id = data.orgid;
+    }
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
@@ -191,7 +195,7 @@ export class UserService {
       role = Role.OrganizationAdmin
       roleId = 2;
     }
-   
+
     // const getrole = await this.rolerepository.findOne({ name: role })
     // console.log(getrole);
 
@@ -316,11 +320,11 @@ export class UserService {
 
 
   public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
-   
+
     return this.repository.find({
       where: {
         id: Not(userId),
-        organization:organizationId
+        organization: organizationId
       },
       order: {
         id: 'DESC',
@@ -348,7 +352,7 @@ export class UserService {
 
       firstName,
       lastName,
-      email:email.toLowerCase(),
+      email: email.toLowerCase(),
 
     });
 
@@ -467,14 +471,14 @@ export class UserService {
     return this.findOne({ role: Role.Admin });
   }
 
-  public async getUsersByFilter(filterDto: UserFilterDTO,pageNumber : number, limit : number): Promise<{users : IUser[],currentPage : number,totalPages : number, totalCount : number}> {
+  public async getUsersByFilter(filterDto: UserFilterDTO, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
-     let [users,totalCount] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
-      const totalPages = Math.ceil(totalCount/limit);
+      let [users, totalCount] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+      const totalPages = Math.ceil(totalCount / limit);
       return {
-        users : users,
-        currentPage : pageNumber,
+        users: users,
+        currentPage: pageNumber,
         totalPages,
         totalCount
       }
@@ -565,7 +569,7 @@ export class UserService {
 
   }
 
-  public async sentinvitiontoUser(inviteuser, email,invitationId) {
+  public async sentinvitiontoUser(inviteuser, email, invitationId) {
     const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
     console.log("hgtdfd", getcurrenttoken);
     if (!getcurrenttoken) {
@@ -576,17 +580,17 @@ export class UserService {
     }
     const { id, confirmed } = getcurrenttoken;
     let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(inviteuser, email,invitationId);
+    await this.emailConfirmationService.sendInvitation(inviteuser, email, invitationId);
   }
 
-  public async findUserByOrganization(organizationId : number,pageNumber : number,limit : number) {
+  public async findUserByOrganization(organizationId: number, pageNumber: number, limit: number) {
     return await this.repository
-                  .createQueryBuilder('user')
-                  .leftJoinAndSelect('user.organization', 'organization')
-                  .where('organization.id = :organizationId',{organizationId})
-                  .orderBy('user.createdAt', 'DESC')
-                  .skip((pageNumber - 1) * limit)
-                  .take(limit)
-                  .getManyAndCount();
-  } 
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .where('organization.id = :organizationId', { organizationId })
+      .orderBy('user.createdAt', 'DESC')
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+  }
 }

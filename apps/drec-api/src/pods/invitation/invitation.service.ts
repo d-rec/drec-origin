@@ -95,6 +95,8 @@ export class InvitationService {
       password: randPassword,
       orgName: organization.name,
       organizationType: '',
+      //@ts-ignore
+      orgid?:organization.id
       // orgAddress:''
 
     }
