@@ -84,6 +84,9 @@ export class User extends ExtendedBaseEntity implements IUser {
   @Column({ nullable: true })
   updatedAt: Date;
 
+  @Column()
+  api_user_id: string;
+
   // @BeforeUpdate()
   // updateTimestamp() {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time

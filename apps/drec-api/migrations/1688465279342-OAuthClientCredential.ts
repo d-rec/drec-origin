@@ -6,7 +6,7 @@ export class OAuthClientCredential1688465279342 implements MigrationInterface {
         await queryRunner.query(`
           CREATE TABLE oauth_client_credentials (
             id SERIAL PRIMARY KEY,
-            userId integer NOT NULL,
+            api_user_id uuid NOT NULL DEFAULT uuid_generate_v4(),
             client_id VARCHAR(255) UNIQUE NOT NULL,
             client_secret VARCHAR(255) NOT NULL
             
