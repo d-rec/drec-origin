@@ -104,3 +104,30 @@ export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
   @ApiProperty({ type: Number })
   status: number;
 }
+
+export class NewApiUserPermissionDTO {
+
+  @ApiProperty({ type: Number })
+  @Column()
+  aclmodulesId: number;
+
+  //@ApiProperty({ enum: EntityType, enumName: 'EntityType' })
+  @Column({ default: EntityType.User, nullable: true })
+  @IsEnum(EntityType)
+  entityType: EntityType;
+
+  //@ApiProperty({ type: Number })
+  @Column({ nullable: true })
+  entityId: number;
+
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  permissions: string[];
+
+  @Column()
+  permissionValue: number;
+
+  // @ApiProperty({ type: Number })
+  // @Column({ default: 1 })
+  // status: number;
+}
