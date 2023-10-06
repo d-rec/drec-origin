@@ -51,6 +51,8 @@ import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import {IrecDevicesInformationEntity} from './pods/device/irec_devices_information.entity';
 import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_information.entity'
+import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
+import { ApiUserEntity } from './pods/user/api-user.entity';
 
 
 const getEnvFilePath = () => {
@@ -73,6 +75,8 @@ const getEnvFilePath = () => {
 export const entities = [
   User,
   UserRole,
+  OauthClientCredentials,
+  ApiUserEntity,
   Organization,
   Invitation,
   EmailConfirmation,

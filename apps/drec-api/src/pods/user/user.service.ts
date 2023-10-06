@@ -19,7 +19,7 @@ import {
   Not
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
-import { Role, UserStatus } from '../../utils/enums';
+import { Role, UserStatus ,UserPermissionStatus} from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -32,8 +32,9 @@ import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
+import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
-
+import { ApiUserEntity } from './api-user.entity';
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -42,7 +43,11 @@ export class UserService {
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
+    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
+    @InjectRepository(ApiUserEntity)
+    private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
+
   ) { }
 
   public async seed(
@@ -88,6 +93,12 @@ export class UserService {
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
+    let api_user: any;
+    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
+      console.log("came here iasjdajsdojsdojasd");
+      api_user = await this.oauthClientCredentialsService.createAPIUser();
+      console.log("api_user", api_user);
+    }
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -97,6 +108,13 @@ export class UserService {
         orgEmail: data.email,
         address: data.orgAddress
 
+      }
+
+      if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
+        orgdata['api_user_id'] = api_user.api_user_id;
+      }
+      else if (data['client']) {
+        orgdata['api_user_id'] = data['client'].api_user_id;
       }
 
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
@@ -127,10 +145,14 @@ export class UserService {
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
       role = Role.Buyer
       roleId = 4;
-    } else {
+    } else if (data.organizationType === 'Developer' || data.organizationType === 'Developer') {
       role = Role.OrganizationAdmin
       roleId = 2;
+    } else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
+      role = Role.ApiUser
+      roleId = 6;
     }
+    console.log(role, "151", roleId)
 
     const user = await this.repository.save({
       firstName: data.firstName,
@@ -142,6 +164,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
+      api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
 
     });
     this.logger.debug(
@@ -152,7 +175,14 @@ export class UserService {
     // } else {
     await this.emailConfirmationService.create(user);
     // }
-
+    if (api_user) {
+      let clienCredentialsData = this.oauthClientCredentialsService.generateClientCredentials();
+      this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
+      let newUser = new User(user);
+      newUser['client_id'] = clienCredentialsData.client_id;
+      newUser['client_secret'] = clienCredentialsData.client_secret;
+      return newUser;
+    }
     return new User(user);
   }
 
@@ -238,6 +268,22 @@ export class UserService {
     }
   }
 
+  async validateClient(client_id, client_secret) {
+    console.log(client_id);
+    console.log(client_secret);
+    // this.oauthClientCredentialsService.findOneByclient_id
+    const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
+    if (!client) {
+      throw new UnauthorizedException('Invalid client credentials');
+    }
+    client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
+    console.log("client.client_secret", client.client_secret);
+    console.log("clientSecret", client_secret);
+    if (client.client_secret !== client_secret) {
+      throw new UnauthorizedException('Invalid client credentials');
+    }
+    return client;
+  }
 
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
@@ -288,7 +334,7 @@ export class UserService {
       user.emailConfirmed = emailConfirmation?.confirmed || false;
     }
 
-    return user;
+    return user ?? null;
   }
 
   private hashPassword(password: string) {
@@ -592,5 +638,14 @@ export class UserService {
       .skip((pageNumber - 1) * limit)
       .take(limit)
       .getManyAndCount();
+  }
+
+  async apiuser_permission_request(api_id, permissionIds) {
+    
+    await this.apiUserEntityRepository.update(api_id,{
+      permissionIds:permissionIds,
+      permission_status:UserPermissionStatus.Request
+
+    })
   }
 }

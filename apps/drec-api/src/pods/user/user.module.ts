@@ -6,11 +6,15 @@ import { User } from './user.entity';
 import { EmailConfirmationModule } from '../email-confirmation/email-confirmation.module';
 import {OrganizationModule} from '../organization/organization.module'
 import {UserRole} from './user_role.entity'
+import { OauthClientCredentialsService } from './oauth_client.service';
+import { OauthClientCredentials } from './oauth_client_credentials.entity';
+import { ApiUserEntity } from './api-user.entity';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([User,UserRole]), EmailConfirmationModule,
+  imports: [TypeOrmModule.forFeature([User,UserRole,OauthClientCredentials,ApiUserEntity]), EmailConfirmationModule,
   forwardRef(() => OrganizationModule)],
-  providers: [UserService],
+  providers: [UserService,OauthClientCredentialsService],
   controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService,OauthClientCredentialsService],
 })
 export class UserModule {}

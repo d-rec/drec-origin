@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Req,
   Post,
   Body,
   Query,
@@ -13,7 +14,8 @@ import {
   HttpStatus,
   UseGuards,
   UseInterceptors,
-  ConflictException
+  ConflictException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -39,6 +41,8 @@ import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { Request } from 'express';
+
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
@@ -103,7 +107,22 @@ export class UserController {
   })
   public async register(
     @Body() userRegistrationData: CreateUserORGDTO,
+    @Req() request: Request
   ): Promise<UserDTO> {
+    let client;
+    console.log(request.headers);
+    if(request.headers['client_id'] && request.headers['client_secret'])
+    {
+      if(!request.headers['client_secret'] || !request.headers['client_id'])
+      {
+        throw new UnauthorizedException('Invalid client credentials');
+      }
+      client= await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+    }
+    else if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
+      client= await this.userService.validateClient( process.env.client_id,  process.env.client_secret);
+
+    }
     console.log(userRegistrationData);
     if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
       return new Promise((resolve, reject) => {
@@ -115,13 +134,13 @@ export class UserController {
         );
       });
     }
-
-    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+//@ts-ignore
+    if (userRegistrationData.organizationType.toLowerCase() != "Buyer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "Developer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "ApiUser".toLowerCase()) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: `organizationType value should be Developer/Buyer`,
+            message: `organizationType value should be Developer/Buyer/ApiUser`,
           })
         );
       });
@@ -136,55 +155,13 @@ export class UserController {
         );
       });
     }
+    if(client)
+    {
+      console.log("asas",client);
+      userRegistrationData['client']=client;
+    }
     return this.userService.newcreate(userRegistrationData);
   }
-
-  // @Post('registerWithOrganization')
-  // @ApiBody({ type: CreateUserORGDTO })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   type: UserDTO,
-  //   description: 'Register a user',
-  // })
-  // public async newregister(
-  //   @Body() userRegistrationData: CreateUserORGDTO,
-  // ): Promise<UserDTO> {
-  //   console.log(userRegistrationData);
-  //   if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `organizationType should not be empty`,
-  //         })
-  //       );
-  //     });
-  //   }
-
-  //   if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `organizationType value should be Developer/Buyer`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   if (userRegistrationData.orgName.trim() === "") {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `orgName should not be empty`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   return this.userService.newcreate(userRegistrationData);
-  // }
-
-
 
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)

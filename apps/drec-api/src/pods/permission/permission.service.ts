@@ -22,10 +22,10 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from './dto/modulepermission.dto';
 import { IModulePermissionsConfig, LoggedInUser, IACLmodulsPermissions, IaddModulePermission } from '../../models';
 export type TModuleBaseEntity = ExtendedBaseEntity & IModulePermissionsConfig;
-import { OrganizationStatus, Role } from '../../utils/enums';
+import { EntityType, OrganizationStatus, Role } from '../../utils/enums';
 import { DecimalPermissionValue } from '../access-control-layer-module-service/common/permissionBitposition';
 import { AccessControlLayerModuleServiceService } from '../access-control-layer-module-service/access-control-layer-module-service.service'
-
+import { UserService } from '../user/user.service'
 @Injectable()
 export class PermissionService {
 
@@ -39,6 +39,7 @@ export class PermissionService {
     constructor(
         @InjectRepository(ACLModulePermissions) private readonly repository: Repository<ACLModulePermissions>,
         private readonly ACLpermissionService: AccessControlLayerModuleServiceService,
+        private readonly userService: UserService,
 
         private readonly Permissionvalue: DecimalPermissionValue,
     ) { }
@@ -63,7 +64,7 @@ export class PermissionService {
 
         }
         //console.log(addedPermissionList)
-        var permissionValue = ( this.Permissionvalue.computePermissions(addedPermissionList));
+        var permissionValue = (this.Permissionvalue.computePermissions(addedPermissionList));
         //console.log(permissionValue)
         const userpermission = await (this.findOne({ aclmodulesId: data.aclmodulesId, entityType: data.entityType, entityId: data.entityId }));
         //console.log("permission69");
@@ -78,7 +79,7 @@ export class PermissionService {
 
 
                 });
-                if (loginuser.role === Role.OrganizationAdmin && data.entityType != 'Role' || loginuser.role === Role.Admin) {
+                if (loginuser.role === Role.OrganizationAdmin && data.entityType != 'Role' || loginuser.role === Role.Admin || loginuser.role === Role.ApiUser) {
                     const modulepermission = await this.repository.save(aclpermission);
                     return modulepermission;
                 } else {
@@ -100,7 +101,7 @@ export class PermissionService {
                 success: false,
                 message: `Permission For ModuleId  and Role already exist`,
             });
-           // return userpermission;
+            // return userpermission;
             //throw new NotFoundException(`Permission For ModuleId  and Role already exist`);
         }
 
@@ -130,9 +131,9 @@ export class PermissionService {
                 {
                     entityId: roleId,
                     aclmodulesId: moduleId.id,
-                    status:1
+                    status: 1
                 },
-                { entityType: 'User', entityId: userId, aclmodulesId: moduleId.id ,status:1}
+                { entityType: 'User', entityId: userId, aclmodulesId: moduleId.id, status: 1 }
             ],
 
         }));
@@ -226,5 +227,31 @@ export class PermissionService {
 
         await this.repository.update(id, { status: 1 });
         return this.findOne({ id: id });
+    }
+
+    async permisssion_request(data, loginuser): Promise<any> {
+        console.log(data);
+
+        const api_user = await this.userService.findById(loginuser.id)
+        console.log(api_user);
+        var permissionIds: any = [];
+
+        await Promise.all(
+            data.map(
+                async (newpermission: NewPermissionDTO) => {
+                    console.log(newpermission);
+                    newpermission.entityType = EntityType.User
+                    newpermission.entityId = loginuser.id
+                    console.log(newpermission);
+                    const perId = await this.create(newpermission, loginuser)
+                    //console.log(perId);
+                    permissionIds.push(perId.id);
+                }),
+        );
+        console.log(permissionIds);
+        //@ts-ignore
+        await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
+
+        return { statsu: 'success', message: "Your permission request send successfully" }
     }
 }

@@ -104,7 +104,10 @@
     "stream": "^0.0.2",
     "swagger-ui-express": "4.1.6",
     "typeorm": "0.2.41",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "passport-http-bearer":"1.0.1",
+    "passport-oauth2-client-password":"0.1.2",
+    "passport-strategy": "1.x.x"
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",
@@ -127,6 +130,8 @@
     "@types/uuid": "8.3.0",
     "@typescript-eslint/eslint-plugin": "3.10.1",
     "@typescript-eslint/parser": "3.10.1",
+    "@types/passport-oauth2-client-password":"0.1.2",
+    "@types/passport-strategy":"0.2.35",
     "chai": "4.2.0",
     "eslint": "7.15.0",
     "eslint-config-airbnb-base": "14.2.1",

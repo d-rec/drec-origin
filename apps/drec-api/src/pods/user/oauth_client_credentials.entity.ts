@@ -12,12 +12,15 @@ export class OauthClientCredentials {
 //   userId: number;
 
   @Column({ unique: true })
-  clientId: string;
+  client_id: string;
 
   @Column()
-  clientSecret: string;
+  client_secret: string;
+
+  @Column()
+  api_user_id:string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'api_user_id' })
   user: User;
 }
