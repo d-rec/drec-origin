@@ -22,7 +22,7 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from './dto/modulepermission.dto';
 import { IModulePermissionsConfig, LoggedInUser, IACLmodulsPermissions, IaddModulePermission } from '../../models';
 export type TModuleBaseEntity = ExtendedBaseEntity & IModulePermissionsConfig;
-import { EntityType, OrganizationStatus, Role } from '../../utils/enums';
+import { EntityType, OrganizationStatus, Role, UserPermissionStatus } from '../../utils/enums';
 import { DecimalPermissionValue } from '../access-control-layer-module-service/common/permissionBitposition';
 import { AccessControlLayerModuleServiceService } from '../access-control-layer-module-service/access-control-layer-module-service.service'
 import { UserService } from '../user/user.service'
@@ -253,5 +253,22 @@ export class PermissionService {
         await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
 
         return { statsu: 'success', message: "Your permission request send successfully" }
+    }
+
+    async permission_veify(api_user_id, data:any): Promise<any> {
+        console.log(data.status)
+        const verify_apiuser = await this.userService.apiuser_permission_accepted_byadmin(api_user_id, data.status)
+
+        if (data.status === UserPermissionStatus.Active) {
+            const pre = verify_apiuser.permissionIds;
+            //console.log(pre);
+            await Promise.all(
+                pre.map(
+                    async (pre: number) =>
+                        await this.updatepermissionstatus(pre)),
+            );
+        }
+
+        return { statsu: 'success' }
     }
 }

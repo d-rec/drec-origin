@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IModulePermissionsConfig, IACLModuleConfig, IaddModulePermission } from '../../../models';
-import { Role, EntityType } from '../../../utils/enums';
+import { Role, EntityType, UserPermissionStatus } from '../../../utils/enums';
 import { Expose } from 'class-transformer';
 import {
   IsBoolean,
@@ -130,4 +130,11 @@ export class NewApiUserPermissionDTO {
   // @ApiProperty({ type: Number })
   // @Column({ default: 1 })
   // status: number;
+}
+
+export class ApiUserPermissionUpdateDTO {
+
+  @ApiProperty({ enum: UserPermissionStatus, enumName: 'UserPermissionStatus' })
+  @Column({ default: UserPermissionStatus.Process })
+  status: UserPermissionStatus;
 }

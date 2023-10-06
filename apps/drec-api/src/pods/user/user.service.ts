@@ -19,7 +19,7 @@ import {
   Not
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
-import { Role, UserStatus ,UserPermissionStatus} from '../../utils/enums';
+import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -641,11 +641,24 @@ export class UserService {
   }
 
   async apiuser_permission_request(api_id, permissionIds) {
-    
-    await this.apiUserEntityRepository.update(api_id,{
-      permissionIds:permissionIds,
-      permission_status:UserPermissionStatus.Request
+
+    await this.apiUserEntityRepository.update(api_id, {
+      permissionIds: permissionIds,
+      permission_status: UserPermissionStatus.Request
 
     })
   }
+  async apiuser_permission_accepted_byadmin(api_id:string, status:UserPermissionStatus) {
+
+   // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
+
+    await this.apiUserEntityRepository.update(api_id, {
+
+      permission_status: status
+
+    })
+    return await this.apiUserEntityRepository.findOne( api_id );
+  }
+
+
 }
