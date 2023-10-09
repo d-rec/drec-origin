@@ -71,12 +71,12 @@ export class OauthClientCredentialsService {
         return this.clientCredentialsRepository.findOne({ where: { client_id } });
     }
 
-    async findOneByclient_idAndUserId(client_id: string, userid: number)
+    async findOneByclient_idAndUserId(client_id: string, api_user_id: number)
         : Promise<OauthClientCredentials | undefined> {
-        return this.clientCredentialsRepository.findOne({ where: { client_id, userid } });
+        return this.clientCredentialsRepository.findOne({ where: { client_id, api_user_id } });
     }
-    async findOneByuserid(userid: number): Promise<OauthClientCredentials | undefined> {
-        return this.clientCredentialsRepository.findOne({ where: { userid } });
+    async findOneByuserid(api_user_id: string): Promise<OauthClientCredentials | undefined> {
+        return this.clientCredentialsRepository.findOne({ where: { api_user_id } });
     }
 
 

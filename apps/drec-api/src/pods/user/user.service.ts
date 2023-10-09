@@ -173,16 +173,18 @@ export class UserService {
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
     // } else {
-    await this.emailConfirmationService.create(user);
     // }
     if (api_user) {
-      let clienCredentialsData = this.oauthClientCredentialsService.generateClientCredentials();
-      this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
+      let clienCredentialsData = await this.oauthClientCredentialsService.generateClientCredentials();
+      await this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
       let newUser = new User(user);
       newUser['client_id'] = clienCredentialsData.client_id;
       newUser['client_secret'] = clienCredentialsData.client_secret;
+      await this.emailConfirmationService.create(user);    
       return newUser;
     }
+    
+    await this.emailConfirmationService.create(user);    
     return new User(user);
   }
 

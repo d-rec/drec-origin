@@ -3,6 +3,8 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  forwardRef,
+  Inject
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
@@ -14,6 +16,8 @@ import { EmailConfirmationResponse } from '../../utils/enums';
 import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
+import { OauthClientCredentialsService } from '../user/oauth_client.service';
+import { UserService } from '../user/user.service';
 export interface SuccessResponse {
   success: boolean,
   message: string,
@@ -26,40 +30,48 @@ export class EmailConfirmationService {
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
     private mailService: MailService,
+    @Inject(forwardRef(() => UserService)) private readonly userService : UserService,
+    private readonly oauthClientCredentialsService : OauthClientCredentialsService,
   ) { }
 
-  public async create(user: User): Promise<EmailConfirmation> {
-    const exists = await this.repository.findOne({
-      where: {
+  public async create(user: User): Promise<EmailConfirmation | null> {
+   const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
+   console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
+    if((client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+      console.log("With in email conf Service")
+      const exists = await this.repository.findOne({
+        where: {
         user: { email: user.email }
-      },
-      relations: ['user']
-    });
-
-    if (exists) {
-      throw new ConflictException({
-        success: false,
-        message: `Email confirmation for user with email ${user.email} already exists`,
+        },
+        relations: ['user']
       });
-    }
 
-    const { token, expiryTimestamp } = await this.generateEmailToken();
+      if (exists) {
+        throw new ConflictException({
+          success: false,
+          message: `Email confirmation for user with email ${user.email} already exists`,
+        });
+      }
 
-    const emailConfirmation = await this.repository.save({
-      user,
-      confirmed: false,
-      token,
-      expiryTimestamp,
-    });
+      const { token, expiryTimestamp } = await this.generateEmailToken();
+
+      const emailConfirmation = await this.repository.save({
+        user,
+        confirmed: false,
+        token,
+        expiryTimestamp,
+      });
     // if (inviteuser) {
     //   //  await this.sendResetPasswordRequest(user.email, token);
     //   await this.sendInvitation(orgname, user.email, token);
     // } else {
-    await this.sendConfirmationEmail(user.email);
+      await this.sendConfirmationEmail(user.email);
     // }
 
 
-    return emailConfirmation;
+      return emailConfirmation;
+    }
+   return null;
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
