@@ -11,7 +11,7 @@ import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { ApiUserEntity } from './api-user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User,UserRole,OauthClientCredentials,ApiUserEntity]), EmailConfirmationModule,
+  imports: [TypeOrmModule.forFeature([User,UserRole,OauthClientCredentials,ApiUserEntity]), forwardRef(() => EmailConfirmationModule),
   forwardRef(() => OrganizationModule)],
   providers: [UserService,OauthClientCredentialsService],
   controllers: [UserController],
