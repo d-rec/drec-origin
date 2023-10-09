@@ -28,7 +28,7 @@ import {
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { PermissionService } from './permission.service'
 import { Expose } from 'class-transformer';
-import { NewPermissionDTO, PermissionDTO,UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
+import { NewPermissionDTO, PermissionDTO,UpdatePermissionDTO,NewApiUserPermissionDTO,ApiUserPermissionUpdateDTO } from '../permission/dto/modulepermission.dto'
 import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -120,5 +120,41 @@ export class PermissionController {
     ): Promise<PermissionDTO> {
 
         return this.PermissionService.update(id, body);
+    }
+
+    @Post('/module/apiuser/request')
+    @UseGuards(AuthGuard('oauth2-client-password'), RolesGuard)
+    @Roles(Role.ApiUser)
+    @ApiBody({ type: [NewApiUserPermissionDTO] })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: PermissionDTO,
+        description: 'Request for api user',
+    })
+    public async apiuser_modulerequest(
+      //  @Param('apiuserId') api_user_id: string,
+        @Body() moduleData: [NewApiUserPermissionDTO],
+        @UserDecorator() loggedUser: ILoggedInUser,
+    ): Promise<{statsu:string,message:string}> {
+        console.log(loggedUser);
+        return this.PermissionService.permisssion_request(moduleData,loggedUser);
+    }
+
+    @Post('/module/verify/ByAdmin/:apiuserId')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.Admin)
+    @ApiBody({type: ApiUserPermissionUpdateDTO})
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: PermissionDTO,
+        description: 'Request for api user',
+    })
+    public async apiuser_moduleapprove(
+      @Param('apiuserId') api_user_id: string,
+        @Body() moduleData: ApiUserPermissionUpdateDTO,
+        @UserDecorator() loggedUser: ILoggedInUser,
+    ): Promise<{statsu:string,message:string}> {
+        console.log(loggedUser);
+        return this.PermissionService.permission_veify(api_user_id,moduleData);
     }
 }

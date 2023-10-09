@@ -19,7 +19,7 @@ import {
   Not
 } from 'typeorm';
 import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
-import { Role, UserStatus } from '../../utils/enums';
+import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -34,7 +34,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
-
+import { ApiUserEntity } from './api-user.entity';
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -45,6 +45,9 @@ export class UserService {
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
+    @InjectRepository(ApiUserEntity)
+    private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
+
   ) { }
 
   public async seed(
@@ -638,4 +641,26 @@ export class UserService {
       .take(limit)
       .getManyAndCount();
   }
+
+  async apiuser_permission_request(api_id, permissionIds) {
+
+    await this.apiUserEntityRepository.update(api_id, {
+      permissionIds: permissionIds,
+      permission_status: UserPermissionStatus.Request
+
+    })
+  }
+  async apiuser_permission_accepted_byadmin(api_id:string, status:UserPermissionStatus) {
+
+   // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
+
+    await this.apiUserEntityRepository.update(api_id, {
+
+      permission_status: status
+
+    })
+    return await this.apiUserEntityRepository.findOne( api_id );
+  }
+
+
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IModulePermissionsConfig, IACLModuleConfig, IaddModulePermission } from '../../../models';
-import { Role, EntityType } from '../../../utils/enums';
+import { Role, EntityType, UserPermissionStatus } from '../../../utils/enums';
 import { Expose } from 'class-transformer';
 import {
   IsBoolean,
@@ -103,4 +103,38 @@ export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
   permissionValue: number;
   @ApiProperty({ type: Number })
   status: number;
+}
+
+export class NewApiUserPermissionDTO {
+
+  @ApiProperty({ type: Number })
+  @Column()
+  aclmodulesId: number;
+
+  //@ApiProperty({ enum: EntityType, enumName: 'EntityType' })
+  @Column({ default: EntityType.User, nullable: true })
+  @IsEnum(EntityType)
+  entityType: EntityType;
+
+  //@ApiProperty({ type: Number })
+  @Column({ nullable: true })
+  entityId: number;
+
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  permissions: string[];
+
+  @Column()
+  permissionValue: number;
+
+  // @ApiProperty({ type: Number })
+  // @Column({ default: 1 })
+  // status: number;
+}
+
+export class ApiUserPermissionUpdateDTO {
+
+  @ApiProperty({ enum: UserPermissionStatus, enumName: 'UserPermissionStatus' })
+  @Column({ default: UserPermissionStatus.Process })
+  status: UserPermissionStatus;
 }
