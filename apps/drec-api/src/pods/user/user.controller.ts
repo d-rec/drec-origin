@@ -42,6 +42,7 @@ import { EmailConfirmation } from '../email-confirmation/email-confirmation.enti
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Request } from 'express';
+import { OauthClientCredentialsService } from './oauth_client.service';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -51,6 +52,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
+    private readonly oauthClientCredentialService: OauthClientCredentialsService,
   ) { }
 
   @Get('me')
@@ -205,6 +207,7 @@ export class UserController {
     {
       if(!request.headers['client_secret'] || !request.headers['client_id'])
       {
+        console.log("When credential not available")
         throw new UnauthorizedException('Invalid client credentials');
       }
       client= await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
@@ -369,10 +372,41 @@ export class UserController {
     description: `send a email`,
   })
   public async Forgetpassword(
+    @Req() req: Request,
     @Body() body: ForgetPasswordDTO
   ): Promise<SuccessResponseDTO> {
-    return this.userService.geytokenforResetPassword(body.email);
+    const user = await this.userService.findByEmail(body.email);
+    //@ts-ignore
+    let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
+    if(req.headers['client_id'] && req.headers['client_secret'])
+    {
+      if(!req.headers['client_secret'] || !req.headers['client_id'])
+      {
+        console.log("When credential not available")
+        throw new UnauthorizedException('Invalid client credentials');
+      }
+      if(user.role === "ApiUser") {
+        client= await this.userService.validateClient(req.headers['client_id'], req.headers['client_secret']);
+        console.log("when apiUser",client,user);
+      }
+      else {
+        throw new UnauthorizedException(); 
+      }
+    }
+    else if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
+      if(user.role === "ApiUser") {
+        throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
+      }
+      if(client.client_id != process.env.client_id) {
+        throw new UnauthorizedException();        
+      } else if(client.client_id === process.env.client_id) {
+        client= await this.userService.validateClient(process.env.client_id, process.env.client_secret);
+      }
+    }
+
+    if(client) {  
+      console.log("when Client:",client)
+      return this.userService.geytokenforResetPassword(body.email);
+    }
   }
-
-
 }
