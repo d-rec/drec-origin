@@ -662,5 +662,37 @@ export class UserService {
     return await this.apiUserEntityRepository.findOne( api_id );
   }
 
-
+  public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+    let filterDto = new UserFilterDTO;
+    filterDto.organizationName = organizationName;
+    console.log("filterDto:",filterDto);
+    const query = await this.getFilteredQuery(filterDto);
+    console.log(query);
+      //const client = await this.oauthClientCredentialsService.findOneByclient_id(process.env.client_id);
+      try {
+        const [apiusers, totalCount] = await this.repository.findAndCount({  
+          ...query,
+          relations : ['organization'],
+          where : { 
+           // api_user_id : Not(client.api_user_id)
+            role : Role.ApiUser
+          },
+          skip: (pageNumber - 1) * limit,
+          take: limit,
+          order: {
+            createdAt: 'DESC',
+          }
+        });
+        const totalPages = Math.ceil(totalCount / limit);
+        return {
+          users: apiusers,
+          currentPage: pageNumber,
+          totalPages,
+          totalCount
+        }
+      } catch (error) {
+        this.logger.error(`Failed to retrieve apiusers`, error.stack);
+        throw new InternalServerErrorException('Failed to retrieve apiusers');
+      }
+    }
 }
