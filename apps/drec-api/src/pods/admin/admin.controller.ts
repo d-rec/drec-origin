@@ -353,6 +353,25 @@ export class AdminController {
     return await this.deviceService.atto(organizationId, externalId);
   }
 
-
+  @Get('/apiusers')
+  @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiQuery({ name: 'organizationName', type: String, required: false})
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: 'Gets all apiusers',
+  })
+  public async getApiUsers(
+    @Query('organizationName',new DefaultValuePipe(null)) organizationName: string | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  ) {
+    console.log("With in getAllApiUsers",organizationName);
+    return this.userService.getApiUsers(organizationName,pageNumber, limit);
+  }
 
 }
