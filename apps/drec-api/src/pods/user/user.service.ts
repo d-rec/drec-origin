@@ -180,11 +180,11 @@ export class UserService {
       let newUser = new User(user);
       newUser['client_id'] = clienCredentialsData.client_id;
       newUser['client_secret'] = clienCredentialsData.client_secret;
-      await this.emailConfirmationService.create(user);    
+      await this.emailConfirmationService.create(user);
       return newUser;
     }
-    
-    await this.emailConfirmationService.create(user);    
+
+    await this.emailConfirmationService.create(user);
     return new User(user);
   }
 
@@ -295,6 +295,13 @@ export class UserService {
     const user = this.findOne({ id });
     if (!user) {
       throw new NotFoundException(`No user found with id ${id}`);
+    }
+    //@ts-ignore
+    if (user.role === Role.ApiUser) {
+      //@ts-ignore
+      const api_user = await this.get_apiuser_permission_status(user.api_user_id);
+      user['permission_status'] = api_user.permission_status;
+
     }
     return user;
   }
@@ -606,7 +613,13 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
+    //@ts-ignore
+    if (user.role === Role.ApiUser) {
+      //@ts-ignore
+      const api_user = await this.get_apiuser_permission_status(user.api_user_id);
+      user['permission_status'] = api_user.permission_status;
 
+    }
     return user;
   }
   public async geytokenforResetPassword(email): Promise<ISuccessResponse> {
@@ -650,17 +663,25 @@ export class UserService {
 
     })
   }
-  async apiuser_permission_accepted_byadmin(api_id:string, status:UserPermissionStatus) {
+  async apiuser_permission_accepted_byadmin(api_id: string, status: UserPermissionStatus) {
 
-   // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
+    // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
 
     await this.apiUserEntityRepository.update(api_id, {
 
       permission_status: status
 
     })
-    return await this.apiUserEntityRepository.findOne( api_id );
+    return await this.apiUserEntityRepository.findOne(api_id);
   }
+
+  async get_apiuser_permission_status(api_id: string) {
+
+    const status_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id)
+
+    return status_apiuser_permissiom;
+  }
+
 
   public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     let filterDto = new UserFilterDTO;
