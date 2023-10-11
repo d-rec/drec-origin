@@ -140,7 +140,7 @@ export class PermissionController {
         return this.PermissionService.permisssion_request(moduleData,loggedUser);
     }
 
-    @Post('/module/verify/ByAdmin/:apiuserId')
+    @Put('/module/verify/ByAdmin/:apiuserId')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.Admin)
     @ApiBody({type: ApiUserPermissionUpdateDTO})

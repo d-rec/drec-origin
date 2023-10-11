@@ -222,10 +222,18 @@ export class PermissionService {
 
     }
     public async updatepermissionstatus(
-        id: number
+        id: number,
+        apipermission_status?: UserPermissionStatus
     ): Promise<ExtendedBaseEntity & UpdatePermissionDTO> {
-
-        await this.repository.update(id, { status: 1 });
+        console.log(apipermission_status)
+        if (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Active) {
+            await this.repository.update(id, { status: 1 });
+        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) ||(apipermission_status != undefined && apipermission_status === UserPermissionStatus.Process)) {
+           console.log("232process")
+            await this.repository.update(id, { status: 0 });
+        } else {
+            await this.repository.update(id, { status: 1 });
+        }
         return this.findOne({ id: id });
     }
 
@@ -255,20 +263,18 @@ export class PermissionService {
         return { statsu: 'success', message: "Your permission request send successfully" }
     }
 
-    async permission_veify(api_user_id, data:any): Promise<any> {
+    async permission_veify(api_user_id, data: any): Promise<any> {
         console.log(data.status)
         const verify_apiuser = await this.userService.apiuser_permission_accepted_byadmin(api_user_id, data.status)
-
-        if (data.status === UserPermissionStatus.Active) {
-            const pre = verify_apiuser.permissionIds;
-            //console.log(pre);
-            await Promise.all(
-                pre.map(
-                    async (pre: number) =>
-                        await this.updatepermissionstatus(pre)),
-            );
-        }
-
+        const pre = verify_apiuser.permissionIds;
+        //console.log(pre);
+        await Promise.all(
+            pre.map(
+                async (pre: number) =>
+                    await this.updatepermissionstatus(pre, data.status)),
+        );
         return { statsu: 'success' }
     }
+
+
 }
