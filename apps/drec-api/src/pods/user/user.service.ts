@@ -667,22 +667,13 @@ export class UserService {
     filterDto.organizationName = organizationName;
     console.log("filterDto:",filterDto);
     const query = await this.getFilteredQuery(filterDto);
-    console.log(query);
-      //const client = await this.oauthClientCredentialsService.findOneByclient_id(process.env.client_id);
       try {
-        const [apiusers, totalCount] = await this.repository.findAndCount({  
-          ...query,
-          relations : ['organization'],
-          where : { 
-           // api_user_id : Not(client.api_user_id)
-            role : Role.ApiUser
-          },
-          skip: (pageNumber - 1) * limit,
-          take: limit,
-          order: {
-            createdAt: 'DESC',
-          }
-        });
+        const [apiusers, totalCount] = await query
+        .andWhere(`role = :role`, { role: Role.ApiUser})
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+
         const totalPages = Math.ceil(totalCount / limit);
         return {
           users: apiusers,
