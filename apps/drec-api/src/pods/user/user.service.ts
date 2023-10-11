@@ -686,35 +686,25 @@ export class UserService {
   public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     let filterDto = new UserFilterDTO;
     filterDto.organizationName = organizationName;
-    console.log("filterDto:", filterDto);
+    console.log("filterDto:",filterDto);
     const query = await this.getFilteredQuery(filterDto);
-    console.log(query);
-    //const client = await this.oauthClientCredentialsService.findOneByclient_id(process.env.client_id);
-    try {
-      const [apiusers, totalCount] = await this.repository.findAndCount({
-        ...query,
-        relations: ['organization'],
-        where: {
-          // api_user_id : Not(client.api_user_id)
-          role: Role.ApiUser
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
-        order: {
-          createdAt: 'DESC',
-        }
-      });
+      try {
+        const [apiusers, totalCount] = await query
+        .andWhere(`role = :role`, { role: Role.ApiUser})
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
 
-      const totalPages = Math.ceil(totalCount / limit);
-      return {
-        users: apiusers,
-        currentPage: pageNumber,
-        totalPages,
-        totalCount
+        const totalPages = Math.ceil(totalCount / limit);
+        return {
+          users: apiusers,
+          currentPage: pageNumber,
+          totalPages,
+          totalCount
+        }
+      } catch (error) {
+        this.logger.error(`Failed to retrieve apiusers`, error.stack);
+        throw new InternalServerErrorException('Failed to retrieve apiusers');
       }
-    } catch (error) {
-      this.logger.error(`Failed to retrieve apiusers`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve apiusers');
     }
-  }
 }
