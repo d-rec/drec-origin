@@ -17,31 +17,36 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     super();
   }
 
-  async validate(clientId: string, clientSecret: string) {
-    // const clientId = request.headers['client-id'];
+  async validate(request : any, clientId: string, clientSecret: string) {
+    //const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
     // If client ID and client secret are present in the request, validate them
     console.log("cleint strategy came here", clientId, clientSecret);
     if (clientId && clientSecret) {
       // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
-
       //this.oAuthClientCredentialService.store(clientData.client_id,clientData.client_secret,1);
       let client = await this.validateClient(clientId, clientSecret);
       const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
       console.log("clientuser", user);
-
-
-      if (user) {
-        return user;
+      if (!user) {
+        console.log("when user not available in client strategy")
+        throw new UnauthorizedException();
+      } 
+      if(request.user.role != Role.ApiUser) {
+        throw new UnauthorizedException();
       }
-      return null;
-
+      return request.user;
     }
-    const user = await this.validateClient(clientId, clientSecret);
-    if (!user) {
+    console.log("When the direct drec User")
+    const client = await this.validateClient(process.env.client_id, process.env.client_secret);
+    console.log("Drec User:",client);
+    if (!client) {
       throw new UnauthorizedException();
     }
-    return user;
+    if(request.user.api_user_id != client.api_user_id) {
+      throw new UnauthorizedException();
+    }
+    return request.user;
   }
   async validateClient(clientId: string, clientSecret: string): Promise<any> {
     // Implement your client ID and client secret validation logic here

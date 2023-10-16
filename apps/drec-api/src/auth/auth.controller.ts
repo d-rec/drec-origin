@@ -21,7 +21,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @UseGuards(AuthGuard(['oauth2-client-password', 'local']))
+  @UseGuards(AuthGuard('local'), AuthGuard('oauth2-client-password'))
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })
@@ -31,12 +31,14 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
+    //ts-ignore
     console.log("authbcontroller", req.user);
-    console.log("authbcontroller", req.body);
+    //console.log("authbcontroller", req.body);
     //@ts-ignore
-    const loginuser = req.user.email;
-    console.log((req.body.username != loginuser));
+    //const loginuser = req.user.email;
+    //console.log((req.body.username != loginuser));
     //@ts-ignore
+    /*
     if (req.user.role === "ApiUser") {
       if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
         throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
@@ -50,7 +52,7 @@ export class AuthController {
       }
 
     }
-   
+   */
     return  this.authService.login(req.user as Omit<IUser, 'password'>);
   }
 }
