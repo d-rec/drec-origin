@@ -1,6 +1,6 @@
 import { Strategy as PassportStrategy } from 'passport-strategy';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Role } from '../../utils/enums';
+import { Role } from '../utils/enums/role.enum';
 
 export class ClientPasswordStrategy extends PassportStrategy {
   // name:string='';
