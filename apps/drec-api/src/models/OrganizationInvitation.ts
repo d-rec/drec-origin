@@ -1,7 +1,7 @@
 import { OrganizationInvitationStatus, Role } from '../utils/enums';
 import { IPublicOrganization } from './Organization';
 
-export type OrganizationRole = Role.DeviceOwner | Role.OrganizationAdmin | Role.User;
+export type OrganizationRole = Role.DeviceOwner | Role.OrganizationAdmin |Role.SubBuyer |Role.User;
 
 export interface IOrganizationInvitationProperties {
   id: number;
