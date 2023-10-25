@@ -37,6 +37,10 @@ import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
+
+/*
+* It is Controller of ACL Module with the endpoints of ACL module operations.
+*/
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -47,6 +51,11 @@ export class CertificateLogController {
         private readonly certificateLogService: CertificateLogService,
         private readonly devicegroupService: DeviceGroupService,
     ) { }
+
+    /*
+    * It is GET api to list all certificate issues date log of devices.
+    * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns all issue logs of device
+    */
     @Get()
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -57,6 +66,9 @@ export class CertificateLogController {
         return this.certificateLogService.find();
     }
 
+    /*
+    * Need to ask Namrata
+    */
     @Get('/claim-amount-in-ethers-json')
     @UseGuards(PermissionGuard)
     @Permission('Read')
@@ -76,8 +88,10 @@ export class CertificateLogController {
         return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(amountFormatData.amount)
     }
 
-
-
+    /*
+    * It is GET api to list the  cerficate log of devices filtered by groupId
+    * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns the logs of certicates
+    */
     @Get('/by-reservation-groupId')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -97,6 +111,12 @@ export class CertificateLogController {
         }
         return this.certificateLogService.findByGroupId(filterDto.groupId);
     }
+
+    /**
+    * It is GET api to list issuer certificates of groupId
+    * @return { Array<CertificateNewWithPerDeviceLog> } returns issuer certicates of groupId
+    * @param { groupUid } is an uniqueId in the certificate log from reservation
+    */
     @Get('/issuer/certified/:groupUid')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -136,6 +156,11 @@ export class CertificateLogController {
         return await this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
+    /*
+    * It is GET api to list issuer certificates of groupId
+    * @return { Array<CertificateNewWithPerDeviceLog> } returns issuer certicates of groupId
+    * @param { groupid } Need to ask Namrata
+    */
     @Get('/issuer/certified/new/:groupUid')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -168,6 +193,9 @@ export class CertificateLogController {
         return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
+    /**
+    * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
+    */
     @Get('/redemption-report')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -190,7 +218,9 @@ export class CertificateLogController {
     // }
 
 
-    /* */
+    /*
+    * It is GET api to list all the readings of organization witn pagination and filered by device
+    */
     @Get('/certificateReadModule')
     @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
     @Permission('Read')
@@ -240,7 +270,10 @@ export class CertificateLogController {
         );
     }
 
-
+    /*
+    * It is GET api to fetch certificate log of reserved device.
+    * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
+    */ 
     /* for developre*/
     @Get('/issuer/certifiedlogOfdevices')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
