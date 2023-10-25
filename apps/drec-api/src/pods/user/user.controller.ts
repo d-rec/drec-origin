@@ -52,13 +52,12 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
-    private readonly oauthClientCredentialService: OauthClientCredentialsService,
   ) { }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password')) /*,PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -69,9 +68,9 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -99,9 +98,9 @@ export class UserController {
   // add new for adding user with organization
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
-  //@UseGuards(PermissionGuard)
- // @Permission('Write')
- // @ACLModules('USER_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
@@ -110,8 +109,8 @@ export class UserController {
   public async register(
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request
-  ): Promise<UserDTO> {
-    let client;
+  ): Promise<UserDTO> { 
+    let client = request.user; /*
     console.log(request.headers);
     if(request.headers['client_id'] && request.headers['client_secret'])
     {
@@ -125,7 +124,7 @@ export class UserController {
     else if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
       client= await this.userService.validateClient( process.env.client_id,  process.env.client_secret);
 
-    }
+    } */
     console.log(userRegistrationData);
     if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
       return new Promise((resolve, reject) => {
@@ -167,9 +166,9 @@ export class UserController {
   }
 
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL') */
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserProfileDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -187,9 +186,9 @@ export class UserController {
   }
 
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL') */
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdatePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -204,9 +203,10 @@ export class UserController {
   }
 
   @Put('reset/password/:token')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -240,9 +240,10 @@ export class UserController {
   }
 
   @Put('confirm-email/:token')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
@@ -256,9 +257,9 @@ export class UserController {
   }
 
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -272,9 +273,10 @@ export class UserController {
 
 
   @Post('forget-password')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  /*@UseGuards(PermissionGuard) */
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -283,7 +285,7 @@ export class UserController {
   public async Forgetpassword(
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO
-  ): Promise<SuccessResponseDTO> {
+  ): Promise<SuccessResponseDTO> { /*
     const user = await this.userService.findByEmail(body.email);
     //@ts-ignore
     let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
@@ -316,6 +318,7 @@ export class UserController {
     if(client) {  
       console.log("when Client:",client)
       return this.userService.geytokenforResetPassword(body.email);
-    }
+    } */
+    return this.userService.geytokenforResetPassword(body.email);
   }
 }
