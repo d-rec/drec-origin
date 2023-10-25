@@ -12,12 +12,17 @@ import { Reflector } from '@nestjs/core';
 // import { AccessControl } from 'role-acl';
 
 import { PermissionService } from '../pods/permission/permission.service';
+import { OauthClientCredentials } from 'src/pods/user/oauth_client_credentials.entity';
+import { UserService } from 'src/pods/user/user.service';
+import { Role } from 'src/utils/enums';
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @Inject(PermissionService)
     private readonly userPermission: PermissionService,
+    @Inject(UserService)
+    private readonly userService : UserService
   ) {}
   //constructor(@Inject(KeyService) private keyService: KeyService) {}
 
@@ -34,7 +39,27 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request = context.switchToHttp().getRequest();
-    const user = request.user as IUser;
+    let user : IUser;
+      const client = request.user as OauthClientCredentials;
+    if(request.url.split('/')[3] ===  'register') {
+      console.log(request.url.split('/')[3]);
+      if(request.body.organizationType === Role.ApiUser) {
+        return true;
+      }
+      if(request.user.client_id != process.env.client_id) {
+        console.log('client at request',client.api_user_id,request.user.api_user_id); 
+        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
+        console.log(user);
+      } 
+      if(request.user.client_id === process.env.client_id) {
+        console.log("With in if when id is same as from env")
+        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
+      }
+    }
+    else {
+      user = request.user;
+    }
+    console.log("User at Permission Guard:",user);
     if (user.role === 'Admin') {
       return true;
     }

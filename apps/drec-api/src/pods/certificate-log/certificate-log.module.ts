@@ -10,6 +10,7 @@ import { OffChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import {DeviceGroup} from '../device-group/device-group.entity'
 import {OrganizationModule} from '../organization/organization.module';
+import { UserModule } from '../user/user.module';
 
 
 @Module({
@@ -20,7 +21,8 @@ import {OrganizationModule} from '../organization/organization.module';
     DeviceGroupModule,
     DeviceModule,
     OffChainCertificateModule,
-    OrganizationModule
+    OrganizationModule,
+    UserModule
   ],
   controllers: [CertificateLogController],
   providers: [CertificateLogService]
