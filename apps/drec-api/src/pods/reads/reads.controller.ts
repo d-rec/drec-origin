@@ -58,7 +58,11 @@ export class ReadsController extends BaseReadsController {
   ) {
     super(baseReadsService);
   }
-
+/**
+ * This api user for get all the timezone list and also from serach key
+ * @param searchKeyword :string
+ * @returns {string[]}
+ */
   @Get('/time-zones')
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -76,12 +80,17 @@ export class ReadsController extends BaseReadsController {
     }
   }
 
-
+/**
+ * This api route use for to get all read of devcie 
+ * @param meterId :string
+ * @param filter:{FilterDTO}
+ * @returns {ReadDTO[]}
+ */
   @Get('/:externalId')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
-    description: 'Returns time-series of meter reads',
+    description: 'Returns  time-series of meter reads',
   })
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -106,9 +115,19 @@ export class ReadsController extends BaseReadsController {
     }
     return super.getReads(device.externalId, filter);
   }
-  /* */
-  @Get('new/:externalId')
 
+
+/**
+ * this api route use for all meter read by externalId
+ * @param meterId :string
+ * @param filter {filterNoOffLimit}
+ * @param pagenumber :number
+ * @param month :number
+ * @param year :number
+ * @param user {ILoggedInUser}
+ * @returns {ReadDTO}
+ */
+  @Get('new/:externalId')
   @ApiQuery({ name: 'Month', type: Number, required: false })
   @ApiQuery({ name: 'Year', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -257,6 +276,14 @@ export class ReadsController extends BaseReadsController {
   // ): Promise<void> {
   //   return await this.internalReadsService.storeRead(id, measurements);
   // }
+
+  /**
+   * This api route use for add meter read of devices
+   * @param id 
+   * @param measurements 
+   * @param user 
+   * @returns {NewIntmediateMeterReadDTO}
+   */
   @Post('new/:id')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -668,7 +695,17 @@ export class ReadsController extends BaseReadsController {
     }
     return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
-  //add new api for read add by superadmin
+
+  /**
+   *  new api for read add by superadmin
+   * id param is deivce externalid
+   * @param id :string
+   * @param organizationId 
+   * @param measurements 
+   * @param user 
+   * @returns {NewIntmediateMeterReadDTO}
+   */
+  
   @Post('addByAdmin/new/:id')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -1090,8 +1127,12 @@ export class ReadsController extends BaseReadsController {
     }
     return await this.internalReadsService.newstoreRead(device.externalId, measurements);
   }
-  @Get('/latestread/:externalId')
 
+  /**
+   * this api create for last read of device by external id
+   * @returns {enddate:DateTime,value:number}
+   */
+  @Get('/latestread/:externalId')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',

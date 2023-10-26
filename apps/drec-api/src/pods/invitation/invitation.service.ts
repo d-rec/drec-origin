@@ -58,10 +58,18 @@ export class InvitationService {
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      throw new ConflictException({
-        success: false,
-        message: `User ${lowerCaseEmail} is already part of the  organization`,
-      });
+      if(invitee.organization.id===inviteorg){
+        throw new ConflictException({
+          success: false,
+          message: `User ${lowerCaseEmail} is already part of this organization`,
+        });
+      }else{
+        throw new ConflictException({
+          success: false,
+          message: `User ${lowerCaseEmail} is already part of the other organization`,
+        });
+      }
+     
 
     }
 

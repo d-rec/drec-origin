@@ -48,6 +48,10 @@ export class PermissionController {
 
     ) { }
 
+    /**
+     * This api use for get the all list of User and Role base permission
+     * @returns {ACLModulePermissions[]}
+     */
     @Get()
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -56,7 +60,11 @@ export class PermissionController {
     async getAll(): Promise<ACLModulePermissions[]> {
         return this.PermissionService.getAll();
       }
-    
+    /**
+     * This api route use for get list permission of user role
+     * @param id :number "id means role id"
+     * @returns {ACLModulePermissions[]}
+     */
     @Get('/role/:id')
     @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
     @Roles(Role.Admin,Role.OrganizationAdmin)
@@ -65,13 +73,18 @@ export class PermissionController {
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
-        description: 'Get my user profile',
+        description: 'Get list of user role permission',
     })
 
       async rolepermission( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[]> {
         return this.PermissionService.FindbyRole(id);
     }
 
+    /**
+     * This api rout use for get permission of Role not related what the role of user
+     * @param id :number "id means user id"
+     * @returns {ACLModulePermissions[]}
+     */
     @Get('/user/:id')
     @UseGuards(AuthGuard('jwt'),PermissionGuard)
     @Permission('Read')
@@ -79,13 +92,18 @@ export class PermissionController {
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
-        description: 'Get my user profile',
+        description: 'Get list of user permission',
     })
     //user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
     user( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[] | null> {
         return this.PermissionService.FindbyUser(id);
     }
-
+/**
+ * This api route use to add permission for all role by admin 
+ * @param moduleData {NewPermissionDTO}
+ * @param loggedUser {ILoggedInUser} "login details"
+ * @returns {PermissionDTO}
+ */
     @Post('/module')
     @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
     @Roles(Role.Admin,Role.OrganizationAdmin)
@@ -95,7 +113,7 @@ export class PermissionController {
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: PermissionDTO,
-        description: 'Register a user',
+        description: 'Permission added sucessfull',
     })
     public async register(
         @Body() moduleData: NewPermissionDTO,
@@ -103,7 +121,12 @@ export class PermissionController {
     ): Promise<PermissionDTO> {
         return this.PermissionService.create(moduleData,loggedUser);
     }
-   
+   /**
+    * This api route use for update the permission of user and role
+    * @param id 
+    * @param body 
+    * @returns 
+    */
     @Put('/update/:id')
     @ApiBody({ type: UpdatePermissionDTO })
     @Permission('Write')
@@ -111,7 +134,7 @@ export class PermissionController {
     @ApiResponse({
         status: HttpStatus.OK,
         type: PermissionDTO,
-        description: 'Updates a yield value or status by admin',
+        description: 'Updates a permission (Read,Write,Delete,Update) or status by admin',
     })
     public async updateyield(
         @Param('id', new ParseIntPipe()) id: number,
@@ -121,7 +144,12 @@ export class PermissionController {
 
         return this.PermissionService.update(id, body);
     }
-
+/**
+ * This api route use for make a request of permission to use api with module select by apiuser
+ * @param moduleData 
+ * @param loggedUser 
+ * @returns {PermissionDTO}
+ */
     @Post('/module/apiuser/request')
     @UseGuards(AuthGuard('oauth2-client-password'), RolesGuard)
     @Roles(Role.ApiUser)
@@ -129,7 +157,7 @@ export class PermissionController {
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: PermissionDTO,
-        description: 'Request for api user',
+        description: 'Request of permission from ApiUser',
     })
     public async apiuser_modulerequest(
       //  @Param('apiuserId') api_user_id: string,
@@ -140,6 +168,13 @@ export class PermissionController {
         return this.PermissionService.permisssion_request(moduleData,loggedUser);
     }
 
+    /**
+     * This api route use for aprrove the apiuser permission request by admin
+     * @param api_user_id:string
+     * @param moduleData {ApiUserPermissionUpdateDTO}
+     * @param loggedUser 
+     * @returns {statsu:string,message:string}
+     */
     @Put('/module/verify/ByAdmin/:apiuserId')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.Admin)

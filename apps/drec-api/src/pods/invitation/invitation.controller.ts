@@ -57,6 +57,11 @@ export class InvitationController {
     private readonly organizationInvitationService: InvitationService,
   ) {}
 
+  /**
+   * 
+   * @param loggedUser 
+   * @returns 
+   */
   @Get()
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -77,6 +82,12 @@ export class InvitationController {
     return invitations;
   }
 
+  /**
+   * 
+   * @param invitationId 
+   * @param useracceptinvitation 
+   * @returns 
+   */
   @Put(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Update')
@@ -104,6 +115,13 @@ export class InvitationController {
     );
   }
 
+  /**
+   * 
+   * @param param0 
+   * @param organizationId 
+   * @param loggedUser 
+   * @returns 
+   */
   @Post()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer)

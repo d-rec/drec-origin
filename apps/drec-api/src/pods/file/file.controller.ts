@@ -55,7 +55,13 @@ supportedFiles.push('image/png');
 export class FileController {
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) { }
-
+/**
+ * This api rout use for upload file 
+ * @param user 
+ * @param param1 
+ * @param uploadedFiles 
+ * @returns 
+ */
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileUploadDto })
@@ -116,6 +122,13 @@ export class FileController {
     //  return this.fileService.store(user, uploadedFiles.files);
   }
 
+  /**
+   * This api route use for get file info by user id
+   * @param user 
+   * @param id 
+   * @param res 
+   * @return {FileDto}
+      */
   @Get(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')

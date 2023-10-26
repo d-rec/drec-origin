@@ -1,0 +1,1923 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >BuyerReservationController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/device-group/buyer-reservation.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>/buyer-reservation</code>
+            </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#createOne" >createOne</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#endresavation" >endresavation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#get" >get</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAll" >getAll</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAllCsvJobsBelongingToOrganization" >getAllCsvJobsBelongingToOrganization</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getBulkUploadJobStatus" >getBulkUploadJobStatus</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getdevciegrouplog" >getdevciegrouplog</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getMyDevices" >getMyDevices</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getReservationcurrentinformation" >getReservationcurrentinformation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#processCreationBulkFromCSV" >processCreationBulkFromCSV</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#remove" >remove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createOne"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>createOne</b></span>
+                        <a href="#createOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createOne(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, deviceGroupToRegister: <a href="../classes/AddGroupDTO.html" target="_self">AddGroupDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post()<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: DeviceGroupDTO, description: &#x27;Returns a new created Device group&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:157</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>deviceGroupToRegister</td>
+                                            <td>
+                                                            <code><a href="../classes/AddGroupDTO.html" target="_self" >AddGroupDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;ResponseDeviceGroupDTO | null&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="endresavation"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>endresavation</b></span>
+                        <a href="#endresavation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>endresavation(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, endresavationdate: <a href="../classes/EndReservationdateDTO.html" target="_self">EndReservationdateDTO</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;endreservation/:id&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: EndReservationdateDTO, description: &#x27;Reservation End&#x27;})<br />@ApiNotFoundResponse({description: No  Reservation found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="501"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:501</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>endresavationdate</td>
+                                            <td>
+                                                            <code><a href="../classes/EndReservationdateDTO.html" target="_self" >EndReservationdateDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="get"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>get</b></span>
+                        <a href="#get"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>get(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/:id&#x27;)<br />@ApiOkResponse({type: DeviceGroupDTO, description: &#x27;Returns a Device group&#x27;})<br />@ApiNotFoundResponse({description: No device group found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:145</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceGroupDTO.html" target="_self" >Promise&lt;DeviceGroupDTO | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAll"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAll</b></span>
+                        <a href="#getAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAll()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br />@ApiOkResponse({type: undefined, description: &#x27;Returns all Device groups&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:95</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceGroupDTO.html" target="_self" >Promise&lt;DeviceGroupDTO[]&gt;</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAllCsvJobsBelongingToOrganization"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAllCsvJobsBelongingToOrganization</b></span>
+                        <a href="#getAllCsvJobsBelongingToOrganization"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAllCsvJobsBelongingToOrganization(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/bulk-upload/get-all-csv-jobs-of-organization&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns created jobs of an organization&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="451"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:451</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Array&lt;DeviceCsvFileProcessingJobsEntity&gt;&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getBulkUploadJobStatus"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getBulkUploadJobStatus</b></span>
+                        <a href="#getBulkUploadJobStatus"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getBulkUploadJobStatus(jobId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/bulk-upload-status/:id&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: JobFailedRowsDTO, description: &#x27;Returns status of job id for bulk upload&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="426"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:426</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>jobId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/JobFailedRowsDTO.html" target="_self" >Promise&lt;JobFailedRowsDTO | undefined&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getdevciegrouplog"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getdevciegrouplog</b></span>
+                        <a href="#getdevciegrouplog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getdevciegrouplog(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;certificatelog/:id&#x27;)<br />@ApiOkResponse({type: DeviceGroupDTO, description: &#x27;Returns a Device group&#x27;})<br />@ApiNotFoundResponse({description: No device group found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="475"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:475</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;[] | null&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getMyDevices"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getMyDevices</b></span>
+                        <a href="#getMyDevices"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getMyDevices(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, filterDto: <a href="../classes/UnreservedDeviceGroupsFilterDTO.html" target="_self">UnreservedDeviceGroupsFilterDTO</a>, pagenumber: number | null)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/my&#x27;)<br />@UseGuards(undefined, RolesGuard)<br />@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer, Role.SubBuyer)<br />@ApiQuery({name: &#x27;pagenumber&#x27;, type: Number, required: false})<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns my Device groups&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:114</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/UnreservedDeviceGroupsFilterDTO.html" target="_self" >UnreservedDeviceGroupsFilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pagenumber</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getReservationcurrentinformation"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getReservationcurrentinformation</b></span>
+                        <a href="#getReservationcurrentinformation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getReservationcurrentinformation(groupuId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;current-information/:groupUid&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="514"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:514</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>groupuId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processCreationBulkFromCSV"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>processCreationBulkFromCSV</b></span>
+                        <a href="#processCreationBulkFromCSV"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processCreationBulkFromCSV(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, fileToProcess: <a href="../classes/CSVBulkUploadDTO.html" target="_self">CSVBulkUploadDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;process-creation-bulk-devices-csv&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns created devices from csv&#x27;})<br />@ApiBody({type: CSVBulkUploadDTO})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="315"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:315</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>fileToProcess</td>
+                                            <td>
+                                                            <code><a href="../classes/CSVBulkUploadDTO.html" target="_self" >CSVBulkUploadDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;DeviceCsvFileProcessingJobsEntity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>remove</b></span>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>remove(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;/:id&#x27;)<br />@UseGuards(undefined, RolesGuard)<br />@Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)<br />@ApiResponse({status: undefined, description: &#x27;Remove device group&#x27;})<br />@ApiNotFoundResponse({description: No device group found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="410"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:410</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>update(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, loggedUser: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, groupToUpdate: <a href="../classes/NewUpdateDeviceGroupDTO.html" target="_self">NewUpdateDeviceGroupDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;/:id&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: NewUpdateDeviceGroupDTO, description: &#x27;Returns an updated Device Group&#x27;})<br />@ApiNotFoundResponse({description: No device group found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="367"
+                                    class="link-to-prism">src/pods/device-group/buyer-reservation.controller.ts:367</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>loggedUser</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>groupToUpdate</td>
+                                            <td>
+                                                            <code><a href="../classes/NewUpdateDeviceGroupDTO.html" target="_self" >NewUpdateDeviceGroupDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceGroupDTO.html" target="_self" >Promise&lt;DeviceGroupDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  HttpStatus,
+  Param,
+  Body,
+  UseGuards,
+  Delete,
+  Query,
+  ValidationPipe,
+  ConflictException
+} from &#x27;@nestjs/common&#x27;;
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiOkResponse,
+  ApiSecurity,
+  ApiTags,
+  ApiBody,
+  ApiQuery
+} from &#x27;@nestjs/swagger&#x27;;
+import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
+
+import {
+  validate,
+  validateOrReject,
+  Contains,
+  IsInt,
+  Length,
+  IsEmail,
+  IsFQDN,
+  IsDate,
+  Min,
+  Max,
+} from &#x27;class-validator&#x27;;
+
+
+import { DeviceGroupService } from &#x27;./device-group.service&#x27;;
+import {
+  AddGroupDTO,
+  DeviceGroupDTO,
+  DeviceIdsDTO,
+  SelectableDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
+  UpdateDeviceGroupDTO,
+  ReserveGroupsDTO,
+  CSVBulkUploadDTO,
+  JobFailedRowsDTO,
+  EndReservationdateDTO,
+  NewUpdateDeviceGroupDTO,
+  ResponseDeviceGroupDTO
+} from &#x27;./dto&#x27;;
+import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
+import { Installation, OffTaker, Role, Sector, StandardCompliance } from &#x27;../../utils/enums&#x27;;
+import { isValidUTCDateFormat } from &#x27;../../utils/checkForISOStringFormat&#x27;;
+import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
+import { UserDecorator } from &#x27;../user/decorators/user.decorator&#x27;;
+import { DeviceDescription, ILoggedInUser, BuyerReservationCertificateGenerationFrequency } from &#x27;../../models&#x27;;
+import { NewDeviceDTO } from &#x27;../device/dto&#x27;;
+import { File, FileService } from &#x27;../file&#x27;;
+
+import { parse } from &#x27;csv-parse&#x27;;
+import * as fs from &#x27;fs&#x27;;
+import { Readable } from &#x27;stream&#x27;;
+
+import csv from &#x27;csv-parser&#x27;;
+import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from &#x27;./device_csv_processing_jobs.entity&#x27;;
+import { Permission } from &#x27;../permission/decorators/permission.decorator&#x27;;
+import { ACLModules } from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;;
+import { PermissionGuard } from &#x27;../../guards&#x27;;
+import { DeviceGroupNextIssueCertificate } from &#x27;./device_group_issuecertificate.entity&#x27;;
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from &#x27;./check_certificate_issue_date_log_for_device_group.entity&#x27;
+import { OrganizationService } from &#x27;../organization/organization.service&#x27;;
+
+@ApiTags(&#x27;buyer-reservation&#x27;)
+@ApiBearerAuth(&#x27;access-token&#x27;)
+@ApiSecurity(&#x27;drec&#x27;)
+@Controller(&#x27;/buyer-reservation&#x27;)
+export class BuyerReservationController {
+  csvParser &#x3D; csv({ separator: &#x27;,&#x27; });
+
+  parser &#x3D; parse({
+    delimiter: &#x27;,&#x27;
+  });
+  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService, private organizationService: OrganizationService) { }
+
+  @Get()
+  @ApiOkResponse({
+    type: [DeviceGroupDTO],
+    description: &#x27;Returns all Device groups&#x27;,
+  })
+  async getAll(): Promise&lt;DeviceGroupDTO[]&gt; {
+    // return new Promise((resolve,reject)&#x3D;&gt;{
+    //   resolve([]);
+    // });
+    /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
+    return this.deviceGroupService.getAll();
+  }
+
+
+
+  @Get(&#x27;/my&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+  @ApiQuery({ name: &#x27;pagenumber&#x27;, type: Number, required: false })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: &#x27;Returns my Device groups&#x27;,
+  })
+  async getMyDevices(
+    @UserDecorator() { id, organizationId, role }: ILoggedInUser,
+    @Query(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    })) filterDto: UnreservedDeviceGroupsFilterDTO,
+    
+    @Query(&#x27;pagenumber&#x27;) pagenumber: number| null,
+  )/*: Promise&lt;DeviceGroupDTO[]&gt; */{
+    switch (role) {
+      case Role.DeviceOwner:
+        return await this.deviceGroupService.getOrganizationDeviceGroups(
+          organizationId);
+      case Role.Buyer:
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
+        case Role.SubBuyer:
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
+      case Role.OrganizationAdmin:
+        return await this.deviceGroupService.getAll();
+      default:
+        return await this.deviceGroupService.getOrganizationDeviceGroups(
+          organizationId);
+    }
+  }
+
+  @Get(&#x27;/:id&#x27;)
+  @ApiOkResponse({
+    type: DeviceGroupDTO,
+    description: &#x27;Returns a Device group&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device group found&#x60; })
+  async get(@Param(&#x27;id&#x27;) id: number): Promise&lt;DeviceGroupDTO | null&gt; {
+    return this.deviceGroupService.findById(id);
+  }
+
+  @Post()
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))//, RolesGuard)
+  // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: &#x27;Returns a new created Device group&#x27;,
+  })
+  public async createOne(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
+    @Body() deviceGroupToRegister: AddGroupDTO,
+  ): Promise&lt;ResponseDeviceGroupDTO | null&gt; {
+
+    //integer range which is for deviceId in device(id) table
+    //-2147483648 to +2147483647
+    //https://www.postgresql.org/docs/9.1/datatype-numeric.html
+
+    if (!Array.isArray(deviceGroupToRegister.deviceIds) || deviceGroupToRegister.deviceIds.filter(ele &#x3D;&gt; ele &gt;&#x3D; -2147483648 &amp;&amp; ele &lt;&#x3D; 2147483647).length !&#x3D;&#x3D; deviceGroupToRegister.deviceIds.length) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27;One or more device ids are invalid&#x27;,
+          }),
+        );
+      });
+    }
+    if (deviceGroupToRegister.deviceIds.length &#x3D;&#x3D; 0) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27;Please provide devices for reservation, deviceIds is empty atleast one device is required&#x27;,
+          }),
+        );
+      });
+
+    }
+
+    if (isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) || deviceGroupToRegister.targetCapacityInMegaWattHour &lt;&#x3D; 0 || deviceGroupToRegister.targetCapacityInMegaWattHour &#x3D;&#x3D; -0) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27;targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0&#x27;,
+          }),
+        );
+      });
+    }
+
+    if (typeof deviceGroupToRegister.reservationStartDate &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate)) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      deviceGroupToRegister.reservationStartDate &#x3D; new Date(deviceGroupToRegister.reservationStartDate);
+    }
+    if (typeof deviceGroupToRegister.reservationEndDate &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate)) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      deviceGroupToRegister.reservationEndDate &#x3D; new Date(deviceGroupToRegister.reservationEndDate);
+    }
+
+    if (deviceGroupToRegister.reservationStartDate &amp;&amp; deviceGroupToRegister.reservationEndDate &amp;&amp; deviceGroupToRegister.reservationStartDate.getTime() &gt;&#x3D; deviceGroupToRegister.reservationEndDate.getTime()) {
+      throw new ConflictException({
+        success: false,
+        message: &#x27;start date cannot be less than or same as end date&#x27;,
+      });
+    }
+    let maximumBackDateForReservation: Date &#x3D; new Date(new Date().getTime() - (3.164e+10 * 3));
+    if (deviceGroupToRegister.reservationStartDate.getTime() &lt;&#x3D; maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() &lt;&#x3D; maximumBackDateForReservation.getTime()) {
+
+      throw new ConflictException({
+        success: false,
+        message: &#x27;start date or end date cannot be less than 3 year from current date&#x27;,
+      });
+    }
+    if (organizationId &#x3D;&#x3D;&#x3D; null || organizationId &#x3D;&#x3D;&#x3D; undefined) {
+
+      throw new ConflictException({
+        success: false,
+        message: &#x27;User does not has organization associated&#x27;,
+      });
+    }
+    const frequency &#x3D; deviceGroupToRegister.frequency.toLowerCase();
+    if (frequency &#x3D;&#x3D;&#x3D; BuyerReservationCertificateGenerationFrequency.monthly || frequency &#x3D;&#x3D;&#x3D; BuyerReservationCertificateGenerationFrequency.quarterly||frequency &#x3D;&#x3D;&#x3D; BuyerReservationCertificateGenerationFrequency.weekly) {
+
+      throw new ConflictException({
+        success: false,
+        message: &#x27;This frequency is currently not supported&#x27;,
+      });
+    }
+    console.log(deviceGroupToRegister.blockchainAddress);
+     //@ts-ignore
+     console.log(process.env.DREC_BLOCKCHAIN_ADDRESS);
+    return await this.deviceGroupService.createOne(
+      organizationId,
+      deviceGroupToRegister,
+      user.id,
+      //@ts-ignore
+      process.env.DREC_BLOCKCHAIN_ADDRESS,
+      
+    );
+    // if (deviceGroupToRegister.blockchainAddress !&#x3D;&#x3D; null &amp;&amp; deviceGroupToRegister.blockchainAddress !&#x3D;&#x3D; undefined &amp;&amp; deviceGroupToRegister.blockchainAddress.trim() !&#x3D;&#x3D; &quot;&quot;) {
+    //   console.log(&quot;deviceGroupToRegister.blockchainAddress&quot;);
+    //   deviceGroupToRegister.blockchainAddress &#x3D; deviceGroupToRegister.blockchainAddress.trim();
+
+    //   return await this.deviceGroupService.createOne(
+    //     organizationId,
+    //     deviceGroupToRegister,
+    //     user.id,
+    //     deviceGroupToRegister.blockchainAddress
+    //   );
+
+    // } else {
+    //   console.log(user.blockchainAccountAddress);
+    //   if (user.blockchainAccountAddress !&#x3D;&#x3D; null &amp;&amp; user.blockchainAccountAddress !&#x3D;&#x3D; undefined) {
+    //     console.log(&quot;user.blockchainAddress&quot;)
+    //     return await this.deviceGroupService.createOne(
+    //       organizationId,
+    //       deviceGroupToRegister,
+    //       user.id,
+    //       user.blockchainAccountAddress
+    //     );
+
+    //   } else {
+
+    //     throw new ConflictException({
+    //       success: false,
+    //       message: &#x27;No blockchain address sent and no blockchain address attached to this account&#x27;,
+    //     });
+    //   }
+    // }
+
+  }
+
+
+
+
+  @Post(&#x27;process-creation-bulk-devices-csv&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  //@UseGuards(AuthGuard(&#x27;jwt&#x27;), PermissionGuard)
+  //@Permission(&#x27;Write&#x27;)
+  //@ACLModules(&#x27;DEVICE_BULK_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: &#x27;Returns created devices from csv&#x27;,
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV
+    (@UserDecorator() user: ILoggedInUser,
+      @UserDecorator() { organizationId }: ILoggedInUser,
+      @Body() fileToProcess: CSVBulkUploadDTO): Promise&lt;DeviceCsvFileProcessingJobsEntity&gt; {
+    if (user.organizationId &#x3D;&#x3D;&#x3D; null || user.organizationId &#x3D;&#x3D;&#x3D; undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;User needs to have organization added&#x27;
+      })
+    }
+
+    //let response:any &#x3D; await this.fileService.GetuploadS3(fileToProcess.fileName);
+    // let response &#x3D; await this.fileService.get(fileToProcess.fileName, user);
+
+
+    console.log(fileToProcess.fileName);
+    if (fileToProcess.fileName &#x3D;&#x3D; undefined) {
+      //throw new Error(&quot;file not found&quot;);
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;File Not Found&#x27;
+      })
+
+    }
+    if (!fileToProcess.fileName.endsWith(&#x27;.csv&#x27;)) {
+      //throw new Error(&quot;file not found&quot;);
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;Invalid file&#x27;
+      })
+
+    }
+    let jobCreated &#x3D; await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    //let jobCreated &#x3D; await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
+
+    return jobCreated;
+  }
+
+
+  @Patch(&#x27;/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  // @Roles(Role.DeviceOwner, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: NewUpdateDeviceGroupDTO,
+    description: &#x27;Returns an updated Device Group&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device group found&#x60; })
+  public async update(
+    @Param(&#x27;id&#x27;) id: number,
+    @UserDecorator() loggedUser: ILoggedInUser,
+    @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
+  ): Promise&lt;DeviceGroupDTO&gt; {
+
+    let devicenextissuence: DeviceGroupNextIssueCertificate | null &#x3D; await this.deviceGroupService.getGroupiCertificateIssueDate({ groupId: id });
+    if (devicenextissuence &#x3D;&#x3D;&#x3D; null) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;This device groups reservation has already ended &#x60;,
+          })
+        );
+      });
+    }
+    if (new Date(groupToUpdate.reservationEndDate).getTime() &lt; new Date(devicenextissuence.start_date).getTime()) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}&#x60;,
+          })
+        );
+      });
+    }
+
+    return await this.deviceGroupService.update(
+      id,
+      loggedUser,
+      groupToUpdate,
+    );
+  }
+
+  @Delete(&#x27;/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
+  @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer,Role.SubBuyer)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Remove device group&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device group found&#x60; })
+  public async remove(
+    @Param(&#x27;id&#x27;) id: number,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise&lt;void&gt; {
+    return await this.deviceGroupService.remove(id, organizationId);
+  }
+
+  @Get(&#x27;/bulk-upload-status/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))//, PermissionGuard)
+  // @Permission(&#x27;Read&#x27;)
+  // @ACLModules(&#x27;DEVICE_BULK_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: JobFailedRowsDTO,
+    description: &#x27;Returns status of job id for bulk upload&#x27;,
+  })
+  public async getBulkUploadJobStatus(
+    @Param(&#x27;id&#x27;) jobId: number,
+    @UserDecorator() { organizationId }: ILoggedInUser
+  ): Promise&lt;JobFailedRowsDTO | undefined&gt; {
+    console.log(&quot;jobId&quot;, jobId);
+
+    let data &#x3D; await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
+    console.log(&quot;data&quot;, data);
+    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
+      jobId
+    );
+  }
+
+  @Get(&#x27;/bulk-upload/get-all-csv-jobs-of-organization&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  //@UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  //@Permission(&#x27;Read&#x27;)
+  //@ACLModules(&#x27;DEVICE_BULK_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: &#x27;Returns created jobs of an organization&#x27;,
+  })
+  public async getAllCsvJobsBelongingToOrganization(
+    @UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise&lt;Array&lt;DeviceCsvFileProcessingJobsEntity&gt;&gt; {
+    console.log(&quot;user&quot;, user);
+    console.log(&quot;organization&quot;, organizationId);
+
+    if (user.organizationId &#x3D;&#x3D;&#x3D; null || user.organizationId &#x3D;&#x3D;&#x3D; undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;User needs to have organization added&#x27;
+      })
+    }
+    if(user.role&#x3D;&#x3D;&#x3D;&#x27;Admin&#x27;){
+      return this.deviceGroupService.getAllCSVJobsForAdmin();
+    }
+    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
+  }
+
+  @Get(&#x27;certificatelog/:id&#x27;)
+  @ApiOkResponse({
+    type: DeviceGroupDTO,
+    description: &#x27;Returns a Device group&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device group found&#x60; })
+  async getdevciegrouplog(@Param(&#x27;id&#x27;) id: number): Promise&lt;CheckCertificateIssueDateLogForDeviceGroupEntity[] | null&gt; {
+    return this.deviceGroupService.getDeviceGrouplog(id);
+  }
+  //   @Post(&#x27;/buyer-reservation&#x27;)
+  //   @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  //   @Permission(&#x27;Write&#x27;)
+  //   @ACLModules(&#x27;DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL&#x27;)
+  //   @ApiResponse({
+  //    status: HttpStatus.OK,
+  //    type: JobFailedRowsDTO,
+  //    description: &#x27;Returns status of job id for bulk upload&#x27;,
+  //  })
+  //  public async createBuyerReservationGroups(
+  //    @UserDecorator() { organizationId }: ILoggedInUser
+  //  ): Promise&lt;JobFailedRowsDTO | undefined&gt; {
+
+  //  }
+  @Delete(&#x27;endreservation/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: EndReservationdateDTO,
+    description: &#x27;Reservation End&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No  Reservation found&#x60; })
+  public async endresavation(
+    @Param(&#x27;id&#x27;) id: number,
+    @Body() endresavationdate: EndReservationdateDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise&lt;void&gt; {
+    return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
+  }
+
+  @Get(&#x27;current-information/:groupUid&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  @ApiResponse({
+    status: HttpStatus.OK
+  })
+  public async getReservationcurrentinformation(
+    @Param(&#x27;groupUid&#x27;) groupuId: string,
+    @UserDecorator() { organizationId }: ILoggedInUser
+  ): Promise&lt;any&gt; {
+    console.log(&quot;jobId&quot;, groupuId);
+    const regexExp &#x3D; /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+    if (groupuId &#x3D;&#x3D;&#x3D; null || !regexExp.test(groupuId)) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(new ConflictException({
+          success: false,
+          message: &#x27; Please Add the valid UID ,invalid group uid value was sent&#x27;,
+        }))
+      })
+    }
+    // const devicegroup &#x3D; await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
+    // if (devicegroup &#x3D;&#x3D;&#x3D; null || devicegroup.buyerId !&#x3D; user.id) {
+    //     return new Promise((resolve, reject) &#x3D;&gt; {
+    //         reject(new ConflictException({
+    //             success: false,
+    //             message: &#x27;Group UId is not of this buyer, invalid value was sent&#x27;,
+    //         }))
+    //     })
+    // }
+
+
+    return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
+      groupuId
+    );
+  }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'BuyerReservationController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
