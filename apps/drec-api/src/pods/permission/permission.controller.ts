@@ -151,7 +151,7 @@ export class PermissionController {
  * @returns {PermissionDTO}
  */
     @Post('/module/apiuser/request')
-    @UseGuards(AuthGuard('oauth2-client-password'), RolesGuard)
+    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard)
     @Roles(Role.ApiUser)
     @ApiBody({ type: [NewApiUserPermissionDTO] })
     @ApiResponse({
