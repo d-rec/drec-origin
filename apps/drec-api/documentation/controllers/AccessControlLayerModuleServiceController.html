@@ -164,8 +164,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -215,8 +215,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -297,8 +297,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/pods/access-control-layer-module-service/access-control-layer-module-service.controller.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -394,6 +394,10 @@ import { ActiveUserGuard } from &#x27;../../guards&#x27;;
 import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
 import { UserDecorator } from &#x27;../user/decorators/user.decorator&#x27;;
 import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
+
+/*
+* It is Controller of ACL Module with the endpoints of ACL module operations.
+*/
 @ApiTags(&#x27;aclmoduleservices&#x27;)
 @ApiBearerAuth(&#x27;access-token&#x27;)
 @ApiSecurity(&#x27;drec&#x27;)
@@ -401,6 +405,12 @@ import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
 export class AccessControlLayerModuleServiceController {
     constructor(private readonly ModulesService: AccessControlLayerModuleServiceService) { }
 
+    /*
+    * This is Get Api to list all the Acl modules.
+    * @return {Array&lt;ACLModuleDto&gt; | null}. 
+    * It returns array of ACLModuleDto when there is the list of all ACLModules 
+    * in response of query and returns null when there is no list of ACLModules or empty.
+    * */
     @Get()
     @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
 
@@ -414,6 +424,10 @@ export class AccessControlLayerModuleServiceController {
         return this.ModulesService.getAll();
     }
 
+    /*
+    * It is POST api to create an ACL Module.
+    * @return {ACLModuleDto} when create api is successfull.
+    */
     @Post()
     @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
     @Roles(Role.Admin)
@@ -428,7 +442,11 @@ export class AccessControlLayerModuleServiceController {
         return this.ModulesService.create(moduleData);
     }
 
-
+    /*
+    * This is PUT api to update a module permissions or status
+    * @return {ACLModuleDto} when the update is successfull.
+    * @param {id} is the type of number and identifier of ACl Modules. 
+    */
     @Put(&#x27;/update/:id&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
     @ApiBody({ type: UpdateACLModuleDTO })

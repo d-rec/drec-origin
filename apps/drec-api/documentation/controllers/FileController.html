@@ -72,6 +72,13 @@
             </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>It is controller for file operations</p>
+
+            </p>
 
 
 
@@ -163,15 +170,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/pods/file/file.controller.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="144"
+                                    class="link-to-prism">src/pods/file/file.controller.ts:144</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>This api route use for get file info by user id</p>
+                        <div class="io-description"><p>It is GET api to view or download an file from AWS S3 bucket</p>
 </div>
 
                             <div class="io-description">
@@ -183,6 +190,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -197,6 +205,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>from request</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>id</td>
@@ -209,6 +221,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>is unique identifier of file entity</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>res</td>
@@ -221,6 +237,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>is Response type</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -273,15 +293,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/pods/file/file.controller.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/pods/file/file.controller.ts:100</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>This api rout use for upload file</p>
+                        <div class="io-description"><p>It is POST api to upload multiple files into aws s3 bucket</p>
 </div>
 
                             <div class="io-description">
@@ -293,6 +313,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -307,6 +328,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>from request</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>
@@ -318,6 +343,8 @@
                                             </td>
 
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>uploadedFiles</td>
@@ -330,6 +357,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>array of files to be uploaded</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -399,20 +430,23 @@ supportedFiles.push(&#x27;text/csv&#x27;);
 supportedFiles.push(&#x27;image/jpeg&#x27;);
 supportedFiles.push(&#x27;image/png&#x27;);
 
-
+/**
+ * It is controller for file operations
+ */
 @ApiTags(&#x27;file&#x27;)
 @ApiBearerAuth(&#x27;access-token&#x27;)
 @Controller(&#x27;file&#x27;)
 export class FileController {
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) { }
-/**
- * This api rout use for upload file 
- * @param user 
- * @param param1 
- * @param uploadedFiles 
- * @returns 
- */
+
+  /**
+   * It is POST api to upload multiple files into aws s3 bucket
+   * @param user from request
+   * @param param1 is getting organization id from request
+   * @param uploadedFiles array of files to be uploaded 
+   * @returns {}
+   */
   @Post()
   @ApiConsumes(&#x27;multipart/form-data&#x27;)
   @ApiBody({ type: FileUploadDto })
@@ -474,12 +508,11 @@ export class FileController {
   }
 
   /**
-   * This api route use for get file info by user id
-   * @param user 
-   * @param id 
-   * @param res 
-   * @return {FileDto}
-      */
+   * It is GET api to view or download an file from AWS S3 bucket
+   * @param user from request
+   * @param id is unique identifier of file entity
+   * @param res is Response type 
+   */
   @Get(&#x27;:id&#x27;)
   @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
   @Permission(&#x27;Read&#x27;)

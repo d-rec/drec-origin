@@ -64,45 +64,61 @@
 <text text-anchor="start" x="429.73" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Exports</text>
 <g id="clust1" class="cluster">
 <title>cluster_YieldConfigModule</title>
-<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="144,-70 144,-268 352,-268 352,-70 144,-70"/>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="89,-70 89,-268 407,-268 407,-70 89,-70"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_YieldConfigModule_imports</title>
+<polygon fill="none" stroke="black" points="297,-78 297,-130 399,-130 399,-78 297,-78"/>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_YieldConfigModule_exports</title>
-<polygon fill="none" stroke="black" points="174,-208 174,-260 322,-260 322,-208 174,-208"/>
+<polygon fill="none" stroke="black" points="185,-208 185,-260 333,-260 333,-208 185,-208"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_YieldConfigModule_providers</title>
-<polygon fill="none" stroke="black" points="152,-78 152,-130 344,-130 344,-78 152,-78"/>
+<polygon fill="none" stroke="black" points="97,-78 97,-130 289,-130 289,-78 97,-78"/>
 </g>
-<!-- YieldConfigService  -->
+<!-- UserModule -->
 <g id="node1" class="node">
-<title>YieldConfigService </title>
-<polygon fill="#fb8072" stroke="black" points="313.97,-252 182.03,-252 182.03,-216 313.97,-216 313.97,-252"/>
-<text text-anchor="middle" x="248" y="-229.8" font-family="Times,serif" font-size="14.00">YieldConfigService </text>
+<title>UserModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="390.98,-122 387.98,-126 366.98,-126 363.98,-122 305.02,-122 305.02,-86 390.98,-86 390.98,-122"/>
+<text text-anchor="middle" x="348" y="-99.8" font-family="Times,serif" font-size="14.00">UserModule</text>
 </g>
 <!-- YieldConfigModule -->
 <g id="node2" class="node">
 <title>YieldConfigModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="312.54,-187 309.54,-191 288.54,-191 285.54,-187 183.46,-187 183.46,-151 312.54,-151 312.54,-187"/>
-<text text-anchor="middle" x="248" y="-164.8" font-family="Times,serif" font-size="14.00">YieldConfigModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="323.54,-187 320.54,-191 299.54,-191 296.54,-187 194.46,-187 194.46,-151 323.54,-151 323.54,-187"/>
+<text text-anchor="middle" x="259" y="-164.8" font-family="Times,serif" font-size="14.00">YieldConfigModule</text>
+</g>
+<!-- UserModule&#45;&gt;YieldConfigModule -->
+<g id="edge1" class="edge">
+<title>UserModule&#45;&gt;YieldConfigModule</title>
+<path fill="none" stroke="black" d="M314.39,-122.11C314.39,-122.11 314.39,-140.99 314.39,-140.99"/>
+<polygon fill="black" stroke="black" points="310.89,-140.99 314.39,-150.99 317.89,-140.99 310.89,-140.99"/>
+</g>
+<!-- YieldConfigService  -->
+<g id="node3" class="node">
+<title>YieldConfigService </title>
+<polygon fill="#fb8072" stroke="black" points="324.97,-252 193.03,-252 193.03,-216 324.97,-216 324.97,-252"/>
+<text text-anchor="middle" x="259" y="-229.8" font-family="Times,serif" font-size="14.00">YieldConfigService </text>
 </g>
 <!-- YieldConfigModule&#45;&gt;YieldConfigService  -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>YieldConfigModule&#45;&gt;YieldConfigService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M248,-187.11C248,-187.11 248,-205.99 248,-205.99"/>
-<polygon fill="black" stroke="black" points="244.5,-205.99 248,-215.99 251.5,-205.99 244.5,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M259,-187.11C259,-187.11 259,-205.99 259,-205.99"/>
+<polygon fill="black" stroke="black" points="255.5,-205.99 259,-215.99 262.5,-205.99 255.5,-205.99"/>
 </g>
 <!-- YieldConfigService -->
-<g id="node3" class="node">
+<g id="node4" class="node">
 <title>YieldConfigService</title>
-<ellipse fill="#fdb462" stroke="black" cx="248" cy="-104" rx="88.04" ry="18"/>
-<text text-anchor="middle" x="248" y="-99.8" font-family="Times,serif" font-size="14.00">YieldConfigService</text>
+<ellipse fill="#fdb462" stroke="black" cx="193" cy="-104" rx="88.04" ry="18"/>
+<text text-anchor="middle" x="193" y="-99.8" font-family="Times,serif" font-size="14.00">YieldConfigService</text>
 </g>
 <!-- YieldConfigService&#45;&gt;YieldConfigModule -->
-<g id="edge2" class="edge">
+<g id="edge3" class="edge">
 <title>YieldConfigService&#45;&gt;YieldConfigModule</title>
-<path fill="none" stroke="black" d="M248,-122.11C248,-122.11 248,-140.99 248,-140.99"/>
-<polygon fill="black" stroke="black" points="244.5,-140.99 248,-150.99 251.5,-140.99 244.5,-140.99"/>
+<path fill="none" stroke="black" d="M237.75,-119.73C237.75,-119.73 237.75,-140.65 237.75,-140.65"/>
+<polygon fill="black" stroke="black" points="234.25,-140.65 237.75,-150.65 241.25,-140.65 234.25,-140.65"/>
 </g>
 </g>
 </svg>
@@ -169,6 +185,16 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
+                    <h3>Imports<a href="https://angular.io/api/core/NgModule#imports" target="_blank" rel="noopener noreferrer"
+                            title="Official documentation about module imports"><span
+                                class="icon ion-ios-information-circle-outline"></a></h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="../modules/UserModule.html">UserModule</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
                     <h3>Exports<a href="https://angular.io/api/core/NgModule#exports" target="_blank" rel="noopener noreferrer"
                             title="Official documentation about module exports"><span
                                 class="icon ion-ios-information-circle-outline"></a></h3>
@@ -191,9 +217,11 @@ import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { YieldConfigController } from &#x27;./yieldconfig.controller&#x27;;
 import { YieldConfig } from &#x27;./yieldconfig.entity&#x27;;
 import { YieldConfigService } from &#x27;./yieldconfig.service&#x27;;
+import { UserModule } from &#x27;../user/user.module&#x27;;
 
 @Module({
-  imports: [TypeOrmModule.forFeature([YieldConfig])],
+  imports: [TypeOrmModule.forFeature([YieldConfig]),
+UserModule],
   providers: [YieldConfigService],
   exports: [YieldConfigService],
   controllers: [YieldConfigController],

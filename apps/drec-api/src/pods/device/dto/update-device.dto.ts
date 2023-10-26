@@ -41,7 +41,7 @@ export class UpdateDeviceDTO
   projectName: string;
 
   @ApiProperty()
-  // @IsOptional()
+  @IsOptional()
   @IsString({
     message:
       'Address must be added',
@@ -50,7 +50,7 @@ export class UpdateDeviceDTO
 
   @ApiProperty()
   @IsString()
-  // @IsOptional()
+  @IsOptional()
   @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
     message:
       'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
@@ -63,7 +63,7 @@ export class UpdateDeviceDTO
     message:
       'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
   })
-  // @IsOptional()
+ @IsOptional()
   longitude: string;
 
   @ApiProperty()
@@ -80,7 +80,7 @@ export class UpdateDeviceDTO
     message:
       'FuelCode must be added Or Valid FuelCode values are ES100',
   })
-  // @IsOptional()
+  @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
@@ -88,7 +88,7 @@ export class UpdateDeviceDTO
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-  // @IsOptional()
+   @IsOptional()
   deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()

@@ -102,9 +102,9 @@ export class InvitationService {
       email: email.toLowerCase(),
       password: randPassword,
       orgName: organization.name,
-      organizationType: '',
+      organizationType: organization.organizationType,
       //@ts-ignore
-      orgid?:organization.id
+      orgid?: organization.id
       // orgAddress:''
 
     }
@@ -115,6 +115,8 @@ export class InvitationService {
     //   userid = invitee
 
     // } else {
+    //let client;
+    inviteuser['client'] = { api_user_id: organization.api_user_id }
     userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     //}

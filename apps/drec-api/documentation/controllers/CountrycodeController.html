@@ -143,8 +143,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/pods/countrycode/countrycode.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/pods/countrycode/countrycode.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -221,6 +221,10 @@ import {
   import { plainToClass } from &#x27;class-transformer&#x27;;
 import {CountrycodeService}from &#x27;./countrycode.service&#x27;;
 import {CountryCodeNameDTO ,FilterKeyDTO} from &#x27;./dto&#x27;
+
+/*
+* It is Controller of CountrCode with the endpoints of countrycode operations.
+*/
 @ApiTags(&#x27;CountryList&#x27;)
 @ApiBearerAuth(&#x27;access-token&#x27;)
 @ApiSecurity(&#x27;drec&#x27;)
@@ -230,6 +234,10 @@ export class CountrycodeController {
 private readonly countrycodeService:CountrycodeService
     ){}
 
+    /*
+    * It is GET api to get list of all country codes with filteration by pattern(string)
+    * @return { Array&lt;CountryCodeNameDTO&gt;} returns array of countrycode 
+    */
     @Get(&#x27;/list&#x27;)
   @ApiResponse({
     status: HttpStatus.OK,

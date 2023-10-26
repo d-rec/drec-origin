@@ -49,6 +49,10 @@ import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from './dto/organization-filter.dto'
+
+/*
+* It is Controller of admin with the endpoints of admin operations.
+*/
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -61,7 +65,10 @@ export class AdminController {
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
   ) { }
-
+  
+  /*
+  *It is Get Api to get the list all the users with filters and pagination.
+  */
   @Get('/users')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -81,6 +88,9 @@ export class AdminController {
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
+  /*
+  * It is GET api to list all organizations with pagination and filters
+  */
   @Get('/organizations')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -98,6 +108,11 @@ export class AdminController {
   )/*: Promise<OrganizationDTO[]>*/ {
     return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
+
+  /**
+  * It is GET api to list all users of an organization with pagination
+  * @param {orhanizationId} is type of number which is the identifier of an organization
+  */
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -115,6 +130,13 @@ export class AdminController {
   )/*:  Promise<UserDTO[]>*/ {
     return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
+
+  /**
+  * It is GET api to fetch an organization renord.
+  * @param {orhanizationId} is type of number which is the identifier of an organization
+  * @return { OrganizationDTO | undefined } OrganizationDto is for success response 
+  * and undefined when there is no particular record not available.
+  */
   @Get('/organizations/:id')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -133,6 +155,9 @@ export class AdminController {
     return this.organizationService.findOne(organizationId);
   }
 
+  /*
+  * It is POST api to invite and create organizationAdmin.
+  */
   @Post('/users')
   @Roles(Role.Admin)
   @Permission('Write')
@@ -146,7 +171,11 @@ export class AdminController {
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
     return await this.userService.adminnewcreate(newUser);
   }
-
+  /**
+   * It is api used in previous versions of drec to create user at admin end
+   * @param newUsers 
+   * @returns 
+   */
   @Post('/seed/users'
   )
   @Roles(Role.Admin)
@@ -201,6 +230,11 @@ export class AdminController {
     return orgs;
   }
 
+  /*
+  * It is PUT api to update an user.
+  * @return {UserDto} returns an updated user.
+  * @param {id} is the type of number which is the identifier of user.
+  */
   @Put('/users/:id')
   @Roles(Role.Admin)
   @Permission('Write')
@@ -218,6 +252,11 @@ export class AdminController {
     return this.userService.update(id, body);
   }
 
+  /*
+  * It is PATCH api to update an organization
+  * @return {OrganizationDto} returns the updated organization.
+  * @param { id } is the type of number which is the identifier of an organization.
+  */
   @Patch('/organizations/:id')
   @Roles(Role.Admin)
   @Permission('Update')
@@ -238,6 +277,11 @@ export class AdminController {
     );
   }
 
+  /*
+  * It is DELETE api to delete an organization.
+  * @return {SuccessResponseDto} returns an message for success or failure response.
+  * @param {id} is the type of number which is identifier of an organization.
+  */
   @Delete('/organizations/:id')
   @Roles(Role.Admin)
   @Permission('Delete')
@@ -261,6 +305,11 @@ export class AdminController {
     return ResponseSuccess();
   }
 
+  /*
+  * It is DELETE api to delete an user.
+  * @return {SuccessResponseDto} returns an message for success or failure response.
+  * @param {id} is the type of number which is identifier of an user.
+  */ 
   @Delete('/user/:id')
   @Roles(Role.Admin)
   @Permission('Delete')
@@ -309,6 +358,12 @@ export class AdminController {
 
     return ResponseSuccess();
   }
+
+  /*
+  * It is POST api to create or register device into I-REC
+  * @return {any} returns message for sucessful / failure response.
+  * @param { id } is the type of number and identifier of an device.
+  */
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
   @Roles(Role.Admin)
@@ -327,7 +382,9 @@ export class AdminController {
     return await this.deviceService.I_recPostData(id);
   }
 
-
+  /*
+  * It is GET api to list all devices by an organization and device's externalId
+  */
   @Get('/devices/autocomplete')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -353,6 +410,9 @@ export class AdminController {
     return await this.deviceService.atto(organizationId, externalId);
   }
 
+  /*
+  * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+  */
   @Get('/apiusers')
   @Roles(Role.Admin)
   @Permission('Read')

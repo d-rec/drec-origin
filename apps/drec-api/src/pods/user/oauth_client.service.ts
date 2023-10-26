@@ -100,5 +100,9 @@ export class OauthClientCredentialsService {
         return decrypted;
     }
 
+    async findOneByApiUserId(api_user_id : string) : Promise<ApiUserEntity | undefined> {
+        return await this.apiUserEntityRepository.findOne({ where: {api_user_id} });
+    }
+
 
 }

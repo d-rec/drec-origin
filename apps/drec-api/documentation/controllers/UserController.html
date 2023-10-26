@@ -93,6 +93,9 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#confirmToken" >confirmToken</a>
@@ -100,11 +103,16 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#Forgetpassword" >Forgetpassword</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -122,6 +130,9 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#register" >register</a>
@@ -130,11 +141,16 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#reSendEmailConfirmation" >reSendEmailConfirmation</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -148,11 +164,15 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#updateOwnPassword" >updateOwnPassword</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -188,6 +208,9 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>confirmToken</b></span>
@@ -206,14 +229,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;confirm-email/:token&#x27;)<br />@ApiResponse({status: undefined, type: String, description: Confirm an email confirmation token})<br />@ApiParam({name: &#x27;token&#x27;, type: String})<br /></code>
+                    <code>@Put(&#x27;confirm-email/:token&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: String, description: Confirm an email confirmation token})<br />@ApiParam({name: &#x27;token&#x27;, type: String})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="279"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:279</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="280"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:280</a></div>
                         </td>
                     </tr>
 
@@ -271,6 +294,9 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>Forgetpassword</b></span>
@@ -289,14 +315,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;forget-password&#x27;)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: send a email})<br /></code>
+                    <code>@Post(&#x27;forget-password&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: send a email})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="320"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:320</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="322"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:322</a></div>
                         </td>
                     </tr>
 
@@ -365,6 +391,8 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>get</b></span>
@@ -383,14 +411,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id&#x27;)<br />@UseGuards(undefined, ActiveUserGuard)<br />@ApiResponse({status: undefined, type: UserDTO, description: Get another user&#x27;s data})<br /></code>
+                    <code>@Get(&#x27;:id&#x27;)<br />@UseGuards(undefined, undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: UserDTO, description: Get another user&#x27;s data})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -475,14 +503,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;me&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: UserDTO, description: &#x27;Get my user profile&#x27;})<br /></code>
+                    <code>@Get(&#x27;me&#x27;)<br />@UseGuards(undefined, undefined)<br />@ApiResponse({status: undefined, type: UserDTO, description: &#x27;Get my user profile&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -538,6 +566,9 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>register</b></span>
@@ -556,14 +587,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;register&#x27;)<br />@ApiBody({type: CreateUserORGDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: &#x27;Register a new user &#x27;})<br /></code>
+                    <code>@Post(&#x27;register&#x27;)<br />@ApiBody({type: CreateUserORGDTO})<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: UserDTO, description: &#x27;Register a new user &#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="126"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:126</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -632,6 +663,8 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>reSendEmailConfirmation</b></span>
@@ -650,14 +683,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;resend-confirm-email&#x27;)<br />@UseGuards(undefined)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: Resend a confirmation email})<br /></code>
+                    <code>@Put(&#x27;resend-confirm-email&#x27;)<br />@UseGuards(undefined, undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: Resend a confirmation email})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="299"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:299</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="300"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:300</a></div>
                         </td>
                     </tr>
 
@@ -714,6 +747,9 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>updatechangePassword</b></span>
@@ -732,7 +768,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;reset/password/:token&#x27;)<br />@ApiBody({type: UpdateChangePasswordDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own password})<br />@ApiParam({name: &#x27;token&#x27;, type: String})<br /></code>
+                    <code>@Put(&#x27;reset/password/:token&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiBody({type: UpdateChangePasswordDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own password})<br />@ApiParam({name: &#x27;token&#x27;, type: String})<br /></code>
                 </td>
             </tr>
 
@@ -809,6 +845,8 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>updateOwnPassword</b></span>
@@ -827,14 +865,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;password&#x27;)<br />@UseGuards(undefined, ActiveUserGuard)<br />@ApiBody({type: UpdatePasswordDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own password})<br /></code>
+                    <code>@Put(&#x27;password&#x27;)<br />@UseGuards(undefined, undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiBody({type: UpdatePasswordDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own password})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:218</a></div>
                         </td>
                     </tr>
 
@@ -905,6 +943,8 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Async</span>
                         <span ><b>updateOwnProfile</b></span>
@@ -923,14 +963,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;profile&#x27;)<br />@UseGuards(undefined, ActiveUserGuard)<br />@ApiBody({type: UpdateUserProfileDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own profile})<br />@ApiUnprocessableEntityResponse({description: &#x27;Input data validation failed&#x27;})<br /></code>
+                    <code>@Put(&#x27;profile&#x27;)<br />@UseGuards(undefined, undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)<br />@ApiBody({type: UpdateUserProfileDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: Update your own profile})<br />@ApiUnprocessableEntityResponse({description: &#x27;Input data validation failed&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="199"
-                                    class="link-to-prism">src/pods/user/user.controller.ts:199</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="198"
+                                    class="link-to-prism">src/pods/user/user.controller.ts:198</a></div>
                         </td>
                     </tr>
 
@@ -1048,7 +1088,6 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
-    private readonly oauthClientCredentialService: OauthClientCredentialsService,
   ) { }
 
   /**
@@ -1057,9 +1096,9 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get(&#x27;me&#x27;)
-  @UseGuards(AuthGuard(&#x27;jwt&#x27;))/*,PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), AuthGuard(&#x27;oauth2-client-password&#x27;)) /*,PermissionGuard)
   @Permission(&#x27;Read&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;) */
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -1075,9 +1114,9 @@ export class UserController {
  * @returns {UserDTO}
  */
   @Get(&#x27;:id&#x27;)
-  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), AuthGuard(&#x27;oauth2-client-password&#x27;), ActiveUserGuard, PermissionGuard)
   @Permission(&#x27;Read&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -1111,9 +1150,9 @@ export class UserController {
   */
   @Post(&#x27;register&#x27;)
   @ApiBody({ type: CreateUserORGDTO })
-  //@UseGuards(PermissionGuard)
-  // @Permission(&#x27;Write&#x27;)
-  // @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
+  @UseGuards(AuthGuard(&#x27;oauth2-client-password&#x27;), PermissionGuard)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
@@ -1122,8 +1161,8 @@ export class UserController {
   public async register(
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request
-  ): Promise&lt;UserDTO&gt; {
-    let client;
+  ): Promise&lt;UserDTO&gt; { 
+    let client &#x3D; request.user; /*
     console.log(request.headers);
     if (request.headers[&#x27;client_id&#x27;] &amp;&amp; request.headers[&#x27;client_secret&#x27;]) {
       if (!request.headers[&#x27;client_secret&#x27;] || !request.headers[&#x27;client_id&#x27;]) {
@@ -1135,7 +1174,7 @@ export class UserController {
     else if (userRegistrationData.organizationType.toLowerCase() !&#x3D; &#x27;ApiUser&#x27;.toLowerCase()) {
       client &#x3D; await this.userService.validateClient(process.env.client_id, process.env.client_secret);
 
-    }
+    } */
     console.log(userRegistrationData);
     if (userRegistrationData.organizationType &#x3D;&#x3D;&#x3D; &#x27;&#x27; || userRegistrationData.organizationType &#x3D;&#x3D;&#x3D; null || userRegistrationData.organizationType &#x3D;&#x3D;&#x3D; undefined) {
       return new Promise((resolve, reject) &#x3D;&gt; {
@@ -1180,9 +1219,9 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put(&#x27;profile&#x27;)
-  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), AuthGuard(&#x27;oauth2-client-password&#x27;), ActiveUserGuard ,PermissionGuard)
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;) */
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiBody({ type: UpdateUserProfileDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -1203,9 +1242,9 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put(&#x27;password&#x27;)
-  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), AuthGuard(&#x27;oauth2-client-password&#x27;), ActiveUserGuard ,PermissionGuard)
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;) */
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiBody({ type: UpdatePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -1223,9 +1262,10 @@ export class UserController {
      * @returns {UserDTO} .
      */
   @Put(&#x27;reset/password/:token&#x27;)
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;oauth2-client-password&#x27;), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -1263,9 +1303,10 @@ export class UserController {
  * @returns {EmailConfirmationResponse}:&quot;Email confirmed successfully&quot;
  */
   @Put(&#x27;confirm-email/:token&#x27;)
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;oauth2-client-password&#x27;), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
@@ -1284,9 +1325,9 @@ export class UserController {
    * @returns 
    */
   @Put(&#x27;resend-confirm-email&#x27;)
-  @UseGuards(AuthGuard(&#x27;jwt&#x27;))/*,PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), AuthGuard(&#x27;oauth2-client-password&#x27;), PermissionGuard)
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -1305,9 +1346,10 @@ export class UserController {
  * @returns {SuccessResponseDTO}
  */
   @Post(&#x27;forget-password&#x27;)
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard(&#x27;oauth2-client-password&#x27;), PermissionGuard)
+  /*@UseGuards(PermissionGuard) */
   @Permission(&#x27;Write&#x27;)
-  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)*/
+  @ACLModules(&#x27;USER_MANAGEMENT_CRUDL&#x27;)
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -1316,7 +1358,7 @@ export class UserController {
   public async Forgetpassword(
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO
-  ): Promise&lt;SuccessResponseDTO&gt; {
+  ): Promise&lt;SuccessResponseDTO&gt; { /*
     const user &#x3D; await this.userService.findByEmail(body.email);
     //@ts-ignore
     let client &#x3D; await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
@@ -1347,7 +1389,8 @@ export class UserController {
     if (client) {
       console.log(&quot;when Client:&quot;, client)
       return this.userService.geytokenforResetPassword(body.email);
-    }
+    } */
+    return this.userService.geytokenforResetPassword(body.email);
   }
 }
 </code></pre>

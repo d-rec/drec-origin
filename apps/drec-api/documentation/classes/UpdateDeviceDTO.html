@@ -97,6 +97,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#address" >address</a>
                             </li>
                             <li>
@@ -133,6 +134,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#deviceTypeCode" >deviceTypeCode</a>
                             </li>
                             <li>
@@ -144,6 +146,7 @@
                                 <a href="#externalId" >externalId</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#fuelCode" >fuelCode</a>
@@ -188,9 +191,11 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#latitude" >latitude</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -254,6 +259,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>address</b></span>
                         <a href="#address"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -270,7 +276,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty()<br />@IsString({message: &#x27;Address must be added&#x27;})<br />
+                            @ApiProperty()<br />@IsOptional()<br />@IsString({message: &#x27;Address must be added&#x27;})<br />
                         </code>
                     </td>
                 </tr>
@@ -482,6 +488,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>deviceTypeCode</b></span>
                         <a href="#deviceTypeCode"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -498,7 +505,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty()<br />@IsEnum(DevicetypeCode, {message: &#x27;DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 &#x27;})<br />
+                            @ApiProperty()<br />@IsEnum(DevicetypeCode, {message: &#x27;DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 &#x27;})<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
@@ -559,6 +566,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>fuelCode</b></span>
                         <a href="#fuelCode"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -575,7 +583,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({default: &#x27;ES100&#x27;})<br />@IsEnum(FuelCode, {message: &#x27;FuelCode must be added Or Valid FuelCode values are ES100&#x27;})<br />
+                            @ApiProperty({default: &#x27;ES100&#x27;})<br />@IsEnum(FuelCode, {message: &#x27;FuelCode must be added Or Valid FuelCode values are ES100&#x27;})<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
@@ -825,6 +833,7 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>latitude</b></span>
                         <a href="#latitude"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -841,7 +850,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty()<br />@IsString()<br />@Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {message: &#x27;Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point &#x27;})<br />
+                            @ApiProperty()<br />@IsString()<br />@IsOptional()<br />@Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {message: &#x27;Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point &#x27;})<br />
                         </code>
                     </td>
                 </tr>
@@ -863,6 +872,7 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>longitude</b></span>
                         <a href="#longitude"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -879,7 +889,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty()<br />@IsString()<br />@Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {message: &#x27;Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point&#x27;})<br />
+                            @ApiProperty()<br />@IsString()<br />@Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {message: &#x27;Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point&#x27;})<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
@@ -1138,7 +1148,7 @@ export class UpdateDeviceDTO
   projectName: string;
 
   @ApiProperty()
-  // @IsOptional()
+  @IsOptional()
   @IsString({
     message:
       &#x27;Address must be added&#x27;,
@@ -1147,7 +1157,7 @@ export class UpdateDeviceDTO
 
   @ApiProperty()
   @IsString()
-  // @IsOptional()
+  @IsOptional()
   @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
     message:
       &#x27;Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point &#x27;,
@@ -1160,7 +1170,7 @@ export class UpdateDeviceDTO
     message:
       &#x27;Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point&#x27;,
   })
-  // @IsOptional()
+ @IsOptional()
   longitude: string;
 
   @ApiProperty()
@@ -1177,7 +1187,7 @@ export class UpdateDeviceDTO
     message:
       &#x27;FuelCode must be added Or Valid FuelCode values are ES100&#x27;,
   })
-  // @IsOptional()
+  @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
@@ -1185,7 +1195,7 @@ export class UpdateDeviceDTO
     message:
       &#x27;DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 &#x27;,
   })
-  // @IsOptional()
+   @IsOptional()
   deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()

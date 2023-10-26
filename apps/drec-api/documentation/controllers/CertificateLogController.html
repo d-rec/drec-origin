@@ -216,8 +216,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -267,8 +267,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:86</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -353,8 +353,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="225"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:225</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="255"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:255</a></div>
                         </td>
                     </tr>
 
@@ -493,8 +493,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="250"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:250</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="283"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:283</a></div>
                         </td>
                     </tr>
 
@@ -598,8 +598,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="144"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:144</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:169</a></div>
                         </td>
                     </tr>
 
@@ -690,8 +690,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -771,14 +771,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:105</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:125</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list issuer certificates of groupId</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -824,7 +826,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>returns issuer certicates of groupId</p>
+
                             </div>
                 </td>
             </tr>
@@ -864,14 +867,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="208"
+                                    class="link-to-prism">src/pods/certificate-log/certificate-log.controller.ts:208</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -953,6 +958,10 @@ import { PermissionGuard } from &#x27;../../guards/PermissionGuard&#x27;;
 import { Permission } from &#x27;../permission/decorators/permission.decorator&#x27;;
 import { ACLModules } from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;;
 import { deviceFilterDTO } from &#x27;./dto/deviceFilter.dto&#x27;;
+
+/*
+* It is Controller of ACL Module with the endpoints of ACL module operations.
+*/
 @ApiTags(&#x27;certificate-log&#x27;)
 @ApiBearerAuth(&#x27;access-token&#x27;)
 @ApiSecurity(&#x27;drec&#x27;)
@@ -963,6 +972,11 @@ export class CertificateLogController {
         private readonly certificateLogService: CertificateLogService,
         private readonly devicegroupService: DeviceGroupService,
     ) { }
+
+    /*
+    * It is GET api to list all certificate issues date log of devices.
+    * @return { Array&lt;CheckCertificateIssueDateLogForDeviceEntity&gt; } returns all issue logs of device
+    */
     @Get()
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -973,6 +987,9 @@ export class CertificateLogController {
         return this.certificateLogService.find();
     }
 
+    /*
+    * Need to ask Namrata
+    */
     @Get(&#x27;/claim-amount-in-ethers-json&#x27;)
     @UseGuards(PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -992,8 +1009,10 @@ export class CertificateLogController {
         return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(amountFormatData.amount)
     }
 
-
-
+    /*
+    * It is GET api to list the  cerficate log of devices filtered by groupId
+    * @return { Array&lt;CheckCertificateIssueDateLogForDeviceEntity&gt; } returns the logs of certicates
+    */
     @Get(&#x27;/by-reservation-groupId&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -1013,6 +1032,12 @@ export class CertificateLogController {
         }
         return this.certificateLogService.findByGroupId(filterDto.groupId);
     }
+
+    /**
+    * It is GET api to list issuer certificates of groupId
+    * @return { Array&lt;CertificateNewWithPerDeviceLog&gt; } returns issuer certicates of groupId
+    * @param { groupUid } is an uniqueId in the certificate log from reservation
+    */
     @Get(&#x27;/issuer/certified/:groupUid&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -1052,6 +1077,11 @@ export class CertificateLogController {
         return await this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
+    /*
+    * It is GET api to list issuer certificates of groupId
+    * @return { Array&lt;CertificateNewWithPerDeviceLog&gt; } returns issuer certicates of groupId
+    * @param { groupid } Need to ask Namrata
+    */
     @Get(&#x27;/issuer/certified/new/:groupUid&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -1084,6 +1114,9 @@ export class CertificateLogController {
         return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
     }
 
+    /**
+    * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
+    */
     @Get(&#x27;/redemption-report&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -1106,7 +1139,9 @@ export class CertificateLogController {
     // }
 
 
-    /* */
+    /*
+    * It is GET api to list all the readings of organization witn pagination and filered by device
+    */
     @Get(&#x27;/certificateReadModule&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
     @Permission(&#x27;Read&#x27;)
@@ -1156,7 +1191,10 @@ export class CertificateLogController {
         );
     }
 
-
+    /*
+    * It is GET api to fetch certificate log of reserved device.
+    * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
+    */ 
     /* for developre*/
     @Get(&#x27;/issuer/certifiedlogOfdevices&#x27;)
     @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)

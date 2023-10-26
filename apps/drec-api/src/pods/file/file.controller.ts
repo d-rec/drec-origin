@@ -48,20 +48,23 @@ supportedFiles.push('text/csv');
 supportedFiles.push('image/jpeg');
 supportedFiles.push('image/png');
 
-
+/**
+ * It is controller for file operations
+ */
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) { }
-/**
- * This api rout use for upload file 
- * @param user 
- * @param param1 
- * @param uploadedFiles 
- * @returns 
- */
+
+  /**
+   * It is POST api to upload multiple files into aws s3 bucket
+   * @param user from request
+   * @param param1 is getting organization id from request
+   * @param uploadedFiles array of files to be uploaded 
+   * @returns {}
+   */
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileUploadDto })
@@ -123,12 +126,11 @@ export class FileController {
   }
 
   /**
-   * This api route use for get file info by user id
-   * @param user 
-   * @param id 
-   * @param res 
-   * @return {FileDto}
-      */
+   * It is GET api to view or download an file from AWS S3 bucket
+   * @param user from request
+   * @param id is unique identifier of file entity
+   * @param res is Response type 
+   */
   @Get(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')

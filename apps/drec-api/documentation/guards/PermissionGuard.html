@@ -109,12 +109,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(reflector: Reflector, userPermission: <a href="../injectables/PermissionService.html" target="_self">PermissionService</a>)</code>
+<code>constructor(reflector: Reflector, userPermission: <a href="../injectables/PermissionService.html" target="_self">PermissionService</a>, userService: <a href="../injectables/UserService.html" target="_self">UserService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/guards/PermissionGuard.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/guards/PermissionGuard.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -148,6 +148,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/PermissionService.html" target="_self" >PermissionService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>userService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/UserService.html" target="_self" >UserService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -191,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/guards/PermissionGuard.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/guards/PermissionGuard.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -256,13 +268,18 @@ import { Reflector } from &#x27;@nestjs/core&#x27;;
 // import { AccessControl } from &#x27;role-acl&#x27;;
 
 import { PermissionService } from &#x27;../pods/permission/permission.service&#x27;;
+import { OauthClientCredentials } from &#x27;src/pods/user/oauth_client_credentials.entity&#x27;;
+import { UserService } from &#x27;src/pods/user/user.service&#x27;;
+import { Role } from &#x27;src/utils/enums&#x27;;
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @Inject(PermissionService)
     private readonly userPermission: PermissionService,
-  ) { }
+    @Inject(UserService)
+    private readonly userService : UserService
+  ) {}
   //constructor(@Inject(KeyService) private keyService: KeyService) {}
 
   async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
@@ -278,7 +295,27 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request &#x3D; context.switchToHttp().getRequest();
-    const user &#x3D; request.user as IUser;
+    let user : IUser;
+      const client &#x3D; request.user as OauthClientCredentials;
+    if(request.url.split(&#x27;/&#x27;)[3] &#x3D;&#x3D;&#x3D;  &#x27;register&#x27;) {
+      console.log(request.url.split(&#x27;/&#x27;)[3]);
+      if(request.body.organizationType &#x3D;&#x3D;&#x3D; Role.ApiUser) {
+        return true;
+      }
+      if(request.user.client_id !&#x3D; process.env.client_id) {
+        console.log(&#x27;client at request&#x27;,client.api_user_id,request.user.api_user_id); 
+        user &#x3D; await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
+        console.log(user);
+      } 
+      if(request.user.client_id &#x3D;&#x3D;&#x3D; process.env.client_id) {
+        console.log(&quot;With in if when id is same as from env&quot;)
+        user &#x3D; await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
+      }
+    }
+    else {
+      user &#x3D; request.user;
+    }
+    console.log(&quot;User at Permission Guard:&quot;,user);
     if (user.role &#x3D;&#x3D;&#x3D; &#x27;Admin&#x27;) {
       return true;
     }

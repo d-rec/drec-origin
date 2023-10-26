@@ -263,8 +263,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="208"
-                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:208</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:218</a></div>
                         </td>
                     </tr>
 
@@ -345,8 +345,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="199"
-                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:199</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:209</a></div>
                         </td>
                     </tr>
 
@@ -545,8 +545,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="229"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:229</a></div>
                         </td>
                     </tr>
 
@@ -627,8 +627,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -816,10 +816,18 @@ export class InvitationService {
     const invitee &#x3D; await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee &amp;&amp; invitee.organization) {
-      throw new ConflictException({
-        success: false,
-        message: &#x60;User ${lowerCaseEmail} is already part of the organization&#x60;,
-      });
+      if(invitee.organization.id&#x3D;&#x3D;&#x3D;inviteorg){
+        throw new ConflictException({
+          success: false,
+          message: &#x60;User ${lowerCaseEmail} is already part of this organization&#x60;,
+        });
+      }else{
+        throw new ConflictException({
+          success: false,
+          message: &#x60;User ${lowerCaseEmail} is already part of the other organization&#x60;,
+        });
+      }
+     
 
     }
 
@@ -852,9 +860,9 @@ export class InvitationService {
       email: email.toLowerCase(),
       password: randPassword,
       orgName: organization.name,
-      organizationType: &#x27;&#x27;,
+      organizationType: organization.organizationType,
       //@ts-ignore
-      orgid?:organization.id
+      orgid?: organization.id
       // orgAddress:&#x27;&#x27;
 
     }
@@ -865,6 +873,8 @@ export class InvitationService {
     //   userid &#x3D; invitee
 
     // } else {
+    //let client;
+    inviteuser[&#x27;client&#x27;] &#x3D; { api_user_id: organization.api_user_id }
     userid &#x3D; await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     //}
