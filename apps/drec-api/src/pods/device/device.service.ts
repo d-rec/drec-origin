@@ -466,7 +466,9 @@ export class DeviceService {
         organizationId: organizationId
       }
     });
-    delete device["organization"];
+    
+   // delete device["organization"];
+    console.log(device)
     if (!device) {
       return null;
     }
@@ -576,7 +578,8 @@ export class DeviceService {
           },
         }
         : undefined;
-    //console.log(rule);
+    console.log(rule);
+    console.log(organizationId);
     let currentDevice = await this.findDeviceByDeveloperExternalId(externalId.trim(), organizationId);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${externalId}`);
