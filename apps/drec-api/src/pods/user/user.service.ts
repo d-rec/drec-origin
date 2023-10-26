@@ -93,12 +93,15 @@ export class UserService {
   public async newcreate(data: CreateUserORGDTO,
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    let api_user: any;
+    //@ts-ignore
+    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.client.api_user_id);
+    console.log("ApiUserId at UserService:",api_user);
+    /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
       api_user = await this.oauthClientCredentialsService.createAPIUser();
       console.log("api_user", api_user);
-    }
+    } */
     var org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -110,13 +113,16 @@ export class UserService {
 
       }
 
+      orgdata['api_user_id'] = data['client'].api_user_id;
+
+    /*
       if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
         orgdata['api_user_id'] = api_user.api_user_id;
       }
       else if (data['client']) {
         orgdata['api_user_id'] = data['client'].api_user_id;
       }
-
+    */
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -174,6 +180,7 @@ export class UserService {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
     // } else {
     // }
+    /*
     if (api_user) {
       let clienCredentialsData = await this.oauthClientCredentialsService.generateClientCredentials();
       await this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
@@ -183,9 +190,17 @@ export class UserService {
       await this.emailConfirmationService.create(user);
       return newUser;
     }
+    */
+    if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
+      //@ts-ignore
+      user['client_id'] = data.client.client_id;
+      //@ts-ignore
+      user['client_secret'] = data.client.client_secret;
+    }   
 
     await this.emailConfirmationService.create(user);
-    return new User(user);
+    //return new User(user);
+    return user;
   }
 
   public async adminnewcreate(data: CreateUserORGDTO,
@@ -342,6 +357,8 @@ export class UserService {
 
       user.emailConfirmed = emailConfirmation?.confirmed || false;
     }
+
+    console.log("user at finOne :",user);
 
     return user ?? null;
   }

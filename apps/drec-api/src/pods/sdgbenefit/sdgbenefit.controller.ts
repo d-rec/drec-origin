@@ -28,24 +28,42 @@ import {
 export class SdgbenefitController {
     constructor(private readonly SdgbenefitService: SdgbenefitService) {}
 
-   
+/**
+ * this Api rout use for add sdg Benifites name and code
+ * @param createsdgbenefitDto 
+ * @returns 
+ */
   @Post()
  create(@Body() createsdgbenefitDto: SdgBenefitDTO) {
    return this.SdgbenefitService.create(createsdgbenefitDto);
  }
 
+ /**
+  * 
+  * @returns 
+  */
  @Get()
+ @ApiResponse({
+  status: HttpStatus.OK,
+  type: [SDGBCodeNameDTO],
+  description: 'Returns all SDGBenefites',
+})
  findAll() {
    return this.SdgbenefitService.findAll();
  }
+
+/**
+ * this api rout use for get all sdg benefit from class not any tbale
+ * @returns {SDGBCodeNameDTO}
+ */
  @Get('/code')
  @ApiResponse({
    status: HttpStatus.OK,
    type: [SDGBCodeNameDTO],
-   description: 'Returns all IREC fuel types',
+   description: 'Returns all SDGBenefites',
  })
  getFuelTypes(): SDGBCodeNameDTO[] {
    const sdgbcode = this.SdgbenefitService.getSDGBCode();
-   return sdgbcode.map((fuelType) => plainToClass(SDGBCodeNameDTO, fuelType));
+   return sdgbcode.map((sdgb) => plainToClass(SDGBCodeNameDTO, sdgb));
  }
 }

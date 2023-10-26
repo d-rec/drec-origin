@@ -1,6 +1,6 @@
 import { Strategy as PassportStrategy } from 'passport-strategy';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-
+import { Role } from '../utils/enums/role.enum';
 
 export class ClientPasswordStrategy extends PassportStrategy {
   // name:string='';
@@ -23,11 +23,17 @@ export class ClientPasswordStrategy extends PassportStrategy {
   }
 
   authenticate(req: any) {
-    if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
-     // throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"});
-       //@ts-ignore
-      return this.fail();
-      
+
+    if(req.url.split('/')[3] != 'register' && req.url.split('/')[3] != 'forget-password') {
+      if((req.headers['client_id'] || req.headers['client_secret']) && req.user.role != Role.ApiUser) {
+        throw new UnauthorizedException();
+      }
+
+      if ((!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) && req.user.role === Role.ApiUser) {
+        throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"});
+         //@ts-ignore
+        //return this.fail();
+      }
     }
 
     const clientId = req.headers['client_id'];
@@ -54,7 +60,7 @@ export class ClientPasswordStrategy extends PassportStrategy {
       this._verify(req, clientId, clientSecret, verified);
     } else {
        //@ts-ignore
-      this._verify(clientId, clientSecret, verified);
+      this._verify(req, clientId, clientSecret, verified);
     }
   }
 }

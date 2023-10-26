@@ -37,7 +37,10 @@ export class DrecIssuerController {
   constructor(private readonly issuerService: IssuerService) {
 
   }
-
+/**
+ * 
+ * @returns 
+ */
   @Get('/ongoing')
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -66,7 +69,10 @@ export class DrecIssuerController {
       console.error("caught exception in cron ongoing", e);
     }
   }
-
+/**
+ * 
+ * @returns 
+ */
   @Get('/history')
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -86,7 +92,11 @@ export class DrecIssuerController {
     })
 
   }
-
+/**
+ * 
+ * @param certificateData 
+ * @returns 
+ */
   @Post()
   @UseGuards(PermissionGuard)
   @Permission('Write')
@@ -119,7 +129,10 @@ export class DrecIssuerController {
     }
   }
 
-
+/**
+ * 
+ * @returns 
+ */
 
   @Get('/lateongoing')
   @UseGuards(PermissionGuard)

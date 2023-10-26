@@ -87,6 +87,10 @@ export class DeviceGroupController {
   });
   constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService, private organizationService: OrganizationService) { }
 
+  /**
+   * It is GET api to list all device group data
+   * @returns {Array<DeviceGroupDTO>}
+   */
   @Get()
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -104,7 +108,13 @@ export class DeviceGroupController {
   }
 
 
-
+  /**
+   * It is GET api to list all device groups of loggedIn user
+   * @param param0 is getting userId, organizationId and user role from user at request
+   * @param filterDto is filteration fields to retrieve records
+   * @param pagenumber is for pagination
+   * @returns {Array<DeviceGroupDTO>}
+   */
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
@@ -139,7 +149,11 @@ export class DeviceGroupController {
     }
   }
   
-
+    /**
+   * It is GET api to fetch device group by id
+   * @param id is unique identifier of device groupId
+   * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
+   */
   @Get('/:id')
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -153,6 +167,13 @@ export class DeviceGroupController {
     return this.deviceGroupService.findById(id);
   }
 
+/**
+   * It is POSTb api to create an device group
+   * @param param0 is getting organization Id from user request
+   * @param user is getting uset from user request
+   * @param deviceGroupToRegister body payload to create device group
+   * @returns {ResponseDeviceGroupDTO | null}
+   */
   @Post()
   @UseGuards(AuthGuard('jwt'),PermissionGuard)//, RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
@@ -306,7 +327,13 @@ export class DeviceGroupController {
 
   }
 
-
+   /**
+   * It is POST api to create device group
+   * @param user from user request
+   * @param param1 is getting organizationId from loggedIn user
+   * @param fileToProcess uploaded csv file
+   * @returns {DeviceCsvFileProcessingJobsEntity}
+   */
   @Post('process-creation-bulk-devices-csv')
   //@UseGuards(AuthGuard('jwt'))
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -363,7 +390,13 @@ export class DeviceGroupController {
 
 
 
-
+   /**
+   * It is PATCH api to update device group by id
+   * @param id  is identifier of device group in type number 
+   * @param loggedUser user from request
+   * @param groupToUpdate body payload to update an device group
+   * @returns 
+   */
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   // @Roles(Role.DeviceOwner, Role.Admin)
@@ -410,6 +443,12 @@ export class DeviceGroupController {
     );
   }
 
+  /**
+   * It is DELETE api to delete an device group by id.
+   * @param id is unique identifier of device group in type number
+   * @param param1 is getting organizationId from loggedIn user
+   * @returns {void}
+   */
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.DeviceOwner, Role.Admin)
@@ -427,6 +466,12 @@ export class DeviceGroupController {
     return await this.deviceGroupService.remove(id, organizationId);
   }
 
+  /**
+   * It is GET api to list the status of jobs
+   * @param jobId is unique identifier of jobId
+   * @param param1 organizationId from loggedIn User
+   * @returns {JobFailedRowsDTO | undefined}
+   */
   @Get('/bulk-upload-status/:id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
@@ -451,6 +496,12 @@ export class DeviceGroupController {
     );
   }
 
+  /**
+   * It is GET api to list all jobs by organization
+   * @param user is user from request
+   * @param param1 is getting organization Id from user request
+   * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
+   */
   @Get('/bulk-upload/get-all-csv-jobs-of-organization')
   //@UseGuards(AuthGuard('jwt'))
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
@@ -475,6 +526,11 @@ export class DeviceGroupController {
     return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }
 
+  /**
+   * It is GET api to fetch an certificate log of an device
+   * @param id is unique identifier of device group
+   * @returns {CheckCertificateIssueDateLogForDeviceGroupEntity}
+   */
   @Get('certificatelog/:id')
   @UseGuards(PermissionGuard)
   @Permission('Read')
@@ -501,6 +557,14 @@ export class DeviceGroupController {
   //  ): Promise<JobFailedRowsDTO | undefined> {
 
   //  }
+  
+  /**
+  * It is DELETE api to delete an device reservation
+  * @param id is unique identifier of an device group
+  * @param endresavationdate is date of end reservation
+  * @param param2 is getting organization Id of loggedIn user
+  * @returns {void}
+  */
   @Delete('endreservation/:id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Delete')

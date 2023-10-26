@@ -17,31 +17,84 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     super();
   }
 
-  async validate(clientId: string, clientSecret: string) {
-    // const clientId = request.headers['client-id'];
+  async validate(request : any, clientId: string, clientSecret: string) {
+    let client : any;
+    //const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
     // If client ID and client secret are present in the request, validate them
     console.log("cleint strategy came here", clientId, clientSecret);
+
+    if(request.url.split('/')[3] === 'forget-password') {
+      const user = await this.userService.findByEmail(request.body.email);
+      request.user = user;
+
+      if((!clientId || !clientSecret) && user.role === Role.ApiUser) {
+        throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
+      }
+    }
+
     if (clientId && clientSecret) {
       // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
-
       //this.oAuthClientCredentialService.store(clientData.client_id,clientData.client_secret,1);
-      let client = await this.validateClient(clientId, clientSecret);
-      const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
-      console.log("clientuser", user);
+      client = await this.validateClient(clientId, clientSecret);
+      if(request.url.split('/')[3] != 'register') {
+        const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
+        console.log("clientuser", user);
 
+        if (!user) {
+          console.log("when user not available in client strategy")
+          throw new UnauthorizedException();
+        }
 
-      if (user) {
-        return user;
+        if(request.user.role != Role.ApiUser) {
+          throw new UnauthorizedException();
+        }  
       }
-      return null;
 
+      if(((request.body.organizationType === Role.ApiUser) || (clientId === process.env.client_id))  &&  request.url.split('/')[3] === 'register') {
+        throw new UnauthorizedException();
+      }
+      
+      return request.user ?? client;
     }
-    const user = await this.validateClient(clientId, clientSecret);
-    if (!user) {
+    
+    console.log("When the direct drec User")
+    if(request.url.split('/')[3] === 'register') {
+      if(request.body.organizationType === Role.ApiUser) {
+        const clienCredentialsData = await this.oAuthClientCredentialService.generateClientCredentials();
+        const api_user = await this.oAuthClientCredentialService.createAPIUser();
+        client = await this.oAuthClientCredentialService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret,api_user.api_user_id);
+        return {
+           client_id : clienCredentialsData.client_id,
+          client_secret : clienCredentialsData.client_secret,
+          api_user_id : api_user.api_user_id
+        };
+      }
+
+      if(((!clientId && clientSecret) || (clientId && !clientSecret)) && request.body.organizationType != Role.ApiUser) {
+        throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
+      }
+    }
+
+    client = await this.validateClient(process.env.client_id, process.env.client_secret);
+
+    if (!client) {
       throw new UnauthorizedException();
     }
-    return user;
+
+      if(request.url.split('/')[3] != 'register') {
+        if(request.user.api_user_id != client.api_user_id) {
+          throw new UnauthorizedException();
+        }
+        if(client.client_id !=process.env.client_id  && request.user.role != Role.ApiUser) {
+          throw new UnauthorizedException();
+        }
+        if((clientId || clientSecret) && request.user.role != Role.ApiUser) {
+          throw new UnauthorizedException();
+        }
+      }
+
+    return request.user ?? client;
   }
   async validateClient(clientId: string, clientSecret: string): Promise<any> {
     // Implement your client ID and client secret validation logic here

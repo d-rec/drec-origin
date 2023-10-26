@@ -25,6 +25,10 @@ import {
   import { plainToClass } from 'class-transformer';
 import {CountrycodeService}from './countrycode.service';
 import {CountryCodeNameDTO ,FilterKeyDTO} from './dto'
+
+/*
+* It is Controller of CountrCode with the endpoints of countrycode operations.
+*/
 @ApiTags('CountryList')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -34,6 +38,10 @@ export class CountrycodeController {
 private readonly countrycodeService:CountrycodeService
     ){}
 
+    /*
+    * It is GET api to get list of all country codes with filteration by pattern(string)
+    * @return { Array<CountryCodeNameDTO>} returns array of countrycode 
+    */
     @Get('/list')
   @ApiResponse({
     status: HttpStatus.OK,

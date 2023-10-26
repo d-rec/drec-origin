@@ -267,7 +267,7 @@ export class PermissionService {
         console.log(data.status)
         const verify_apiuser = await this.userService.apiuser_permission_accepted_byadmin(api_user_id, data.status)
         const pre = verify_apiuser.permissionIds;
-        //console.log(pre);
+        console.log(pre);
         await Promise.all(
             pre.map(
                 async (pre: number) =>

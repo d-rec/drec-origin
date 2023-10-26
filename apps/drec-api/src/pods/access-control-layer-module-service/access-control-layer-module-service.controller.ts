@@ -32,6 +32,10 @@ import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
+
+/*
+* It is Controller of ACL Module with the endpoints of ACL module operations.
+*/
 @ApiTags('aclmoduleservices')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -39,6 +43,12 @@ import { RolesGuard } from '../../guards/RolesGuard';
 export class AccessControlLayerModuleServiceController {
     constructor(private readonly ModulesService: AccessControlLayerModuleServiceService) { }
 
+    /*
+    * This is Get Api to list all the Acl modules.
+    * @return {Array<ACLModuleDto> | null}. 
+    * It returns array of ACLModuleDto when there is the list of all ACLModules 
+    * in response of query and returns null when there is no list of ACLModules or empty.
+    * */
     @Get()
     @UseGuards(AuthGuard('jwt'), RolesGuard)
 
@@ -52,6 +62,10 @@ export class AccessControlLayerModuleServiceController {
         return this.ModulesService.getAll();
     }
 
+    /*
+    * It is POST api to create an ACL Module.
+    * @return {ACLModuleDto} when create api is successfull.
+    */
     @Post()
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.Admin)
@@ -66,7 +80,11 @@ export class AccessControlLayerModuleServiceController {
         return this.ModulesService.create(moduleData);
     }
 
-
+    /*
+    * This is PUT api to update a module permissions or status
+    * @return {ACLModuleDto} when the update is successfull.
+    * @param {id} is the type of number and identifier of ACl Modules. 
+    */
     @Put('/update/:id')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @ApiBody({ type: UpdateACLModuleDTO })

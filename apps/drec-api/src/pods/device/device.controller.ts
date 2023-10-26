@@ -63,6 +63,9 @@ import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
+/**
+* It is Controller of device with the endpoints of device operations.
+*/
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -74,6 +77,9 @@ export class DeviceController {
     private countrycodeService: CountrycodeService,
   ) { }
 
+  /**
+  * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto
+  */
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
@@ -90,6 +96,10 @@ export class DeviceController {
     return this.deviceService.find(filterDto, pagenumber,OrgId);
   }
 
+  /**
+  * It is GET api to list all devices for reservation
+  * @return {Array<DeviceDTO>} return array of devices for reservation 
+  */
   @Get('/ungrouped/buyerreservation')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -104,6 +114,11 @@ export class DeviceController {
 
     return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
   }
+
+  /**
+  * It is GET api to list all ungrouped devices with filteration
+  * @return {GroupedDevicesDTO} returns ungrouped devices
+  */
   @Get('/ungrouped')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
@@ -120,6 +135,10 @@ export class DeviceController {
     return this.deviceService.findUngrouped(organizationId, orderFilterDto);
   }
 
+  /**
+  * It is GET to list all device code types in dropdown
+  * @returns {Array<CodeNameDTO>}
+  */
   @Get('/device-type')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -134,6 +153,10 @@ export class DeviceController {
     );
   }
 
+  /**
+   * It is GET api to list all fuel types in dropdown
+   * @returns {Array<CodeNameDTO>}
+   */
   @Get('/fuel-type')
   @ApiResponse({
     status: HttpStatus.OK,
@@ -145,6 +168,10 @@ export class DeviceController {
     return fuelTypes.map((fuelType) => plainToClass(CodeNameDTO, fuelType));
   }
 
+  /**
+   * It is GET api to list all my devices with filteration and pagination
+   * @returns {Array<DeviceDTO>}
+   */
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -193,6 +220,11 @@ export class DeviceController {
     return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
   }
 
+  /**
+   * It is GET api to fetch an device by the deviceId in param
+   * @param id is deviceId in type number
+   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   */
   @Get('/:id')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -210,6 +242,12 @@ export class DeviceController {
     return devicedata
   }
 
+  /**
+   * It is GET api to fetch an device by externalId in param
+   * @param id  is externalId in device 
+   * @param param1 
+   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   */
   @Get('externalId/:id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -229,6 +267,12 @@ export class DeviceController {
     return devicedata;
   }
 
+  /**
+   * It is POST api to create an device
+   * @param param0 It is organizationId from user at request
+   * @param deviceToRegister It is body payload to create device
+   * @returns {DeviceDTO}
+   */
   @Post()
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
@@ -338,7 +382,13 @@ export class DeviceController {
 
   }
 
-
+  /**
+   * It is PATCH api to update an device by externalId
+   * @param user is loggedin user from user at request
+   * @param externalId is unique external id in device entity
+   * @param deviceToUpdate is body payload to update an device
+   * @returns {DeviceDTO}
+   */
   @Patch('/:externalId')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
@@ -480,7 +530,12 @@ export class DeviceController {
     );
   }
 
-
+  /**
+   * It is DELETE api to delete an device by id
+   * @param id is deviceId
+   * @param param1 is getting organizationId and user role from user request
+   * @returns {any}
+   */
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Permission('Delete')
@@ -515,7 +570,11 @@ export class DeviceController {
 
   }
 
-
+  /**
+   * It is GET api to list all total amount of reads by each devices grouped by organization
+   * @param param0 is getting organizationId from user request.
+   * @returns {Array<DeviceDTO>}
+   */
   @Get('/my/totalamountread')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -533,9 +592,13 @@ export class DeviceController {
   }
 
 
-  /**/
-
-
+  /**
+   * It is PUT api tp update the device onboarding date by deviceId
+   * @param param0 is getting organizationId from user request
+   * @param deviceId is deviceId from device unique identifier
+   * @param givenDate is new onboarding date to be updated.
+   * @returns {}
+   */
   @Put('/my/deviceOnBoardingDate')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
@@ -591,7 +654,12 @@ export class DeviceController {
   //     return await this.deviceService.atto(organizationId);
   //   }
 
-
+ /**
+  * It is GET api to list all devices with auto complete
+  * @param param0 is getting organizationId from user request
+  * @param externalId is unique identoifier of an device
+  * @returns {}
+  */
   @Get('/my/autocomplete')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -613,7 +681,13 @@ export class DeviceController {
     return await this.deviceService.atto(organizationId, externalId);
   }
 
-
+  /**
+   * It is GET api to fetch the certified device records with in the range of date
+   * @param user is loggedIn user at request
+   * @param externalId is unique identifier of device
+   * @param groupuId 
+   * @returns {any}
+   */
   @Get('/certifiedlog/first&lastdate')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -676,6 +750,13 @@ export class DeviceController {
   //   return "await this.deviceService.atto(organizationId, externalId)";
   // }
   /////////////////////////////////////////////////
+  /**
+   * It is POST api to create array of devices by uploading csv files with device data 
+   * @param user is loggedIn user from request
+   * @param organizationId is organization unique identifier with number type to map with the respective organization
+   * @param fileToProcess is parsed data of uploaded csv file
+   * @returns {DeviceCsvFileProcessingJobsEntity}
+   */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)
