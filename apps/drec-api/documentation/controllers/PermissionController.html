@@ -1,0 +1,1101 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >PermissionController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/permission/permission.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>permission</code>
+            </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#apiuser_moduleapprove" >apiuser_moduleapprove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#apiuser_modulerequest" >apiuser_modulerequest</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAll" >getAll</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#register" >register</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#rolepermission" >rolepermission</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateyield" >updateyield</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#user" >user</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="apiuser_moduleapprove"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>apiuser_moduleapprove</b></span>
+                        <a href="#apiuser_moduleapprove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>apiuser_moduleapprove(api_user_id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, moduleData: <a href="../classes/ApiUserPermissionUpdateDTO.html" target="_self">ApiUserPermissionUpdateDTO</a>, loggedUser: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Put(&#x27;/module/verify/ByAdmin/:apiuserId&#x27;)<br />@UseGuards(undefined, RolesGuard)<br />@Roles(Role.Admin)<br />@ApiBody({type: ApiUserPermissionUpdateDTO})<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Request for api user&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="187"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:187</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for aprrove the apiuser permission request by admin</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>api_user_id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:string</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>moduleData</td>
+                                            <td>
+                                                            <code><a href="../classes/ApiUserPermissionUpdateDTO.html" target="_self" >ApiUserPermissionUpdateDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>loggedUser</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>:string,message:string}</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="apiuser_modulerequest"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>apiuser_modulerequest</b></span>
+                        <a href="#apiuser_modulerequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>apiuser_modulerequest(moduleData: <a href="../entitys/User.html" target="_self">[NewApiUserPermissionDTO]</a>, loggedUser: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/module/apiuser/request&#x27;)<br />@UseGuards(undefined, RolesGuard)<br />@Roles(Role.ApiUser)<br />@ApiBody({type: undefined})<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Request of permission from ApiUser&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:162</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for make a request of permission to use api with module select by apiuser</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>moduleData</td>
+                                            <td>
+                                                            <code><a href="../entitys/User.html" target="_self" >[NewApiUserPermissionDTO]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>loggedUser</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAll"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAll</b></span>
+                        <a href="#getAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAll()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)<br />@ApiOkResponse({type: undefined, description: &#x27;Returns all Permission&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:60</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api use for get the all list of User and Role base permission</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/ACLModulePermissions.html" target="_self" >Promise&lt;ACLModulePermissions[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="register"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>register</b></span>
+                        <a href="#register"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>register(moduleData: <a href="../classes/NewPermissionDTO.html" target="_self">NewPermissionDTO</a>, loggedUser: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/module&#x27;)<br />@UseGuards(undefined, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin, Role.OrganizationAdmin)<br />@ApiBody({type: NewPermissionDTO})<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Permission added sucessfull&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="118"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:118</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use to add permission for all role by admin</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>moduleData</td>
+                                            <td>
+                                                            <code><a href="../classes/NewPermissionDTO.html" target="_self" >NewPermissionDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>loggedUser</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>&quot;login details&quot;</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/PermissionDTO.html" target="_self" >Promise&lt;PermissionDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="rolepermission"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>rolepermission</b></span>
+                        <a href="#rolepermission"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>rolepermission(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/role/:id&#x27;)<br />@UseGuards(undefined, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin, Role.OrganizationAdmin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Get list of user role permission&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="79"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:79</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for get list permission of user role</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:number &quot;id means role id&quot;</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/PermissionDTO.html" target="_self" >Promise&lt;PermissionDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateyield"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>updateyield</b></span>
+                        <a href="#updateyield"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateyield(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, body: <a href="../classes/UpdatePermissionDTO.html" target="_self">UpdatePermissionDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Put(&#x27;/update/:id&#x27;)<br />@ApiBody({type: UpdatePermissionDTO})<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Updates a permission (Read,Write,Delete,Update) or status by admin&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:139</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for update the permission of user and role</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdatePermissionDTO.html" target="_self" >UpdatePermissionDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/PermissionDTO.html" target="_self" >Promise&lt;PermissionDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="user"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>user</b></span>
+                        <a href="#user"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>user(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/user/:id&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: PermissionDTO, description: &#x27;Get list of user permission&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="98"
+                                    class="link-to-prism">src/pods/permission/permission.controller.ts:98</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api rout use for get permission of Role not related what the role of user</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:number &quot;id means user id&quot;</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;[] | null&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">
+import { NullOrUndefinedResultInterceptor } from &#x27;@energyweb/origin-backend-utils&#x27;;
+import {
+    ClassSerializerInterceptor,
+    BadRequestException,
+    Controller,
+    Get,
+    Post,
+    Body,
+    Put,
+    Param,
+    ParseIntPipe,
+    HttpStatus,
+    UseGuards,
+    UseInterceptors,
+} from &#x27;@nestjs/common&#x27;;
+import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
+import {
+    ApiBearerAuth,
+    ApiResponse,
+    ApiBody,
+    ApiTags,
+    ApiUnprocessableEntityResponse,
+    ApiParam,
+    ApiSecurity,
+    ApiOkResponse
+} from &#x27;@nestjs/swagger&#x27;;
+import { UserDecorator } from &#x27;../user/decorators/user.decorator&#x27;;
+import { PermissionService } from &#x27;./permission.service&#x27;
+import { Expose } from &#x27;class-transformer&#x27;;
+import { NewPermissionDTO, PermissionDTO,UpdatePermissionDTO,NewApiUserPermissionDTO,ApiUserPermissionUpdateDTO } from &#x27;../permission/dto/modulepermission.dto&#x27;
+import { ActiveUserGuard } from &#x27;../../guards&#x27;;
+import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
+import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
+import { Role } from &#x27;../../utils/enums&#x27;;
+import { ILoggedInUser } from &#x27;../../models&#x27;;
+import {ACLModulePermissions} from &#x27;./permission.entity&#x27;
+import {Permission} from &#x27;./decorators/permission.decorator&#x27;;
+import {ACLModules} from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;
+import { PermissionGuard } from &#x27;../../guards&#x27;;
+@ApiTags(&#x27;permission&#x27;)
+@ApiBearerAuth(&#x27;access-token&#x27;)
+@ApiSecurity(&#x27;drec&#x27;)
+@Controller(&#x27;permission&#x27;)
+export class PermissionController {
+    constructor(
+        private readonly PermissionService: PermissionService,
+
+    ) { }
+
+    /**
+     * This api use for get the all list of User and Role base permission
+     * @returns {ACLModulePermissions[]}
+     */
+    @Get()
+    @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+    @Permission(&#x27;Read&#x27;)
+    @ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)
+    @ApiOkResponse({ type: [ACLModulePermissions], description: &#x27;Returns all Permission&#x27; })
+    async getAll(): Promise&lt;ACLModulePermissions[]&gt; {
+        return this.PermissionService.getAll();
+      }
+    /**
+     * This api route use for get list permission of user role
+     * @param id :number &quot;id means role id&quot;
+     * @returns {ACLModulePermissions[]}
+     */
+    @Get(&#x27;/role/:id&#x27;)
+    @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard,PermissionGuard)
+    @Roles(Role.Admin,Role.OrganizationAdmin)
+    @Permission(&#x27;Read&#x27;)
+    @ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: PermissionDTO,
+        description: &#x27;Get list of user role permission&#x27;,
+    })
+
+      async rolepermission( @Param(&#x27;id&#x27;, new ParseIntPipe()) id: number): Promise&lt;PermissionDTO[]&gt; {
+        return this.PermissionService.FindbyRole(id);
+    }
+
+    /**
+     * This api rout use for get permission of Role not related what the role of user
+     * @param id :number &quot;id means user id&quot;
+     * @returns {ACLModulePermissions[]}
+     */
+    @Get(&#x27;/user/:id&#x27;)
+    @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+    @Permission(&#x27;Read&#x27;)
+    @ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: PermissionDTO,
+        description: &#x27;Get list of user permission&#x27;,
+    })
+    //user( { id }: PermissionDTO): Promise&lt;PermissionDTO[] | null&gt; {
+    user( @Param(&#x27;id&#x27;, new ParseIntPipe()) id: number): Promise&lt;PermissionDTO[] | null&gt; {
+        return this.PermissionService.FindbyUser(id);
+    }
+/**
+ * This api route use to add permission for all role by admin 
+ * @param moduleData {NewPermissionDTO}
+ * @param loggedUser {ILoggedInUser} &quot;login details&quot;
+ * @returns {PermissionDTO}
+ */
+    @Post(&#x27;/module&#x27;)
+    @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard,PermissionGuard)
+    @Roles(Role.Admin,Role.OrganizationAdmin)
+    @ApiBody({ type: NewPermissionDTO })
+    @Permission(&#x27;Write&#x27;)
+    @ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: PermissionDTO,
+        description: &#x27;Permission added sucessfull&#x27;,
+    })
+    public async register(
+        @Body() moduleData: NewPermissionDTO,
+        @UserDecorator() loggedUser: ILoggedInUser,
+    ): Promise&lt;PermissionDTO&gt; {
+        return this.PermissionService.create(moduleData,loggedUser);
+    }
+   /**
+    * This api route use for update the permission of user and role
+    * @param id 
+    * @param body 
+    * @returns 
+    */
+    @Put(&#x27;/update/:id&#x27;)
+    @ApiBody({ type: UpdatePermissionDTO })
+    @Permission(&#x27;Write&#x27;)
+    @ACLModules(&#x27;PERMISSION_MANAGEMENT_CRUDL&#x27;)
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: PermissionDTO,
+        description: &#x27;Updates a permission (Read,Write,Delete,Update) or status by admin&#x27;,
+    })
+    public async updateyield(
+        @Param(&#x27;id&#x27;, new ParseIntPipe()) id: number,
+        @Body() body: UpdatePermissionDTO,
+       
+    ): Promise&lt;PermissionDTO&gt; {
+
+        return this.PermissionService.update(id, body);
+    }
+/**
+ * This api route use for make a request of permission to use api with module select by apiuser
+ * @param moduleData 
+ * @param loggedUser 
+ * @returns {PermissionDTO}
+ */
+    @Post(&#x27;/module/apiuser/request&#x27;)
+    @UseGuards(AuthGuard(&#x27;oauth2-client-password&#x27;), RolesGuard)
+    @Roles(Role.ApiUser)
+    @ApiBody({ type: [NewApiUserPermissionDTO] })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: PermissionDTO,
+        description: &#x27;Request of permission from ApiUser&#x27;,
+    })
+    public async apiuser_modulerequest(
+      //  @Param(&#x27;apiuserId&#x27;) api_user_id: string,
+        @Body() moduleData: [NewApiUserPermissionDTO],
+        @UserDecorator() loggedUser: ILoggedInUser,
+    ): Promise&lt;{statsu:string,message:string}&gt; {
+        console.log(loggedUser);
+        return this.PermissionService.permisssion_request(moduleData,loggedUser);
+    }
+
+    /**
+     * This api route use for aprrove the apiuser permission request by admin
+     * @param api_user_id:string
+     * @param moduleData {ApiUserPermissionUpdateDTO}
+     * @param loggedUser 
+     * @returns {statsu:string,message:string}
+     */
+    @Put(&#x27;/module/verify/ByAdmin/:apiuserId&#x27;)
+    @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
+    @Roles(Role.Admin)
+    @ApiBody({type: ApiUserPermissionUpdateDTO})
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: PermissionDTO,
+        description: &#x27;Request for api user&#x27;,
+    })
+    public async apiuser_moduleapprove(
+      @Param(&#x27;apiuserId&#x27;) api_user_id: string,
+        @Body() moduleData: ApiUserPermissionUpdateDTO,
+        @UserDecorator() loggedUser: ILoggedInUser,
+    ): Promise&lt;{statsu:string,message:string}&gt; {
+        console.log(loggedUser);
+        return this.PermissionService.permission_veify(api_user_id,moduleData);
+    }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'PermissionController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

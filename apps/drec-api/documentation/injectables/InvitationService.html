@@ -1,0 +1,1081 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >InvitationService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/invitation/invitation.service.ts</code>
+        </p>
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#inviteuseradd" >inviteuseradd</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#ensureIsNotMember" >ensureIsNotMember</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getUsersInvitation" >getUsersInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#invite" >invite</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendInvitation" >sendInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(invitationRepository: <a href="../entitys/Invitation.html" target="_self">Repository&lt;Invitation&gt;</a>, organizationService: <a href="../injectables/OrganizationService.html" target="_self">OrganizationService</a>, userService: <a href="../injectables/UserService.html" target="_self">UserService</a>, mailService: <a href="../injectables/MailService.html" target="_self">MailService</a>, PermissionService: <a href="../injectables/PermissionService.html" target="_self">PermissionService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/pods/invitation/invitation.service.ts:26</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>invitationRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/Invitation.html" target="_self" >Repository&lt;Invitation&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>organizationService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/OrganizationService.html" target="_self" >OrganizationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>userService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/UserService.html" target="_self" >UserService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>mailService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MailService.html" target="_self" >MailService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>PermissionService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/PermissionService.html" target="_self" >PermissionService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ensureIsNotMember"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>ensureIsNotMember</b></span>
+                        <a href="#ensureIsNotMember"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>ensureIsNotMember(email: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, organization: <a href="../entitys/Organization.html" target="_self">Organization</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:218</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>email</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>organization</td>
+                                            <td>
+                                                            <code><a href="../entitys/Organization.html" target="_self" >Organization</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getUsersInvitation"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getUsersInvitation</b></span>
+                        <a href="#getUsersInvitation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getUsersInvitation(email: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:209</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>email</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/Invitation.html" target="_self" >Promise&lt;Invitation[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="invite"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>invite</b></span>
+                        <a href="#invite"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>invite(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, email: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, role: <a href="../undefineds/OrganizationRole.html" target="_self">OrganizationRole</a>, firstName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, lastName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, orgId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>email</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>role</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#OrganizationRole" target="_self" >OrganizationRole</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>firstName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>lastName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>orgId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendInvitation"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>sendInvitation</b></span>
+                        <a href="#sendInvitation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendInvitation(organization: <a href="../classes/OrganizationDTO.html" target="_self">OrganizationDTO</a>, email: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="229"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:229</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organization</td>
+                                            <td>
+                                                            <code><a href="../classes/OrganizationDTO.html" target="_self" >OrganizationDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>email</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>update(user: <a href="../classes/updateInviteStatusDTO.html" target="_self">updateInviteStatusDTO</a>, invitationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/pods/invitation/invitation.service.ts:159</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../classes/updateInviteStatusDTO.html" target="_self" >updateInviteStatusDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>invitationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;ISuccessResponse&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="inviteuseradd"></a>
+                    <span class="name">
+                        <span ><b>inviteuseradd</b></span>
+                        <a href="#inviteuseradd"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" target="_blank" >Boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/pods/invitation/invitation.service.ts:26</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(InvitationService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/pods/invitation/invitation.service.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { BadRequestException, Injectable, Logger, ConflictException, } from &#x27;@nestjs/common&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { Repository } from &#x27;typeorm&#x27;;
+import {
+  ILoggedInUser,
+  ISuccessResponse,
+  OrganizationRole,
+  ResponseSuccess,
+} from &#x27;../../models&#x27;;
+import { UserService } from &#x27;../user/user.service&#x27;;
+import { OrganizationInvitationStatus } from &#x27;../../utils/enums&#x27;;
+import { AlreadyPartOfOrganizationError } from &#x27;./errors&#x27;;
+import { Invitation } from &#x27;./invitation.entity&#x27;;
+import { OrganizationService } from &#x27;../organization/organization.service&#x27;;
+import { Organization } from &#x27;../organization/organization.entity&#x27;;
+import { OrganizationDTO } from &#x27;../organization/dto&#x27;;
+import { MailService } from &#x27;../../mail/mail.service&#x27;;
+import { InviteDTO, updateInviteStatusDTO } from &#x27;./dto/invite.dto&#x27;;
+import { CreateUserORGDTO } from &#x27;../user/dto/create-user.dto&#x27;;
+import { PermissionService } from &#x27;../permission/permission.service&#x27;
+import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from &#x27;../permission/dto/modulepermission.dto&#x27;
+import { UserStatus } from &#x27;@energyweb/origin-backend-core&#x27;;
+@Injectable()
+export class InvitationService {
+  private readonly logger &#x3D; new Logger(InvitationService.name);
+  inviteuseradd: Boolean &#x3D; false;
+  constructor(
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository&lt;Invitation&gt;,
+    private readonly organizationService: OrganizationService,
+    private readonly userService: UserService,
+    private readonly mailService: MailService,
+    private readonly PermissionService: PermissionService,
+  ) { }
+
+  public async invite(
+    user: ILoggedInUser,
+    email: string,
+    role: OrganizationRole,
+    firstName: string,
+    lastName: string,
+    orgId?: number
+    // permission: NewPermissionDTO[],
+  ): Promise&lt;void&gt; {
+    const sender &#x3D; await this.userService.findByEmail(user.email);
+    let inviteorg: number;
+    if (user.role &#x3D;&#x3D;&#x3D; &#x27;Admin&#x27;) {
+      inviteorg &#x3D; orgId;
+    } else {
+      inviteorg &#x3D; user.organizationId;
+    }
+    const organization &#x3D; await this.organizationService.findOne(
+      inviteorg,
+    );
+
+    const lowerCaseEmail &#x3D; email.toLowerCase();
+
+    const invitee &#x3D; await this.userService.findByEmail(lowerCaseEmail);
+
+    if (invitee &amp;&amp; invitee.organization) {
+      if(invitee.organization.id&#x3D;&#x3D;&#x3D;inviteorg){
+        throw new ConflictException({
+          success: false,
+          message: &#x60;User ${lowerCaseEmail} is already part of this organization&#x60;,
+        });
+      }else{
+        throw new ConflictException({
+          success: false,
+          message: &#x60;User ${lowerCaseEmail} is already part of the other organization&#x60;,
+        });
+      }
+     
+
+    }
+
+    const orginvitee &#x3D; await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: inviteorg
+      },
+      relations: [&#x27;organization&#x27;],
+    });
+    //console.log(invitation)
+    if (orginvitee) {
+      throw new BadRequestException(&#x60;Requested invitation User ${lowerCaseEmail} is already exist&#x60;);
+    }
+    this.ensureIsNotMember(lowerCaseEmail, organization);
+    var saveinviteuser: any &#x3D; {};
+    if (!organization.invitations.find((u) &#x3D;&gt; u.email &#x3D;&#x3D;&#x3D; lowerCaseEmail)) {
+      saveinviteuser &#x3D; await this.invitationRepository.save({
+        email: lowerCaseEmail,
+        organization,
+        role,
+        status: OrganizationInvitationStatus.Pending,
+        sender: sender ? &#x60;${sender.firstName} ${sender.lastName}&#x60; : &#x27;&#x27;,
+      });
+    }
+    var randPassword &#x3D; Array(10).fill(&quot;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&quot;).map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join(&#x27;&#x27;);
+    var inviteuser: CreateUserORGDTO &#x3D; {
+      firstName: firstName,
+      lastName: lastName,
+      email: email.toLowerCase(),
+      password: randPassword,
+      orgName: organization.name,
+      organizationType: organization.organizationType,
+      //@ts-ignore
+      orgid?: organization.id
+      // orgAddress:&#x27;&#x27;
+
+    }
+    var userid: any;
+    console.log(&quot;invitee&quot;, invitee)
+    //to add for if one user invite by multiple organization 
+    // if (invitee) {
+    //   userid &#x3D; invitee
+
+    // } else {
+    //let client;
+    inviteuser[&#x27;client&#x27;] &#x3D; { api_user_id: organization.api_user_id }
+    userid &#x3D; await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+
+    //}
+    var updateinviteuser: updateInviteStatusDTO &#x3D; {
+      email: lowerCaseEmail,
+      status: OrganizationInvitationStatus.Accepted
+    }
+
+    //await this.update(updateinviteuser, saveinviteuser.id)
+    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    //to add permission for user role in invitaion
+    // const newpermission: any &#x3D; [];
+    // await permission.forEach((element) &#x3D;&gt; {
+    //   newpermission.push({
+    //     aclmodulesId: element.aclmodulesId,
+    //     entityType: element.entityType,
+    //     entityId: userid.id,
+    //     permissions: element.permissions,
+    //     status: 0
+    //   })
+    // })
+    // var permissionId: any &#x3D; [];
+
+    // await Promise.all(
+    //   newpermission.map(
+    //     async (newpermission: NewPermissionDTO) &#x3D;&gt; {
+    //       //console.log(newpermission)
+    //       const perId &#x3D; await this.PermissionService.create(newpermission, user)
+    //       //console.log(perId);
+    //       permissionId.push(perId.id);
+    //     }),
+    // );
+
+    //console.log(permissionId);
+    // await this.invitationRepository.update(saveinviteuser.id, { permissionId });
+
+    //
+  }
+
+  public async update(
+    user: updateInviteStatusDTO,
+    invitationId: string,
+    // status: OrganizationInvitationStatus,
+  ): Promise&lt;ISuccessResponse&gt; {
+    const lowerCaseEmail &#x3D; user.email.toLowerCase();
+    const userinvite &#x3D; await this.userService.findByEmail(lowerCaseEmail)
+    console.log(userinvite);
+    const invitation &#x3D; await this.invitationRepository.findOne(invitationId, {
+      where: {
+        email: lowerCaseEmail,
+      },
+      relations: [&#x27;organization&#x27;],
+    });
+    //console.log(invitation)
+    if (!invitation) {
+      throw new BadRequestException(&#x27;Requested invitation does not exist&#x27;);
+    }
+
+    if (
+      invitation.status &#x3D;&#x3D;&#x3D; OrganizationInvitationStatus.Accepted ||
+      invitation.status &#x3D;&#x3D;&#x3D; OrganizationInvitationStatus.Rejected
+    ) {
+      throw new BadRequestException(
+        &#x27;Requested invitation has already been accepted or rejected&#x27;,
+      );
+    }
+
+    if (user.status &#x3D;&#x3D;&#x3D; OrganizationInvitationStatus.Accepted) {
+      await this.userService.addToOrganization(
+        userinvite.id,
+        invitation.organization.id,
+      );
+      await this.userService.changeRole(userinvite.id, invitation.role);
+      // const pre &#x3D; invitation.permissionId;
+      // //console.log(pre);
+      // await Promise.all(
+      //   pre.map(
+      //     async (pre: number) &#x3D;&gt;
+      //       await this.PermissionService.updatepermissionstatus(pre)),
+      // );
+    }
+
+    invitation.status &#x3D; user.status;
+
+    await this.invitationRepository.save(invitation);
+
+    return ResponseSuccess();
+  }
+
+  public async getUsersInvitation(email: string): Promise&lt;Invitation[]&gt; {
+    const lowerCaseEmail &#x3D; email.toLowerCase();
+
+    return this.invitationRepository.find({
+      where: { email: lowerCaseEmail },
+      relations: [&#x27;organization&#x27;],
+    });
+  }
+
+  private ensureIsNotMember(email: string, organization: Organization) {
+    const lowerCaseEmail &#x3D; email.toLowerCase();
+
+    if (organization.users.find((u) &#x3D;&gt; u.email &#x3D;&#x3D;&#x3D; lowerCaseEmail)) {
+      throw new BadRequestException({
+        success: false,
+        error: &#x60;Invited user already belongs to this organization.&#x60;,
+      });
+    }
+  }
+
+  private async sendInvitation(
+    organization: OrganizationDTO,
+    email: string,
+
+  ): Promise&lt;void&gt; {
+    const url &#x3D; &#x60;${process.env.UI_BASE_URL}/organization/invitations&#x60;;
+
+    const result &#x3D; await this.mailService.send({
+      to: email,
+      subject: &#x60;[Origin] Organization invitation&#x60;,
+      html: &#x60;Organization &lt;b&gt;${organization.name}&lt;/b&gt; has invited you to join. To accept the invitation, please visit &lt;a href&#x3D;&quot;${url}&quot;&gt;${url}&lt;/a&gt;
+      &#x60;,
+    });
+
+    if (result) {
+      this.logger.log(&#x60;Notification email sent to ${email}.&#x60;);
+    }
+  }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'InvitationService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

@@ -16,9 +16,9 @@ export class ClientPasswordStrategy extends PassportStrategy {
     super();
     //@ts-ignore
     this.name = 'oauth2-client-password';
-     //@ts-ignore
+    //@ts-ignore
     this._verify = verify;
-     //@ts-ignore
+    //@ts-ignore
     this._passReqToCallback = options.passReqToCallback;
   }
 
@@ -28,10 +28,10 @@ export class ClientPasswordStrategy extends PassportStrategy {
       if((req.headers['client_id'] || req.headers['client_secret']) && req.user.role != Role.ApiUser) {
         throw new UnauthorizedException();
       }
-
+      console.log("req.headers", req.headers)
       if ((!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) && req.user.role === Role.ApiUser) {
-        throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"});
-         //@ts-ignore
+        throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
+        //@ts-ignore
         //return this.fail();
       }
     }
@@ -43,23 +43,23 @@ export class ClientPasswordStrategy extends PassportStrategy {
 
     function verified(err: Error | null, client?: any, info?: any) {
       if (err) {
-         //@ts-ignore
+        //@ts-ignore
         return self.error(err);
       }
       if (!client) {
-        throw new UnauthorizedException({statusCode: 401, message:"client is missing"});
-         //@ts-ignore
+        throw new UnauthorizedException({ statusCode: 401, message: "client is missing" });
+        //@ts-ignore
         return self.fail();
       }
-       //@ts-ignore
+      //@ts-ignore
       self.success(client, info);
     }
- //@ts-ignore
+    //@ts-ignore
     if (self._passReqToCallback) {
-       //@ts-ignore
+      //@ts-ignore
       this._verify(req, clientId, clientSecret, verified);
     } else {
-       //@ts-ignore
+      //@ts-ignore
       this._verify(req, clientId, clientSecret, verified);
     }
   }

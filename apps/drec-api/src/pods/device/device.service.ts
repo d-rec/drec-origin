@@ -74,9 +74,9 @@ export class DeviceService {
 
   ) { }
 
-  public async find(filterDto: FilterDTO, pagenumber: number,OrgId?:number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
+  public async find(filterDto: FilterDTO, pagenumber: number, OrgId?: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
     const limit = 20;
-    let query = await this.getFilteredQuery(filterDto,OrgId)
+    let query = await this.getFilteredQuery(filterDto, OrgId)
     if (pagenumber) {
       query = {
         ...query, skip: (pagenumber - 1) * limit,
@@ -111,11 +111,14 @@ export class DeviceService {
   }
 
   public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
-    return this.repository.find({
+
+    const result = this.repository.find({
       where: {
         integrator,
       },
     });
+    delete result["organization"];
+    return result;
   }
 
   async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
@@ -148,6 +151,8 @@ export class DeviceService {
       await devices.map((device: Device) => {
         device.externalId = device.developerExternalId
         delete device["developerExternalId"];
+        delete device["organization"];
+
         newDevices.push(device);
       })
       return {
@@ -169,6 +174,7 @@ export class DeviceService {
     await devices.map((device: Device) => {
       device.externalId = device.developerExternalId
       delete device["developerExternalId"];
+      delete device["organization"];
       newDevices.push(device);
     })
     return newDevices
@@ -176,14 +182,15 @@ export class DeviceService {
 
 
   public getatleastonedeviceinOrg(organizationId: number): Promise<Device[]> {
-    return this.repository.find({
+    const result = this.repository.find({
       where: { organizationId },
       order: {
         id: 'DESC',
       },
       take: 1
     });
-
+    delete result["organization"];
+    return result;
   }
   // Cron pattern for running every 30 seconds
   // @Cron('*/30 * * * * *') 
@@ -359,19 +366,25 @@ export class DeviceService {
     deviceIds: Array<number>,
     organizationId: number,
   ): Promise<Device[]> {
-    return this.repository.find({
+    const result = this.repository.find({
       where: { id: In(deviceIds), organizationId },
     });
+
+    delete result["organization"];
+    return result;
   }
 
   public async findForGroup(groupId: number): Promise<Device[]> {
-    return this.repository.find({
+
+    const result = this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
 
     });
+    delete result["organization"];
+    return result;
   }
   public async NewfindForGroup(groupId: number): Promise<{ [key: string]: Device[] }> {
 
@@ -403,53 +416,64 @@ export class DeviceService {
     }, {});
   };
   public async findByIds(ids: number[]): Promise<Device[]> {
-    return await this.repository.findByIds(ids);
+    const result = await this.repository.findByIds(ids);
+    delete result["organization"];
+    return result;
   }
 
   public async findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(ids: number[]): Promise<Device[]> {
-    //console.log("ids", ids)
-    return await this.repository.find({
+
+    const result = await this.repository.find({
       where: {
         //id: In(ids), groupId: IsNull()
         id: In(ids)
         //, groupId: IsNull()
       }
     });
+    delete result["organization"];
+    return result;
   }
 
   async findOne(
     id: number,
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
-    const device : Device = await this.repository.findOne(id,options);
-    if(!device) {
+    const device: Device = await this.repository.findOne(id, options);
+    if (!device) {
       return null;
     }
-    device.timezone = await getLocalTimeZoneFromDevice(device.createdAt,device);
+    device.timezone = await getLocalTimeZoneFromDevice(device.createdAt, device);
+
+    delete device["organization"];
     return device;
   }
 
   async findReads(meterId: string): Promise<DeviceDTO | null> {
+    const result = await this.repository.findOne({ where: { externalId: meterId } })
+    delete result["organization"];
+
     return (
-      (await this.repository.findOne({ where: { externalId: meterId } })) ??
-      null
+      (result) ?? null
     );
+
   }
 
   async findDeviceByDeveloperExternalId(meterId: string, organizationId: number): Promise<Device | null> {
     //change whare condition filter by developerExternalId instead of externalId and organizationid
-      const device : Device = await this.repository.findOne({
-        where: {
-          developerExternalId: meterId,
-          organizationId: organizationId
-        }
-      });
-
-      if(!device) {
-        return null;
+    const device: Device = await this.repository.findOne({
+      where: {
+        developerExternalId: meterId,
+        organizationId: organizationId
       }
-      device.timezone = await getLocalTimeZoneFromDevice(device.createdAt,device);
-      return device;
+    });
+    
+   // delete device["organization"];
+    console.log(device)
+    if (!device) {
+      return null;
+    }
+    device.timezone = await getLocalTimeZoneFromDevice(device.createdAt, device);
+    return device;
   }
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
@@ -537,6 +561,7 @@ export class DeviceService {
     });
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
+    delete result["organization"];
     return result
   }
   async update(
@@ -553,7 +578,8 @@ export class DeviceService {
           },
         }
         : undefined;
-    //console.log(rule);
+    console.log(rule);
+    console.log(organizationId);
     let currentDevice = await this.findDeviceByDeveloperExternalId(externalId.trim(), organizationId);
     if (!currentDevice) {
       throw new NotFoundException(`No device found with id ${externalId}`);
@@ -587,6 +613,7 @@ export class DeviceService {
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
+    delete result["organization"];
     //console.log(result);
     return result;
   }
@@ -598,6 +625,7 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { groupId: null, organizationId },
     });
+    delete devices["organization"];
     return this.groupDevices(orderFilterDto, devices);
   }
   async findUngroupedById(
@@ -928,6 +956,7 @@ export class DeviceService {
     const newUnreservedDevices = devices.map((device: Device) => {
       device.externalId = device.developerExternalId;
       delete device["developerExternalId"];
+      delete device["organization"];
       return device;
     });
     return {

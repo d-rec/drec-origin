@@ -54,6 +54,11 @@ export class UserController {
     private readonly emailConfirmationService: EmailConfirmationService,
   ) { }
 
+  /**
+   * This api route use for get user information
+   * @param param0 
+   * @returns {UserDTO}
+   */
   @Get('me')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password')) /*,PermissionGuard)
   @Permission('Read')
@@ -66,7 +71,12 @@ export class UserController {
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
     return this.userService.findById(id);
   }
-
+/**
+ * This api user for get the user info by user id 
+ * @param id 
+ * @param loggedUser 
+ * @returns {UserDTO}
+ */
   @Get(':id')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -82,20 +92,26 @@ export class UserController {
   ): Promise<UserDTO | null> {
     return await this.userService.canViewUserData(id, loggedUser);
   }
-
-  // @Post('register')
-  // @ApiBody({ type: CreateUserDTO })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   type: UserDTO,
-  //   description: 'Register a user',
-  // })
-  // public async register(
-  //   @Body() userRegistrationData: CreateUserDTO,
-  // ): Promise<UserDTO> {
-  //   return this.userService.create(userRegistrationData);
-  // }
-  // add new for adding user with organization
+/**
+  @Post('register')
+  @ApiBody({ type: CreateUserDTO })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserDTO,
+    description: 'Register a user',
+  })
+  public async register(
+    @Body() userRegistrationData: CreateUserDTO,
+  ): Promise<UserDTO> {
+    return this.userService.create(userRegistrationData);
+  }
+*/
+  
+  /**
+  * add new for adding user with organization
+  * @body {CreateUserORGDTO}
+ * @returns {UserDTO}
+  */
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
@@ -104,7 +120,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
-    description: 'Register a user',
+    description: 'Register a new user ',
   })
   public async register(
     @Body() userRegistrationData: CreateUserORGDTO,
@@ -112,17 +128,15 @@ export class UserController {
   ): Promise<UserDTO> { 
     let client = request.user; /*
     console.log(request.headers);
-    if(request.headers['client_id'] && request.headers['client_secret'])
-    {
-      if(!request.headers['client_secret'] || !request.headers['client_id'])
-      {
+    if (request.headers['client_id'] && request.headers['client_secret']) {
+      if (!request.headers['client_secret'] || !request.headers['client_id']) {
         console.log("When credential not available")
         throw new UnauthorizedException('Invalid client credentials');
       }
-      client= await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+      client = await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
     }
-    else if(userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()){
-      client= await this.userService.validateClient( process.env.client_id,  process.env.client_secret);
+    else if (userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()) {
+      client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
 
     } */
     console.log(userRegistrationData);
@@ -136,7 +150,7 @@ export class UserController {
         );
       });
     }
-//@ts-ignore
+    //@ts-ignore
     if (userRegistrationData.organizationType.toLowerCase() != "Buyer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "Developer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "ApiUser".toLowerCase()) {
       return new Promise((resolve, reject) => {
         reject(
@@ -157,14 +171,17 @@ export class UserController {
         );
       });
     }
-    if(client)
-    {
-      console.log("asas",client);
-      userRegistrationData['client']=client;
+    if (client) {
+      console.log("asas", client);
+      userRegistrationData['client'] = client;
     }
     return this.userService.newcreate(userRegistrationData);
   }
-
+  /**
+   * this api route using for update Profile.
+   * @body { 'firstName':string,'lastName':string,'email':string}.
+   * @returns {UserDTO} .
+   */
   @Put('profile')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
@@ -184,7 +201,10 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updateProfile(id, dto);
   }
-
+  /**
+   * this api route using for update password
+   * @returns {UserDTO} .
+   */
   @Put('password')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
@@ -201,7 +221,10 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
   }
-
+  /**
+     * This api route to update the password by validating token .
+     * @returns {UserDTO} .
+     */
   @Put('reset/password/:token')
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(PermissionGuard)
@@ -238,7 +261,11 @@ export class UserController {
     }
 
   }
-
+/**
+ * this api route use for confirm user email from email click in register time
+ * @param token :stirng
+ * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
+ */
   @Put('confirm-email/:token')
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(PermissionGuard)
@@ -256,6 +283,11 @@ export class UserController {
     return this.emailConfirmationService.confirmEmail(token);
   }
 
+  /**
+   * This api route use for resend confirm email after login if user not confirm email at register time
+   * @param param0 
+   * @returns 
+   */
   @Put('resend-confirm-email')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Write')
@@ -271,7 +303,12 @@ export class UserController {
     return this.emailConfirmationService.sendConfirmationEmail(email);
   }
 
-
+/**
+ * This api route use for if user forget password and want to change password
+ * @param req 
+ * @param body 
+ * @returns {SuccessResponseDTO}
+ */
   @Post('forget-password')
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   /*@UseGuards(PermissionGuard) */
@@ -289,34 +326,32 @@ export class UserController {
     const user = await this.userService.findByEmail(body.email);
     //@ts-ignore
     let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
-    if(req.headers['client_id'] && req.headers['client_secret'])
-    {
-      if(!req.headers['client_secret'] || !req.headers['client_id'])
-      {
+    if (req.headers['client_id'] && req.headers['client_secret']) {
+      if (!req.headers['client_secret'] || !req.headers['client_id']) {
         console.log("When credential not available")
         throw new UnauthorizedException('Invalid client credentials');
       }
-      if(user.role === "ApiUser") {
-        client= await this.userService.validateClient(req.headers['client_id'], req.headers['client_secret']);
-        console.log("when apiUser",client,user);
+      if (user.role === "ApiUser") {
+        client = await this.userService.validateClient(req.headers['client_id'], req.headers['client_secret']);
+        console.log("when apiUser", client, user);
       }
       else {
-        throw new UnauthorizedException(); 
+        throw new UnauthorizedException();
       }
     }
     else if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
-      if(user.role === "ApiUser") {
+      if (user.role === "ApiUser") {
         throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
       }
-      if(client.client_id != process.env.client_id) {
-        throw new UnauthorizedException();        
-      } else if(client.client_id === process.env.client_id) {
-        client= await this.userService.validateClient(process.env.client_id, process.env.client_secret);
+      if (client.client_id != process.env.client_id) {
+        throw new UnauthorizedException();
+      } else if (client.client_id === process.env.client_id) {
+        client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
       }
     }
 
-    if(client) {  
-      console.log("when Client:",client)
+    if (client) {
+      console.log("when Client:", client)
       return this.userService.geytokenforResetPassword(body.email);
     } */
     return this.userService.geytokenforResetPassword(body.email);

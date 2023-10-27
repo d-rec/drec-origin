@@ -59,6 +59,11 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
+  /**
+   * 
+   * @param param0 
+   * @returns 
+   */
   @Get('/me')
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -74,6 +79,13 @@ export class OrganizationController {
     return await this.organizationService.findOne(organizationId);
   }
 
+  /**
+   * 
+   * @param param0 
+   * @param pageNumber 
+   * @param limit 
+   * @returns 
+   */
   @Get('/users')
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -94,7 +106,12 @@ export class OrganizationController {
   )/*: Promise<UserDTO[]>*/ {
     return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
   }
-
+/**
+ * 
+ * @param organizationId 
+ * @param loggedUser 
+ * @returns 
+ */
   @Get('/:id/invitations')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Permission('Read')
@@ -116,7 +133,12 @@ export class OrganizationController {
       InvitationDTO.fromInvitation(inv),
     );
   }
-
+/**
+ * This api route use for add organization afte user login (but now it directly added at register time)
+ * @param organizationToRegister 
+ * @param loggedUser 
+ * @returns {OrganizationDTO}
+ */
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.OrganizationAdmin)
@@ -142,7 +164,14 @@ export class OrganizationController {
       loggedUser,
     );
   }
-
+/**
+ * This Api route use for change the user role 
+ * @param organizationId ;number "in api param is id"
+ * @param memberId :number "in api param is userId"
+ * @body {role} 
+ * @param loggedUser 
+ * @returns {SuccessResponseDTO}
+ */
   @Put(':id/change-role/:userId')
   @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
@@ -152,7 +181,7 @@ export class OrganizationController {
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: 'Removes a member from an organization',
+    description: 'change role of user',
   })
   async changeMemberRole(
     @Param('id', new ParseIntPipe()) organizationId: number,
@@ -177,6 +206,12 @@ export class OrganizationController {
     return ResponseSuccess();
   }
 
+  /**
+   * This api route for Set blockchain address and singh for organization(for now we using static default value)
+   * @param param0 
+   * @param param1 
+   * @returns {BindBlockchainAccountDTO}
+   */
   @Post('chain-address')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
   @Permission('Write')
