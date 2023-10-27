@@ -17,7 +17,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     super();
   }
 
-  async validate(clientId: string, clientSecret: string, request : any) {
+  async validate(request : any, clientId: string, clientSecret: string) {
     let client : any;
     //const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
