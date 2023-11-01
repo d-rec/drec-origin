@@ -23,13 +23,12 @@ export class ClientPasswordStrategy extends PassportStrategy {
   }
 
   authenticate(req: any) {
-    console.log("Request User:",req);
-    console.log("Request User:",req.url);
+   
     if((req.url.split('/')[3] != 'register') && (req.url.split('/')[3] != 'forget-password')) {
       if((req.headers['client_id'] || req.headers['client_secret']) && req.user.role != Role.ApiUser) {
         throw new UnauthorizedException();
       }
-      console.log("req.headers", req.headers)
+     
       if ((!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) && req.user.role === Role.ApiUser) {
         throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
         //@ts-ignore

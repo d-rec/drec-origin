@@ -14,7 +14,8 @@ import {
   Put,
   BadRequestException,
   Query,
-  DefaultValuePipe
+  DefaultValuePipe,
+  ValidationPipe
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -49,6 +50,8 @@ import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+ import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto'
+
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -77,6 +80,30 @@ export class OrganizationController {
   ): Promise<OrganizationDTO | undefined> {
     console.log("With in getOrg at org controller",organizationId);
     return await this.organizationService.findOne(organizationId);
+  }
+ /**
+   * This Api route to get all organization of apiuser
+   * @param param0 
+   * @returns 
+   */
+  @Get('/apiuser/all_organization')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Roles(Role.ApiUser)
+  @Permission('Read')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: 'Returns all Organizations',
+  })
+  async getAllOrganizations(
+    @UserDecorator() loggedUser: ILoggedInUser,
+    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*: Promise<OrganizationDTO[]>*/ {
+    return await this.organizationService.getAll(filterDto, pageNumber, limit,loggedUser);
   }
 
   /**
