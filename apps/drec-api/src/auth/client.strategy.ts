@@ -57,30 +57,30 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       
       return request.user ?? client;
     }
-    
-    console.log("When the direct drec User")
-    if(request.url.split('/')[3] === 'register') {
-      if(request.body.organizationType === Role.ApiUser) {
-        const clienCredentialsData = await this.oAuthClientCredentialService.generateClientCredentials();
-        const api_user = await this.oAuthClientCredentialService.createAPIUser();
-        client = await this.oAuthClientCredentialService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret,api_user.api_user_id);
-        return {
-           client_id : clienCredentialsData.client_id,
-          client_secret : clienCredentialsData.client_secret,
-          api_user_id : api_user.api_user_id
-        };
+    else {
+      console.log("When the direct drec User")
+      if(request.url.split('/')[3] === 'register') {
+        if(request.body.organizationType === Role.ApiUser) {
+          const clienCredentialsData = await this.oAuthClientCredentialService.generateClientCredentials();
+          const api_user = await this.oAuthClientCredentialService.createAPIUser();
+          client = await this.oAuthClientCredentialService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret,api_user.api_user_id);
+          return {
+            client_id : clienCredentialsData.client_id,
+            client_secret : clienCredentialsData.client_secret,
+            api_user_id : api_user.api_user_id
+          };
+        }
+
+        if(((!clientId && clientSecret) || (clientId && !clientSecret)) && request.body.organizationType != Role.ApiUser) {
+          throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
+        }
       }
 
-      if(((!clientId && clientSecret) || (clientId && !clientSecret)) && request.body.organizationType != Role.ApiUser) {
-        throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
+      client = await this.validateClient(process.env.client_id, process.env.client_secret);
+
+      if (!client) {
+        throw new UnauthorizedException();
       }
-    }
-
-    client = await this.validateClient(process.env.client_id, process.env.client_secret);
-
-    if (!client) {
-      throw new UnauthorizedException();
-    }
 
       if(request.url.split('/')[3] != 'register') {
         
@@ -95,7 +95,8 @@ export class ClientCredentialsStrategy extends PassportStrategy(
         }
       }
 
-    return request.user ?? client;
+      return request.user ?? client;
+    }
   }
   async validateClient(clientId: string, clientSecret: string): Promise<any> {
     // Implement your client ID and client secret validation logic here

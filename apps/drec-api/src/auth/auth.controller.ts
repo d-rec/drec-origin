@@ -32,6 +32,7 @@ export class AuthController {
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
     //ts-ignore
+    console.log("authbcontroller", req);
     console.log("authbcontroller", req.user);
     //console.log("authbcontroller", req.body);
     //@ts-ignore
