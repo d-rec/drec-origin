@@ -34,12 +34,12 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       request.user = user;
     }
 
-    if(request.url.split('/')[3] === 'confirm-email') {
+    if((request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) {
       const emailConfirmation = await this.emailConfirmationService.findOne({token : request.params.token});
       request.user = emailConfirmation.user;
     }
 
-    if((request.url.split('/')[3] === 'forget-password') || request.url.split('/')[3] === 'confirm-email') {
+    if((request.url.split('/')[3] === 'forget-password') || (request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] != 'reset')) {
       if((!clientId || !clientSecret) && request.user.role === Role.ApiUser) {
         throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
       }
