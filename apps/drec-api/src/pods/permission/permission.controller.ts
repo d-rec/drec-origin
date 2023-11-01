@@ -86,7 +86,7 @@ export class PermissionController {
      * @returns {ACLModulePermissions[]}
      */
     @Get('/user/:id')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'))
     @Permission('Read')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
