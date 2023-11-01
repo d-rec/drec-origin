@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { ClientCredentialsStrategy } from './client.strategy';
+import { EmailConfirmationModule } from 'src/pods/email-confirmation/email-confirmation.module';
 
 @Global()
 @Module({
@@ -17,6 +18,7 @@ import { ClientCredentialsStrategy } from './client.strategy';
     UserModule,
     OrganizationModule,
     PermissionModule,
+    EmailConfirmationModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) =>{
