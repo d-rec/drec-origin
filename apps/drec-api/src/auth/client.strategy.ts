@@ -83,6 +83,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     }
 
       if(request.url.split('/')[3] != 'register') {
+        
         if(request.user.api_user_id != client.api_user_id) {
           throw new UnauthorizedException();
         }

@@ -59,7 +59,7 @@ export class PermissionGuard implements CanActivate {
     else {
       user = request.user;
     }
-    console.log("User at Permission Guard:",user);
+   
     if (user.role === 'Admin') {
       return true;
     }

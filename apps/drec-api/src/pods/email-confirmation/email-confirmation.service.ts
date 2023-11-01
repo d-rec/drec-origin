@@ -35,8 +35,10 @@ export class EmailConfirmationService {
   ) { }
 
   public async create(user: User): Promise<EmailConfirmation | null> {
+    console.log("user",user);
    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
-   console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
+   console.log("client",client);
+  //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
     if((client.client_id === process.env.client_id) || user.role === 'ApiUser') {
       console.log("With in email conf Service")
       const exists = await this.repository.findOne({
@@ -52,9 +54,7 @@ export class EmailConfirmationService {
           message: `Email confirmation for user with email ${user.email} already exists`,
         });
       }
-
       const { token, expiryTimestamp } = await this.generateEmailToken();
-
       const emailConfirmation = await this.repository.save({
         user,
         confirmed: false,
@@ -67,8 +67,6 @@ export class EmailConfirmationService {
     // } else {
       await this.sendConfirmationEmail(user.email);
     // }
-
-
       return emailConfirmation;
     }
    return null;
