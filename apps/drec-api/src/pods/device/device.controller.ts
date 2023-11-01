@@ -62,6 +62,7 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
+import { Device } from './device.entity';
 
 /**
 * It is Controller of device with the endpoints of device operations.
@@ -173,7 +174,7 @@ export class DeviceController {
    * @returns {Array<DeviceDTO>}
    */
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
@@ -185,7 +186,7 @@ export class DeviceController {
   })
   async getMyDevices(
     @Query(ValidationPipe) filterDto: FilterDTO,
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
     console.log(filterDto);
@@ -215,9 +216,12 @@ export class DeviceController {
         });
       }
     }
-
-
-    return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
+    //@ts-ignore
+    if(filterDto.organizationId) {
+      //@ts-ignore
+      organizationId = filterDto.organizationId;
+    }
+    return await this.deviceService.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
   }
 
   /**
@@ -226,7 +230,7 @@ export class DeviceController {
    * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin)
@@ -234,8 +238,22 @@ export class DeviceController {
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
   })
-  async get(@Param('id') id: number): Promise<DeviceDTO | null> {
-    const devicedata = await this.deviceService.findOne(id);
+  async get(@Param('id') id: number,
+  @Query('apiUserId') api_user_id: string | null,
+  @Query('organizationId') organizationId: number | null,
+  ): Promise<DeviceDTO | null> {
+    let devicedata : Device;
+    if(api_user_id && organizationId) {
+      devicedata = await this.deviceService.findOne(id,{
+        where : {
+          api_user_id : api_user_id,
+          organizationId : organizationId
+        }
+      });
+    }
+    else {
+      devicedata = await this.deviceService.findOne(id);
+    }
     console.log(devicedata);
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata["developerExternalId"];
@@ -274,7 +292,7 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
@@ -284,7 +302,7 @@ export class DeviceController {
     description: 'Returns a new created Device id',
   })
   public async create(
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     console.log(deviceToRegister);
@@ -378,7 +396,7 @@ export class DeviceController {
       //@ts-ignore
       organizationId = deviceToRegister.organizationId
     }
-    return await this.deviceService.register(organizationId, deviceToRegister);
+    return await this.deviceService.register(organizationId, deviceToRegister, api_user_id, role);
 
   }
 

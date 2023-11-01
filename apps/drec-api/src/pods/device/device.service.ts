@@ -57,6 +57,7 @@ import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 import { SuccessResponse } from '../email-confirmation/email-confirmation.service';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { OrganizationService } from '../organization/organization.service';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -71,7 +72,7 @@ export class DeviceService {
     private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
     @InjectRepository(IrecErrorLogInformationEntity)
     private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
-
+    private readonly organizationService : OrganizationService,
   ) { }
 
   public async find(filterDto: FilterDTO, pagenumber: number, OrgId?: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
@@ -121,8 +122,8 @@ export class DeviceService {
     return result;
   }
 
-  async getOrganizationDevices(organizationId: number, filterDto: FilterDTO, pagenumber: number): Promise<any> {
-
+  async getOrganizationDevices(organizationId: number, api_user_id: string, role: Role, filterDto: FilterDTO, pagenumber: number): Promise<any> {
+    console.log("OrgCode:",organizationId,"apiId:",api_user_id,"role:",role)
     if (Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
@@ -130,9 +131,12 @@ export class DeviceService {
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where
-      where = { ...where, organizationId };
+      if(role === Role.ApiUser && api_user_id) {
+        where = { ...where, api_user_id };
+      }
+      where = { ...where, organizationId}
       query.where = where;
-      // console.log(query);
+      console.log("Query:",query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit,
@@ -141,7 +145,7 @@ export class DeviceService {
         }
       });
       console.log((pagenumber - 1) * limit);
-      console.log(totalCount);
+      console.log(totalCount, devices);
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
         throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
@@ -502,6 +506,8 @@ export class DeviceService {
   public async register(
     orgCode: number,
     newDevice: NewDeviceDTO,
+    api_user_id ?: string,
+    role ?: Role,
   ): Promise<Device> {
     console.log(orgCode);
     //console.log(newDevice);
@@ -555,10 +561,27 @@ export class DeviceService {
     } else {
       newDevice.SDGBenefits = []
     }
-    const result = await this.repository.save({
-      ...newDevice,
-      organizationId: orgCode,
-    });
+    let result : any;
+    if(role === Role.ApiUser) {
+      console.log("when APiUser", api_user_id);
+      await this.organizationService.findOne(orgCode, {
+        where : {
+          api_user_id : api_user_id
+        }
+      });
+
+      result = await this.repository.save({
+        ...newDevice,
+        organizationId : orgCode,
+        api_user_id : api_user_id,
+      });
+    }
+    else {
+      result = await this.repository.save({
+        ...newDevice,
+        organizationId: orgCode,
+      });
+    }
     result.externalId = result.developerExternalId;
     delete result["developerExternalId"];
     delete result["organization"];
