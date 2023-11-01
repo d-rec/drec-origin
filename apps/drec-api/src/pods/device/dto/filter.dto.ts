@@ -120,4 +120,6 @@ export class BuyerDeviceFilterDTO {
 
  
   groupId?: number|null;
+
+  organiozationId ?: number | null;
 }

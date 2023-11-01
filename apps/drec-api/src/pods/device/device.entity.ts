@@ -179,4 +179,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // updateTimestamp() {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
   // }
+
+  @Column({ nullable: true})
+  api_user_id : string;
 }

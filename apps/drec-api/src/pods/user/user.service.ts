@@ -307,10 +307,11 @@ export class UserService {
   }
 
   async findById(id: number): Promise<IUser> {
-    const user = this.findOne({ id });
+    const user = await this.findOne({ id });
     if (!user) {
       throw new NotFoundException(`No user found with id ${id}`);
     }
+    console.log("meapi",user)
     //@ts-ignore
     if (user.role === Role.ApiUser) {
       //@ts-ignore
@@ -318,6 +319,7 @@ export class UserService {
       user['permission_status'] = api_user.permission_status;
 
     }
+    console.log("meapi",user)
     return user;
   }
 
@@ -357,8 +359,6 @@ export class UserService {
 
       user.emailConfirmed = emailConfirmation?.confirmed || false;
     }
-
-    console.log("user at finOne :",user);
 
     return user ?? null;
   }
@@ -546,8 +546,11 @@ export class UserService {
   public async getUsersByFilter(filterDto: UserFilterDTO, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
-      let [users, totalCount] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+      let [users, totalCount] = await query
+      .andWhere(`role != :role`, { role: Role.ApiUser})
+      .skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
+      
       return {
         users: users,
         currentPage: pageNumber,

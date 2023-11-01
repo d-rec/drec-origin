@@ -13,6 +13,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import {IrecDevicesInformationEntity} from './irec_devices_information.entity';
 import {IrecErrorLogInformationEntity} from './irec_error_log_information.entity'
 import { UserModule } from '../user/user.module';
+import { OrganizationModule } from '../organization/organization.module';
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
@@ -24,7 +25,8 @@ import { UserModule } from '../user/user.module';
       IrecDevicesInformationEntity,
       IrecErrorLogInformationEntity
     ]),
-    UserModule
+    UserModule,
+    OrganizationModule
   ],
   providers: [DeviceService],
   exports: [DeviceService],
