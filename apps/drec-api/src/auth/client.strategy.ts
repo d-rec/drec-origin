@@ -27,7 +27,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     //const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
     // If client ID and client secret are present in the request, validate them
-    console.log("cleint strategy came here", clientId, clientSecret);
+    console.log("cleint strategy came here");
 
     if(request.url.split('/')[3] === 'forget-password') {
       const user = await this.userService.findByEmail(request.body.email);

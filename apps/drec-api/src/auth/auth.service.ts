@@ -28,8 +28,11 @@ export class AuthService {
     const user = await this.userService.getUserAndPasswordByEmail(
       email.toLowerCase(),
     );
-
+    console.log(email,unencryptedPassword);
+    console.log(user);
+    console.log('user33',bcrypt.compareSync(unencryptedPassword, user.password));
     if (user && bcrypt.compareSync(unencryptedPassword, user.password)) {
+
       return this.userService.findById(user.id);
     }
 

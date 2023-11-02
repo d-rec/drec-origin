@@ -8,7 +8,7 @@ import {
   InternalServerErrorException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, FindConditions, SelectQueryBuilder,  } from 'typeorm';
+import { FindOneOptions, Repository, FindConditions, SelectQueryBuilder, } from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -79,16 +79,21 @@ export class OrganizationService {
     return this.repository.findByIds(ids);
   }
 
-  async getAll(filterDto : OrganizationFilterDTO, pageNumber : number, limit : number) : Promise<{ organizations: Organization[], currentPage : number, totalPages : number, totalCount : number}>{
+  async getAll(filterDto: OrganizationFilterDTO, pageNumber: number, limit: number, user?: LoggedInUser,): Promise<{ organizations: Organization[], currentPage: number, totalPages: number, totalCount: number }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
+      if (user.role === 'ApiUser') {
+        query.andWhere(`api_user_id != :api_user_id`, { api_user_id: user.api_user_id })
+          .andWhere(`organizationType != :organizationType`, { organizationType: Role.ApiUser })
+      }
+
       let [organizations, count] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
       const totalPages = Math.ceil(count / limit);
       return {
         organizations,
-        currentPage : pageNumber,
+        currentPage: pageNumber,
         totalPages,
-        totalCount : count
+        totalCount: count
       };
     }
     catch (error) {
@@ -113,14 +118,14 @@ export class OrganizationService {
     return organization.users;
   }
 
-  public async findOrganizationUsers(id: number,pageNumber : number,limit:number): Promise<{users : IUser[],currentPage : number,totalPages : number, totalCount : number}>  {
-   /* const organization = await this.findOne(id);
-    return organization ? organization.users : []; */
-    const [users, totalCount]= await this.userService.findUserByOrganization(id,pageNumber,limit);
-    const totalPages = Math.ceil(totalCount/limit);
+  public async findOrganizationUsers(id: number, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+    /* const organization = await this.findOne(id);
+     return organization ? organization.users : []; */
+    const [users, totalCount] = await this.userService.findUserByOrganization(id, pageNumber, limit);
+    const totalPages = Math.ceil(totalCount / limit);
     return {
-      users : users,
-      currentPage : pageNumber,
+      users: users,
+      currentPage: pageNumber,
       totalPages,
       totalCount
     }
@@ -239,7 +244,7 @@ export class OrganizationService {
       this.logger.debug(
         `Successfully registered a new organization with id ${organizationToRegister.name}`,
       );
-     
+
       return stored;
     } catch (error) {
       console.log(error)
@@ -434,13 +439,13 @@ export class OrganizationService {
   //   return Boolean(await this.findOne(conditions));
   // }
 
-  private async getFilteredQuery(filterDto : OrganizationFilterDTO) : Promise<SelectQueryBuilder<Organization>> {
+  private async getFilteredQuery(filterDto: OrganizationFilterDTO): Promise<SelectQueryBuilder<Organization>> {
     const { organizationName } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
       .orderBy('organization.name', 'ASC');
-    if(organizationName) {
+    if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
     }

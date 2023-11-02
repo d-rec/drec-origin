@@ -228,8 +228,8 @@ export class PermissionService {
         console.log(apipermission_status)
         if (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Active) {
             await this.repository.update(id, { status: 1 });
-        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) ||(apipermission_status != undefined && apipermission_status === UserPermissionStatus.Process)) {
-           console.log("232process")
+        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) || (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Process)) {
+            console.log("232process")
             await this.repository.update(id, { status: 0 });
         } else {
             await this.repository.update(id, { status: 1 });
@@ -239,28 +239,33 @@ export class PermissionService {
 
     async permisssion_request(data, loginuser): Promise<any> {
         console.log(data);
+        if (!data.length) {
+            throw new NotFoundException(`No module permission available in requeste`);
 
-        const api_user = await this.userService.findById(loginuser.id)
-        console.log(api_user);
-        var permissionIds: any = [];
+        }
+            const api_user = await this.userService.findById(loginuser.id)
+            console.log(api_user);
+            var permissionIds: any = [];
 
-        await Promise.all(
-            data.map(
-                async (newpermission: NewPermissionDTO) => {
-                    console.log(newpermission);
-                    newpermission.entityType = EntityType.User
-                    newpermission.entityId = loginuser.id
-                    console.log(newpermission);
-                    const perId = await this.create(newpermission, loginuser)
-                    //console.log(perId);
-                    permissionIds.push(perId.id);
-                }),
-        );
-        console.log(permissionIds);
-        //@ts-ignore
-        await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
+            await Promise.all(
+                data.map(
+                    async (newpermission: NewPermissionDTO) => {
+                        console.log(newpermission);
+                        newpermission.entityType = EntityType.User
+                        newpermission.entityId = loginuser.id
+                        console.log(newpermission);
+                        const perId = await this.create(newpermission, loginuser)
+                        //console.log(perId);
+                        permissionIds.push(perId.id);
+                    }),
+            );
+            console.log(permissionIds);
+            //@ts-ignore
+            await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
 
-        return { statsu: 'success', message: "Your permission request send successfully" }
+            return { statsu: 'success', message: "Your permission request send successfully" }
+       
+
     }
 
     async permission_veify(api_user_id, data: any): Promise<any> {
