@@ -12,21 +12,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string): Promise<UserDTO> {
-    console.log(email,password);
     const user = await this.authService.validateUser(email, password);
-    console.log("localuserstrategy", user)
-/*
-    console.log("localuserstrategy", user)
-    let adminuser = [];
-    if (user.role != 'ApiUser') {
-      //@ts-ignore
-      adminuser = await this.userService.findOne({ api_user_id: user.api_user_id, role: Role.Admin });
-      console.log("adminuser", adminuser);
-    }
+    console.log("localuserstrategy")
 
-    if (!(user && adminuser)) {
-      throw new UnauthorizedException();
-    } */
     return user;
   }
 }

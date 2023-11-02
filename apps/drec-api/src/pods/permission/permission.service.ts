@@ -228,7 +228,7 @@ export class PermissionService {
         console.log(apipermission_status)
         if (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Active) {
             await this.repository.update(id, { status: 1 });
-        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) || (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Process)) {
+        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) ) {
             console.log("232process")
             await this.repository.update(id, { status: 0 });
         } else {
@@ -243,10 +243,17 @@ export class PermissionService {
             throw new NotFoundException(`No module permission available in requeste`);
 
         }
+       
             const api_user = await this.userService.findById(loginuser.id)
-            console.log(api_user);
+          
             var permissionIds: any = [];
-
+             //@ts-ignore
+            const api_userpermission = await this.userService.getApiuser(api_user.api_user_id);
+        
+            if(api_userpermission.permissionIds.length>0){
+                permissionIds=api_userpermission.permissionIds;
+            }
+            console.log(permissionIds);
             await Promise.all(
                 data.map(
                     async (newpermission: NewPermissionDTO) => {

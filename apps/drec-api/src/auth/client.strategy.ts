@@ -39,7 +39,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       request.user = emailConfirmation.user;
     }
 
-    if((request.url.split('/')[3] === 'forget-password') || (request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] != 'reset')) {
+    if((request.url.split('/')[3] === 'forget-password') || (request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) {
       if((!clientId || !clientSecret) && request.user.role === Role.ApiUser) {
         throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
       }
@@ -118,8 +118,8 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       throw new UnauthorizedException('Invalid client credentials');
     }
     client.client_secret = this.oAuthClientCredentialService.decryptclient_secret(client.client_secret);
-    console.log("client.client_secret", client.client_secret);
-    console.log("clientSecret", clientSecret);
+    // console.log("client.client_secret", client.client_secret);
+    // console.log("clientSecret", clientSecret);
     if (client.client_secret !== clientSecret) {
       throw new UnauthorizedException('Invalid client credentials');
     }
