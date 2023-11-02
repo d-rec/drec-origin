@@ -5,9 +5,8 @@ import { AuthService } from './auth.service';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { UserService } from '../pods/user/user.service';
 import { ClientPasswordStrategy } from './client-password.strategy';
-
 import { Role } from '../utils/enums/role.enum';
-import { EmailConfirmationService } from 'src/pods/email-confirmation/email-confirmation.service';
+import { EmailConfirmationService } from '../pods/email-confirmation/email-confirmation.service';
 
 @Injectable()
 export class ClientCredentialsStrategy extends PassportStrategy(
