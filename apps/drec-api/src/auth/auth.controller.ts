@@ -31,29 +31,7 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
-    //ts-ignore
-    console.log("authbcontroller", req);
-    console.log("authbcontroller", req.user);
-    //console.log("authbcontroller", req.body);
-    //@ts-ignore
-    //const loginuser = req.user.email;
-    //console.log((req.body.username != loginuser));
-    //@ts-ignore
-    /*
-    if (req.user.role === "ApiUser") {
-      if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
-        throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
-        //@ts-ignore
-        // return this.fail();
-
-      } else if(req.body.username != loginuser) {
-        console.log((req.body.username != loginuser));
-        throw new UnauthorizedException();
   
-      }
-
-    }
-   */
     return  this.authService.login(req.user as Omit<IUser, 'password'>);
   }
 }

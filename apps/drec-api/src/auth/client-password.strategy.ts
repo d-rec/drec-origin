@@ -23,8 +23,7 @@ export class ClientPasswordStrategy extends PassportStrategy {
   }
 
   authenticate(req: any) {
-   
-    if((req.url.split('/')[3] != 'register') && (req.url.split('/')[3] != 'forget-password')) {
+    if((req.url.split('/')[3] != 'register') && (req.url.split('/')[3] != 'forget-password') && (req.url.split('/')[3] != 'confirm-email') && (req.url.split('/')[3] != 'reset')) {
       if((req.headers['client_id'] || req.headers['client_secret']) && req.user.role != Role.ApiUser) {
         throw new UnauthorizedException();
       }

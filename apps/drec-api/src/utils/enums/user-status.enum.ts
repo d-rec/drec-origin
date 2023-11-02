@@ -7,7 +7,7 @@ export enum UserStatus {
 
 export enum UserPermissionStatus {
   Request = 'Request',
-  Process = 'Process',
+  // Process = 'Process',
   Active = 'Active',
   Deactive = 'Deactive',
   // Deleted = 'Deleted',

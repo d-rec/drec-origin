@@ -63,6 +63,9 @@ export class PermissionGuard implements CanActivate {
     if (user.role === 'Admin') {
       return true;
     }
+    if(((request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) && (user.role === Role.ApiUser)) {
+      return true;
+    }
     var per: any = [];
     console.log("user", user);
     const userpermission1 = await this.userPermission.findById(

@@ -7,15 +7,20 @@ import { UserService } from '../pods/user/user.service';
 import { ClientPasswordStrategy } from './client-password.strategy';
 
 import { Role } from '../utils/enums/role.enum';
+import { EmailConfirmationService } from 'src/pods/email-confirmation/email-confirmation.service';
 
 @Injectable()
 export class ClientCredentialsStrategy extends PassportStrategy(
   ClientPasswordStrategy,
   'oauth2-client-password',
 ) {
-  constructor(private readonly userService: UserService, private readonly authService: AuthService, private readonly oAuthClientCredentialService: OauthClientCredentialsService) {
-    super();
-  }
+  constructor(
+    private readonly userService: UserService,
+    private readonly emailConfirmationService: EmailConfirmationService, 
+    private readonly authService: AuthService, 
+    private readonly oAuthClientCredentialService: OauthClientCredentialsService) {
+      super();
+    }
 
   async validate(request : any, clientId: string, clientSecret: string) {
     let client : any;
@@ -27,8 +32,15 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     if(request.url.split('/')[3] === 'forget-password') {
       const user = await this.userService.findByEmail(request.body.email);
       request.user = user;
+    }
 
-      if((!clientId || !clientSecret) && user.role === Role.ApiUser) {
+    if((request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) {
+      const emailConfirmation = await this.emailConfirmationService.findOne({token : request.params.token});
+      request.user = emailConfirmation.user;
+    }
+
+    if((request.url.split('/')[3] === 'forget-password') || (request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) {
+      if((!clientId || !clientSecret) && request.user.role === Role.ApiUser) {
         throw new UnauthorizedException({statusCode: 401, message:"client_id or client_secret missing from headers"}); 
       }
     }
@@ -106,8 +118,8 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       throw new UnauthorizedException('Invalid client credentials');
     }
     client.client_secret = this.oAuthClientCredentialService.decryptclient_secret(client.client_secret);
-    console.log("client.client_secret", client.client_secret);
-    console.log("clientSecret", clientSecret);
+    // console.log("client.client_secret", client.client_secret);
+    // console.log("clientSecret", clientSecret);
     if (client.client_secret !== clientSecret) {
       throw new UnauthorizedException('Invalid client credentials');
     }

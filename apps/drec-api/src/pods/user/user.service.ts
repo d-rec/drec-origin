@@ -311,7 +311,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`No user found with id ${id}`);
     }
-    console.log("meapi",user)
+    
     //@ts-ignore
     if (user.role === Role.ApiUser) {
       //@ts-ignore
@@ -319,7 +319,6 @@ export class UserService {
       user['permission_status'] = api_user.permission_status;
 
     }
-    console.log("meapi",user)
     return user;
   }
 
@@ -674,7 +673,17 @@ export class UserService {
       .take(limit)
       .getManyAndCount();
   }
+/** ApiUser Fuction*/
 
+async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
+  console.log("api_id",api_id)
+  return await this.apiUserEntityRepository.findOne(api_id);
+}
+/**
+ * This Function added for request of permission to apiuser in apiuser table
+ * @param api_id 
+ * @param permissionIds 
+ */
   async apiuser_permission_request(api_id, permissionIds) {
 
     await this.apiUserEntityRepository.update(api_id, {
@@ -694,7 +703,11 @@ export class UserService {
     })
     return await this.apiUserEntityRepository.findOne(api_id);
   }
-
+/**
+ * This service method use for get info of permission request status(Request,Active and Deactive)
+ * @param api_id 
+ * @returns 
+ */
   async get_apiuser_permission_status(api_id: string) {
 
     const status_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id)
@@ -702,7 +715,13 @@ export class UserService {
     return status_apiuser_permissiom;
   }
 
-
+/**
+ * this function create for get user list of ApiUser
+ * @param organizationName 
+ * @param pageNumber 
+ * @param limit 
+ * @returns 
+ */
   public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     let filterDto = new UserFilterDTO;
     filterDto.organizationName = organizationName;
