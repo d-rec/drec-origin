@@ -228,7 +228,7 @@ export class PermissionService {
         console.log(apipermission_status)
         if (apipermission_status != undefined && apipermission_status === UserPermissionStatus.Active) {
             await this.repository.update(id, { status: 1 });
-        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive) ) {
+        } else if ((apipermission_status != undefined && apipermission_status === UserPermissionStatus.Deactive)) {
             console.log("232process")
             await this.repository.update(id, { status: 0 });
         } else {
@@ -243,35 +243,35 @@ export class PermissionService {
             throw new NotFoundException(`No module permission available in requeste`);
 
         }
-       
-            const api_user = await this.userService.findById(loginuser.id)
-          
-            var permissionIds: any = [];
-             //@ts-ignore
-            const api_userpermission = await this.userService.getApiuser(api_user.api_user_id);
-        
-            if(api_userpermission.permissionIds.length>0){
-                permissionIds=api_userpermission.permissionIds;
-            }
-            console.log(permissionIds);
-            await Promise.all(
-                data.map(
-                    async (newpermission: NewPermissionDTO) => {
-                        console.log(newpermission);
-                        newpermission.entityType = EntityType.User
-                        newpermission.entityId = loginuser.id
-                        console.log(newpermission);
-                        const perId = await this.create(newpermission, loginuser)
-                        //console.log(perId);
-                        permissionIds.push(perId.id);
-                    }),
-            );
-            console.log(permissionIds);
-            //@ts-ignore
-            await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
 
-            return { statsu: 'success', message: "Your permission request send successfully" }
-       
+        const api_user = await this.userService.findById(loginuser.id)
+
+        var permissionIds: any = [];
+        //@ts-ignore
+        const api_userpermission = await this.userService.getApiuser(api_user.api_user_id);
+
+        if (api_userpermission.permissionIds != null && api_userpermission.permissionIds.length > 0) {
+            permissionIds = api_userpermission.permissionIds;
+        }
+        console.log(permissionIds);
+        await Promise.all(
+            data.map(
+                async (newpermission: NewPermissionDTO) => {
+                    console.log(newpermission);
+                    newpermission.entityType = EntityType.User
+                    newpermission.entityId = loginuser.id
+                    console.log(newpermission);
+                    const perId = await this.create(newpermission, loginuser)
+                    //console.log(perId);
+                    permissionIds.push(perId.id);
+                }),
+        );
+        console.log(permissionIds);
+        //@ts-ignore
+        await this.userService.apiuser_permission_request(api_user.api_user_id, permissionIds)
+
+        return { statsu: 'success', message: "Your permission request send successfully" }
+
 
     }
 

@@ -133,10 +133,11 @@ export class DeviceService {
       let where: any = query.where
       if(role === Role.ApiUser && api_user_id) {
         where = { ...where, api_user_id };
+      }else{
+        where = { ...where, organizationId}
       }
-      where = { ...where, organizationId}
+     
       query.where = where;
-      console.log("Query:",query);
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
         take: limit,
@@ -145,7 +146,6 @@ export class DeviceService {
         }
       });
       console.log((pagenumber - 1) * limit);
-      console.log(totalCount, devices);
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
         throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);

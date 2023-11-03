@@ -80,11 +80,12 @@ export class OrganizationService {
   }
 
   async getAll(filterDto: OrganizationFilterDTO, pageNumber: number, limit: number, user?: LoggedInUser,): Promise<{ organizations: Organization[], currentPage: number, totalPages: number, totalCount: number }> {
-    const query = await this.getFilteredQuery(filterDto);
+    let query = await this.getFilteredQuery(filterDto);
     try {
-      if (user.role === 'ApiUser') {
-        query.andWhere(`api_user_id != :api_user_id`, { api_user_id: user.api_user_id })
-          .andWhere(`organizationType != :organizationType`, { organizationType: Role.ApiUser })
+      console.log(user);
+      if (user!=undefined && user?.role === 'ApiUser') {
+       query =  query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
+          .andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
       }
 
       let [organizations, count] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
