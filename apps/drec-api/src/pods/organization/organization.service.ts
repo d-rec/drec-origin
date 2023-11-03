@@ -83,7 +83,7 @@ export class OrganizationService {
     let query = await this.getFilteredQuery(filterDto);
     try {
       console.log(user);
-      if (user!=undefined&&user?.role === 'ApiUser') {
+      if (user!=undefined && user?.role === 'ApiUser') {
        query =  query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
           .andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
       }
