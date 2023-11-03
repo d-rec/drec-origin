@@ -158,8 +158,7 @@ export class UserService {
       role = Role.ApiUser
       roleId = 6;
     }
-    console.log(role, "151", roleId)
-
+    
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -271,9 +270,9 @@ export class UserService {
   }
 
   private async checkForExistingUser(email: string): Promise<void> {
-    console.log(email);
+   
     const isExistingUser = await this.hasUser({ email });
-    console.log(isExistingUser);
+   
     if (isExistingUser) {
       const message = `User with email ${email} already exists`;
 
@@ -286,16 +285,14 @@ export class UserService {
   }
 
   async validateClient(client_id, client_secret) {
-    console.log(client_id);
-    console.log(client_secret);
+    // console.log(client_id);
+    // console.log(client_secret);
     // this.oauthClientCredentialsService.findOneByclient_id
     const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
     if (!client) {
       throw new UnauthorizedException('Invalid client credentials');
     }
     client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
-    console.log("client.client_secret", client.client_secret);
-    console.log("clientSecret", client_secret);
     if (client.client_secret !== client_secret) {
       throw new UnauthorizedException('Invalid client credentials');
     }

@@ -189,10 +189,10 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
-    console.log(filterDto);
+    
     if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
-      console.log(filterDto.country);
+     
       if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
         let countries = countryCodesList;
         if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
