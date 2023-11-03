@@ -234,8 +234,6 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin)
-  @ApiQuery({ name: 'apiUserId', type: Number, required: false })
-  @ApiQuery({ name: 'organizationId', type: Number, required: false })
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
