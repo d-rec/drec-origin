@@ -156,7 +156,7 @@ export class AdminController {
   }
 
   /*
-  * It is POST api to invite and create organizationAdmin.
+  * It is POST api to create organization(Developer And Buyer) from admin.
   */
   @Post('/users')
   @Roles(Role.Admin)
