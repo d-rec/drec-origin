@@ -291,8 +291,8 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
  
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newstoreRead(
@@ -300,6 +300,11 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
+    if(user.role === Role.ApiUser) {
+      //@ts-ignore
+      user.organizationId = measurements.organizationId;
+    }
+
     if (id.trim() === "" && id.trim() === undefined) {
       return new Promise((resolve, reject) => {
         reject(
