@@ -131,12 +131,13 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'Month', type: Number, required: false })
   @ApiQuery({ name: 'Year', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery( { name: 'organizationId', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
     description: 'Returns time-series of meter reads',
   })
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newgetReads(
@@ -145,11 +146,15 @@ export class ReadsController extends BaseReadsController {
     @Query('pagenumber') pagenumber: number | null,
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
+    @Query('organizationId') organizationId: number | null,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
 
     //finding the device details throught the device service
+    if(user.role === Role.ApiUser) {
+      user.organizationId = organizationId;
+    }
     filter.offset = 0;
     filter.limit = 5;
     let device: DeviceDTO | null;
