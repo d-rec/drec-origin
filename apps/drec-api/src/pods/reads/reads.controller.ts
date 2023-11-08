@@ -45,6 +45,7 @@ import { updateInviteStatusDTO } from '../invitation/dto/invite.dto';
 import { PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { OrganizationService } from '../organization/organization.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -55,6 +56,7 @@ export class ReadsController extends BaseReadsController {
     private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
+    private readonly organizationService: OrganizationService,
   ) {
     super(baseReadsService);
   }
@@ -305,9 +307,35 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    if(user.role === Role.ApiUser) {
-      //@ts-ignore
-      user.organizationId = measurements.organizationId;
+    if(measurements.organizationId) {
+      const senderorg = await this.organizationService.findOne(measurements.organizationId);
+      if(user.organizationId !== measurements.organizationId && user.role !== Role.ApiUser) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `Organization in measurement is not same as user's organization`,
+            })
+          );
+        });
+      }
+
+      if(user.role === Role.ApiUser) {
+        if(senderorg.api_user_id !== user.api_user_id) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: `Organization ${senderorg.name} in measurement is not part of your organization`,
+              })
+            );
+          });
+        }
+        else {
+          //@ts-ignore
+          user.organizationId = measurements.organizationId;        
+        }
+      }
     }
 
     if (id.trim() === "" && id.trim() === undefined) {

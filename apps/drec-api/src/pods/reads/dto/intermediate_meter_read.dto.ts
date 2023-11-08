@@ -70,7 +70,9 @@ export class NewIntmediateMeterReadDTO
   @ValidateNested()
   reads: NewReadDTO[];
 
-
+  @ApiProperty({ type: () => Number })
+  @IsOptional()
+  organizationId?: number;
 
 
 }
