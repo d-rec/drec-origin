@@ -39,7 +39,7 @@ export class EmailConfirmationService {
    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
    console.log("client",client);
   //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
-    if((client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+    if((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
       console.log("With in email conf Service")
       const exists = await this.repository.findOne({
         where: {

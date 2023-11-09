@@ -45,6 +45,7 @@ import { updateInviteStatusDTO } from '../invitation/dto/invite.dto';
 import { PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { OrganizationService } from '../organization/organization.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -55,6 +56,7 @@ export class ReadsController extends BaseReadsController {
     private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
+    private readonly organizationService: OrganizationService,
   ) {
     super(baseReadsService);
   }
@@ -131,12 +133,13 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'Month', type: Number, required: false })
   @ApiQuery({ name: 'Year', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery( { name: 'organizationId', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
     description: 'Returns time-series of meter reads',
   })
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newgetReads(
@@ -145,11 +148,15 @@ export class ReadsController extends BaseReadsController {
     @Query('pagenumber') pagenumber: number | null,
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
+    @Query('organizationId') organizationId: number | null,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
 
     //finding the device details throught the device service
+    if(user.role === Role.ApiUser) {
+      user.organizationId = organizationId;
+    }
     filter.offset = 0;
     filter.limit = 5;
     let device: DeviceDTO | null;
@@ -291,8 +298,8 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
  
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newstoreRead(
@@ -300,6 +307,37 @@ export class ReadsController extends BaseReadsController {
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
+    if(measurements.organizationId) {
+      const senderorg = await this.organizationService.findOne(measurements.organizationId);
+      if(user.organizationId !== measurements.organizationId && user.role !== Role.ApiUser) {
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: `Organization in measurement is not same as user's organization`,
+            })
+          );
+        });
+      }
+
+      if(user.role === Role.ApiUser) {
+        if(senderorg.api_user_id !== user.api_user_id) {
+          return new Promise((resolve, reject) => {
+            reject(
+              new ConflictException({
+                success: false,
+                message: `Organization ${senderorg.name} in measurement is not part of your organization`,
+              })
+            );
+          });
+        }
+        else {
+          //@ts-ignore
+          user.organizationId = measurements.organizationId;        
+        }
+      }
+    }
+
     if (id.trim() === "" && id.trim() === undefined) {
       return new Promise((resolve, reject) => {
         reject(
@@ -1137,7 +1175,7 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',
   })
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'),AuthGuard('oauth2-client-password'),PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
@@ -1146,7 +1184,7 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ) {
     let device: DeviceDTO | null
-    if (user.role === 'Buyer' || user.role === 'Admin') {
+    if (user.role === 'Buyer' || user.role === 'Admin'|| user.role === 'ApiUser') {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
 
