@@ -1211,7 +1211,7 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',
   })
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'),AuthGuard('oauth2-client-password'),PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
@@ -1220,7 +1220,7 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ) {
     let device: DeviceDTO | null
-    if (user.role === 'Buyer' || user.role === 'Admin') {
+    if (user.role === 'Buyer' || user.role === 'Admin'|| user.role === 'ApiUser') {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
 
