@@ -8,7 +8,7 @@ import {
   ResponseSuccess,
 } from '../../models';
 import { UserService } from '../user/user.service';
-import { OrganizationInvitationStatus } from '../../utils/enums';
+import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { AlreadyPartOfOrganizationError } from './errors';
 import { Invitation } from './invitation.entity';
 import { OrganizationService } from '../organization/organization.service';
@@ -44,15 +44,35 @@ export class InvitationService {
   ): Promise<void> {
     const sender = await this.userService.findByEmail(user.email);
     let inviteorg: number;
-    if (user.role === 'Admin') {
-      inviteorg = orgId;
-    } else {
-      inviteorg = user.organizationId;
+
+    if(orgId) {
+      if (user.role === Role.Admin || user.role === Role.ApiUser) {
+        inviteorg = orgId;
+      }
+      else {
+        if(user.organizationId != orgId) {
+          throw new ConflictException({
+            success: false,
+            message: `Requested organization is part of other organization`,
+          });
+        }
+        else {
+          inviteorg = user.organizationId;
+        }
+      }
     }
     const organization = await this.organizationService.findOne(
       inviteorg,
     );
 
+    if((user.role === Role.ApiUser) || (user.role === Role.Admin)) {
+      if(user.api_user_id !== organization.api_user_id) {
+        throw new ConflictException({
+          success: false,
+          message: `Organization ${organization.name} is part of other apiuser or developer`,
+        });
+      }
+    }
     const lowerCaseEmail = email.toLowerCase();
 
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
@@ -126,7 +146,9 @@ export class InvitationService {
     }
 
     //await this.update(updateinviteuser, saveinviteuser.id)
-    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    if(sender.role !== Role.ApiUser) {
+      await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    }
     //to add permission for user role in invitaion
     // const newpermission: any = [];
     // await permission.forEach((element) => {
