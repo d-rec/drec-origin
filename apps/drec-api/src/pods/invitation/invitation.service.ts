@@ -15,7 +15,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { InviteDTO } from './dto/invite.dto';
+import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
 import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
@@ -23,7 +23,7 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-inviteuseradd:Boolean=false;
+  inviteuseradd: Boolean = false;
   constructor(
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
@@ -39,11 +39,18 @@ inviteuseradd:Boolean=false;
     role: OrganizationRole,
     firstName: string,
     lastName: string,
-    permission: NewPermissionDTO[],
+    orgId?: number
+    // permission: NewPermissionDTO[],
   ): Promise<void> {
     const sender = await this.userService.findByEmail(user.email);
+    let inviteorg: number;
+    if (user.role === 'Admin') {
+      inviteorg = orgId;
+    } else {
+      inviteorg = user.organizationId;
+    }
     const organization = await this.organizationService.findOne(
-      user.organizationId,
+      inviteorg,
     );
 
     const lowerCaseEmail = email.toLowerCase();
@@ -56,6 +63,18 @@ inviteuseradd:Boolean=false;
         message: `User ${lowerCaseEmail} is already part of the  organization`,
       });
 
+    }
+
+    const orginvitee = await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: inviteorg
+      },
+      relations: ['organization'],
+    });
+    //console.log(invitation)
+    if (orginvitee) {
+      throw new BadRequestException(`Requested invitation User ${lowerCaseEmail} is already exist`);
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
     var saveinviteuser: any = {};
@@ -74,54 +93,65 @@ inviteuseradd:Boolean=false;
       lastName: lastName,
       email: email.toLowerCase(),
       password: randPassword,
-      orgName: '',
+      orgName: organization.name,
       organizationType: '',
-     // orgAddress:''
-    
+      // orgAddress:''
+
     }
     var userid: any;
-    if (invitee) {
-      userid = invitee
-    
-    } else {
-      userid = await this.userService.newcreate(inviteuser,UserStatus.Pending,true);
-      
+    console.log("invitee", invitee)
+    //to add for if one user invite by multiple organization 
+    // if (invitee) {
+    //   userid = invitee
+
+    // } else {
+    userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+
+    //}
+    var updateinviteuser: updateInviteStatusDTO = {
+      email: lowerCaseEmail,
+      status: OrganizationInvitationStatus.Accepted
     }
 
-    const newpermission: any = [];
-    await permission.forEach((element) => {
-      newpermission.push({
-        aclmodulesId: element.aclmodulesId,
-        entityType: element.entityType,
-        entityId: userid.id,
-        permissions: element.permissions,
-        status: 0
-      })
-    })
-    var permissionId: any = [];
-   
-    await Promise.all(
-      newpermission.map(
-        async (newpermission: NewPermissionDTO) => {
-          //console.log(newpermission)
-          const perId = await this.PermissionService.create(newpermission, user)
-          //console.log(perId);
-          permissionId.push(perId.id);
-        }),
-    );
+    //await this.update(updateinviteuser, saveinviteuser.id)
+    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    //to add permission for user role in invitaion
+    // const newpermission: any = [];
+    // await permission.forEach((element) => {
+    //   newpermission.push({
+    //     aclmodulesId: element.aclmodulesId,
+    //     entityType: element.entityType,
+    //     entityId: userid.id,
+    //     permissions: element.permissions,
+    //     status: 0
+    //   })
+    // })
+    // var permissionId: any = [];
 
-//console.log(permissionId);
-    await this.invitationRepository.update(saveinviteuser.id, { permissionId });
+    // await Promise.all(
+    //   newpermission.map(
+    //     async (newpermission: NewPermissionDTO) => {
+    //       //console.log(newpermission)
+    //       const perId = await this.PermissionService.create(newpermission, user)
+    //       //console.log(perId);
+    //       permissionId.push(perId.id);
+    //     }),
+    // );
 
-    await this.sendInvitation(organization, lowerCaseEmail);
+    //console.log(permissionId);
+    // await this.invitationRepository.update(saveinviteuser.id, { permissionId });
+
+    //
   }
 
   public async update(
-    user: ILoggedInUser,
+    user: updateInviteStatusDTO,
     invitationId: string,
-    status: OrganizationInvitationStatus,
+    // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
     const lowerCaseEmail = user.email.toLowerCase();
+    const userinvite = await this.userService.findByEmail(lowerCaseEmail)
+    console.log(userinvite);
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
@@ -142,22 +172,22 @@ inviteuseradd:Boolean=false;
       );
     }
 
-    if (status === OrganizationInvitationStatus.Accepted) {
+    if (user.status === OrganizationInvitationStatus.Accepted) {
       await this.userService.addToOrganization(
-        user.id,
+        userinvite.id,
         invitation.organization.id,
       );
-      await this.userService.changeRole(user.id, invitation.role);
-      const pre = invitation.permissionId;
-      //console.log(pre);
-      await Promise.all(
-        pre.map(
-          async (pre: number) =>
-            await this.PermissionService.updatepermissionstatus(pre)),
-      );
+      await this.userService.changeRole(userinvite.id, invitation.role);
+      // const pre = invitation.permissionId;
+      // //console.log(pre);
+      // await Promise.all(
+      //   pre.map(
+      //     async (pre: number) =>
+      //       await this.PermissionService.updatepermissionstatus(pre)),
+      // );
     }
 
-    invitation.status = status;
+    invitation.status = user.status;
 
     await this.invitationRepository.save(invitation);
 
@@ -194,7 +224,7 @@ inviteuseradd:Boolean=false;
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Organization invitation`,
-      html: `Organization ${organization.name} has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>
+      html: `Organization <b>${organization.name}</b> has invited you to join. To accept the invitation, please visit <a href="${url}">${url}</a>
       `,
     });
 

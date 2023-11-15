@@ -11,6 +11,7 @@ import {OnChainCertificateEntities,OffChainCertificateEntities, OnChainCertifica
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
+import {UserRole} from './pods/user/user_role.entity';
 import { UserModule } from './pods/user/user.module';
 import { Organization } from './pods/organization/organization.entity';
 import { OrganizationModule } from './pods/organization/organization.module';
@@ -71,6 +72,7 @@ const getEnvFilePath = () => {
 
 export const entities = [
   User,
+  UserRole,
   Organization,
   Invitation,
   EmailConfirmation,

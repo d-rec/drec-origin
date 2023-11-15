@@ -1,37 +1,38 @@
 [
     {
-        "id":1,
-        "name":"Admin",
-        "description":"for admin role",
-        "status":true
-
+        "id": 1,
+        "name": "Admin",
+        "description": "for admin role",
+        "status": true
     },
     {
-        "id":2,
-        "name":"OrganizationAdmin",
-        "description":"for Organization admin",
-        "status":true
-
+        "id": 2,
+        "name": "OrganizationAdmin",
+        "description": "for Organization admin",
+        "status": true
     },
     {
-        "id":3,
-        "name":"DeviceOwner",
-        "description":"for Device Owner role",
-        "status":true
-
+        "id": 3,
+        "name": "DeviceOwner",
+        "description": "for Device Owner role",
+        "status": true
     },
     {
-        "id":4,
-        "name":"Buyer",
-        "description":"for Buyer role",
-        "status":true
-
+        "id": 4,
+        "name": "Buyer",
+        "description": "for Buyer role",
+        "status": true
     },
     {
-        "id":5,
-        "name":"User",
-        "description":"for User role",
-        "status":true
-
+        "id": 5,
+        "name": "User",
+        "description": "for User role",
+        "status": true
+    },
+    {
+        "id": 6,
+        "name": "SubBuyer",
+        "description": "Same as buyer but not delete any user of org",
+        "status": true
     }
 ]

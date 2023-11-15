@@ -1,6 +1,6 @@
 export enum FuelCode {
     ES100='ES100',
-    ES990 = 'ES990',
+//ES990 = 'ES990',
 
 }
 

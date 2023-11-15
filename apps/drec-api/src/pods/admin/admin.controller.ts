@@ -14,6 +14,7 @@ import {
   NotFoundException,
   Patch,
   Post,
+  DefaultValuePipe
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -22,6 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiResponse,
   ApiTags,
+  ApiQuery
 } from '@nestjs/swagger';
 
 import {
@@ -32,7 +34,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
-import { ActiveUserGuard, RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
 import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -42,21 +44,30 @@ import { ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
-import {DeviceService} from '../device/device.service'
+import { DeviceService } from '../device/device.service'
+import { DeviceGroupService } from '../device-group/device-group.service'
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { OrganizationFilterDTO } from './dto/organization-filter.dto'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
   constructor(
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
-  ) {}
+    private readonly devicegroupService: DeviceGroupService,
+  ) { }
 
   @Get('/users')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -64,22 +75,50 @@ export class AdminController {
   })
   public async getUsers(
     @Query(ValidationPipe) filterDto: UserFilterDTO,
-  ): Promise<UserDTO[]> {
-    return this.userService.getUsersByFilter(filterDto);
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*: Promise<UserDTO[]>*/ {
+    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
   @Get('/organizations')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     type: [OrganizationDTO],
     description: 'Returns all Organizations',
   })
-  async getAllOrganizations(): Promise<OrganizationDTO[]> {
-    return await this.organizationService.getAll();
+  async getAllOrganizations(
+    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*: Promise<OrganizationDTO[]>*/ {
+    return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
-
+  @Get('/organizations/user/:organizationId')
+  @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: 'Returns all User Of Organizations',
+  })
+  async getAllUserOrganizations(
+    @Param('organizationId', new ParseIntPipe()) organizationId: number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*:  Promise<UserDTO[]>*/ {
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
+  }
   @Get('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules("ADMIN_MANAGEMENT-CRUDL")
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -96,6 +135,8 @@ export class AdminController {
 
   @Post('/users')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
@@ -103,11 +144,14 @@ export class AdminController {
     description: 'Returns a new created user',
   })
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
-    return await this.userService.newcreate(newUser);
+    return await this.userService.adminnewcreate(newUser);
   }
 
-  @Post('/seed/users')
+  @Post('/seed/users'
+  )
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -134,6 +178,8 @@ export class AdminController {
 
   @Post('/seed/organizations')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [OrganizationDTO],
@@ -157,6 +203,8 @@ export class AdminController {
 
   @Put('/users/:id')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -172,6 +220,8 @@ export class AdminController {
 
   @Patch('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Update')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateOrganizationDTO,
@@ -190,6 +240,8 @@ export class AdminController {
 
   @Delete('/organizations/:id')
   @Roles(Role.Admin)
+  @Permission('Delete')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -208,20 +260,99 @@ export class AdminController {
 
     return ResponseSuccess();
   }
+
+  @Delete('/user/:id')
+  @Roles(Role.Admin)
+  @Permission('Delete')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an organization',
+  })
+  async deleteUser(
+    @Param('id', new ParseIntPipe()) userid: number,
+  ): Promise<SuccessResponseDTO> {
+
+    const user = await this.userService.findById(userid);
+    
+    if (!user) {
+      throw new NotFoundException('Does not exist');
+    }
+    const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+   
+    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
+      const buyerresrvation = await this.devicegroupService.findOne({ organizationId: user.organization.id })
+     
+      if (buyerresrvation) {
+        throw new NotFoundException('This user is part of reservation,So you cannot remove this user and organization');
+
+      }
+      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
+     
+      if (deviceoforg.length > 0) {
+        throw new NotFoundException('Some device are available in organization ');
+      }
+      // if (manyotheruserinorg) {
+      //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+      // }
+      if (!(manyotheruserinorg.length>0)) {
+        // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+        await this.userService.remove(user.id);
+        await this.organizationService.remove(user.organization.id);
+     }
+
+   }
+   else {
+     await this.userService.remove(user.id);
+   }
+
+    return ResponseSuccess();
+  }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
   @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
-   // type: CreateUserORGDTO,
+    // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
   public async IrecdeviceRegister(
     @Param('id') id: number,
-   // @Body() irecDevice: {deviceid:number}
+    // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
     return await this.deviceService.I_recPostData(id);
   }
+
+
+  @Get('/devices/autocomplete')
+  @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns Auto-Complete',
+  })
+
+  @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
+
+  async autocomplete(
+    // @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('externalId') externalId: String,
+    @Query('organizationId') organizationId: number,
+  ) {
+    //@ts-ignore
+    console.log("adminaddorgId", organizationId)
+    // if (adminaddorgId != null || adminaddorgId != undefined) {
+    //   organizationId = adminaddorgId;
+    // }
+    return await this.deviceService.atto(organizationId, externalId);
+  }
+
+
 
 }

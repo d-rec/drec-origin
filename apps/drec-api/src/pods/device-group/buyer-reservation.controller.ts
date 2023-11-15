@@ -104,7 +104,7 @@ export class BuyerReservationController {
 
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
+  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -125,6 +125,8 @@ export class BuyerReservationController {
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId);
       case Role.Buyer:
+        return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
+        case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(id,pagenumber,filterDto);
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
@@ -399,7 +401,7 @@ export class BuyerReservationController {
 
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin)
+  @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer,Role.SubBuyer)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Remove device group',
@@ -446,7 +448,8 @@ export class BuyerReservationController {
     type: [DeviceCsvFileProcessingJobsEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getAllCsvJobsBelongingToOrganization(@UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+  public async getAllCsvJobsBelongingToOrganization(
+    @UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
     console.log("user", user);
     console.log("organization", organizationId);
 
@@ -456,6 +459,9 @@ export class BuyerReservationController {
         message:
           'User needs to have organization added'
       })
+    }
+    if(user.role==='Admin'){
+      return this.deviceGroupService.getAllCSVJobsForAdmin();
     }
     return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
   }

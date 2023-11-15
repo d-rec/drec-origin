@@ -124,6 +124,8 @@ export class CertificateLogService {
   }
 
   async getCertificateFromOldOrNewUfinction(groupid: string): Promise<any[]> {
+    console.log(typeof groupid);
+    console.log(groupid);
     const certifiedreservation = await this.certificaterrepository.find(
       {
         where: {
@@ -132,14 +134,24 @@ export class CertificateLogService {
        // skip: offset,
        // take: limit,
       })
+     console.log("certifiedreservation",certifiedreservation)
     let request: IGetAllCertificatesOptions = {
-      deviceId: groupid
+      //@ts-ignore
+      deviceId: parseInt(groupid)
     }
-    const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
+    console.log(request)
+    const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.cretificatereadmoduleRepository.find({
+      where: {
+        deviceId: groupid,
+      },
+     // skip: offset,
+     // take: limit,
+    });
+    console.log("certifiedreservation1",certifiedreservation1)
     if (certifiedreservation.length > 0) {
       return this.getfindreservationcertified(certifiedreservation, groupid);
     } else if (certifiedreservation1.length > 0) {
-      return this.getCertificatesUsingGroupIDVersionUpdateOrigin247(groupid);
+      return this.getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation1,groupid);
     }
   }
 
@@ -201,11 +213,11 @@ export class CertificateLogService {
     return res;
   }
 
-  async getCertificatesUsingGroupIDVersionUpdateOrigin247(groupid: string): Promise<CertificateNewWithPerDeviceLog[]> {
-    let request: IGetAllCertificatesOptions = {
-      deviceId: groupid
-    }
-    const certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
+  async getCertificatesUsingGroupIDVersionUpdateOrigin247( certifiedreservation,groupid: string): Promise<CertificateNewWithPerDeviceLog[]> {
+    // let request: IGetAllCertificatesOptions = {
+    //   deviceId: groupid
+    // }
+    // const certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
     let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> = [];
     certifiedreservation.forEach(ele => certificatesInReservationWithLog.push({ ...ele, perDeviceCertificateLog: [], certificateStartDate: '', certificateEndDate: '' }));
 
@@ -296,7 +308,7 @@ export class CertificateLogService {
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
-          deviceid: s.issuelog_externalId,
+         // deviceid: s.issuelog_externalId,
           groupId: s.issuelog_groupId
         };
         console.log(item);

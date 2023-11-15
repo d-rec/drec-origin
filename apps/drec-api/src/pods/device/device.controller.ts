@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Patch,
+  Delete,
   HttpStatus,
   Param,
   Body,
@@ -24,6 +25,8 @@ import {
   ApiSecurity,
   ApiTags,
   ApiQuery,
+  ApiHideProperty,
+  ApiBody
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
@@ -38,7 +41,10 @@ import {
   GroupedDevicesDTO,
   BuyerDeviceFilterDTO
 } from './dto';
+import {
+  CSVBulkUploadDTO,
 
+} from '../device-group/dto';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard'
@@ -55,6 +61,8 @@ import { countryCodesList } from '../../models/country-code'
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
+
 @ApiTags('device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -67,19 +75,25 @@ export class DeviceController {
   ) { }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
+    @Query('OrganizationId') OrgId: number | null,
   )/*: Promise<DeviceDTO[]>*/ {
-    return this.deviceService.find(filterDto, pagenumber);
+    return this.deviceService.find(filterDto, pagenumber,OrgId);
   }
- 
+
   @Get('/ungrouped/buyerreservation')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
@@ -87,12 +101,14 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
   ): Promise<DeviceDTO[]> {
-   
-    return this.deviceService.finddeviceForBuyer(filterDto,pagenumber);
+
+    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
   }
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     type: [GroupedDevicesDTO],
     description: 'Returns all ungrouped Devices',
@@ -134,7 +150,7 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-@ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -146,7 +162,7 @@ export class DeviceController {
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
     console.log(filterDto);
-    if(filterDto.country){
+    if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
       console.log(filterDto.country);
       if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
@@ -172,7 +188,7 @@ export class DeviceController {
         });
       }
     }
-  
+
 
     return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
   }
@@ -195,7 +211,9 @@ export class DeviceController {
   }
 
   @Get('externalId/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
     description: `The device with the code doesn't exist`,
@@ -225,6 +243,7 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
+    console.log(deviceToRegister);
     deviceToRegister.externalId = deviceToRegister.externalId.trim();
     if (deviceToRegister.externalId.trim() === "") {
       return new Promise((resolve, reject) => {
@@ -307,8 +326,16 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
+    //@ts-ignore
+    if (deviceToRegister.organizationId) {
+      console.log("314")
+      //@ts-ignore
+      console.log(deviceToRegister.organizationId)
+      //@ts-ignore
+      organizationId = deviceToRegister.organizationId
+    }
     return await this.deviceService.register(organizationId, deviceToRegister);
-  
+
   }
 
 
@@ -420,6 +447,31 @@ export class DeviceController {
         );
       });
     }
+
+    if(deviceToUpdate.commissioningDate) {
+      const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
+        externalId,
+        user.organizationId
+      );
+      const noOfHistRead : number = await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
+      const noOfOnGoingRead : number = await this.deviceService.getNumberOfOngReads(checkexternalid.externalId,checkexternalid.createdAt);
+      
+      if(deviceToUpdate.commissioningDate != checkexternalid.commissioningDate) {
+        if(noOfHistRead > 0 || noOfOnGoingRead > 0) {
+          throw new ConflictException({
+            success : false,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+          })
+        }
+
+        if(new Date(deviceToUpdate.commissioningDate).getTime() > new Date(checkexternalid.createdAt).getTime()) {
+          throw new ConflictException({
+            success : false,
+            message: `Invalid commissioning date, commissioning is greater than device onboarding date`
+          })
+        }
+      }
+    } 
     return await this.deviceService.update(
       user.organizationId,
       user.role,
@@ -427,6 +479,42 @@ export class DeviceController {
       deviceToUpdate,
     );
   }
+
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @Permission('Delete')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Remove device group',
+  })
+  @ApiNotFoundResponse({ description: `No device group found` })
+  public async remove(
+    @Param('id') id: number,
+    @UserDecorator() { organizationId, role }: ILoggedInUser,
+  ): Promise<any> {
+    const checkisungroup = this.deviceService.findUngroupedById(id)
+    console.log(checkisungroup)
+    if (checkisungroup) {
+      let fitlerop: any;
+      if (role === 'Admin') {
+        fitlerop = {
+          groupId: null
+        }
+      } else {
+        fitlerop = {
+          groupId: null,
+          organizationId: organizationId
+        }
+      }
+      return await this.deviceService.remove(id, fitlerop);
+
+    }
+
+  }
+
 
   @Get('/my/totalamountread')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
@@ -519,13 +607,17 @@ export class DeviceController {
   async autocomplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: String,
+
   ) {
+    
     return await this.deviceService.atto(organizationId, externalId);
   }
 
 
   @Get('/certifiedlog/first&lastdate')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
@@ -584,6 +676,53 @@ export class DeviceController {
   //   return "await this.deviceService.atto(organizationId, externalId)";
   // }
   /////////////////////////////////////////////////
+  @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: 'Returns created devices from csv',
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV
+    (@UserDecorator() user: ILoggedInUser,
+      @Param('organizationId') organizationId: number | null,
+      @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+    if (organizationId === null || organizationId === undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          'User needs to have organization added'
+      })
+    }
+    console.log(fileToProcess.fileName);
+    if (fileToProcess.fileName == undefined) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'File Not Found'
+      })
 
+    }
+    if (!fileToProcess.fileName.endsWith('.csv')) {
+      //throw new Error("file not found");
+      throw new ConflictException({
+        success: false,
+        message:
+          'Invalid file'
+      })
+
+    }
+    let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
+
+    return jobCreated;
+  }
 
 }

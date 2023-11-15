@@ -34,7 +34,9 @@ import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { ActiveUserGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard } from '../../guards';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @ApiTags('YieldConfigration')
 @ApiBearerAuth('access-token')
@@ -46,23 +48,29 @@ export class YieldConfigController {
 
 
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
 
   async getAll(): Promise<YieldConfigDTO[]> {
     return this.yieldconfigService.getAll();
   }
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
 
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
     return this.yieldconfigService.findById(id);
   }
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @Permission('Write')
+  @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -103,7 +111,9 @@ export class YieldConfigController {
 
   @Patch('/update/:id')
   @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @Permission('Update')
+  @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateYieldValueDTO })
   @ApiResponse({
     status: HttpStatus.OK,

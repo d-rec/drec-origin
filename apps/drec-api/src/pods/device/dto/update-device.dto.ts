@@ -41,26 +41,29 @@ export class UpdateDeviceDTO
   projectName: string;
 
   @ApiProperty()
-  @IsString()
-  @IsOptional()
+  // @IsOptional()
+  @IsString({
+    message:
+      'Address must be added',
+  })
   address: string;
 
   @ApiProperty()
   @IsString()
-  @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,})?$/, {
+  // @IsOptional()
+  @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
     message:
-      'latitude should be number',
+      'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
   })
   latitude: string;
-
+  
   @ApiProperty()
   @IsString()
-  @IsOptional()
-  @Matches(/^-?\d+(\.\d{1,})?$/, {
+  @Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {
     message:
-      'longitude should be number',
+      'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
   })
+  // @IsOptional()
   longitude: string;
 
   @ApiProperty()
@@ -72,20 +75,20 @@ export class UpdateDeviceDTO
   // @IsOptional()
   // @IsNumber()
   // zipCode: string;
-  @ApiProperty()
+  @ApiProperty({ default: "ES100"})
   @IsEnum(FuelCode,{
     message:
-      'Valid FuelCode values are ES100,ES990 ',
+      'FuelCode must be added Or Valid FuelCode values are ES100',
   })
-  @IsOptional()
+  // @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
   @IsEnum(DevicetypeCode,{
     message:
-      'Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
+      'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-  @IsOptional()
+  // @IsOptional()
   deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()
@@ -111,7 +114,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsEnum(OffTaker,{
     message:
-      'Valid OffTaker values are  School , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture',
+    'Valid OffTaker values are  Education , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture,Off-Grid Community,Utility',
   })
   @IsOptional()
   offTaker: OffTaker;

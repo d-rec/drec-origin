@@ -31,12 +31,14 @@ import { CreateUserORGDTO } from './dto/create-user.dto';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
-import { ActiveUserGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { UpdatePasswordDTO, UpdateChangePasswordDTO,ForgetPasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTO, UpdateChangePasswordDTO, ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
@@ -48,7 +50,9 @@ export class UserController {
   ) { }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @Permission('Read')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -59,7 +63,9 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @Permission('Read')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -87,6 +93,9 @@ export class UserController {
   // add new for adding user with organization
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
+  //@UseGuards(PermissionGuard)
+ // @Permission('Write')
+ // @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
@@ -178,7 +187,9 @@ export class UserController {
 
 
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiBody({ type: UpdateUserProfileDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -196,7 +207,9 @@ export class UserController {
   }
 
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiBody({ type: UpdatePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -211,6 +224,9 @@ export class UserController {
   }
 
   @Put('reset/password/:token')
+  /*@UseGuards(PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -219,13 +235,34 @@ export class UserController {
   })
   @ApiParam({ name: 'token', type: String })
   public async updatechangePassword(
+
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    return this.userService.updatechangePassword(token, body);
+    console.log("email")
+    const emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    let emailConfirmation: any;
+    if (emailregex.test(token)) {
+      emailConfirmation = await this.userService.findOne({ email: token });
+      return this.userService.updatechangePassword(emailConfirmation, body);
+    } else {
+      emailConfirmation = await this.emailConfirmationService.findOne({ token });
+      if (!emailConfirmation) {
+        throw new ConflictException({
+          success: false,
+          errors: `User Not exist .`,
+        });
+
+      }
+      return this.userService.updatechangePassword(emailConfirmation.user, body);
+    }
+
   }
 
   @Put('confirm-email/:token')
+  /*@UseGuards(PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
@@ -239,7 +276,9 @@ export class UserController {
   }
 
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -250,16 +289,22 @@ export class UserController {
   ): Promise<SuccessResponseDTO> {
     return this.emailConfirmationService.sendConfirmationEmail(email);
   }
-  @Post('forget-password')
 
+
+  @Post('forget-password')
+  /*@UseGuards(PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')*/
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: `Resend a confirmation email`,
+    description: `send a email`,
   })
   public async Forgetpassword(
     @Body() body: ForgetPasswordDTO
   ): Promise<SuccessResponseDTO> {
     return this.userService.geytokenforResetPassword(body.email);
   }
+
+
 }
