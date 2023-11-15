@@ -48,8 +48,9 @@ export class CertificateLogController {
         private readonly devicegroupService: DeviceGroupService,
     ) { }
     @Get()
-    @UseGuards(AuthGuard('jwt'))
-
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns all individual devices certificate log' })
     async getAll(
     ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
@@ -57,6 +58,9 @@ export class CertificateLogController {
     }
 
     @Get('/claim-amount-in-ethers-json')
+    @UseGuards(PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     async getClaimAmountInEthersJSON(
         @Query() amountFormatData: AmountFormattingDTO,
     ) {
@@ -75,7 +79,9 @@ export class CertificateLogController {
 
 
     @Get('/by-reservation-groupId')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns Certificate logs For individual devices based on groupId' })
     async getByGroupId(
         @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
@@ -92,7 +98,9 @@ export class CertificateLogController {
         return this.certificateLogService.findByGroupId(filterDto.groupId);
     }
     @Get('/issuer/certified/:groupUid')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getissueCertificate(
         @Param('groupUid') groupuId: string,
@@ -129,7 +137,9 @@ export class CertificateLogController {
     }
 
     @Get('/issuer/certified/new/:groupUid')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getCertificatesFromUpdatedCertificateTables(
         @Param('groupUid') groupuId: string,
@@ -159,7 +169,9 @@ export class CertificateLogController {
     }
 
     @Get('/redemption-report')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse
         ({
             status: HttpStatus.OK,
@@ -182,7 +194,7 @@ export class CertificateLogController {
     @Get('/certificateReadModule')
     @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
     @Permission('Read')
-    @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Returns the certificate_read_module table',
@@ -231,7 +243,9 @@ export class CertificateLogController {
 
     /* for developre*/
     @Get('/issuer/certifiedlogOfdevices')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
     async getCertificatesForDeveloper(
 

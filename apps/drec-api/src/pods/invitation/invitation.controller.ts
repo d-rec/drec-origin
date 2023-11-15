@@ -11,6 +11,7 @@ import {
   Put,
   UseGuards,
   UseInterceptors,
+  Query
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -25,6 +26,7 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiQuery
 } from '@nestjs/swagger';
 import { InvitationService } from './invitation.service';
 import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
@@ -38,9 +40,11 @@ import {
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
-import { ActiveUserGuard, RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
-import { InviteDTO } from './dto/invite.dto';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { InviteDTO,updateInviteStatusDTO } from './dto/invite.dto';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
@@ -54,7 +58,9 @@ export class InvitationController {
   ) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -71,13 +77,15 @@ export class InvitationController {
     return invitations;
   }
 
-  @Put(':id/:status')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiParam({
-    name: 'status',
-    enum: OrganizationInvitationStatus,
-    enumName: 'OrganizationInvitationStatus',
-  })
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Update')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+  // @ApiParam({
+  //   name: 'status',
+  //   enum: OrganizationInvitationStatus,
+  //   enumName: 'OrganizationInvitationStatus',
+  // })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -85,27 +93,38 @@ export class InvitationController {
   })
   async updateInvitation(
     @Param('id') invitationId: string,
-    @Param('status') status: IOrganizationInvitation['status'],
-    @UserDecorator() loggedUser: ILoggedInUser,
+  //  @Param('status') status: IOrganizationInvitation['status'],
+    @Body() useracceptinvitation:updateInviteStatusDTO
+   // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     return this.organizationInvitationService.update(
-      loggedUser,
+      useracceptinvitation,
       invitationId,
-      status,
+     // status,
     );
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer)
+  @Permission('Write')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: SuccessResponseDTO,
     description: 'Invites a user',
   })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: Number,
+    description: 'This query parameter is used to for admin...',
+
+  })
   async invite(
-    @Body() { email, role,firstName,lastName,permissions }: InviteDTO,
+    @Body() { email, role,firstName,lastName }: InviteDTO,
+    @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     if (!loggedUser.hasOrganization) {
@@ -123,13 +142,18 @@ export class InvitationController {
     }
 
     try {
-      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,permissions);
+      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,organizationId);
     } catch (error) {
+      console.log(error)
       this.logger.error(error.toString());
+      this.logger.error(error.toString() instanceof AlreadyPartOfOrganizationError);
+     //// if (error instanceof AlreadyPartOfOrganizationError) {
 
-      if (error instanceof AlreadyPartOfOrganizationError) {
-        throw new ForbiddenException({ message: error.message });
-      }
+      console.log("error")
+
+        throw new ForbiddenException({ message: error.message,status:error.status });
+     ///// }
+    //  return error
     }
 
     return ResponseSuccess();

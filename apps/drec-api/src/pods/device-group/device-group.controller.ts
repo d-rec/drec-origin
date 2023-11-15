@@ -88,6 +88,9 @@ export class DeviceGroupController {
   constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService, private organizationService: OrganizationService) { }
 
   @Get()
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     type: [DeviceGroupDTO],
     description: 'Returns all Device groups',
@@ -103,8 +106,10 @@ export class DeviceGroupController {
 
 
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -136,6 +141,9 @@ export class DeviceGroupController {
   
 
   @Get('/:id')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     type: DeviceGroupDTO,
     description: 'Returns a Device group',
@@ -146,8 +154,10 @@ export class DeviceGroupController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))//, RolesGuard)
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)//, RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @Permission('Write')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -298,10 +308,10 @@ export class DeviceGroupController {
 
 
   @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'))
-  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
-  //@Permission('Write')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_GROUP_BULK_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -355,8 +365,10 @@ export class DeviceGroupController {
 
 
   @Patch('/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
   // @Roles(Role.DeviceOwner, Role.Admin)
+  @Permission('Update')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewUpdateDeviceGroupDTO,
@@ -399,8 +411,10 @@ export class DeviceGroupController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Roles(Role.DeviceOwner, Role.Admin)
+  @Permission('Delete')
+  @ACLModules('DEVICE_GROUP_MANAGEMEMT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Remove device group',
@@ -414,9 +428,9 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
-  // @Permission('Read')
-  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
@@ -438,10 +452,10 @@ export class DeviceGroupController {
   }
 
   @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard('jwt'))
-  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //@Permission('Read')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  //@UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_BULK_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
@@ -462,6 +476,9 @@ export class DeviceGroupController {
   }
 
   @Get('certificatelog/:id')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     type: DeviceGroupDTO,
     description: 'Returns a Device group',
@@ -485,8 +502,9 @@ export class DeviceGroupController {
 
   //  }
   @Delete('endreservation/:id')
-  @UseGuards(AuthGuard('jwt'))
-
+  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Delete')
+  @ACLModules('DEVICE_GROUP_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: EndReservationdateDTO,

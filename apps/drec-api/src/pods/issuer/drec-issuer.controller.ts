@@ -24,6 +24,9 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
+import { PermissionGuard } from '../../guards';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @ApiTags('Drec Issuer')
 @ApiBearerAuth('access-token')
@@ -36,6 +39,9 @@ export class DrecIssuerController {
   }
 
   @Get('/ongoing')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
@@ -62,6 +68,9 @@ export class DrecIssuerController {
   }
 
   @Get('/history')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
@@ -79,6 +88,9 @@ export class DrecIssuerController {
   }
 
   @Post()
+  @UseGuards(PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Re ISSUE certificates for failed data',
     //type:[ReIssueCertificateDTO]
@@ -110,6 +122,9 @@ export class DrecIssuerController {
 
 
   @Get('/lateongoing')
+  @UseGuards(PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
