@@ -714,11 +714,7 @@ export class IssuerService {
       toTime: new Date(devicehistoryrequest.readsEndDate.toString()),
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
-     // gas: 300000,
-      // gasOptions: {
-      //   gasLimit: 21000, // Adjust as needed
-      //   gasPrice: '50 Gwei', // Adjust as needed
-      // },
+     
       metadata: {
         version: "v1.0",
         buyerReservationId: group.devicegroup_uid,
