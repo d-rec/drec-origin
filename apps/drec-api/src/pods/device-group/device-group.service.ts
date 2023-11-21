@@ -356,7 +356,7 @@ export class DeviceGroupService {
     const skip = (pageNumber - 1) * pageSize;
     console.log("skip", skip)
     let groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
-    console.log(queryBuilder.getSql());
+    // console.log(queryBuilder.getSql());
     // console.log(groupedData);
     const totalCountQuery = await queryBuilder
       .getCount()
@@ -966,7 +966,7 @@ export class DeviceGroupService {
     buyerId: number,
     filter?: UnreservedDeviceGroupsFilterDTO
   ): FindManyOptions<DeviceGroup> {
-    console.log(filter)
+  
     const where: FindConditions<DeviceGroup> = cleanDeep({
       // countryCode: filter.country && getCodeFromCountry(filter.country),
       // gridInterconnection: filter.gridInterconnection,

@@ -73,7 +73,7 @@ export class PermissionGuard implements CanActivate {
       user.id,
       module,
     );
-    console.log("userpermission1", userpermission1);
+   
     userpermission1.forEach((e) => {
       e.permissions.forEach((element) => {
         if (!per.includes(element)) {
@@ -86,8 +86,8 @@ export class PermissionGuard implements CanActivate {
     }
     user.permissions = per;
     const loggedInUser = new LoggedInUser(user);
-    console.log("loggedInUser",loggedInUser);
-    console.log("permission from decorator",permission);
+    // console.log("loggedInUser",loggedInUser);
+    // console.log("permission from decorator",permission);
 
     const hasPermission = () =>
       loggedInUser.permissions.includes(permission[0]);
