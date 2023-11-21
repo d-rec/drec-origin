@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger, ConflictException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
   ILoggedInUser,
   ISuccessResponse,
@@ -228,13 +228,62 @@ export class InvitationService {
     return ResponseSuccess();
   }
 
-  public async getUsersInvitation(email: string): Promise<Invitation[]> {
-    const lowerCaseEmail = email.toLowerCase();
+  public async getUsersInvitation(user: ILoggedInUser, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ invitations: Invitation[], currentPage: number, totalPages: number, totalCount: number }> {
+    console.log("OrgId:",user.organizationId, typeof(user.organizationId));
+    
+    let query : SelectQueryBuilder<Invitation> = await this.invitationRepository.createQueryBuilder('invitation')
+          .leftJoinAndSelect('invitation.organization', 'organization');
+    if(user.role != Role.Admin) {
+      query = await query
+          .andWhere('organization.api_user_id = :apiUserId', {apiUserId: user.api_user_id});
+    }
 
+    if(organizationId) {
+      const organization = await this.organizationService.findOne(organizationId);
+
+      if(user.role != Role.Admin && user.role != Role.ApiUser) {
+        if(user.organizationId != organizationId) {
+          console.log(user.organizationId,organizationId )
+          throw new BadRequestException({
+            success: false,
+            message: `${user.role} can't view the invitation list of other organizations`,
+          });
+        }
+      }
+
+      if(user.role === Role.ApiUser) {
+        if(user.api_user_id != organization.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message: `Organization ${organization.name} is part of other apiuser`,
+          });
+        }
+      }
+      console.log("Before query:", user.organizationId, organizationId, "Query:", await this.invitationRepository.find({where:{organization:{id:organizationId}}}));
+      query = query
+          .andWhere('organization.id = :organizationId', {organizationId: organizationId});
+    }
+
+    const [invitations, totalCount] = await query
+            .select('invitation')
+            .skip((pageNumber - 1) * limit)
+            .take(limit)
+            .orderBy('invitation.createdAt', 'DESC')
+            .getManyAndCount();
+
+    /*
     return this.invitationRepository.find({
       where: { email: lowerCaseEmail },
       relations: ['organization'],
-    });
+    }); */
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      invitations: invitations,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    };
   }
 
   private ensureIsNotMember(email: string, organization: Organization) {
