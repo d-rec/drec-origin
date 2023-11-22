@@ -11,7 +11,9 @@ import {
   Put,
   UseGuards,
   UseInterceptors,
-  Query
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -63,9 +65,12 @@ export class InvitationController {
    * @returns 
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This organizationId can be used to retrieve records of apiuser" })
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -73,10 +78,13 @@ export class InvitationController {
   })
   async getInvitations(
     @UserDecorator() loggedUser: ILoggedInUser,
-  ): Promise<InvitationDTO[]> {
+    @Query('organizationId') organizationId?: number | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber?: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+  )/*: Promise<InvitationDTO[]>*/{
     const invitations =
       await this.organizationInvitationService.getUsersInvitation(
-        loggedUser.email,
+        loggedUser, organizationId, pageNumber, limit,
       );
 
     return invitations;
@@ -123,8 +131,8 @@ export class InvitationController {
    * @returns 
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer, Role.ApiUser)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })

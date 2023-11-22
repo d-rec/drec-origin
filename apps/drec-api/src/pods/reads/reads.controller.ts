@@ -18,7 +18,8 @@ import {
   Query,
   UseGuards,
   ConflictException,
-  HttpException
+  HttpException,
+  BadRequestException
 } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -32,7 +33,7 @@ import { NewIntmediateMeterReadDTO } from '../reads/dto/intermediate_meter_read.
 import { Device, DeviceService } from '../device';
 import moment from 'moment';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { ILoggedInUser } from '../../models';
+import { ILoggedInUser, IUser } from '../../models';
 import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
@@ -46,6 +47,7 @@ import { PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -57,6 +59,7 @@ export class ReadsController extends BaseReadsController {
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
     private readonly organizationService: OrganizationService,
+    private readonly userService: UserService,
   ) {
     super(baseReadsService);
   }
@@ -133,7 +136,6 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'Month', type: Number, required: false })
   @ApiQuery({ name: 'Year', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
-  @ApiQuery( { name: 'organizationId', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
@@ -148,14 +150,43 @@ export class ReadsController extends BaseReadsController {
     @Query('pagenumber') pagenumber: number | null,
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
-    @Query('organizationId') organizationId: number | null,
     @UserDecorator() user: ILoggedInUser,
   )
   /*: Promise<ReadDTO[]>*/ {
-
+    console.log("With in newgetReads")
     //finding the device details throught the device service
-    if(user.role === Role.ApiUser) {
-      user.organizationId = organizationId;
+    let orguser : IUser | null;
+    if(filter.organizationId) {
+      const organization = await this.organizationService.findOne(filter.organizationId);
+      orguser = await this.userService.findByEmail(organization.orgEmail);
+      if(user.role === Role.ApiUser) {
+        if(user.api_user_id != organization.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message: `An apiuser cannot view the reads of other apiuser's`,
+          });
+        }
+        else {
+          user.organizationId = filter.organizationId;
+        }
+      }
+      else {
+        if(user.role === Role.OrganizationAdmin && (user.organizationId != filter.organizationId)) {
+          throw new BadRequestException({
+            success: false,
+            message: `An developer can't view the reads of other organization`,
+          });
+        }
+
+        if(user.role != Role.Admin && user.api_user_id != organization.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message: `An developer cannot view the reads of other ApiUsers's`,
+          });
+        }
+        user.organizationId = filter.organizationId;
+        
+      }
     }
     filter.offset = 0;
     filter.limit = 5;
@@ -163,12 +194,35 @@ export class ReadsController extends BaseReadsController {
     if (month && !year) {
       throw new HttpException('Year is required when month is given', 400)
     }
-    console.log(user.role);
-    if (user.role === 'Buyer' || user.role === 'Admin') {
+    
+    if (user.role === 'Buyer' || user.role === 'Admin' || (orguser != undefined && orguser.role === Role.Buyer)) {
 
       device = await this.deviceService.findOne(parseInt(meterId));
+      //@ts-ignore
+      if (orguser != undefined && device.api_user_id === null && orguser.role === enums_1.Role.Buyer) {
+        throw new BadRequestException({
+            success: false,
+            message: `An buyer of apiuser can't view the reads of direct organization`,
+        });
+      }
+      if (user.role === Role.Buyer) {
+          //@ts-ignore
+          if (device.api_user_id != null) {
+              throw new BadRequestException({
+                  success: false,
+                  message: `An buyer can't view the reads of apiuser's organization`,
+              });
+          }
 
-    } else {
+          if (orguser != undefined && device.organizationId === orguser.organization.id) {
+              throw new BadRequestException({
+                  success: false,
+                  message: `The organizationId given not same as the device's organization `,
+              });
+          }
+      } 
+    }
+    else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     }
     console.log("getmeterdevice");
@@ -349,9 +403,9 @@ export class ReadsController extends BaseReadsController {
       });
     }
     id = id.trim();
-   
+   console.log(id, user.organizationId);
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id,  user.organizationId);
-    //console.log(device);
+    console.log(device);
     if (device === null) {
 
       return new Promise((resolve, reject) => {

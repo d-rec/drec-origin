@@ -10,7 +10,8 @@ import {
   Delete,
   Query,
   ValidationPipe,
-  ConflictException
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -74,6 +75,7 @@ import { PermissionGuard } from '../../guards';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
 import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 
 @ApiTags('buyer-reservation')
 @ApiBearerAuth('access-token')
@@ -85,7 +87,11 @@ export class BuyerReservationController {
   parser = parse({
     delimiter: ','
   });
-  constructor(private readonly deviceGroupService: DeviceGroupService, private readonly fileService: FileService, private organizationService: OrganizationService) { }
+  constructor(private readonly deviceGroupService: DeviceGroupService, 
+              private readonly fileService: FileService, 
+              private organizationService: OrganizationService,
+              private readonly userService: UserService,
+              ) { }
 
   /**
    * It is GET api to list all device group data
@@ -169,8 +175,9 @@ export class BuyerReservationController {
    * @returns {ResponseDeviceGroupDTO | null}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'))//, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'))//, RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -180,8 +187,38 @@ export class BuyerReservationController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @UserDecorator() user: ILoggedInUser,
     @Body() deviceGroupToRegister: AddGroupDTO,
+    @Query('orgId') orgId : number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
 
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      if (user.role === Role.ApiUser) {
+
+          if (organization.api_user_id !== user.api_user_id) {
+              throw new BadRequestException({
+                  success: false,
+                  message: 'Organization requested belongs to other apiuser',
+              });
+          }
+
+          if (orguser.role === Role.Buyer) {
+              console.log("when apiuser is buyer");
+              organizationId = orgId;
+          }
+      }
+      else {
+        if (user.role === Role.Buyer) {
+          
+          if (organizationId !== organization.id) {
+              throw new BadRequestException({
+                  success: false,
+                  message: 'User does not associated with the requested organization',
+              });
+          }
+        }
+      }
+    }
     //integer range which is for deviceId in device(id) table
     //-2147483648 to +2147483647
     //https://www.postgresql.org/docs/9.1/datatype-numeric.html

@@ -17,6 +17,7 @@ import {HistoryDeviceGroupNextIssueCertificate} from './history_next_issuance_da
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import {CheckCertificateIssueDateLogForDeviceEntity} from '../device/check_certificate_issue_date_log_for_device.entity'
 import {Certificate} from '@energyweb/issuer-api';
+import { UserModule } from '../user/user.module';
 @Module({
   imports: [
    
@@ -36,7 +37,7 @@ import {Certificate} from '@energyweb/issuer-api';
     OrganizationModule,
     YieldConfigModule,
     FileModule,
-    
+    UserModule,
   ],
   providers: [DeviceGroupService],
   exports: [DeviceGroupService],
