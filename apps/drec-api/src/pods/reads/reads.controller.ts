@@ -33,7 +33,7 @@ import { NewIntmediateMeterReadDTO } from '../reads/dto/intermediate_meter_read.
 import { Device, DeviceService } from '../device';
 import moment from 'moment';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { ILoggedInUser } from '../../models';
+import { ILoggedInUser, IUser } from '../../models';
 import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
@@ -155,9 +155,10 @@ export class ReadsController extends BaseReadsController {
   /*: Promise<ReadDTO[]>*/ {
     console.log("With in newgetReads")
     //finding the device details throught the device service
+    let orguser : IUser | null;
     if(filter.organizationId) {
       const organization = await this.organizationService.findOne(filter.organizationId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      orguser = await this.userService.findByEmail(organization.orgEmail);
       if(user.role === Role.ApiUser) {
         if(user.api_user_id != organization.api_user_id) {
           throw new BadRequestException({
@@ -166,12 +167,6 @@ export class ReadsController extends BaseReadsController {
           });
         }
         else {
-          if(orguser.role === Role.OrganizationAdmin && user.organizationId != organization.id) {
-            throw new BadRequestException({
-              success: false,
-              message: `An apiuser's developer can't view the reads of other organization`,
-            });
-          }
           user.organizationId = filter.organizationId;
         }
       }
@@ -199,12 +194,35 @@ export class ReadsController extends BaseReadsController {
     if (month && !year) {
       throw new HttpException('Year is required when month is given', 400)
     }
-    console.log(user.role);
-    if (user.role === 'Buyer' || user.role === 'Admin') {
+    
+    if (user.role === 'Buyer' || user.role === 'Admin' || (orguser != undefined && orguser.role === Role.Buyer)) {
 
       device = await this.deviceService.findOne(parseInt(meterId));
+      //@ts-ignore
+      if (orguser != undefined && device.api_user_id === null && orguser.role === enums_1.Role.Buyer) {
+        throw new BadRequestException({
+            success: false,
+            message: `An buyer of apiuser can't view the reads of direct organization`,
+        });
+      }
+      if (user.role === Role.Buyer) {
+          //@ts-ignore
+          if (device.api_user_id != null) {
+              throw new BadRequestException({
+                  success: false,
+                  message: `An buyer can't view the reads of apiuser's organization`,
+              });
+          }
 
-    } else {
+          if (orguser != undefined && device.organizationId === orguser.organization.id) {
+              throw new BadRequestException({
+                  success: false,
+                  message: `The organizationId given not same as the device's organization `,
+              });
+          }
+      } 
+    }
+    else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
     }
     console.log("getmeterdevice");
