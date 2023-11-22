@@ -163,7 +163,7 @@ export class ReadsController extends BaseReadsController {
         if(user.api_user_id != organization.api_user_id) {
           throw new BadRequestException({
             success: false,
-            message: `An apiuser cannot view the rads of other apiuser's`,
+            message: `An apiuser cannot view the reads of other apiuser's`,
           });
         }
         else {
