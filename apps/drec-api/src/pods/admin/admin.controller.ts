@@ -73,7 +73,7 @@ export class AdminController {
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
@@ -118,7 +118,7 @@ export class AdminController {
   // @Roles(Role.Admin)
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
-  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
+  @ACLModules("ADMIN_APIUSER_ORGANIZATION_CRUDL")
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
