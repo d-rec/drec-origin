@@ -194,8 +194,8 @@ export class ReadsController extends BaseReadsController {
     if (month && !year) {
       throw new HttpException('Year is required when month is given', 400)
     }
-    
-    if (user.role === 'Buyer' || user.role === 'Admin' || (orguser != undefined && orguser.role === Role.Buyer)) {
+   // console.log("orguser",orguser);(orguser != undefined && orguser.role === Role.Buyer)
+    if (user.role === 'Buyer' || user.role === 'Admin' || user.role === 'ApiUser') {
 
       device = await this.deviceService.findOne(parseInt(meterId));
       //@ts-ignore

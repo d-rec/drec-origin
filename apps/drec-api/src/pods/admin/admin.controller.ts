@@ -70,6 +70,7 @@ export class AdminController {
   *It is Get Api to get the list all the users with filters and pagination.
   */
   @Get('/users')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -114,7 +115,8 @@ export class AdminController {
   * @param {orhanizationId} is type of number which is the identifier of an organization
   */
   @Get('/organizations/user/:organizationId')
-  @Roles(Role.Admin)
+  // @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT_CRUDL")
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })

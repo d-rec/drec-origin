@@ -65,7 +65,7 @@ export class PermissionService {
         }
         //console.log(addedPermissionList)
         var permissionValue = (this.Permissionvalue.computePermissions(addedPermissionList));
-        //console.log(permissionValue)
+        console.log(permissionValue)
         const userpermission = await (this.findOne({ aclmodulesId: data.aclmodulesId, entityType: data.entityType, entityId: data.entityId }));
         //console.log("permission69");
         //console.log(userpermission);
@@ -111,10 +111,10 @@ export class PermissionService {
 
         const moduleId = await (this.ACLpermissionService.findOne({ id: data.aclmodulesId }));
 
-        //console.log(moduleId)
+        console.log("114",moduleId)
         const Ispermission = await (this.Permissionvalue.checkModulePermissionAgainstUserPermission(moduleId.permissionsValue, newpermissionvalue))
 
-        //console.log(Ispermission);
+        console.log("117",Ispermission);
         if (data.permissions.length === Ispermission.length) {
             return true;
         }
@@ -123,7 +123,7 @@ export class PermissionService {
     async findById(roleId: any, userId: any, modulename: any): Promise<IModulePermissionsConfig[]> {
 
         const moduleId = await (this.ACLpermissionService.findOne({ name: modulename[0] }));
-        //console.log("moduleId",moduleId);
+        console.log("moduleId", moduleId);
 
         const userpermission = await (this.repository.find({
             relations: ['aclmodules'],
