@@ -44,23 +44,23 @@ import {
   isRole,
   ResponseSuccess,
 } from '../../models';
-import { ActiveUserGuard, PermissionGuard,RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
- import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto'
+import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto'
 
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/Organization')
-@UseGuards(AuthGuard('jwt'),PermissionGuard)
+@UseGuards(AuthGuard('jwt'), PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
-  constructor(private readonly organizationService: OrganizationService) {}
+  constructor(private readonly organizationService: OrganizationService) { }
 
   /**
    * 
@@ -78,14 +78,14 @@ export class OrganizationController {
   async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
-    console.log("With in getOrg at org controller",organizationId);
+    console.log("With in getOrg at org controller", organizationId);
     return await this.organizationService.findOne(organizationId);
   }
- /**
-   * This Api route to get all organization of apiuser
-   * @param param0 
-   * @returns 
-   */
+  /**
+    * This Api route to get all organization of apiuser
+    * @param param0 
+    * @returns 
+    */
   @Get('/apiuser/all_organization')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Roles(Role.ApiUser)
@@ -103,7 +103,7 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(filterDto, pageNumber, limit,loggedUser);
+    return await this.organizationService.getAll(filterDto, pageNumber, limit, loggedUser);
   }
 
   /**
@@ -116,8 +116,8 @@ export class OrganizationController {
   @Get('/users')
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
-  @ApiQuery({name:'pageNumber',type:Number,required: false})
-  @ApiQuery({name:'limit', type:Number,required: false})
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -128,17 +128,42 @@ export class OrganizationController {
   })
   async getOrganizationUsers(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
-/**
- * 
- * @param organizationId 
- * @param loggedUser 
- * @returns 
+
+  /**
+ * It is GET api to fetch an organization renord.
+ * @param {orhanizationId} is type of number which is the identifier of an organization
+ * @return { OrganizationDTO | undefined } OrganizationDto is for success response 
+ * and undefined when there is no particular record not available.
  */
+  @Get('/:id')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  //  @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules("ORGANIZATION_MANAGEMENT_CRUDL")
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OrganizationDTO,
+    description: 'Gets an organization',
+  })
+  @ApiNotFoundResponse({
+    description: `The organization with the id doesn't exist`,
+  })
+  async getOrganizationById(
+    @Param('id', new ParseIntPipe()) organizationId: number,
+  ): Promise<OrganizationDTO | undefined> {
+    return this.organizationService.findOne(organizationId);
+  }
+  /**
+   * 
+   * @param organizationId 
+   * @param loggedUser 
+   * @returns 
+   */
   @Get('/:id/invitations')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Permission('Read')
@@ -160,12 +185,12 @@ export class OrganizationController {
       InvitationDTO.fromInvitation(inv),
     );
   }
-/**
- * This api route use for add organization afte user login (but now it directly added at register time)
- * @param organizationToRegister 
- * @param loggedUser 
- * @returns {OrganizationDTO}
- */
+  /**
+   * This api route use for add organization afte user login (but now it directly added at register time)
+   * @param organizationToRegister 
+   * @param loggedUser 
+   * @returns {OrganizationDTO}
+   */
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.OrganizationAdmin)
@@ -191,14 +216,14 @@ export class OrganizationController {
       loggedUser,
     );
   }
-/**
- * This Api route use for change the user role 
- * @param organizationId ;number "in api param is id"
- * @param memberId :number "in api param is userId"
- * @body {role} 
- * @param loggedUser 
- * @returns {SuccessResponseDTO}
- */
+  /**
+   * This Api route use for change the user role 
+   * @param organizationId ;number "in api param is id"
+   * @param memberId :number "in api param is userId"
+   * @body {role} 
+   * @param loggedUser 
+   * @returns {SuccessResponseDTO}
+   */
   @Put(':id/change-role/:userId')
   @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
