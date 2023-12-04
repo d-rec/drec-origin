@@ -111,10 +111,7 @@ export class PermissionService {
 
         const moduleId = await (this.ACLpermissionService.findOne({ id: data.aclmodulesId }));
 
-        console.log("114",moduleId)
         const Ispermission = await (this.Permissionvalue.checkModulePermissionAgainstUserPermission(moduleId.permissionsValue, newpermissionvalue))
-
-        console.log("117",Ispermission);
         if (data.permissions.length === Ispermission.length) {
             return true;
         }
@@ -123,8 +120,6 @@ export class PermissionService {
     async findById(roleId: any, userId: any, modulename: any): Promise<IModulePermissionsConfig[]> {
 
         const moduleId = await (this.ACLpermissionService.findOne({ name: modulename[0] }));
-        console.log("moduleId", moduleId);
-
         const userpermission = await (this.repository.find({
             relations: ['aclmodules'],
             where: [

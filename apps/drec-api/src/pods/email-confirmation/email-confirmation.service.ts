@@ -30,20 +30,20 @@ export class EmailConfirmationService {
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
     private mailService: MailService,
-    @Inject(forwardRef(() => UserService)) private readonly userService : UserService,
-    private readonly oauthClientCredentialsService : OauthClientCredentialsService,
+    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) { }
 
   public async create(user: User): Promise<EmailConfirmation | null> {
-    console.log("user",user);
-   const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
-   console.log("client",client);
-  //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
-    if((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+    console.log("user", user);
+    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
+    console.log("client", client);
+    //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
+    if ((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
       console.log("With in email conf Service")
       const exists = await this.repository.findOne({
         where: {
-        user: { email: user.email }
+          user: { email: user.email }
         },
         relations: ['user']
       });
@@ -61,15 +61,15 @@ export class EmailConfirmationService {
         token,
         expiryTimestamp,
       });
-    // if (inviteuser) {
-    //   //  await this.sendResetPasswordRequest(user.email, token);
-    //   await this.sendInvitation(orgname, user.email, token);
-    // } else {
+      // if (inviteuser) {
+      //   //  await this.sendResetPasswordRequest(user.email, token);
+      //   await this.sendInvitation(orgname, user.email, token);
+      // } else {
       await this.sendConfirmationEmail(user.email);
-    // }
+      // }
       return emailConfirmation;
     }
-   return null;
+    return null;
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
@@ -199,7 +199,7 @@ export class EmailConfirmationService {
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
     const currentToken = await this.getByEmail(email);
-
+    console.log("currentToken", currentToken)
     if (!currentToken) {
       return {
         message: "Email not found or Email not registered",
@@ -209,11 +209,11 @@ export class EmailConfirmationService {
     const { id, confirmed } = currentToken;
     let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
 
-    await this.sendResetPasswordRequest(email.toLowerCase(), token);
+    await this.sendResetPasswordRequest(email.toLowerCase(), token, currentToken.user.role);
 
     return {
       success: true,
-      message: 'Password Reset Mail has been sent to your authorized Email.',
+      message: 'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
   public async generatetoken(currentToken, id) {
@@ -281,8 +281,9 @@ export class EmailConfirmationService {
   private async sendResetPasswordRequest(
     email: string,
     token: string,
+    role?: string
   ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}`;
+    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}&role=${role}`;
 
     const result = await this.mailService.send({
       to: email,

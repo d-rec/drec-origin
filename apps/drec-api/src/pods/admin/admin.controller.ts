@@ -71,7 +71,7 @@ export class AdminController {
   */
   @Get('/users')
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
-  @Roles(Role.Admin)
+  // @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
