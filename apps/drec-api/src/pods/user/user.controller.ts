@@ -229,7 +229,7 @@ export class UserController {
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -313,7 +313,7 @@ export class UserController {
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   /*@UseGuards(PermissionGuard) */
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,

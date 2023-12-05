@@ -30,6 +30,9 @@ export class ClientCredentialsStrategy extends PassportStrategy(
 
     if(request.url.split('/')[3] === 'forget-password') {
       const user = await this.userService.findByEmail(request.body.email);
+      if(!user) {
+        throw new UnauthorizedException({statusCode: 401, message:`The requested email ${request.body.email} is not registered with us.. Please check your email...`});
+      }
       request.user = user;
     }
 
