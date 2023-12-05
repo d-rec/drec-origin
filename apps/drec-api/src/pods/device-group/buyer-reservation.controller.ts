@@ -12,6 +12,7 @@ import {
   ValidationPipe,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -175,8 +176,9 @@ export class BuyerReservationController {
    * @returns {ResponseDeviceGroupDTO | null}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'))//, RolesGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
   @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -205,6 +207,15 @@ export class BuyerReservationController {
           if (orguser.role === Role.Buyer) {
               console.log("when apiuser is buyer");
               organizationId = orgId;
+              deviceGroupToRegister.api_user_id = user.api_user_id;
+              console.log("reservation apiuserId:",deviceGroupToRegister.api_user_id);
+          }
+
+          if(orguser.role != Role.Buyer) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized for ${orguser.role}`,
+            });
           }
       }
       else {

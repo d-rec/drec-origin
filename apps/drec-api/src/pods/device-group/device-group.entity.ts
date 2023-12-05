@@ -173,4 +173,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   // @ManyToMany(() => Device)
   // @JoinTable()
   // device: Device[];
+
+  @Column({ nullable: true, default: null })
+  api_user_id : string;  
 }

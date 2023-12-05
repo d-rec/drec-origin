@@ -692,6 +692,9 @@ export class DeviceGroupService {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
       }
+      if(group.api_user_id) {
+        deviceGroup['api_user_id'] = group.api_user_id;
+      }
       let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,
