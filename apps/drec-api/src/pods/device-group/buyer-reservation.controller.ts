@@ -13,6 +13,8 @@ import {
   ConflictException,
   BadRequestException,
   UnauthorizedException,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -99,16 +101,66 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @Permission('Read')
+  @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
+  @ApiQuery({ name: 'apiuserId', type: String, required: false, description: "This query parameter is used for Admin to list the reservations by ApiUser" })
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiOkResponse({
     type: [DeviceGroupDTO],
     description: 'Returns all Device groups',
   })
-  async getAll(): Promise<DeviceGroupDTO[]> {
+  async getAll(
+    @UserDecorator() user: ILoggedInUser,
+    @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
+    @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    )/*: Promise<DeviceGroupDTO[]>*/ {
     // return new Promise((resolve,reject)=>{
     //   resolve([]);
     // });
     /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
-    return this.deviceGroupService.getAll();
+    console.log("With in getAll");
+    let organization : any;
+    if(!apiuserId) {
+      apiuserId = user.api_user_id;
+    }
+ 
+    if(organizationId) {
+      organization = await this.organizationService.findOne(organizationId);
+      if(user.role === Role.ApiUser) {
+        console.log("When user role is apiuser")
+        if(organization.api_user_id != user.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message: 'Organization requested is belongs to other apiuser',
+          });
+        }
+      }
+    }
+ 
+    if(apiuserId) {
+      if(user.role === Role.ApiUser) {
+        console.log("user apiuser:",user.api_user_id);
+        if(apiuserId != user.api_user_id) {
+          throw new UnauthorizedException({
+            success: false,
+            message: 'An apiuser is unauthorized to request for other apiuser',
+          });
+        }
+      }
+ 
+      if(organizationId && apiuserId != organization.api_user_id) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'The requested organization is not belongs to the apiuser',
+        });
+      }
+    }
+    return this.deviceGroupService.getAll(user, organizationId, apiuserId, pageNumber, limit);
   }
 
 

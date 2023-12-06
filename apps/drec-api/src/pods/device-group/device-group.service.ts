@@ -16,7 +16,7 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In, Between, LessThanOrEqual, getConnection, Brackets
+  In, Between, LessThanOrEqual, getConnection, Brackets, SelectQueryBuilder
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -48,7 +48,8 @@ import {
   FuelCode,
   DevicetypeCode,
   SingleDeviceIssuanceStatus,
-  ReadType
+  ReadType,
+  Role
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -130,12 +131,35 @@ export class DeviceGroupService {
 
   ) { }
 
-  async getAll(): Promise<DeviceGroupDTO[]> {
-    const groups = await this.repository.find({
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
+    console.log("With in dg service")
+    let query : SelectQueryBuilder<DeviceGroup> = await this.repository
+      .createQueryBuilder('group')
+      .orderBy('group.createdAt', 'DESC');
+ 
+    if(apiuserId) {
+      console.log("when it has apiuserId")
+      if(user.role  === Role.Admin && apiuserId === user.api_user_id) {
+        query.andWhere(`group.api_user_id IS NULL`);
+      }
+      else {
+        query.andWhere(`group.api_user_id = '${apiuserId}'`);
+      }
+      console.log("after query")
+    }
+ 
+    if(organizationId) {
+      query.andWhere(`group.organizationId = '${organizationId}'`);
+    }
+    console.log("Query before")
+    const [groups, totalCount] = await query
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+    console.log('group:',groups)
+        const totalPages = Math.ceil(totalCount / limit);
+ 
+    console.log("groups:", groups);
     const groupsWithOrganization = await Promise.all(
       groups.map(async (group: DeviceGroupDTO) => {
         const organization = await this.organizationService.findOne(
@@ -147,7 +171,13 @@ export class DeviceGroupService {
         return group;
       }),
     );
-    return groupsWithOrganization;
+ 
+    return {
+      devicegroups: groupsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    }
   }
 
   async findById(id: number): Promise<DeviceGroupDTO> {
