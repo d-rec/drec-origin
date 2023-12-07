@@ -102,6 +102,7 @@ import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import { Certificate } from '@energyweb/issuer-api';
+import { UserService } from '../user/user.service';
 
 
 
@@ -128,6 +129,7 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
+    private readonly userService: UserService,
 
   ) { }
 
@@ -180,13 +182,58 @@ export class DeviceGroupService {
     }
   }
 
-  async findById(id: number): Promise<DeviceGroupDTO> {
+  async findById(id: number, user?: ILoggedInUser): Promise<DeviceGroupDTO> {
     const deviceGroup = await this.repository.findOne({
       id,
     });
     if (!deviceGroup) {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
+    if(user) {
+      if(user.role === Role.ApiUser) { 
+        const organization = await this.organizationService.findOne(user.organizationId);
+        const orguser = await this.userService.findByEmail(organization.orgEmail);
+        if(orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
+          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+          if(!isMyDevice) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other's devices`,
+            });
+          }
+        }
+        else if(orguser.role === Role.Buyer || orguser.role === Role.SubBuyer) {
+          if(deviceGroup.organizationId != user.organizationId) {
+             throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other organizations`,
+            });
+          }
+        }
+  
+      }
+      
+      else {
+        if(user.role === Role.OrganizationAdmin || user.role === Role.DeviceOwner) {
+          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+          if(!isMyDevice) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other's devices`,
+            });
+          }
+        }
+        else if(user.role === Role.Buyer || user.role === Role.SubBuyer) {
+          if(deviceGroup.organizationId != user.organizationId) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other organizations`,
+            });
+          }
+        }
+      }
+    }
+    
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     const organization = await this.organizationService.findOne(
       deviceGroup.organizationId,
@@ -2347,5 +2394,15 @@ export class DeviceGroupService {
       totalCount
     };
     return response;
+  }
+
+  public async checkdeveloperorganization(deviceIds: number[], organizationId: number) : Promise<any> {
+    const isMyDevice =  await Promise.all(await deviceIds.map(async(deviceId) => {
+      const device = await this.deviceService.findOne(Number(deviceId));
+      console.log("Within funuction:", typeof(device.organizationId), typeof(organizationId));
+      return device.organizationId === Number(organizationId);
+    }));
+    
+    return isMyDevice.some((result) => result);
   }
 }

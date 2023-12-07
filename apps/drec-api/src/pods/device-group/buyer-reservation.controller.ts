@@ -211,13 +211,42 @@ export class BuyerReservationController {
    * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser"})
   @ApiOkResponse({
     type: DeviceGroupDTO,
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async get(@Param('id') id: number): Promise<DeviceGroupDTO | null> {
-    return this.deviceGroupService.findById(id);
+  async get(@Param('id') id: number,
+            @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
+            @UserDecorator() user: ILoggedInUser,
+  ): Promise<DeviceGroupDTO | null> {
+    if(organizationId) {
+      const organization = await this.organizationService.findOne(organizationId);
+      if(user.role === Role.ApiUser) {
+        if(user.api_user_id != organization.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message: 'Organization requested is belongs to other apiuser',
+          });
+        }
+        else {
+          user.organizationId = organizationId;
+        }
+      }
+      else {
+        if(organizationId != user.organizationId) {
+          throw new BadRequestException({
+            success: false,
+            message: 'Organization requested is not same as logged in user organization',
+          });
+        }
+      }
+    }
+    return this.deviceGroupService.findById(id, user);
   }
 
   /**
