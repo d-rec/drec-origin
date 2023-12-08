@@ -380,7 +380,7 @@ export class DeviceService {
 
   public async findForGroup(groupId: number): Promise<Device[]> {
 
-    const result = this.repository.find({
+    const result = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',

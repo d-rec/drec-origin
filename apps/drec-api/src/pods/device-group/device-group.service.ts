@@ -16,7 +16,7 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In, Between, LessThanOrEqual, getConnection, Brackets
+  In, Between, LessThanOrEqual, getConnection, Brackets, SelectQueryBuilder
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -48,7 +48,8 @@ import {
   FuelCode,
   DevicetypeCode,
   SingleDeviceIssuanceStatus,
-  ReadType
+  ReadType,
+  Role
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -101,6 +102,7 @@ import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import { Certificate } from '@energyweb/issuer-api';
+import { UserService } from '../user/user.service';
 
 
 
@@ -127,15 +129,39 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
+    private readonly userService: UserService,
 
   ) { }
 
-  async getAll(): Promise<DeviceGroupDTO[]> {
-    const groups = await this.repository.find({
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
+    console.log("With in dg service")
+    let query : SelectQueryBuilder<DeviceGroup> = await this.repository
+      .createQueryBuilder('group')
+      .orderBy('group.createdAt', 'DESC');
+ 
+    if(apiuserId) {
+      console.log("when it has apiuserId")
+      if(user.role  === Role.Admin && apiuserId === user.api_user_id) {
+        query.andWhere(`group.api_user_id IS NULL`);
+      }
+      else {
+        query.andWhere(`group.api_user_id = '${apiuserId}'`);
+      }
+      console.log("after query")
+    }
+ 
+    if(organizationId) {
+      query.andWhere(`group.organizationId = '${organizationId}'`);
+    }
+    console.log("Query before")
+    const [groups, totalCount] = await query
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+    console.log('group:',groups)
+        const totalPages = Math.ceil(totalCount / limit);
+ 
+    console.log("groups:", groups);
     const groupsWithOrganization = await Promise.all(
       groups.map(async (group: DeviceGroupDTO) => {
         const organization = await this.organizationService.findOne(
@@ -147,16 +173,67 @@ export class DeviceGroupService {
         return group;
       }),
     );
-    return groupsWithOrganization;
+ 
+    return {
+      devicegroups: groupsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    }
   }
 
-  async findById(id: number): Promise<DeviceGroupDTO> {
+  async findById(id: number, user?: ILoggedInUser): Promise<DeviceGroupDTO> {
     const deviceGroup = await this.repository.findOne({
       id,
     });
     if (!deviceGroup) {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
+    if(user) {
+      if(user.role === Role.ApiUser) { 
+        const organization = await this.organizationService.findOne(user.organizationId);
+        const orguser = await this.userService.findByEmail(organization.orgEmail);
+        if(orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
+          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+          if(!isMyDevice) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other's devices`,
+            });
+          }
+        }
+        else if(orguser.role === Role.Buyer || orguser.role === Role.SubBuyer) {
+          if(deviceGroup.organizationId != user.organizationId) {
+             throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other organizations`,
+            });
+          }
+        }
+  
+      }
+      
+      else {
+        if(user.role === Role.OrganizationAdmin || user.role === Role.DeviceOwner) {
+          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+          if(!isMyDevice) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other's devices`,
+            });
+          }
+        }
+        else if(user.role === Role.Buyer || user.role === Role.SubBuyer) {
+          if(deviceGroup.organizationId != user.organizationId) {
+            throw new UnauthorizedException({
+              success: false,
+              message: `Unauthorized to view the reservation of other organizations`,
+            });
+          }
+        }
+      }
+    }
+    
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     const organization = await this.organizationService.findOne(
       deviceGroup.organizationId,
@@ -691,6 +768,9 @@ export class DeviceGroupService {
       if (buyerId && buyerAddress) {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
+      }
+      if(group.api_user_id) {
+        deviceGroup['api_user_id'] = group.api_user_id;
       }
       let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
@@ -2314,5 +2394,15 @@ export class DeviceGroupService {
       totalCount
     };
     return response;
+  }
+
+  public async checkdeveloperorganization(deviceIds: number[], organizationId: number) : Promise<any> {
+    const isMyDevice =  await Promise.all(await deviceIds.map(async(deviceId) => {
+      const device = await this.deviceService.findOne(Number(deviceId));
+      console.log("Within funuction:", typeof(device.organizationId), typeof(organizationId));
+      return device.organizationId === Number(organizationId);
+    }));
+    
+    return isMyDevice.some((result) => result);
   }
 }
