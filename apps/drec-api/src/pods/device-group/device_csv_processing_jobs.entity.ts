@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsArray,
+  IsOptional,
 } from 'class-validator';
 
 export enum StatusCSV {
@@ -40,4 +41,8 @@ export class DeviceCsvFileProcessingJobsEntity extends ExtendedBaseEntity {
   @Column()
   @IsEnum(StatusCSV)
   status: StatusCSV;
+
+  @Column({nullable: true, default: null})
+  @IsOptional()
+  api_user_id: string;
 }

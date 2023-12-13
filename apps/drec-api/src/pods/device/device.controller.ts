@@ -14,6 +14,7 @@ import {
   ConflictException,
   HttpException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import moment from 'moment';
@@ -808,7 +809,7 @@ export class DeviceController {
    * @returns {DeviceCsvFileProcessingJobsEntity}
    */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
@@ -849,7 +850,30 @@ export class DeviceController {
       })
 
     }
-    let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    let jobCreated : any;
+    if(user.role === Role.ApiUser) {
+      const organization = await this.organizationService.findOne(organizationId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      if(organization.api_user_id != user.api_user_id) {
+        throw new BadRequestException({
+          success: false,
+          message: 'The requested organization is belongs to other apiuser'
+        });
+      }
+
+      if(orguser.role != Role.OrganizationAdmin) {
+        throw new  UnauthorizedException({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName, user.api_user_id);
+    }
+    else {
+      jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+    }
 
     //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
 
