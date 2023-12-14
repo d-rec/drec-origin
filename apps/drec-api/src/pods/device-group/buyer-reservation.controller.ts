@@ -620,17 +620,26 @@ export class BuyerReservationController {
    * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
    */
   @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //@Permission('Read')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
     description: 'Returns created jobs of an organization',
   })
   public async getAllCsvJobsBelongingToOrganization(
-    @UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    @UserDecorator() user: ILoggedInUser, 
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+
+    )/*: Promise<Array<DeviceCsvFileProcessingJobsEntity>>*/ {
     console.log("user", user);
     console.log("organization", organizationId);
 
@@ -641,10 +650,47 @@ export class BuyerReservationController {
           'User needs to have organization added'
       })
     }
-    if(user.role==='Admin'){
-      return this.deviceGroupService.getAllCSVJobsForAdmin();
+    
+    if(orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+      if(organization.api_user_id != user.api_user_id) {
+        throw new BadRequestException({
+          success: false,
+          message:'The requested organization is belongs to other apiuser'
+        });
+      }
+
+      if(user.role === Role.ApiUser) {
+        if(orguser.role != Role.OrganizationAdmin) {
+          throw new UnauthorizedException({
+            success: false,
+            message:'Unauthorized'
+          });
+        }
+      }
+      else {  
+        if(user.role != Role.Admin) {
+          if(orgId != organizationId) {
+            throw new BadRequestException({
+              success: false,
+              message:`The orgId at query param is not same as user's organization`
+            });
+          }
+        }
+      }
     }
-    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
+    
+    if(user.role==='Admin'){
+      return this.deviceGroupService.getAllCSVJobsForAdmin(orgId, pageNumber, limit);
+    }
+    else if(user.role === Role.ApiUser) {
+      return this.deviceGroupService.getAllCSVJobsForApiUser(user.api_user_id, orgId, pageNumber, limit);      
+    }
+    else {
+      return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId, pageNumber, limit);
+    }
   }
 
   /**
