@@ -590,9 +590,10 @@ export class BuyerReservationController {
    * @returns {JobFailedRowsDTO | undefined}
    */
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
-  // @Permission('Read')
-  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)//, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
@@ -600,16 +601,59 @@ export class BuyerReservationController {
   })
   public async getBulkUploadJobStatus(
     @Param('id') jobId: number,
-    @UserDecorator() { organizationId }: ILoggedInUser
+    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null
   ): Promise<JobFailedRowsDTO | undefined> {
     console.log("jobId", jobId);
 
+    if(orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+      if(role === Role.ApiUser) {
+        if(organization.api_user_id != api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message:'The requested organization is belongs to other apiuser'
+          });
+        }
+
+        if(orguser.role != Role.OrganizationAdmin) {
+          throw new UnauthorizedException({
+            success: false,
+            message:'Unauthorized'
+          });
+        }
+      }
+      else {
+        if(orgId != organizationId) {
+          throw new BadRequestException({
+            success: false,
+            message:`The organizationId in query params should be same as user's organizationId`
+          });
+        }
+
+        if(role === Role.Admin) {
+          orgId = null;
+        }
+      }
+    }
+    else {
+      if(role === Role.ApiUser) {
+        throw new BadRequestException({
+          success: false,
+          message:`Add the orgId at query param`
+        });
+      }
+    }
+  /*  
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
-    console.log("data", data);
+    console.log("data", data); */
+
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId
+      jobId, orgId
     );
   }
 

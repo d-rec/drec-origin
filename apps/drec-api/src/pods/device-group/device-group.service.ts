@@ -607,7 +607,23 @@ export class DeviceGroupService {
 
   async getFailedRowDetailsForCSVJob(
     jobId: number,
+    organizationId?: number,
   ): Promise<JobFailedRowsDTO | undefined> {
+
+    if(organizationId) {
+      const csvjob = await this.repositoyCSVJobProcessing.findOne({
+        jobId: jobId,
+        organizationId: organizationId,
+      });
+
+      if(!csvjob) {
+        throw new UnauthorizedException({
+          success: false,
+          message:`The job requested is belongs to other organization`
+        });
+      }
+    }
+
     return await this.repositoryJobFailedRows.findOne({
       jobId: jobId,
     });
