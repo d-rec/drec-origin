@@ -502,6 +502,7 @@ export class DeviceGroupService {
     organizationId: number,
     status: StatusCSV,
     fileId: string,
+    api_user_id?: string,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
 
     return await this.repositoyCSVJobProcessing.save({
@@ -509,6 +510,7 @@ export class DeviceGroupService {
       organizationId,
       status,
       fileId,
+      api_user_id,
     });
   }
 
@@ -892,6 +894,7 @@ export class DeviceGroupService {
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    api_user_id?: string,
   ): Promise<
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
@@ -901,7 +904,12 @@ export class DeviceGroupService {
     )[] = await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
-          return await this.deviceService.register(orgCode, device);
+          if(api_user_id == null) {
+            return await this.deviceService.register(orgCode, device);
+          }
+          else {
+            return await this.deviceService.register(orgCode, device, api_user_id, Role.ApiUser);
+          }
         } catch (e) {
           console.log(e)
           return { isError: true, device: device, errorDetail: e };
@@ -1607,6 +1615,7 @@ export class DeviceGroupService {
       const devicesRegistered = await this.registerCSVBulkDevices(
         organizationId,
         recordsToRegister,
+        filesAddedForProcessing.api_user_id,
       );
       console.log(devicesRegistered);
       //@ts-ignore

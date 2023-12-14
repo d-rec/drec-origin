@@ -51,6 +51,13 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       // let clientData=this.oAuthClientCredentialService.generateClientCredentials()
       //this.oAuthClientCredentialService.store(clientData.client_id,clientData.client_secret,1);
       client = await this.validateClient(clientId, clientSecret);
+      if((request.user != undefined) && (request.user.api_user_id != client.api_user_id)) {
+        throw new UnauthorizedException({
+          statusCode: 401, 
+          message:"Client credentials and authorization is mismatching.. Invalid client credentials.."
+        }); 
+      }
+
       if(request.url.split('/')[3] != 'register') {
         const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
         console.log("clientuser", user);
