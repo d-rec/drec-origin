@@ -684,8 +684,6 @@ export class BuyerReservationController {
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
 
     )/*: Promise<Array<DeviceCsvFileProcessingJobsEntity>>*/ {
-    console.log("user", user);
-    console.log("organization", organizationId);
 
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({
@@ -699,14 +697,14 @@ export class BuyerReservationController {
       const organization = await this.organizationService.findOne(orgId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
 
-      if(organization.api_user_id != user.api_user_id) {
-        throw new BadRequestException({
-          success: false,
-          message:'The requested organization is belongs to other apiuser'
-        });
-      }
-
       if(user.role === Role.ApiUser) {
+        if(organization.api_user_id != user.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message:'The requested organization is belongs to other apiuser'
+          });
+        }
+
         if(orguser.role != Role.OrganizationAdmin) {
           throw new UnauthorizedException({
             success: false,
