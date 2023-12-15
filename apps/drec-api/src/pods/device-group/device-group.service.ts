@@ -516,24 +516,83 @@ export class DeviceGroupService {
 
   async getAllCSVJobsForOrganization(
     organizationId: number,
-  ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
 
-    return await this.repositoyCSVJobProcessing.find({
+    const [csvjobs, totalCount] = await this.repositoyCSVJobProcessing.findAndCount({
       where: { organizationId },
       order: {
         createdAt: 'DESC',
       },
+      skip: (pageNumber - 1) * limit,
+      take: limit
     });
+
+    const totalPages = Math.ceil(totalCount / limit);
+ 
+    const csvjobsWithOrganization = await Promise.all(
+      csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvjob.organizationId,
+        );
+        //@ts-ignore
+        csvjob.organization = {
+          name: organization.name,
+        };
+        return csvjob;
+      }),
+    );
+ 
+    return {
+      csvJobs: csvjobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    }
   }
   async getAllCSVJobsForAdmin(
-    
-  ): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
+    orgId?: number,
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
 
-    return await this.repositoyCSVJobProcessing.find({
+    let whereConditions: any = {};
+
+    if (orgId) {
+      whereConditions.organizationId = orgId;
+    }
+
+    const [csvjobs, totalCount] = await this.repositoyCSVJobProcessing.findAndCount({
+      where : whereConditions,
       order: {
         createdAt: 'DESC',
       },
+      skip: (pageNumber - 1) * limit,
+      take: limit
     });
+
+    const totalPages = Math.ceil(totalCount / limit);
+ 
+    const csvjobsWithOrganization = await Promise.all(
+      csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvjob.organizationId,
+        );
+        //@ts-ignore
+        csvjob.organization = {
+          name: organization.name,
+        };
+        return csvjob;
+      }),
+    );
+ 
+    return {
+      csvJobs: csvjobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    }
   }
   async createFailedRowDetailsForCSVJob(
     jobId: number,
@@ -548,7 +607,23 @@ export class DeviceGroupService {
 
   async getFailedRowDetailsForCSVJob(
     jobId: number,
+    organizationId?: number,
   ): Promise<JobFailedRowsDTO | undefined> {
+
+    if(organizationId) {
+      const csvjob = await this.repositoyCSVJobProcessing.findOne({
+        jobId: jobId,
+        organizationId: organizationId,
+      });
+
+      if(!csvjob) {
+        throw new UnauthorizedException({
+          success: false,
+          message:`The job requested is belongs to other organization`
+        });
+      }
+    }
+
     return await this.repositoryJobFailedRows.findOne({
       jobId: jobId,
     });
@@ -2413,5 +2488,46 @@ export class DeviceGroupService {
     }));
     
     return isMyDevice.some((result) => result);
+  }
+
+  async getAllCSVJobsForApiUser(apiuserId: string, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
+    let query : SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> = await this.repositoyCSVJobProcessing
+      .createQueryBuilder('csvjobs')
+      .orderBy('csvjobs.createdAt', 'DESC');
+ 
+    if(apiuserId) {
+        query.andWhere(`csvjobs.api_user_id = '${apiuserId}'`);
+      }
+ 
+    if(organizationId) {
+      query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
+    }
+
+    const [csvjobs, totalCount] = await query
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+
+    const totalPages = Math.ceil(totalCount / limit);
+ 
+    const csvjobsWithOrganization = await Promise.all(
+      csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvjob.organizationId,
+        );
+        //@ts-ignore
+        csvjob.organization = {
+          name: organization.name,
+        };
+        return csvjob;
+      }),
+    );
+ 
+    return {
+      csvJobs: csvjobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    }
   }
 }
