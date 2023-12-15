@@ -421,6 +421,7 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
+    if(role === Role.ApiUser) {
     //@ts-ignore
     if (deviceToRegister.organizationId) {
       console.log("314")
@@ -428,7 +429,18 @@ export class DeviceController {
       console.log(deviceToRegister.organizationId)
       //@ts-ignore
       organizationId = deviceToRegister.organizationId
+    }else{
+      return new Promise((resolve, reject) => {
+
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Organization id is required,please add your developer's Organization `,
+          }),
+        );
+      });
     }
+  }
     return await this.deviceService.register(organizationId, deviceToRegister, api_user_id, role);
 
   }
