@@ -143,6 +143,7 @@ export class CertificateLogController {
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getCertificatesFromUpdatedCertificateTables(
         @Param('groupUid') groupuId: string,
+        @Query('pageNumber') pageNumber: number,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
         console.log("138")
@@ -165,7 +166,7 @@ export class CertificateLogController {
             })
         }
 
-        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
+        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(),pageNumber);
     }
 
     @Get('/redemption-report')

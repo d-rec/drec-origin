@@ -618,14 +618,17 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'externalId', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
   async certifiedlogdaterang(
     @UserDecorator() user: ILoggedInUser,
-    @Query('externalId') externalId: number,
     @Query('groupUid') groupuId: string,
+    @Query('pagenumber') pagenumber: number,
+    @Query('externalId') externalId?: number
   ): Promise<any> {
     // console.log(externalId);
     // console.log(groupuId)
@@ -640,18 +643,7 @@ export class DeviceController {
       })
     }
 
-    let device: DeviceDTO | null
 
-    device = await this.deviceService.findOne(externalId);
-    /// console.log(device);
-    if (device === null) {
-      return new Promise((resolve, reject) => {
-        reject(new ConflictException({
-          success: false,
-          message: 'device not found, invalid value was sent',
-        }))
-      })
-    }
     let group: DeviceGroup | null
     group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
     // console.log(group);
@@ -663,7 +655,24 @@ export class DeviceController {
         }))
       })
     }
-    return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+    if (externalId != null || externalId != undefined) {
+      let device: DeviceDTO | null
+
+      device = await this.deviceService.findOne(externalId);
+      /// console.log(device);
+      if (device === null) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: 'device not found, invalid value was sent',
+          }))
+        })
+      }
+      return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+    } else {
+      return await this.deviceService.getcertifieddevicedaterangeBygroupid(group.id, pagenumber);
+    }
+
   }
   // @Get('/certified/date-range-log')
   // @UseGuards(AuthGuard('jwt'))
