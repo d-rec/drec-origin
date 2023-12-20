@@ -1973,16 +1973,13 @@ export class DeviceGroupService {
     developerExternalId: any,
     groupId: any
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
-    console.log(developerExternalId);
-    console.log(groupId);
-    console.log("result1844");
-    console.log("result1844");
+   
     const result = await this.historynextissuancedaterepository.findOne({
       device_externalid: developerExternalId,
       groupId: groupId,
       status: 'Completed'
     });
-    console.log(result);
+  
     return result
   }
 
@@ -2018,7 +2015,7 @@ export class DeviceGroupService {
     return activeresvation
   }
 
-  async getcurrentInformationofDevicesInReservation(groupuid): Promise<any> {
+  async getcurrentInformationofDevicesInReservation(groupuid,pageNumber?): Promise<any> {
     const group = await this.findOne({ devicegroup_uid: groupuid, reservationActive: true })
     // console.log(group)
     if (group === null) {
@@ -2031,34 +2028,55 @@ export class DeviceGroupService {
     }
     const devices = await this.deviceService.findByIds(group.deviceIdsInt);
     const device_historynextissuance = [];
-    await Promise.all(
-      devices.map(async (device) => {
-        // console.log(device);
-        const historynext_issuancer = await this.historynextissuancedaterepository.find(
-          {
-            where: {
-              groupId: group.id,
-              device_externalid: device.externalId
-            },
-          }
-        );
-        historynext_issuancer.forEach(element => {
-          element.device_externalid = device.developerExternalId
-          delete element["createdAt"];
-          delete element["groupId"];
-          delete element["id"];
-          delete element["updatedAt"];
+    // await Promise.all(
+    //   devices.map(async (device) => {
+    // console.log(device);
+    if (pageNumber === undefined || pageNumber === null) {
+      pageNumber = 1;
+    }
+    const pageSize = 10;
+    let skip = (pageNumber - 1) * pageSize;
+    const queryBuilder = await this.historynextissuancedaterepository
+      .createQueryBuilder('hni')
+      .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
+      .select([
+        'd.developerExternalId AS "externalId"',
+        'hni.* AS historynextissuance',
+      ])
+      .where('hni.groupId = :groupId', { groupId: group.id })
+      .offset(skip).limit(pageSize)
+    //await this.historynextissuancedaterepository.find(
+    //   {
+    //     where: {
+    //       groupId: group.id,
+    //       device_externalid: device.externalId
+    //     },
+    //   }
+    // );
 
-        });
-        device_historynextissuance.push({
-          historynext_issuancer,
+    const count = await queryBuilder.getCount();
 
-        })
-      }),
-    );
+    const result = await queryBuilder.getRawMany();
+    const historynext_issuancer = result
+
+    historynext_issuancer.forEach(element => {
+      element.device_externalid = element.externalId
+      delete element["createdAt"];
+      delete element["groupId"];
+      delete element["id"];
+      delete element["updatedAt"];
+
+    });
+    device_historynextissuance.push({
+      historynext_issuancer,
+
+    })
+    // }),
+    // );
     let AllDeviceshistnextissuansinfo: any = []
     device_historynextissuance.forEach(ele => ele.historynext_issuancer.forEach(he => AllDeviceshistnextissuansinfo.push(he)))
     //console.log(group.id)
+    const totalPages = Math.ceil(count / pageSize);
     let nextissuance = {};
     nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
       where: {
@@ -2069,7 +2087,12 @@ export class DeviceGroupService {
 
     return {
 
-      AllDeviceshistnextissuansinfo,
+      historynextissuansinfo: {
+        AllDeviceshistnextissuansinfo: AllDeviceshistnextissuansinfo,
+        totalItems: count,
+        currentPage: pageNumber,
+        totalPages: totalPages,
+      },
       ongoing_next_issuance: nextissuance
     }
   }

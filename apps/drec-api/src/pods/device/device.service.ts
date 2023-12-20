@@ -233,69 +233,68 @@ export class DeviceService {
     });
     console.log("device", device);
 
-    // if (device) {
-    console.log("207")
-    let jwtToken = await regenerateToken(this.httpService);
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${jwtToken}`
-    };
-    console.log(jwtToken);
-    if (device.fuelCode === null) {
-      return {
-        status: false,
-        message: 'Device Added Failure in I-REC,Item not found for fuel',
-
+    if (device) {
+      let jwtToken = await regenerateToken(this.httpService);
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
       };
+      if (device.fuelCode === null) {
+        return {
+          status: false,
+          message: 'Device Added Failure in I-REC,Item not found for fuel',
+
+        };
+      }
+      const requestBody = {
+        name: `${device.externalId}`,
+        fuel: `/fuels/${device.fuelCode}`
+      };
+      const config: AxiosRequestConfig = {
+        headers,
+      };
+
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
+      console.log(url);
+      try {
+        const response = await this.httpService.post(url, requestBody, config).toPromise();
+        console.log("response", response);
+        const data = response.data;
+        device.IREC_ID = data.code;
+        device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+        await this.repository.save(device);
+        let irecdeviceaddDto = new IrecDevicesInformationEntity();
+        irecdeviceaddDto.IREC_id = data.code,
+          irecdeviceaddDto.event = 'register',
+          irecdeviceaddDto.request = requestBody,
+          irecdeviceaddDto.responses = data
+        await this.irecinforepository.save({
+          ...irecdeviceaddDto
+        })
+
+        return {
+          status: true,
+          message: 'Device Added Successfully in I-REC',
+          IREC_ID: data.code
+        };
+
+      } catch (error) {
+        console.log("error", error);
+        let irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
+
+        irecdeviceerrorlogDto.event = 'register',
+          irecdeviceerrorlogDto.request = requestBody,
+          irecdeviceerrorlogDto.error_log_responses = error
+        await this.irecerrorlogrepository.save({
+          ...irecdeviceerrorlogDto
+        })
+        return {
+          status: false,
+          message: 'Device Added Failure in I-REC, ' + error,
+
+        };
+      }
     }
-    const requestBody = {
-      name: `${device.externalId}`,
-      fuel: `/fuels/${device.fuelCode}`
-    };
-    const config: AxiosRequestConfig = {
-      headers,
-    };
-
-    const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
-    console.log(url);
-    try {
-      const response = await this.httpService.post(url, requestBody, config).toPromise();
-      console.log("response", response);
-      const data = response.data;
-      device.IREC_ID = data.code;
-      device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
-      await this.repository.save(device);
-      let irecdeviceaddDto = new IrecDevicesInformationEntity();
-      irecdeviceaddDto.IREC_id = data.code,
-        irecdeviceaddDto.event = 'register',
-        irecdeviceaddDto.request = requestBody,
-        irecdeviceaddDto.responses = data
-      await this.irecinforepository.save({
-        ...irecdeviceaddDto
-      })
-
-      return {
-        status: true,
-        message: 'Device Added Successfully in I-REC',
-        IREC_ID: data.code
-      };
-    } catch (error) {
-      console.log("error", error);
-      let irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
-
-      irecdeviceerrorlogDto.event = 'register',
-        irecdeviceerrorlogDto.request = requestBody,
-        irecdeviceerrorlogDto.error_log_responses = error
-      await this.irecerrorlogrepository.save({
-        ...irecdeviceerrorlogDto
-      })
-      return {
-        status: false,
-        message: 'Device Added Failure in I-REC, ' + error,
-
-      };
-    }
-    // }
 
     //return { status: false, message: 'device not found' };
   }
@@ -1274,35 +1273,55 @@ export class DeviceService {
       })
 
   }
-  async getcertifieddevicedaterange(device, groupId): Promise<any> {
-    // // const query = {
-    // //   select: ['MIN(entryTime) AS firstEntryTime', 'MAX(entryTime) AS lastEntryTime'],
-    // //   where: { deviceid: externalId, groupId },
-    // // };
-    // const query: FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> = {
-    //   select: ['MIN(checkCertificateIssueDateLogForDevice.certificate_issuance_startdate) AS firststartdateTime', 'MAX(checkCertificateIssueDateLogForDevice.certificate_issuance_enddate) AS lastenddateTime'],
-    //   where: { deviceid: externalId, groupId },
-    // };
-    // const result = await this.checkdevcielogcertificaterepository.find(query);
-    // console.log(result)
-    // return result[0];
-    //console.log(device);
-    //console.log(groupId)
-    // const result = this.checkdevcielogcertificaterepository.find({
-    //   where: {
-    //     deviceid: externalId,
-    //     groupId: groupId[]
-    //   }
-    // })
-    const queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
+  async getcertifieddevicedaterange(groupId, device?): Promise<any> {
+    let queryBuilder;
+
+    queryBuilder = this.checkdevcielogcertificaterepository.createQueryBuilder('deviceData')
       .select('MIN(deviceData.certificate_issuance_startdate)', 'firstcertifiedstartdate')
       .addSelect('MAX(deviceData.certificate_issuance_enddate)', 'lastcertifiedenddate')
+      .leftJoin(Device, "d", "deviceData.externalId = d.externalId")
       .where('deviceData.externalId= :externalId', { externalId: device.externalId })
       .andWhere('deviceData.groupId= :groupId', { groupId });
-
     const result = await queryBuilder.getRawOne();
     let finalresult = { ...result, extenalId: device.developerExternalId }
+
     return finalresult;
+
+
+
+
+
+  }
+  async getcertifieddevicedaterangeBygroupid(groupId, pageNumber?: number): Promise<any> {
+    let queryBuilder;
+    if (pageNumber === undefined || pageNumber === null) {
+      pageNumber = 1;
+    }
+    const pageSize = 10;
+    let skip: number = (pageNumber - 1) * pageSize;
+    console.log(skip);
+    queryBuilder = await this.checkdevcielogcertificaterepository
+      .createQueryBuilder('deviceData')
+      .leftJoin('device', 'd', 'deviceData.externalId = d.externalId')
+      .select([
+        'd.developerExternalId AS "externalId"',
+        'MIN(deviceData.certificate_issuance_startdate) AS firstcertifiedstartdate',
+        'MAX(deviceData.certificate_issuance_enddate) AS lastcertifiedenddate',
+      ])
+      .where('deviceData.groupId = :groupId', { groupId })
+      .groupBy('d.developerExternalId')
+      .offset(skip).limit(pageSize);
+    const result = await queryBuilder.getRawMany();
+    const count = await queryBuilder.getCount();
+    const totalPages = Math.ceil(count / pageSize);
+    //let finalresult = 
+    return {
+      certifieddevices_startToend: result,
+      totalItems: count,
+      currentPage: pageNumber,
+      totalPages: totalPages,
+    };
+
   }
   ///////////////////
 

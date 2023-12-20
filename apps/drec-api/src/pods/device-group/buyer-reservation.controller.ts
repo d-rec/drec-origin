@@ -796,11 +796,13 @@ export class BuyerReservationController {
    */
   @Get('current-information/:groupUid')
   @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK
   })
   public async getReservationcurrentinformation(
     @Param('groupUid') groupuId: string,
+    @Query('pagenumber') pagenumber: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<any> {
     console.log("jobId", groupuId);
@@ -825,7 +827,7 @@ export class BuyerReservationController {
 
 
     return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
-      groupuId
+      groupuId,pagenumber
     );
   }
 }

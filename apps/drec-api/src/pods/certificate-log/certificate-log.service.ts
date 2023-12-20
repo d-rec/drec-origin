@@ -123,35 +123,63 @@ export class CertificateLogService {
 
   }
 
-  async getCertificateFromOldOrNewUfinction(groupid: string): Promise<any[]> {
-    console.log(typeof groupid);
-    console.log(groupid);
-    const certifiedreservation = await this.certificaterrepository.find(
-      {
-        where: {
-          deviceId: groupid,
-        },
-       // skip: offset,
-       // take: limit,
-      })
-     console.log("certifiedreservation",certifiedreservation)
+  async getCertificateFromOldOrNewUfinction(groupid: string,pageNumber?:number): Promise<any> {
+    if (pageNumber === undefined || pageNumber === null) {
+      pageNumber = 1;
+    }
+    let page = pageNumber; // Specify the page number you want to retrieve
+    const itemsPerPage = 20; // Specify the number of items per page
+   
+    const [certifiedreservation, total] = await this.certificaterrepository.findAndCount({
+      where: {
+        deviceId: groupid,
+      },
+      skip: (page - 1) * itemsPerPage,
+      take: itemsPerPage,
+    });
+    const totalPages = Math.ceil(total / itemsPerPage);
+    
     let request: IGetAllCertificatesOptions = {
       //@ts-ignore
       deviceId: parseInt(groupid)
     }
-    console.log(request)
+    
     const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.cretificatereadmoduleRepository.find({
       where: {
         deviceId: groupid,
       },
-     // skip: offset,
-     // take: limit,
+      skip: (page - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
+      take: itemsPerPage, // Specify the number of items to take per page
+
     });
-    console.log("certifiedreservation1",certifiedreservation1)
+    const  total1 =await this.cretificatereadmoduleRepository.find({
+      where: {
+        deviceId: groupid,
+      },
+    });
+    const totalPages1 = Math.ceil(total1.length / itemsPerPage);
+  
     if (certifiedreservation.length > 0) {
-      return this.getfindreservationcertified(certifiedreservation, groupid);
+      const logdata= await this.getfindreservationcertified(certifiedreservation, groupid);
+      const response = {
+        certificatelog: logdata,
+        totalItems: total,
+        currentPage: page,
+        totalPages: totalPages,
+      };
+      
+      return response
+
     } else if (certifiedreservation1.length > 0) {
-      return this.getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation1,groupid);
+      const logdata1= await this.getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation1, groupid);
+      const response2 = {
+        certificatelog: logdata1,
+        totalItems: total1.length,
+        currentPage: page,
+        totalPages: totalPages1,
+      };
+      
+      return response2
     }
   }
 
@@ -213,7 +241,7 @@ export class CertificateLogService {
     return res;
   }
 
-  async getCertificatesUsingGroupIDVersionUpdateOrigin247( certifiedreservation,groupid: string): Promise<CertificateNewWithPerDeviceLog[]> {
+  async getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation, groupid: string): Promise<CertificateNewWithPerDeviceLog[]> {
     // let request: IGetAllCertificatesOptions = {
     //   deviceId: groupid
     // }
