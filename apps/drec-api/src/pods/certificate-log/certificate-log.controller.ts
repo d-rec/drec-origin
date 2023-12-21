@@ -168,7 +168,7 @@ export class CertificateLogController {
     * @param { groupid } Need to ask Namrata
     */
     @Get('/issuer/certified/new/:groupUid')
-    @UseGuards(AuthGuard('jwt'), PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
@@ -188,16 +188,27 @@ export class CertificateLogController {
             })
         }
         const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
-        if (devicegroup === null || devicegroup.buyerId != user.id) {
-            return new Promise((resolve, reject) => {
-                reject(new ConflictException({
+        if (user.role === Role.ApiUser) {
+            if (devicegroup.api_user_id != user.api_user_id) {
+                throw new BadRequestException({
                     success: false,
-                    message: 'Group UId is not of this buyer, invalid value was sent',
-                }))
-            })
+                    message: 'Group UId  does not  belongs to this apiuser',
+                });
+            }
+            return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
+        } else {
+            if (devicegroup === null || devicegroup.buyerId != user.id) {
+                return new Promise((resolve, reject) => {
+                    reject(new ConflictException({
+                        success: false,
+                        message: 'Group UId is not of this buyer, invalid value was sent',
+                    }))
+                })
+            }
+            return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
         }
 
-        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
+
     }
 
     /**

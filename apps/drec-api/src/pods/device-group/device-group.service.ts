@@ -133,18 +133,18 @@ export class DeviceGroupService {
 
   ) { }
 
-  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number,  filterDto?: UnreservedDeviceGroupsFilterDTO ): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
+  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number, filterDto?: UnreservedDeviceGroupsFilterDTO): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
     console.log("With in dg service", filterDto);
-    let query : SelectQueryBuilder<DeviceGroup> = await this.repository
+    let query: SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
       .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
       .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
       .orderBy('group.createdAt', 'DESC')
       .groupBy('group.id');
- 
-    if(apiuserId) {
+
+    if (apiuserId) {
       console.log("when it has apiuserId")
-      if(user.role  === Role.Admin && apiuserId === user.api_user_id) {
+      if (user.role === Role.Admin && apiuserId === user.api_user_id) {
         query.andWhere(`group.api_user_id IS NULL`);
       }
       else {
@@ -152,12 +152,12 @@ export class DeviceGroupService {
       }
       console.log("after query")
     }
- 
-    if(organizationId) {
+
+    if (organizationId) {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
 
-    if(filterDto) {
+    if (filterDto) {
       if (filterDto.start_date != undefined && filterDto.end_date != undefined) {
         if ((filterDto.start_date != null && filterDto.end_date === null)) {
           return new Promise((resolve, reject) => {
@@ -167,9 +167,6 @@ export class DeviceGroupService {
             }))
           })
         }
-        console.log((new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime()))
-        console.log(filterDto.end_date)
-        console.log(new Date(filterDto.start_date).getTime())
 
         if (!(new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime())) {
           return new Promise((resolve, reject) => {
@@ -190,21 +187,21 @@ export class DeviceGroupService {
         }
       }
 
-      if(filterDto.country) {
+      if (filterDto.country) {
         const countrystr = filterDto.country;
         console.log("country string:", countrystr);
         const values = countrystr.split(",");
         console.log("Values:", values);
         let invalidCountry = false;
         values.forEach(element => {
-          console.log("elem:",element);
+          console.log("elem:", element);
           filterDto.country = element.toUpperCase();
           console.log('filterDto:', filterDto.country)
-          if(filterDto.country && typeof(filterDto.country) === 'string' && filterDto.country.length === 3) {
+          if (filterDto.country && typeof (filterDto.country) === 'string' && filterDto.country.length === 3) {
             let countries = countryCodesList;
             console.log("Countries:", countries);
             console.log("Element:", element);
-            if(countries.find(element => element.countryCode === filterDto.country) === undefined) {
+            if (countries.find(element => element.countryCode === filterDto.country) === undefined) {
               invalidCountry = true;
             }
           }
@@ -212,13 +209,13 @@ export class DeviceGroupService {
 
         console.log("IsValidCountry:", invalidCountry);
 
-        if(!invalidCountry) {
+        if (!invalidCountry) {
           console.log("Values of:", values);
-          query.andWhere('group.countryCode @> ARRAY[:...countryCodes]', { countryCodes: values});
+          query.andWhere('group.countryCode @> ARRAY[:...countryCodes]', { countryCodes: values });
         }
       }
 
-      if(filterDto.fuelCode) {
+      if (filterDto.fuelCode) {
         console.log("when query for fuelCode:", filterDto.fuelCode)
         if (typeof filterDto.fuelCode === 'string') {
           console.log(typeof filterDto.fuelCode);
@@ -229,10 +226,10 @@ export class DeviceGroupService {
         }
       }
 
-      if(filterDto.offTaker) {
+      if (filterDto.offTaker) {
         const newoffTaker = filterDto.offTaker.toString();
         const offTakerArray = newoffTaker.split(',');
-        console.log("OfftakerArray:",offTakerArray);
+        console.log("OfftakerArray:", offTakerArray);
         query.andWhere(new Brackets(qb => {
 
           offTakerArray.forEach((offTaker, index) => {
@@ -244,9 +241,9 @@ export class DeviceGroupService {
 
             }
           });
-        }));      
+        }));
       }
-      
+
       if (filterDto.start_date && filterDto.end_date) {
         query.andWhere(new Brackets((db) => {
           db.where(
@@ -264,7 +261,7 @@ export class DeviceGroupService {
         }))
       }
 
-      if(filterDto.sdgbenefit) {
+      if (filterDto.sdgbenefit) {
         const sdgstr = filterDto.sdgbenefit.toString();
         const sdgBenefitsArray = sdgstr.split(',');
         query.andWhere(new Brackets(qb => {
@@ -290,13 +287,10 @@ export class DeviceGroupService {
 
     console.log("Query before")
     const [groups, totalCount] = await query
-        .skip((pageNumber - 1) * limit)
-        .take(limit)
-        .getManyAndCount();
-    console.log('group:',groups)
-        const totalPages = Math.ceil(totalCount / limit);
- 
-    console.log("groups:", groups);
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+    const totalPages = Math.ceil(totalCount / limit);
     const groupsWithOrganization = await Promise.all(
       groups.map(async (group: DeviceGroupDTO) => {
         const organization = await this.organizationService.findOne(
@@ -308,9 +302,9 @@ export class DeviceGroupService {
         return group;
       }),
     );
- 
+
     return {
-      devicegroups: groupsWithOrganization,
+      groupedData: groupsWithOrganization,
       currentPage: pageNumber,
       totalPages,
       totalCount
@@ -324,42 +318,42 @@ export class DeviceGroupService {
     if (!deviceGroup) {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
-    if(user) {
-      if(user.role === Role.ApiUser) { 
+    if (user) {
+      if (user.role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(user.organizationId);
         const orguser = await this.userService.findByEmail(organization.orgEmail);
-        if(orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
+        if (orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
           const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
-          if(!isMyDevice) {
+          if (!isMyDevice) {
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other's devices`,
             });
           }
         }
-        else if(orguser.role === Role.Buyer || orguser.role === Role.SubBuyer) {
-          if(deviceGroup.organizationId != user.organizationId) {
-             throw new UnauthorizedException({
+        else if (orguser.role === Role.Buyer || orguser.role === Role.SubBuyer) {
+          if (deviceGroup.organizationId != user.organizationId) {
+            throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other organizations`,
             });
           }
         }
-  
+
       }
-      
+
       else {
-        if(user.role === Role.OrganizationAdmin || user.role === Role.DeviceOwner) {
+        if (user.role === Role.OrganizationAdmin || user.role === Role.DeviceOwner) {
           const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
-          if(!isMyDevice) {
+          if (!isMyDevice) {
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other's devices`,
             });
           }
         }
-        else if(user.role === Role.Buyer || user.role === Role.SubBuyer) {
-          if(deviceGroup.organizationId != user.organizationId) {
+        else if (user.role === Role.Buyer || user.role === Role.SubBuyer) {
+          if (deviceGroup.organizationId != user.organizationId) {
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other organizations`,
@@ -368,7 +362,7 @@ export class DeviceGroupService {
         }
       }
     }
-    
+
     deviceGroup.devices = await this.deviceService.findForGroup(deviceGroup.id);
     const organization = await this.organizationService.findOne(
       deviceGroup.organizationId,
@@ -664,7 +658,7 @@ export class DeviceGroupService {
     });
 
     const totalPages = Math.ceil(totalCount / limit);
- 
+
     const csvjobsWithOrganization = await Promise.all(
       csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
         const organization = await this.organizationService.findOne(
@@ -677,7 +671,7 @@ export class DeviceGroupService {
         return csvjob;
       }),
     );
- 
+
     return {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
@@ -698,7 +692,7 @@ export class DeviceGroupService {
     }
 
     const [csvjobs, totalCount] = await this.repositoyCSVJobProcessing.findAndCount({
-      where : whereConditions,
+      where: whereConditions,
       order: {
         createdAt: 'DESC',
       },
@@ -707,7 +701,7 @@ export class DeviceGroupService {
     });
 
     const totalPages = Math.ceil(totalCount / limit);
- 
+
     const csvjobsWithOrganization = await Promise.all(
       csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
         const organization = await this.organizationService.findOne(
@@ -720,7 +714,7 @@ export class DeviceGroupService {
         return csvjob;
       }),
     );
- 
+
     return {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
@@ -744,16 +738,16 @@ export class DeviceGroupService {
     organizationId?: number,
   ): Promise<JobFailedRowsDTO | undefined> {
 
-    if(organizationId) {
+    if (organizationId) {
       const csvjob = await this.repositoyCSVJobProcessing.findOne({
         jobId: jobId,
         organizationId: organizationId,
       });
 
-      if(!csvjob) {
+      if (!csvjob) {
         throw new UnauthorizedException({
           success: false,
-          message:`The job requested is belongs to other organization`
+          message: `The job requested is belongs to other organization`
         });
       }
     }
@@ -980,7 +974,7 @@ export class DeviceGroupService {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
       }
-      if(group.api_user_id) {
+      if (group.api_user_id) {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
       let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
@@ -1113,7 +1107,7 @@ export class DeviceGroupService {
     )[] = await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
-          if(api_user_id == null) {
+          if (api_user_id == null) {
             return await this.deviceService.register(orgCode, device);
           }
           else {
@@ -1651,7 +1645,7 @@ export class DeviceGroupService {
             Number.isNaN(data[key]) ? 0 : parseFloat(data[key]);
           //@ts-ignore
           if (key == 'yieldValue' && dataToStore[key] === 0) {
-           // dataToStore[key] = 1500;
+            // dataToStore[key] = 1500;
             dataToStore[key] = 2000;
           }
 
@@ -2107,13 +2101,13 @@ export class DeviceGroupService {
     developerExternalId: any,
     groupId: any
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
-   
+
     const result = await this.historynextissuancedaterepository.findOne({
       device_externalid: developerExternalId,
       groupId: groupId,
       status: 'Completed'
     });
-  
+
     return result
   }
 
@@ -2149,7 +2143,7 @@ export class DeviceGroupService {
     return activeresvation
   }
 
-  async getcurrentInformationofDevicesInReservation(groupuid,pageNumber?): Promise<any> {
+  async getcurrentInformationofDevicesInReservation(groupuid, pageNumber?): Promise<any> {
     const group = await this.findOne({ devicegroup_uid: groupuid, reservationActive: true })
     // console.log(group)
     if (group === null) {
@@ -2231,7 +2225,7 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber,apiuser_id?): Promise<any> {
+  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber, apiuser_id?): Promise<any> {
     const pageSize = 10;
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
@@ -2447,7 +2441,7 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber,apiuser_id?): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber, apiuser_id?): Promise<any> {
     const pageSize = 10;
     // const pageNumber = 2
     if (pageNumber <= 0) {
@@ -2641,36 +2635,36 @@ export class DeviceGroupService {
     return response;
   }
 
-  public async checkdeveloperorganization(deviceIds: number[], organizationId: number) : Promise<any> {
-    const isMyDevice =  await Promise.all(await deviceIds.map(async(deviceId) => {
+  public async checkdeveloperorganization(deviceIds: number[], organizationId: number): Promise<any> {
+    const isMyDevice = await Promise.all(await deviceIds.map(async (deviceId) => {
       const device = await this.deviceService.findOne(Number(deviceId));
-      console.log("Within funuction:", typeof(device.organizationId), typeof(organizationId));
+      console.log("Within funuction:", typeof (device.organizationId), typeof (organizationId));
       return device.organizationId === Number(organizationId);
     }));
-    
+
     return isMyDevice.some((result) => result);
   }
 
   async getAllCSVJobsForApiUser(apiuserId: string, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
-    let query : SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> = await this.repositoyCSVJobProcessing
+    let query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> = await this.repositoyCSVJobProcessing
       .createQueryBuilder('csvjobs')
       .orderBy('csvjobs.createdAt', 'DESC');
- 
-    if(apiuserId) {
-        query.andWhere(`csvjobs.api_user_id = '${apiuserId}'`);
-      }
- 
-    if(organizationId) {
+
+    if (apiuserId) {
+      query.andWhere(`csvjobs.api_user_id = '${apiuserId}'`);
+    }
+
+    if (organizationId) {
       query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
     }
 
     const [csvjobs, totalCount] = await query
-        .skip((pageNumber - 1) * limit)
-        .take(limit)
-        .getManyAndCount();
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
 
     const totalPages = Math.ceil(totalCount / limit);
- 
+
     const csvjobsWithOrganization = await Promise.all(
       csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
         const organization = await this.organizationService.findOne(
@@ -2683,7 +2677,7 @@ export class DeviceGroupService {
         return csvjob;
       }),
     );
- 
+
     return {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
