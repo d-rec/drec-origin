@@ -542,6 +542,8 @@ export class UserService {
   public async getUsersByFilter(filterDto: UserFilterDTO, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
+
+
       let [users, totalCount] = await query
       .andWhere(`role != :role`, { role: Role.ApiUser})
       .skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
@@ -665,6 +667,18 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
       .where('organization.id = :organizationId', { organizationId })
+      .orderBy('user.createdAt', 'DESC')
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+  }
+  /**get all user of apiuser */
+  public async findUserByApiUserId(api_user_id: string, pageNumber: number, limit: number,org_id?) {
+    return await this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .where('user.api_user_id = :api_user_id', { api_user_id })
+      .andWhere(`role != :role`, { role: Role.ApiUser})
       .orderBy('user.createdAt', 'DESC')
       .skip((pageNumber - 1) * limit)
       .take(limit)

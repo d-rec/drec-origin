@@ -97,7 +97,7 @@ export class BuyerReservationController {
               ) { }
 
   /**
-   * It is GET api to list all device group data
+   * It is GET api to list all device group in reservation data
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()

@@ -220,7 +220,7 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
-    
+    console.log(filterDto);
     if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
      
@@ -247,11 +247,7 @@ export class DeviceController {
         });
       }
     }
-    //@ts-ignore
-    if(filterDto.organizationId) {
-      //@ts-ignore
-      organizationId = filterDto.organizationId;
-    }
+   
     return await this.deviceService.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
   }
 

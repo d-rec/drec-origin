@@ -114,6 +114,7 @@ export class OrganizationController {
    * @returns 
    */
   @Get('/users')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -127,11 +128,17 @@ export class OrganizationController {
     description: `There are no users associated to this organization`,
   })
   async getOrganizationUsers(
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() loggedUser: ILoggedInUser,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
+    if (loggedUser.role === Role.ApiUser) {
+      return this.organizationService.findApiuserOrganizationUsers(loggedUser.api_user_id, pageNumber, limit);
+
+    } else {
+      return this.organizationService.findOrganizationUsers(loggedUser.organizationId, pageNumber, limit);
+    }
+
   }
 
   /**

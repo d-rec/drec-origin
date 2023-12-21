@@ -28,19 +28,13 @@ export class AuthService {
     const user = await this.userService.getUserAndPasswordByEmail(
       email.toLowerCase(),
     );
-    console.log(email,unencryptedPassword);
-    console.log(user);
-    console.log('user33',bcrypt.compareSync(unencryptedPassword, user.password));
     if (user && bcrypt.compareSync(unencryptedPassword, user.password)) {
-
       return this.userService.findById(user.id);
     }
-
     return null;
   }
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
-    console.log(user)
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,

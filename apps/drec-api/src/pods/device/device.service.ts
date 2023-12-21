@@ -72,7 +72,7 @@ export class DeviceService {
     private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
     @InjectRepository(IrecErrorLogInformationEntity)
     private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
-    private readonly organizationService : OrganizationService,
+    private readonly organizationService: OrganizationService,
   ) { }
 
   public async find(filterDto: FilterDTO, pagenumber: number, OrgId?: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
@@ -123,20 +123,27 @@ export class DeviceService {
   }
 
   async getOrganizationDevices(organizationId: number, api_user_id: string, role: Role, filterDto: FilterDTO, pagenumber: number): Promise<any> {
-    console.log("OrgCode:",organizationId,"apiId:",api_user_id,"role:",role)
+    console.log("OrgCode:", organizationId, "apiId:", api_user_id, "role:", role)
     if (Object.keys(filterDto).length != 0) {
       if (pagenumber === null || pagenumber === undefined) {
         pagenumber = 1
       }
       const limit = 20;
+
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where
-      if(role === Role.ApiUser && api_user_id) {
+      if (role === Role.ApiUser && api_user_id) {
         where = { ...where, api_user_id };
-      }else{
-        where = { ...where, organizationId}
+        //@ts-ignore
+        if (filterDto.organizationId) {
+          //@ts-ignore
+          organizationId = filterDto.organizationId;
+          where = { ...where, organizationId }
+        }
+      } else {
+        where = { ...where, organizationId }
       }
-     
+
       query.where = where;
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
@@ -469,8 +476,8 @@ export class DeviceService {
         organizationId: organizationId
       }
     });
-    
-   // delete device["organization"];
+
+    // delete device["organization"];
     console.log(device)
     if (!device) {
       return null;
@@ -505,8 +512,8 @@ export class DeviceService {
   public async register(
     orgCode: number,
     newDevice: NewDeviceDTO,
-    api_user_id ?: string,
-    role ?: Role,
+    api_user_id?: string,
+    role?: Role,
   ): Promise<Device> {
     console.log(orgCode);
     //console.log(newDevice);
@@ -560,19 +567,19 @@ export class DeviceService {
     } else {
       newDevice.SDGBenefits = []
     }
-    let result : any;
-    if(role === Role.ApiUser) {
+    let result: any;
+    if (role === Role.ApiUser) {
       console.log("when APiUser", api_user_id);
       await this.organizationService.findOne(orgCode, {
-        where : {
-          api_user_id : api_user_id
+        where: {
+          api_user_id: api_user_id
         }
       });
 
       result = await this.repository.save({
         ...newDevice,
-        organizationId : orgCode,
-        api_user_id : api_user_id,
+        organizationId: orgCode,
+        api_user_id: api_user_id,
       });
     }
     else {

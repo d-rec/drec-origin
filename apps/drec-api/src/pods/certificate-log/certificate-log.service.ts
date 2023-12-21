@@ -34,6 +34,7 @@ import { countryCodesList } from '../../models/country-code';
 import { CountryCodeNameDTO } from '../countrycode/dto/country-code.dto';
 import { OrganizationService } from '../organization/organization.service'
 import { ILoggedInUser } from '../../models';
+import { Role } from 'src/utils/enums';
 
 
 export interface newCertificate extends Certificate {
@@ -619,10 +620,10 @@ export class CertificateLogService {
 
   async getCertifiedlogofDevices(user: ILoggedInUser, filterDto: FilterDTO, pageNumber) {
 
-    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber,user.api_user_id)
     console.log("getnewreservationinfo", getnewreservationinfo.deviceGroups.length);
     console.log("getnewreservationinfo", getnewreservationinfo);
-    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber)
+    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber,user.api_user_id)
     console.log("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
     let oldcertificates;
     if (getoldreservationinfo.deviceGroups.length > 0) {

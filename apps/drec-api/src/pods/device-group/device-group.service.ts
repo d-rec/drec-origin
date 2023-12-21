@@ -429,7 +429,6 @@ export class DeviceGroupService {
       })
       const groupedDatasql = await queryBuilder.getSql();
     }
-
     const skip = (pageNumber - 1) * pageSize;
     console.log("skip", skip)
     let groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
@@ -2097,7 +2096,7 @@ export class DeviceGroupService {
     }
   }
 
-  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
+  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber,apiuser_id?): Promise<any> {
     const pageSize = 10;
     if (pageNumber <= 0) {
       throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
@@ -2128,7 +2127,9 @@ export class DeviceGroupService {
       if (role === 'Buyer') {
         where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
       }
-
+      if (role === 'ApiUser') {
+        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id })
+      }
       where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
@@ -2311,7 +2312,7 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber): Promise<any> {
+  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber,apiuser_id?): Promise<any> {
     const pageSize = 10;
     // const pageNumber = 2
     if (pageNumber <= 0) {
@@ -2341,7 +2342,9 @@ export class DeviceGroupService {
       if (role === 'Buyer') {
         where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
       }
-
+      if (role === 'ApiUser') {
+        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id })
+      }
       where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
