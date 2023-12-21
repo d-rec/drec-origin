@@ -2256,9 +2256,9 @@ export class DeviceGroupService {
       if (role === 'Buyer') {
         where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
       }
-      if (role === 'ApiUser') {
-        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id })
-      }
+      // if (role === 'ApiUser') {
+      //   where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id })
+      // }
       where_orgnaizationId
         .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
         .andWhere(new Brackets(qb => {
