@@ -60,8 +60,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
 
       if(request.url.split('/')[3] != 'register') {
         const user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
-        console.log("clientuser", user);
-
+      
         if (!user) {
           console.log("when user not available in client strategy")
           throw new UnauthorizedException();
