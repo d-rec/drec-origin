@@ -10,6 +10,7 @@ import {
     ValidationPipe,
     Query,
     ConflictException,
+    BadRequestException,
 } from '@nestjs/common';
 
 import {
@@ -30,13 +31,16 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog,CertificatelogResponse } from './dto'
+import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog, CertificatelogResponse } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
+import { Role } from '../../utils/enums';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 
 /*
 * It is Controller of ACL Module with the endpoints of ACL module operations.
@@ -50,6 +54,8 @@ export class CertificateLogController {
     constructor(
         private readonly certificateLogService: CertificateLogService,
         private readonly devicegroupService: DeviceGroupService,
+        private readonly organizationService: OrganizationService,
+        private readonly userService: UserService,
     ) { }
 
     /*
@@ -57,7 +63,7 @@ export class CertificateLogController {
     * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns all issue logs of device
     */
     @Get()
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns all individual devices certificate log' })
@@ -93,7 +99,7 @@ export class CertificateLogController {
     * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns the logs of certicates
     */
     @Get('/by-reservation-groupId')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns Certificate logs For individual devices based on groupId' })
@@ -118,7 +124,7 @@ export class CertificateLogController {
     * @param { groupUid } is an uniqueId in the certificate log from reservation
     */
     @Get('/issuer/certified/:groupUid')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
@@ -162,12 +168,13 @@ export class CertificateLogController {
     * @param { groupid } Need to ask Namrata
     */
     @Get('/issuer/certified/new/:groupUid')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
     async getCertificatesFromUpdatedCertificateTables(
         @Param('groupUid') groupuId: string,
+        @Query('pageNumber') pageNumber: number,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
         console.log("138")
@@ -181,23 +188,34 @@ export class CertificateLogController {
             })
         }
         const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
-        if (devicegroup === null || devicegroup.buyerId != user.id) {
-            return new Promise((resolve, reject) => {
-                reject(new ConflictException({
+        if (user.role === Role.ApiUser) {
+            if (devicegroup.api_user_id != user.api_user_id) {
+                throw new BadRequestException({
                     success: false,
-                    message: 'Group UId is not of this buyer, invalid value was sent',
-                }))
-            })
+                    message: 'Group UId  does not  belongs to this apiuser',
+                });
+            }
+            return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
+        } else {
+            if (devicegroup === null || devicegroup.buyerId != user.id) {
+                return new Promise((resolve, reject) => {
+                    reject(new ConflictException({
+                        success: false,
+                        message: 'Group UId is not of this buyer, invalid value was sent',
+                    }))
+                })
+            }
+            return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
         }
 
-        return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString());
+
     }
 
     /**
     * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
     */
     @Get('/redemption-report')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse
@@ -273,20 +291,95 @@ export class CertificateLogController {
     /*
     * It is GET api to fetch certificate log of reserved device.
     * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
-    */ 
+    */
     /* for developre*/
+    // @Get('/issuer/certifiedlogOfdevices')
+    // @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+    // @Permission('Read')
+    // @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+    // @ApiQuery({ name: 'organizationId', type: Number, required: false, description : 'This query parameter is for apiuser' })
+    // @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
+    // async getCertificatesForDeveloper(
+
+    //     @UserDecorator() user: ILoggedInUser,
+    //     @Query(ValidationPipe) filterDto: FilterDTO,
+    //     @Query('pageNumber') pageNumber: number,
+    //     @Query('organizationId') organizationId: number,
+    // ): Promise<CertificatelogResponse> {
+    //     console.log("238");
+    //     if(organizationId) {
+    //         if(user.role === Role.ApiUser) {
+    //             const organization = await this.organizationService.findOne(organizationId);
+    //             const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+    //             if(organization.api_user_id != user.api_user_id) {
+    //                 throw new BadRequestException({
+    //                     success: false,
+    //                     message: 'Organization requested belongs to other apiuser',
+    //                 });
+    //             }
+    //             else {
+    //                 user.organizationId = organizationId;
+    //                 user.role = orguser.role;
+    //             }
+    //         } 
+    //         else {
+    //             if(organizationId != user.organizationId) {
+    //                 throw new BadRequestException({
+    //                     success: false,
+    //                     message: 'Organization requested belongs to other organization',
+    //                 });
+    //             }
+    //         }
+    //     }
+
+    //     return this.certificateLogService.getCertifiedlogofDevices(user, filterDto, pageNumber);
+    // }
     @Get('/issuer/certifiedlogOfdevices')
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+    @ApiQuery({ name: 'organizationId', type: Number, required: false, description: 'This query parameter is for apiuser' })
     @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
     async getCertificatesForDeveloper(
-
         @UserDecorator() user: ILoggedInUser,
         @Query(ValidationPipe) filterDto: FilterDTO,
         @Query('pageNumber') pageNumber: number,
+        @Query('organizationId', new ValidationPipe({ skipMissingProperties: true })) organizationId: number,
     ): Promise<CertificatelogResponse> {
         console.log("238");
-        return this.certificateLogService.getCertifiedlogofDevices(user,filterDto, pageNumber);
+
+        if (user.role === Role.ApiUser) {
+            // If the user is an ApiUser, organizationId must be provided
+            if (!organizationId) {
+                throw new BadRequestException({
+                    success: false,
+                    message: 'Organization ID is required for ApiUser',
+                });
+            }
+
+            const organization = await this.organizationService.findOne(organizationId);
+            const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+            if (organization.api_user_id != user.api_user_id) {
+                throw new BadRequestException({
+                    success: false,
+                    message: 'Organization requested belongs to other apiuser',
+                });
+            } else {
+                user.organizationId = organizationId;
+                user.role = orguser.role;
+            }
+        } else {
+            // If the user is not an ApiUser, organizationId is optional
+            if (organizationId && organizationId != user.organizationId) {
+                throw new BadRequestException({
+                    success: false,
+                    message: 'Organization requested belongs to other organization',
+                });
+            }
+        }
+
+        return this.certificateLogService.getCertifiedlogofDevices(user, filterDto, pageNumber);
     }
 }

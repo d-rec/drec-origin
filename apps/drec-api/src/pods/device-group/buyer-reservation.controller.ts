@@ -97,7 +97,7 @@ export class BuyerReservationController {
               ) { }
 
   /**
-   * It is GET api to list all device group data
+   * It is GET api to list all device group in reservation data
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
@@ -118,6 +118,10 @@ export class BuyerReservationController {
     @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    @Query(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    })) filterDto: UnreservedDeviceGroupsFilterDTO,
     )/*: Promise<DeviceGroupDTO[]>*/ {
     // return new Promise((resolve,reject)=>{
     //   resolve([]);
@@ -160,7 +164,7 @@ export class BuyerReservationController {
         });
       }
     }
-    return this.deviceGroupService.getAll(user, organizationId, apiuserId, pageNumber, limit);
+    return this.deviceGroupService.getAll(user, organizationId, apiuserId, pageNumber, limit, filterDto);
   }
 
 
@@ -590,9 +594,10 @@ export class BuyerReservationController {
    * @returns {JobFailedRowsDTO | undefined}
    */
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'))//, PermissionGuard)
-  // @Permission('Read')
-  // @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)//, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: JobFailedRowsDTO,
@@ -600,16 +605,59 @@ export class BuyerReservationController {
   })
   public async getBulkUploadJobStatus(
     @Param('id') jobId: number,
-    @UserDecorator() { organizationId }: ILoggedInUser
+    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null
   ): Promise<JobFailedRowsDTO | undefined> {
     console.log("jobId", jobId);
 
+    if(orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+      if(role === Role.ApiUser) {
+        if(organization.api_user_id != api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message:'The requested organization is belongs to other apiuser'
+          });
+        }
+
+        if(orguser.role != Role.OrganizationAdmin) {
+          throw new UnauthorizedException({
+            success: false,
+            message:'Unauthorized'
+          });
+        }
+      }
+      else {
+        if(orgId != organizationId) {
+          throw new BadRequestException({
+            success: false,
+            message:`The organizationId in query params should be same as user's organizationId`
+          });
+        }
+
+        if(role === Role.Admin) {
+          orgId = null;
+        }
+      }
+    }
+    else {
+      if(role === Role.ApiUser) {
+        throw new BadRequestException({
+          success: false,
+          message:`Add the orgId at query param`
+        });
+      }
+    }
+  /*  
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );
-    console.log("data", data);
+    console.log("data", data); */
+
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId
+      jobId, orgId
     );
   }
 
@@ -620,19 +668,26 @@ export class BuyerReservationController {
    * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
    */
   @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //@Permission('Read')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
     description: 'Returns created jobs of an organization',
   })
   public async getAllCsvJobsBelongingToOrganization(
-    @UserDecorator() user: ILoggedInUser, @UserDecorator() { organizationId }: ILoggedInUser): Promise<Array<DeviceCsvFileProcessingJobsEntity>> {
-    console.log("user", user);
-    console.log("organization", organizationId);
+    @UserDecorator() user: ILoggedInUser, 
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+
+    )/*: Promise<Array<DeviceCsvFileProcessingJobsEntity>>*/ {
 
     if (user.organizationId === null || user.organizationId === undefined) {
       throw new ConflictException({
@@ -641,10 +696,47 @@ export class BuyerReservationController {
           'User needs to have organization added'
       })
     }
-    if(user.role==='Admin'){
-      return this.deviceGroupService.getAllCSVJobsForAdmin();
+    
+    if(orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+
+      if(user.role === Role.ApiUser) {
+        if(organization.api_user_id != user.api_user_id) {
+          throw new BadRequestException({
+            success: false,
+            message:'The requested organization is belongs to other apiuser'
+          });
+        }
+
+        if(orguser.role != Role.OrganizationAdmin) {
+          throw new UnauthorizedException({
+            success: false,
+            message:'Unauthorized'
+          });
+        }
+      }
+      else {  
+        if(user.role != Role.Admin) {
+          if(orgId != organizationId) {
+            throw new BadRequestException({
+              success: false,
+              message:`The orgId at query param is not same as user's organization`
+            });
+          }
+        }
+      }
     }
-    return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId);
+    
+    if(user.role==='Admin'){
+      return this.deviceGroupService.getAllCSVJobsForAdmin(orgId, pageNumber, limit);
+    }
+    else if(user.role === Role.ApiUser) {
+      return this.deviceGroupService.getAllCSVJobsForApiUser(user.api_user_id, orgId, pageNumber, limit);      
+    }
+    else {
+      return this.deviceGroupService.getAllCSVJobsForOrganization(organizationId, pageNumber, limit);
+    }
   }
 
   /**
@@ -708,11 +800,13 @@ export class BuyerReservationController {
    */
   @Get('current-information/:groupUid')
   @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK
   })
   public async getReservationcurrentinformation(
     @Param('groupUid') groupuId: string,
+    @Query('pagenumber') pagenumber: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<any> {
     console.log("jobId", groupuId);
@@ -737,7 +831,7 @@ export class BuyerReservationController {
 
 
     return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
-      groupuId
+      groupuId,pagenumber
     );
   }
 }

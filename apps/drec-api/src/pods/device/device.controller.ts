@@ -12,7 +12,9 @@ import {
   ValidationPipe,
   Query,
   ConflictException,
-  HttpException
+  HttpException,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import moment from 'moment';
@@ -63,6 +65,8 @@ import { OrganizationInvitationStatus } from '@energyweb/origin-backend-core';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 import { Device } from './device.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 
 /**
 * It is Controller of device with the endpoints of device operations.
@@ -76,6 +80,8 @@ export class DeviceController {
     private readonly deviceGroupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private countrycodeService: CountrycodeService,
+    private readonly organizationService: OrganizationService,
+    private readonly userService: UserService,
   ) { }
 
   /**
@@ -102,7 +108,7 @@ export class DeviceController {
   * @return {Array<DeviceDTO>} return array of devices for reservation 
   */
   @Get('/ungrouped/buyerreservation')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard, RolesGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
@@ -111,7 +117,32 @@ export class DeviceController {
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
+    @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
+    
+    //@ts-ignore
+    if(filterDto.organizationId) {
+      //@ts-ignore
+      const organization = await this.organizationService.findOne(filterDto.organizationId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      if(role === Role.ApiUser) {
+        console.log("When there is organizationId",api_user_id, organization.api_user_id);
+        if(organization.api_user_id != api_user_id) {
+          throw new UnauthorizedException({
+            success : false,
+            message: `The requested organization is belongs to other apiuser`,
+          });
+        }
+      }
+      else {
+        if(organizationId != organization.id) {
+          throw new UnauthorizedException({
+            success : false,
+            message: `The requested organization is not same as user's organization`,
+          });
+        }
+      }
+    }
 
     return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
   }
@@ -189,7 +220,7 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pagenumber: number | null
   )/*: Promise<DeviceDTO[]>*/ {
-    
+    console.log(filterDto);
     if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
      
@@ -216,11 +247,7 @@ export class DeviceController {
         });
       }
     }
-    //@ts-ignore
-    if(filterDto.organizationId) {
-      //@ts-ignore
-      organizationId = filterDto.organizationId;
-    }
+   
     return await this.deviceService.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
   }
 
@@ -390,6 +417,7 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
+    if(role === Role.ApiUser) {
     //@ts-ignore
     if (deviceToRegister.organizationId) {
       console.log("314")
@@ -397,7 +425,18 @@ export class DeviceController {
       console.log(deviceToRegister.organizationId)
       //@ts-ignore
       organizationId = deviceToRegister.organizationId
+    }else{
+      return new Promise((resolve, reject) => {
+
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Organization id is required,please add your developer's Organization `,
+          }),
+        );
+      });
     }
+  }
     return await this.deviceService.register(organizationId, deviceToRegister, api_user_id, role);
 
   }
@@ -712,14 +751,17 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'externalId', type: Number, required: false })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
   async certifiedlogdaterang(
     @UserDecorator() user: ILoggedInUser,
-    @Query('externalId') externalId: number,
     @Query('groupUid') groupuId: string,
+    @Query('pagenumber') pagenumber: number,
+    @Query('externalId') externalId?: number
   ): Promise<any> {
     // console.log(externalId);
     // console.log(groupuId)
@@ -734,18 +776,7 @@ export class DeviceController {
       })
     }
 
-    let device: DeviceDTO | null
 
-    device = await this.deviceService.findOne(externalId);
-    /// console.log(device);
-    if (device === null) {
-      return new Promise((resolve, reject) => {
-        reject(new ConflictException({
-          success: false,
-          message: 'device not found, invalid value was sent',
-        }))
-      })
-    }
     let group: DeviceGroup | null
     group = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
     // console.log(group);
@@ -757,7 +788,24 @@ export class DeviceController {
         }))
       })
     }
-    return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+    if (externalId != null || externalId != undefined) {
+      let device: DeviceDTO | null
+
+      device = await this.deviceService.findOne(externalId);
+      /// console.log(device);
+      if (device === null) {
+        return new Promise((resolve, reject) => {
+          reject(new ConflictException({
+            success: false,
+            message: 'device not found, invalid value was sent',
+          }))
+        })
+      }
+      return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+    } else {
+      return await this.deviceService.getcertifieddevicedaterangeBygroupid(group.id, pagenumber);
+    }
+
   }
   // @Get('/certified/date-range-log')
   // @UseGuards(AuthGuard('jwt'))
@@ -778,7 +826,7 @@ export class DeviceController {
    * @returns {DeviceCsvFileProcessingJobsEntity}
    */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
@@ -819,7 +867,30 @@ export class DeviceController {
       })
 
     }
-    let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    let jobCreated : any;
+    if(user.role === Role.ApiUser) {
+      const organization = await this.organizationService.findOne(organizationId);
+      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      if(organization.api_user_id != user.api_user_id) {
+        throw new BadRequestException({
+          success: false,
+          message: 'The requested organization is belongs to other apiuser'
+        });
+      }
+
+      if(orguser.role != Role.OrganizationAdmin) {
+        throw new  UnauthorizedException({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName, user.api_user_id);
+    }
+    else {
+      jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+    }
 
     //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
 

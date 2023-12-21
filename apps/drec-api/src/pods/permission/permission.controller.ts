@@ -128,6 +128,7 @@ export class PermissionController {
     * @returns 
     */
     @Put('/update/:id')
+    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'))
     @ApiBody({ type: UpdatePermissionDTO })
     @Permission('Write')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
