@@ -133,11 +133,14 @@ export class DeviceGroupService {
 
   ) { }
 
-  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
-    console.log("With in dg service")
+  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number,  filterDto?: UnreservedDeviceGroupsFilterDTO ): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
+    console.log("With in dg service", filterDto);
     let query : SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
-      .orderBy('group.createdAt', 'DESC');
+      .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
+      .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
+      .orderBy('group.createdAt', 'DESC')
+      .groupBy('group.id');
  
     if(apiuserId) {
       console.log("when it has apiuserId")
@@ -153,6 +156,138 @@ export class DeviceGroupService {
     if(organizationId) {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
+
+    if(filterDto) {
+      if (filterDto.start_date != undefined && filterDto.end_date != undefined) {
+        if ((filterDto.start_date != null && filterDto.end_date === null)) {
+          return new Promise((resolve, reject) => {
+            reject(new ConflictException({
+              success: false,
+              message: `End date should be if in filter query you used with Start date `,
+            }))
+          })
+        }
+        console.log((new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime()))
+        console.log(filterDto.end_date)
+        console.log(new Date(filterDto.start_date).getTime())
+
+        if (!(new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime())) {
+          return new Promise((resolve, reject) => {
+            reject(new ConflictException({
+              success: false,
+              message: `End date should be greater then from Start date `,
+            }))
+          })
+        }
+
+        if (!(new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime())) {
+          return new Promise((resolve, reject) => {
+            reject(new ConflictException({
+              success: false,
+              message: `End date should be greater then from Start date `,
+            }))
+          })
+        }
+      }
+
+      if(filterDto.country) {
+        const countrystr = filterDto.country;
+        console.log("country string:", countrystr);
+        const values = countrystr.split(",");
+        console.log("Values:", values);
+        let invalidCountry = false;
+        values.forEach(element => {
+          console.log("elem:",element);
+          filterDto.country = element.toUpperCase();
+          console.log('filterDto:', filterDto.country)
+          if(filterDto.country && typeof(filterDto.country) === 'string' && filterDto.country.length === 3) {
+            let countries = countryCodesList;
+            console.log("Countries:", countries);
+            console.log("Element:", element);
+            if(countries.find(element => element.countryCode === filterDto.country) === undefined) {
+              invalidCountry = true;
+            }
+          }
+        });
+
+        console.log("IsValidCountry:", invalidCountry);
+
+        if(!invalidCountry) {
+          console.log("Values of:", values);
+          query.andWhere('group.countryCode @> ARRAY[:...countryCodes]', { countryCodes: values});
+        }
+      }
+
+      if(filterDto.fuelCode) {
+        console.log("when query for fuelCode:", filterDto.fuelCode)
+        if (typeof filterDto.fuelCode === 'string') {
+          console.log(typeof filterDto.fuelCode);
+          query.andWhere('group.fuelCode = :fuelcode', { fuelcode: [filterDto.fuelCode] });
+        } else if (typeof filterDto.fuelCode === 'object') {
+          console.log(JSON.stringify(filterDto.fuelCode));
+          query.andWhere('group.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: filterDto.fuelCode })
+        }
+      }
+
+      if(filterDto.offTaker) {
+        const newoffTaker = filterDto.offTaker.toString();
+        const offTakerArray = newoffTaker.split(',');
+        console.log("OfftakerArray:",offTakerArray);
+        query.andWhere(new Brackets(qb => {
+
+          offTakerArray.forEach((offTaker, index) => {
+            if (index === 0) {
+              qb.orWhere(`EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+            } else {
+              qb.orWhere(`EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
+
+            }
+          });
+        }));      
+      }
+      
+      if (filterDto.start_date && filterDto.end_date) {
+        query.andWhere(new Brackets((db) => {
+          db.where(
+            new Brackets((db1) => {
+              db1.where("group.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: filterDto.start_date, reservationEndDate1: filterDto.end_date })
+                .orWhere("group.reservationStartDate = :reservationStartDate", { reservationStartDate: filterDto.start_date })
+            })
+          )
+            .andWhere(
+              new Brackets((db2) => {
+                db2.where("group.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: filterDto.start_date, reservationEndDate2: filterDto.end_date })
+                  .orWhere("group.reservationEndDate = :reservationStartDate ", { reservationStartDate: filterDto.end_date })
+              })
+            )
+        }))
+      }
+
+      if(filterDto.sdgbenefit) {
+        const sdgstr = filterDto.sdgbenefit.toString();
+        const sdgBenefitsArray = sdgstr.split(',');
+        query.andWhere(new Brackets(qb => {
+          sdgBenefitsArray.forEach((benefit, index) => {
+            if (index === 0) {
+              qb.where(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+            } else {
+              qb.orWhere(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+            }
+          });
+        }))
+      }
+
+      if (filterDto.reservationActive) {
+        if (filterDto.reservationActive === 'Active') {
+          query.andWhere('group.reservationActive = :active', { active: true });
+        }
+        if (filterDto.reservationActive === 'Deactive') {
+          query.andWhere('group.reservationActive = :active', { active: false });
+        }
+      }
+    }
+
     console.log("Query before")
     const [groups, totalCount] = await query
         .skip((pageNumber - 1) * limit)

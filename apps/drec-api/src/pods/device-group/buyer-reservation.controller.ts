@@ -118,6 +118,10 @@ export class BuyerReservationController {
     @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    @Query(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    })) filterDto: UnreservedDeviceGroupsFilterDTO,
     )/*: Promise<DeviceGroupDTO[]>*/ {
     // return new Promise((resolve,reject)=>{
     //   resolve([]);
@@ -160,7 +164,7 @@ export class BuyerReservationController {
         });
       }
     }
-    return this.deviceGroupService.getAll(user, organizationId, apiuserId, pageNumber, limit);
+    return this.deviceGroupService.getAll(user, organizationId, apiuserId, pageNumber, limit, filterDto);
   }
 
 
