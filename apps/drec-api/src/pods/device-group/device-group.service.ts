@@ -137,6 +137,8 @@ export class DeviceGroupService {
     console.log("With in dg service", filterDto);
     let query : SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
+      .innerJoin(Device, 'device', 'device.id = ANY(group."deviceIdsInt")')
+      .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
       .orderBy('group.createdAt', 'DESC');
  
     if(apiuserId) {
@@ -267,9 +269,9 @@ export class DeviceGroupService {
         query.andWhere(new Brackets(qb => {
           sdgBenefitsArray.forEach((benefit, index) => {
             if (index === 0) {
-              qb.where(`group.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+              qb.where(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
             } else {
-              qb.orWhere(`group.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
+              qb.orWhere(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
             }
           });
         }))
