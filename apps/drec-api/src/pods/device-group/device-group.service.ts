@@ -137,9 +137,10 @@ export class DeviceGroupService {
     console.log("With in dg service", filterDto);
     let query : SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
-      .innerJoin(Device, 'device', 'device.id = ANY(group."deviceIdsInt")')
+      .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
       .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
-      .orderBy('group.createdAt', 'DESC');
+      .orderBy('group.createdAt', 'DESC')
+      .groupBy('group.id');
  
     if(apiuserId) {
       console.log("when it has apiuserId")
