@@ -4,26 +4,65 @@
   <br>
   EnergyWeb Origin - DREC 
   <br>
+  
+  [API Documentation](http://drec-documentation.s3-website-us-east-1.amazonaws.com/entities/AggregateMeterRead.html) | [User guide](https://d-rec.atlassian.net/wiki/spaces/DREC/pages/84377601)
+  
   <br>
 </h1>
 
+
 Repository for Origin DREC project
 
-## How to use
+## Local environment setup of Ubuntu
 
-Install `rush`, `pnpm` if you don't have it:
+Install `wsl`,`ubuntu-18.04` in command prompt running as administrator:
 
 ```
+wsl --install
+wsl --install --distribution Ubuntu-18.04
+```
+
+Install `Influx-Client`: 
+
+```
+sudo apt install influx client
+sudo apt update
+```
+Restart the Ubuntu terminal once, after installation done.
+
+Clone and Install `nvm`:
+```
+sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+nvm install 14.19.1
+```
+
+Install `rush`, `pnpm`, `yarn` if you don't have it:
+
+```
+npm i -g yarn
 npm i -g @microsoft/rush
 npm i -g pnpm
 ```
 
+Create and change directory:
 ```
-rush install
-rush build
+mkdir drec
+cd drec
+```
+
+Clone repository:
+
+It should be cloned in both local and Ubuntu environment.
+
+```
+git clone https://github.com/drec/drec-origin.git
+chmod -R 777 drec-origin/
 ```
 
 Copy `.env.example` to `.env` and adjust `.env` with your environment specific parameters.
+```
+cp .env.example .env
+```
 
 Start Postgres instance
 
@@ -38,7 +77,20 @@ Create Postgres DB table
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 ```
 
+Create and start a Redis instance
+
+```
+docker pull redis
+docker run --name origin-redis -d -p 6379:6379 redis
+```
+
+
+
 Create InfluxDB to store smart meter readings
+
+These below commands should be run in the directory of cloned drec-project in local environment.
+Replace PWD by your local cloned directory path.
+ex., `docker run -rm --env-file ./.env -v C:/drec/drec-origin/influxdb-local:/var/lib/influxdb influxdb:1.8 /init-influxdb.sh`
 
 ```
 docker run --rm --env-file ./.env -v $PWD/influxdb-local:/var/lib/influxdb influxdb:1.8 /init-influxdb.sh
@@ -50,11 +102,12 @@ Run the InfluxDB instance
 docker run --name energy-influxdb --env-file ./.env -d -p 8086:8086 -v $PWD/influxdb-local:/var/lib/influxdb -v $PWD/influxdb.conf:/etc/influxdb/influxdb.conf:ro influxdb:1.8
 ```
 
-Create and start a Redis instance
+Install dependencies, Run db migrations:
 
 ```
-docker pull redis
-docker run --name origin-redis -d -p 6379:6379 redis
+rush install
+rush update
+rush build
 ```
 
 Run UI and API projects
@@ -69,23 +122,6 @@ You may also want to drop local databases with
 rush drop
 ```
 
-## Heroku deployment script
-
-This repo has a script for easy Heroku deployments for UI And API project. Script assumes that Heroku applications are already created and Postgres DB is provisioned.
-
-```
-HEROKU_API_KEY=<APIKEY> HEROKU_STABLE_APP_API=<APP_NAME> HEROKU_STABLE_APP_UI=<APP_NAME> rush deploy:heroku
-```
-
-When starting containers and running the app rush start:dev (it immediately starts API and UI servers, which are accessible at ports that have to be mapped:
-
-| Application | Port  |
-| ----------- | ----- |
-| UI          | $PORT |
-| API         | 3040  |
-
-D-REC Integrators:
-
 ## How to use
 
 Go inside integrators-scripts folder
@@ -98,7 +134,7 @@ npm run start
 
 Before running the script, make sure:
 
-1. You have updated the DREC_BACKEND_URL in .env with local or heroku - also update the username and password for each integrator
+1. You have updated the DREC_BACKEND_URL in .env with local - also update the username and password for each integrator
 2. Post generated devices to Server - Bulk Devices
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
