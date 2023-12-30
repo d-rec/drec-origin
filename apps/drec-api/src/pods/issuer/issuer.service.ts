@@ -954,7 +954,7 @@ export class IssuerService {
           blockchainAccountAddress: organization.blockchainAccountAddress,
         };
         const nextissuance = await this.groupService.getGroupiCertificateIssueDate({ groupId: group.id })
-        console.log(nextissuance);
+       // console.log(nextissuance);
         for (let key in countryDevicegroup) {
           //deep clone to avoid duplicates
           let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
@@ -972,8 +972,8 @@ export class IssuerService {
               let endDate;
               // 
               if (lastcertifieddeviceend_date === undefined) {
-
-                if ((element.createdAt).getTime() <= (group.reservationStartDate).getTime()) {
+               
+                if (new Date((element.createdAt)).getTime() <= (group.reservationStartDate).getTime()) {
                   startDate = DateTime.fromISO(group.reservationStartDate.toISOString()).toUTC();
                 }
                 else {

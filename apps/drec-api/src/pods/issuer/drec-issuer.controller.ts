@@ -39,9 +39,9 @@ export class DrecIssuerController {
   }
 
   @Get('/ongoing')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
+  //@UseGuards(PermissionGuard)
+  //@Permission('Read')
+ // @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
@@ -68,9 +68,9 @@ export class DrecIssuerController {
   }
 
   @Get('/history')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
+ // @UseGuards(PermissionGuard)
+ // @Permission('Read')
+ // @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
@@ -88,9 +88,9 @@ export class DrecIssuerController {
   }
 
   @Post()
-  @UseGuards(PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
+ // @UseGuards(PermissionGuard)
+ // @Permission('Write')
+ // @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Re ISSUE certificates for failed data',
     //type:[ReIssueCertificateDTO]
@@ -122,9 +122,9 @@ export class DrecIssuerController {
 
 
   @Get('/lateongoing')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
+ // @UseGuards(PermissionGuard)
+  //@Permission('Read')
+  //@ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
