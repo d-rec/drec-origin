@@ -1,21 +1,18 @@
 import {
     Controller,
     Get,
-    Post,
-    Patch,
     HttpStatus,
     Param,
-    Body,
     UseGuards,
     ValidationPipe,
     Query,
     ConflictException,
     BadRequestException,
+    Logger,
 } from '@nestjs/common';
 
 import {
     ApiBearerAuth,
-    ApiNotFoundResponse,
     ApiResponse,
     ApiOkResponse,
     ApiSecurity,
@@ -26,12 +23,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity'
 import { CertificateLogService } from './certificate-log.service'
 import { AmountFormattingDTO, FilterDTO, GroupIDBasedFilteringDTO } from './dto/filter.dto'
-import { Certificate } from '@energyweb/issuer-api';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { User } from '../user/user.entity';
-import { CertificateWithPerdevicelog, CertificateNewWithPerDeviceLog, CertificatelogResponse } from './dto'
+import { CertificateNewWithPerDeviceLog, CertificatelogResponse } from './dto'
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
@@ -51,6 +46,8 @@ import { UserService } from '../user/user.service';
 @Controller('/certificate-log')
 export class CertificateLogController {
 
+    private readonly logger = new Logger(CertificateLogController.name);
+
     constructor(
         private readonly certificateLogService: CertificateLogService,
         private readonly devicegroupService: DeviceGroupService,
@@ -69,6 +66,7 @@ export class CertificateLogController {
     @ApiOkResponse({ type: [CheckCertificateIssueDateLogForDeviceEntity], description: 'Returns all individual devices certificate log' })
     async getAll(
     ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+        this.logger.verbose(`With in getAll`);
         return this.certificateLogService.find();
     }
 
@@ -83,6 +81,7 @@ export class CertificateLogController {
         @Query() amountFormatData: AmountFormattingDTO,
     ) {
         if (Number.isNaN(parseInt(amountFormatData.amount))) {
+            this.logger.error(`amount invalid value was sent`);
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -91,6 +90,7 @@ export class CertificateLogController {
             })
 
         }
+        this.logger.verbose(`with in getClaimAmountInEthersJSON`);
         return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(amountFormatData.amount)
     }
 
@@ -106,7 +106,9 @@ export class CertificateLogController {
     async getByGroupId(
         @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
     ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+        this.logger.verbose(`With in getByGroupId`);
         if (parseInt(filterDto.groupId) === NaN) {
+            this.logger.error(`Group Id is a number, invalid value was sent`);
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -132,10 +134,11 @@ export class CertificateLogController {
         @Param('groupUid') groupuId: string,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
-        console.log("101")
+        this.logger.verbose(`With in getissueCertificate`);
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         //console.log(regexExp.test(groupuId));
         if (groupuId === null || !regexExp.test(groupuId)) {
+            this.logger.error(`Please Add the valid UID ,invalid group uid value was sent`);
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -149,6 +152,7 @@ export class CertificateLogController {
 
 
         if (devicegroup === null || devicegroup.buyerId != user.id) {
+            this.logger.error(`Group UId is not of this buyer, invalid value was sent`);
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -177,9 +181,10 @@ export class CertificateLogController {
         @Query('pageNumber') pageNumber: number,
         @UserDecorator() user: ILoggedInUser,
     ): Promise<CertificateNewWithPerDeviceLog[]> {
-        console.log("138")
+        this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
         const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
         if (groupuId === null || !regexExp.test(groupuId)) {
+            this.logger.error(`Please Add the valid UID ,invalid group uid value was sent`);
             return new Promise((resolve, reject) => {
                 reject(new ConflictException({
                     success: false,
@@ -190,6 +195,7 @@ export class CertificateLogController {
         const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
         if (user.role === Role.ApiUser) {
             if (devicegroup.api_user_id != user.api_user_id) {
+                this.logger.error(`Group UId  does not  belongs to this apiuser`);
                 throw new BadRequestException({
                     success: false,
                     message: 'Group UId  does not  belongs to this apiuser',
@@ -198,6 +204,7 @@ export class CertificateLogController {
             return this.certificateLogService.getCertificateFromOldOrNewUfinction(devicegroup.id.toString(), pageNumber);
         } else {
             if (devicegroup === null || devicegroup.buyerId != user.id) {
+                this.logger.error(`Group UId is not of this buyer, invalid value was sent`);
                 return new Promise((resolve, reject) => {
                     reject(new ConflictException({
                         success: false,
@@ -226,6 +233,7 @@ export class CertificateLogController {
     async getRedemptionReport(
         @UserDecorator() { id }: ILoggedInUser,
     ): Promise<any[]> {
+        this.logger.verbose(`With in getRedemptionReport`);
         return this.certificateLogService.getCertificateRedemptionReport(id);
     }
 
@@ -278,6 +286,7 @@ export class CertificateLogController {
         @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour') targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
         @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
     ) {
+        this.logger.verbose(`With in GetCertificateReadModule`);
         return await this.certificateLogService.getsCertificateReadModule(
             organizationId.toString(),
             pageNumber,
@@ -347,11 +356,12 @@ export class CertificateLogController {
         @Query('pageNumber') pageNumber: number,
         @Query('organizationId', new ValidationPipe({ skipMissingProperties: true })) organizationId: number,
     ): Promise<CertificatelogResponse> {
-        console.log("238");
+        this.logger.verbose(`With in getCertificatesForDeveloper`);
 
         if (user.role === Role.ApiUser) {
             // If the user is an ApiUser, organizationId must be provided
             if (!organizationId) {
+                this.logger.error(`Organization ID is required for ApiUser`);
                 throw new BadRequestException({
                     success: false,
                     message: 'Organization ID is required for ApiUser',
@@ -362,6 +372,7 @@ export class CertificateLogController {
             const orguser = await this.userService.findByEmail(organization.orgEmail);
 
             if (organization.api_user_id != user.api_user_id) {
+                this.logger.error(`Organization requested belongs to other apiuser`);
                 throw new BadRequestException({
                     success: false,
                     message: 'Organization requested belongs to other apiuser',
@@ -373,6 +384,7 @@ export class CertificateLogController {
         } else {
             // If the user is not an ApiUser, organizationId is optional
             if (organizationId && organizationId != user.organizationId) {
+                this.logger.verbose(`Organization requested belongs to other organization`);
                 throw new BadRequestException({
                     success: false,
                     message: 'Organization requested belongs to other organization',

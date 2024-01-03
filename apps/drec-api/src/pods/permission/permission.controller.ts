@@ -1,8 +1,4 @@
-
-import { NullOrUndefinedResultInterceptor } from '@energyweb/origin-backend-utils';
 import {
-    ClassSerializerInterceptor,
-    BadRequestException,
     Controller,
     Get,
     Post,
@@ -12,7 +8,7 @@ import {
     ParseIntPipe,
     HttpStatus,
     UseGuards,
-    UseInterceptors,
+    Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -20,16 +16,12 @@ import {
     ApiResponse,
     ApiBody,
     ApiTags,
-    ApiUnprocessableEntityResponse,
-    ApiParam,
     ApiSecurity,
     ApiOkResponse
 } from '@nestjs/swagger';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { PermissionService } from './permission.service'
-import { Expose } from 'class-transformer';
 import { NewPermissionDTO, PermissionDTO,UpdatePermissionDTO,NewApiUserPermissionDTO,ApiUserPermissionUpdateDTO } from '../permission/dto/modulepermission.dto'
-import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
@@ -43,6 +35,9 @@ import { PermissionGuard } from '../../guards';
 @ApiSecurity('drec')
 @Controller('permission')
 export class PermissionController {
+
+    private readonly logger = new Logger(PermissionController.name);
+
     constructor(
         private readonly PermissionService: PermissionService,
 
@@ -58,6 +53,7 @@ export class PermissionController {
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [ACLModulePermissions], description: 'Returns all Permission' })
     async getAll(): Promise<ACLModulePermissions[]> {
+        this.logger.verbose(`With in getAll`);
         return this.PermissionService.getAll();
       }
     /**
@@ -77,6 +73,7 @@ export class PermissionController {
     })
 
       async rolepermission( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[]> {
+        this.logger.verbose(`With in rolepermission`);
         return this.PermissionService.FindbyRole(id);
     }
 
@@ -96,6 +93,7 @@ export class PermissionController {
     })
     //user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
     user( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[] | null> {
+        this.logger.verbose(`With in user`);
         return this.PermissionService.FindbyUser(id);
     }
 /**
@@ -119,6 +117,7 @@ export class PermissionController {
         @Body() moduleData: NewPermissionDTO,
         @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<PermissionDTO> {
+        this.logger.verbose(`With in register`);
         return this.PermissionService.create(moduleData,loggedUser);
     }
    /**
@@ -142,7 +141,7 @@ export class PermissionController {
         @Body() body: UpdatePermissionDTO,
        
     ): Promise<PermissionDTO> {
-
+        this.logger.verbose(`With in updateyield`);
         return this.PermissionService.update(id, body);
     }
 /**
@@ -165,7 +164,7 @@ export class PermissionController {
         @Body() moduleData: [NewApiUserPermissionDTO],
         @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<{statsu:string,message:string}> {
-        console.log(loggedUser);
+        this.logger.verbose(`With in apiuser_modulerequest`);
         return this.PermissionService.permisssion_request(moduleData,loggedUser);
     }
 
@@ -190,7 +189,7 @@ export class PermissionController {
         @Body() moduleData: ApiUserPermissionUpdateDTO,
         @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<{statsu:string,message:string}> {
-        console.log(loggedUser);
+        this.logger.verbose(`With in apiuser_moduleapprove`);
         return this.PermissionService.permission_veify(api_user_id,moduleData);
     }
 }

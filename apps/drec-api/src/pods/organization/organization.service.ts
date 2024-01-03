@@ -60,29 +60,33 @@ export class OrganizationService {
     id: number,
     options: FindOneOptions<Organization> = {},
   ): Promise<Organization> {
+    this.logger.verbose(`With in findOne`);
     const organization = await this.repository.findOne(id, {
       ...options,
     });
     if (!organization) {
+      this.logger.error(`No organization found with id ${id}`);
       throw new NotFoundException(`No organization found with id ${id}`);
     }
     return organization;
   }
 
   public async findByBlockchainAddress(address: string): Promise<Organization> {
+    this.logger.verbose(`With in findByBlockchainAddress`);
     return await this.repository.findOneOrFail({
       blockchainAccountAddress: address,
     });
   }
 
   public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
+    this.logger.verbose(`With in findByIds`);
     return this.repository.findByIds(ids);
   }
 
   async getAll(filterDto: OrganizationFilterDTO, pageNumber: number, limit: number, user?: LoggedInUser,): Promise<{ organizations: Organization[], currentPage: number, totalPages: number, totalCount: number }> {
+    this.logger.verbose(`With in getAll`);
     let query = await this.getFilteredQuery(filterDto);
     try {
-      console.log(user);
       if (user!=undefined && user?.role === 'ApiUser') {
        query =  query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
           .andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
@@ -104,22 +108,26 @@ export class OrganizationService {
   }
 
   async remove(organizationId: number): Promise<void> {
+    this.logger.verbose(`With in delete`);
     await this.repository.delete(organizationId);
   }
 
   async getDeviceManagers(id: number): Promise<IUser[]> {
+    this.logger.verbose(`With in getDeviceManagers`);
     const members = await this.getMembers(id);
 
     return members.filter((u) => isRole(u.role, Role.DeviceOwner));
   }
 
   async getMembers(id: number): Promise<IUser[]> {
+    this.logger.verbose(`With in getMembers`);
     const organization = await this.findOne(id);
 
     return organization.users;
   }
 
   public async findOrganizationUsers(id: number, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+    this.logger.verbose(`With in findOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByOrganization(id, pageNumber, limit);
@@ -132,6 +140,7 @@ export class OrganizationService {
     }
   }
   public async findApiuserOrganizationUsers(apiuser_id: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+    this.logger.verbose(`With in findApiuserOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(apiuser_id, pageNumber, limit);
@@ -165,6 +174,7 @@ export class OrganizationService {
     organizationToRegister: NewOrganizationDTO,
     user: LoggedInUser,
   ): Promise<Organization> {
+    this.logger.verbose(`With in create`);
     this.logger.debug(
       `User ${JSON.stringify(
         user,
@@ -174,6 +184,7 @@ export class OrganizationService {
     );
 
     if (await this.isNameAlreadyTaken(organizationToRegister.name)) {
+      this.logger.error(new OrganizationNameAlreadyTakenError(organizationToRegister.name));
       throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
     }
     const documents = [
@@ -182,6 +193,7 @@ export class OrganizationService {
     ];
 
     if (!(await this.isDocumentOwner(user, documents))) {
+      this.logger.error(new OrganizationDocumentOwnershipMismatchError());
       throw new OrganizationDocumentOwnershipMismatchError();
     }
 
@@ -236,6 +248,7 @@ export class OrganizationService {
   public async newcreate(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {
+    this.logger.verbose('With in newcreate');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
         organizationToRegister,
@@ -249,7 +262,7 @@ export class OrganizationService {
       status: OrganizationStatus.Active,
 
     });
-    console.log(organizationToCreate);
+
     try {
       const stored = await this.repository.save(organizationToCreate);
 
@@ -259,7 +272,6 @@ export class OrganizationService {
 
       return stored;
     } catch (error) {
-      console.log(error)
       this.logger.error(`Failed to retrieve device`, error);
     }
 
@@ -272,6 +284,7 @@ export class OrganizationService {
 
 
   private async generateBlockchainAddress(index: number): Promise<string> {
+    this.logger.verbose(`With in generateBlockchainAddress`);
     const issuerAccount = Wallet.fromMnemonic(
       process.env.MNEMONIC!,
       `m/44'/60'/0'/0/${0}`,
@@ -301,6 +314,7 @@ export class OrganizationService {
     organizationId: number,
     updateOrganizationDTO: UpdateOrganizationDTO,
   ): Promise<Organization> {
+    this.logger.verbose(`With in update`);
     let currentOrg = await this.findOne(organizationId);
     currentOrg = defaults(updateOrganizationDTO, currentOrg);
     return await this.repository.save(currentOrg);
@@ -311,9 +325,11 @@ export class OrganizationService {
     memberId: number,
     newRole: Role,
   ): Promise<void> {
+    this.logger.verbose(`With in changeMemberRole`);
     const organization = await this.findOne(organizationId);
 
     if (!organization.users.find((u) => u.id === memberId)) {
+      this.logger.error(`User to be removed is not part of the organization.`);
       throw new BadRequestException({
         success: false,
         message: `User to be removed is not part of the organization.`,
@@ -330,6 +346,7 @@ export class OrganizationService {
       isRole(userToBeChanged.role, Role.OrganizationAdmin) &&
       admins.length < 2
     ) {
+      this.logger.error(`Can't change role of admin user from organization. There always has to be at least one admin in the organization.`);
       throw new BadRequestException({
         success: false,
         message: `Can't change role of admin user from organization. There always has to be at least one admin in the organization.`,
@@ -344,13 +361,16 @@ export class OrganizationService {
     id: number,
     signedMessage: BindBlockchainAccountDTO['signedMessage'],
   ): Promise<ISuccessResponse> {
+    this.logger.verbose(`With in setBlockchainAddress`);
     if (!signedMessage) {
+      this.logger.error(`Signed message is empty.`);
       throw new BadRequestException('Signed message is empty.');
     }
 
     const organization = await this.findOne(id);
 
     if (organization.blockchainAccountAddress) {
+      this.logger.error(`Organization already has a blockchain address`);
       throw new ConflictException(
         'Organization already has a blockchain address',
       );
@@ -361,6 +381,7 @@ export class OrganizationService {
     );
 
     if (!registrationMessageToSign) {
+      this.logger.error(`Registration message to sign missing!`);
       throw new BadRequestException('Registration message to sign missing!');
     }
 
@@ -381,6 +402,7 @@ export class OrganizationService {
     address: string,
     signedMessage?: string,
   ): Promise<ISuccessResponse> {
+    this.logger.verbose(`With in updateBlockchainAddress`);
     const organization = await this.findOne(orgId);
 
     const alreadyExistingOrganizationWithAddress = await this.repository.count({
@@ -388,6 +410,7 @@ export class OrganizationService {
     });
 
     if (alreadyExistingOrganizationWithAddress > 0) {
+      this.logger.error(`This blockchain address has already been linked to a different organization.`);
       throw new ConflictException(
         `This blockchain address has already been linked to a different organization.`,
       );
@@ -402,6 +425,7 @@ export class OrganizationService {
   }
 
   async isNameAlreadyTaken(name: string): Promise<boolean> {
+    this.logger.verbose(`With in isNameAlreadyTaken`);
     const existingOrganizations = await this.repository
       .createQueryBuilder()
       .where('LOWER(name) = LOWER(:name)', { name })
@@ -415,6 +439,7 @@ export class OrganizationService {
     member: IUser,
     role: Role,
   ): Promise<void> {
+    this.logger.verbose(`With in sendRoleChangeEmail`);
     const url = `${process.env.UI_BASE_URL}/account/user-profile`;
 
     const result = await this.mailService.send({
@@ -429,6 +454,7 @@ export class OrganizationService {
   }
 
   private async isDocumentOwner(user: LoggedInUser, documentIds: string[]) {
+    this.logger.verbose(`With in isDocumentOwner`);
     if (!documentIds?.length) {
       return true;
     }
@@ -452,6 +478,7 @@ export class OrganizationService {
   // }
 
   private async getFilteredQuery(filterDto: OrganizationFilterDTO): Promise<SelectQueryBuilder<Organization>> {
+    this.logger.verbose(`With in getFilteredQuery`);
     const { organizationName } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
