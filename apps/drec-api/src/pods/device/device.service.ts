@@ -586,11 +586,21 @@ export class DeviceService {
     }
     let result: any;
     if (role === Role.ApiUser) {
-      await this.organizationService.findOne(orgCode, {
+      const org = await this.organizationService.findOne(orgCode, {
         where: {
           api_user_id: api_user_id
         }
       });
+
+      const orguser = await this.userService.findByEmail(org.orgEmail);
+ 
+      if(orguser.role != Role.OrganizationAdmin) {
+        this.logger.error(`Unauthorized`);
+        throw new UnauthorizedException({
+          success: false,
+          message: 'Unauthorized',
+        });
+      }
 
       result = await this.repository.save({
         ...newDevice,
