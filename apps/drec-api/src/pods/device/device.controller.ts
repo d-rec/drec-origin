@@ -252,7 +252,45 @@ export class DeviceController {
         });
       }
     }
-   
+    //@ts-ignore
+    if(filterDto.organizationId) {
+      if(role === Role.ApiUser) {
+        //@ts-ignore
+        const organization = await this.organizationService.findOne(filterDto.organizationId);
+        const orguser = await this.userService.findByEmail(organization.orgEmail);
+        if(organization.api_user_id != api_user_id) {
+          this.logger.error(`The organization Id in param is belongs to other apiuser`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'The organization Id in param is belongs to other apiuser',
+          })
+        } else{
+          if(orguser.role != Role.OrganizationAdmin) {
+            this.logger.error(`Unauthorized`);
+            throw new UnauthorizedException({
+              success: false,
+              message: 'Unauthorized',
+            })
+          }
+        }
+      }
+      else {
+        //@ts-ignore
+        if(filterDto.organizationId != organizationId) {
+          this.logger.error(`The organization Id in param should be same as user's organization`);
+          throw new UnauthorizedException({
+            success: false,
+            message: `The organization Id in param should be same as user's organization`,
+          })
+        }
+      }
+
+    //@ts-ignore
+      organizationId = filterDto.organizationId;
+
+    }
+
+    this.logger.log("In devices before calling service");
     return await this.deviceService.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
   }
 

@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   HttpService,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -51,6 +52,7 @@ import { IrecDevicesInformationEntity } from './irec_devices_information.entity'
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity'
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -65,7 +67,8 @@ export class DeviceService {
     private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
     @InjectRepository(IrecErrorLogInformationEntity)
     private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
-    private readonly organizationService: OrganizationService,
+    private readonly organizationService : OrganizationService,
+    private readonly userService: UserService,
   ) { }
 
   public async find(filterDto: FilterDTO, pagenumber: number, OrgId?: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
@@ -117,24 +120,23 @@ export class DeviceService {
 
   async getOrganizationDevices(organizationId: number, api_user_id: string, role: Role, filterDto: FilterDTO, pagenumber: number): Promise<any> {
     this.logger.verbose(`With in getOrganizationDevices`);
+    if (pagenumber === null || pagenumber === undefined) {
+      pagenumber = 1
+    }
+    const limit = 20;
     if (Object.keys(filterDto).length != 0) {
-      if (pagenumber === null || pagenumber === undefined) {
-        pagenumber = 1
-      }
-      const limit = 20;
-
       const query = await this.getFilteredQuery(filterDto);
-      let where: any = query.where
-      if (role === Role.ApiUser && api_user_id) {
-        where = { ...where, api_user_id };
-        //@ts-ignore
-        if (filterDto.organizationId) {
-          //@ts-ignore
-          organizationId = filterDto.organizationId;
-          where = { ...where, organizationId }
+      let where: any = query.where;
+      if(role == Role.ApiUser) {
+       //@ts-ignore
+       if(filterDto.organizationId) {
+          where = { ...where, organizationId};          
         }
-      } else {
-        where = { ...where, organizationId }
+        else {
+          where = { ...where, api_user_id };
+        }
+      }else{
+        where = { ...where, organizationId};
       }
 
       query.where = where;
@@ -147,6 +149,7 @@ export class DeviceService {
       });
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
+        this.logger.error(`Page number out of range`);
         throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
       }
       const currentPage = pagenumber;
@@ -166,12 +169,23 @@ export class DeviceService {
       };
     }
 
-    const devices = await this.repository.find({
+    const [devices, totalCount] = await this.repository.findAndCount({
       where: { organizationId },
+      skip: (pagenumber - 1) * limit,
+      take: limit,
       order: {
         createdAt: 'DESC',
       },
     });
+
+    const totalPages = Math.ceil(totalCount / limit);
+      if (pagenumber > totalPages) {
+        this.logger.error(`Page number out of range`);
+        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+      }
+
+      const currentPage = pagenumber;
+
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
@@ -180,7 +194,12 @@ export class DeviceService {
       delete device["organization"];
       newDevices.push(device);
     })
-    return newDevices
+    return {
+      devices: newDevices,
+      currentPage,
+      totalPages,
+      totalCount
+    };
   }
 
 
@@ -763,7 +782,6 @@ export class DeviceService {
   private getFilteredQuery(filter: FilterDTO, orgId?: number): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
     const limit = 20;
-
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       // deviceTypeCode: filter.deviceTypeCode,
@@ -812,7 +830,6 @@ export class DeviceService {
       order: {
         organizationId: 'DESC',
       }
-
     };
     return query;
   }
