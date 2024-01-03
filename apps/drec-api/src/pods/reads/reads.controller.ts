@@ -189,6 +189,7 @@ export class ReadsController extends BaseReadsController {
         
       }
     }
+
     filter.offset = 0;
     filter.limit = 5;
     let device: DeviceDTO | null;
@@ -196,9 +197,15 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(`Year is required when month is given`);
       throw new HttpException('Year is required when month is given', 400)
     }
-   // console.log("orguser",orguser);(orguser != undefined && orguser.role === Role.Buyer)
-    if (user.role === 'Buyer' || user.role === 'Admin' || user.role === 'ApiUser') {
 
+    if (user.role === 'Buyer' || user.role === 'Admin' || (filter.organizationId != undefined && orguser.role === 'Buyer') || (user.role === 'ApiUser' && filter.organizationId == undefined)) {
+      if(isNaN(parseInt(meterId))) {
+        this.logger.error(`The URL param externalId should be number.. please provide the device id of which you want to query`);
+        throw new BadRequestException({
+          success: false,
+          message: `The URL param externalId should be number.. please provide the device id of which you want to query`,
+        });
+      }
       device = await this.deviceService.findOne(parseInt(meterId));
       //@ts-ignore
       if (orguser != undefined && device.api_user_id === null && orguser.role === enums_1.Role.Buyer) {
@@ -412,7 +419,6 @@ export class ReadsController extends BaseReadsController {
       });
     }
     id = id.trim();
-   console.log(id, user.organizationId);
     let device: DeviceDTO | null = await this.deviceService.findDeviceByDeveloperExternalId(id,  user.organizationId);
     if (device === null) {
       this.logger.error(`Invalid device id`);
@@ -949,7 +955,6 @@ export class ReadsController extends BaseReadsController {
                   }
                   //@ts-ignore
                   ele[key] = utcString;
-                  console.log(key, ele[key])
                 }
 
               }
@@ -1106,7 +1111,7 @@ export class ReadsController extends BaseReadsController {
       }
     }
     if (measurements.type === ReadType.Delta || measurements.type === ReadType.ReadMeter) {
-      console.log("505")
+      this.logger.log("Line No: 505");
       let datesContainingNullOrEmptyValues: boolean = false;
       let datevalid1: boolean = true;
       let allDatesAreAfterCreatedAt: boolean = true;
