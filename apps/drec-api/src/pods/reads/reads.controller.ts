@@ -18,6 +18,7 @@ import {
   HttpException,
   BadRequestException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -376,6 +377,7 @@ export class ReadsController extends BaseReadsController {
     this.logger.verbose(`With in newstoreRead`);
     if(measurements.organizationId) {
       const senderorg = await this.organizationService.findOne(measurements.organizationId);
+      const orguser = await this.userService.findByEmail(senderorg.orgEmail);
       if(user.organizationId !== measurements.organizationId && user.role !== Role.ApiUser) {
         this.logger.error(`Organization in measurement is not same as user's organization`);
         return new Promise((resolve, reject) => {
@@ -396,6 +398,17 @@ export class ReadsController extends BaseReadsController {
               new ConflictException({
                 success: false,
                 message: `Organization ${senderorg.name} in measurement is not part of your organization`,
+              })
+            );
+          });
+        }
+        else if(orguser.role != Role.OrganizationAdmin) {
+          this.logger.error(`Unauthorized`);
+          return new Promise((resolve, reject) => {
+            reject(
+              new UnauthorizedException({
+                success: false,
+                message: `Unauthorized`,
               })
             );
           });
