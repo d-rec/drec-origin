@@ -135,6 +135,8 @@ export class UserService {
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org)}`,
         );
+
+
       }
 
     }
@@ -146,30 +148,16 @@ export class UserService {
     var role;
     var roleId;
     if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
-      if(!inviteuser) {
-        role = Role.Buyer
-        roleId = 4;
-      }
-      else if(inviteuser) {
-        role = Role.User
-        roleId = 5;
-        status = UserStatus.Active;
-      }
+      role = Role.Buyer
+      roleId = 4;
     } else if (data.organizationType === 'Developer' || data.organizationType === 'Developer') {
-      if(!inviteuser) {
-        role = Role.OrganizationAdmin
-        roleId = 2;  
-      }
-      else if(inviteuser) {
-        role = Role.User
-        roleId = 5;
-        status = UserStatus.Active;
-      }
+      role = Role.OrganizationAdmin
+      roleId = 2;
     } else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
       role = Role.ApiUser
       roleId = 6;
     }
-
+    
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
