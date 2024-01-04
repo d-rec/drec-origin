@@ -135,9 +135,9 @@ export class DrecIssuerController {
  */
 
   @Get('/lateongoing')
-  @UseGuards(PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
+ // @UseGuards(PermissionGuard)
+ // @Permission('Read')
+ // @ACLModules('DREC_ISSUER_MANAGEMENT_CRUDL')
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })

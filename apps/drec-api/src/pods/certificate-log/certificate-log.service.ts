@@ -135,6 +135,9 @@ export class CertificateLogService {
       where: {
         deviceId: groupid,
       },
+      order: {
+        createdAt: 'DESC',
+      },
       skip: (page - 1) * itemsPerPage,
       take: itemsPerPage,
     });
@@ -148,6 +151,9 @@ export class CertificateLogService {
     const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.cretificatereadmoduleRepository.find({
       where: {
         deviceId: groupid,
+      },
+      order: {
+        createdAt: 'DESC',
       },
       skip: (page - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
       take: itemsPerPage, // Specify the number of items to take per page

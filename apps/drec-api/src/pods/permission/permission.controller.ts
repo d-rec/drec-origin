@@ -140,10 +140,10 @@ export class PermissionController {
     public async updateyield(
         @Param('id', new ParseIntPipe()) id: number,
         @Body() body: UpdatePermissionDTO,
-       
+        @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<PermissionDTO> {
 
-        return this.PermissionService.update(id, body);
+        return this.PermissionService.update(id, body,loggedUser);
     }
 /**
  * This api route use for make a request of permission to use api with module select by apiuser

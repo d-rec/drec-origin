@@ -101,9 +101,10 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @Permission('Read')
+  @Roles(Role.Admin,Role.ApiUser)
   @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiQuery({ name: 'apiuserId', type: String, required: false, description: "This query parameter is used for Admin to list the reservations by ApiUser" })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -177,7 +178,7 @@ export class BuyerReservationController {
    */
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+//@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
