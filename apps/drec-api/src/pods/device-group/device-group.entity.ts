@@ -175,5 +175,11 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   // device: Device[];
 
   @Column({ nullable: true, default: null })
-  api_user_id : string;  
+  api_user_id : string; 
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 3
+  }) 
+  reservationExpiryDate:Date;
 }

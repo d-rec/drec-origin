@@ -11,13 +11,10 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  Body,
-  UploadedFile,
-  ConflictException,
-
+  Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -55,6 +52,9 @@ supportedFiles.push('image/png');
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
+
+  private readonly logger = new Logger(FileController.name);
+
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) { }
 
@@ -106,6 +106,7 @@ export class FileController {
     },
     // @Body() fileUploadDto: FileUploadDto,
   ) {
+    this.logger.verbose(`With in upload`);
     // if(fileUploadDto.type!==undefined && fileUploadDto.type!==null && fileUploadDto.type==='csvDeviceBulkRegistration')
     // {
     //   let fileId = await this.fileService.store(user, uploadedFiles.files);
@@ -114,7 +115,6 @@ export class FileController {
     //   //@ts-ignore
     //   return jobCreated;
     // }
-    console.log(uploadedFiles.files[0]);
     return await Promise.all(
       uploadedFiles.files.map(async (file) => {
       let response:any=await this.fileService.upload(file);
@@ -146,8 +146,10 @@ export class FileController {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {
+    this.logger.verbose(`With in download`);
     const file = await this.fileService.get(id, user);
     if (!file) {
+      this.logger.error('File not found');
       throw new NotFoundException();
     }
 

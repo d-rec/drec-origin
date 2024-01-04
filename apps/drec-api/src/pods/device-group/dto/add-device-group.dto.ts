@@ -45,4 +45,7 @@ export class AddGroupDTO {
 
   api_user_id ?: string;
 
+
+ @ApiPropertyOptional({ type: Date })
+  reservationExpiryDate:Date;
 }

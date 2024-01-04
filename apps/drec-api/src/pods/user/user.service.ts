@@ -95,7 +95,6 @@ export class UserService {
     await this.checkForExistingUser(data.email.toLowerCase());
     //@ts-ignore
     let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.client.api_user_id);
-    console.log("ApiUserId at UserService:",api_user);
     /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
@@ -483,7 +482,6 @@ export class UserService {
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
     // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
-    console.log("emailConfirmation")
 
     //const _user = await this.findById(emailConfirmation.id);
 
@@ -520,7 +518,6 @@ export class UserService {
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
     const getrole = await this.rolerepository.findOne({ name: role })
-    console.log(getrole);
     // var roleId;
     // if (role === Role.DeviceOwner) {
     //   roleId = 3
@@ -585,7 +582,6 @@ export class UserService {
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
-    console.log(validationErrors);
     if (validationErrors.length > 0) {
       throw new UnprocessableEntityException({
         success: false,
@@ -650,7 +646,6 @@ export class UserService {
 
   public async sentinvitiontoUser(inviteuser, email, invitationId) {
     const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
-    console.log("hgtdfd", getcurrenttoken);
     if (!getcurrenttoken) {
       return {
         message: 'Token not found',
@@ -687,7 +682,6 @@ export class UserService {
 /** ApiUser Fuction*/
 
 async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
-  console.log("api_id",api_id)
   return await this.apiUserEntityRepository.findOne(api_id);
 }
 /**
@@ -736,7 +730,6 @@ async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
   public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     let filterDto = new UserFilterDTO;
     filterDto.organizationName = organizationName;
-    console.log("filterDto:",filterDto);
     const query = await this.getFilteredQuery(filterDto);
       try {
         const [apiusers, totalCount] = await query

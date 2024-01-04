@@ -15,7 +15,8 @@ import {
   BadRequestException,
   Query,
   DefaultValuePipe,
-  ValidationPipe
+  ValidationPipe,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -60,6 +61,9 @@ import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto'
 @UseGuards(AuthGuard('jwt'), PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
+
+  private readonly logger = new Logger(OrganizationController.name);
+
   constructor(private readonly organizationService: OrganizationService) { }
 
   /**
@@ -78,7 +82,7 @@ export class OrganizationController {
   async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
-    console.log("With in getOrg at org controller", organizationId);
+    this.logger.verbose("With in getOrg at org controller");
     return await this.organizationService.findOne(organizationId);
   }
   /**
@@ -103,6 +107,7 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
+    this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(filterDto, pageNumber, limit, loggedUser);
   }
 
@@ -132,6 +137,7 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
+    this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.ApiUser) {
       return this.organizationService.findApiuserOrganizationUsers(loggedUser.api_user_id, pageNumber, limit);
 
@@ -163,6 +169,7 @@ export class OrganizationController {
   async getOrganizationById(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<OrganizationDTO | undefined> {
+    this.logger.verbose(`With in getOrganizationById`);
     return this.organizationService.findOne(organizationId);
   }
   /**
@@ -184,6 +191,7 @@ export class OrganizationController {
     @Param('id', new ParseIntPipe()) organizationId: number,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<InvitationDTO[]> {
+    this.logger.verbose(`With in getInvitationsForOrganization`);
     this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
 
     const organization = await this.organizationService.findOne(organizationId);
@@ -212,7 +220,9 @@ export class OrganizationController {
     @Body() organizationToRegister: NewOrganizationDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<OrganizationDTO> {
+    this.logger.verbose(`With in register`);
     if (loggedUser.organizationId) {
+      this.logger.error(`There is already an organization assigned to this account`);
       throw new BadRequestException({
         success: false,
         message: `There is already an organization assigned to this account`,
@@ -248,11 +258,13 @@ export class OrganizationController {
     @Body() { role }: UpdateMemberDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
+    this.logger.verbose(`With in changeMemberRole`);
     this.ensureOrganizationMemberOrAdmin(loggedUser, organizationId);
 
     try {
       ensureOrganizationRole(role);
     } catch (e) {
+      this.logger.error(`Forbidden Error`);
       throw new ForbiddenException();
     }
 
@@ -285,7 +297,9 @@ export class OrganizationController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Body() { signedMessage }: BindBlockchainAccountDTO,
   ): Promise<SuccessResponseDTO> {
+    this.logger.verbose(`With in setBlockchainAddress`);
     if (!organizationId) {
+      this.logger.error(`User is not a part of an organization.`);
       throw new NotFoundException('User is not a part of an organization.');
     }
 
@@ -299,6 +313,7 @@ export class OrganizationController {
     user: ILoggedInUser,
     organizationId: number,
   ) {
+    this.logger.verbose(`With in ensureOrganizationMemberOrAdmin`);
     const isOrganizationMember = user.organizationId === organizationId;
     const hasAdminRole = isRole(user.role, Role.Admin);
 
@@ -306,6 +321,7 @@ export class OrganizationController {
       return;
     }
     if (!isOrganizationMember) {
+      this.logger.error(`Not a member of the organization.`);
       throw new ForbiddenException('Not a member of the organization.');
     }
   }

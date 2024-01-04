@@ -32,7 +32,9 @@ export class FileService {
     files: FileUpload[],
     isPublic = false,
   ): Promise<string[]> {
+    this.logger.verbose(`With in store`);
     if (!files || !files.length) {
+      this.logger.error(`No files added`);
       throw new NotAcceptableException('No files added');
     }
     this.logger.debug(
@@ -68,6 +70,7 @@ export class FileService {
     id: string,
     user?: ILoggedInUser,
   ): Promise<File | undefined> {
+    this.logger.verbose(`With in get`);
     this.logger.debug(
       `User ${user ? JSON.stringify(user) : 'Anonymous'} requested file ${id}`,
     );
@@ -94,7 +97,9 @@ export class FileService {
     user: LoggedInUser,
     fileIds: string[],
   ): Promise<void> {
+    this.logger.verbose(`With in assignFilesToUser`);
     if (!user.hasOrganization) {
+      this.logger.error(`User is not part of the organization`);
       throw new Error('User is not part of the organization');
     }
 
@@ -113,6 +118,7 @@ export class FileService {
     user: LoggedInUser,
     fileIds: string[],
   ): Promise<boolean> {
+    this.logger.verbose(`With in isOwner`);
     this.logger.debug(
       `User ${JSON.stringify(
         user,
@@ -157,6 +163,7 @@ export class FileService {
   }
 
   private generateUniqueFilename(originalFilename: string) {
+    this.logger.verbose(`With in generateUniqueFilename`);
     return `${uuid()}.${path.extname(originalFilename)}`;
   }
 
@@ -177,19 +184,20 @@ export class FileService {
 
 
   async upload(file) {
-    console.log(file);
+    this.logger.verbose(`With in upload`);
+    this.logger.debug(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
     const result = await this.uploadS3(file.buffer, bucketS3, originalname);
-    console.log(result);
     return result
   }
 
   async uploadS3(file, bucket, name) {
+    this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
-    console.log(`${uuid()}-${String(name)}`)
+    this.logger.debug(`${uuid()}-${String(name)}`)
     let a= name.substr(0,name.indexOf(".csv"))
-    console.log(a);
+    this.logger.debug(a);
     const params = {
       Bucket: bucket,
       Key: `${a}-${uuid()}.csv`,
@@ -199,10 +207,9 @@ export class FileService {
     return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
         if (err) {
-          Logger.error(err);
+          this.logger.error(err);
           reject(err.message);
         }
-        console.log(data)
         resolve(data
         );
       });
@@ -219,23 +226,21 @@ export class FileService {
 
 
   public async GetuploadS3(key: string) {
-    console.log(key);
-
+    this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
 
     // const fileInfo = await this.privateFilesRepository.findOne({ id: fileId }, { relations: ['owner'] });
     if (key) {
-      console.log(key);
+      this.logger.debug(key);
       let response: any;
       return new Promise((resolve, reject) => {
         s3.getObject(
           { Bucket: process.env.bucketname, Key: key }, (err, data) => {
 
             if (err) {
-              Logger.error(err);
+              this.logger.error(err);
               reject(err.message);
             }
-            console.log(data)
             resolve({
               data,
               filename: key
@@ -245,6 +250,7 @@ export class FileService {
       });
       
     }
+    this.logger.error(`Object not found`);
     throw new NotFoundException();
   }
 

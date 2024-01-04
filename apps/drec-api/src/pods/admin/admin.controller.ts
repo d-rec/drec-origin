@@ -14,7 +14,8 @@ import {
   NotFoundException,
   Patch,
   Post,
-  DefaultValuePipe
+  DefaultValuePipe,
+  Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -32,7 +33,6 @@ import {
 } from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
-import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
@@ -59,6 +59,9 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto'
 @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
+
+  private readonly logger = new Logger(AdminController.name);
+
   constructor(
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
@@ -86,6 +89,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
+    this.logger.verbose(`With in getUsers`);
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
@@ -107,6 +111,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
+    this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
 
@@ -130,6 +135,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*:  Promise<UserDTO[]>*/ {
+    this.logger.verbose(`With in getAllUserOrganizations`);
     return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
 
@@ -154,6 +160,7 @@ export class AdminController {
   async getOrganizationById(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<OrganizationDTO | undefined> {
+    this.logger.verbose(`With in getOrganizationById`);
     return this.organizationService.findOne(organizationId);
   }
 
@@ -171,6 +178,7 @@ export class AdminController {
     description: 'Returns a new created user',
   })
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
+    this.logger.verbose(`With in createUser`);
     return await this.userService.adminnewcreate(newUser);
   }
   /**
@@ -189,6 +197,7 @@ export class AdminController {
     description: 'Returns new created users',
   })
   public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
+    this.logger.verbose(`With in seedUsers`);
     const users: UserDTO[] = [];
     if (!newUsers || !newUsers.length) {
       return users;
@@ -219,6 +228,7 @@ export class AdminController {
   public async seedOrgs(
     @Body() newOrgs: OrganizationDTO[],
   ): Promise<OrganizationDTO[]> {
+    this.logger.verbose(`With in seedOrgs`);
     const orgs: OrganizationDTO[] = [];
     if (!newOrgs || !newOrgs.length) {
       return orgs;
@@ -251,6 +261,7 @@ export class AdminController {
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: UpdateUserDTO,
   ): Promise<UserDTO> {
+    this.logger.verbose(`With in updateUser`);
     return this.userService.update(id, body);
   }
 
@@ -273,6 +284,7 @@ export class AdminController {
     @Param('id') organizationId: number,
     @Body() organizationToUpdate: UpdateOrganizationDTO,
   ): Promise<OrganizationDTO> {
+    this.logger.verbose(`With in updateOrganization`);
     return await this.organizationService.update(
       organizationId,
       organizationToUpdate,
@@ -296,9 +308,11 @@ export class AdminController {
   async deleteOrganization(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<SuccessResponseDTO> {
+    this.logger.verbose(`With in deleteOrganization`);
     const organization = await this.organizationService.findOne(organizationId);
 
     if (!organization) {
+      this.logger.error(`Organization does not exist`);
       throw new NotFoundException('Does not exist');
     }
 
@@ -324,10 +338,11 @@ export class AdminController {
   async deleteUser(
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
-
+    this.logger.verbose(`With in deleteUser`);
     const user = await this.userService.findById(userid);
     
     if (!user) {
+      this.logger.error(`User does not exist`);
       throw new NotFoundException('Does not exist');
     }
     const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
@@ -336,13 +351,15 @@ export class AdminController {
       const buyerresrvation = await this.devicegroupService.findOne({ organizationId: user.organization.id })
      
       if (buyerresrvation) {
+        this.logger.verbose(`This user is part of reservation,So you cannot remove this user and organization`);
         throw new NotFoundException('This user is part of reservation,So you cannot remove this user and organization');
 
       }
       const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
      
       if (deviceoforg.length > 0) {
-        throw new NotFoundException('Some device are available in organization ');
+        this.logger.error(`Some device are available in organization`);
+        throw new NotFoundException('Some device are available in organization');
       }
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
@@ -381,6 +398,7 @@ export class AdminController {
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
+    this.logger.verbose(`With in IrecdeviceRegister`);
     return await this.deviceService.I_recPostData(id);
   }
 
@@ -405,10 +423,10 @@ export class AdminController {
     @Query('organizationId') organizationId: number,
   ) {
     //@ts-ignore
-    console.log("adminaddorgId", organizationId)
     // if (adminaddorgId != null || adminaddorgId != undefined) {
     //   organizationId = adminaddorgId;
     // }
+    this.logger.verbose(`With in autocomplete`);
     return await this.deviceService.atto(organizationId, externalId);
   }
 
@@ -432,7 +450,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ) {
-    console.log("With in getAllApiUsers",organizationName);
+    this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName,pageNumber, limit);
   }
 

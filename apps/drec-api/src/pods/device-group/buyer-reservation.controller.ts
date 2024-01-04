@@ -15,6 +15,7 @@ import {
   UnauthorizedException,
   DefaultValuePipe,
   ParseIntPipe,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -27,30 +28,11 @@ import {
   ApiQuery
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-
-import {
-  validate,
-  validateOrReject,
-  Contains,
-  IsInt,
-  Length,
-  IsEmail,
-  IsFQDN,
-  IsDate,
-  Min,
-  Max,
-} from 'class-validator';
-
-
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
-  DeviceIdsDTO,
-  SelectableDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
-  UpdateDeviceGroupDTO,
-  ReserveGroupsDTO,
   CSVBulkUploadDTO,
   JobFailedRowsDTO,
   EndReservationdateDTO,
@@ -58,18 +40,14 @@ import {
   ResponseDeviceGroupDTO
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { Installation, OffTaker, Role, Sector, StandardCompliance } from '../../utils/enums';
+import { Role } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceDescription, ILoggedInUser, BuyerReservationCertificateGenerationFrequency } from '../../models';
-import { NewDeviceDTO } from '../device/dto';
-import { File, FileService } from '../file';
+import { ILoggedInUser, BuyerReservationCertificateGenerationFrequency } from '../../models';
+import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
-import * as fs from 'fs';
-import { Readable } from 'stream';
-
 import csv from 'csv-parser';
 import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from './device_csv_processing_jobs.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
@@ -85,6 +63,9 @@ import { UserService } from '../user/user.service';
 @ApiSecurity('drec')
 @Controller('/buyer-reservation')
 export class BuyerReservationController {
+
+  private readonly logger = new Logger(BuyerReservationController.name);
+
   csvParser = csv({ separator: ',' });
 
   parser = parse({
@@ -101,9 +82,10 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @Permission('Read')
+  @Roles(Role.Admin,Role.ApiUser)
   @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiQuery({ name: 'apiuserId', type: String, required: false, description: "This query parameter is used for Admin to list the reservations by ApiUser" })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -127,7 +109,7 @@ export class BuyerReservationController {
     //   resolve([]);
     // });
     /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
-    console.log("With in getAll");
+    this.logger.verbose("With in getAll");
     let organization : any;
     if(!apiuserId) {
       apiuserId = user.api_user_id;
@@ -136,8 +118,9 @@ export class BuyerReservationController {
     if(organizationId) {
       organization = await this.organizationService.findOne(organizationId);
       if(user.role === Role.ApiUser) {
-        console.log("When user role is apiuser")
+
         if(organization.api_user_id != user.api_user_id) {
+          this.logger.error(`Organization requested is belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message: 'Organization requested is belongs to other apiuser',
@@ -148,8 +131,8 @@ export class BuyerReservationController {
  
     if(apiuserId) {
       if(user.role === Role.ApiUser) {
-        console.log("user apiuser:",user.api_user_id);
         if(apiuserId != user.api_user_id) {
+          this.logger.error(`An apiuser is unauthorized to request for other apiuser`);
           throw new UnauthorizedException({
             success: false,
             message: 'An apiuser is unauthorized to request for other apiuser',
@@ -158,6 +141,7 @@ export class BuyerReservationController {
       }
  
       if(organizationId && apiuserId != organization.api_user_id) {
+        this.logger.error(`The requested organization is not belongs to the apiuser`);
         throw new UnauthorizedException({
           success: false,
           message: 'The requested organization is not belongs to the apiuser',
@@ -177,7 +161,7 @@ export class BuyerReservationController {
    */
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+//@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -193,6 +177,7 @@ export class BuyerReservationController {
     
     @Query('pagenumber') pagenumber: number| null,
   )/*: Promise<DeviceGroupDTO[]> */{
+    this.logger.verbose(`With in getMyDevices`);
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
@@ -228,10 +213,12 @@ export class BuyerReservationController {
             @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
             @UserDecorator() user: ILoggedInUser,
   ): Promise<DeviceGroupDTO | null> {
+    this.logger.verbose(`With in get`);
     if(organizationId) {
       const organization = await this.organizationService.findOne(organizationId);
       if(user.role === Role.ApiUser) {
         if(user.api_user_id != organization.api_user_id) {
+          this.logger.error(`Organization requested is belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message: 'Organization requested is belongs to other apiuser',
@@ -243,6 +230,7 @@ export class BuyerReservationController {
       }
       else {
         if(organizationId != user.organizationId) {
+          this.logger.error(`Organization requested is not same as logged in user organization`);
           throw new BadRequestException({
             success: false,
             message: 'Organization requested is not same as logged in user organization',
@@ -276,13 +264,14 @@ export class BuyerReservationController {
     @Body() deviceGroupToRegister: AddGroupDTO,
     @Query('orgId') orgId : number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
-
+    this.logger.verbose(`With in createOne`);
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
 
           if (organization.api_user_id !== user.api_user_id) {
+            this.logger.error(`Organization requested belongs to other apiuser`);
               throw new BadRequestException({
                   success: false,
                   message: 'Organization requested belongs to other apiuser',
@@ -290,13 +279,12 @@ export class BuyerReservationController {
           }
 
           if (orguser.role === Role.Buyer) {
-              console.log("when apiuser is buyer");
               organizationId = orgId;
               deviceGroupToRegister.api_user_id = user.api_user_id;
-              console.log("reservation apiuserId:",deviceGroupToRegister.api_user_id);
           }
 
           if(orguser.role != Role.Buyer) {
+            this.logger.error(`Unauthorized for ${orguser.role}`);
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized for ${orguser.role}`,
@@ -307,6 +295,7 @@ export class BuyerReservationController {
         if (user.role === Role.Buyer) {
           
           if (organizationId !== organization.id) {
+            this.logger.error(`User does not associated with the requested organization`);
               throw new BadRequestException({
                   success: false,
                   message: 'User does not associated with the requested organization',
@@ -320,6 +309,7 @@ export class BuyerReservationController {
     //https://www.postgresql.org/docs/9.1/datatype-numeric.html
 
     if (!Array.isArray(deviceGroupToRegister.deviceIds) || deviceGroupToRegister.deviceIds.filter(ele => ele >= -2147483648 && ele <= 2147483647).length !== deviceGroupToRegister.deviceIds.length) {
+      this.logger.error(`One or more device ids are invalid`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -330,6 +320,7 @@ export class BuyerReservationController {
       });
     }
     if (deviceGroupToRegister.deviceIds.length == 0) {
+      this.logger.error(`Please provide devices for reservation, deviceIds is empty atleast one device is required`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -342,6 +333,7 @@ export class BuyerReservationController {
     }
 
     if (isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) || deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 || deviceGroupToRegister.targetCapacityInMegaWattHour == -0) {
+      this.logger.error(`targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -354,6 +346,7 @@ export class BuyerReservationController {
 
     if (typeof deviceGroupToRegister.reservationStartDate === "string") {
       if (!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate)) {
+        this.logger.error(`Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`);
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -367,6 +360,7 @@ export class BuyerReservationController {
     }
     if (typeof deviceGroupToRegister.reservationEndDate === "string") {
       if (!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate)) {
+        this.logger.error(`Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`);
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
@@ -380,6 +374,7 @@ export class BuyerReservationController {
     }
 
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
+      this.logger.error(`start date cannot be less than or same as end date`);
       throw new ConflictException({
         success: false,
         message: 'start date cannot be less than or same as end date',
@@ -387,14 +382,14 @@ export class BuyerReservationController {
     }
     let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
-
+      this.logger.error(`start date or end date cannot be less than 3 year from current date`);
       throw new ConflictException({
         success: false,
         message: 'start date or end date cannot be less than 3 year from current date',
       });
     }
     if (organizationId === null || organizationId === undefined) {
-
+      this.logger.error(`User does not has organization associated`);
       throw new ConflictException({
         success: false,
         message: 'User does not has organization associated',
@@ -402,15 +397,13 @@ export class BuyerReservationController {
     }
     const frequency = deviceGroupToRegister.frequency.toLowerCase();
     if (frequency === BuyerReservationCertificateGenerationFrequency.monthly || frequency === BuyerReservationCertificateGenerationFrequency.quarterly||frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
-
+      this.logger.error(`This frequency is currently not supported`);
       throw new ConflictException({
         success: false,
         message: 'This frequency is currently not supported',
       });
     }
-    console.log(deviceGroupToRegister.blockchainAddress);
-     //@ts-ignore
-     console.log(process.env.DREC_BLOCKCHAIN_ADDRESS);
+
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,
@@ -477,7 +470,9 @@ export class BuyerReservationController {
     (@UserDecorator() user: ILoggedInUser,
       @UserDecorator() { organizationId }: ILoggedInUser,
       @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
+        this.logger.verbose(`With in processCreationBulkFromCSV`);
     if (user.organizationId === null || user.organizationId === undefined) {
+      this.logger.error(`User needs to have organization added`);
       throw new ConflictException({
         success: false,
         message:
@@ -489,9 +484,9 @@ export class BuyerReservationController {
     // let response = await this.fileService.get(fileToProcess.fileName, user);
 
 
-    console.log(fileToProcess.fileName);
     if (fileToProcess.fileName == undefined) {
       //throw new Error("file not found");
+      this.logger.error(`File Not Found`);
       throw new ConflictException({
         success: false,
         message:
@@ -501,6 +496,7 @@ export class BuyerReservationController {
     }
     if (!fileToProcess.fileName.endsWith('.csv')) {
       //throw new Error("file not found");
+      this.logger.error(`Invalid file`);
       throw new ConflictException({
         success: false,
         message:
@@ -536,9 +532,10 @@ export class BuyerReservationController {
     @UserDecorator() loggedUser: ILoggedInUser,
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
-
+    this.logger.verbose(`With in update`);
     let devicenextissuence: DeviceGroupNextIssueCertificate | null = await this.deviceGroupService.getGroupiCertificateIssueDate({ groupId: id });
     if (devicenextissuence === null) {
+      this.logger.error(`This device groups reservation has already ended`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -549,6 +546,7 @@ export class BuyerReservationController {
       });
     }
     if (new Date(groupToUpdate.reservationEndDate).getTime() < new Date(devicenextissuence.start_date).getTime()) {
+      this.logger.error(`Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
@@ -584,6 +582,7 @@ export class BuyerReservationController {
     @Param('id') id: number,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
+    this.logger.verbose(`With in remove`);
     return await this.deviceGroupService.remove(id, organizationId);
   }
 
@@ -608,7 +607,7 @@ export class BuyerReservationController {
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null
   ): Promise<JobFailedRowsDTO | undefined> {
-    console.log("jobId", jobId);
+    this.logger.verbose(`With in getBulkUploadJobStatus`);
 
     if(orgId) {
       const organization = await this.organizationService.findOne(orgId);
@@ -616,6 +615,7 @@ export class BuyerReservationController {
 
       if(role === Role.ApiUser) {
         if(organization.api_user_id != api_user_id) {
+          this.logger.error(`The requested organization is belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message:'The requested organization is belongs to other apiuser'
@@ -623,6 +623,7 @@ export class BuyerReservationController {
         }
 
         if(orguser.role != Role.OrganizationAdmin) {
+          this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
             message:'Unauthorized'
@@ -631,6 +632,7 @@ export class BuyerReservationController {
       }
       else {
         if(orgId != organizationId) {
+          this.logger.error(`The organizationId in query params should be same as user's organizationId`);
           throw new BadRequestException({
             success: false,
             message:`The organizationId in query params should be same as user's organizationId`
@@ -644,6 +646,7 @@ export class BuyerReservationController {
     }
     else {
       if(role === Role.ApiUser) {
+        this.logger.error(`Add the orgId at query param`);
         throw new BadRequestException({
           success: false,
           message:`Add the orgId at query param`
@@ -688,8 +691,9 @@ export class BuyerReservationController {
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
 
     )/*: Promise<Array<DeviceCsvFileProcessingJobsEntity>>*/ {
-
+    this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
     if (user.organizationId === null || user.organizationId === undefined) {
+      this.logger.error(`User needs to have organization added`);
       throw new ConflictException({
         success: false,
         message:
@@ -703,6 +707,7 @@ export class BuyerReservationController {
 
       if(user.role === Role.ApiUser) {
         if(organization.api_user_id != user.api_user_id) {
+          this.logger.error(`The requested organization is belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message:'The requested organization is belongs to other apiuser'
@@ -710,6 +715,7 @@ export class BuyerReservationController {
         }
 
         if(orguser.role != Role.OrganizationAdmin) {
+          this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
             message:'Unauthorized'
@@ -719,6 +725,7 @@ export class BuyerReservationController {
       else {  
         if(user.role != Role.Admin) {
           if(orgId != organizationId) {
+            this.logger.error(`The orgId at query param is not same as user's organization`);
             throw new BadRequestException({
               success: false,
               message:`The orgId at query param is not same as user's organization`
@@ -751,6 +758,7 @@ export class BuyerReservationController {
   })
   @ApiNotFoundResponse({ description: `No device group found` })
   async getdevciegrouplog(@Param('id') id: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
+    this.logger.verbose(`With in getdevciegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
   //   @Post('/buyer-reservation')
@@ -789,6 +797,7 @@ export class BuyerReservationController {
     @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
+    this.logger.verbose(`With in endresavation`);
     return await this.deviceGroupService.EndReservationGroup(id, organizationId, endresavationdate);
   }
 
@@ -809,9 +818,10 @@ export class BuyerReservationController {
     @Query('pagenumber') pagenumber: number,
     @UserDecorator() { organizationId }: ILoggedInUser
   ): Promise<any> {
-    console.log("jobId", groupuId);
+    this.logger.verbose(`With in getReservationcurrentinformation`);
     const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
     if (groupuId === null || !regexExp.test(groupuId)) {
+      this.logger.error(`Please Add the valid UID ,invalid group uid value was sent`);
       return new Promise((resolve, reject) => {
         reject(new ConflictException({
           success: false,

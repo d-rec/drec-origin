@@ -1,28 +1,18 @@
-
 import {
     Controller,
     Get,
-    Post,
-    Patch,
     HttpStatus,
-    Param,
-    Body,
-    UseGuards,
     ValidationPipe,
     Query,
-    ConflictException,
+    Logger,
   } from '@nestjs/common';
   
   import {
     ApiBearerAuth,
-    ApiNotFoundResponse,
     ApiResponse,
-    ApiOkResponse,
     ApiSecurity,
     ApiTags,
   } from '@nestjs/swagger';
-  import { AuthGuard } from '@nestjs/passport';
-  import { plainToClass } from 'class-transformer';
 import {CountrycodeService}from './countrycode.service';
 import {CountryCodeNameDTO ,FilterKeyDTO} from './dto'
 
@@ -34,6 +24,9 @@ import {CountryCodeNameDTO ,FilterKeyDTO} from './dto'
 @ApiSecurity('drec')
 @Controller('countrycode')
 export class CountrycodeController {
+  
+  private readonly logger = new Logger(CountrycodeController.name);
+
     constructor(
 private readonly countrycodeService:CountrycodeService
     ){}
@@ -51,7 +44,7 @@ private readonly countrycodeService:CountrycodeService
   async getCountryCode(
     @Query(ValidationPipe) filterDto: FilterKeyDTO
   ):Promise< CountryCodeNameDTO[] >{
-    
+    this.logger.verbose(`With in getCountryCode`);
     return this.countrycodeService.getCountryCode(filterDto);
      
   }
