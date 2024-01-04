@@ -2,26 +2,17 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
-  HttpStatus,
-  Param,
   Body,
   UseGuards,
-  Delete,
-  Query,
-  ValidationPipe,
-  ConflictException
+  Logger,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiNotFoundResponse,
-  ApiResponse,
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { PermissionGuard } from '../../guards';
@@ -33,6 +24,8 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 @ApiSecurity('drec')
 @Controller('drec-issuer')
 export class DrecIssuerController {
+
+  private readonly logger = new Logger(DrecIssuerController.name);
 
   constructor(private readonly issuerService: IssuerService) {
 
@@ -50,23 +43,25 @@ export class DrecIssuerController {
   })
   async simpleGetCallForOngoing() {
 
-    console.log("got hit from cloudwatch ongoing");
+    this.logger.verbose(`With in simpleGetCallForOngoing`,`got hit from cloudwatch ongoing`);
 
 
     return new Promise((resolve, reject) => {
 
       this.invokeIssuerCronOngoing();
+      this.logger.log(`successfully Hitddd the ongoing API`);
       resolve("successfully Hitddd the ongoing API");
     })
 
   }
 
   async invokeIssuerCronOngoing() {
+    this.logger.verbose(`With in invokeIssuerCronOngoing`);
     try {
       await this.issuerService.handleCron();
     }
     catch (e) {
-      console.error("caught exception in cron ongoing", e);
+      this.logger.error("caught exception in cron ongoing", e);
     }
   }
 /**
@@ -82,12 +77,13 @@ export class DrecIssuerController {
   })
   async simpleGetCallForHistory() {
 
-    console.log("got hit from cloudwatch history");
+    this.logger.verbose(`With in simpleGetCallForHistory`, `got hit from cloudwatch history`);
 
 
     return new Promise((resolve, reject) => {
 
       this.invokeIssuerCronForHistory();
+      this.logger.log(`successfully Hitthe history API`);
       resolve("successfully Hitthe history API");
     })
 
@@ -108,24 +104,25 @@ export class DrecIssuerController {
   @ApiBody({ type: ReIssueCertificateDTO })
   async reIssueCertificates(@Body() certificateData) {
 
-
-
+    this.logger.verbose(`With in reIssueCertificates`);
 
     return new Promise((resolve, reject) => {
 
       //@ts-ignore
       this.issuerService.issueCertificateFromAPI(certificateData);
+      this.logger.log(`hit the issueance data`);
       resolve("hit the issueance data");
     })
 
   }
 
   async invokeIssuerCronForHistory() {
+    this.logger.verbose(`With in invokeIssuerCronForHistory`);
     try {
       await this.issuerService.handleCronForHistoricalIssuance();
     }
     catch (e) {
-      console.error("caught exception in cron history", e);
+      this.logger.error("caught exception in cron history", e);
     }
   }
 
@@ -143,23 +140,25 @@ export class DrecIssuerController {
   })
   async simpleGetCallForlateOngoing() {
 
-    console.log("got hit from cloudwatch ongoing");
+    this.logger.verbose(`With in simpleGetCallForlateOngoing`, `got hit from cloudwatch ongoing`);
 
 
     return new Promise((resolve, reject) => {
 
       this.invokeIssuerCronlateOngoing();
+      this.logger.log(`successfully Hitddd the late ongoing API`);
       resolve("successfully Hitddd the late ongoing API");
     })
 
   }
 
   async invokeIssuerCronlateOngoing() {
+    this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
     try {
       await this.issuerService.handleCronForOngoingLateIssuance();
     }
     catch (e) {
-      console.error("caught exception in cron ongoing", e);
+      this.logger.error("caught exception in cron ongoing", e);
     }
   }
 

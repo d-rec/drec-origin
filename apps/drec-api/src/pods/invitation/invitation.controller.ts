@@ -25,7 +25,6 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiParam,
   ApiResponse,
   ApiTags,
   ApiQuery
@@ -36,12 +35,11 @@ import { InvitationDTO } from './dto/invitation.dto';
 import {
   ensureOrganizationRole,
   ILoggedInUser,
-  IOrganizationInvitation,
   ResponseFailure,
   ResponseSuccess,
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { OrganizationInvitationStatus, Role } from '../../utils/enums';
+import { Role } from '../../utils/enums';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Permission } from '../permission/decorators/permission.decorator';
@@ -82,6 +80,7 @@ export class InvitationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber?: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
   )/*: Promise<InvitationDTO[]>*/{
+    this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getUsersInvitation(
         loggedUser, organizationId, pageNumber, limit,
@@ -116,6 +115,7 @@ export class InvitationController {
     @Body() useracceptinvitation:updateInviteStatusDTO
    // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
+    this.logger.verbose(`With in updateInvitation`);
     return this.organizationInvitationService.update(
       useracceptinvitation,
       invitationId,
@@ -153,7 +153,9 @@ export class InvitationController {
     @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
+    this.logger.verbose(`With in invite`);
     if (!loggedUser.hasOrganization) {
+      this.logger.error(`User doesn't belong to any organization.`);
       throw new BadRequestException(
         ResponseFailure(`User doesn't belong to any organization.`),
       );
@@ -162,6 +164,7 @@ export class InvitationController {
     try {
       ensureOrganizationRole(role as Role);
     } catch (e) {
+      this.logger.error(`Unknown role was requested for the invitee`);
       throw new ForbiddenException(
         ResponseFailure('Unknown role was requested for the invitee'),
       );
@@ -170,13 +173,10 @@ export class InvitationController {
     try {
       await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,organizationId);
     } catch (error) {
-      console.log(error)
       this.logger.error(error.toString());
       this.logger.error(error.toString() instanceof AlreadyPartOfOrganizationError);
      //// if (error instanceof AlreadyPartOfOrganizationError) {
-
-      console.log("error")
-
+      this.logger.error(error.message);
         throw new ForbiddenException({ message: error.message,status:error.status });
      ///// }
     //  return error

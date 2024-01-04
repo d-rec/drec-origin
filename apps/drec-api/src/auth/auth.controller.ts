@@ -5,6 +5,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -14,11 +15,12 @@ import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 @ApiTags('auth')
 @ApiBearerAuth('access-token')
 @Controller()
-export class AuthController {
+export class AuthController { 
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) { }
 
   @UseGuards(AuthGuard('local'), AuthGuard('oauth2-client-password'))
@@ -31,7 +33,7 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
-  
+    this.logger.verbose("Within login");
     return  this.authService.login(req.user as Omit<IUser, 'password'>);
   }
 }
