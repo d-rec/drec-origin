@@ -124,6 +124,7 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty({ type: Date })
   @IsOptional()
   reservationEndDate?: Date;
+  
 
   @ApiProperty({ type: Number })
   @IsOptional()
@@ -169,6 +170,10 @@ export class DeviceGroupDTO implements IDeviceGroup {
 
   @IsBoolean()
   reservationActive?: boolean;
+  
+  @ApiPropertyOptional({ type: Date })
+  @IsOptional()
+  reservationExpiryDate:Date;
 }
 
 export class CSVBulkUploadDTO {
