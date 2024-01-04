@@ -82,9 +82,10 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @Permission('Read')
+  @Roles(Role.Admin,Role.ApiUser)
   @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
   @ApiQuery({ name: 'apiuserId', type: String, required: false, description: "This query parameter is used for Admin to list the reservations by ApiUser" })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -160,7 +161,7 @@ export class BuyerReservationController {
    */
   @Get('/my')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+//@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -371,7 +372,20 @@ export class BuyerReservationController {
       }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
-
+    if (typeof deviceGroupToRegister.reservationExpiryDate === "string") {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationExpiryDate)) {
+        this.logger.error(`Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`);
+        return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
+      deviceGroupToRegister.reservationExpiryDate = new Date(deviceGroupToRegister.reservationExpiryDate);
+    }
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       this.logger.error(`start date cannot be less than or same as end date`);
       throw new ConflictException({
@@ -379,6 +393,14 @@ export class BuyerReservationController {
         message: 'start date cannot be less than or same as end date',
       });
     }
+    if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationExpiryDate&&(deviceGroupToRegister.reservationExpiryDate.getTime() <= deviceGroupToRegister.reservationStartDate.getTime()||deviceGroupToRegister.reservationExpiryDate.getTime() < deviceGroupToRegister.reservationEndDate.getTime())) {
+      this.logger.error(`Expiry date cannot be less than from start and end date`);
+      throw new ConflictException({
+        success: false,
+        message: 'Expiry date cannot be less than from start and end date',
+      });
+    }
+    
     let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
     if (deviceGroupToRegister.reservationStartDate.getTime() <= maximumBackDateForReservation.getTime() || deviceGroupToRegister.reservationEndDate.getTime() <= maximumBackDateForReservation.getTime()) {
       this.logger.error(`start date or end date cannot be less than 3 year from current date`);

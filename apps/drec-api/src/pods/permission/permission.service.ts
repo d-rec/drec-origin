@@ -183,6 +183,7 @@ export class PermissionService {
     async update(
         id: number,
         data: UpdatePermissionDTO,
+        loginuser: LoggedInUser
     ): Promise<ExtendedBaseEntity & IACLmodulsPermissions> {
         this.logger.verbose(`With in update`);
         const addedPermissionList: any = {
@@ -207,11 +208,20 @@ export class PermissionService {
         };
         const permissionboolean = await this.checkForExistingmodulepermission(checkdata, permissionValue);
         if (permissionboolean) {
-            await this.repository.update(id, {
-                permissions: data.permissions,
-                permissionValue: permissionValue,
+            if (loginuser.role === Role.ApiUser) {
+                await this.repository.update(id, {
+                    permissions: data.permissions,
+                    permissionValue: permissionValue,
+                    status: 0
+                });
+            } else {
+                await this.repository.update(id, {
+                    permissions: data.permissions,
+                    permissionValue: permissionValue,
 
-            });
+                });
+            }
+
             return this.findOne({ id });
         } else {
             this.logger.verbose(`This Permission not available in this module Name`);

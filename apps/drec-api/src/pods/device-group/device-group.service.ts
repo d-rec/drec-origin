@@ -943,6 +943,10 @@ export class DeviceGroupService {
       if (group.api_user_id) {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
+      if (group.reservationExpiryDate) {
+        
+        deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
+      }
       let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,

@@ -9,7 +9,7 @@ import {
   IsNumber,
   IsOptional,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty ,ApiPropertyOptional} from '@nestjs/swagger';
 import { IDeviceGroup } from '../../../models';
 import {
   StandardCompliance,
@@ -157,7 +157,9 @@ export class NewDeviceGroupDTO
   @Min(1, { each: true })
   deviceIdsInt?: number[];
 
-
+  @ApiPropertyOptional({ type: Date })
+  @IsOptional()
+  reservationExpiryDate?:Date;
   // @ApiProperty({ type: String })
   // @IsOptional()
   // type?: string;

@@ -21,14 +21,14 @@ import {
 } from '@nestjs/swagger';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { PermissionService } from './permission.service'
-import { NewPermissionDTO, PermissionDTO,UpdatePermissionDTO,NewApiUserPermissionDTO,ApiUserPermissionUpdateDTO } from '../permission/dto/modulepermission.dto'
+import { NewPermissionDTO, PermissionDTO, UpdatePermissionDTO, NewApiUserPermissionDTO, ApiUserPermissionUpdateDTO } from '../permission/dto/modulepermission.dto'
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
 import { ILoggedInUser } from '../../models';
-import {ACLModulePermissions} from './permission.entity'
-import {Permission} from './decorators/permission.decorator';
-import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator'
+import { ACLModulePermissions } from './permission.entity'
+import { Permission } from './decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator'
 import { PermissionGuard } from '../../guards';
 @ApiTags('permission')
 @ApiBearerAuth('access-token')
@@ -48,22 +48,22 @@ export class PermissionController {
      * @returns {ACLModulePermissions[]}
      */
     @Get()
-    @UseGuards(AuthGuard('jwt'),PermissionGuard)
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
     @Permission('Read')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [ACLModulePermissions], description: 'Returns all Permission' })
     async getAll(): Promise<ACLModulePermissions[]> {
         this.logger.verbose(`With in getAll`);
         return this.PermissionService.getAll();
-      }
+    }
     /**
      * This api route use for get list permission of user role
      * @param id :number "id means role id"
      * @returns {ACLModulePermissions[]}
      */
     @Get('/role/:id')
-    @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-    @Roles(Role.Admin,Role.OrganizationAdmin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+    @Roles(Role.Admin, Role.OrganizationAdmin)
     @Permission('Read')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
     @ApiResponse({
@@ -72,7 +72,7 @@ export class PermissionController {
         description: 'Get list of user role permission',
     })
 
-      async rolepermission( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[]> {
+    async rolepermission(@Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[]> {
         this.logger.verbose(`With in rolepermission`);
         return this.PermissionService.FindbyRole(id);
     }
@@ -92,19 +92,19 @@ export class PermissionController {
         description: 'Get list of user permission',
     })
     //user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
-    user( @Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[] | null> {
+    user(@Param('id', new ParseIntPipe()) id: number): Promise<PermissionDTO[] | null> {
         this.logger.verbose(`With in user`);
         return this.PermissionService.FindbyUser(id);
     }
-/**
- * This api route use to add permission for all role by admin 
- * @param moduleData {NewPermissionDTO}
- * @param loggedUser {ILoggedInUser} "login details"
- * @returns {PermissionDTO}
- */
+    /**
+     * This api route use to add permission for all role by admin 
+     * @param moduleData {NewPermissionDTO}
+     * @param loggedUser {ILoggedInUser} "login details"
+     * @returns {PermissionDTO}
+     */
     @Post('/module')
-    @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
-    @Roles(Role.Admin,Role.OrganizationAdmin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+    @Roles(Role.Admin, Role.OrganizationAdmin)
     @ApiBody({ type: NewPermissionDTO })
     @Permission('Write')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -118,14 +118,14 @@ export class PermissionController {
         @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<PermissionDTO> {
         this.logger.verbose(`With in register`);
-        return this.PermissionService.create(moduleData,loggedUser);
+        return this.PermissionService.create(moduleData, loggedUser);
     }
-   /**
-    * This api route use for update the permission of user and role
-    * @param id 
-    * @param body 
-    * @returns 
-    */
+    /**
+     * This api route use for update the permission of user and role
+     * @param id 
+     * @param body 
+     * @returns 
+     */
     @Put('/update/:id')
     @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'))
     @ApiBody({ type: UpdatePermissionDTO })
@@ -139,17 +139,18 @@ export class PermissionController {
     public async updateyield(
         @Param('id', new ParseIntPipe()) id: number,
         @Body() body: UpdatePermissionDTO,
-       
+        @UserDecorator() loggedUser: ILoggedInUser,
     ): Promise<PermissionDTO> {
         this.logger.verbose(`With in updateyield`);
-        return this.PermissionService.update(id, body);
+        return this.PermissionService.update(id, body, loggedUser);
+
     }
-/**
- * This api route use for make a request of permission to use api with module select by apiuser
- * @param moduleData 
- * @param loggedUser 
- * @returns {PermissionDTO}
- */
+    /**
+     * This api route use for make a request of permission to use api with module select by apiuser
+     * @param moduleData 
+     * @param loggedUser 
+     * @returns {PermissionDTO}
+     */
     @Post('/module/apiuser/request')
     @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard)
     @Roles(Role.ApiUser)
@@ -160,12 +161,12 @@ export class PermissionController {
         description: 'Request of permission from ApiUser',
     })
     public async apiuser_modulerequest(
-      //  @Param('apiuserId') api_user_id: string,
+        //  @Param('apiuserId') api_user_id: string,
         @Body() moduleData: [NewApiUserPermissionDTO],
         @UserDecorator() loggedUser: ILoggedInUser,
-    ): Promise<{statsu:string,message:string}> {
+    ): Promise<{ statsu: string, message: string }> {
         this.logger.verbose(`With in apiuser_modulerequest`);
-        return this.PermissionService.permisssion_request(moduleData,loggedUser);
+        return this.PermissionService.permisssion_request(moduleData, loggedUser);
     }
 
     /**
@@ -178,18 +179,18 @@ export class PermissionController {
     @Put('/module/verify/ByAdmin/:apiuserId')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.Admin)
-    @ApiBody({type: ApiUserPermissionUpdateDTO})
+    @ApiBody({ type: ApiUserPermissionUpdateDTO })
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: PermissionDTO,
         description: 'Request for api user',
     })
     public async apiuser_moduleapprove(
-      @Param('apiuserId') api_user_id: string,
+        @Param('apiuserId') api_user_id: string,
         @Body() moduleData: ApiUserPermissionUpdateDTO,
         @UserDecorator() loggedUser: ILoggedInUser,
-    ): Promise<{statsu:string,message:string}> {
+    ): Promise<{ statsu: string, message: string }> {
         this.logger.verbose(`With in apiuser_moduleapprove`);
-        return this.PermissionService.permission_veify(api_user_id,moduleData);
+        return this.PermissionService.permission_veify(api_user_id, moduleData);
     }
 }
