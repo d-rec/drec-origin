@@ -925,7 +925,7 @@ export class IssuerService {
     });
   }
 
- // @Cron('0 */4 * * *')
+  @Cron('0 */4 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 4hr to check for isssuance of certificates');
@@ -964,7 +964,7 @@ export class IssuerService {
             newGroup.devices.map(async (element) => {
           
               const lastread = await this.readservice.latestread(element.externalId, (new Date(element.createdAt)).toISOString())
-             
+              if (lastread) {
               const lastcertifieddeviceend_date = await this.deviceService.getLastCertifiedDevicelogBYgroupId(group.id, element.externalId)
               let newGroupwithsingledevice: DeviceGroup = JSON.parse(JSON.stringify(newGroup));
               newGroupwithsingledevice.devices = [element];
@@ -991,6 +991,7 @@ export class IssuerService {
                 endDate = DateTime.fromISO(new Date(nextissuance.start_date).toISOString()).toUTC();
               }
               this.newissueCertificateForGroup(newGroupwithsingledevice, nextissuance, startDate, endDate, key);
+            }
             })
           )
         }
