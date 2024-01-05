@@ -10,6 +10,7 @@ import {
     ValidationPipe,
     Query,
     ConflictException,
+    Res
 } from '@nestjs/common';
 
 import {
@@ -37,6 +38,7 @@ import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
+import { Response } from 'express';
 @ApiTags('certificate-log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -256,5 +258,37 @@ export class CertificateLogController {
     ): Promise<CertificatelogResponse> {
         console.log("238");
         return this.certificateLogService.getCertifiedlogofDevices(user,filterDto, pageNumber);
+    }
+
+    /**
+ * 
+ * @param groupuId reservat group uuid
+ * @param user user login details
+ * @returns 
+ */
+    @Get('/expoert_perdevice/:groupUid')
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+    //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
+    async getcertifcateLog_Perdevice(
+        @UserDecorator() user: ILoggedInUser,
+        @Param('groupUid') groupuId: string,
+        @Res()res: Response
+    ){
+       
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+        if (groupuId === null || !regexExp.test(groupuId)) {
+            this
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: ' Please Add the valid UID ,invalid group uid value was sent',
+                }))
+            })
+        }
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
+      
+        return this.certificateLogService.createCSV(res,devicegroup.id, user.organizationId,devicegroup.name);
     }
 }

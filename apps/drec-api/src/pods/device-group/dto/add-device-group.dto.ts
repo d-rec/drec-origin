@@ -43,6 +43,9 @@ export class AddGroupDTO {
   @IsOptional()
   blockchainAddress?: string;
 
- 
+  api_user_id ?: string;
 
+
+ @ApiPropertyOptional({ type: Date })
+  reservationExpiryDate:Date;
 }

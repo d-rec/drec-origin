@@ -223,11 +223,30 @@ export class BuyerReservationController {
       }
       deviceGroupToRegister.reservationEndDate = new Date(deviceGroupToRegister.reservationEndDate);
     }
-
+    if (deviceGroupToRegister.reservationExpiryDate &&typeof deviceGroupToRegister.reservationExpiryDate === "string") {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationExpiryDate)) {
+         return new Promise((resolve, reject) => {
+          reject(
+            new ConflictException({
+              success: false,
+              message: ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+            }),
+          );
+        });
+      }
+      deviceGroupToRegister.reservationExpiryDate = new Date(deviceGroupToRegister.reservationExpiryDate);
+    }
     if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationStartDate.getTime() >= deviceGroupToRegister.reservationEndDate.getTime()) {
       throw new ConflictException({
         success: false,
         message: 'start date cannot be less than or same as end date',
+      });
+    }
+    if (deviceGroupToRegister.reservationStartDate && deviceGroupToRegister.reservationEndDate && deviceGroupToRegister.reservationExpiryDate&&(deviceGroupToRegister.reservationExpiryDate.getTime() <= deviceGroupToRegister.reservationStartDate.getTime()||deviceGroupToRegister.reservationExpiryDate.getTime() < deviceGroupToRegister.reservationEndDate.getTime())) {
+  
+      throw new ConflictException({
+        success: false,
+        message: 'Expiry date cannot be less than from start and end date',
       });
     }
     let maximumBackDateForReservation: Date = new Date(new Date().getTime() - (3.164e+10 * 3));
