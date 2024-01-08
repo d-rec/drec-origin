@@ -9,6 +9,7 @@ import {
     ConflictException,
     BadRequestException,
     Logger,
+    Res
 } from '@nestjs/common';
 
 import {
@@ -36,7 +37,7 @@ import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { Role } from '../../utils/enums';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-
+import { Response } from 'express';
 /*
 * It is Controller of ACL Module with the endpoints of ACL module operations.
 */
@@ -389,4 +390,49 @@ export class CertificateLogController {
 
         return this.certificateLogService.getCertifiedlogofDevices(user, filterDto, pageNumber);
     }
+/**
+ * 
+ * @param groupuId reservat group uuid
+ * @param user user login details
+ * @returns 
+ */
+    @Get('/expoert_perdevice/:groupUid')
+    @UseGuards(AuthGuard('jwt'), PermissionGuard)
+    @Permission('Read')
+    @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+    //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
+    async getcertifcateLog_Perdevice(
+        @UserDecorator() user: ILoggedInUser,
+        @Param('groupUid') groupuId: string,
+        @Res()res: Response
+    ){
+        this.logger.verbose(`With in getByGroupId`);
+        this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+        if (groupuId === null || !regexExp.test(groupuId)) {
+            this.logger.error(`Please Add the valid UID ,invalid group uid value was sent`);
+            return new Promise((resolve, reject) => {
+                reject(new ConflictException({
+                    success: false,
+                    message: ' Please Add the valid UID ,invalid group uid value was sent',
+                }))
+            })
+        }
+        const devicegroup = await this.devicegroupService.findOne({ devicegroup_uid: groupuId })
+        if (user.role === Role.ApiUser) {
+            if (devicegroup.api_user_id != user.api_user_id) {
+                this.logger.error(`Group UId  does not  belongs to this apiuser`);
+                throw new BadRequestException({
+                    success: false,
+                    message: 'Group UId  does not  belongs to this apiuser',
+                });
+            }
+            user.organizationId = devicegroup.organizationId;
+        }
+        return this.certificateLogService.createCSV(res,devicegroup.id, user.organizationId,devicegroup.name);
+    }
+    // @Get('export-csv')
+    // async exportCsv(@Res()res: Response, ) {
+    //     return await this.certificateLogService.createCSV(res);
+    // }
 }

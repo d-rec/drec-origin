@@ -22,6 +22,8 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
 import { Role } from 'src/utils/enums';
+import * as fs from 'fs';
+import { Response } from 'express';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity
@@ -107,14 +109,15 @@ export class CertificateLogService {
 
   }
 
-  async getCertificateFromOldOrNewUfinction(groupid: string,pageNumber?:number): Promise<any> {
+
+  async getCertificateFromOldOrNewUfinction(groupid: string, pageNumber?: number): Promise<any> {
     this.logger.verbose(`With in getCertificateFromOldOrNewUfinction`);
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
     let page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
-   
+
     const [certifiedreservation, total] = await this.certificaterrepository.findAndCount({
       where: {
         deviceId: groupid,
@@ -126,12 +129,12 @@ export class CertificateLogService {
       take: itemsPerPage,
     });
     const totalPages = Math.ceil(total / itemsPerPage);
-    
+
     let request: IGetAllCertificatesOptions = {
       //@ts-ignore
       deviceId: parseInt(groupid)
     }
-    
+
     const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.cretificatereadmoduleRepository.find({
       where: {
         deviceId: groupid,
@@ -143,33 +146,33 @@ export class CertificateLogService {
       take: itemsPerPage, // Specify the number of items to take per page
 
     });
-    const  total1 =await this.cretificatereadmoduleRepository.find({
+    const total1 = await this.cretificatereadmoduleRepository.find({
       where: {
         deviceId: groupid,
       },
     });
     const totalPages1 = Math.ceil(total1.length / itemsPerPage);
-  
+
     if (certifiedreservation.length > 0) {
-      const logdata= await this.getfindreservationcertified(certifiedreservation, groupid);
+      const logdata = await this.getfindreservationcertified(certifiedreservation, groupid);
       const response = {
         certificatelog: logdata,
         totalItems: total,
         currentPage: page,
         totalPages: totalPages,
       };
-      
+
       return response
 
     } else if (certifiedreservation1.length > 0) {
-      const logdata1= await this.getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation1, groupid);
+      const logdata1 = await this.getCertificatesUsingGroupIDVersionUpdateOrigin247(certifiedreservation1, groupid);
       const response2 = {
         certificatelog: logdata1,
         totalItems: total1.length,
         currentPage: page,
         totalPages: totalPages1,
       };
-      
+
       return response2
     }
   }
@@ -306,7 +309,7 @@ export class CertificateLogService {
   public async getCheckCertificateIssueDateLogForDevice(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date, certificateTransactionUID?: string): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-      this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
+    this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
     try {
       let devicelog;
 
@@ -327,7 +330,7 @@ export class CertificateLogService {
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
-         // deviceid: s.issuelog_externalId,
+          // deviceid: s.issuelog_externalId,
           groupId: s.issuelog_groupId
         };
         return item;
@@ -340,7 +343,7 @@ export class CertificateLogService {
   private getdevicelogFilteredQueryWithGroupID(groupId: number, deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
-      this.logger.verbose(`With in getdevicelogFilteredQueryWithGroupID`);
+    this.logger.verbose(`With in getdevicelogFilteredQueryWithGroupID`);
     const query = this.repository
       .createQueryBuilder("issuelog").
       where("issuelog.externalId = :deviceid", { deviceid: deviceid })
@@ -612,9 +615,9 @@ export class CertificateLogService {
 
   async getCertifiedlogofDevices(user: ILoggedInUser, filterDto: FilterDTO, pageNumber) {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
-    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber,user.api_user_id)
+    const getnewreservationinfo = await this.devicegroupService.getReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber, user.api_user_id)
     this.logger.debug("getnewreservationinfo", getnewreservationinfo.deviceGroups.length);
-    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber,user.api_user_id)
+    const getoldreservationinfo = await this.devicegroupService.getoldReservationInforDeveloperBsise(user.organizationId, user.role, filterDto, pageNumber, user.api_user_id)
     this.logger.debug("getoldreservationinfo", getoldreservationinfo.deviceGroups.length);
     let oldcertificates;
     if (getoldreservationinfo.deviceGroups.length > 0) {
@@ -840,6 +843,59 @@ export class CertificateLogService {
     return response;
     //return finalcertificatesInReservationWithLog
   }
+  /**Create new function to get the certifcate log of perdevice */
+  async Findperdevicecertificatelog(groupId, organizationId): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    this.logger.verbose(`With in Findcertificatelog`);
+    const totalNumbers: any = getManager().createQueryBuilder()
+      .select("d.developerExternalId", "externalId")
+      .addSelect("dg.name", "reservation_name")
+      .addSelect("dl.certificate_issuance_startdate", "certificate_issuance_startdate")
+      .addSelect("dl.certificate_issuance_enddate", "certificate_issuance_enddate")
+      .addSelect("dl.readvalue_watthour", "readvalue_watthour")
+      .addSelect("dl.certificateTransactionUID", "certificateTransactionUID")
+      .addSelect("crm.blockchainCertificateId", "blockchainCertificateId")
+      .from(CheckCertificateIssueDateLogForDeviceEntity, "dl")
+      .leftJoin(DeviceGroup, "dg", "dl.groupId = dg.id")
+      .leftJoin(Device, "d", "dl.externalId = d.externalId")
+      .innerJoin(
+        CertificateReadModelEntity,
+        'crm',
+        'dl.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
+      )
+      .where('dl.groupId = :groupId', { groupId: groupId })
+      .andWhere('dg.organizationId = :organizationId', { organizationId: organizationId })
+      .andWhere("dl.readvalue_watthour>0");
 
+    //console.log(totalExamNumbers.getQuery())
+    const devicelog = await totalNumbers.getRawMany();
+    //console.log(devicelog)
+
+    return devicelog;
+
+  }
+  
+
+  async createCSV(res: Response, groupId: number, organizationId: number, name: string) {
+    try {
+      const data = await this.Findperdevicecertificatelog(groupId, organizationId);
+      this.logger.error(`Error generating CSV: ${data[0]}`);
+      const headers = Object.keys(data[0]);
+      if(headers!==undefined){
+      res.setHeader('Content-Disposition', 'attachment; filename=' + name + ' ' + new Date().toLocaleDateString() + '.csv');
+      res.setHeader('Content-Type', 'text/csv');
+      const csvString = `${headers.join(',')}\n${data.map(obj => headers.map(key => obj[key]).join(',')).join('\n')}`;
+      // Stream the CSV string to the response
+      res.write(csvString, 'utf-8', () => {
+        this.logger.log('The CSV file streamed successfully!');
+        res.end();
+      });
+    }
+    } catch (error) {
+      this.logger.error(`Error generating CSV: ${error.message}`);
+      //res.status(500).send('Internal Server Error');
+      throw new HttpException('Devices log Not found', HttpStatus.NOT_FOUND);
+    }
+    //return `CSV file generated at ${filePath}`;
+  }
 
 }
