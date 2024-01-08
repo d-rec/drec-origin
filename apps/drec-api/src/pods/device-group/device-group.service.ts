@@ -135,11 +135,11 @@ export class DeviceGroupService {
     if (filterDto) {
       if (filterDto.start_date != undefined && filterDto.end_date != undefined) {
         if ((filterDto.start_date != null && filterDto.end_date === null)) {
-          this.logger.error(`End date should be if in filter query you used with Start date`);
+          this.logger.error(`End Date should be mandatory`);
           return new Promise((resolve, reject) => {
             reject(new ConflictException({
               success: false,
-              message: `End date should be if in filter query you used with Start date `,
+              message: `End Date should be mandatory`,
             }))
           })
         }
@@ -385,11 +385,11 @@ export class DeviceGroupService {
       const skip = (pageNumber - 1) * pageSize;
       if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
         if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
-          this.logger.error(`End date should be if in filter query you used with Start date`);
+          this.logger.error(`End Date should be mandatory`);
           return new Promise((resolve, reject) => {
             reject(new ConflictException({
               success: false,
-              message: `End date should be if in filter query you used with Start date `,
+              message: `End Date should be mandatory`,
             }))
           })
         }
