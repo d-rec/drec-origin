@@ -21,7 +21,7 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
-import { Role } from 'src/utils/enums';
+import { Role } from '../../utils/enums';
 import * as fs from 'fs';
 import { Response } from 'express';
 
