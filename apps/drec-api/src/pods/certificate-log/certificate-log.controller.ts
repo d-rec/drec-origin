@@ -360,27 +360,22 @@ export class CertificateLogController {
         this.logger.verbose(`With in getCertificatesForDeveloper`);
 
         if (user.role === Role.ApiUser) {
-            // If the user is an ApiUser, organizationId must be provided
-            if (!organizationId) {
-                this.logger.error(`Organization ID is required for ApiUser`);
-                throw new BadRequestException({
-                    success: false,
-                    message: 'Organization ID is required for ApiUser',
-                });
-            }
+            // If the user is an ApiUser, organizationId is optional
 
-            const organization = await this.organizationService.findOne(organizationId);
-            const orguser = await this.userService.findByEmail(organization.orgEmail);
+            if(organizationId) {
+                const organization = await this.organizationService.findOne(organizationId);
+                const orguser = await this.userService.findByEmail(organization.orgEmail);
 
-            if (organization.api_user_id != user.api_user_id) {
-                this.logger.error(`Organization requested belongs to other apiuser`);
-                throw new BadRequestException({
-                    success: false,
-                    message: 'Organization requested belongs to other apiuser',
-                });
-            } else {
-                user.organizationId = organizationId;
-                user.role = orguser.role;
+                if (organization.api_user_id != user.api_user_id) {
+                    this.logger.error(`Organization requested belongs to other apiuser`);
+                    throw new BadRequestException({
+                        success: false,
+                        message: 'Organization requested belongs to other apiuser',
+                    });
+                } else {
+                    user.organizationId = organizationId;
+                    user.role = orguser.role;
+                }
             }
         } else {
             // If the user is not an ApiUser, organizationId is optional

@@ -21,6 +21,7 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
+import { Role } from 'src/utils/enums';
 import * as fs from 'fs';
 import { Response } from 'express';
 
@@ -815,7 +816,7 @@ export class CertificateLogService {
                     }
                   }
                 }
-                if (role === 'Buyer') {
+                if (role === 'Buyer' || role === Role.ApiUser) {
                   devicelog = await this.getCheckCertificateIssueDateLogForDevice(parseInt(group.dg_id), device.externalId, devicereadstartdate, devicereadenddate, certificateTransactionUID);
                   devicelog.forEach(singleDeviceLogEle => {
                     singleDeviceLogEle.externalId = device.developerExternalId

@@ -733,7 +733,7 @@ async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
     const query = await this.getFilteredQuery(filterDto);
       try {
         const [apiusers, totalCount] = await query
-        .andWhere(`role = :role`, { role: Role.ApiUser})
+        .andWhere(`user.role = :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
