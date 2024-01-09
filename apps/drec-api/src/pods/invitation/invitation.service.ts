@@ -45,12 +45,12 @@ export class InvitationService {
     const sender = await this.userService.findByEmail(user.email);
     let inviteorg: number;
 
-    if(orgId) {
+    if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
         inviteorg = orgId;
       }
       else {
-        if(user.organizationId != orgId) {
+        if (user.organizationId != orgId) {
           this.logger.error(`Requested organization is part of other organization`);
           throw new ConflictException({
             success: false,
@@ -65,9 +65,15 @@ export class InvitationService {
     const organization = await this.organizationService.findOne(
       inviteorg,
     );
-
-    if((user.role === Role.ApiUser) || (user.role === Role.Admin)) {
-      if(user.api_user_id !== organization.api_user_id) {
+    if (!organization) {
+      this.logger.error(`Organization information not found`);
+      throw new ConflictException({
+        success: false,
+        message: `Organization information not found`,
+      });
+    }
+    if (user.role === Role.ApiUser) {
+      if (user.api_user_id !== organization.api_user_id) {
         this.logger.error(`Organization ${organization.name} is part of other apiuser or developer`);
         throw new ConflictException({
           success: false,
@@ -80,20 +86,20 @@ export class InvitationService {
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      if(invitee.organization.id===inviteorg){
+      if (invitee.organization.id === inviteorg) {
         this.logger.error(`User ${lowerCaseEmail} is already part of this organization`);
         throw new ConflictException({
           success: false,
           message: `User ${lowerCaseEmail} is already part of this organization`,
         });
-      }else{
+      } else {
         this.logger.error(`User ${lowerCaseEmail} is already part of the other organization`);
         throw new ConflictException({
           success: false,
           message: `User ${lowerCaseEmail} is already part of the other organization`,
         });
       }
-     
+
 
     }
 
@@ -151,7 +157,7 @@ export class InvitationService {
     }
 
     //await this.update(updateinviteuser, saveinviteuser.id)
-    if(sender.role !== Role.ApiUser) {
+    if (sender.role !== Role.ApiUser) {
       await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
     }
     //to add permission for user role in invitaion
@@ -238,19 +244,19 @@ export class InvitationService {
 
   public async getUsersInvitation(user: ILoggedInUser, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ invitations: Invitation[], currentPage: number, totalPages: number, totalCount: number }> {
     this.logger.verbose(`With in getUsersInvitation`);
-    
-    let query : SelectQueryBuilder<Invitation> = await this.invitationRepository.createQueryBuilder('invitation')
-          .leftJoinAndSelect('invitation.organization', 'organization');
-    if(user.role != Role.Admin) {
+
+    let query: SelectQueryBuilder<Invitation> = await this.invitationRepository.createQueryBuilder('invitation')
+      .leftJoinAndSelect('invitation.organization', 'organization');
+    if (user.role != Role.Admin) {
       query = await query
-          .andWhere('organization.api_user_id = :apiUserId', {apiUserId: user.api_user_id});
+        .andWhere('organization.api_user_id = :apiUserId', { apiUserId: user.api_user_id });
     }
 
-    if(organizationId) {
+    if (organizationId) {
       const organization = await this.organizationService.findOne(organizationId);
 
-      if(user.role != Role.Admin && user.role != Role.ApiUser) {
-        if(user.organizationId != organizationId) {
+      if (user.role != Role.Admin && user.role != Role.ApiUser) {
+        if (user.organizationId != organizationId) {
           this.logger.error(`${user.role} can't view the invitation list of other organizations`);
           throw new BadRequestException({
             success: false,
@@ -259,8 +265,8 @@ export class InvitationService {
         }
       }
 
-      if(user.role === Role.ApiUser) {
-        if(user.api_user_id != organization.api_user_id) {
+      if (user.role === Role.ApiUser) {
+        if (user.api_user_id != organization.api_user_id) {
           this.logger.error(`Organization ${organization.name} is part of other apiuser`);
           throw new BadRequestException({
             success: false,
@@ -270,15 +276,15 @@ export class InvitationService {
       }
 
       query = query
-          .andWhere('organization.id = :organizationId', {organizationId: organizationId});
+        .andWhere('organization.id = :organizationId', { organizationId: organizationId });
     }
 
     const [invitations, totalCount] = await query
-            .select('invitation')
-            .skip((pageNumber - 1) * limit)
-            .take(limit)
-            .orderBy('invitation.createdAt', 'DESC')
-            .getManyAndCount();
+      .select('invitation')
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .orderBy('invitation.createdAt', 'DESC')
+      .getManyAndCount();
 
     /*
     return this.invitationRepository.find({

@@ -87,11 +87,10 @@ export class OrganizationService {
     this.logger.verbose(`With in getAll`);
     let query = await this.getFilteredQuery(filterDto);
     try {
-      if (user!=undefined && user?.role === 'ApiUser') {
-       query =  query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
-          .andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
+      if (user != undefined && user?.role === 'ApiUser') {
+        query = query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
       }
-
+      query.andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
       let [organizations, count] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
       const totalPages = Math.ceil(count / limit);
       return {
