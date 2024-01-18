@@ -3218,7 +3218,7 @@
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.0.0.tgz#365f1bf936aeaddd0856fc41aa1d6f82d88ee5b3"
   integrity sha512-WAy5txG7aFX8Vw3sloEKp5p/t/Xt8jD3GRD9DacnFv6Vo8ubudAsRTXgxpQwU0mpzY/H8U4db3roDuCMjShBmw==
 
-"@types/validator@^13.1.3", "@types/validator@^13.11.8":
+"@types/validator@^13.1.3", "@types/validator@^13.7.10":
   version "13.11.8"
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.11.8.tgz#bb1162ec0fe6f87c95ca812f15b996fcc5e1e2dc"
   integrity sha512-c/hzNDBh7eRF+KbCf+OoZxKbnkpaK/cKp9iLQWqB7muXtM+MtL9SUUH8vCFcLn6dH1Qm05jiexK0ofWY7TfOhQ==
@@ -4827,14 +4827,14 @@ class-validator@0.13.2:
     libphonenumber-js "^1.9.43"
     validator "^13.7.0"
 
-class-validator@^0.14.0:
-  version "0.14.1"
-  resolved "https://registry.yarnpkg.com/class-validator/-/class-validator-0.14.1.tgz#ff2411ed8134e9d76acfeb14872884448be98110"
-  integrity sha512-2VEG9JICxIqTpoK1eMzZqaV+u/EiwEJkMGzTrZf6sU/fwsnOITVgYJ8yojSy6CaXtO9V0Cc6ZQZ8h8m4UBuLwQ==
+class-validator@0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/class-validator/-/class-validator-0.14.0.tgz#40ed0ecf3c83b2a8a6a320f4edb607be0f0df159"
+  integrity sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==
   dependencies:
-    "@types/validator" "^13.11.8"
-    libphonenumber-js "^1.10.53"
-    validator "^13.9.0"
+    "@types/validator" "^13.7.10"
+    libphonenumber-js "^1.10.14"
+    validator "^13.7.0"
 
 clean-css@^4.2.1:
   version "4.2.4"
@@ -8868,7 +8868,7 @@ libmime@5.2.1:
     libbase64 "1.2.1"
     libqp "2.0.1"
 
-libphonenumber-js@^1.10.53, libphonenumber-js@^1.9.43, libphonenumber-js@^1.9.7:
+libphonenumber-js@^1.10.14, libphonenumber-js@^1.9.43, libphonenumber-js@^1.9.7:
   version "1.10.53"
   resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.10.53.tgz#8dbfe1355ef1a3d8e13b8d92849f7db7ebddc98f"
   integrity sha512-sDTnnqlWK4vH4AlDQuswz3n4Hx7bIQWTpIcScJX+Sp7St3LXHmfiax/ZFfyYxHmkdCvydOLSuvtAO/XpXiSySw==
@@ -13261,7 +13261,7 @@ validator@13.0.0:
   resolved "https://registry.yarnpkg.com/validator/-/validator-13.0.0.tgz#0fb6c6bb5218ea23d368a8347e6d0f5a70e3bcab"
   integrity sha512-anYx5fURbgF04lQV18nEQWZ/3wHGnxiKdG4aL8J+jEDsm98n/sU/bey+tYk6tnGJzm7ioh5FoqrAiQ6m03IgaA==
 
-validator@^13.5.2, validator@^13.7.0, validator@^13.9.0:
+validator@^13.5.2, validator@^13.7.0:
   version "13.11.0"
   resolved "https://registry.yarnpkg.com/validator/-/validator-13.11.0.tgz#23ab3fd59290c61248364eabf4067f04955fbb1b"
   integrity sha512-Ii+sehpSfZy+At5nPdnyMhx78fEoPDkR2XW/zimHEL3MyGJQOCQ7WeP20jPYRz7ZCpcKLB21NxuXHF3bxjStBQ==
