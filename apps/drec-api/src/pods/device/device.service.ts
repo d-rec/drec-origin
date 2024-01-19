@@ -994,7 +994,7 @@ export class DeviceService {
     };
     return query;
   }
-  public async finddeviceForBuyer(filterDto: FilterDTO, pagenumber): Promise<any> {
+  public async finddeviceForBuyer(filterDto: FilterDTO, pagenumber: number, api_user_id: string): Promise<any> {
     const limit = 20;
     let query = this.getFilteredQuery(filterDto);
     if (pagenumber) {
@@ -1005,7 +1005,7 @@ export class DeviceService {
     }
     let where: any = query.where
 
-    where = { ...where, groupId: null };
+    where = { ...where, groupId: null, api_user_id: api_user_id };
 
     query.where = where;
 

@@ -110,6 +110,7 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard, RolesGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
@@ -132,6 +133,14 @@ export class DeviceController {
             message: `The requested organization is belongs to other apiuser`,
           });
         }
+
+        if(orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
+          this.logger.error(`Unauthorized... The requested user is developer or device owner`);
+          throw new UnauthorizedException({
+            success : false,
+            message: `Unauthorized`,
+          });
+        }
       }
       else {
         if(organizationId != organization.id) {
@@ -144,7 +153,11 @@ export class DeviceController {
       }
     }
 
-    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
+    if(role !== Role.ApiUser) {
+      api_user_id = null;
+    }
+
+    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber, api_user_id);
   }
 
   /**
