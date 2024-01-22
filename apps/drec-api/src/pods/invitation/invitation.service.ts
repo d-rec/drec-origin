@@ -94,7 +94,9 @@ export class InvitationService {
       email: email.toLowerCase(),
       password: randPassword,
       orgName: organization.name,
-      organizationType: '',
+      organizationType: organization.organizationType,
+      //@ts-ignore
+      orgid?: organization.id
       // orgAddress:''
 
     }
@@ -108,10 +110,10 @@ export class InvitationService {
     userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     //}
-    var updateinviteuser: updateInviteStatusDTO = {
-      email: lowerCaseEmail,
-      status: OrganizationInvitationStatus.Accepted
-    }
+    // var updateinviteuser: updateInviteStatusDTO = {
+    //   email: lowerCaseEmail,
+    //   status: OrganizationInvitationStatus.Accepted
+    // }
 
     //await this.update(updateinviteuser, saveinviteuser.id)
     await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);

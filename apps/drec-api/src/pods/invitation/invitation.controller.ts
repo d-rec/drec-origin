@@ -106,7 +106,7 @@ export class InvitationController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer)
+  @Roles( Role.Admin,Role.OrganizationAdmin,Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })
