@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Body,
+  Delete,
   HttpStatus,
   Param,
   UseGuards,
@@ -33,6 +34,7 @@ import {
   BindBlockchainAccountDTO,
 } from './dto';
 import { OrganizationService } from './organization.service';
+import { UserService } from '../user/user.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
@@ -43,21 +45,23 @@ import {
   isRole,
   ResponseSuccess,
 } from '../../models';
-import { ActiveUserGuard, PermissionGuard,RolesGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-
+import {InvitationService} from '../invitation/invitation.service'
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/Organization')
-@UseGuards(AuthGuard('jwt'),PermissionGuard)
+@UseGuards(AuthGuard('jwt'), PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
-  constructor(private readonly organizationService: OrganizationService) {}
+  constructor(private readonly organizationService: OrganizationService,
+    private readonly userService: UserService,
+    private readonly invitationservice: InvitationService,) { }
 
   @Get('/me')
   @Permission('Read')
@@ -70,15 +74,15 @@ export class OrganizationController {
   async getMyOrganization(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<OrganizationDTO | undefined> {
-    console.log("With in getOrg at org controller",organizationId);
+    console.log("With in getOrg at org controller", organizationId);
     return await this.organizationService.findOne(organizationId);
   }
 
   @Get('/users')
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
-  @ApiQuery({name:'pageNumber',type:Number,required: false})
-  @ApiQuery({name:'limit', type:Number,required: false})
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
@@ -89,10 +93,10 @@ export class OrganizationController {
   })
   async getOrganizationUsers(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('pageNumber',new DefaultValuePipe(1),ParseIntPipe) pageNumber:number,
-    @Query('limit', new DefaultValuePipe(0),ParseIntPipe) limit:number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId,pageNumber,limit);
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
 
   @Get('/:id/invitations')
@@ -214,5 +218,40 @@ export class OrganizationController {
     if (!isOrganizationMember) {
       throw new ForbiddenException('Not a member of the organization.');
     }
+  }
+
+  @Delete('/user/:id')
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @Permission('Delete')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an user of organization',
+  })
+  async deleteUser(
+    @UserDecorator() loggedUser: ILoggedInUser,
+    @Param('id', new ParseIntPipe()) userid: number,
+  ): Promise<SuccessResponseDTO> {
+
+    const user = await this.userService.findById(userid);
+
+    if (!user && user.organization.id != loggedUser.organizationId) {
+      throw new NotFoundException('User does not exist in this organization');
+    }
+    //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+
+    if (user.role === loggedUser.role || user.role === loggedUser.role) {
+
+      throw new NotFoundException('Unauthorized');
+
+    }
+    else {
+      await this.invitationservice.remove(user.email,user.organization.id)
+      await this.userService.remove(user.id);
+    }
+
+    return ResponseSuccess();
   }
 }

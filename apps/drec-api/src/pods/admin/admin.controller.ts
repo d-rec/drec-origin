@@ -48,7 +48,8 @@ import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { OrganizationFilterDTO } from './dto/organization-filter.dto'
+import { OrganizationFilterDTO } from './dto/organization-filter.dto';
+import {InvitationService} from '../invitation/invitation.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -60,6 +61,7 @@ export class AdminController {
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
+    private readonly invitationservice: InvitationService,
   ) { }
 
   @Get('/users')
@@ -304,6 +306,7 @@ export class AdminController {
 
    }
    else {
+    await this.invitationservice.remove(user.email,user.organization.id)
      await this.userService.remove(user.id);
    }
 

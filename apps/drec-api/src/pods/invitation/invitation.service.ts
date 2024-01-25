@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, ConflictException, } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ConflictException,Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -233,5 +233,22 @@ export class InvitationService {
     if (result) {
       this.logger.log(`Notification email sent to ${email}.`);
     }
+  }
+
+  async remove(email, orgId): Promise<void> {
+
+    const lowerCaseEmail = email.toLowerCase();
+    const orginvitee = await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: orgId
+      },
+      relations: ['organization'],
+    });
+    console.log('orginvitee', orginvitee)
+    if (orginvitee) {
+      await this.invitationRepository.delete(orginvitee.id);
+    }
+
   }
 }
