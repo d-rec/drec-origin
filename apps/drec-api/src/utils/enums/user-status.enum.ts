@@ -4,3 +4,11 @@ export enum UserStatus {
   Suspended = 'Suspended',
   Deleted = 'Deleted',
 }
+
+export enum UserPermissionStatus {
+  Request = 'Request',
+  // Process = 'Process',
+  Active = 'Active',
+  Deactive = 'Deactive',
+  // Deleted = 'Deleted',
+}

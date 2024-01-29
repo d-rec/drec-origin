@@ -1,0 +1,2070 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >AdminController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/admin/admin.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>admin</code>
+            </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#autocomplete" >autocomplete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#createUser" >createUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteOrganization" >deleteOrganization</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteUser" >deleteUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAllOrganizations" >getAllOrganizations</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAllUserOrganizations" >getAllUserOrganizations</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getApiUsers" >getApiUsers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getOrganizationById" >getOrganizationById</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getUsers" >getUsers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#IrecdeviceRegister" >IrecdeviceRegister</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#seedOrgs" >seedOrgs</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#seedUsers" >seedUsers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateOrganization" >updateOrganization</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateUser" >updateUser</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="autocomplete"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>autocomplete</b></span>
+                        <a href="#autocomplete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>autocomplete(externalId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" target="_blank">String</a>, organizationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/devices/autocomplete&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns Auto-Complete&#x27;})<br />@ApiQuery({name: &#x27;externalId&#x27;, description: &#x27;externalId&#x27;, type: String})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="400"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:400</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>externalId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" target="_blank" >String</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createUser"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>createUser</b></span>
+                        <a href="#createUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createUser(newUser: <a href="../classes/CreateUserORGDTO.html" target="_self">CreateUserORGDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/users&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: CreateUserORGDTO, description: &#x27;Returns a new created user&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="171"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:171</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>newUser</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateUserORGDTO.html" target="_self" >CreateUserORGDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/UserDTO.html" target="_self" >Promise&lt;UserDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteOrganization"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteOrganization</b></span>
+                        <a href="#deleteOrganization"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteOrganization(organizationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;/organizations/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Delete&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: &#x27;Delete an organization&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:294</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/SuccessResponse.html" target="_self" >Promise&lt;SuccessResponseDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteUser"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteUser</b></span>
+                        <a href="#deleteUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteUser(userid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;/user/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Delete&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: SuccessResponseDTO, description: &#x27;Delete an organization&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="322"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:322</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>userid</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/SuccessResponse.html" target="_self" >Promise&lt;SuccessResponseDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAllOrganizations"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAllOrganizations</b></span>
+                        <a href="#getAllOrganizations"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAllOrganizations(filterDto: <a href="../classes/OrganizationFilterDTO.html" target="_self">OrganizationFilterDTO</a>, pageNumber: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, limit: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/organizations&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pageNumber&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;limit&#x27;, type: Number, required: false})<br />@ApiResponse({type: undefined, description: &#x27;Returns all Organizations&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="104"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:104</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/OrganizationFilterDTO.html" target="_self" >OrganizationFilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pageNumber</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>limit</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAllUserOrganizations"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAllUserOrganizations</b></span>
+                        <a href="#getAllUserOrganizations"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAllUserOrganizations(organizationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, pageNumber: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, limit: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/organizations/user/:organizationId&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pageNumber&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;limit&#x27;, type: Number, required: false})<br />@ApiResponse({type: undefined, description: &#x27;Returns all User Of Organizations&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="126"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:126</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all users of an organization with pagination</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pageNumber</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>limit</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getApiUsers"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getApiUsers</b></span>
+                        <a href="#getApiUsers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getApiUsers(organizationName: string | null, pageNumber: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, limit: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/apiusers&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pageNumber&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;limit&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;organizationName&#x27;, type: String, required: false})<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Gets all apiusers&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="428"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:428</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organizationName</td>
+                                            <td>
+                                                        <code>string | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pageNumber</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>limit</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getOrganizationById"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getOrganizationById</b></span>
+                        <a href="#getOrganizationById"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getOrganizationById(organizationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/organizations/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT-CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: OrganizationDTO, description: &#x27;Gets an organization&#x27;})<br />@ApiNotFoundResponse({description: The organization with the id doesn&#x27;t exist})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="152"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:152</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to fetch an organization renord.
+and undefined when there is no particular record not available.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/OrganizationDTO.html" target="_self" >Promise&lt;OrganizationDTO | undefined&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>OrganizationDto is for success response 
+and undefined when there is no particular record not available.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getUsers"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getUsers</b></span>
+                        <a href="#getUsers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getUsers(filterDto: <a href="../classes/UserFilterDTO.html" target="_self">UserFilterDTO</a>, pageNumber: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, limit: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/users&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pageNumber&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;limit&#x27;, type: Number, required: false})<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Gets all users&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:83</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/UserFilterDTO.html" target="_self" >UserFilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pageNumber</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>limit</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="IrecdeviceRegister"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>IrecdeviceRegister</b></span>
+                        <a href="#IrecdeviceRegister"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>IrecdeviceRegister(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/add/device-into-Irec/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns a new created device in I-REC&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="378"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:378</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="seedOrgs"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>seedOrgs</b></span>
+                        <a href="#seedOrgs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>seedOrgs(newOrgs: <a href="../classes/OrganizationDTO.html" target="_self">OrganizationDTO[]</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/seed/organizations&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns new created users&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="217"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:217</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>newOrgs</td>
+                                            <td>
+                                                            <code><a href="../classes/OrganizationDTO.html" target="_self" >OrganizationDTO[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/OrganizationDTO.html" target="_self" >Promise&lt;OrganizationDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="seedUsers"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>seedUsers</b></span>
+                        <a href="#seedUsers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>seedUsers(newUsers: <a href="../entitys/User.html" target="_self">SeedUserDTO[]</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;/seed/users&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns new created users&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="189"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:189</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is api used in previous versions of drec to create user at admin end</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>newUsers</td>
+                                            <td>
+                                                            <code><a href="../entitys/User.html" target="_self" >SeedUserDTO[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/UserDTO.html" target="_self" >Promise&lt;UserDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateOrganization"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>updateOrganization</b></span>
+                        <a href="#updateOrganization"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateOrganization(organizationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, organizationToUpdate: <a href="../classes/UpdateOrganizationDTO.html" target="_self">UpdateOrganizationDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;/organizations/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Update&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: UpdateOrganizationDTO, description: &#x27;Returns an updated Organization&#x27;})<br />@ApiNotFoundResponse({description: No organization found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="270"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:270</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>organizationToUpdate</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateOrganizationDTO.html" target="_self" >UpdateOrganizationDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/OrganizationDTO.html" target="_self" >Promise&lt;OrganizationDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateUser"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>updateUser</b></span>
+                        <a href="#updateUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, body: <a href="../classes/UpdateUserDTO.html" target="_self">UpdateUserDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Put(&#x27;/users/:id&#x27;)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)<br />@ApiBody({type: UpdateUserDTO})<br />@ApiResponse({status: undefined, type: UserDTO, description: &#x27;Updates a user (admin)&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="248"
+                                    class="link-to-prism">src/pods/admin/admin.controller.ts:248</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateUserDTO.html" target="_self" >UpdateUserDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/UserDTO.html" target="_self" >Promise&lt;UserDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Put,
+  Query,
+  UseGuards,
+  ValidationPipe,
+  UseInterceptors,
+  Delete,
+  NotFoundException,
+  Patch,
+  Post,
+  DefaultValuePipe
+} from &#x27;@nestjs/common&#x27;;
+import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiTags,
+  ApiQuery
+} from &#x27;@nestjs/swagger&#x27;;
+
+import {
+  NullOrUndefinedResultInterceptor,
+  SuccessResponseDTO,
+} from &#x27;@energyweb/origin-backend-utils&#x27;;
+import { UpdateUserDTO } from &#x27;./dto/update-user.dto&#x27;;
+import { UserDTO } from &#x27;../user/dto/user.dto&#x27;;
+import { Observable } from &#x27;rxjs&#x27;;
+import { UserService } from &#x27;../user/user.service&#x27;;
+import { ActiveUserGuard, PermissionGuard, RolesGuard } from &#x27;../../guards&#x27;;
+import { OrganizationService } from &#x27;../organization/organization.service&#x27;;
+import { Role } from &#x27;../../utils/enums&#x27;;
+import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
+import { UserFilterDTO } from &#x27;./dto/user-filter.dto&#x27;;
+import { OrganizationDTO, UpdateOrganizationDTO } from &#x27;../organization/dto&#x27;;
+import { ResponseSuccess } from &#x27;../../models&#x27;;
+// import { CreateUserDTO } from &#x27;../user/dto/create-user.dto&#x27;;
+import { CreateUserORGDTO } from &#x27;../user/dto/create-user.dto&#x27;;
+import { SeedUserDTO } from &#x27;./dto/seed-user.dto&#x27;;
+import { DeviceService } from &#x27;../device/device.service&#x27;
+import { DeviceGroupService } from &#x27;../device-group/device-group.service&#x27;
+import { Permission } from &#x27;../permission/decorators/permission.decorator&#x27;;
+import { ACLModules } from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;;
+import { OrganizationFilterDTO } from &#x27;./dto/organization-filter.dto&#x27;
+
+/*
+* It is Controller of admin with the endpoints of admin operations.
+*/
+@ApiTags(&#x27;admin&#x27;)
+@ApiBearerAuth(&#x27;access-token&#x27;)
+@Controller(&#x27;admin&#x27;)
+@UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, RolesGuard, PermissionGuard)
+@UseInterceptors(NullOrUndefinedResultInterceptor)
+export class AdminController {
+  constructor(
+    private readonly userService: UserService,
+    private readonly organizationService: OrganizationService,
+    private readonly deviceService: DeviceService,
+    private readonly devicegroupService: DeviceGroupService,
+  ) { }
+  
+  /*
+  *It is Get Api to get the list all the users with filters and pagination.
+  */
+  @Get(&#x27;/users&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiQuery({ name: &#x27;pageNumber&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;limit&#x27;, type: Number, required: false })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: &#x27;Gets all users&#x27;,
+  })
+  public async getUsers(
+    @Query(ValidationPipe) filterDto: UserFilterDTO,
+    @Query(&#x27;pageNumber&#x27;, new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query(&#x27;limit&#x27;, new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*: Promise&lt;UserDTO[]&gt;*/ {
+    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
+  }
+
+  /*
+  * It is GET api to list all organizations with pagination and filters
+  */
+  @Get(&#x27;/organizations&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiQuery({ name: &#x27;pageNumber&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;limit&#x27;, type: Number, required: false })
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: &#x27;Returns all Organizations&#x27;,
+  })
+  async getAllOrganizations(
+    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(&#x27;pageNumber&#x27;, new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query(&#x27;limit&#x27;, new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*: Promise&lt;OrganizationDTO[]&gt;*/ {
+    return await this.organizationService.getAll(filterDto, pageNumber, limit);
+  }
+
+  /**
+  * It is GET api to list all users of an organization with pagination
+  * @param {orhanizationId} is type of number which is the identifier of an organization
+  */
+  @Get(&#x27;/organizations/user/:organizationId&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&quot;ADMIN_MANAGEMENT_CRUDL&quot;)
+  @ApiQuery({ name: &#x27;pageNumber&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;limit&#x27;, type: Number, required: false })
+  @ApiResponse({
+    type: [OrganizationDTO],
+    description: &#x27;Returns all User Of Organizations&#x27;,
+  })
+  async getAllUserOrganizations(
+    @Param(&#x27;organizationId&#x27;, new ParseIntPipe()) organizationId: number,
+    @Query(&#x27;pageNumber&#x27;, new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query(&#x27;limit&#x27;, new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  )/*:  Promise&lt;UserDTO[]&gt;*/ {
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
+  }
+
+  /**
+  * It is GET api to fetch an organization renord.
+  * @param {orhanizationId} is type of number which is the identifier of an organization
+  * @return { OrganizationDTO | undefined } OrganizationDto is for success response 
+  * and undefined when there is no particular record not available.
+  */
+  @Get(&#x27;/organizations/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&quot;ADMIN_MANAGEMENT-CRUDL&quot;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: OrganizationDTO,
+    description: &#x27;Gets an organization&#x27;,
+  })
+  @ApiNotFoundResponse({
+    description: &#x60;The organization with the id doesn&#x27;t exist&#x60;,
+  })
+  async getOrganizationById(
+    @Param(&#x27;id&#x27;, new ParseIntPipe()) organizationId: number,
+  ): Promise&lt;OrganizationDTO | undefined&gt; {
+    return this.organizationService.findOne(organizationId);
+  }
+
+  /*
+  * It is POST api to invite and create organizationAdmin.
+  */
+  @Post(&#x27;/users&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    // type: CreateUserDTO,
+    type: CreateUserORGDTO,
+    description: &#x27;Returns a new created user&#x27;,
+  })
+  public async createUser(@Body() newUser: CreateUserORGDTO): Promise&lt;UserDTO&gt; {
+    return await this.userService.adminnewcreate(newUser);
+  }
+  /**
+   * It is api used in previous versions of drec to create user at admin end
+   * @param newUsers 
+   * @returns 
+   */
+  @Post(&#x27;/seed/users&#x27;
+  )
+  @Roles(Role.Admin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: &#x27;Returns new created users&#x27;,
+  })
+  public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise&lt;UserDTO[]&gt; {
+    const users: UserDTO[] &#x3D; [];
+    if (!newUsers || !newUsers.length) {
+      return users;
+    }
+    await Promise.all(
+      newUsers.map(async (newUser: SeedUserDTO) &#x3D;&gt; {
+        const createdUser &#x3D; await this.userService.seed(
+          newUser,
+          newUser.organizationId,
+          newUser.role,
+          newUser.status,
+        );
+        users.push(createdUser);
+      }),
+    );
+    return users;
+  }
+
+  @Post(&#x27;/seed/organizations&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [OrganizationDTO],
+    description: &#x27;Returns new created users&#x27;,
+  })
+  public async seedOrgs(
+    @Body() newOrgs: OrganizationDTO[],
+  ): Promise&lt;OrganizationDTO[]&gt; {
+    const orgs: OrganizationDTO[] &#x3D; [];
+    if (!newOrgs || !newOrgs.length) {
+      return orgs;
+    }
+    await Promise.all(
+      newOrgs.map(async (newOrg: OrganizationDTO) &#x3D;&gt; {
+        const createdOrg &#x3D; await this.organizationService.seed(newOrg);
+        orgs.push(createdOrg);
+      }),
+    );
+    return orgs;
+  }
+
+  /*
+  * It is PUT api to update an user.
+  * @return {UserDto} returns an updated user.
+  * @param {id} is the type of number which is the identifier of user.
+  */
+  @Put(&#x27;/users/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiBody({ type: UpdateUserDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserDTO,
+    description: &#x27;Updates a user (admin)&#x27;,
+  })
+  public async updateUser(
+    @Param(&#x27;id&#x27;, new ParseIntPipe()) id: number,
+    @Body() body: UpdateUserDTO,
+  ): Promise&lt;UserDTO&gt; {
+    return this.userService.update(id, body);
+  }
+
+  /*
+  * It is PATCH api to update an organization
+  * @return {OrganizationDto} returns the updated organization.
+  * @param { id } is the type of number which is the identifier of an organization.
+  */
+  @Patch(&#x27;/organizations/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Update&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UpdateOrganizationDTO,
+    description: &#x27;Returns an updated Organization&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No organization found&#x60; })
+  public async updateOrganization(
+    @Param(&#x27;id&#x27;) organizationId: number,
+    @Body() organizationToUpdate: UpdateOrganizationDTO,
+  ): Promise&lt;OrganizationDTO&gt; {
+    return await this.organizationService.update(
+      organizationId,
+      organizationToUpdate,
+    );
+  }
+
+  /*
+  * It is DELETE api to delete an organization.
+  * @return {SuccessResponseDto} returns an message for success or failure response.
+  * @param {id} is the type of number which is identifier of an organization.
+  */
+  @Delete(&#x27;/organizations/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Delete&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: &#x27;Delete an organization&#x27;,
+  })
+  async deleteOrganization(
+    @Param(&#x27;id&#x27;, new ParseIntPipe()) organizationId: number,
+  ): Promise&lt;SuccessResponseDTO&gt; {
+    const organization &#x3D; await this.organizationService.findOne(organizationId);
+
+    if (!organization) {
+      throw new NotFoundException(&#x27;Does not exist&#x27;);
+    }
+
+    await this.organizationService.remove(organizationId);
+
+    return ResponseSuccess();
+  }
+
+  /*
+  * It is DELETE api to delete an user.
+  * @return {SuccessResponseDto} returns an message for success or failure response.
+  * @param {id} is the type of number which is identifier of an user.
+  */ 
+  @Delete(&#x27;/user/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Delete&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: &#x27;Delete an organization&#x27;,
+  })
+  async deleteUser(
+    @Param(&#x27;id&#x27;, new ParseIntPipe()) userid: number,
+  ): Promise&lt;SuccessResponseDTO&gt; {
+
+    const user &#x3D; await this.userService.findById(userid);
+    
+    if (!user) {
+      throw new NotFoundException(&#x27;Does not exist&#x27;);
+    }
+    const manyotheruserinorg &#x3D; await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+   
+    if (user.role &#x3D;&#x3D;&#x3D; Role.Buyer || user.role &#x3D;&#x3D;&#x3D; Role.OrganizationAdmin) {
+      const buyerresrvation &#x3D; await this.devicegroupService.findOne({ organizationId: user.organization.id })
+     
+      if (buyerresrvation) {
+        throw new NotFoundException(&#x27;This user is part of reservation,So you cannot remove this user and organization&#x27;);
+
+      }
+      const deviceoforg &#x3D; await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
+     
+      if (deviceoforg.length &gt; 0) {
+        throw new NotFoundException(&#x27;Some device are available in organization &#x27;);
+      }
+      // if (manyotheruserinorg) {
+      //   throw new NotFoundException(&#x27;Some more users availble in organization. So user cannot remove&#x27;);
+      // }
+      if (!(manyotheruserinorg.length&gt;0)) {
+        // throw new NotFoundException(&#x27;Some more users availble in organization. So user cannot remove&#x27;);
+        await this.userService.remove(user.id);
+        await this.organizationService.remove(user.organization.id);
+     }
+
+   }
+   else {
+     await this.userService.remove(user.id);
+   }
+
+    return ResponseSuccess();
+  }
+
+  /*
+  * It is POST api to create or register device into I-REC
+  * @return {any} returns message for sucessful / failure response.
+  * @param { id } is the type of number and identifier of an device.
+  */
+  // api for device registration into I-REC
+  @Post(&#x27;/add/device-into-Irec/:id&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    // type: CreateUserDTO,
+    // type: CreateUserORGDTO,
+    description: &#x27;Returns a new created device in I-REC&#x27;,
+  })
+  public async IrecdeviceRegister(
+    @Param(&#x27;id&#x27;) id: number,
+    // @Body() irecDevice: {deviceid:number}
+  ): Promise&lt;any&gt; {
+    return await this.deviceService.I_recPostData(id);
+  }
+
+  /*
+  * It is GET api to list all devices by an organization and device&#x27;s externalId
+  */
+  @Get(&#x27;/devices/autocomplete&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Returns Auto-Complete&#x27;,
+  })
+
+  @ApiQuery({ name: &#x27;externalId&#x27;, description: &#x27;externalId&#x27;, type: String })
+
+  async autocomplete(
+    // @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(&#x27;externalId&#x27;) externalId: String,
+    @Query(&#x27;organizationId&#x27;) organizationId: number,
+  ) {
+    //@ts-ignore
+    console.log(&quot;adminaddorgId&quot;, organizationId)
+    // if (adminaddorgId !&#x3D; null || adminaddorgId !&#x3D; undefined) {
+    //   organizationId &#x3D; adminaddorgId;
+    // }
+    return await this.deviceService.atto(organizationId, externalId);
+  }
+
+  /*
+  * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+  */
+  @Get(&#x27;/apiusers&#x27;)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;ADMIN_MANAGEMENT_CRUDL&#x27;)
+  @ApiQuery({ name: &#x27;pageNumber&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;limit&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;organizationName&#x27;, type: String, required: false})
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: &#x27;Gets all apiusers&#x27;,
+  })
+  public async getApiUsers(
+    @Query(&#x27;organizationName&#x27;,new DefaultValuePipe(null)) organizationName: string | null,
+    @Query(&#x27;pageNumber&#x27;, new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query(&#x27;limit&#x27;, new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  ) {
+    console.log(&quot;With in getAllApiUsers&quot;,organizationName);
+    return this.userService.getApiUsers(organizationName,pageNumber, limit);
+  }
+
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'AdminController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

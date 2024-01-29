@@ -31,6 +31,12 @@
     },
     {
         "id": 6,
+        "name": "ApiUser",
+        "description": "Use for apiuse to clinetid and clinet secret",
+        "status": true
+    },
+    {
+        "id": 7,
         "name": "SubBuyer",
         "description": "Same as buyer but not delete any user of org",
         "status": true

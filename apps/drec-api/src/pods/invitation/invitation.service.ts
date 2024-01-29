@@ -1,24 +1,24 @@
 import { BadRequestException, Injectable, Logger, ConflictException,Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
   ILoggedInUser,
   ISuccessResponse,
+  LoggedInUser,
   OrganizationRole,
   ResponseSuccess,
 } from '../../models';
 import { UserService } from '../user/user.service';
-import { OrganizationInvitationStatus } from '../../utils/enums';
+import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { AlreadyPartOfOrganizationError } from './errors';
 import { Invitation } from './invitation.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
+import { updateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { PermissionService } from '../permission/permission.service'
-import { PermissionDTO, NewPermissionDTO, UpdatePermissionDTO } from '../permission/dto/modulepermission.dto'
 import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
@@ -42,26 +42,65 @@ export class InvitationService {
     orgId?: number
     // permission: NewPermissionDTO[],
   ): Promise<void> {
+    this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
     let inviteorg: number;
-    if (user.role === 'Admin') {
-      inviteorg = orgId;
-    } else {
+    if (orgId) {
+      if (user.role === Role.Admin || user.role === Role.ApiUser) {
+        inviteorg = orgId;
+      }
+      else {
+        if (user.organizationId != orgId) {
+          this.logger.error(`Requested organization is part of other organization`);
+          throw new ConflictException({
+            success: false,
+            message: `Requested organization is part of other organization`,
+          });
+        }
+
+      }
+    }
+    else {
       inviteorg = user.organizationId;
     }
     const organization = await this.organizationService.findOne(
       inviteorg,
     );
-
+    if (!organization) {
+      this.logger.error(`Organization information not found`);
+      throw new ConflictException({
+        success: false,
+        message: `Organization information not found`,
+      });
+    }
+    if (user.role === Role.ApiUser) {
+      if (user.api_user_id !== organization.api_user_id) {
+        this.logger.error(`Organization ${organization.name} is part of other apiuser or developer`);
+        throw new ConflictException({
+          success: false,
+          message: `Organization ${organization.name} is part of other apiuser or developer`,
+        });
+      }
+    }
     const lowerCaseEmail = email.toLowerCase();
 
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      throw new ConflictException({
-        success: false,
-        message: `User ${lowerCaseEmail} is already part of the  organization`,
-      });
+      if (invitee.organization.id === inviteorg) {
+        this.logger.error(`User ${lowerCaseEmail} is already part of this organization`);
+        throw new ConflictException({
+          success: false,
+          message: `User ${lowerCaseEmail} is already part of this organization`,
+        });
+      } else {
+        this.logger.error(`User ${lowerCaseEmail} is already part of the other organization`);
+        throw new ConflictException({
+          success: false,
+          message: `User ${lowerCaseEmail} is already part of the other organization`,
+        });
+      }
+
 
     }
 
@@ -74,6 +113,7 @@ export class InvitationService {
     });
     //console.log(invitation)
     if (orginvitee) {
+      this.logger.error(`Requested invitation User ${lowerCaseEmail} is already exist`);
       throw new BadRequestException(`Requested invitation User ${lowerCaseEmail} is already exist`);
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
@@ -101,12 +141,14 @@ export class InvitationService {
 
     }
     var userid: any;
-    console.log("invitee", invitee)
+    this.logger.debug("invitee")
     //to add for if one user invite by multiple organization 
     // if (invitee) {
     //   userid = invitee
 
     // } else {
+    //let client;
+    inviteuser['client'] = { api_user_id: organization.api_user_id }
     userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     //}
@@ -116,7 +158,9 @@ export class InvitationService {
     // }
 
     //await this.update(updateinviteuser, saveinviteuser.id)
-    await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    if (sender.role !== Role.ApiUser) {
+      await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail, saveinviteuser.id);
+    }
     //to add permission for user role in invitaion
     // const newpermission: any = [];
     // await permission.forEach((element) => {
@@ -151,9 +195,10 @@ export class InvitationService {
     invitationId: string,
     // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
+    this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
     const userinvite = await this.userService.findByEmail(lowerCaseEmail)
-    console.log(userinvite);
+    this.logger.debug(userinvite);
     const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
         email: lowerCaseEmail,
@@ -162,6 +207,7 @@ export class InvitationService {
     });
     //console.log(invitation)
     if (!invitation) {
+      this.logger.error(`Requested invitation does not exist`);
       throw new BadRequestException('Requested invitation does not exist');
     }
 
@@ -169,6 +215,7 @@ export class InvitationService {
       invitation.status === OrganizationInvitationStatus.Accepted ||
       invitation.status === OrganizationInvitationStatus.Rejected
     ) {
+      this.logger.error(`Requested invitation has already been accepted or rejected`);
       throw new BadRequestException(
         'Requested invitation has already been accepted or rejected',
       );
@@ -196,19 +243,71 @@ export class InvitationService {
     return ResponseSuccess();
   }
 
-  public async getUsersInvitation(email: string): Promise<Invitation[]> {
-    const lowerCaseEmail = email.toLowerCase();
+  public async getUsersInvitation(user: ILoggedInUser, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ invitations: Invitation[], currentPage: number, totalPages: number, totalCount: number }> {
+    this.logger.verbose(`With in getUsersInvitation`);
 
+    let query: SelectQueryBuilder<Invitation> = await this.invitationRepository.createQueryBuilder('invitation')
+      .leftJoinAndSelect('invitation.organization', 'organization');
+    if (user.role != Role.Admin) {
+      query = await query
+        .andWhere('organization.api_user_id = :apiUserId', { apiUserId: user.api_user_id });
+    }
+
+    if (organizationId) {
+      const organization = await this.organizationService.findOne(organizationId);
+
+      if (user.role != Role.Admin && user.role != Role.ApiUser) {
+        if (user.organizationId != organizationId) {
+          this.logger.error(`${user.role} can't view the invitation list of other organizations`);
+          throw new BadRequestException({
+            success: false,
+            message: `${user.role} can't view the invitation list of other organizations`,
+          });
+        }
+      }
+
+      if (user.role === Role.ApiUser) {
+        if (user.api_user_id != organization.api_user_id) {
+          this.logger.error(`Organization ${organization.name} is part of other apiuser`);
+          throw new BadRequestException({
+            success: false,
+            message: `Organization ${organization.name} is part of other apiuser`,
+          });
+        }
+      }
+
+      query = query
+        .andWhere('organization.id = :organizationId', { organizationId: organizationId });
+    }
+
+    const [invitations, totalCount] = await query
+      .select('invitation')
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .orderBy('invitation.createdAt', 'DESC')
+      .getManyAndCount();
+
+    /*
     return this.invitationRepository.find({
       where: { email: lowerCaseEmail },
       relations: ['organization'],
-    });
+    }); */
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      invitations: invitations,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount
+    };
   }
 
   private ensureIsNotMember(email: string, organization: Organization) {
+    this.logger.verbose(`With in ensureIsNotMember`);
     const lowerCaseEmail = email.toLowerCase();
 
     if (organization.users.find((u) => u.email === lowerCaseEmail)) {
+      this.logger.error(`Invited user already belongs to this organization.`);
       throw new BadRequestException({
         success: false,
         error: `Invited user already belongs to this organization.`,
@@ -221,6 +320,7 @@ export class InvitationService {
     email: string,
 
   ): Promise<void> {
+    this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/organization/invitations`;
 
     const result = await this.mailService.send({
@@ -251,4 +351,16 @@ export class InvitationService {
     }
 
   }
+ async getinvite_info_byEmail(user:LoggedInUser){
+    const lowerCaseEmail = user.email.toLowerCase();
+    const orginvitee = await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: user.organizationId
+      },
+      relations: ['organization'],
+    });
+    return orginvitee;
+  }
+  
 }

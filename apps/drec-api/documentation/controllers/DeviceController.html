@@ -1,0 +1,2734 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >DeviceController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/device/device.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>/device</code>
+            </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>It is Controller of device with the endpoints of device operations.</p>
+
+            </p>
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#autocomplete" >autocomplete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#certifiedlogdaterang" >certifiedlogdaterang</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#changeOnBoardingDate" >changeOnBoardingDate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#create" >create</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#get" >get</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAll" >getAll</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAllDeviceForBuyer" >getAllDeviceForBuyer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAllUngrouped" >getAllUngrouped</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getByExternalId" >getByExternalId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getDeviceTypes" >getDeviceTypes</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getFuelTypes" >getFuelTypes</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getMyDevices" >getMyDevices</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getMyDevicesTotal" >getMyDevicesTotal</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#processCreationBulkFromCSV" >processCreationBulkFromCSV</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#remove" >remove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="autocomplete"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>autocomplete</b></span>
+                        <a href="#autocomplete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>autocomplete(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, externalId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" target="_blank">String</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/my/autocomplete&#x27;)<br />@UseGuards(undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns Auto-Complete&#x27;})<br />@ApiQuery({name: &#x27;externalId&#x27;, description: &#x27;externalId&#x27;, type: String})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="675"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:675</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all devices with auto complete</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>externalId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" target="_blank" >String</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is unique identoifier of an device</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="certifiedlogdaterang"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>certifiedlogdaterang</b></span>
+                        <a href="#certifiedlogdaterang"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>certifiedlogdaterang(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, externalId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, groupuId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/certifiedlog/first&amp;lastdate&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns Certified log date rang of Device&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="699"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:699</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to fetch the certified device records with in the range of date</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is loggedIn user at request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>externalId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is unique identifier of device</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>groupuId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="changeOnBoardingDate"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>changeOnBoardingDate</b></span>
+                        <a href="#changeOnBoardingDate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>changeOnBoardingDate(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, deviceId, givenDate)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Put(&#x27;/my/deviceOnBoardingDate&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;change the device&#x27;s OnBoarding date&#x27;})<br />@ApiQuery({name: &#x27;deviceId&#x27;, description: &#x27;Device Id&#x27;})<br />@ApiQuery({name: &#x27;givenDate&#x27;, description: &#x27;Update the OnBoarding date&#x27;, type: Date})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="613"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:613</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is PUT api tp update the device onboarding date by deviceId</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>deviceId</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is deviceId from device unique identifier</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>givenDate</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is new onboarding date to be updated.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="create"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>create</b></span>
+                        <a href="#create"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>create(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, deviceToRegister: <a href="../classes/NewDeviceDTO.html" target="_self">NewDeviceDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post()<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: NewDeviceDTO, description: &#x27;Returns a new created Device id&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="286"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:286</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is POST api to create an device</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>deviceToRegister</td>
+                                            <td>
+                                                            <code><a href="../classes/NewDeviceDTO.html" target="_self" >NewDeviceDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>It is body payload to create device</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="get"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>get</b></span>
+                        <a href="#get"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>get(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/:id&#x27;)<br />@UseGuards(undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiOkResponse({type: DeviceDTO, description: &#x27;Returns a Device&#x27;})<br />@ApiNotFoundResponse({description: The device with the code doesn&#x27;t exist})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="237"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:237</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to fetch an device by the deviceId in param</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is deviceId in type number</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>DeviceDto for success response and null when there is no device found by the id</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAll"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAll</b></span>
+                        <a href="#getAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAll(filterDto: <a href="../classes/FilterDTO.html" target="_self">FilterDTO</a>, pagenumber: number | null, OrgId: number | null)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br />@UseGuards(undefined, ActiveUserGuard, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pagenumber&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;OrganizationId&#x27;, type: Number, required: false})<br />@ApiOkResponse({type: undefined, description: &#x27;Returns all Devices&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:91</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/FilterDTO.html" target="_self" >FilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pagenumber</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>OrgId</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAllDeviceForBuyer"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAllDeviceForBuyer</b></span>
+                        <a href="#getAllDeviceForBuyer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAllDeviceForBuyer(filterDto: <a href="../classes/FilterDTO.html" target="_self">FilterDTO</a>, pagenumber: number | null)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/ungrouped/buyerreservation&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiOkResponse({type: undefined, description: &#x27;Returns all Devices&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:110</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all devices for reservation</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/FilterDTO.html" target="_self" >FilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pagenumber</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>return array of devices for reservation</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAllUngrouped"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAllUngrouped</b></span>
+                        <a href="#getAllUngrouped"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAllUngrouped(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, orderFilterDto: <a href="../classes/DeviceGroupByDTO.html" target="_self">DeviceGroupByDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/ungrouped&#x27;)<br />@UseGuards(undefined, ActiveUserGuard, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin, Role.DeviceOwner)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiOkResponse({type: undefined, description: &#x27;Returns all ungrouped Devices&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:131</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all ungrouped devices with filteration</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>orderFilterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/DeviceGroupByDTO.html" target="_self" >DeviceGroupByDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/GroupedDevicesDTO.html" target="_self" >Promise&lt;GroupedDevicesDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>returns ungrouped devices</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getByExternalId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getByExternalId</b></span>
+                        <a href="#getByExternalId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getByExternalId(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;externalId/:id&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiOkResponse({type: DeviceDTO, description: &#x27;Returns a Device&#x27;})<br />@ApiNotFoundResponse({description: The device with the code doesn&#x27;t exist})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="259"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:259</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to fetch an device by externalId in param</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is externalId in device</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>DeviceDto for success response and null when there is no device found by the id</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getDeviceTypes"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getDeviceTypes</b></span>
+                        <a href="#getDeviceTypes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getDeviceTypes()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/device-type&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns all IREC device types&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:148</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET to list all device code types in dropdown</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/CodeNameDTO.html" target="_self" >CodeNameDTO[]</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getFuelTypes"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getFuelTypes</b></span>
+                        <a href="#getFuelTypes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getFuelTypes()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/fuel-type&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns all IREC fuel types&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="166"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:166</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all fuel types in dropdown</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/CodeNameDTO.html" target="_self" >CodeNameDTO[]</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getMyDevices"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getMyDevices</b></span>
+                        <a href="#getMyDevices"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getMyDevices(filterDto: <a href="../classes/FilterDTO.html" target="_self">FilterDTO</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, pagenumber: number | null)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/my&#x27;)<br />@UseGuards(undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiQuery({name: &#x27;pagenumber&#x27;, type: Number, required: false})<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns my Devices&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:186</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all my devices with filteration and pagination</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>filterDto</td>
+                                            <td>
+                                                            <code><a href="../classes/FilterDTO.html" target="_self" >FilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>pagenumber</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getMyDevicesTotal"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getMyDevicesTotal</b></span>
+                        <a href="#getMyDevicesTotal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getMyDevicesTotal(undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/my/totalamountread&#x27;)<br />@UseGuards(undefined, ActiveUserGuard, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns my Devices&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="588"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:588</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is GET api to list all total amount of reads by each devices grouped by organization</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processCreationBulkFromCSV"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>processCreationBulkFromCSV</b></span>
+                        <a href="#processCreationBulkFromCSV"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processCreationBulkFromCSV(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, organizationId: number | null, fileToProcess: <a href="../classes/CSVBulkUploadDTO.html" target="_self">CSVBulkUploadDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;addByAdmin/process-creation-bulk-devices-csv/:organizationId&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;DEVICE_BULK_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns created devices from csv&#x27;})<br />@ApiBody({type: CSVBulkUploadDTO})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="772"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:772</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is POST api to create array of devices by uploading csv files with device data</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is loggedIn user from request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is organization unique identifier with number type to map with the respective organization</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>fileToProcess</td>
+                                            <td>
+                                                            <code><a href="../classes/CSVBulkUploadDTO.html" target="_self" >CSVBulkUploadDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is parsed data of uploaded csv file</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;DeviceCsvFileProcessingJobsEntity&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>remove</b></span>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>remove(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, undefined: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;/:id&#x27;)<br />@UseGuards(undefined, RolesGuard, PermissionGuard)<br />@Permission(&#x27;Delete&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@Roles(Role.OrganizationAdmin, Role.Admin)<br />@ApiResponse({status: undefined, description: &#x27;Remove device group&#x27;})<br />@ApiNotFoundResponse({description: No device group found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="549"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:549</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is DELETE api to delete an device by id</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is deviceId</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>update(user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>, externalId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, deviceToUpdate: <a href="../classes/UpdateDeviceDTO.html" target="_self">UpdateDeviceDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;/:externalId&#x27;)<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Update&#x27;)<br />@ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, type: UpdateDeviceDTO, description: &#x27;Returns an updated Device&#x27;})<br />@ApiNotFoundResponse({description: No device found})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="402"
+                                    class="link-to-prism">src/pods/device/device.controller.ts:402</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>It is PATCH api to update an device by externalId</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is loggedin user from user at request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>externalId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is unique external id in device entity</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>deviceToUpdate</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateDeviceDTO.html" target="_self" >UpdateDeviceDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>is body payload to update an device</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/DeviceDTO.html" target="_self" >Promise&lt;DeviceDTO&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
+  HttpStatus,
+  Param,
+  Body,
+  UseGuards,
+  ValidationPipe,
+  Query,
+  ConflictException,
+  HttpException
+} from &#x27;@nestjs/common&#x27;;
+
+import moment from &#x27;moment&#x27;;
+
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiOkResponse,
+  ApiSecurity,
+  ApiTags,
+  ApiQuery,
+  ApiHideProperty,
+  ApiBody
+} from &#x27;@nestjs/swagger&#x27;;
+import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
+import { plainToClass } from &#x27;class-transformer&#x27;;
+
+import { DeviceService } from &#x27;./device.service&#x27;;
+import {
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+  DeviceDTO,
+  DeviceGroupByDTO,
+  GroupedDevicesDTO,
+  BuyerDeviceFilterDTO
+} from &#x27;./dto&#x27;;
+import {
+  CSVBulkUploadDTO,
+
+} from &#x27;../device-group/dto&#x27;;
+import { Role } from &#x27;../../utils/enums&#x27;;
+import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
+import { PermissionGuard } from &#x27;../../guards/PermissionGuard&#x27;
+import { ILoggedInUser } from &#x27;../../models&#x27;;
+import { CodeNameDTO } from &#x27;./dto/code-name.dto&#x27;;
+import { ActiveUserGuard } from &#x27;../../guards&#x27;;
+import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
+import { UserDecorator } from &#x27;../user/decorators/user.decorator&#x27;;
+import { DeviceGroupService } from &#x27;../device-group/device-group.service&#x27;;
+import { Permission } from &#x27;../permission/decorators/permission.decorator&#x27;;
+import { ACLModules } from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;;
+import { CountrycodeService } from &#x27;../countrycode/countrycode.service&#x27;;
+import { countryCodesList } from &#x27;../../models/country-code&#x27;
+import { isValidUTCDateFormat } from &#x27;../../utils/checkForISOStringFormat&#x27;;
+import { OrganizationInvitationStatus } from &#x27;@energyweb/origin-backend-core&#x27;;
+import { DeviceGroup } from &#x27;../device-group/device-group.entity&#x27;;
+import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from &#x27;../device-group/device_csv_processing_jobs.entity&#x27;;
+
+/**
+* It is Controller of device with the endpoints of device operations.
+*/
+@ApiTags(&#x27;device&#x27;)
+@ApiBearerAuth(&#x27;access-token&#x27;)
+@ApiSecurity(&#x27;drec&#x27;)
+@Controller(&#x27;/device&#x27;)
+export class DeviceController {
+  constructor(
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private countrycodeService: CountrycodeService,
+  ) { }
+
+  /**
+  * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto
+  */
+  @Get()
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @Roles(Role.Admin)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiQuery({ name: &#x27;pagenumber&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;OrganizationId&#x27;, type: Number, required: false })
+  @ApiOkResponse({ type: [DeviceDTO], description: &#x27;Returns all Devices&#x27; })
+  async getAll(
+    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(&#x27;pagenumber&#x27;) pagenumber: number | null,
+    @Query(&#x27;OrganizationId&#x27;) OrgId: number | null,
+  )/*: Promise&lt;DeviceDTO[]&gt;*/ {
+    return this.deviceService.find(filterDto, pagenumber,OrgId);
+  }
+
+  /**
+  * It is GET api to list all devices for reservation
+  * @return {Array&lt;DeviceDTO&gt;} return array of devices for reservation 
+  */
+  @Get(&#x27;/ungrouped/buyerreservation&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  // @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, RolesGuard)
+  //@Roles(Role.Admin)
+  @ApiOkResponse({ type: [DeviceDTO], description: &#x27;Returns all Devices&#x27; })
+  async getAllDeviceForBuyer(
+    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(&#x27;pagenumber&#x27;) pagenumber: number | null,
+  ): Promise&lt;DeviceDTO[]&gt; {
+
+    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
+  }
+
+  /**
+  * It is GET api to list all ungrouped devices with filteration
+  * @return {GroupedDevicesDTO} returns ungrouped devices
+  */
+  @Get(&#x27;/ungrouped&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @Roles(Role.Admin, Role.DeviceOwner)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiOkResponse({
+    type: [GroupedDevicesDTO],
+    description: &#x27;Returns all ungrouped Devices&#x27;,
+  })
+  async getAllUngrouped(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(ValidationPipe) orderFilterDto: DeviceGroupByDTO,
+  ): Promise&lt;GroupedDevicesDTO[]&gt; {
+    return this.deviceService.findUngrouped(organizationId, orderFilterDto);
+  }
+
+  /**
+  * It is GET to list all device code types in dropdown
+  * @returns {Array&lt;CodeNameDTO&gt;}
+  */
+  @Get(&#x27;/device-type&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: &#x27;Returns all IREC device types&#x27;,
+  })
+  getDeviceTypes(): CodeNameDTO[] {
+    const deviceTypes &#x3D; this.deviceService.getDeviceTypes();
+
+    return deviceTypes.map((deviceType) &#x3D;&gt;
+      plainToClass(CodeNameDTO, deviceType),
+    );
+  }
+
+  /**
+   * It is GET api to list all fuel types in dropdown
+   * @returns {Array&lt;CodeNameDTO&gt;}
+   */
+  @Get(&#x27;/fuel-type&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [CodeNameDTO],
+    description: &#x27;Returns all IREC fuel types&#x27;,
+  })
+  getFuelTypes(): CodeNameDTO[] {
+    const fuelTypes &#x3D; this.deviceService.getFuelTypes();
+    return fuelTypes.map((fuelType) &#x3D;&gt; plainToClass(CodeNameDTO, fuelType));
+  }
+
+  /**
+   * It is GET api to list all my devices with filteration and pagination
+   * @returns {Array&lt;DeviceDTO&gt;}
+   */
+  @Get(&#x27;/my&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiQuery({ name: &#x27;pagenumber&#x27;, type: Number, required: false })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceDTO],
+    description: &#x27;Returns my Devices&#x27;,
+  })
+  async getMyDevices(
+    @Query(ValidationPipe) filterDto: FilterDTO,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(&#x27;pagenumber&#x27;) pagenumber: number | null
+  )/*: Promise&lt;DeviceDTO[]&gt;*/ {
+    console.log(filterDto);
+    if (filterDto.country) {
+      filterDto.country &#x3D; filterDto.country.toUpperCase();
+      console.log(filterDto.country);
+      if (filterDto.country &amp;&amp; typeof filterDto.country &#x3D;&#x3D;&#x3D; &quot;string&quot; &amp;&amp; filterDto.country.length &#x3D;&#x3D;&#x3D; 3) {
+        let countries &#x3D; countryCodesList;
+        if (countries.find(ele &#x3D;&gt; ele.countryCode &#x3D;&#x3D;&#x3D; filterDto.country) &#x3D;&#x3D;&#x3D; undefined) {
+          return new Promise((resolve, reject) &#x3D;&gt; {
+            reject(
+              new ConflictException({
+                success: false,
+                message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+              }),
+            );
+          });
+        }
+      } else {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+            }),
+          );
+        });
+      }
+    }
+
+
+    return await this.deviceService.getOrganizationDevices(organizationId, filterDto, pagenumber);
+  }
+
+  /**
+   * It is GET api to fetch an device by the deviceId in param
+   * @param id is deviceId in type number
+   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   */
+  @Get(&#x27;/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.Admin)
+  @ApiOkResponse({ type: DeviceDTO, description: &#x27;Returns a Device&#x27; })
+  @ApiNotFoundResponse({
+    description: &#x60;The device with the code doesn&#x27;t exist&#x60;,
+  })
+  async get(@Param(&#x27;id&#x27;) id: number): Promise&lt;DeviceDTO | null&gt; {
+    const devicedata &#x3D; await this.deviceService.findOne(id);
+    console.log(devicedata);
+    devicedata.externalId &#x3D; devicedata.developerExternalId;
+    delete devicedata[&quot;developerExternalId&quot;];
+    return devicedata
+  }
+
+  /**
+   * It is GET api to fetch an device by externalId in param
+   * @param id  is externalId in device 
+   * @param param1 
+   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   */
+  @Get(&#x27;externalId/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiOkResponse({ type: DeviceDTO, description: &#x27;Returns a Device&#x27; })
+  @ApiNotFoundResponse({
+    description: &#x60;The device with the code doesn&#x27;t exist&#x60;,
+  })
+  async getByExternalId(@Param(&#x27;id&#x27;) id: string,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise&lt;DeviceDTO | null&gt; {
+    console.log(id);
+    const devicedata &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
+    console.log(devicedata);
+    devicedata.externalId &#x3D; devicedata.developerExternalId;
+    delete devicedata[&quot;developerExternalId&quot;];
+    return devicedata;
+  }
+
+  /**
+   * It is POST api to create an device
+   * @param param0 It is organizationId from user at request
+   * @param deviceToRegister It is body payload to create device
+   * @returns {DeviceDTO}
+   */
+  @Post()
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), PermissionGuard)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: NewDeviceDTO,
+    description: &#x27;Returns a new created Device id&#x27;,
+  })
+  public async create(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Body() deviceToRegister: NewDeviceDTO,
+  ): Promise&lt;DeviceDTO&gt; {
+    console.log(deviceToRegister);
+    deviceToRegister.externalId &#x3D; deviceToRegister.externalId.trim();
+    if (deviceToRegister.externalId.trim() &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;externalId should not be empty&#x60;,
+          })
+        );
+      });
+    }
+
+
+    if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+          }),
+        );
+      });
+    }
+    if (new Date(deviceToRegister.commissioningDate).getTime() &gt; new Date().getTime()) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60; Invalid commissioning date, commissioning is greater than current date&#x60;,
+          })
+        );
+      });
+    }
+    if (deviceToRegister[&#x27;groupId&#x27;] &#x3D;&#x3D;&#x3D; 0 || deviceToRegister[&#x27;groupId&#x27;]) {
+      deviceToRegister[&#x27;groupId&#x27;] &#x3D; null;
+    }
+    deviceToRegister.countryCode &#x3D; deviceToRegister.countryCode.toUpperCase();
+    if (deviceToRegister.countryCode &amp;&amp; typeof deviceToRegister.countryCode &#x3D;&#x3D;&#x3D; &quot;string&quot; &amp;&amp; deviceToRegister.countryCode.length &#x3D;&#x3D;&#x3D; 3) {
+      let countries &#x3D; countryCodesList;
+      if (countries.find(ele &#x3D;&gt; ele.countryCode &#x3D;&#x3D;&#x3D; deviceToRegister.countryCode) &#x3D;&#x3D;&#x3D; undefined) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+            }),
+          );
+        });
+      }
+    } else {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+          }),
+        );
+      });
+    }
+    if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid Capacity or energy Storage Capacity&#x27;,
+          }),
+        );
+      });
+    }
+    if (deviceToRegister.capacity &lt;&#x3D; 0 || deviceToRegister.energyStorageCapacity &lt; 0) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid Capacity or energy Storage Capacity, it should be greater than 0&#x27;,
+          }),
+        );
+      });
+    }
+    if (deviceToRegister.version &#x3D;&#x3D;&#x3D; null || deviceToRegister.version &#x3D;&#x3D;&#x3D; undefined || deviceToRegister.version &#x3D;&#x3D;&#x3D; &#x27;0&#x27;) {
+      deviceToRegister.version &#x3D; &#x27;1.0&#x27;;
+    }
+    //@ts-ignore
+    if (deviceToRegister.organizationId) {
+      console.log(&quot;314&quot;)
+      //@ts-ignore
+      console.log(deviceToRegister.organizationId)
+      //@ts-ignore
+      organizationId &#x3D; deviceToRegister.organizationId
+    }
+    return await this.deviceService.register(organizationId, deviceToRegister);
+
+  }
+
+  /**
+   * It is PATCH api to update an device by externalId
+   * @param user is loggedin user from user at request
+   * @param externalId is unique external id in device entity
+   * @param deviceToUpdate is body payload to update an device
+   * @returns {DeviceDTO}
+   */
+  @Patch(&#x27;/:externalId&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), PermissionGuard)
+  @Permission(&#x27;Update&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UpdateDeviceDTO,
+    description: &#x27;Returns an updated Device&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device found&#x60; })
+  public async update(
+    @UserDecorator() user: ILoggedInUser,
+    @Param(&#x27;externalId&#x27;) externalId: string,
+    @Body() deviceToUpdate: UpdateDeviceDTO,
+  ): Promise&lt;DeviceDTO&gt; {
+    console.log(deviceToUpdate);
+
+    if (deviceToUpdate.externalId) {
+      deviceToUpdate.externalId &#x3D; deviceToUpdate.externalId.trim();
+      if (deviceToUpdate.externalId &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;externalId should not be empty&#x60;,
+            })
+          );
+        });
+      }
+
+      const checkexternalid &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId
+      );
+      console.log(checkexternalid)
+      if (checkexternalid !&#x3D; undefined &amp;&amp; checkexternalid.developerExternalId &#x3D;&#x3D;&#x3D; externalId.trim()) {
+        console.log(&quot;236&quot;);
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;ExternalId already exist in this organization, can&#x27;t update with same external id ${deviceToUpdate.externalId}&#x60;,
+
+            })
+          );
+        });
+      }
+    }
+
+    if (deviceToUpdate.countryCode !&#x3D; undefined) {
+      deviceToUpdate.countryCode &#x3D; deviceToUpdate.countryCode.toUpperCase();
+      if (deviceToUpdate.countryCode &amp;&amp; typeof deviceToUpdate.countryCode &#x3D;&#x3D;&#x3D; &quot;string&quot; &amp;&amp; deviceToUpdate.countryCode.length &#x3D;&#x3D;&#x3D; 3) {
+        let countries &#x3D; countryCodesList;
+        if (countries.find(ele &#x3D;&gt; ele.countryCode &#x3D;&#x3D;&#x3D; deviceToUpdate.countryCode) &#x3D;&#x3D;&#x3D; undefined) {
+          return new Promise((resolve, reject) &#x3D;&gt; {
+            reject(
+              new ConflictException({
+                success: false,
+                message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+              }),
+            );
+          });
+        }
+      } else {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid countryCode, some of the valid country codes are &quot;GBR&quot; - &quot;United Kingdom of Great Britain and Northern Ireland&quot;,  &quot;CAN&quot; - &quot;Canada&quot;  &quot;IND&quot; - &quot;India&quot;, &quot;DEU&quot;-  &quot;Germany&quot;&#x27;,
+            }),
+          );
+        });
+      }
+    }
+
+
+    if (deviceToUpdate.capacity &lt;&#x3D; 0) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid Capacity, it should be greater than 0&#x27;,
+          }),
+        );
+      });
+    }
+    // var commissioningDate &#x3D; moment(deviceToUpdate.commissioningDate);
+
+    if (!isValidUTCDateFormat(deviceToUpdate.commissioningDate) &amp;&amp; deviceToUpdate.commissioningDate !&#x3D;&#x3D; undefined) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x27; Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+          }),
+        );
+      });
+    }
+    if (new Date(deviceToUpdate.commissioningDate).getTime() &gt; new Date().getTime()) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60; Invalid commissioning date, commissioning is greater than current date&#x60;,
+          })
+        );
+      });
+    }
+
+    if(deviceToUpdate.commissioningDate) {
+      const checkexternalid &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(
+        externalId,
+        user.organizationId
+      );
+      const noOfHistRead : number &#x3D; await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
+      const noOfOnGoingRead : number &#x3D; await this.deviceService.getNumberOfOngReads(checkexternalid.externalId,checkexternalid.createdAt);
+      
+      if(deviceToUpdate.commissioningDate !&#x3D; checkexternalid.commissioningDate) {
+        if(noOfHistRead &gt; 0 || noOfOnGoingRead &gt; 0) {
+          throw new ConflictException({
+            success : false,
+            message: &#x60; Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}&#x60;,
+          })
+        }
+
+        if(new Date(deviceToUpdate.commissioningDate).getTime() &gt; new Date(checkexternalid.createdAt).getTime()) {
+          throw new ConflictException({
+            success : false,
+            message: &#x60;Invalid commissioning date, commissioning is greater than device onboarding date&#x60;
+          })
+        }
+      }
+    } 
+    return await this.deviceService.update(
+      user.organizationId,
+      user.role,
+      externalId,
+      deviceToUpdate,
+    );
+  }
+
+  /**
+   * It is DELETE api to delete an device by id
+   * @param id is deviceId
+   * @param param1 is getting organizationId and user role from user request
+   * @returns {any}
+   */
+  @Delete(&#x27;/:id&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard,PermissionGuard)
+  @Permission(&#x27;Delete&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Remove device group&#x27;,
+  })
+  @ApiNotFoundResponse({ description: &#x60;No device group found&#x60; })
+  public async remove(
+    @Param(&#x27;id&#x27;) id: number,
+    @UserDecorator() { organizationId, role }: ILoggedInUser,
+  ): Promise&lt;any&gt; {
+    const checkisungroup &#x3D; this.deviceService.findUngroupedById(id)
+    console.log(checkisungroup)
+    if (checkisungroup) {
+      let fitlerop: any;
+      if (role &#x3D;&#x3D;&#x3D; &#x27;Admin&#x27;) {
+        fitlerop &#x3D; {
+          groupId: null
+        }
+      } else {
+        fitlerop &#x3D; {
+          groupId: null,
+          organizationId: organizationId
+        }
+      }
+      return await this.deviceService.remove(id, fitlerop);
+
+    }
+
+  }
+
+  /**
+   * It is GET api to list all total amount of reads by each devices grouped by organization
+   * @param param0 is getting organizationId from user request.
+   * @returns {Array&lt;DeviceDTO&gt;}
+   */
+  @Get(&#x27;/my/totalamountread&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceDTO],
+    description: &#x27;Returns my Devices&#x27;,
+  })
+  async getMyDevicesTotal(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+  ): Promise&lt;DeviceDTO[]&gt; {
+    return await this.deviceService.getOrganizationDevicesTotal(organizationId);
+  }
+
+
+  /**
+   * It is PUT api tp update the device onboarding date by deviceId
+   * @param param0 is getting organizationId from user request
+   * @param deviceId is deviceId from device unique identifier
+   * @param givenDate is new onboarding date to be updated.
+   * @returns {}
+   */
+  @Put(&#x27;/my/deviceOnBoardingDate&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), PermissionGuard)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &quot;change the device&#x27;s OnBoarding date&quot;,
+  })
+
+  @ApiQuery({ name: &#x27;deviceId&#x27;, description: &#x27;Device Id&#x27; })
+  @ApiQuery({ name: &#x27;givenDate&#x27;, description: &#x27;Update the OnBoarding date&#x27;, type: Date, })
+  async changeOnBoardingDate(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(&#x27;deviceId&#x27;) deviceId,
+    @Query(&#x27;givenDate&#x27;) givenDate
+  ) {
+    if (process.env.MODE !&#x3D; &#x27;dev&#x27;) {
+      throw new HttpException(&quot;Currently not in dev environment&quot;, 400)
+    }
+    let device: DeviceDTO | null &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(deviceId, organizationId);
+    console.log(&quot;THE DEVICE FROM ExTERNALID IS::::::::::::&quot; + device.externalId);
+    if (!device) {
+      throw new HttpException(&quot;Device dosen&#x27;t exist&quot;, 400);
+    }
+    const deviceExternalId &#x3D; device.externalId;
+    const deviceOnboardedDate &#x3D; device.createdAt;
+    return this.deviceService.changeDeviceCreatedAt(deviceExternalId, deviceOnboardedDate, givenDate);
+  }
+
+  /* */
+
+  //////////////////////////////////////////////////
+
+
+  // @Get(&#x27;/autocomplete&#x27;)
+  //   @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
+  //   @Permission(&#x27;Read&#x27;)
+  //   @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  //   @ApiResponse({
+  //     status: HttpStatus.OK,
+  //     type: [DeviceDTO],
+  //     description: &#x27;Returns auto corrected externalIDs and other data&#x27;,
+  //   })
+
+  //   // @ApiQuery({ name: &#x27;externalId&#x27;, description: &#x27;externalId&#x27;,type:Number })
+
+  //   async autocomplete(
+  //     @UserDecorator() { organizationId }: ILoggedInUser,
+  //     // @Query(&#x27;externalId&#x27;) externalId :Number,
+
+  //   ){
+  //     return await this.deviceService.atto(organizationId);
+  //   }
+
+ /**
+  * It is GET api to list all devices with auto complete
+  * @param param0 is getting organizationId from user request
+  * @param externalId is unique identoifier of an device
+  * @returns {}
+  */
+  @Get(&#x27;/my/autocomplete&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), ActiveUserGuard, PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Returns Auto-Complete&#x27;,
+  })
+
+  @ApiQuery({ name: &#x27;externalId&#x27;, description: &#x27;externalId&#x27;, type: String })
+
+  async autocomplete(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query(&#x27;externalId&#x27;) externalId: String,
+
+  ) {
+    
+    return await this.deviceService.atto(organizationId, externalId);
+  }
+
+  /**
+   * It is GET api to fetch the certified device records with in the range of date
+   * @param user is loggedIn user at request
+   * @param externalId is unique identifier of device
+   * @param groupuId 
+   * @returns {any}
+   */
+  @Get(&#x27;/certifiedlog/first&amp;lastdate&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;DEVICE_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Returns Certified log date rang of Device&#x27;,
+  })
+  async certifiedlogdaterang(
+    @UserDecorator() user: ILoggedInUser,
+    @Query(&#x27;externalId&#x27;) externalId: number,
+    @Query(&#x27;groupUid&#x27;) groupuId: string,
+  ): Promise&lt;any&gt; {
+    // console.log(externalId);
+    // console.log(groupuId)
+
+    const regexExp &#x3D; /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+    if (groupuId &#x3D;&#x3D;&#x3D; null || !regexExp.test(groupuId)) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(new ConflictException({
+          success: false,
+          message: &#x27; Please Add the valid UID ,invalid group uid value was sent&#x27;,
+        }))
+      })
+    }
+
+    let device: DeviceDTO | null
+
+    device &#x3D; await this.deviceService.findOne(externalId);
+    /// console.log(device);
+    if (device &#x3D;&#x3D;&#x3D; null) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(new ConflictException({
+          success: false,
+          message: &#x27;device not found, invalid value was sent&#x27;,
+        }))
+      })
+    }
+    let group: DeviceGroup | null
+    group &#x3D; await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
+    // console.log(group);
+    if (group &#x3D;&#x3D;&#x3D; null || group.buyerId !&#x3D; user.id) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(new ConflictException({
+          success: false,
+          message: &#x27;Group UId is not of this buyer, invalid value was sent&#x27;,
+        }))
+      })
+    }
+    return await this.deviceService.getcertifieddevicedaterange(device, group.id);
+  }
+  // @Get(&#x27;/certified/date-range-log&#x27;)
+  // @UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: &#x27;Returns Auto-Complete&#x27;,
+  // })
+  // async devicecertifiedlogdaterange() {
+
+  //   return &quot;await this.deviceService.atto(organizationId, externalId)&quot;;
+  // }
+  /////////////////////////////////////////////////
+  /**
+   * It is POST api to create array of devices by uploading csv files with device data 
+   * @param user is loggedIn user from request
+   * @param organizationId is organization unique identifier with number type to map with the respective organization
+   * @param fileToProcess is parsed data of uploaded csv file
+   * @returns {DeviceCsvFileProcessingJobsEntity}
+   */
+  @Post(&#x27;addByAdmin/process-creation-bulk-devices-csv/:organizationId&#x27;)
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  //@UseGuards(AuthGuard(&#x27;jwt&#x27;), PermissionGuard)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;DEVICE_BULK_MANAGEMENT_CRUDL&#x27;)
+  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceCsvFileProcessingJobsEntity],
+    description: &#x27;Returns created devices from csv&#x27;,
+  })
+  @ApiBody({ type: CSVBulkUploadDTO })
+  public async processCreationBulkFromCSV
+    (@UserDecorator() user: ILoggedInUser,
+      @Param(&#x27;organizationId&#x27;) organizationId: number | null,
+      @Body() fileToProcess: CSVBulkUploadDTO): Promise&lt;DeviceCsvFileProcessingJobsEntity&gt; {
+    if (organizationId &#x3D;&#x3D;&#x3D; null || organizationId &#x3D;&#x3D;&#x3D; undefined) {
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;User needs to have organization added&#x27;
+      })
+    }
+    console.log(fileToProcess.fileName);
+    if (fileToProcess.fileName &#x3D;&#x3D; undefined) {
+      //throw new Error(&quot;file not found&quot;);
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;File Not Found&#x27;
+      })
+
+    }
+    if (!fileToProcess.fileName.endsWith(&#x27;.csv&#x27;)) {
+      //throw new Error(&quot;file not found&quot;);
+      throw new ConflictException({
+        success: false,
+        message:
+          &#x27;Invalid file&#x27;
+      })
+
+    }
+    let jobCreated &#x3D; await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added, fileToProcess.fileName);
+
+    //let jobCreated &#x3D; await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
+
+    return jobCreated;
+  }
+
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'DeviceController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

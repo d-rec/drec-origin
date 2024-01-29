@@ -9,6 +9,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { ClientCredentialsStrategy } from './client.strategy';
+import { EmailConfirmationModule } from '../pods/email-confirmation/email-confirmation.module';
 
 @Global()
 @Module({
@@ -16,6 +18,7 @@ import { LocalStrategy } from './local.strategy';
     UserModule,
     OrganizationModule,
     PermissionModule,
+    EmailConfirmationModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) =>{
@@ -30,7 +33,7 @@ import { LocalStrategy } from './local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy,ClientCredentialsStrategy],
   exports: [AuthService, PassportModule, JwtModule],
 })
 export class AuthModule {}

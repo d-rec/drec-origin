@@ -1,0 +1,2161 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Drec api documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">Drec api documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >ReadsController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/pods/reads/reads.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>meter-reads</code>
+            </p>
+
+
+
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+            </p>
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getLatestMeterRead" >getLatestMeterRead</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getReads" >getReads</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getTimezones" >getTimezones</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#newgetReads" >newgetReads</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#newstoreRead" >newstoreRead</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#newstoreReadaddbyadmin" >newstoreReadaddbyadmin</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getLatestMeterRead"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getLatestMeterRead</b></span>
+                        <a href="#getLatestMeterRead"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getLatestMeterRead(externalId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/latestread/:externalId&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns the latest meter read of the given device&#x27;})<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="1143"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:1143</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>this api create for last read of device by external id</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>externalId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>:DateTime,value:number}</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getReads"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getReads</b></span>
+                        <a href="#getReads"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getReads(meterId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, filter: <a href="../classes/FilterDTO.html" target="_self">FilterDTO</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/:externalId&#x27;)<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns  time-series of meter reads&#x27;})<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="98"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:98</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for to get all read of devcie</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>meterId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:string</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>filter</td>
+                                            <td>
+                                                            <code><a href="../classes/FilterDTO.html" target="_self" >FilterDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:{FilterDTO}</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;ReadDTO[]&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTimezones"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getTimezones</b></span>
+                        <a href="#getTimezones"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTimezones(searchKeyword?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;/time-zones&#x27;)<br />@UseGuards(PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;Returns valid time-zones list&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:74</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api user for get all the timezone list and also from serach key</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>searchKeyword</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:string</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="newgetReads"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>newgetReads</b></span>
+                        <a href="#newgetReads"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>newgetReads(meterId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, filter: <a href="../classes/filterNoOffLimit.html" target="_self">filterNoOffLimit</a>, pagenumber: number | null, month: number | null, year: number | null, user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;new/:externalId&#x27;)<br />@ApiQuery({name: &#x27;Month&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;Year&#x27;, type: Number, required: false})<br />@ApiQuery({name: &#x27;pagenumber&#x27;, type: Number, required: false})<br />@ApiResponse({status: undefined, type: undefined, description: &#x27;Returns time-series of meter reads&#x27;})<br />@UseGuards(undefined, PermissionGuard)<br />@Permission(&#x27;Read&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="142"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:142</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>this api route use for all meter read by externalId</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>meterId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:string</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>filter</td>
+                                            <td>
+                                                            <code><a href="../classes/filterNoOffLimit.html" target="_self" >filterNoOffLimit</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>pagenumber</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:number</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>month</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:number</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>year</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:number</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="newstoreRead"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>newstoreRead</b></span>
+                        <a href="#newstoreRead"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>newstoreRead(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, measurements: <a href="../classes/NewIntmediateMeterReadDTO.html" target="_self">NewIntmediateMeterReadDTO</a>, user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;new/:id&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;New meter reads for historical data, Delta readings and Aggregate Readings&#x27;, type: undefined})<br />@UseGuards(undefined, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="298"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:298</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>This api route use for add meter read of devices</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>measurements</td>
+                                            <td>
+                                                            <code><a href="../classes/NewIntmediateMeterReadDTO.html" target="_self" >NewIntmediateMeterReadDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="newstoreReadaddbyadmin"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>newstoreReadaddbyadmin</b></span>
+                        <a href="#newstoreReadaddbyadmin"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>newstoreReadaddbyadmin(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, organizationId: number | null, measurements: <a href="../classes/NewIntmediateMeterReadDTO.html" target="_self">NewIntmediateMeterReadDTO</a>, user: <a href="../interfaces/ILoggedInUser.html" target="_self">ILoggedInUser</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;addByAdmin/new/:id&#x27;)<br />@ApiResponse({status: undefined, description: &#x27;New meter reads for historical data, Delta readings and Aggregate Readings&#x27;, type: undefined})<br />@ApiQuery({name: &#x27;organizationId&#x27;, required: false, type: Number, description: &#x27;This query parameter is used to for admin...&#x27;})<br />@UseGuards(undefined, RolesGuard, PermissionGuard)<br />@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)<br />@Permission(&#x27;Write&#x27;)<br />@ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="726"
+                                    class="link-to-prism">src/pods/reads/reads.controller.ts:726</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p> new api for read add by superadmin
+id param is deivce externalid</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>:string</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>organizationId</td>
+                                            <td>
+                                                        <code>number | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>measurements</td>
+                                            <td>
+                                                            <code><a href="../classes/NewIntmediateMeterReadDTO.html" target="_self" >NewIntmediateMeterReadDTO</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ILoggedInUser.html" target="_self" >ILoggedInUser</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  AggregateFilterDTO,
+  BaseReadsController,
+  FilterDTO,
+  AggregatedReadDTO,
+  ReadDTO,
+  ReadsService as BaseReadsService,
+  MeasurementDTO,
+} from &#x27;@energyweb/energy-api-influxdb&#x27;;
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  ConflictException,
+  HttpException
+} from &#x27;@nestjs/common&#x27;;
+import { DateTime } from &#x27;luxon&#x27;;
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from &#x27;@nestjs/swagger&#x27;;
+import { BASE_READ_SERVICE } from &#x27;./const&#x27;;
+import { ReadsService } from &#x27;./reads.service&#x27;;
+import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
+import { Roles } from &#x27;../user/decorators/roles.decorator&#x27;;
+import { RolesGuard } from &#x27;../../guards/RolesGuard&#x27;;
+import { Role } from &#x27;../../utils/enums&#x27;;
+import { NewIntmediateMeterReadDTO } from &#x27;../reads/dto/intermediate_meter_read.dto&#x27;
+import { Device, DeviceService } from &#x27;../device&#x27;;
+import moment from &#x27;moment&#x27;;
+import { UserDecorator } from &#x27;../user/decorators/user.decorator&#x27;;
+import { ILoggedInUser } from &#x27;../../models&#x27;;
+import { DeviceDTO } from &#x27;../device/dto&#x27;;
+import { ReadType } from &#x27;../../utils/enums&#x27;;
+import { isValidUTCDateFormat } from &#x27;../../utils/checkForISOStringFormat&#x27;;
+import * as momentTimeZone from &#x27;moment-timezone&#x27;;
+import { Iintermediate, NewReadDTO } from &#x27;../../models&#x27;;
+import { ReadFilterDTO } from &#x27;./dto/filter.dto&#x27;
+import { filterNoOffLimit } from &#x27;./dto/filter-no-off-limit.dto&#x27;;
+import { getLocalTimeZoneFromDevice } from &#x27;../../utils/localTimeDetailsForDevice&#x27;;
+import { updateInviteStatusDTO } from &#x27;../invitation/dto/invite.dto&#x27;;
+import { PermissionGuard } from &#x27;../../guards&#x27;;
+import { Permission } from &#x27;../permission/decorators/permission.decorator&#x27;;
+import { ACLModules } from &#x27;../access-control-layer-module-service/decorator/aclModule.decorator&#x27;;
+
+@Controller(&#x27;meter-reads&#x27;)
+@ApiBearerAuth(&#x27;access-token&#x27;)
+@ApiTags(&#x27;meter-reads&#x27;)
+export class ReadsController extends BaseReadsController {
+  constructor(
+    private internalReadsService: ReadsService,
+    private deviceService: DeviceService,
+    @Inject(BASE_READ_SERVICE)
+    baseReadsService: BaseReadsService,
+  ) {
+    super(baseReadsService);
+  }
+/**
+ * This api user for get all the timezone list and also from serach key
+ * @param searchKeyword :string
+ * @returns {string[]}
+ */
+  @Get(&#x27;/time-zones&#x27;)
+  @UseGuards(PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Returns valid time-zones list&#x27;,
+  })
+  getTimezones(
+    @Query(&#x27;timezoneSearchKeyword&#x27;) searchKeyword?: string): string[] {
+    if (searchKeyword) {
+      return momentTimeZone.tz.names().filter(timezone &#x3D;&gt; timezone.toLowerCase().includes(searchKeyword.toLowerCase()));
+    } else {
+      return momentTimeZone.tz.names();
+    }
+  }
+
+/**
+ * This api route use for to get all read of devcie 
+ * @param meterId :string
+ * @param filter:{FilterDTO}
+ * @returns {ReadDTO[]}
+ */
+  @Get(&#x27;/:externalId&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [ReadDTO],
+    description: &#x27;Returns  time-series of meter reads&#x27;,
+  })
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  public async getReads(
+    @Param(&#x27;externalId&#x27;) meterId: string,
+    @Query() filter: FilterDTO,
+    // @UserDecorator() user: ILoggedInUser,
+  ): Promise&lt;ReadDTO[]&gt; {
+    let device: DeviceDTO | null &#x3D; await this.deviceService.findReads(meterId);
+
+    if (device &#x3D;&#x3D;&#x3D; null) {
+
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Invalid device id&#x60;,
+          })
+        );
+      });
+    }
+    return super.getReads(device.externalId, filter);
+  }
+
+
+/**
+ * this api route use for all meter read by externalId
+ * @param meterId :string
+ * @param filter {filterNoOffLimit}
+ * @param pagenumber :number
+ * @param month :number
+ * @param year :number
+ * @param user {ILoggedInUser}
+ * @returns {ReadDTO}
+ */
+  @Get(&#x27;new/:externalId&#x27;)
+  @ApiQuery({ name: &#x27;Month&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;Year&#x27;, type: Number, required: false })
+  @ApiQuery({ name: &#x27;pagenumber&#x27;, type: Number, required: false })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [ReadDTO],
+    description: &#x27;Returns time-series of meter reads&#x27;,
+  })
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  public async newgetReads(
+    @Param(&#x27;externalId&#x27;) meterId: string,
+    @Query() filter: filterNoOffLimit,
+    @Query(&#x27;pagenumber&#x27;) pagenumber: number | null,
+    @Query(&#x27;Month&#x27;) month: number | null,
+    @Query(&#x27;Year&#x27;) year: number | null,
+    @UserDecorator() user: ILoggedInUser,
+  )
+  /*: Promise&lt;ReadDTO[]&gt;*/ {
+
+    //finding the device details throught the device service
+    filter.offset &#x3D; 0;
+    filter.limit &#x3D; 5;
+    let device: DeviceDTO | null;
+    if (month &amp;&amp; !year) {
+      throw new HttpException(&#x27;Year is required when month is given&#x27;, 400)
+    }
+    console.log(user.role);
+    if (user.role &#x3D;&#x3D;&#x3D; &#x27;Buyer&#x27; || user.role &#x3D;&#x3D;&#x3D; &#x27;Admin&#x27;) {
+
+      device &#x3D; await this.deviceService.findOne(parseInt(meterId));
+
+    } else {
+      device &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(meterId, user.organizationId);
+    }
+    console.log(&quot;getmeterdevice&quot;);
+    console.log(device);
+    if (device &#x3D;&#x3D;&#x3D; null) {
+
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Invalid device id&#x60;,
+          })
+        );
+      });
+    }
+
+    if (filter.readType &#x3D;&#x3D;&#x3D; &#x27;accumulated&#x27; &amp;&amp; filter.accumulationType) {
+      return this.internalReadsService.getAccumulatedReads(device.externalId, user.organizationId, device.developerExternalId, filter.accumulationType, month, year);
+    }
+
+    else if (filter.readType &#x3D;&#x3D;&#x3D; &#x27;meterReads&#x27;) {
+      let timezone &#x3D; getLocalTimeZoneFromDevice(filter.start, device);
+      console.log(&quot;the timezone we got from all reads is:::&quot; + timezone);
+      const returnedObject &#x3D; await this.internalReadsService.getAllRead(device.externalId, filter, device.createdAt, pagenumber);
+      console.log(&quot;THE RETURNED OBJECT KEYS:::&quot; + Object.keys(returnedObject));
+      Object.assign(returnedObject, { &quot;timezone&quot;: timezone });
+      console.log(&quot;THE CHANGED OBJECT KEYS::::::&quot; + Object.keys(returnedObject));
+      return returnedObject;
+    }
+    else {
+      throw new HttpException(&#x27;Invalid readType parameter&#x27;, 400);
+    }
+  }
+  /* */
+
+
+  // @Get(&#x27;/:meter/difference&#x27;)
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [ReadDTO],
+  //   description:
+  //     &#x27;Returns time-series of difference between subsequent meter reads&#x27;,
+  // })
+  // @)UseGuards(AuthGuard(&#x27;jwt&#x27;))
+  // public async getReadsDifference(
+  //   @Param(&#x27;meter&#x27;) meterId: string,
+  //   @Query() filter: FilterDTO,
+  // ): Promise&lt;ReadDTO[]&gt; {
+  //   let device: DeviceDTO | null &#x3D; await this.deviceService.findReads(meterId);
+
+  //   if (device &#x3D;&#x3D;&#x3D; null) {
+
+  //     return new Promise((resolve, reject) &#x3D;&gt; {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: &#x60;Invalid device id&#x60;,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsDifference(device.externalId, filter);
+  // }
+
+  // @Get(&#x27;group/:groupId/aggregate&#x27;)
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     &#x27;Returns aggregated time-series of difference between subsequent meter reads&#x27;,
+  // })
+  // public async getGroupAggregatedReads(
+  //   @Param(&#x27;groupId&#x27;) groupId: number,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise&lt;AggregatedReadDTO[]&gt; {
+  //   return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
+  // }
+
+  // @Get(&#x27;/:meter/aggregate&#x27;)
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   type: [AggregatedReadDTO],
+  //   description:
+  //     &#x27;Returns aggregated time-series of difference between subsequent meter reads&#x27;,
+  // })
+  // public async getReadsAggregates(
+  //   @Param(&#x27;meter&#x27;) meterId: string,
+  //   @Query() filter: AggregateFilterDTO,
+  // ): Promise&lt;AggregatedReadDTO[]&gt; {
+  //   let device: DeviceDTO | null &#x3D; await this.deviceService.findReads(meterId);
+
+  //   if (device &#x3D;&#x3D;&#x3D; null) {
+
+  //     return new Promise((resolve, reject) &#x3D;&gt; {
+  //       reject(
+  //         new ConflictException({
+  //           success: false,
+  //           message: &#x60;Invalid device id&#x60;,
+  //         })
+  //       );
+  //     });
+  //   }
+  //   return super.getReadsAggregates(device.externalId, filter);
+  // }
+
+  // @Post(&#x27;/:id&#x27;)
+  // @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard)
+  // @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  // public async storeReads(
+  //   @Param(&#x27;id&#x27;) id: string,
+  //   @Body() measurements: MeasurementDTO,
+  // ): Promise&lt;void&gt; {
+  //   return await this.internalReadsService.storeRead(id, measurements);
+  // }
+
+  /**
+   * This api route use for add meter read of devices
+   * @param id 
+   * @param measurements 
+   * @param user 
+   * @returns {NewIntmediateMeterReadDTO}
+   */
+  @Post(&#x27;new/:id&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;New meter reads for historical data, Delta readings and Aggregate Readings&#x27;,
+    type: [NewIntmediateMeterReadDTO],
+  })
+ 
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard,PermissionGuard)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  public async newstoreRead(
+    @Param(&#x27;id&#x27;) id: string,
+    @Body() measurements: NewIntmediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise&lt;void&gt; {
+    if (id.trim() &#x3D;&#x3D;&#x3D; &quot;&quot; &amp;&amp; id.trim() &#x3D;&#x3D;&#x3D; undefined) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;id should not be empty&#x60;,
+          })
+        );
+      });
+    }
+    id &#x3D; id.trim();
+   
+    let device: DeviceDTO | null &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(id,  user.organizationId);
+    //console.log(device);
+    if (device &#x3D;&#x3D;&#x3D; null) {
+
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Invalid device id&#x60;,
+          })
+        );
+      });
+    }
+
+    if (measurements.timezone !&#x3D;&#x3D; null &amp;&amp; measurements.timezone !&#x3D;&#x3D; undefined &amp;&amp; measurements.timezone.toString().trim() !&#x3D;&#x3D; &#x27;&#x27;) {
+      measurements.timezone &#x3D; measurements.timezone.toString().trim();
+      let allTimezoneNamesLowerCase: Array&lt;string&gt; &#x3D; [];
+      //momentTimeZone.tz.names().forEach(ele&#x3D;&gt;console.log(ele.toLowerCase()));
+      momentTimeZone.tz.names().forEach(ele &#x3D;&gt; allTimezoneNamesLowerCase.push(ele.toLowerCase()));
+      //console.log(allTimezoneNamesLowerCase);
+      if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;Invalid time zone: ${measurements.timezone}&#x60;,
+            })
+          );
+        });
+      }
+      measurements.timezone &#x3D; momentTimeZone.tz.names()[allTimezoneNamesLowerCase.findIndex(ele &#x3D;&gt; ele &#x3D;&#x3D;&#x3D; measurements.timezone.toLowerCase())];
+      let dateInvalid: boolean &#x3D; false;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        for (let key in ele) {
+
+          if (key &#x3D;&#x3D;&#x3D; &#x27;starttimestamp&#x27; || key &#x3D;&#x3D;&#x3D; &#x27;endtimestamp&#x27;) {
+            if (ele[key]) {
+              const dateTimeRegex &#x3D; /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
+              //@ts-ignore
+              if (ele[key].includes(&#x27;.&#x27;)) {
+                //@ts-ignore
+                if (Number.isNaN(parseFloat(ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length)))) {
+
+                  throw new ConflictException({
+                    success: false,
+                    message: &#x60;Invalid date sent  ${ele[key]}&#x60; + &#x60; please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+                  })
+                }
+              }
+
+              //@ts-ignore
+              if (!dateTimeRegex.test(ele[key])) {
+                dateInvalid &#x3D; true;
+                throw new ConflictException({
+                  success: false,
+                  message: &#x60;Invalid date sent  ${ele[key]}&#x60; + &#x60; please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+                })
+              }
+              else {
+
+                let dateTime;
+                dateTime &#x3D; momentTimeZone.tz(ele[key], measurements.timezone);
+                console.log(&quot;dateTime&quot;, dateTime);
+                if (!dateTime.isValid()) {
+                  dateInvalid &#x3D; true;
+                  throw new ConflictException({
+                    success: false,
+                    message: &#x60;Invalid date sent  ${ele[key]}&#x60;,
+                  })
+                }
+                else {
+                  let milliSeondsToAddSentInRequest: string &#x3D; &#x27;&#x27;;
+                  //@ts-ignore
+                  if (ele[key].includes(&#x27;.&#x27;) &amp;&amp; parseInt(ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length)) !&#x3D; NaN) {
+
+                    //@ts-ignore
+                    milliSeondsToAddSentInRequest &#x3D; ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length);
+                  }
+                  let utcString: string &#x3D; dateTime.clone().utc().format();
+
+                  if (milliSeondsToAddSentInRequest !&#x3D; &#x27;&#x27;) {
+                    utcString &#x3D; utcString.substring(0, utcString.length - 1) + milliSeondsToAddSentInRequest + &#x27;Z&#x27;;
+                  }
+                  else {
+                    utcString &#x3D; utcString.substring(0, utcString.length - 1) + &#x27;.000Z&#x27;;
+                  }
+                  //@ts-ignore
+                  ele[key] &#x3D; utcString;
+                  console.log(key, ele[key])
+                }
+
+              }
+            }
+          }
+        }
+      });
+      if (dateInvalid) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+            })
+          );
+        });
+      }
+      device.createdAt &#x3D; momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
+      device.commissioningDate &#x3D; momentTimeZone
+        .tz(new Date(device?.commissioningDate), measurements.timezone)
+        .format();
+    }
+
+    //check for according to read type if start time stamp and end time stamps are sent
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.History) {
+      let datesContainingNullOrEmptyValues: boolean &#x3D; false;
+      let datevalid: boolean &#x3D; true;
+      let allDatesAreBeforeCreatedAt: boolean &#x3D; true;
+      let allStartDatesAreBeforeEnddate: boolean &#x3D; true;
+      let readvalue: boolean &#x3D; true;
+      let historyallStartDatesAreAftercommissioningDate: boolean &#x3D; true;
+      let historyallEndDatesAreAftercommissioningDate: boolean &#x3D; true;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        //@ts-ignore
+        if (ele.starttimestamp &#x3D;&#x3D;&#x3D; null || ele.starttimestamp &#x3D;&#x3D;&#x3D; undefined || ele.starttimestamp &#x3D;&#x3D;&#x3D; &quot;&quot; || ele.endtimestamp &#x3D;&#x3D;&#x3D; null || ele.endtimestamp &#x3D;&#x3D;&#x3D; undefined || ele.endtimestamp &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+          datesContainingNullOrEmptyValues &#x3D; true;
+        }
+        //@ts-ignore
+        let startdateformate &#x3D; isValidUTCDateFormat(ele.starttimestamp)
+        //dateFormateToCheck.test(ele.starttimestamp);
+        //@ts-ignore
+        let enddateformate &#x3D; isValidUTCDateFormat(ele.endtimestamp);
+
+        if (!startdateformate || !enddateformate) {
+          datevalid &#x3D; false;
+        }
+        if (device &amp;&amp; device.createdAt) {
+          if (new Date(ele.endtimestamp).getTime() &gt; new Date(device.createdAt).getTime()) {
+            allDatesAreBeforeCreatedAt &#x3D; false;
+          }
+          if (new Date(ele.starttimestamp).getTime() &gt; new Date(device.createdAt).getTime()) {
+            allDatesAreBeforeCreatedAt &#x3D; false;
+          }
+          if (new Date(ele.starttimestamp).getTime() &gt; new Date(ele.endtimestamp).getTime()) {
+            allStartDatesAreBeforeEnddate &#x3D; false;
+          }
+        }
+
+        if (ele.value &lt; 0) {
+          readvalue &#x3D; false;
+        }
+        if (device &amp;&amp; device.commissioningDate) {
+          //const cur &#x3D; new Date().toLocaleString(&#x27;en-US&#x27;, { timeZone: measurements.timezone })
+
+          if (new Date(ele.starttimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            historyallStartDatesAreAftercommissioningDate &#x3D; false;
+          }
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            historyallEndDatesAreAftercommissioningDate &#x3D; false;
+          }
+        }
+      });
+
+
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27;One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type&#x27;,
+            }),
+          );
+        });
+      }
+      if (!datevalid) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      if (!allStartDatesAreBeforeEnddate) {
+
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp &#x60;,
+            })
+          );
+        });
+      }
+      if (!allDatesAreBeforeCreatedAt) {
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}&#x60;,
+            })
+          );
+        });
+      }
+
+      if (!readvalue) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;meter read value should be greater then 0 &#x60;,
+            })
+          );
+        });
+      }
+      if (!historyallStartDatesAreAftercommissioningDate) {
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+      if (!historyallEndDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+    }
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.Delta || measurements.type &#x3D;&#x3D;&#x3D; ReadType.ReadMeter) {
+      console.log(&quot;505&quot;)
+      let datesContainingNullOrEmptyValues: boolean &#x3D; false;
+      let datevalid1: boolean &#x3D; true;
+      let allDatesAreAfterCreatedAt: boolean &#x3D; true;
+      let allDatesAreAftercommissioningDate: boolean &#x3D; true;
+      let allEndDatesAreBeforSystemDate: boolean &#x3D; true;
+      let enddate: any;
+      let currentdate: Date &#x3D; new Date();
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        console.log(&quot;512&quot;, ele)
+        //@ts-ignore
+        if (ele.endtimestamp &#x3D;&#x3D;&#x3D; null || ele.endtimestamp &#x3D;&#x3D;&#x3D; undefined || ele.endtimestamp &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+          datesContainingNullOrEmptyValues &#x3D; true;
+        }
+        //@ts-ignore
+        let enddateformate &#x3D; isValidUTCDateFormat(ele.endtimestamp);
+
+        if (!enddateformate) {
+          datevalid1 &#x3D; false;
+        }
+        //check validation with onboarding date
+        if (device &amp;&amp; device.createdAt) {
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.createdAt).getTime()) {
+            allDatesAreAfterCreatedAt &#x3D; false;
+            enddate &#x3D; ele.endtimestamp
+          }
+        }
+        //check validation with commissioning Date 
+        if (device &amp;&amp; device.commissioningDate) {
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            allDatesAreAftercommissioningDate &#x3D; false;
+            enddate &#x3D; ele.endtimestamp
+          }
+        }
+
+        //check validation with System Date 
+        if (new Date(ele.endtimestamp).getTime() &gt; new Date().getTime()) {
+          allEndDatesAreBeforSystemDate &#x3D; false;
+          enddate &#x3D; ele.endtimestamp
+        }
+
+      });
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One ore more End Date values are not sent for ${measurements.type},  end date is required&#x60;,
+            }),
+          );
+        });
+      }
+      if (!datevalid1) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      if (measurements.timezone !&#x3D;&#x3D; null &amp;&amp; measurements.timezone !&#x3D;&#x3D; undefined &amp;&amp; measurements.timezone.toString().trim() !&#x3D;&#x3D; &#x27;&#x27;) {
+        enddate &#x3D; momentTimeZone.tz(enddate, measurements.timezone);
+        currentdate &#x3D; momentTimeZone.tz(currentdate, measurements.timezone).toDate();
+
+      }
+      if (!allDatesAreAfterCreatedAt) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}&#x60;,
+            })
+          );
+        });
+      }
+      if (!allDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+      if (!allEndDatesAreBeforSystemDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}&#x60;,
+            })
+          );
+        });
+      }
+    }
+
+    // negative value validation
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.History || measurements.type &#x3D;&#x3D;&#x3D; ReadType.Delta) {
+
+      let readvalue: boolean &#x3D; true;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        if (ele.value &lt;&#x3D; 0) {
+          readvalue &#x3D; false;
+        }
+      })
+      if (!readvalue) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;meter read value should be greater then 0 &#x60;,
+            })
+          );
+        });
+      }
+    }
+    // device organization and user organization validation
+    if (device &amp;&amp; device.organizationId !&#x3D;&#x3D;  user.organizationId) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Device doesnt belongs to the requested users organization&#x60;,
+          })
+        );
+      });
+    }
+
+    if (measurements.reads.length &gt; 1) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;can not allow multiple reads simultaneously &#x60;,
+          })
+        );
+      });
+    }
+    return await this.internalReadsService.newstoreRead(device.externalId, measurements);
+  }
+
+  /**
+   *  new api for read add by superadmin
+   * id param is deivce externalid
+   * @param id :string
+   * @param organizationId 
+   * @param measurements 
+   * @param user 
+   * @returns {NewIntmediateMeterReadDTO}
+   */
+  
+  @Post(&#x27;addByAdmin/new/:id&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;New meter reads for historical data, Delta readings and Aggregate Readings&#x27;,
+    type: [NewIntmediateMeterReadDTO],
+  })
+  @ApiQuery({
+    name: &#x27;organizationId&#x27;,
+    required: false,
+    type: Number,
+    description: &#x27;This query parameter is used to for admin...&#x27;,
+
+  })
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;), RolesGuard,PermissionGuard)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Permission(&#x27;Write&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  public async newstoreReadaddbyadmin(
+    @Param(&#x27;id&#x27;) id: string,
+    @Query(&#x27;organizationId&#x27;) organizationId: number | null,
+    @Body() measurements: NewIntmediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise&lt;void&gt; {
+    if (id.trim() &#x3D;&#x3D;&#x3D; &quot;&quot; &amp;&amp; id.trim() &#x3D;&#x3D;&#x3D; undefined) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;id should not be empty&#x60;,
+          })
+        );
+      });
+    }
+    id &#x3D; id.trim();
+    console.log(&#x27;organizationId&#x27;,organizationId)
+    if (organizationId &#x3D;&#x3D;&#x3D; null || organizationId &#x3D;&#x3D;&#x3D; undefined|| isNaN(organizationId)) {
+      organizationId &#x3D; user.organizationId
+    }
+    let device: DeviceDTO | null &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(id, organizationId);
+    //console.log(device);
+    if (device &#x3D;&#x3D;&#x3D; null) {
+
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Invalid device id&#x60;,
+          })
+        );
+      });
+    }
+
+    if (measurements.timezone !&#x3D;&#x3D; null &amp;&amp; measurements.timezone !&#x3D;&#x3D; undefined &amp;&amp; measurements.timezone.toString().trim() !&#x3D;&#x3D; &#x27;&#x27;) {
+      measurements.timezone &#x3D; measurements.timezone.toString().trim();
+      let allTimezoneNamesLowerCase: Array&lt;string&gt; &#x3D; [];
+      //momentTimeZone.tz.names().forEach(ele&#x3D;&gt;console.log(ele.toLowerCase()));
+      momentTimeZone.tz.names().forEach(ele &#x3D;&gt; allTimezoneNamesLowerCase.push(ele.toLowerCase()));
+      //console.log(allTimezoneNamesLowerCase);
+      if (!allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;Invalid time zone: ${measurements.timezone}&#x60;,
+            })
+          );
+        });
+      }
+      measurements.timezone &#x3D; momentTimeZone.tz.names()[allTimezoneNamesLowerCase.findIndex(ele &#x3D;&gt; ele &#x3D;&#x3D;&#x3D; measurements.timezone.toLowerCase())];
+      let dateInvalid: boolean &#x3D; false;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        for (let key in ele) {
+
+          if (key &#x3D;&#x3D;&#x3D; &#x27;starttimestamp&#x27; || key &#x3D;&#x3D;&#x3D; &#x27;endtimestamp&#x27;) {
+            if (ele[key]) {
+              const dateTimeRegex &#x3D; /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
+              //@ts-ignore
+              if (ele[key].includes(&#x27;.&#x27;)) {
+                //@ts-ignore
+                if (Number.isNaN(parseFloat(ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length)))) {
+
+                  throw new ConflictException({
+                    success: false,
+                    message: &#x60;Invalid date sent  ${ele[key]}&#x60; + &#x60; please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+                  })
+                }
+              }
+
+              //@ts-ignore
+              if (!dateTimeRegex.test(ele[key])) {
+                dateInvalid &#x3D; true;
+                throw new ConflictException({
+                  success: false,
+                  message: &#x60;Invalid date sent  ${ele[key]}&#x60; + &#x60; please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+                })
+              }
+              else {
+
+                let dateTime;
+                dateTime &#x3D; momentTimeZone.tz(ele[key], measurements.timezone);
+                console.log(&quot;dateTime&quot;, dateTime);
+                if (!dateTime.isValid()) {
+                  dateInvalid &#x3D; true;
+                  throw new ConflictException({
+                    success: false,
+                    message: &#x60;Invalid date sent  ${ele[key]}&#x60;,
+                  })
+                }
+                else {
+                  let milliSeondsToAddSentInRequest: string &#x3D; &#x27;&#x27;;
+                  //@ts-ignore
+                  if (ele[key].includes(&#x27;.&#x27;) &amp;&amp; parseInt(ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length)) !&#x3D; NaN) {
+
+                    //@ts-ignore
+                    milliSeondsToAddSentInRequest &#x3D; ele[key].substring(ele[key].indexOf(&#x27;.&#x27;), ele[key].length);
+                  }
+                  let utcString: string &#x3D; dateTime.clone().utc().format();
+
+                  if (milliSeondsToAddSentInRequest !&#x3D; &#x27;&#x27;) {
+                    utcString &#x3D; utcString.substring(0, utcString.length - 1) + milliSeondsToAddSentInRequest + &#x27;Z&#x27;;
+                  }
+                  else {
+                    utcString &#x3D; utcString.substring(0, utcString.length - 1) + &#x27;.000Z&#x27;;
+                  }
+                  //@ts-ignore
+                  ele[key] &#x3D; utcString;
+                  console.log(key, ele[key])
+                }
+
+              }
+            }
+          }
+        }
+      });
+      if (dateInvalid) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333&#x60;,
+            })
+          );
+        });
+      }
+      device.createdAt &#x3D; momentTimeZone.tz(device.createdAt, measurements.timezone).toDate();
+      device.commissioningDate &#x3D; momentTimeZone
+        .tz(new Date(device?.commissioningDate), measurements.timezone)
+        .format();
+    }
+
+    //check for according to read type if start time stamp and end time stamps are sent
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.History) {
+      let datesContainingNullOrEmptyValues: boolean &#x3D; false;
+      let datevalid: boolean &#x3D; true;
+      let allDatesAreBeforeCreatedAt: boolean &#x3D; true;
+      let allStartDatesAreBeforeEnddate: boolean &#x3D; true;
+      let readvalue: boolean &#x3D; true;
+      let historyallStartDatesAreAftercommissioningDate: boolean &#x3D; true;
+      let historyallEndDatesAreAftercommissioningDate: boolean &#x3D; true;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        //@ts-ignore
+        if (ele.starttimestamp &#x3D;&#x3D;&#x3D; null || ele.starttimestamp &#x3D;&#x3D;&#x3D; undefined || ele.starttimestamp &#x3D;&#x3D;&#x3D; &quot;&quot; || ele.endtimestamp &#x3D;&#x3D;&#x3D; null || ele.endtimestamp &#x3D;&#x3D;&#x3D; undefined || ele.endtimestamp &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+          datesContainingNullOrEmptyValues &#x3D; true;
+        }
+        //@ts-ignore
+        let startdateformate &#x3D; isValidUTCDateFormat(ele.starttimestamp)
+        //dateFormateToCheck.test(ele.starttimestamp);
+        //@ts-ignore
+        let enddateformate &#x3D; isValidUTCDateFormat(ele.endtimestamp);
+
+        if (!startdateformate || !enddateformate) {
+          datevalid &#x3D; false;
+        }
+        if (device &amp;&amp; device.createdAt) {
+          if (new Date(ele.endtimestamp).getTime() &gt; new Date(device.createdAt).getTime()) {
+            allDatesAreBeforeCreatedAt &#x3D; false;
+          }
+          if (new Date(ele.starttimestamp).getTime() &gt; new Date(device.createdAt).getTime()) {
+            allDatesAreBeforeCreatedAt &#x3D; false;
+          }
+          if (new Date(ele.starttimestamp).getTime() &gt; new Date(ele.endtimestamp).getTime()) {
+            allStartDatesAreBeforeEnddate &#x3D; false;
+          }
+        }
+
+        if (ele.value &lt; 0) {
+          readvalue &#x3D; false;
+        }
+        if (device &amp;&amp; device.commissioningDate) {
+          //const cur &#x3D; new Date().toLocaleString(&#x27;en-US&#x27;, { timeZone: measurements.timezone })
+
+          if (new Date(ele.starttimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            historyallStartDatesAreAftercommissioningDate &#x3D; false;
+          }
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            historyallEndDatesAreAftercommissioningDate &#x3D; false;
+          }
+        }
+      });
+
+
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27;One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type&#x27;,
+            }),
+          );
+        });
+      }
+      if (!datevalid) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      if (!allStartDatesAreBeforeEnddate) {
+
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp &#x60;,
+            })
+          );
+        });
+      }
+      if (!allDatesAreBeforeCreatedAt) {
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}&#x60;,
+            })
+          );
+        });
+      }
+
+      if (!readvalue) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;meter read value should be greater then 0 &#x60;,
+            })
+          );
+        });
+      }
+      if (!historyallStartDatesAreAftercommissioningDate) {
+
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+      if (!historyallEndDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+    }
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.Delta || measurements.type &#x3D;&#x3D;&#x3D; ReadType.ReadMeter) {
+      console.log(&quot;505&quot;)
+      let datesContainingNullOrEmptyValues: boolean &#x3D; false;
+      let datevalid1: boolean &#x3D; true;
+      let allDatesAreAfterCreatedAt: boolean &#x3D; true;
+      let allDatesAreAftercommissioningDate: boolean &#x3D; true;
+      let allEndDatesAreBeforSystemDate: boolean &#x3D; true;
+      let enddate: any;
+      let currentdate: Date &#x3D; new Date();
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        console.log(&quot;512&quot;, ele)
+        //@ts-ignore
+        if (ele.endtimestamp &#x3D;&#x3D;&#x3D; null || ele.endtimestamp &#x3D;&#x3D;&#x3D; undefined || ele.endtimestamp &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+          datesContainingNullOrEmptyValues &#x3D; true;
+        }
+        //@ts-ignore
+        let enddateformate &#x3D; isValidUTCDateFormat(ele.endtimestamp);
+
+        if (!enddateformate) {
+          datevalid1 &#x3D; false;
+        }
+        //check validation with onboarding date
+        if (device &amp;&amp; device.createdAt) {
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.createdAt).getTime()) {
+            allDatesAreAfterCreatedAt &#x3D; false;
+            enddate &#x3D; ele.endtimestamp
+          }
+        }
+        //check validation with commissioning Date 
+        if (device &amp;&amp; device.commissioningDate) {
+          if (new Date(ele.endtimestamp).getTime() &lt;&#x3D; new Date(device.commissioningDate).getTime()) {
+            allDatesAreAftercommissioningDate &#x3D; false;
+            enddate &#x3D; ele.endtimestamp
+          }
+        }
+
+        //check validation with System Date 
+        if (new Date(ele.endtimestamp).getTime() &gt; new Date().getTime()) {
+          allEndDatesAreBeforSystemDate &#x3D; false;
+          enddate &#x3D; ele.endtimestamp
+        }
+
+      });
+      if (datesContainingNullOrEmptyValues) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One ore more End Date values are not sent for ${measurements.type},  end date is required&#x60;,
+            }),
+          );
+        });
+      }
+      if (!datevalid1) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x27; Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z &#x27;,
+            }),
+          );
+        });
+      }
+      if (measurements.timezone !&#x3D;&#x3D; null &amp;&amp; measurements.timezone !&#x3D;&#x3D; undefined &amp;&amp; measurements.timezone.toString().trim() !&#x3D;&#x3D; &#x27;&#x27;) {
+        enddate &#x3D; momentTimeZone.tz(enddate, measurements.timezone);
+        currentdate &#x3D; momentTimeZone.tz(currentdate, measurements.timezone).toDate();
+
+      }
+      if (!allDatesAreAfterCreatedAt) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}&#x60;,
+            })
+          );
+        });
+      }
+      if (!allDatesAreAftercommissioningDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}&#x60;,
+            })
+          );
+        });
+      }
+      if (!allEndDatesAreBeforSystemDate) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}&#x60;,
+            })
+          );
+        });
+      }
+    }
+
+    // negative value validation
+    if (measurements.type &#x3D;&#x3D;&#x3D; ReadType.History || measurements.type &#x3D;&#x3D;&#x3D; ReadType.Delta) {
+
+      let readvalue: boolean &#x3D; true;
+      measurements.reads.forEach(ele &#x3D;&gt; {
+        if (ele.value &lt;&#x3D; 0) {
+          readvalue &#x3D; false;
+        }
+      })
+      if (!readvalue) {
+        return new Promise((resolve, reject) &#x3D;&gt; {
+          reject(
+            new ConflictException({
+              success: false,
+              message: &#x60;meter read value should be greater then 0 &#x60;,
+            })
+          );
+        });
+      }
+    }
+    // device organization and user organization validation
+    if (device &amp;&amp; device.organizationId !&#x3D;&#x3D; organizationId) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Device doesnt belongs to the requested users organization&#x60;,
+          })
+        );
+      });
+    }
+
+    if (measurements.reads.length &gt; 1) {
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;can not allow multiple reads simultaneously &#x60;,
+          })
+        );
+      });
+    }
+    return await this.internalReadsService.newstoreRead(device.externalId, measurements);
+  }
+
+  /**
+   * this api create for last read of device by external id
+   * @returns {enddate:DateTime,value:number}
+   */
+  @Get(&#x27;/latestread/:externalId&#x27;)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: &#x27;Returns the latest meter read of the given device&#x27;,
+  })
+  @UseGuards(AuthGuard(&#x27;jwt&#x27;),PermissionGuard)
+  @Permission(&#x27;Read&#x27;)
+  @ACLModules(&#x27;READS_MANAGEMENT_CRUDL&#x27;)
+  public async getLatestMeterRead(
+    @Param(&quot;externalId&quot;) externalId: string,
+
+    @UserDecorator() user: ILoggedInUser,
+  ) {
+    let device: DeviceDTO | null
+    if (user.role &#x3D;&#x3D;&#x3D; &#x27;Buyer&#x27; || user.role &#x3D;&#x3D;&#x3D; &#x27;Admin&#x27;) {
+      // in buyer case externalid means insert id
+      device &#x3D; await this.deviceService.findOne(parseInt(externalId));
+
+    } else {
+      device &#x3D; await this.deviceService.findDeviceByDeveloperExternalId(externalId, user.organizationId);
+
+    }
+
+    if (device &#x3D;&#x3D;&#x3D; null) {
+
+      return new Promise((resolve, reject) &#x3D;&gt; {
+        reject(
+          new ConflictException({
+            success: false,
+            message: &#x60;Invalid device id&#x60;,
+          })
+        );
+      });
+    }
+
+    let deviceExternalId;
+    let latestReadObject;
+    let latestRead;
+
+    deviceExternalId &#x3D; device.externalId;
+    console.log(&quot;externalId::&quot; + deviceExternalId);
+
+    if (!device.meterReadtype) {
+      throw new HttpException(&#x27;Read not found&#x27;, 400)
+    }
+    else {
+
+      latestReadObject &#x3D; await this.internalReadsService.latestread(deviceExternalId, device.createdAt);
+
+      if (typeof latestReadObject &#x3D;&#x3D;&#x3D; &#x27;undefined&#x27; || latestReadObject.length &#x3D;&#x3D; 0) {
+        throw new HttpException(&#x27;Read Not found&#x27;, 400)
+      }
+      if (user.role &#x3D;&#x3D;&#x3D; &#x27;Buyer&#x27;) {
+        return {
+          externalId: device.developerExternalId,
+          timestamp: latestReadObject[0].timestamp,
+          value: latestReadObject[0].value
+        }
+      }
+
+      return {
+        &quot;enddate&quot;: latestReadObject[0].timestamp,
+        &quot;value&quot;: latestReadObject[0].value
+      }
+    }
+  }
+
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'ReadsController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

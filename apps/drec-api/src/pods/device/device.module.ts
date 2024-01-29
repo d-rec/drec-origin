@@ -12,6 +12,8 @@ import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_met
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import {IrecDevicesInformationEntity} from './irec_devices_information.entity';
 import {IrecErrorLogInformationEntity} from './irec_error_log_information.entity'
+import { UserModule } from '../user/user.module';
+import { OrganizationModule } from '../organization/organization.module';
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
@@ -23,6 +25,8 @@ import {IrecErrorLogInformationEntity} from './irec_error_log_information.entity
       IrecDevicesInformationEntity,
       IrecErrorLogInformationEntity
     ]),
+    UserModule,
+    OrganizationModule
   ],
   providers: [DeviceService],
   exports: [DeviceService],
