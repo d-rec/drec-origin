@@ -92,11 +92,12 @@ export class OrganizationController {
     description: `There are no users associated to this organization`,
   })
   async getOrganizationUsers(
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() { organizationId,role }: ILoggedInUser,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
+    
+    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit,role);
   }
 
   @Get('/:id/invitations')
@@ -221,8 +222,7 @@ export class OrganizationController {
   }
 
   @Delete('/user/:id')
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -234,24 +234,19 @@ export class OrganizationController {
     @UserDecorator() loggedUser: ILoggedInUser,
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
-
     const user = await this.userService.findById(userid);
-
     if (!user && user.organization.id != loggedUser.organizationId) {
       throw new NotFoundException('User does not exist in this organization');
     }
     //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
 
-    if (user.role === loggedUser.role || user.role === loggedUser.role) {
-
+    if ((user.role === loggedUser.role&&user.status==='Active') ) {
       throw new NotFoundException('Unauthorized');
-
     }
     else {
       await this.invitationservice.remove(user.email,user.organization.id)
       await this.userService.remove(user.id);
     }
-
     return ResponseSuccess();
   }
 }

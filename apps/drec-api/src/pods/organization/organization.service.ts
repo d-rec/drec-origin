@@ -125,14 +125,19 @@ export class OrganizationService {
     return organization.users;
   }
 
-  public async findOrganizationUsers(id: number, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+  public async findOrganizationUsers(id: number, pageNumber: number, limit: number, role?: string): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     this.logger.verbose(`With in findOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByOrganization(id, pageNumber, limit);
     const totalPages = Math.ceil(totalCount / limit);
+    let newuser= users
+    if (role != Role.OrganizationAdmin) {
+      newuser = users.filter(user => user.role != "OrganizationAdmin");
+    }
+
     return {
-      users: users,
+      users: newuser,
       currentPage: pageNumber,
       totalPages,
       totalCount
