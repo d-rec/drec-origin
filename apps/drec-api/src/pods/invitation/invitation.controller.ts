@@ -44,7 +44,7 @@ import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { InviteDTO,updateInviteStatusDTO } from './dto/invite.dto';
+import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
@@ -55,7 +55,7 @@ export class InvitationController {
 
   constructor(
     private readonly organizationInvitationService: InvitationService,
-  ) {}
+  ) { }
 
   /**
    * 
@@ -79,7 +79,7 @@ export class InvitationController {
     @Query('organizationId') organizationId?: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber?: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
-  )/*: Promise<InvitationDTO[]>*/{
+  )/*: Promise<InvitationDTO[]>*/ {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getUsersInvitation(
@@ -96,7 +96,7 @@ export class InvitationController {
    * @returns 
    */
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   // @ApiParam({
@@ -111,15 +111,15 @@ export class InvitationController {
   })
   async updateInvitation(
     @Param('id') invitationId: string,
-  //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation:updateInviteStatusDTO
-   // @UserDecorator() loggedUser: ILoggedInUser,
+    //  @Param('status') status: IOrganizationInvitation['status'],
+    @Body() useracceptinvitation: updateInviteStatusDTO
+    // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);
     return this.organizationInvitationService.update(
       useracceptinvitation,
       invitationId,
-     // status,
+      // status,
     );
   }
 
@@ -131,8 +131,8 @@ export class InvitationController {
    * @returns 
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, RolesGuard,PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer,Role.SubBuyer, Role.ApiUser)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer, Role.SubBuyer, Role.ApiUser)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })
@@ -149,7 +149,7 @@ export class InvitationController {
 
   })
   async invite(
-    @Body() { email, role,firstName,lastName }: InviteDTO,
+    @Body() { email, role, firstName, lastName }: InviteDTO,
     @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
@@ -171,17 +171,57 @@ export class InvitationController {
     }
 
     try {
-      await this.organizationInvitationService.invite(loggedUser,email,role,firstName,lastName,organizationId);
+      if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
+        if (organizationId === null || organizationId === undefined) {
+          throw new BadRequestException(
+            ResponseFailure(`Organization id is required,please add your Organization id`),
+          );
+        }
+        await this.organizationInvitationService.invite(loggedUser, email, role, firstName, lastName, organizationId);
+
+      } else {
+        await this.organizationInvitationService.invite(loggedUser, email, role, firstName, lastName, organizationId);
+      }
+
     } catch (error) {
       this.logger.error(error.toString());
       this.logger.error(error.toString() instanceof AlreadyPartOfOrganizationError);
-     //// if (error instanceof AlreadyPartOfOrganizationError) {
+      //// if (error instanceof AlreadyPartOfOrganizationError) {
       this.logger.error(error.message);
-        throw new ForbiddenException({ message: error.message,status:error.status });
-     ///// }
-    //  return error
+      throw new ForbiddenException({ message: error.message, status: error.status });
+      ///// }
+      //  return error
     }
 
     return ResponseSuccess();
   }
+
+  /**
+   * 
+   * @param loggedUser 
+   * @returns 
+   */
+  @Get('/By_email')
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+ 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [InvitationDTO],
+    description: 'Gets all invitations for a user',
+  })
+  async getInvitationsByemail(
+    @UserDecorator() loggedUser: ILoggedInUser,
+   
+  )/*: Promise<InvitationDTO[]>*/ {
+    this.logger.verbose(`With in getInvitations`);
+    const invitations =
+      await this.organizationInvitationService.getinvite_info_byEmail(
+        loggedUser,
+      );
+
+    return invitations;
+  }
+
 }

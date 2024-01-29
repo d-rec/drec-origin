@@ -14,8 +14,7 @@ import {
   NotFoundException,
   Patch,
   Post,
-  DefaultValuePipe,
-  Logger,
+  DefaultValuePipe
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -33,6 +32,7 @@ import {
 } from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
+import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
@@ -48,35 +48,26 @@ import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { OrganizationFilterDTO } from './dto/organization-filter.dto'
-
-/*
-* It is Controller of admin with the endpoints of admin operations.
-*/
+import { OrganizationFilterDTO } from './dto/organization-filter.dto';
+import {InvitationService} from '../invitation/invitation.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
 @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
-
-  private readonly logger = new Logger(AdminController.name);
-
   constructor(
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
+    private readonly invitationservice: InvitationService,
   ) { }
-  
-  /*
-  *It is Get Api to get the list all the users with filters and pagination.
-  */
+
   @Get('/users')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
-  // @Roles(Role.Admin)
+  @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
@@ -89,14 +80,11 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<UserDTO[]>*/ {
-    this.logger.verbose(`With in getUsers`);
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
-  /*
-  * It is GET api to list all organizations with pagination and filters
-  */
   @Get('/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -111,19 +99,12 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*: Promise<OrganizationDTO[]>*/ {
-    this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
-
-  /**
-  * It is GET api to list all users of an organization with pagination
-  * @param {orhanizationId} is type of number which is the identifier of an organization
-  */
   @Get('/organizations/user/:organizationId')
-  // @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules("ADMIN_APIUSER_ORGANIZATION_CRUDL")
+  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
@@ -135,17 +116,10 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   )/*:  Promise<UserDTO[]>*/ {
-    this.logger.verbose(`With in getAllUserOrganizations`);
     return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
-
-  /**
-  * It is GET api to fetch an organization renord.
-  * @param {orhanizationId} is type of number which is the identifier of an organization
-  * @return { OrganizationDTO | undefined } OrganizationDto is for success response 
-  * and undefined when there is no particular record not available.
-  */
   @Get('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT-CRUDL")
@@ -160,14 +134,11 @@ export class AdminController {
   async getOrganizationById(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<OrganizationDTO | undefined> {
-    this.logger.verbose(`With in getOrganizationById`);
     return this.organizationService.findOne(organizationId);
   }
 
-  /*
-  * It is POST api to create organization(Developer And Buyer) from admin.
-  */
   @Post('/users')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -178,16 +149,12 @@ export class AdminController {
     description: 'Returns a new created user',
   })
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
-    this.logger.verbose(`With in createUser`);
     return await this.userService.adminnewcreate(newUser);
   }
-  /**
-   * It is api used in previous versions of drec to create user at admin end
-   * @param newUsers 
-   * @returns 
-   */
+
   @Post('/seed/users'
   )
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -197,7 +164,6 @@ export class AdminController {
     description: 'Returns new created users',
   })
   public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
-    this.logger.verbose(`With in seedUsers`);
     const users: UserDTO[] = [];
     if (!newUsers || !newUsers.length) {
       return users;
@@ -217,6 +183,7 @@ export class AdminController {
   }
 
   @Post('/seed/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -228,7 +195,6 @@ export class AdminController {
   public async seedOrgs(
     @Body() newOrgs: OrganizationDTO[],
   ): Promise<OrganizationDTO[]> {
-    this.logger.verbose(`With in seedOrgs`);
     const orgs: OrganizationDTO[] = [];
     if (!newOrgs || !newOrgs.length) {
       return orgs;
@@ -242,12 +208,8 @@ export class AdminController {
     return orgs;
   }
 
-  /*
-  * It is PUT api to update an user.
-  * @return {UserDto} returns an updated user.
-  * @param {id} is the type of number which is the identifier of user.
-  */
   @Put('/users/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -261,16 +223,11 @@ export class AdminController {
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: UpdateUserDTO,
   ): Promise<UserDTO> {
-    this.logger.verbose(`With in updateUser`);
     return this.userService.update(id, body);
   }
 
-  /*
-  * It is PATCH api to update an organization
-  * @return {OrganizationDto} returns the updated organization.
-  * @param { id } is the type of number which is the identifier of an organization.
-  */
   @Patch('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Update')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -284,19 +241,14 @@ export class AdminController {
     @Param('id') organizationId: number,
     @Body() organizationToUpdate: UpdateOrganizationDTO,
   ): Promise<OrganizationDTO> {
-    this.logger.verbose(`With in updateOrganization`);
     return await this.organizationService.update(
       organizationId,
       organizationToUpdate,
     );
   }
 
-  /*
-  * It is DELETE api to delete an organization.
-  * @return {SuccessResponseDto} returns an message for success or failure response.
-  * @param {id} is the type of number which is identifier of an organization.
-  */
   @Delete('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -308,11 +260,9 @@ export class AdminController {
   async deleteOrganization(
     @Param('id', new ParseIntPipe()) organizationId: number,
   ): Promise<SuccessResponseDTO> {
-    this.logger.verbose(`With in deleteOrganization`);
     const organization = await this.organizationService.findOne(organizationId);
 
     if (!organization) {
-      this.logger.error(`Organization does not exist`);
       throw new NotFoundException('Does not exist');
     }
 
@@ -321,12 +271,8 @@ export class AdminController {
     return ResponseSuccess();
   }
 
-  /*
-  * It is DELETE api to delete an user.
-  * @return {SuccessResponseDto} returns an message for success or failure response.
-  * @param {id} is the type of number which is identifier of an user.
-  */ 
   @Delete('/user/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -338,11 +284,10 @@ export class AdminController {
   async deleteUser(
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
-    this.logger.verbose(`With in deleteUser`);
+
     const user = await this.userService.findById(userid);
     
     if (!user) {
-      this.logger.error(`User does not exist`);
       throw new NotFoundException('Does not exist');
     }
     const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
@@ -351,15 +296,13 @@ export class AdminController {
       const buyerresrvation = await this.devicegroupService.findOne({ organizationId: user.organization.id })
      
       if (buyerresrvation) {
-        this.logger.verbose(`This user is part of reservation,So you cannot remove this user and organization`);
         throw new NotFoundException('This user is part of reservation,So you cannot remove this user and organization');
 
       }
       const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
      
       if (deviceoforg.length > 0) {
-        this.logger.error(`Some device are available in organization`);
-        throw new NotFoundException('Some device are available in organization');
+        throw new NotFoundException('Some device are available in organization ');
       }
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
@@ -372,19 +315,15 @@ export class AdminController {
 
    }
    else {
+    await this.invitationservice.remove(user.email,user.organization.id)
      await this.userService.remove(user.id);
    }
 
     return ResponseSuccess();
   }
-
-  /*
-  * It is POST api to create or register device into I-REC
-  * @return {any} returns message for sucessful / failure response.
-  * @param { id } is the type of number and identifier of an device.
-  */
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -398,14 +337,12 @@ export class AdminController {
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
-    this.logger.verbose(`With in IrecdeviceRegister`);
     return await this.deviceService.I_recPostData(id);
   }
 
-  /*
-  * It is GET api to list all devices by an organization and device's externalId
-  */
+
   @Get('/devices/autocomplete')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -423,10 +360,10 @@ export class AdminController {
     @Query('organizationId') organizationId: number,
   ) {
     //@ts-ignore
+    console.log("adminaddorgId", organizationId)
     // if (adminaddorgId != null || adminaddorgId != undefined) {
     //   organizationId = adminaddorgId;
     // }
-    this.logger.verbose(`With in autocomplete`);
     return await this.deviceService.atto(organizationId, externalId);
   }
 
@@ -434,6 +371,7 @@ export class AdminController {
   * It is GET api to list all ApiUsers with pagination and filteration by Organization.
   */
   @Get('/apiusers')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -450,7 +388,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ) {
-    this.logger.verbose(`With in getAllApiUsers`);
+   // this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName,pageNumber, limit);
   }
 

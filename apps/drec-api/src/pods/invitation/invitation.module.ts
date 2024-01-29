@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module,forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from '../../mail';
 import { OrganizationModule } from '../organization/organization.module';
@@ -12,7 +12,7 @@ import {PermissionModule} from '../permission/permission.module'
   imports: [
     TypeOrmModule.forFeature([Invitation]),
     UserModule,
-    OrganizationModule,
+    forwardRef(()=>OrganizationModule) ,
     MailModule,
     PermissionModule
   ],
@@ -20,4 +20,5 @@ import {PermissionModule} from '../permission/permission.module'
   controllers: [InvitationController],
   exports: [InvitationService],
 })
+
 export class InvitationModule {}

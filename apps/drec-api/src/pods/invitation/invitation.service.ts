@@ -4,6 +4,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
   ILoggedInUser,
   ISuccessResponse,
+  LoggedInUser,
   OrganizationRole,
   ResponseSuccess,
 } from '../../models';
@@ -44,7 +45,6 @@ export class InvitationService {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
     let inviteorg: number;
-
     if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
         inviteorg = orgId;
@@ -57,10 +57,11 @@ export class InvitationService {
             message: `Requested organization is part of other organization`,
           });
         }
-        else {
-          inviteorg = user.organizationId;
-        }
+
       }
+    }
+    else {
+      inviteorg = user.organizationId;
     }
     const organization = await this.organizationService.findOne(
       inviteorg,
@@ -333,4 +334,34 @@ export class InvitationService {
       this.logger.log(`Notification email sent to ${email}.`);
     }
   }
+
+
+  async remove(email, orgId): Promise<void> {
+
+    const lowerCaseEmail = email.toLowerCase();
+    const orginvitee = await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: orgId
+      },
+      relations: ['organization'],
+    });
+    console.log('orginvitee', orginvitee)
+    if (orginvitee) {
+      await this.invitationRepository.delete(orginvitee.id);
+    }
+
+  }
+ async getinvite_info_byEmail(user:LoggedInUser){
+    const lowerCaseEmail = user.email.toLowerCase();
+    const orginvitee = await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: user.organizationId
+      },
+      relations: ['organization'],
+    });
+    return orginvitee;
+  }
+  
 }

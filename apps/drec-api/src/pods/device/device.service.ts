@@ -123,8 +123,8 @@ export class DeviceService {
     if (pagenumber === null || pagenumber === undefined) {
       pagenumber = 1
     }
-    const limit = 20;
     if (Object.keys(filterDto).length != 0) {
+      const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if(role == Role.ApiUser) {
@@ -138,7 +138,7 @@ export class DeviceService {
       }else{
         where = { ...where, organizationId};
       }
-
+ 
       query.where = where;
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
@@ -158,7 +158,7 @@ export class DeviceService {
         device.externalId = device.developerExternalId
         delete device["developerExternalId"];
         delete device["organization"];
-
+ 
         newDevices.push(device);
       })
       return {
@@ -168,24 +168,14 @@ export class DeviceService {
         totalCount
       };
     }
-
+    //devices.externalId = devices.developerExternalId
     const [devices, totalCount] = await this.repository.findAndCount({
       where: { organizationId },
-      skip: (pagenumber - 1) * limit,
-      take: limit,
       order: {
         createdAt: 'DESC',
       },
     });
-
-    const totalPages = Math.ceil(totalCount / limit);
-      if (pagenumber > totalPages) {
-        this.logger.error(`Page number out of range`);
-        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-      }
-
-      const currentPage = pagenumber;
-
+ 
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
@@ -194,12 +184,8 @@ export class DeviceService {
       delete device["organization"];
       newDevices.push(device);
     })
-    return {
-      devices: newDevices,
-      currentPage,
-      totalPages,
-      totalCount
-    };
+ 
+    return newDevices;
   }
 
 
