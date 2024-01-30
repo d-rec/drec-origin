@@ -6642,10 +6642,15 @@
   "resolved" "https://registry.npmjs.org/fn.name/-/fn.name-1.1.0.tgz"
   "version" "1.1.0"
 
-"follow-redirects@^1.10.0", "follow-redirects@^1.14.0", "follow-redirects@^1.14.9":
-  "integrity" "sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw=="
-  "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.4.tgz"
-  "version" "1.15.4"
+"follow-redirects@^1.10.0", "follow-redirects@^1.14.0", "follow-redirects@^1.14.7":
+  "integrity" "sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ=="
+  "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.7.tgz"
+  "version" "1.14.7"
+
+"follow-redirects@^1.14.9":
+  "integrity" "sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw=="
+  "resolved" "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.5.tgz"
+  "version" "1.15.5"
 
 "for-each@^0.3.3":
   "integrity" "sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw=="
