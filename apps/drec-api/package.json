@@ -85,6 +85,7 @@
     "follow-redirects": "^1.14.7",
     "form-data": "~4.0.0",
     "ganache-cli": "6.12.2",
+    "get-func-name": "^3.0.0",
     "handlebars": "^4.7.7",
     "immer": "^9.0.6",
     "jsonwebtoken": "^9.0.1",
