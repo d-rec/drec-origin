@@ -68,6 +68,7 @@
     "@nestjs/schedule": "1.0.1",
     "@nestjs/swagger": "4.7.15",
     "@nestjs/typeorm": "7.1.5",
+    "ansi-regex": "^4.1.1",
     "aws-sdk": "^2.1272.0",
     "axios": "^0.21.2",
     "bcryptjs": "2.4.3",
