@@ -115,6 +115,7 @@
     "shell-quote": "^1.7.3",
     "stream": "^0.0.2",
     "swagger-ui-express": "4.1.6",
+    "terser": "^5.14.2",
     "typeorm": "0.2.41",
     "uglify-js": "2.6.0",
     "underscore": "^1.12.1",
