@@ -48,11 +48,8 @@ import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { OrganizationFilterDTO } from './dto/organization-filter.dto'
-
-/*
-* It is Controller of admin with the endpoints of admin operations.
-*/
+import { OrganizationFilterDTO } from './dto/organization-filter.dto';
+import {InvitationService} from '../invitation/invitation.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -64,11 +61,9 @@ export class AdminController {
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
+    private readonly invitationservice: InvitationService,
   ) { }
-  
-  /*
-  *It is Get Api to get the list all the users with filters and pagination.
-  */
+
   @Get('/users')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -88,10 +83,8 @@ export class AdminController {
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
-  /*
-  * It is GET api to list all organizations with pagination and filters
-  */
   @Get('/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -108,11 +101,6 @@ export class AdminController {
   )/*: Promise<OrganizationDTO[]>*/ {
     return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
-
-  /**
-  * It is GET api to list all users of an organization with pagination
-  * @param {orhanizationId} is type of number which is the identifier of an organization
-  */
   @Get('/organizations/user/:organizationId')
   @Roles(Role.Admin)
   @Permission('Read')
@@ -130,14 +118,8 @@ export class AdminController {
   )/*:  Promise<UserDTO[]>*/ {
     return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
-
-  /**
-  * It is GET api to fetch an organization renord.
-  * @param {orhanizationId} is type of number which is the identifier of an organization
-  * @return { OrganizationDTO | undefined } OrganizationDto is for success response 
-  * and undefined when there is no particular record not available.
-  */
   @Get('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT-CRUDL")
@@ -155,10 +137,8 @@ export class AdminController {
     return this.organizationService.findOne(organizationId);
   }
 
-  /*
-  * It is POST api to create organization(Developer And Buyer) from admin.
-  */
   @Post('/users')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -171,13 +151,10 @@ export class AdminController {
   public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
     return await this.userService.adminnewcreate(newUser);
   }
-  /**
-   * It is api used in previous versions of drec to create user at admin end
-   * @param newUsers 
-   * @returns 
-   */
+
   @Post('/seed/users'
   )
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -206,6 +183,7 @@ export class AdminController {
   }
 
   @Post('/seed/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -230,12 +208,8 @@ export class AdminController {
     return orgs;
   }
 
-  /*
-  * It is PUT api to update an user.
-  * @return {UserDto} returns an updated user.
-  * @param {id} is the type of number which is the identifier of user.
-  */
   @Put('/users/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -252,12 +226,8 @@ export class AdminController {
     return this.userService.update(id, body);
   }
 
-  /*
-  * It is PATCH api to update an organization
-  * @return {OrganizationDto} returns the updated organization.
-  * @param { id } is the type of number which is the identifier of an organization.
-  */
   @Patch('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Update')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -277,12 +247,8 @@ export class AdminController {
     );
   }
 
-  /*
-  * It is DELETE api to delete an organization.
-  * @return {SuccessResponseDto} returns an message for success or failure response.
-  * @param {id} is the type of number which is identifier of an organization.
-  */
   @Delete('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -305,12 +271,8 @@ export class AdminController {
     return ResponseSuccess();
   }
 
-  /*
-  * It is DELETE api to delete an user.
-  * @return {SuccessResponseDto} returns an message for success or failure response.
-  * @param {id} is the type of number which is identifier of an user.
-  */ 
   @Delete('/user/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -353,19 +315,15 @@ export class AdminController {
 
    }
    else {
+    await this.invitationservice.remove(user.email,user.organization.id)
      await this.userService.remove(user.id);
    }
 
     return ResponseSuccess();
   }
-
-  /*
-  * It is POST api to create or register device into I-REC
-  * @return {any} returns message for sucessful / failure response.
-  * @param { id } is the type of number and identifier of an device.
-  */
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -382,10 +340,9 @@ export class AdminController {
     return await this.deviceService.I_recPostData(id);
   }
 
-  /*
-  * It is GET api to list all devices by an organization and device's externalId
-  */
+
   @Get('/devices/autocomplete')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -414,6 +371,7 @@ export class AdminController {
   * It is GET api to list all ApiUsers with pagination and filteration by Organization.
   */
   @Get('/apiusers')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -430,7 +388,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ) {
-    console.log("With in getAllApiUsers",organizationName);
+   // this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName,pageNumber, limit);
   }
 

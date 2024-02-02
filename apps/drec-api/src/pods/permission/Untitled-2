@@ -1,4 +1,0 @@
-
-select *.p from permission as p left join aclmodule as aclp  
-where p.entityId=2 and aclp.name="add_User_permission_CRDUL" OR 
-(p.entityId=12 and aclp.name="add_User_permission_CRDUL and p.entytyType='User'}

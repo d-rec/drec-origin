@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { UserLoginReturnData } from '@energyweb/origin-backend-core';
@@ -16,6 +16,8 @@ export interface IJWTPayload {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -25,22 +27,18 @@ export class AuthService {
     email: string,
     unencryptedPassword: string,
   ): Promise<UserDTO | null> {
+    this.logger.verbose("With in validateUser")
     const user = await this.userService.getUserAndPasswordByEmail(
       email.toLowerCase(),
     );
-    console.log(email,unencryptedPassword);
-    console.log(user);
-    console.log('user33',bcrypt.compareSync(unencryptedPassword, user.password));
     if (user && bcrypt.compareSync(unencryptedPassword, user.password)) {
-
       return this.userService.findById(user.id);
     }
-
     return null;
   }
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
-    console.log(user)
+    this.logger.verbose("With in login")
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,

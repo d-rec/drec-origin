@@ -139,7 +139,6 @@ export class UserController {
       client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
 
     } */
-    console.log(userRegistrationData);
     if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
       return new Promise((resolve, reject) => {
         reject(
@@ -172,7 +171,6 @@ export class UserController {
       });
     }
     if (client) {
-      console.log("asas", client);
       userRegistrationData['client'] = client;
     }
     return this.userService.newcreate(userRegistrationData);
@@ -229,7 +227,7 @@ export class UserController {
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -242,7 +240,6 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    console.log("email")
     const emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     let emailConfirmation: any;
     if (emailregex.test(token)) {
@@ -313,7 +310,7 @@ export class UserController {
   @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
   /*@UseGuards(PermissionGuard) */
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,

@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString,IsDate,IsEnum } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString,IsDate,IsEnum ,IsOptional} from 'class-validator';
+import { ApiProperty,ApiPropertyOptional } from '@nestjs/swagger';
 
 import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 export class UpdateDeviceGroupDTO {
@@ -29,6 +29,9 @@ export class NewUpdateDeviceGroupDTO {
   @ApiProperty({ type: Boolean })
   authorityToExceed:boolean;
 
+  @ApiPropertyOptional({ type: Date })
+  @IsOptional()
+  reservationExpiryDate:Date;
   // @ApiProperty()
   // @IsEnum(BuyerReservationCertificateGenerationFrequency)
   // frequency:BuyerReservationCertificateGenerationFrequency;

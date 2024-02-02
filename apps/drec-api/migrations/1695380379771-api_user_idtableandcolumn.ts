@@ -6,14 +6,11 @@ export class apiUserIdtableandcolumn1695380379771 implements MigrationInterface 
             await queryRunner.query(`
         CREATE TABLE api_user (
           api_user_id uuid NOT NULL DEFAULT uuid_generate_v4(),
-          permissionIds character varying,
+          "permissionIds" character varying,
            Permission_status character varying DEFAULT 'Request'
            )
           `);
             await queryRunner.query(`ALTER TABLE "organization" 
-          ADD "api_user_id" uuid NOT NULL DEFAULT uuid_generate_v4()
-          `);
-            await queryRunner.query(`ALTER TABLE "oauth_client_credentials" 
           ADD "api_user_id" uuid NOT NULL DEFAULT uuid_generate_v4()
           `);
             await queryRunner.query(`ALTER TABLE "user" 

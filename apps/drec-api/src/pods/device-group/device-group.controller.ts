@@ -283,9 +283,7 @@ export class DeviceGroupController {
         message: 'This frequency is currently not supported',
       });
     }
-    console.log(deviceGroupToRegister.blockchainAddress);
     //@ts-ignore
-    console.log(process.env.DREC_BLOCKCHAIN_ADDRESS);
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,
@@ -362,7 +360,6 @@ export class DeviceGroupController {
     // let response = await this.fileService.get(fileToProcess.fileName, user);
 
 
-    console.log(fileToProcess.fileName);
     if (fileToProcess.fileName == undefined) {
       //throw new Error("file not found");
       throw new ConflictException({

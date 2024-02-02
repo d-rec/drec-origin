@@ -1,8 +1,4 @@
-
-
 import {
-    ClassSerializerInterceptor,
-    BadRequestException,
     Controller,
     Get,
     Post,
@@ -12,7 +8,7 @@ import {
     ParseIntPipe,
     HttpStatus,
     UseGuards,
-    UseInterceptors,
+    Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -20,17 +16,12 @@ import {
     ApiResponse,
     ApiBody,
     ApiTags,
-    ApiUnprocessableEntityResponse,
-    ApiParam,
     ApiSecurity,
 } from '@nestjs/swagger';
 import { Role } from '../../utils/enums';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service'
-import { Expose } from 'class-transformer';
 import { ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto'
-import { ActiveUserGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
-import { UserDecorator } from '../user/decorators/user.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 
 /*
@@ -41,6 +32,9 @@ import { RolesGuard } from '../../guards/RolesGuard';
 @ApiSecurity('drec')
 @Controller('access-control-layer-module-service')
 export class AccessControlLayerModuleServiceController {
+
+    private readonly logger = new Logger(AccessControlLayerModuleServiceController.name);
+
     constructor(private readonly ModulesService: AccessControlLayerModuleServiceService) { }
 
     /*
@@ -59,6 +53,7 @@ export class AccessControlLayerModuleServiceController {
         description: 'ACL Module list',
     })
     async getAll(): Promise<ACLModuleDTO[] | null> {
+        this.logger.verbose(`With in getAll`);
         return this.ModulesService.getAll();
     }
 
@@ -77,6 +72,7 @@ export class AccessControlLayerModuleServiceController {
     public async register(
         @Body() moduleData: NewACLModuleDTO,
     ): Promise<ACLModuleDTO> {
+        this.logger.verbose(`With in create`);
         return this.ModulesService.create(moduleData);
     }
 
@@ -99,7 +95,7 @@ export class AccessControlLayerModuleServiceController {
         @Body() body: UpdateACLModuleDTO,
 
     ): Promise<ACLModuleDTO> {
-
+        this.logger.verbose(`With in update`);
         return this.ModulesService.update(id, body);
     }
 }
