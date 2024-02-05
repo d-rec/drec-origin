@@ -11846,7 +11846,7 @@
   "resolved" "https://registry.npmjs.org/simple-concat/-/simple-concat-1.0.1.tgz"
   "version" "1.0.1"
 
-"simple-get@^2.7.0":
+"simple-get@^2.7.0", "simple-get@^2.8.2":
   "integrity" "sha512-Ijd/rV5o+mSBBs4F/x9oDPtTx9Zb6X9brmnXvMW4J7IR15ngi9q5xxqWBKU744jTZiaXtxaPL7uHG6vtN8kUkw=="
   "resolved" "https://registry.npmjs.org/simple-get/-/simple-get-2.8.2.tgz"
   "version" "2.8.2"
