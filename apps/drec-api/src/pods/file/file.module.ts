@@ -6,10 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileController } from './file.controller';
 import { File } from './file.entity';
 import { FileService } from './file.service';
+import { UserModule } from '../user/user.module';
 
 @Module({
   // imports: [TypeOrmModule.forFeature([File,DeviceCsvFileProcessingJobsEntity]),
   imports: [TypeOrmModule.forFeature([File]), 
+  UserModule
 ],
   providers: [FileService],
   controllers: [FileController],

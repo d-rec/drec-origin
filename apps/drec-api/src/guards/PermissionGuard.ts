@@ -3,25 +3,33 @@ import { IUser, LoggedInUser } from '../models';
 import {
   CanActivate,
   ExecutionContext,
-  HttpException,
-  HttpStatus,
   Injectable,
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 // import { AccessControl } from 'role-acl';
 
 import { PermissionService } from '../pods/permission/permission.service';
+import { OauthClientCredentials } from '../pods/user/oauth_client_credentials.entity';
+import { UserService } from '../pods/user/user.service';
+import { Role } from '../utils/enums';
 @Injectable()
 export class PermissionGuard implements CanActivate {
+
+  private readonly logger = new Logger(PermissionGuard.name);
+
   constructor(
     private reflector: Reflector,
     @Inject(PermissionService)
     private readonly userPermission: PermissionService,
+    @Inject(UserService)
+    private readonly userService : UserService
   ) {}
   //constructor(@Inject(KeyService) private keyService: KeyService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    this.logger.verbose(`With in canActivate`);
     const permission = this.reflector.get<string[]>(
       'permission',
       context.getHandler(),
@@ -34,18 +42,42 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request = context.switchToHttp().getRequest();
-    const user = request.user as IUser;
+    let user : IUser;
+      const client = request.user as OauthClientCredentials;
+    if(request.url.split('/')[3] ===  'register') {
+      this.logger.verbose(`When ${request.url.split('/')[3]}`);
+      if(request.body.organizationType === Role.ApiUser) {
+        return true;
+      }
+
+      if(request.user.client_id != process.env.client_id) {
+        this.logger.debug('When the client at request');
+        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
+      }
+
+      if(request.user.client_id === process.env.client_id) {
+        this.logger.debug('When the client is same as the client at dotEnv');
+        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
+      }
+    }
+    else {
+      user = request.user;
+    }
+   
     if (user.role === 'Admin') {
       return true;
     }
+    if(((request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) && (user.role === Role.ApiUser)) {
+      return true;
+    }
     var per: any = [];
-   //console.log("user",user);
+
     const userpermission1 = await this.userPermission.findById(
       user.roleId,
       user.id,
       module,
     );
-    //console.log("userpermission1",userpermission1);
+ 
     userpermission1.forEach((e) => {
       e.permissions.forEach((element) => {
         if (!per.includes(element)) {
@@ -58,12 +90,9 @@ export class PermissionGuard implements CanActivate {
     }
     user.permissions = per;
     const loggedInUser = new LoggedInUser(user);
-    //console.log("loggedInUser",loggedInUser);
-    //console.log("permission from decorator",permission);
-
+  
     const hasPermission = () =>
       loggedInUser.permissions.includes(permission[0]);
-    //console.log(hasPermission());
 
     return hasPermission();
   }

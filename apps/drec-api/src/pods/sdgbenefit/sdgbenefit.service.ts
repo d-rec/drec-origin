@@ -22,7 +22,7 @@ export class SdgbenefitService {
     ) { }
 
     public async create(createTestapiDto: SdgBenefitDTO): Promise<SdgBenefit> {
-
+        this.logger.verbose(`With in create`);
         return await this.repository.save({
             ...createTestapiDto,
         });
@@ -30,11 +30,12 @@ export class SdgbenefitService {
 
 
     public async findAll(): Promise<SdgBenefit[]> {
-
+        this.logger.verbose(`With in findAll`);
         return this.repository.find();
     }
 
     getSDGBCode(): SDGBCodeNameDTO[] {
+        this.logger.verbose(`With in getSDGBCode`);
         return SDGBenefits;
       }
 

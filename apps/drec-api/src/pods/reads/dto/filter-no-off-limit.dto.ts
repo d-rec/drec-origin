@@ -37,5 +37,9 @@ export class filterNoOffLimit {
   limit: number;
 
    offset: number;
+
+   @IsOptional()
+   @ApiProperty({type : Number, required : false, description : "Mention when it's requested from Apiuser"})
+   organizationId?:number;
 }
 /* */

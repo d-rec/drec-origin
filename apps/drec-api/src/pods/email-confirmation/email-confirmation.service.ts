@@ -3,6 +3,8 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  forwardRef,
+  Inject
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
@@ -14,6 +16,8 @@ import { EmailConfirmationResponse } from '../../utils/enums';
 import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
+import { OauthClientCredentialsService } from '../user/oauth_client.service';
+import { UserService } from '../user/user.service';
 export interface SuccessResponse {
   success: boolean,
   message: string,
@@ -26,44 +30,50 @@ export class EmailConfirmationService {
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
     private mailService: MailService,
+    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) { }
 
-  public async create(user: User): Promise<EmailConfirmation> {
-    const exists = await this.repository.findOne({
-      where: {
-        user: { email: user.email }
-      },
-      relations: ['user']
-    });
-
-    if (exists) {
-      throw new ConflictException({
-        success: false,
-        message: `Email confirmation for user with email ${user.email} already exists`,
+  public async create(user: User): Promise<EmailConfirmation | null> {
+    this.logger.verbose(`With in create`);
+    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
+    //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
+    if ((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+      const exists = await this.repository.findOne({
+        where: {
+          user: { email: user.email }
+        },
+        relations: ['user']
       });
+
+      if (exists) {
+        this.logger.error(`Email confirmation for user with email ${user.email} already exists`);
+        throw new ConflictException({
+          success: false,
+          message: `Email confirmation for user with email ${user.email} already exists`,
+        });
+      }
+      const { token, expiryTimestamp } = await this.generateEmailToken();
+      const emailConfirmation = await this.repository.save({
+        user,
+        confirmed: false,
+        token,
+        expiryTimestamp,
+      });
+      // if (inviteuser) {
+      //   //  await this.sendResetPasswordRequest(user.email, token);
+      //   await this.sendInvitation(orgname, user.email, token);
+      // } else {
+      await this.sendConfirmationEmail(user.email);
+      // }
+      return emailConfirmation;
     }
-
-    const { token, expiryTimestamp } = await this.generateEmailToken();
-
-    const emailConfirmation = await this.repository.save({
-      user,
-      confirmed: false,
-      token,
-      expiryTimestamp,
-    });
-    // if (inviteuser) {
-    //   //  await this.sendResetPasswordRequest(user.email, token);
-    //   await this.sendInvitation(orgname, user.email, token);
-    // } else {
-    await this.sendConfirmationEmail(user.email);
-    // }
-
-
-    return emailConfirmation;
+    return null;
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
   public async admincreate(user: User, password: string): Promise<EmailConfirmation> {
+    this.logger.verbose(`With in admincreate`);
     const exists = await this.repository.findOne({
       where: {
         user: { email: user.email }
@@ -72,6 +82,7 @@ export class EmailConfirmationService {
     });
 
     if (exists) {
+      this.logger.error(`Email confirmation for user with email ${user.email} already exists`);
       throw new ConflictException({
         success: false,
         message: `Email confirmation for user with email ${user.email} already exists`,
@@ -93,6 +104,7 @@ export class EmailConfirmationService {
   }
 
   async get(userId: IUser['id']): Promise<EmailConfirmation | undefined> {
+    this.logger.verbose(`With in get`);
     const all = await this.repository.find({ relations: ['user'] });
 
     return all.find((confirmation) => confirmation.user.id === userId);
@@ -101,6 +113,7 @@ export class EmailConfirmationService {
   async getByEmail(
     email: IUser['email'],
   ): Promise<EmailConfirmation | undefined> {
+    this.logger.verbose(`With in getByEmail`);
     const all = await this.repository.find({ relations: ['user'] });
 
     return all.find(
@@ -109,6 +122,7 @@ export class EmailConfirmationService {
     );
   }
   async findOne(conditions: FindConditions<EmailConfirmation>): Promise<EmailConfirmation | undefined> {
+    this.logger.verbose(`With in findOne`);
     const user = await (this.repository.findOne(conditions, {
       relations: ['user'],
 
@@ -121,9 +135,11 @@ export class EmailConfirmationService {
   async confirmEmail(
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
+    this.logger.verbose(`With in confirmEmail`);
     const emailConfirmation = await this.repository.findOne({ token });
 
     if (!emailConfirmation) {
+      this.logger.error(`Email confirmation doesn't exist`);
       throw new BadRequestException({
         success: false,
         message: `Email confirmation doesn't exist`,
@@ -131,6 +147,7 @@ export class EmailConfirmationService {
     }
 
     if (emailConfirmation.confirmed === true) {
+      this.logger.warn('EmailConfirmationResponse.AlreadyConfirmed');
       return {
         success: false,
         message: EmailConfirmationResponse.AlreadyConfirmed,
@@ -140,6 +157,7 @@ export class EmailConfirmationService {
     if (
       emailConfirmation.expiryTimestamp < Math.floor(DateTime.now().toSeconds())
     ) {
+      this.logger.warn(`EmailConfirmationResponse.Expired`)
       return {
         success: false,
         message: EmailConfirmationResponse.Expired,
@@ -150,6 +168,7 @@ export class EmailConfirmationService {
       confirmed: true,
     });
 
+    this.logger.warn(EmailConfirmationResponse.Success);
     return {
       success: true,
       message: EmailConfirmationResponse.Success
@@ -159,9 +178,11 @@ export class EmailConfirmationService {
   public async sendConfirmationEmail(
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
+    this.logger.verbose(`With in sendConfirmationEmail`);
     const currentToken = await this.getByEmail(email);
-    console.log(currentToken)
+
     if (!currentToken) {
+      this.logger.error(`Token not found`);
       return {
         message: 'Token not found',
         success: false,
@@ -169,8 +190,8 @@ export class EmailConfirmationService {
     }
 
     const { id, confirmed } = currentToken;
-    console.log(confirmed)
     if (confirmed === true) {
+      this.logger.error(`Email already confirmed`);
       throw new BadRequestException({
         success: false,
         message: `Email already confirmed`,
@@ -188,9 +209,10 @@ export class EmailConfirmationService {
   public async ConfirmationEmailForResetPassword(
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
+    this.logger.verbose(`With in ConfirmationEmailForResetPassword`);
     const currentToken = await this.getByEmail(email);
-
     if (!currentToken) {
+      this.logger.error(`Email not found or Email not registered`);
       return {
         message: "Email not found or Email not registered",
         success: false,
@@ -199,15 +221,16 @@ export class EmailConfirmationService {
     const { id, confirmed } = currentToken;
     let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
 
-    await this.sendResetPasswordRequest(email.toLowerCase(), token);
+    await this.sendResetPasswordRequest(email.toLowerCase(), token, currentToken.user.role);
 
+    this.logger.log(`Password Reset Mail has been sent to your register authorized Email.`);
     return {
       success: true,
-      message: 'Password Reset Mail has been sent to your authorized Email.',
+      message: 'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
   public async generatetoken(currentToken, id) {
-
+    this.logger.verbose(`With in generatetoken`);
     let { token, expiryTimestamp } = currentToken;
 
 
@@ -223,6 +246,7 @@ export class EmailConfirmationService {
 
   }
   generateEmailToken(): IEmailConfirmationToken {
+    this.logger.verbose(`With in generateEmailToken`);
     return {
       token: crypto.randomBytes(64).toString('hex'),
       expiryTimestamp: Math.floor(
@@ -235,6 +259,7 @@ export class EmailConfirmationService {
     email: string,
     token: string,
   ): Promise<void> {
+    this.logger.verbose(`With in sendConfirmEmailRequest`);
     const url = `${process.env.UI_BASE_URL}/confirm-email?token=${token}`;
 
     const result = await this.mailService.send({
@@ -252,6 +277,7 @@ export class EmailConfirmationService {
     email: string,
     password: string,
   ): Promise<void> {
+    this.logger.verbose(`With in sendadminConfirmEmailRequest`);
     const url = `${process.env.UI_BASE_URL}/login`;
 
     const result = await this.mailService.send({
@@ -271,8 +297,10 @@ export class EmailConfirmationService {
   private async sendResetPasswordRequest(
     email: string,
     token: string,
+    role?: string
   ): Promise<void> {
-    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}`;
+    this.logger.verbose(`With in sendResetPasswordRequest`);
+    const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}&role=${role}`;
 
     const result = await this.mailService.send({
       to: email,
@@ -287,9 +315,8 @@ export class EmailConfirmationService {
 
 
   async remove(userId: number): Promise<void> {
-
+    this.logger.verbose(`With in remove`);
     const allemialconfirm = await this.get(userId)
-    console.log('allemialconfirl', allemialconfirm.id)
     await this.repository.delete(allemialconfirm.id);
   }
 
@@ -321,6 +348,7 @@ export class EmailConfirmationService {
 
     invitationId: number
   ): Promise<void> {
+    this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/login`;
 
     // const htmlTemplate = `

@@ -48,7 +48,8 @@ import { DeviceService } from '../device/device.service'
 import { DeviceGroupService } from '../device-group/device-group.service'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { OrganizationFilterDTO } from './dto/organization-filter.dto'
+import { OrganizationFilterDTO } from './dto/organization-filter.dto';
+import {InvitationService} from '../invitation/invitation.service'
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -60,6 +61,7 @@ export class AdminController {
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
+    private readonly invitationservice: InvitationService,
   ) { }
 
   @Get('/users')
@@ -82,6 +84,7 @@ export class AdminController {
   }
 
   @Get('/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -116,6 +119,7 @@ export class AdminController {
     return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
   }
   @Get('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ADMIN_MANAGEMENT-CRUDL")
@@ -134,6 +138,7 @@ export class AdminController {
   }
 
   @Post('/users')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -149,6 +154,7 @@ export class AdminController {
 
   @Post('/seed/users'
   )
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -177,6 +183,7 @@ export class AdminController {
   }
 
   @Post('/seed/organizations')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -202,6 +209,7 @@ export class AdminController {
   }
 
   @Put('/users/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -219,6 +227,7 @@ export class AdminController {
   }
 
   @Patch('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Update')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -239,6 +248,7 @@ export class AdminController {
   }
 
   @Delete('/organizations/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -262,6 +272,7 @@ export class AdminController {
   }
 
   @Delete('/user/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -304,6 +315,7 @@ export class AdminController {
 
    }
    else {
+    await this.invitationservice.remove(user.email,user.organization.id)
      await this.userService.remove(user.id);
    }
 
@@ -311,6 +323,7 @@ export class AdminController {
   }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -329,6 +342,7 @@ export class AdminController {
 
 
   @Get('/devices/autocomplete')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -353,6 +367,29 @@ export class AdminController {
     return await this.deviceService.atto(organizationId, externalId);
   }
 
-
+  /*
+  * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+  */
+  @Get('/apiusers')
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @Roles(Role.Admin)
+  @Permission('Read')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiQuery({ name: 'organizationName', type: String, required: false})
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [UserDTO],
+    description: 'Gets all apiusers',
+  })
+  public async getApiUsers(
+    @Query('organizationName',new DefaultValuePipe(null)) organizationName: string | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  ) {
+   // this.logger.verbose(`With in getAllApiUsers`);
+    return this.userService.getApiUsers(organizationName,pageNumber, limit);
+  }
 
 }

@@ -46,17 +46,26 @@ export class YieldConfigController {
   constructor(private readonly yieldconfigService: YieldConfigService) { }
 
 
-
+/**
+ * This api route use for get all yield value of country
+ * @returns {YieldConfigDTO[]}
+ */
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
+  @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all country yield value' })
 
   async getAll(): Promise<YieldConfigDTO[]> {
     return this.yieldconfigService.getAll();
   }
+
+  /**
+   * This api route use for get  yield value of country by insert row id
+   * @param id :number
+   * @returns {YieldConfigDTO}
+   */
   @Get('/:id')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
   @Roles(Role.Admin)
@@ -67,6 +76,12 @@ export class YieldConfigController {
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
     return this.yieldconfigService.findById(id);
   }
+  /**
+   * This api route use to add yield value for country
+   * @param loggedUser :ILoggedInUser
+   * @param yieldToRegister NewYieldConfigDTO
+   * @returns {YieldConfigDTO}
+   */
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
   @Permission('Write')
@@ -109,6 +124,13 @@ export class YieldConfigController {
     return await this.yieldconfigService.create(yieldToRegister, loggedUser);
   }
 
+  /**
+   * 
+   * @param id :number
+   * @param body 
+   * @param loggedUser 
+   * @returns {YieldConfigDTO}
+   */
   @Patch('/update/:id')
   @Roles(Role.Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)

@@ -17,7 +17,6 @@ export class MeterReadService {
 
   }
   GetRead(exterenalId:string,data: any): Observable<any> {
-    console.log(data)
    // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
    let searchUrl = `${this.url}meter-reads/new/`+exterenalId+`?readType=meterReads&`;
 

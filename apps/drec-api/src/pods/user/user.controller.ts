@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Req,
   Post,
   Body,
   Query,
@@ -13,7 +14,8 @@ import {
   HttpStatus,
   UseGuards,
   UseInterceptors,
-  ConflictException
+  ConflictException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -39,6 +41,9 @@ import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { Request } from 'express';
+import { OauthClientCredentialsService } from './oauth_client.service';
+
 @ApiTags('user')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
@@ -49,10 +54,15 @@ export class UserController {
     private readonly emailConfirmationService: EmailConfirmationService,
   ) { }
 
+  /**
+   * This api route use for get user information
+   * @param param0 
+   * @returns {UserDTO}
+   */
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password')) /*,PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -61,11 +71,16 @@ export class UserController {
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
     return this.userService.findById(id);
   }
-
+/**
+ * This api user for get the user info by user id 
+ * @param id 
+ * @param loggedUser 
+ * @returns {UserDTO}
+ */
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
@@ -77,34 +92,53 @@ export class UserController {
   ): Promise<UserDTO | null> {
     return await this.userService.canViewUserData(id, loggedUser);
   }
-
-  // @Post('register')
-  // @ApiBody({ type: CreateUserDTO })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   type: UserDTO,
-  //   description: 'Register a user',
-  // })
-  // public async register(
-  //   @Body() userRegistrationData: CreateUserDTO,
-  // ): Promise<UserDTO> {
-  //   return this.userService.create(userRegistrationData);
-  // }
-  // add new for adding user with organization
+/**
   @Post('register')
-  @ApiBody({ type: CreateUserORGDTO })
-  //@UseGuards(PermissionGuard)
- // @Permission('Write')
- // @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiBody({ type: CreateUserDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
     description: 'Register a user',
   })
   public async register(
-    @Body() userRegistrationData: CreateUserORGDTO,
+    @Body() userRegistrationData: CreateUserDTO,
   ): Promise<UserDTO> {
-    console.log(userRegistrationData);
+    return this.userService.create(userRegistrationData);
+  }
+*/
+  
+  /**
+  * add new for adding user with organization
+  * @body {CreateUserORGDTO}
+ * @returns {UserDTO}
+  */
+  @Post('register')
+  @ApiBody({ type: CreateUserORGDTO })
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserDTO,
+    description: 'Register a new user ',
+  })
+  public async register(
+    @Body() userRegistrationData: CreateUserORGDTO,
+    @Req() request: Request
+  ): Promise<UserDTO> { 
+    let client = request.user; /*
+    console.log(request.headers);
+    if (request.headers['client_id'] && request.headers['client_secret']) {
+      if (!request.headers['client_secret'] || !request.headers['client_id']) {
+        console.log("When credential not available")
+        throw new UnauthorizedException('Invalid client credentials');
+      }
+      client = await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
+    }
+    else if (userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()) {
+      client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
+
+    } */
     if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
       return new Promise((resolve, reject) => {
         reject(
@@ -115,13 +149,13 @@ export class UserController {
         );
       });
     }
-
-    if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
+    //@ts-ignore
+    if (userRegistrationData.organizationType.toLowerCase() != "Buyer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "Developer".toLowerCase() && userRegistrationData.organizationType.toLowerCase() != "ApiUser".toLowerCase()) {
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: `organizationType value should be Developer/Buyer`,
+            message: `organizationType value should be Developer/Buyer/ApiUser`,
           })
         );
       });
@@ -136,60 +170,20 @@ export class UserController {
         );
       });
     }
+    if (client) {
+      userRegistrationData['client'] = client;
+    }
     return this.userService.newcreate(userRegistrationData);
   }
-
-  // @Post('registerWithOrganization')
-  // @ApiBody({ type: CreateUserORGDTO })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   type: UserDTO,
-  //   description: 'Register a user',
-  // })
-  // public async newregister(
-  //   @Body() userRegistrationData: CreateUserORGDTO,
-  // ): Promise<UserDTO> {
-  //   console.log(userRegistrationData);
-  //   if (userRegistrationData.organizationType === '' || userRegistrationData.organizationType === null || userRegistrationData.organizationType === undefined) {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `organizationType should not be empty`,
-  //         })
-  //       );
-  //     });
-  //   }
-
-  //   if (userRegistrationData.organizationType != "Buyer" && userRegistrationData.organizationType != "Developer") {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `organizationType value should be Developer/Buyer`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   if (userRegistrationData.orgName.trim() === "") {
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `orgName should not be empty`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   return this.userService.newcreate(userRegistrationData);
-  // }
-
-
-
+  /**
+   * this api route using for update Profile.
+   * @body { 'firstName':string,'lastName':string,'email':string}.
+   * @returns {UserDTO} .
+   */
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL') */
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserProfileDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -205,11 +199,14 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updateProfile(id, dto);
   }
-
+  /**
+   * this api route using for update password
+   * @returns {UserDTO} .
+   */
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL') */
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdatePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -222,11 +219,15 @@ export class UserController {
   ): Promise<UserDTO> {
     return this.userService.updatePassword(email, body);
   }
-
+  /**
+     * This api route to update the password by validating token .
+     * @returns {UserDTO} .
+     */
   @Put('reset/password/:token')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateChangePasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -239,7 +240,6 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    console.log("email")
     const emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     let emailConfirmation: any;
     if (emailregex.test(token)) {
@@ -258,11 +258,16 @@ export class UserController {
     }
 
   }
-
+/**
+ * this api route use for confirm user email from email click in register time
+ * @param token :stirng
+ * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
+ */
   @Put('confirm-email/:token')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  //@UseGuards(PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
@@ -275,10 +280,15 @@ export class UserController {
     return this.emailConfirmationService.confirmEmail(token);
   }
 
+  /**
+   * This api route use for resend confirm email after login if user not confirm email at register time
+   * @param param0 
+   * @returns 
+   */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'))/*,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
@@ -290,21 +300,57 @@ export class UserController {
     return this.emailConfirmationService.sendConfirmationEmail(email);
   }
 
-
+/**
+ * This api route use for if user forget password and want to change password
+ * @param req 
+ * @param body 
+ * @returns {SuccessResponseDTO}
+ */
   @Post('forget-password')
-  /*@UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  /*@UseGuards(PermissionGuard) */
   @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')*/
+  @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
     description: `send a email`,
   })
   public async Forgetpassword(
+    @Req() req: Request,
     @Body() body: ForgetPasswordDTO
-  ): Promise<SuccessResponseDTO> {
+  ): Promise<SuccessResponseDTO> { /*
+    const user = await this.userService.findByEmail(body.email);
+    //@ts-ignore
+    let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
+    if (req.headers['client_id'] && req.headers['client_secret']) {
+      if (!req.headers['client_secret'] || !req.headers['client_id']) {
+        console.log("When credential not available")
+        throw new UnauthorizedException('Invalid client credentials');
+      }
+      if (user.role === "ApiUser") {
+        client = await this.userService.validateClient(req.headers['client_id'], req.headers['client_secret']);
+        console.log("when apiUser", client, user);
+      }
+      else {
+        throw new UnauthorizedException();
+      }
+    }
+    else if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
+      if (user.role === "ApiUser") {
+        throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
+      }
+      if (client.client_id != process.env.client_id) {
+        throw new UnauthorizedException();
+      } else if (client.client_id === process.env.client_id) {
+        client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
+      }
+    }
+
+    if (client) {
+      console.log("when Client:", client)
+      return this.userService.geytokenforResetPassword(body.email);
+    } */
     return this.userService.geytokenforResetPassword(body.email);
   }
-
-
 }

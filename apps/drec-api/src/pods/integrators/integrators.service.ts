@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import {
   MeasurementDTO,
@@ -37,6 +37,7 @@ export class IntegratorsService {
   // @Cron(CronExpression.EVERY_30_SECONDS)
   @Cron('0 30 01 * * *') // Every day at 01:30 - Server Time
   async handleBBOXcron(): Promise<void> {
+    this.logger.verbose(`With in handleBBOXcron`);
     this.logger.debug('BBOX Cron called every day at 01:30 - Server Time');
 
     const integrator: Integrator = Integrator.BBOX;
@@ -86,6 +87,7 @@ export class IntegratorsService {
   }
 
   private loginBBOX(server: string, loginForm: FormData): Promise<string> {
+    this.logger.verbose(`With in loginBBOX`);
     return this.httpService
       .post(`${server}/v1/auth/login`, loginForm, {
         headers: loginForm.getHeaders(),
@@ -107,6 +109,7 @@ export class IntegratorsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
+    this.logger.verbose(`With in getBBOXproductReadData`);
     const requestConfig: AxiosRequestConfig = {
       headers: { Authorization: `Token token=${token}` },
       params: {
@@ -135,6 +138,7 @@ export class IntegratorsService {
     endDate: string,
     organizationId: number,
   ): Promise<void> {
+    this.logger.verbose(`With in storeBBOXenergyReads`);
     const energyData = await this.getBBOXproductReadData(
       server,
       authToken,
@@ -167,6 +171,7 @@ export class IntegratorsService {
     unit: Unit,
     organizationId: number,
   ): Promise<void> {
+    this.logger.verbose(`With in storeEnergy`);
     const measurements = new MeasurementDTO();
     measurements.reads = reads;
     measurements.unit = unit;

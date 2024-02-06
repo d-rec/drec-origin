@@ -11,13 +11,10 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  Body,
-  UploadedFile,
-  ConflictException,
-
+  Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -48,14 +45,26 @@ supportedFiles.push('text/csv');
 supportedFiles.push('image/jpeg');
 supportedFiles.push('image/png');
 
-
+/**
+ * It is controller for file operations
+ */
 @ApiTags('file')
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
+
+  private readonly logger = new Logger(FileController.name);
+
   //constructor(private deviceGroupService:DeviceGroupService,private readonly fileService: FileService) {}
   constructor(private readonly fileService: FileService) { }
 
+  /**
+   * It is POST api to upload multiple files into aws s3 bucket
+   * @param user from request
+   * @param param1 is getting organization id from request
+   * @param uploadedFiles array of files to be uploaded 
+   * @returns {}
+   */
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: FileUploadDto })
@@ -97,6 +106,7 @@ export class FileController {
     },
     // @Body() fileUploadDto: FileUploadDto,
   ) {
+    this.logger.verbose(`With in upload`);
     // if(fileUploadDto.type!==undefined && fileUploadDto.type!==null && fileUploadDto.type==='csvDeviceBulkRegistration')
     // {
     //   let fileId = await this.fileService.store(user, uploadedFiles.files);
@@ -105,7 +115,6 @@ export class FileController {
     //   //@ts-ignore
     //   return jobCreated;
     // }
-    console.log(uploadedFiles.files[0]);
     return await Promise.all(
       uploadedFiles.files.map(async (file) => {
       let response:any=await this.fileService.upload(file);
@@ -116,6 +125,12 @@ export class FileController {
     //  return this.fileService.store(user, uploadedFiles.files);
   }
 
+  /**
+   * It is GET api to view or download an file from AWS S3 bucket
+   * @param user from request
+   * @param id is unique identifier of file entity
+   * @param res is Response type 
+   */
   @Get(':id')
   @UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
@@ -131,8 +146,10 @@ export class FileController {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {
+    this.logger.verbose(`With in download`);
     const file = await this.fileService.get(id, user);
     if (!file) {
+      this.logger.error('File not found');
       throw new NotFoundException();
     }
 

@@ -12,6 +12,7 @@ export interface ILoggedInUser {
   hasOrganization: boolean;
   permissions: PermissionString,
 hasPermission(...permissions: PermissionString[]): boolean;
+  api_user_id: string;
 }
 
 export class LoggedInUser implements ILoggedInUser {
@@ -22,6 +23,8 @@ export class LoggedInUser implements ILoggedInUser {
     this.blockchainAccountAddress = user.organization?.blockchainAccountAddress;
     this.role = user.role;
     this.permissions = user.permissions;
+    //@ts-ignore
+    this.api_user_id = user.api_user_id;
   }
 
   id: number;
@@ -29,6 +32,8 @@ export class LoggedInUser implements ILoggedInUser {
   organizationId: number;
 
   email: string;
+
+  api_user_id: string;
 
   blockchainAccountAddress: string | undefined;
 
