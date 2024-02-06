@@ -96,7 +96,7 @@ export class OrganizationController {
     * @returns 
     */
   @Get('/apiuser/all_organization')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -124,7 +124,7 @@ export class OrganizationController {
    * @returns 
    */
   @Get('/users')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -159,7 +159,7 @@ export class OrganizationController {
  * and undefined when there is no particular record not available.
  */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   //  @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ORGANIZATION_MANAGEMENT_CRUDL")
@@ -331,7 +331,7 @@ export class OrganizationController {
     }
   }
   @Delete('/user/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({

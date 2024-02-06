@@ -173,7 +173,7 @@ export class CertificateLogController {
     * @param { groupid } Need to ask Namrata
     */
     @Get('/issuer/certified/new/:groupUid')
-    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+    @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiOkResponse({ type: [CertificateNewWithPerDeviceLog], description: 'Returns issuer Certificate of groupId' })
@@ -346,7 +346,7 @@ export class CertificateLogController {
     //     return this.certificateLogService.getCertifiedlogofDevices(user, filterDto, pageNumber);
     // }
     @Get('/issuer/certifiedlogOfdevices')
-    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+    @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
     @Permission('Read')
     @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
     @ApiQuery({ name: 'organizationId', type: Number, required: false, description: 'This query parameter is for apiuser' })
