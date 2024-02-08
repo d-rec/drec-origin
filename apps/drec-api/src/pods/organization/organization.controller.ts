@@ -235,9 +235,15 @@ export class OrganizationController {
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
     const user = await this.userService.findById(userid);
-    if (!user && user.organization.id != loggedUser.organizationId) {
+    //@ts-ignore
+    if((loggedUser.role===Role.ApiUser&&(loggedUser.api_user_id!=user.api_user_id))){
       throw new NotFoundException('User does not exist in this organization');
+    }else{
+      if (!user && user.organization.id != loggedUser.organizationId) {
+        throw new NotFoundException('User does not exist in this organization');
+      }
     }
+   
     //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
 
     if ((user.role === loggedUser.role&&user.status==='Active') ) {

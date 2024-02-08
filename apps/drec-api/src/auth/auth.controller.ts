@@ -34,6 +34,17 @@ export class AuthController {
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
     this.logger.verbose("Within login");
-    return  this.authService.login(req.user as Omit<IUser, 'password'>);
+    return  await this.authService.login(req.user as Omit<IUser, 'password'>);
+  }
+
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('auth/logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req: ExpressRequest
+  ) {
+    this.logger.verbose("Within login");
+    await this.authService.logout(req.user as Omit<IUser, 'password'>);
+    return { message: 'Logout successful' };
   }
 }

@@ -147,6 +147,11 @@ export class DeviceService {
           createdAt: 'DESC',
         }
       });
+      if (totalCount==0) {
+        this.logger.error(`Page number out of range`);
+        throw new HttpException('No Device Availble', HttpStatus.NOT_FOUND);
+      }
+
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
         this.logger.error(`Page number out of range`);
