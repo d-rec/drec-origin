@@ -23,7 +23,7 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) { }
 
-  @UseGuards(AuthGuard('local'), AuthGuard('oauth2-client-password'))
+  @UseGuards(AuthGuard('local'))
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })

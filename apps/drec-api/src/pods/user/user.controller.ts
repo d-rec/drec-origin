@@ -33,7 +33,7 @@ import { CreateUserORGDTO } from './dto/create-user.dto';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
-import { ActiveUserGuard, PermissionGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, WithoutAuthGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO, UpdateChangePasswordDTO, ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
@@ -60,7 +60,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get('me')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password')) /*,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password'])) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiResponse({
@@ -69,6 +69,7 @@ export class UserController {
     description: 'Get my user profile',
   })
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
+    console.log("With in user me");
     return this.userService.findById(id);
   }
 /**
@@ -78,7 +79,7 @@ export class UserController {
  * @returns {UserDTO}
  */
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -181,7 +182,7 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserProfileDTO })
@@ -204,7 +205,7 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdatePasswordDTO })
@@ -224,7 +225,7 @@ export class UserController {
      * @returns {UserDTO} .
      */
   @Put('reset/password/:token')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
@@ -264,7 +265,7 @@ export class UserController {
  * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
  */
   @Put('confirm-email/:token')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
@@ -286,7 +287,7 @@ export class UserController {
    * @returns 
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -307,7 +308,7 @@ export class UserController {
  * @returns {SuccessResponseDTO}
  */
   @Post('forget-password')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   /*@UseGuards(PermissionGuard) */
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')

@@ -135,6 +135,7 @@ export class NewApiUserPermissionDTO {
 export class ApiUserPermissionUpdateDTO {
 
   @ApiProperty({ enum: UserPermissionStatus, enumName: 'UserPermissionStatus' })
+  @IsEnum(UserPermissionStatus)
   @Column({ default: UserPermissionStatus.Request })
   status: UserPermissionStatus;
 }
