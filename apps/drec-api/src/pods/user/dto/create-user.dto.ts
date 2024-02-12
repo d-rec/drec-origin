@@ -1,7 +1,7 @@
 import { ApiProperty, PickType ,IntersectionType} from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
 import { OrganizationDTO } from '../../organization/dto/organization.dto';
-import { IsNotEmpty, IsString, Matches,MinLength, MaxLength, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, Matches,MinLength, MaxLength, IsOptional, IsUUID } from 'class-validator';
 import { UserRegistrationData,UserORGRegistrationData } from '../../../models';
 import {Match} from '../decorators/match.decorator';
 // export class CreateUserDTO
@@ -87,4 +87,8 @@ export class CreateUserORGDTO
   // @IsString()
   // secretKey?: string;
  
+  @IsString()
+  @IsUUID('all', { message: 'Invalid UUID format' })
+  @IsOptional()
+  api_user_id?: string;
 }

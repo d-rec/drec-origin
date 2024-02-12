@@ -94,7 +94,7 @@ export class UserService {
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     //@ts-ignore
-    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.client.api_user_id);
+    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.api_user_id);
     /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
@@ -112,7 +112,7 @@ export class UserService {
 
       }
 
-      orgdata['api_user_id'] = data['client'].api_user_id;
+      orgdata['api_user_id'] = api_user.api_user_id;
 
     /*
       if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
@@ -168,8 +168,8 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
-
+      //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
+      api_user_id: api_user ? api_user.api_user_id : null,
     });
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(user)}`,
@@ -189,13 +189,15 @@ export class UserService {
       return newUser;
     }
     */
+    /*
     if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
       //@ts-ignore
       user['client_id'] = data.client.client_id;
       //@ts-ignore
       user['client_secret'] = data.client.client_secret;
-    }   
-
+    }
+    */   
+    
     await this.emailConfirmationService.create(user);
     //return new User(user);
     return user;

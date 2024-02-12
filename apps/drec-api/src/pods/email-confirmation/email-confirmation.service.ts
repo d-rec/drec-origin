@@ -12,7 +12,7 @@ import { DateTime } from 'luxon';
 import { Repository, FindConditions, } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
-import { EmailConfirmationResponse } from '../../utils/enums';
+import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
@@ -36,9 +36,10 @@ export class EmailConfirmationService {
 
   public async create(user: User): Promise<EmailConfirmation | null> {
     this.logger.verbose(`With in create`);
-    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
+    //const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
     //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
-    if ((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+    //@ts-ignore
+    if (user.api_user_id == await this.userService.findOne({role: Role.Admin, api_user_id: user.api_user_id}).api_user_id || user.role === 'ApiUser') {
       const exists = await this.repository.findOne({
         where: {
           user: { email: user.email }

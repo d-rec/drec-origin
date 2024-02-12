@@ -43,6 +43,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Request } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
+import { User } from './user.entity';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -115,7 +116,7 @@ export class UserController {
   */
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -127,7 +128,7 @@ export class UserController {
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request
   ): Promise<UserDTO> { 
-    let client = request.user; /*
+    const user = request.user; /*
     console.log(request.headers);
     if (request.headers['client_id'] && request.headers['client_secret']) {
       if (!request.headers['client_secret'] || !request.headers['client_id']) {
@@ -170,9 +171,13 @@ export class UserController {
           })
         );
       });
-    }
+    } /*
     if (client) {
       userRegistrationData['client'] = client;
+    }  */
+    if(!userRegistrationData.api_user_id) {
+      //@ts-ignore
+      userRegistrationData.api_user_id = user.api_user_id;
     }
     return this.userService.newcreate(userRegistrationData);
   }

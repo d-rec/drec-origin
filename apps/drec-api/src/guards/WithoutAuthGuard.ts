@@ -1,4 +1,4 @@
-import { IUser, LoggedInUser } from '../models';
+import { IUser } from '../models';
 import {
   CanActivate,
   ExecutionContext,
@@ -7,10 +7,10 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { UserService } from '../pods/user/user.service';
 import { Role } from '../utils/enums';
-import { EmailConfirmationService } from 'src/pods/email-confirmation/email-confirmation.service';
+import { EmailConfirmationService } from '../pods/email-confirmation/email-confirmation.service';
+import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 @Injectable()
 export class WithoutAuthGuard implements CanActivate {
 
@@ -21,6 +21,8 @@ export class WithoutAuthGuard implements CanActivate {
     private readonly userService : UserService,
     @Inject(EmailConfirmationService)
     private readonly emailConfirmationService: EmailConfirmationService,
+    @Inject(OauthClientCredentialsService)
+    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -35,9 +37,28 @@ export class WithoutAuthGuard implements CanActivate {
     else if(request.url.split('/')[3] === 'confirm-email' || request.url.split('/')[3] === 'reset') {
       user = (await this.emailConfirmationService.findOne({token : request.params.token})).user;
     }
+    else if(request.url.split('/')[3] === 'register') {
+      if(!request.body.api_user_id && (request.body.organizationType === 'Developer' || request.body.organizationType === Role.Buyer)) {
+        user = await this.userService.findOne({role: Role.Admin});
+      }
+      //@ts-ignore
+      else if(request.body.api_user_id && request.body.api_user_id != await this.userService.findOne({role: Role.Admin}).api_user_id && (request.body.organizationType === 'Developer' || request.body.organizationType === Role.Buyer)) {
+        user = await this.userService.findOne({ role: Role.ApiUser, api_user_id: request.body.api_user_id });
+        if(!user) {
+          throw new UnauthorizedException({
+            statusCode: 401,
+            message: "Requested apiuser is not available"
+          });
+        }
+      }
+      else if(request.body.organizationType === Role.ApiUser) {
+        const api_user = await this.oauthClientCredentialsService.createAPIUser();
+        request.body.api_user_id  = api_user.api_user_id;
+      }
+    }
 
     //@ts-ignore
-    if(user.role != Role.Admin && user.role != Role.ApiUser  && (user.api_user_id != (await this.userService.findOne({role:Role.Admin}) as IUser).api_user_id)) {
+    if(request.body.organizationType === undefined && user.role != Role.Admin && user.role != Role.ApiUser  && (user.api_user_id != (await this.userService.findOne({role:Role.Admin}) as IUser).api_user_id)) {
       throw new UnauthorizedException({statusCode: 401, message: "Unauthorized"});
       //return false;
     }
