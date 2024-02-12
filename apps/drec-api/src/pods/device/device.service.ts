@@ -790,6 +790,11 @@ export class DeviceService {
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId
     }
+    //@ts-ignore
+    else if(filter.organizationId != null && filter.organizationId != undefined) {
+      //@ts-ignore
+      where.organizationId = filter.organizationId
+    }
     if (filter.start_date != null && filter.end_date === undefined) {
       where.commissioningDate = MoreThanOrEqual(filter.start_date);
 
