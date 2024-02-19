@@ -954,7 +954,7 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 */4 * * *')
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 4hr to check for isssuance of certificates');
