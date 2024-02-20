@@ -15,7 +15,9 @@ import {
   UseGuards,
   UseInterceptors,
   ConflictException,
-  UnauthorizedException
+  UnauthorizedException,
+  ValidationPipe,
+  Res,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -30,10 +32,10 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserORGDTO } from './dto/create-user.dto';
-import { EmailConfirmationResponse } from '../../utils/enums';
+import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
-import { ActiveUserGuard, PermissionGuard, WithoutAuthGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard, WithoutAuthGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO, UpdateChangePasswordDTO, ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
@@ -41,9 +43,10 @@ import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { User } from './user.entity';
+import { Roles } from './decorators/roles.decorator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -53,6 +56,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
+    private readonly oauthClientService: OauthClientCredentialsService,
   ) { }
 
   /**
@@ -358,5 +362,15 @@ export class UserController {
       return this.userService.geytokenforResetPassword(body.email);
     } */
     return this.userService.geytokenforResetPassword(body.email);
+  }
+
+  @Post('export-accesskey/:api_user_id')
+  @UseGuards(WithoutAuthGuard, RolesGuard)
+  @Roles(Role.ApiUser)
+  public async AccessKeyFile(
+    @Param('api_user_id') api_user_id: string,
+    @Res() res: Response,
+  ) {
+    return this.oauthClientService.createKeyFile(api_user_id, res);
   }
 }

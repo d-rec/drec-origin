@@ -7,7 +7,7 @@ import { IJWTPayload ,AuthService} from './auth.service';
 import { IUser } from '../models';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   private readonly logger = new Logger(JwtStrategy.name);
 

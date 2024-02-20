@@ -56,6 +56,9 @@ export class WithoutAuthGuard implements CanActivate {
         request.body.api_user_id  = api_user.api_user_id;
       }
     }
+    else if(request.url.split('/')[3] === 'export-accesskey') {
+      user = await this.userService.findOne({ role: Role.ApiUser, api_user_id: request.params.api_user_id });
+    }
 
     //@ts-ignore
     if(request.body.organizationType === undefined && user.role != Role.Admin && user.role != Role.ApiUser  && (user.api_user_id != (await this.userService.findOne({role:Role.Admin}) as IUser).api_user_id)) {
