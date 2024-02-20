@@ -764,7 +764,7 @@ export class UserService {
    */
 
   async createUserSession(user: any, token: string) {
-    console.log(user)
+   
     await this.userloginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token

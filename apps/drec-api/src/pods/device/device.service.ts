@@ -1308,7 +1308,7 @@ export class DeviceService {
     groupId: number, deviceId: string
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return this.checkdevcielogcertificaterepository.findOne(
+    return await this.checkdevcielogcertificaterepository.findOne(
       {
         where: {
           groupId: groupId,
