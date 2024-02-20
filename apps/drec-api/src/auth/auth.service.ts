@@ -7,6 +7,8 @@ import { IUser } from '../models';
 import { UserService } from '../pods/user/user.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
 import { Role } from '../utils/enums/role.enum';
+import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
+import fs from 'fs';
 
 export interface IJWTPayload {
   id: number;
@@ -21,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly oauthClientService: OauthClientCredentialsService,
   ) { }
 
   async validateUser(
@@ -59,5 +62,19 @@ export class AuthService {
     //hasUser({ email })
     const tokeninvalidate = await this.userService.hasgetUserTokenvalid({ accesstoken_hash:token, userId: payload.id })
     return tokeninvalidate;
+  }
+
+  async generateToken(user: Omit<IUser, 'password'>, fileData: string) {//: Promise<UserLoginReturnData> {
+    this.logger.verbose("With in generateToken");
+    const payload: IJWTPayload = {
+      email: user.email.toLowerCase(),
+      id: user.id,
+      role: user.role
+    };
+
+    const token = this.jwtService.sign(payload, {privateKey: fileData, secret: 'my-secret'});
+    return {
+      accessToken: token,
+    }
   }
 }

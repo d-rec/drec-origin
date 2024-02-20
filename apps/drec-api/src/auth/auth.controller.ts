@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -46,5 +47,13 @@ export class AuthController {
     this.logger.verbose("Within login");
     await this.authService.logout(req.user as Omit<IUser, 'password'>);
     return { message: 'Logout successful' };
+  }
+
+  @UseGuards(AuthGuard('local'))
+  @Post('auth/getAccess')
+  @ApiBody({ type: LoginDataDTO })
+  async generateToken(@Request() req: ExpressRequest, @Query('privateKey') privateKey: string) {//: Promise<LoginReturnDataDTO> {
+    this.logger.verbose("With in generateToken");
+    return await this.authService.generateToken(req.user as Omit<IUser, 'password'>, privateKey);
   }
 }

@@ -287,7 +287,7 @@ export class UserService {
       });
     }
   }
-
+/*
   async validateClient(client_id, client_secret) {
     // console.log(client_id);
     // console.log(client_secret);
@@ -302,7 +302,7 @@ export class UserService {
     }
     return client;
   }
-
+*/
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
