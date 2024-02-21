@@ -117,7 +117,7 @@ export class IssuerService {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
     const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
-    console.log(groupsrequestall)
+   // console.log(groupsrequestall)
     // this.logger.debug("groupsrequestall",groupsrequestall);
 
     await Promise.all(
@@ -125,7 +125,7 @@ export class IssuerService {
         const group = await this.groupService.findOne(
           { id: grouprequest.groupId }
         );
-        console.log("128", group);
+        //console.log("128", group);
         if (!group) {
           this.logger.error("ongoing group is missing");
           return;//if group is missing
@@ -138,7 +138,7 @@ export class IssuerService {
         }
 
         var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
-        console.log("141", countryDevicegroup);
+        //console.log("141", countryDevicegroup);
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
@@ -146,12 +146,11 @@ export class IssuerService {
           name: organization.name,
           blockchainAccountAddress: organization.blockchainAccountAddress,
         };
-        console.log("151", grouprequest.start_date);
-        console.log("152", grouprequest.end_date);
+       
         const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
         const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
-        console.log("151", startDate);
-        console.log("152", endDate);
+        //console.log("151", startDate);
+       // console.log("152", endDate);
         let start_date = endDate.toString();
 
         let hours = 1;
@@ -171,7 +170,7 @@ export class IssuerService {
         let skipUpdatingNextIssuanceLogTable: boolean = false;
         if (new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime()) {
           skipUpdatingNextIssuanceLogTable = true;
-          console.log("end time reached for buyer reservation", group);
+         // console.log("end time reached for buyer reservation", group);
           let endDto = new EndReservationdateDTO();
           endDto.endresavationdate = new Date(group.reservationEndDate);
           await this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
@@ -193,7 +192,7 @@ export class IssuerService {
               //@ts-ignore
               return new Date(b.createdAt) - new Date(a.createdAt);
             })
-            console.log("192", allDevicesOfGroup);
+           // console.log("192", allDevicesOfGroup);
             let deviceOnBoardedWhichIsInBetweenNextIssuance: Device = allDevicesOfGroup.find(ele => {
               //returns first find which is minimum and between next frequency 
               if (new Date(ele.createdAt).getTime() > new Date(start_date).getTime() && new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()) {
@@ -214,11 +213,11 @@ export class IssuerService {
         this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
 
         for (let key in countryDevicegroup) {
-          console.log("213", key);
+          
           //deep clone to avoid duplicates
           let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
           newGroup.devices = countryDevicegroup[key];
-          console.log("217", newGroup);
+          //console.log("217", newGroup);
           await this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
         }
         /*   if (endDate.diff(startDate, ['days']).days <= 1) {
@@ -914,12 +913,10 @@ export class IssuerService {
     filter: FilterDTO,
   ): Promise<Array<{ timestamp: Date, value: number }>> {
     this.logger.verbose(`With in getDeviceFullReadsWithTimestampAndValueAsArray`);
-    //console.log("381")
-    console.log(filter)
 
     try {
       const allReads: Array<{ timestamp: Date, value: number }> = await this.baseReadsService.find(meterId, filter);
-      console.log(`allReads externalId:${meterId}`, allReads);
+     // console.log(`allReads externalId:${meterId}`, allReads);
       return allReads;
     }
     catch (e) {
