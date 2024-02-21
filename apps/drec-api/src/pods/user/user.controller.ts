@@ -15,7 +15,9 @@ import {
   UseGuards,
   UseInterceptors,
   ConflictException,
-  UnauthorizedException
+  UnauthorizedException,
+  ValidationPipe,
+  Res,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -30,10 +32,10 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserORGDTO } from './dto/create-user.dto';
-import { EmailConfirmationResponse } from '../../utils/enums';
+import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
-import { ActiveUserGuard, PermissionGuard } from '../../guards';
+import { ActiveUserGuard, PermissionGuard, RolesGuard, WithoutAuthGuard } from '../../guards';
 import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
 import { UpdatePasswordDTO, UpdateChangePasswordDTO, ForgetPasswordDTO } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
@@ -41,8 +43,10 @@ import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity'
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
+import { User } from './user.entity';
+import { Roles } from './decorators/roles.decorator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -52,6 +56,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly emailConfirmationService: EmailConfirmationService,
+    private readonly oauthClientService: OauthClientCredentialsService,
   ) { }
 
   /**
@@ -60,7 +65,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get('me')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password')) /*,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password'])) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiResponse({
@@ -69,6 +74,7 @@ export class UserController {
     description: 'Get my user profile',
   })
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
+    console.log("With in user me");
     return this.userService.findById(id);
   }
 /**
@@ -78,7 +84,7 @@ export class UserController {
  * @returns {UserDTO}
  */
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -114,7 +120,7 @@ export class UserController {
   */
   @Post('register')
   @ApiBody({ type: CreateUserORGDTO })
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -126,7 +132,7 @@ export class UserController {
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request
   ): Promise<UserDTO> { 
-    let client = request.user; /*
+    const user = request.user; /*
     console.log(request.headers);
     if (request.headers['client_id'] && request.headers['client_secret']) {
       if (!request.headers['client_secret'] || !request.headers['client_id']) {
@@ -169,9 +175,13 @@ export class UserController {
           })
         );
       });
-    }
+    } /*
     if (client) {
       userRegistrationData['client'] = client;
+    }  */
+    if(!userRegistrationData.api_user_id) {
+      //@ts-ignore
+      userRegistrationData.api_user_id = user.api_user_id;
     }
     return this.userService.newcreate(userRegistrationData);
   }
@@ -181,7 +191,7 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put('profile')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserProfileDTO })
@@ -204,7 +214,7 @@ export class UserController {
    * @returns {UserDTO} .
    */
   @Put('password')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard ,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard ,PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdatePasswordDTO })
@@ -224,7 +234,7 @@ export class UserController {
      * @returns {UserDTO} .
      */
   @Put('reset/password/:token')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
@@ -264,7 +274,7 @@ export class UserController {
  * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
  */
   @Put('confirm-email/:token')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
@@ -286,7 +296,7 @@ export class UserController {
    * @returns 
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -307,7 +317,7 @@ export class UserController {
  * @returns {SuccessResponseDTO}
  */
   @Post('forget-password')
-  @UseGuards(AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(WithoutAuthGuard, PermissionGuard)
   /*@UseGuards(PermissionGuard) */
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
@@ -352,5 +362,15 @@ export class UserController {
       return this.userService.geytokenforResetPassword(body.email);
     } */
     return this.userService.geytokenforResetPassword(body.email);
+  }
+
+  @Post('export-accesskey/:api_user_id')
+  @UseGuards(WithoutAuthGuard, RolesGuard)
+  @Roles(Role.ApiUser)
+  public async AccessKeyFile(
+    @Param('api_user_id') api_user_id: string,
+    @Res() res: Response,
+  ) {
+    return this.oauthClientService.createKeyFile(api_user_id, res);
   }
 }

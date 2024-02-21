@@ -96,7 +96,7 @@ export class OrganizationController {
     * @returns 
     */
   @Get('/apiuser/all_organization')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -124,7 +124,7 @@ export class OrganizationController {
    * @returns 
    */
   @Get('/users')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -159,7 +159,7 @@ export class OrganizationController {
  * and undefined when there is no particular record not available.
  */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   //  @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ORGANIZATION_MANAGEMENT_CRUDL")
@@ -331,7 +331,7 @@ export class OrganizationController {
     }
   }
   @Delete('/user/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -344,9 +344,15 @@ export class OrganizationController {
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
     const user = await this.userService.findById(userid);
-    if (!user && user.organization.id != loggedUser.organizationId) {
+    //@ts-ignore
+    if((loggedUser.role===Role.ApiUser&&(loggedUser.api_user_id!=user.api_user_id))){
       throw new NotFoundException('User does not exist in this organization');
+    }else{
+      if (!user && user.organization.id != loggedUser.organizationId) {
+        throw new NotFoundException('User does not exist in this organization');
+      }
     }
+   
     //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
 
     if ((user.role === loggedUser.role && user.status === 'Active')) {

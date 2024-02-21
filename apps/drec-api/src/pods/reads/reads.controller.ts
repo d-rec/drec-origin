@@ -140,7 +140,7 @@ export class ReadsController extends BaseReadsController {
     type: [ReadDTO],
     description: 'Returns time-series of meter reads',
   })
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newgetReads(
@@ -365,7 +365,7 @@ export class ReadsController extends BaseReadsController {
     type: [NewIntmediateMeterReadDTO],
   })
  
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), RolesGuard,PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
@@ -1285,7 +1285,7 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.OK,
     description: 'Returns the latest meter read of the given device',
   })
-  @UseGuards(AuthGuard('jwt'),AuthGuard('oauth2-client-password'),PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']),PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(

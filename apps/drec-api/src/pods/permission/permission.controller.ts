@@ -127,7 +127,7 @@ export class PermissionController {
      * @returns 
      */
     @Put('/update/:id')
-    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'))
+    @UseGuards(AuthGuard(['jwt','oauth2-client-password']))
     @ApiBody({ type: UpdatePermissionDTO })
     @Permission('Write')
     @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -152,7 +152,7 @@ export class PermissionController {
      * @returns {PermissionDTO}
      */
     @Post('/module/apiuser/request')
-    @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard)
+    @UseGuards(AuthGuard(['jwt','oauth2-client-password']), RolesGuard)
     @Roles(Role.ApiUser)
     @ApiBody({ type: [NewApiUserPermissionDTO] })
     @ApiResponse({

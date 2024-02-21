@@ -53,7 +53,7 @@ import {IrecDevicesInformationEntity} from './pods/device/irec_devices_informati
 import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_information.entity'
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
-
+import {UserLoginSessionEntity} from './pods/user/user_login_session.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -98,6 +98,7 @@ export const entities = [
   DeltaFirstRead,,
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
+  UserLoginSessionEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities

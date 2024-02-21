@@ -9,8 +9,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
-import { ClientCredentialsStrategy } from './client.strategy';
 import { EmailConfirmationModule } from '../pods/email-confirmation/email-confirmation.module';
+import { ClientJwtStrategy } from './client-jwt.strategy';
 
 @Global()
 @Module({
@@ -33,7 +33,7 @@ import { EmailConfirmationModule } from '../pods/email-confirmation/email-confir
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy,ClientCredentialsStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, ClientJwtStrategy],
   exports: [AuthService, PassportModule, JwtModule],
 })
 export class AuthModule {}

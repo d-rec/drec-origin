@@ -63,7 +63,7 @@ export class InvitationController {
    * @returns 
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This organizationId can be used to retrieve records of apiuser" })
@@ -131,7 +131,7 @@ export class InvitationController {
    * @returns 
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer, Role.SubBuyer, Role.ApiUser)
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
@@ -202,7 +202,7 @@ export class InvitationController {
    * @returns 
    */
   @Get('/By_email')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
  

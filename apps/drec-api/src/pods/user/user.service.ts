@@ -35,6 +35,7 @@ import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 import { ApiUserEntity } from './api-user.entity';
+import { UserLoginSessionEntity } from './user_login_session.entity'
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -47,6 +48,8 @@ export class UserService {
     @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
     @InjectRepository(ApiUserEntity)
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
+    @InjectRepository(UserLoginSessionEntity)
+    private readonly userloginSessionRepository: Repository<UserLoginSessionEntity>,
 
   ) { }
 
@@ -94,7 +97,7 @@ export class UserService {
     status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     //@ts-ignore
-    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.client.api_user_id);
+    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.api_user_id);
     /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
@@ -112,16 +115,16 @@ export class UserService {
 
       }
 
-      orgdata['api_user_id'] = data['client'].api_user_id;
+      orgdata['api_user_id'] = api_user.api_user_id;
 
-    /*
-      if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
-        orgdata['api_user_id'] = api_user.api_user_id;
-      }
-      else if (data['client']) {
-        orgdata['api_user_id'] = data['client'].api_user_id;
-      }
-    */
+      /*
+        if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
+          orgdata['api_user_id'] = api_user.api_user_id;
+        }
+        else if (data['client']) {
+          orgdata['api_user_id'] = data['client'].api_user_id;
+        }
+      */
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -157,7 +160,7 @@ export class UserService {
       role = Role.ApiUser
       roleId = 6;
     }
-    
+
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -168,8 +171,8 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
-
+      //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
+      api_user_id: api_user ? api_user.api_user_id : null,
     });
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(user)}`,
@@ -189,13 +192,15 @@ export class UserService {
       return newUser;
     }
     */
+    /*
     if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
       //@ts-ignore
       user['client_id'] = data.client.client_id;
       //@ts-ignore
       user['client_secret'] = data.client.client_secret;
-    }   
-
+    }
+    */   
+    
     await this.emailConfirmationService.create(user);
     //return new User(user);
     return user;
@@ -269,9 +274,9 @@ export class UserService {
   }
 
   private async checkForExistingUser(email: string): Promise<void> {
-   
+
     const isExistingUser = await this.hasUser({ email });
-   
+
     if (isExistingUser) {
       const message = `User with email ${email} already exists`;
 
@@ -282,7 +287,7 @@ export class UserService {
       });
     }
   }
-
+/*
   async validateClient(client_id, client_secret) {
     // console.log(client_id);
     // console.log(client_secret);
@@ -297,7 +302,7 @@ export class UserService {
     }
     return client;
   }
-
+*/
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
@@ -307,7 +312,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`No user found with id ${id}`);
     }
-    
+
     //@ts-ignore
     if (user.role === Role.ApiUser) {
       //@ts-ignore
@@ -542,10 +547,10 @@ export class UserService {
 
 
       let [users, totalCount] = await query
-      .andWhere(`role != :role`, { role: Role.ApiUser})
-      .skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+        .andWhere(`role != :role`, { role: Role.ApiUser })
+        .skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
-      
+
       return {
         users: users,
         currentPage: pageNumber,
@@ -668,27 +673,27 @@ export class UserService {
       .getManyAndCount();
   }
   /**get all user of apiuser */
-  public async findUserByApiUserId(api_user_id: string, pageNumber: number, limit: number,org_id?) {
+  public async findUserByApiUserId(api_user_id: string, pageNumber: number, limit: number, org_id?) {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
       .where('user.api_user_id = :api_user_id', { api_user_id })
-      .andWhere(`role != :role`, { role: Role.ApiUser})
+      .andWhere(`role != :role`, { role: Role.ApiUser })
       .orderBy('user.createdAt', 'DESC')
       .skip((pageNumber - 1) * limit)
       .take(limit)
       .getManyAndCount();
   }
-/** ApiUser Fuction*/
+  /** ApiUser Fuction*/
 
-async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
-  return await this.apiUserEntityRepository.findOne(api_id);
-}
-/**
- * This Function added for request of permission to apiuser in apiuser table
- * @param api_id 
- * @param permissionIds 
- */
+  async getApiuser(api_id: string): Promise<ApiUserEntity | undefined> {
+    return await this.apiUserEntityRepository.findOne(api_id);
+  }
+  /**
+   * This Function added for request of permission to apiuser in apiuser table
+   * @param api_id 
+   * @param permissionIds 
+   */
   async apiuser_permission_request(api_id, permissionIds) {
 
     await this.apiUserEntityRepository.update(api_id, {
@@ -708,11 +713,11 @@ async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
     })
     return await this.apiUserEntityRepository.findOne(api_id);
   }
-/**
- * This service method use for get info of permission request status(Request,Active and Deactive)
- * @param api_id 
- * @returns 
- */
+  /**
+   * This service method use for get info of permission request status(Request,Active and Deactive)
+   * @param api_id 
+   * @returns 
+   */
   async get_apiuser_permission_status(api_id: string) {
 
     const status_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id)
@@ -720,34 +725,73 @@ async getApiuser (api_id: string): Promise<ApiUserEntity | undefined>{
     return status_apiuser_permissiom;
   }
 
-/**
- * this function create for get user list of ApiUser
- * @param organizationName 
- * @param pageNumber 
- * @param limit 
- * @returns 
- */
+  /**
+   * this function create for get user list of ApiUser
+   * @param organizationName 
+   * @param pageNumber 
+   * @param limit 
+   * @returns 
+   */
   public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
     let filterDto = new UserFilterDTO;
     filterDto.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDto);
-      try {
-        const [apiusers, totalCount] = await query
+    try {
+      const [apiusers, totalCount] = await query
         .andWhere(`user.role = :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
 
-        const totalPages = Math.ceil(totalCount / limit);
-        return {
-          users: apiusers,
-          currentPage: pageNumber,
-          totalPages,
-          totalCount
-        }
-      } catch (error) {
-        this.logger.error(`Failed to retrieve apiusers`, error.stack);
-        throw new InternalServerErrorException('Failed to retrieve apiusers');
+      const totalPages = Math.ceil(totalCount / limit);
+      return {
+        users: apiusers,
+        currentPage: pageNumber,
+        totalPages,
+        totalCount
       }
+    } catch (error) {
+      this.logger.error(`Failed to retrieve apiusers`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve apiusers');
     }
+  }
+
+  /**
+   * 
+   * @param email 
+   * @param token 
+   * @returns 
+   */
+
+  async createUserSession(user: any, token: string) {
+   
+    await this.userloginSessionRepository.save({
+      userId: user.id,
+      accesstoken_hash: token
+    })
+    return;
+  }
+  /**
+   * 
+   * @param userId 
+   * @returns 
+   */
+  async removeUsersession(userId:number) {
+   return await this.userloginSessionRepository.delete(
+      { userId:userId }
+    );
+  }
+
+  // async getToken(token, userid):Promise<Boolean> {
+  //   await this.userloginSessionRepository.findOne({
+  //     where: {
+  //       token: token,
+  //       UserId: userid
+  //     }
+  //   })
+  // }
+
+  async hasgetUserTokenvalid(conditions: FindConditions<UserLoginSessionEntity>) {
+    return Boolean(await this.userloginSessionRepository.findOne(conditions));
+  }
 }

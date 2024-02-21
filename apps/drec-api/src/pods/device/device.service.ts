@@ -147,6 +147,11 @@ export class DeviceService {
           createdAt: 'DESC',
         }
       });
+      if (totalCount==0) {
+        this.logger.error(`Page number out of range`);
+        throw new HttpException('No Device Availble', HttpStatus.NOT_FOUND);
+      }
+
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
         this.logger.error(`Page number out of range`);
@@ -790,6 +795,11 @@ export class DeviceService {
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId
     }
+    //@ts-ignore
+    else if(filter.organizationId != null && filter.organizationId != undefined) {
+      //@ts-ignore
+      where.organizationId = filter.organizationId
+    }
     if (filter.start_date != null && filter.end_date === undefined) {
       where.commissioningDate = MoreThanOrEqual(filter.start_date);
 
@@ -1298,7 +1308,7 @@ export class DeviceService {
     groupId: number, deviceId: string
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return this.checkdevcielogcertificaterepository.findOne(
+    return await this.checkdevcielogcertificaterepository.findOne(
       {
         where: {
           groupId: groupId,
