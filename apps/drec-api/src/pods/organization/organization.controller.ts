@@ -147,7 +147,7 @@ export class OrganizationController {
       return this.organizationService.findApiuserOrganizationUsers(loggedUser.api_user_id, pageNumber, limit);
 
     } else {
-      return this.organizationService.findOrganizationUsers(loggedUser.organizationId, pageNumber, limit);
+      return this.organizationService.findOrganizationUsers(loggedUser.organizationId, pageNumber, limit, loggedUser.role);
     }
 
   }
