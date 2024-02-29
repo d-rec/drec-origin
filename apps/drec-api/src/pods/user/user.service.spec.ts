@@ -11,11 +11,11 @@ import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
-import { OrganizationStatus, Role, UserPermissionStatus, UserStatus } from 'src/utils/enums';
+import { OrganizationStatus, Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
 import { v4 as uuid } from 'uuid';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
-import { IUser } from 'src/models';
+import { IUser } from '../../models';
 import exp from 'constants';
 
 

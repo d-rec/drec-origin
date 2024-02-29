@@ -5,7 +5,7 @@ import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
-import { OrganizationStatus, Role, UserPermissionStatus, UserStatus } from 'src/utils/enums';
+import { OrganizationStatus, Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
 import * as crypto from 'crypto';
 
 

@@ -6,7 +6,7 @@ import { Organization } from './organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
-import { MailService } from 'src/mail';
+import { MailService } from '../../mail/mail.service';
 import { FileService } from '../file';
 
 
