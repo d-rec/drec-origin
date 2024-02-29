@@ -1,8 +1,11 @@
-import { expect } from 'chai';
+//import { expect } from 'chai';
+import { FuelCode } from './enums';
 import { getFuelNameFromCode } from './getFuelNameFromCode';
 
 describe('getFuelNameFromCode function', () => {
-  const code = 'ES100';
-  const fuelType = getFuelNameFromCode(code);
-  expect(fuelType).to.eq('Solar');
+  it('getFuelCode', async()=> {
+    //const code = 'ES100';
+    const fuelType = getFuelNameFromCode(FuelCode.ES100);
+    expect(fuelType).toEqual('Solar');
+  });
 });
