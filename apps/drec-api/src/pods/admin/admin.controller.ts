@@ -112,7 +112,7 @@ export class AdminController {
   }
   @Get('/organizations/user/:organizationId')
   @Permission('Read')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules("ADMIN_APIUSER_ORGANIZATION_CRUDL")
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
