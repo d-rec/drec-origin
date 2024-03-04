@@ -129,7 +129,12 @@ export class OauthClientCredentialsService {
             const file = fs.readFileSync('private_key.pem'); // Read the file as a buffer
             res.setHeader('Content-Disposition', 'attachment; filename=private_key.pem');
             res.setHeader('Content-Type', 'application/octet-stream');        
-            res.send(file);
+            //res.send(file);
+            res.write(file, 'utf-8', () => {
+                console.log('The CSV file streamed successfully!');
+                res.end();
+              });
+ 
         } catch (error) {
             throw new HttpException('Error Occured', HttpStatus.INTERNAL_SERVER_ERROR);
         }
