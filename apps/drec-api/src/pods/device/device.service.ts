@@ -11,22 +11,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  FindOneOptions,
-  Repository,
-  In,
-  IsNull,
-  Not,
-  FindOperator,
-  LessThan,
-  Raw,
-  Brackets,
-  SelectQueryBuilder,
-  FindConditions,
-  FindManyOptions,
-  Between,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  ILike,
+  FindOneOptions, Repository, In, IsNull, Not, FindOperator,LessThan,
+  Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, MoreThanOrEqual, ILike
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -73,7 +59,7 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -93,7 +79,7 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateongoingIssueCertificateEntity)
     private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
-  ) {}
+  ) { }
 
   public async find(
     filterDto: FilterDTO,
@@ -160,10 +146,11 @@ export class DeviceService {
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.ApiUser) {
-        // @ts-ignore
+        //@ts-ignore
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
-        } else {
+        }
+        else {
           where = { ...where, api_user_id };
         }
       } else {
@@ -195,9 +182,9 @@ export class DeviceService {
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
-        device.externalId = device.developerExternalId;
-        delete device['developerExternalId'];
-        delete device['organization'];
+        device.externalId = device.developerExternalId
+        delete device["developerExternalId"];
+        delete device["organization"];
 
         newDevices.push(device);
       });
@@ -214,13 +201,15 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
+
+    //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
       device.externalId = device.developerExternalId;
       delete device['developerExternalId'];
       delete device['organization'];
       newDevices.push(device);
-    });
+    })
 
     return newDevices;
   }
@@ -411,6 +400,7 @@ export class DeviceService {
     );
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
+    //console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry ?? null;
   }
 
@@ -798,15 +788,12 @@ export class DeviceService {
       countryCode: filter.country && getCodeFromCountry(filter.country),
     });
     if (orgId != null || orgId != undefined) {
-      where.organizationId = orgId;
-    } else if (
-      // @ts-ignore ts(2339)
-      filter.organizationId != null &&
-      // @ts-ignore ts(2339)
-      filter.organizationId != undefined
-    ) {
-      // @ts-ignore
-      where.organizationId = filter.organizationId;
+      where.organizationId = orgId
+    }
+    //@ts-ignore
+    else if (filter.organizationId != null && filter.organizationId != undefined) {
+      //@ts-ignore
+      where.organizationId = filter.organizationId
     }
     if (filter.start_date != null && filter.end_date === undefined) {
       where.commissioningDate = MoreThanOrEqual(filter.start_date);
@@ -1048,45 +1035,66 @@ export class DeviceService {
     });
   }
   //add new fuction for add window cycle date for late certificate
-  public async AddLateCertificateIssueDateLogForDevice(
-    params: DeviceLateongoingIssueCertificateEntity,
+  public async AddLateCertificateIssueDateLogForDevice(params: DeviceLateongoingIssueCertificateEntity
   ): Promise<DeviceLateongoingIssueCertificateEntity> {
     this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
     return await this.latedevciecertificaterepository.save({
       ...params,
+
     });
   }
-  public async findAllLateCycle(
-    groupid,
-    externalid,
-    reservation_endDate: Date,
-  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+  public async findAllLateCycle(groupid, externalid,reservation_endDate:Date): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     const reservation_end_UtcDate = new Date(reservation_endDate);
-    this.logger.verbose(reservation_end_UtcDate);
+    console.log(reservation_end_UtcDate)
     return await this.latedevciecertificaterepository.find({
       where: {
         groupId: groupid,
         device_externalid: externalid,
+        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
-        id: 'ASC',
-      },
-    });
+        id: 'ASC'
+      }
+    })
   }
-  public async finddeviceLateCycleOfdaterange(
-    groupid,
-    externalid,
-    latestartDate,
-    lateendDate,
-  ): Promise<boolean> {
+  public async finddeviceLateCycleOfdaterange(groupid, externalid, latestartDate, lateendDate): Promise<Boolean> {
+  
     const isalreadyadded = await this.latedevciecertificaterepository.findOne({
       where: {
         groupId: groupid,
         device_externalid: externalid,
         late_start_date: latestartDate.toString(),
-        late_end_date: lateendDate.toString(),
+        late_end_date: lateendDate.toString()
       },
-    });
+    })
+   
+    if (isalreadyadded) {
+      return true;
+    }
+
+  }
+
+  // public getCheckCertificateIssueDateLogForDevice(deviceid: string,
+  //   startDate: Date,
+  //   endDate: Date
+  // ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity[]> {
+  //   // const groupId = await this.checkdevcielogcertificaterepository.find({
+  //   //   where: {
+  //   //     deviceid: deviceId,
+  //   //     certificate_issuance_startdate: startDate && endDate && Between(startDate, endDate),
+  //   //     certificate_issuance_enddate: startDate && endDate && Between(startDate, endDate),
+  //   //   },
+  //   // });
+  //   //console.log(deviceid)
+  //   const groupId = this.checkdevcielogcertificaterepository
+  //     .createQueryBuilder()
+  //     .where("deviceid = :deviceid", { deviceid: deviceid })
+  //     .andWhere(
+  //       new Brackets((db) => {
+  //         db.where("certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+  //           .orWhere("certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
+  //           .orWhere(":startdateThirdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { startdateThirdWhere: startDate })
+  //           .orWhere(":enddateforthdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { enddateThirdWhere: endDate })
 
     if (isalreadyadded) {
       return true;
@@ -1096,10 +1104,11 @@ export class DeviceService {
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
-    endDate: Date,
-  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    endDate: Date): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
-    const query = this.getdevcielogFilteredQuery(deviceid, startDate, endDate);
+    const query = this.getdevcielogFilteredQuery(deviceid,
+      startDate,
+      endDate);
     try {
       const device = await query.getRawMany();
       const devices = device.map((s: any) => {
@@ -1123,9 +1132,9 @@ export class DeviceService {
   private getdevcielogFilteredQuery(
     deviceid: string,
     startDate: Date,
-    endDate: Date,
-  ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
+    endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in getdevcielogFilteredQuery`);
+    //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder('device')
       .where('device.externalId = :deviceid', { deviceid: deviceid })
@@ -1327,19 +1336,21 @@ export class DeviceService {
     return newDevices;
   }
   async getLastCertifiedDevicelogBYgroupId(
-    groupId: number,
-    deviceId: string,
+    groupId: number, deviceId: string
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return await this.checkdevcielogcertificaterepository.find({
-      where: {
-        groupId: groupId,
-        externalId: deviceId,
-      },
-      order: {
-        certificate_issuance_enddate: 'DESC',
-      },
-    });
+    return await this.checkdevcielogcertificaterepository.find(
+      {
+        where: {
+          groupId: groupId,
+          externalId: deviceId,
+
+        },
+        order: {
+          certificate_issuance_enddate: 'DESC'
+        }
+      })
+
   }
   async getcertifieddevicedaterange(groupId, device?): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterange`);
