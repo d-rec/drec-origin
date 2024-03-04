@@ -117,23 +117,13 @@ export class IssuerService {
     this.logger.debug('Called every 10 minutes to check for isssuance of certificates');
 
     const groupsrequestall = await this.groupService.getAllNextrequestCertificate();
-<<<<<<< HEAD
-    //  console.log(groupsrequestall)
-    // this.logger.debug("groupsrequestall",groupsrequestall);
-
-=======
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     await Promise.all(
       groupsrequestall.map(async (grouprequest: DeviceGroupNextIssueCertificate) => {
 
         const group = await this.groupService.findOne(
           { id: grouprequest.groupId }
         );
-<<<<<<< HEAD
-        // console.log(group);
-=======
     
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         if (!group) {
           this.logger.error("ongoing group is missing");
           return;//if group is missing
@@ -146,11 +136,6 @@ export class IssuerService {
         }
 
         var countryDevicegroup = await this.deviceService.NewfindForGroup(group.id);
-<<<<<<< HEAD
-        // console.log(countryDevicegroup);
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
@@ -158,16 +143,8 @@ export class IssuerService {
           name: organization.name,
           blockchainAccountAddress: organization.blockchainAccountAddress,
         };
-<<<<<<< HEAD
         const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
         const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
-=======
-
-        const startDate = DateTime.fromISO(grouprequest.start_date).toUTC();
-        const endDate = DateTime.fromISO(grouprequest.end_date).toUTC();
-        //console.log("151", startDate);
-        // console.log("152", endDate);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         let start_date = endDate.toString();
 
         let hours = 1;
@@ -187,11 +164,7 @@ export class IssuerService {
         let skipUpdatingNextIssuanceLogTable: boolean = false;
         if (new Date(endDate.toString()).getTime() === group.reservationEndDate.getTime()) {
           skipUpdatingNextIssuanceLogTable = true;
-<<<<<<< HEAD
           //console.log("end time reached for buyer reservation", group);
-=======
-          // console.log("end time reached for buyer reservation", group);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
           let endDto = new EndReservationdateDTO();
           endDto.endresavationdate = new Date(group.reservationEndDate);
           await this.groupService.EndReservationGroup(group.id, group.organizationId, endDto, group, grouprequest);
@@ -213,11 +186,6 @@ export class IssuerService {
               //@ts-ignore
               return new Date(b.createdAt) - new Date(a.createdAt);
             })
-<<<<<<< HEAD
-
-=======
-            // console.log("192", allDevicesOfGroup);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
             let deviceOnBoardedWhichIsInBetweenNextIssuance: Device = allDevicesOfGroup.find(ele => {
               //returns first find which is minimum and between next frequency 
               if (new Date(ele.createdAt).getTime() > new Date(start_date).getTime() && new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()) {
@@ -249,10 +217,6 @@ export class IssuerService {
           }));
         // } else {
         for (let key in countryDevicegroup) {
-<<<<<<< HEAD
-
-=======
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
           //deep clone to avoid duplicates
           let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
           newGroup.devices = countryDevicegroup[key];
@@ -501,11 +465,6 @@ export class IssuerService {
   ): Promise<void> {
     console.log("newissueCertificateForGroup")
     this.logger.verbose(`With in newissueCertificateForGroup`);
-<<<<<<< HEAD
-=======
-    // console.log(`With in newissueCertificateForGroup`, group, grouprequest, startDate, endDate, countryCodeKey);
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     if (!group?.devices?.length) {
       this.logger.debug("Line No: 463");
       return;
@@ -538,10 +497,6 @@ export class IssuerService {
           start: startDate.toString(),
           end: endDate.toString(),
         };
-<<<<<<< HEAD
-=======
-        // console.log(readsFilter)
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         let allReadsForDeviceBetweenTimeRange: Array<{ timestamp: Date, value: number }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(device.externalId, readsFilter);
         if (allReadsForDeviceBetweenTimeRange != undefined) {
           if (device.meterReadtype === 'Delta' || allReadsForDeviceBetweenTimeRange.length > 0) {
@@ -549,13 +504,7 @@ export class IssuerService {
             allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(v => !(
               FirstDeltaRead.some(e => e.readsEndDate.getTime() === v.timestamp.getTime())))
           }
-<<<<<<< HEAD
           const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(device.externalId, new Date(startDate.toString()), new Date(endDate.toString()));
-=======
-
-          const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(device.externalId, new Date(startDate.toString()), new Date(endDate.toString()));
-          //  console.log("502certifieddevices", certifieddevices);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
           if (certifieddevices.length > 0 && allReadsForDeviceBetweenTimeRange.length > 0) {
 
             allReadsForDeviceBetweenTimeRange = allReadsForDeviceBetweenTimeRange.filter(ele => {
@@ -574,11 +523,7 @@ export class IssuerService {
               }
             });
           }
-<<<<<<< HEAD
           // console.log("afterallReadsForDeviceBetweenTimeRange");
-=======
-          // console.log("521afterallReadsForDeviceBetweenTimeRange", allReadsForDeviceBetweenTimeRange);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
 
           allDevicesCompleteReadsBetweenTimeRange[index] = allReadsForDeviceBetweenTimeRange;
           let devciereadvalue = allReadsForDeviceBetweenTimeRange.reduce(
@@ -600,20 +545,12 @@ export class IssuerService {
 
     if (filteredDevicesIndexesListIfMeterReadsNotAvailable.length > 0) {
       filteredDevicesIndexesListIfMeterReadsNotAvailable.forEach(index => {
-<<<<<<< HEAD
         //console.log("546",dateindex,index,group.devices);
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         group.devices.splice(index, 1);
         allDevicesCompleteReadsBetweenTimeRange.splice(index, 1);
         groupReads.splice(index, 1);
       })
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     if (group.devices.length === 0) {
       //after filtering if devices are not there then do not continue further 
       return;
@@ -622,10 +559,6 @@ export class IssuerService {
       (accumulator, currentValue) => accumulator + currentValue,
       0,
     );
-<<<<<<< HEAD
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     if (!totalReadValue) {
       return;
     }
@@ -634,19 +567,10 @@ export class IssuerService {
       totalReadValue,
       countryCodeKey
     );
-<<<<<<< HEAD
-
-=======
-    //  console.log("560Kw", totalReadValueKw);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     if (!totalReadValueKw) {
       return;
     }
     const issueTotalReadValue = totalReadValueKw * 10 ** 3; // Issue certificate in watts
-<<<<<<< HEAD
-=======
-    // console.log("565", issueTotalReadValue);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     // const deviceGroup = {
     //   ...group,
     //   devices: [],
@@ -679,27 +603,7 @@ export class IssuerService {
                 if (aggregateReadings.length > 0) {
                   //console.log("aggregateReadings[0].datetime", aggregateReadings[0].datetime);
 
-<<<<<<< HEAD
                   previousReading = [{ timestamp: new Date(aggregateReadings[0].datetime), value: 0 }];
-=======
-          try {
-            previousReading = await this.readservice.findLastReadForMeterWithinRange(device.externalId, new Date(startTimeToCheck), endTimestampToCheck);
-
-            if (previousReading.length == 0) {
-
-              if (device.meterReadtype === ReadType.Delta) {
-                previousReading = [{ timestamp: new Date(device.createdAt), value: 0 }];
-              }
-              else if (device.meterReadtype === ReadType.ReadMeter) {
-                try {
-                  let aggregateReadings = await this.readservice.getAggregateMeterReadsFirstEntryOfDevice(device.externalId);
-                  if (aggregateReadings.length > 0) {
-                    //console.log("aggregateReadings[0].datetime", aggregateReadings[0].datetime);
-
-                    previousReading = [{ timestamp: new Date(aggregateReadings[0].datetime), value: 0 }];
-                  }
-                  //console.log("aggregateReadings", aggregateReadings);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
                 }
                 //console.log("aggregateReadings", aggregateReadings);
               }
@@ -720,12 +624,6 @@ export class IssuerService {
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
         );
-<<<<<<< HEAD
-        //console.log("previousReading", previousReading);
-        //console.log("allDevicesCompleteReadsBetweenTimeRange", allDevicesCompleteReadsBetweenTimeRange);
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
         let devicecertificatelogDto = new CheckCertificateIssueDateLogForDeviceEntity();
         devicecertificatelogDto.externalId = device.externalId,
           devicecertificatelogDto.certificate_issuance_startdate = previousReading.length > 0 ? previousReading[0].timestamp : new Date(startDate.toString()),
@@ -769,11 +667,6 @@ export class IssuerService {
         }
       })
     }
-<<<<<<< HEAD
-    // console.log(dateindex, group.devices)
-=======
-
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
@@ -811,10 +704,7 @@ export class IssuerService {
       devicegroupcertificatelogDto.certificateTransactionUID = certificateTransactionUID.toString();
     await this.groupService.AddCertificateIssueDateLogForDeviceGroup(devicegroupcertificatelogDto);
     //const issuedCertificate = await 
-<<<<<<< HEAD
-=======
     // console.log("700", issuance);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
     this.issueCertificate(issuance);
     ////console.log(issuedCertificate);
     //console.log("generate Succesfull");
@@ -1017,21 +907,12 @@ export class IssuerService {
     //console.log(`allReads externalId:${meterId}`, allReads);
     try {
       const allReads: Array<{ timestamp: Date, value: number }> = await this.baseReadsService.find(meterId, filter);
-<<<<<<< HEAD
-      console.log(`allReads externalId:${meterId}`, allReads);
-=======
       // console.log(`allReads externalId:${meterId}`, allReads);
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
       return allReads;
     }
     catch (e) {
       this.logger.error("exception caught in inbetween device onboarding checking for createdAt");
       this.logger.error(e);
-<<<<<<< HEAD
-=======
-
-    }
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
 
     }
   }
@@ -1093,11 +974,7 @@ export class IssuerService {
     });
   }
 
-<<<<<<< HEAD
-  @Cron('0 */4 * * *')
-=======
   @Cron('0 */1 * * *')
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 4hr to check for isssuance of certificates');
@@ -1134,37 +1011,6 @@ export class IssuerService {
           newGroup.devices = countryDevicegroup[key];
           await Promise.all(
             newGroup.devices.map(async (element) => {
-<<<<<<< HEAD
-
-              const lastread = await this.readservice.latestread(element.externalId, (new Date(element.createdAt)).toISOString())
-              if (lastread) {
-                const lastcertifieddeviceend_date = await this.deviceService.getLastCertifiedDevicelogBYgroupId(group.id, element.externalId)
-                let newGroupwithsingledevice: DeviceGroup = JSON.parse(JSON.stringify(newGroup));
-                newGroupwithsingledevice.devices = [element];
-                let startDate;
-                let endDate;
-                // 
-                if (lastcertifieddeviceend_date === undefined) {
-
-                  if ((element.createdAt).getTime() <= (group.reservationStartDate).getTime()) {
-                    startDate = DateTime.fromISO(group.reservationStartDate.toISOString()).toUTC();
-                  }
-                  else {
-                    startDate = DateTime.fromISO(new Date(element.createdAt).toISOString()).toUTC();
-                  }
-                }
-                else {
-                  startDate = DateTime.fromISO(lastcertifieddeviceend_date.certificate_issuance_enddate.toISOString()).toUTC();
-                }
-                if (new Date(lastread[0].timestamp).getTime() < new Date(nextissuance.start_date).getTime()) {
-                  endDate = DateTime.fromISO(new Date(lastread[0].timestamp).toISOString()).toUTC();
-                }
-
-                if (new Date(lastread[0].timestamp).getTime() > new Date(nextissuance.start_date).getTime()) {
-                  endDate = DateTime.fromISO(new Date(nextissuance.start_date).toISOString()).toUTC();
-                }
-                this.newissueCertificateForGroup(newGroupwithsingledevice, nextissuance, startDate, endDate, key);
-=======
               const lateongoing = await this.deviceService.findAllLateCycle(group.id, element.externalId,group.reservationEndDate)
 
               if (lateongoing) {
@@ -1208,7 +1054,6 @@ export class IssuerService {
                     }
 
                   }))
->>>>>>> 383bc55d... worked on DR-755 (late ongoing process update)
               } else {
                 this.logger.error("late ongoing read is missing");
                 return;

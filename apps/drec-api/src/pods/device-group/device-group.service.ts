@@ -1946,7 +1946,7 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupNextIssueCertificate[]> {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
-      where: { end_date: LessThan(new Date()) },
+      where: { end_date: LessThan(new Date().toISOString()) },
     });
     ////console.log(groupId)
     return groupId
