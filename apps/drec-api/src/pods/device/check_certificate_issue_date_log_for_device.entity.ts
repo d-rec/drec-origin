@@ -48,4 +48,12 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @IsString()
   certificateTransactionUID:string
 
+
+  @Column()
+  @IsDate()
+  ongoing_start_date: string;
+
+  @Column()
+  @IsDate()
+  ongoing_end_date: string;
 }
