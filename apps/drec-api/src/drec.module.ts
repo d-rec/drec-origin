@@ -54,6 +54,7 @@ import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_inform
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import {UserLoginSessionEntity} from './pods/user/user_login_session.entity';
+import {DeviceLateongoingIssueCertificateEntity} from './pods/device/device_lateongoing_certificate.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -99,6 +100,7 @@ export const entities = [
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
   UserLoginSessionEntity,
+  DeviceLateongoingIssueCertificateEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities
