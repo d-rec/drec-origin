@@ -102,9 +102,8 @@ export class AdminController {
     return await this.organizationService.getAll(filterDto, pageNumber, limit);
   }
   @Get('/organizations/user/:organizationId')
-  @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
+  @ACLModules("ADMIN_APIUSER_ORGANIZATION_CRUDL")
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({

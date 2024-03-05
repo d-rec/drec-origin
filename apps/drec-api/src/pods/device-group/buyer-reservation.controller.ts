@@ -82,7 +82,7 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), RolesGuard,PermissionGuard)
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @Permission('Read')
   @Roles(Role.Admin,Role.ApiUser)
@@ -200,7 +200,7 @@ export class BuyerReservationController {
    * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This query parameter is used for Apiuser"})
@@ -249,7 +249,7 @@ export class BuyerReservationController {
    * @returns {ResponseDeviceGroupDTO | null}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), RolesGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
   @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
   @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
@@ -614,7 +614,7 @@ export class BuyerReservationController {
    * @returns {JobFailedRowsDTO | undefined}
    */
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)//, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)//, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'orgId', type: Number, required: false, description: "This query parameter is used for Apiuser" })
@@ -692,7 +692,7 @@ export class BuyerReservationController {
    * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
    */
   @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')

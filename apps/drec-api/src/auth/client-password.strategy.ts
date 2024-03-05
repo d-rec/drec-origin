@@ -15,7 +15,7 @@ export class ClientPasswordStrategy extends PassportStrategy {
 
     super();
     //@ts-ignore
-    this.name = 'oauth2-client-password';
+    //this.name = 'oauth2-client-password';
     //@ts-ignore
     this._verify = verify;
     //@ts-ignore

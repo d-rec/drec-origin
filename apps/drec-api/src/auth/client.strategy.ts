@@ -10,7 +10,7 @@ import { EmailConfirmationService } from '../pods/email-confirmation/email-confi
 @Injectable()
 export class ClientCredentialsStrategy extends PassportStrategy(
   ClientPasswordStrategy,
-  'oauth2-client-password',
+ // 'oauth2-client-password',
 ) {
 
   private readonly logger = new Logger(ClientCredentialsStrategy.name);
@@ -24,6 +24,7 @@ export class ClientCredentialsStrategy extends PassportStrategy(
     }
 
   async validate(request : any, clientId: string, clientSecret: string) {
+    /*
     let client : any;
     //const clientId = request.headers['client-id'];
     // const clientSecret = request.headers['client-secret'];
@@ -129,9 +130,9 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       }
 
       return request.user ?? client;
-    }
+    } */
   }
-  async validateClient(clientId: string, clientSecret: string): Promise<any> {
+  async validateClient(clientId: string, clientSecret: string): Promise<any> { /*
     this.logger.verbose('With in the validateClient');
     // Implement your client ID and client secret validation logic here
     // Example: Fetch client information from the database and check if the provided client ID and client secret match
@@ -147,6 +148,6 @@ export class ClientCredentialsStrategy extends PassportStrategy(
       this.logger.error('Invalid client credentials');
       throw new UnauthorizedException('Invalid client credentials');
     }
-    return client;
+    return client; */
   }
 }

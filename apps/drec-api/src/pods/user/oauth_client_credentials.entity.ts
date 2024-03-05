@@ -11,12 +11,12 @@ export class OauthClientCredentials {
 //   @Column()
 //   userId: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'text' })
   client_id: string;
-
+/*
   @Column()
   client_secret: string;
-
+*/
   @Column()
   api_user_id:string;
 

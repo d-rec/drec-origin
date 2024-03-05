@@ -535,6 +535,7 @@ export class DeviceGroupService {
     // If deviceGroups is not an array, return an empty array
     const finalreservation = groupedData.map((deviceGroup) => ({
       id: deviceGroup.dg_id,
+      createdAt:deviceGroup.dg_createdAt,
       name: deviceGroup.dg_name,
       organizationId: deviceGroup.dg_organizationId,
       fuelCode: deviceGroup.dg_fuelCode,
@@ -1957,7 +1958,7 @@ export class DeviceGroupService {
     startdate: string,
     enddate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in updatecertificateissuedate`);
+    this.logger.verbose(`With in updatecertificateissuenextdate`);
     // await this.checkNameConflict(data.name);
     const deviceGroupdate = await this.getGroupiCertificateIssueDate({ id: id });
     let updatedissuedate = new DeviceGroupNextIssueCertificate();

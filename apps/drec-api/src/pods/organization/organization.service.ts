@@ -132,7 +132,7 @@ export class OrganizationService {
     const [users, totalCount] = await this.userService.findUserByOrganization(id, pageNumber, limit);
     const totalPages = Math.ceil(totalCount / limit);
     let newuser= users
-    if (role != Role.OrganizationAdmin) {
+    if (role != undefined && role != Role.OrganizationAdmin) {
       newuser = users.filter(user => user.role != "OrganizationAdmin");
     }
 
