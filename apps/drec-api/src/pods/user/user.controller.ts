@@ -364,7 +364,7 @@ export class UserController {
     return this.userService.geytokenforResetPassword(body.email);
   }
 
-  @Post('export-accesskey/:api_user_id')
+  @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
   @Roles(Role.ApiUser)
   public async AccessKeyFile(
