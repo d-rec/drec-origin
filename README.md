@@ -156,3 +156,4 @@ Before running the script, make sure:
 2. Post generated devices to Server - Bulk Devices
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
+5. The metamask extension required to add in default browser before generating certificate. Create login, select etherum mainnet, add balance to your wallet using this link https://voltafaucet.energyweb.org/ and update your blockchain address and mnemonic in our .env file  
