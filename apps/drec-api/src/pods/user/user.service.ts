@@ -273,7 +273,7 @@ export class UserService {
     return new User(user);
   }
 
-  private async checkForExistingUser(email: string): Promise<void> {
+  public async checkForExistingUser(email: string): Promise<void> {
 
     const isExistingUser = await this.hasUser({ email });
 
