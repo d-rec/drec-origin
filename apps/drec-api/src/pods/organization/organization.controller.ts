@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   HttpStatus,
   Param,
@@ -35,6 +36,8 @@ import {
   BindBlockchainAccountDTO,
 } from './dto';
 import { OrganizationService } from './organization.service';
+import {UserService} from '../user/user.service'
+import {InvitationService} from '../invitation/invitation.service'
 import { UserDTO } from '../user/dto/user.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
@@ -64,7 +67,9 @@ export class OrganizationController {
 
   private readonly logger = new Logger(OrganizationController.name);
 
-  constructor(private readonly organizationService: OrganizationService) { }
+  constructor(private readonly organizationService: OrganizationService,
+    private userService:UserService,
+    private invitationservice:InvitationService) { }
 
   /**
    * 
@@ -91,7 +96,7 @@ export class OrganizationController {
     * @returns 
     */
   @Get('/apiuser/all_organization')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -119,7 +124,7 @@ export class OrganizationController {
    * @returns 
    */
   @Get('/users')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -142,7 +147,7 @@ export class OrganizationController {
       return this.organizationService.findApiuserOrganizationUsers(loggedUser.api_user_id, pageNumber, limit);
 
     } else {
-      return this.organizationService.findOrganizationUsers(loggedUser.organizationId, pageNumber, limit);
+      return this.organizationService.findOrganizationUsers(loggedUser.organizationId, pageNumber, limit, loggedUser.role);
     }
 
   }
@@ -154,7 +159,7 @@ export class OrganizationController {
  * and undefined when there is no particular record not available.
  */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   //  @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules("ORGANIZATION_MANAGEMENT_CRUDL")
@@ -324,5 +329,39 @@ export class OrganizationController {
       this.logger.error(`Not a member of the organization.`);
       throw new ForbiddenException('Not a member of the organization.');
     }
+  }
+  @Delete('/user/:id')
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
+  @Permission('Delete')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponseDTO,
+    description: 'Delete an user of organization',
+  })
+  async deleteUser(
+    @UserDecorator() loggedUser: ILoggedInUser,
+    @Param('id', new ParseIntPipe()) userid: number,
+  ): Promise<SuccessResponseDTO> {
+    const user = await this.userService.findById(userid);
+    //@ts-ignore
+    if((loggedUser.role===Role.ApiUser&&(loggedUser.api_user_id!=user.api_user_id))){
+      throw new NotFoundException('User does not exist in this organization');
+    }else{
+      if (!user && user.organization.id != loggedUser.organizationId) {
+        throw new NotFoundException('User does not exist in this organization');
+      }
+    }
+   
+    //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+
+    if ((user.role === loggedUser.role && user.status === 'Active')) {
+      throw new NotFoundException('Unauthorized');
+    }
+    else {
+      await this.invitationservice.remove(user.email, user.organization.id)
+      await this.userService.remove(user.id);
+    }
+    return ResponseSuccess();
   }
 }

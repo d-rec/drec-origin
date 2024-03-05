@@ -43,13 +43,12 @@ export class PermissionGuard implements CanActivate {
     }
     const request = context.switchToHttp().getRequest();
     let user : IUser;
-      const client = request.user as OauthClientCredentials;
+      user = request.user;
     if(request.url.split('/')[3] ===  'register') {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       if(request.body.organizationType === Role.ApiUser) {
         return true;
-      }
-
+      } /*
       if(request.user.client_id != process.env.client_id) {
         this.logger.debug('When the client at request');
         user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
@@ -58,7 +57,7 @@ export class PermissionGuard implements CanActivate {
       if(request.user.client_id === process.env.client_id) {
         this.logger.debug('When the client is same as the client at dotEnv');
         user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
-      }
+      } */
     }
     else {
       user = request.user;

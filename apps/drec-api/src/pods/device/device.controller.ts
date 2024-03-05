@@ -86,7 +86,7 @@ export class DeviceController {
   * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto
   */
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -99,7 +99,7 @@ export class DeviceController {
     @Query('OrganizationId') OrgId: number | null,
   )/*: Promise<DeviceDTO[]>*/ {
     this.logger.verbose(`With in getAll`);
-    return this.deviceService.find(filterDto, pagenumber,OrgId);
+    return this.deviceService.find(filterDto, pagenumber, OrgId);
   }
 
   /**
@@ -107,9 +107,10 @@ export class DeviceController {
   * @return {Array<DeviceDTO>} return array of devices for reservation 
   */
   @Get('/ungrouped/buyerreservation')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard, RolesGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard, RolesGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
   // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
   //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
@@ -120,31 +121,43 @@ export class DeviceController {
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
     //@ts-ignore
-    if(filterDto.organizationId) {
+    if (filterDto.organizationId) {
       //@ts-ignore
       const organization = await this.organizationService.findOne(filterDto.organizationId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
-      if(role === Role.ApiUser) {
-        if(organization.api_user_id != api_user_id) {
+      if (role === Role.ApiUser) {
+        if (organization.api_user_id != api_user_id) {
           this.logger.error(`The requested organization is belongs to other apiuser`);
           throw new UnauthorizedException({
-            success : false,
+            success: false,
             message: `The requested organization is belongs to other apiuser`,
+          });
+        }
+
+        if (orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
+          this.logger.error(`Unauthorized... The requested user is developer or device owner`);
+          throw new UnauthorizedException({
+            success: false,
+            message: `Unauthorized`,
           });
         }
       }
       else {
-        if(organizationId != organization.id) {
+        if (organizationId != organization.id) {
           this.logger.error(`The requested organization is not same as user's organization`);
           throw new UnauthorizedException({
-            success : false,
+            success: false,
             message: `The requested organization is not same as user's organization`,
           });
         }
       }
     }
 
-    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber);
+    if (role !== Role.ApiUser) {
+      api_user_id = null;
+    }
+
+    return this.deviceService.finddeviceForBuyer(filterDto, pagenumber, api_user_id);
   }
 
   /**
@@ -152,7 +165,7 @@ export class DeviceController {
   * @return {GroupedDevicesDTO} returns ungrouped devices
   */
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -208,7 +221,7 @@ export class DeviceController {
    * @returns {Array<DeviceDTO>}
    */
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
@@ -226,7 +239,7 @@ export class DeviceController {
     this.logger.verbose(`With in getMyDevices`);
     if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
-     
+
       if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
         let countries = countryCodesList;
         if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
@@ -253,19 +266,19 @@ export class DeviceController {
       }
     }
     //@ts-ignore
-    if(filterDto.organizationId) {
-      if(role === Role.ApiUser) {
+    if (filterDto.organizationId) {
+      if (role === Role.ApiUser) {
         //@ts-ignore
         const organization = await this.organizationService.findOne(filterDto.organizationId);
         const orguser = await this.userService.findByEmail(organization.orgEmail);
-        if(organization.api_user_id != api_user_id) {
+        if (organization.api_user_id != api_user_id) {
           this.logger.error(`The organization Id in param is belongs to other apiuser`);
           throw new UnauthorizedException({
             success: false,
             message: 'The organization Id in param is belongs to other apiuser',
           })
-        } else{
-          if(orguser.role != Role.OrganizationAdmin) {
+        } else {
+          if (orguser.role != Role.OrganizationAdmin) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -276,7 +289,7 @@ export class DeviceController {
       }
       else {
         //@ts-ignore
-        if(filterDto.organizationId != organizationId) {
+        if (filterDto.organizationId != organizationId) {
           this.logger.error(`The organization Id in param should be same as user's organization`);
           throw new UnauthorizedException({
             success: false,
@@ -285,7 +298,7 @@ export class DeviceController {
         }
       }
 
-    //@ts-ignore
+      //@ts-ignore
       organizationId = filterDto.organizationId;
 
     }
@@ -300,7 +313,7 @@ export class DeviceController {
    * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin)
@@ -311,16 +324,16 @@ export class DeviceController {
     description: `The device with the code doesn't exist`,
   })
   async get(@Param('id') id: number,
-  @Query('apiUserId') api_user_id: string | null,
-  @Query('organizationId') organizationId: number | null,
+    @Query('apiUserId') api_user_id: string | null,
+    @Query('organizationId') organizationId: number | null,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in get`);
-    let devicedata : Device;
-    if(api_user_id && organizationId) {
-      devicedata = await this.deviceService.findOne(id,{
-        where : {
-          api_user_id : api_user_id,
-          organizationId : organizationId
+    let devicedata: Device;
+    if (api_user_id && organizationId) {
+      devicedata = await this.deviceService.findOne(id, {
+        where: {
+          api_user_id: api_user_id,
+          organizationId: organizationId
         }
       });
     }
@@ -339,7 +352,7 @@ export class DeviceController {
    * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
    */
   @Get('externalId/:id')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
@@ -363,7 +376,7 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
@@ -466,25 +479,25 @@ export class DeviceController {
     if (deviceToRegister.version === null || deviceToRegister.version === undefined || deviceToRegister.version === '0') {
       deviceToRegister.version = '1.0';
     }
-    if(role === Role.ApiUser) {
-    //@ts-ignore
-    if (deviceToRegister.organizationId) {
-      this.logger.debug("Line No: 314");
+    if (role === Role.Admin||role === Role.ApiUser) {
       //@ts-ignore
-      organizationId = deviceToRegister.organizationId
-    }else{
-      this.logger.error(`Organization id is required,please add your developer's Organization`);
-      return new Promise((resolve, reject) => {
+      if (deviceToRegister.organizationId) {
+        this.logger.debug("Line No: 314");
+        //@ts-ignore
+        organizationId = deviceToRegister.organizationId
+      } else {
+        this.logger.error(`Organization id is required,please add your developer's Organization`);
+        return new Promise((resolve, reject) => {
 
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Organization id is required,please add your developer's Organization `,
-          }),
-        );
-      });
+          reject(
+            new ConflictException({
+              success: false,
+              message: `Organization id is required,please add your developer's Organization `,
+            }),
+          );
+        });
+      }
     }
-  }
     return await this.deviceService.register(organizationId, deviceToRegister, api_user_id, role);
 
   }
@@ -610,32 +623,32 @@ export class DeviceController {
       });
     }
 
-    if(deviceToUpdate.commissioningDate) {
+    if (deviceToUpdate.commissioningDate) {
       const checkexternalid = await this.deviceService.findDeviceByDeveloperExternalId(
         externalId,
         user.organizationId
       );
-      const noOfHistRead : number = await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
-      const noOfOnGoingRead : number = await this.deviceService.getNumberOfOngReads(checkexternalid.externalId,checkexternalid.createdAt);
-      
-      if(deviceToUpdate.commissioningDate != checkexternalid.commissioningDate) {
-        if(noOfHistRead > 0 || noOfOnGoingRead > 0) {
+      const noOfHistRead: number = await this.deviceService.getNumberOfHistReads(checkexternalid.externalId);
+      const noOfOnGoingRead: number = await this.deviceService.getNumberOfOngReads(checkexternalid.externalId, checkexternalid.createdAt);
+
+      if (deviceToUpdate.commissioningDate != checkexternalid.commissioningDate) {
+        if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(`Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`);
           throw new ConflictException({
-            success : false,
+            success: false,
             message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
           })
         }
 
-        if(new Date(deviceToUpdate.commissioningDate).getTime() > new Date(checkexternalid.createdAt).getTime()) {
+        if (new Date(deviceToUpdate.commissioningDate).getTime() > new Date(checkexternalid.createdAt).getTime()) {
           this.logger.error(`Invalid commissioning date, commissioning is greater than device onboarding date`);
           throw new ConflictException({
-            success : false,
+            success: false,
             message: `Invalid commissioning date, commissioning is greater than device onboarding date`
           })
         }
       }
-    } 
+    }
     return await this.deviceService.update(
       user.organizationId,
       user.role,
@@ -651,7 +664,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.OrganizationAdmin, Role.Admin)
@@ -772,12 +785,12 @@ export class DeviceController {
   //     return await this.deviceService.atto(organizationId);
   //   }
 
- /**
-  * It is GET api to list all devices with auto complete
-  * @param param0 is getting organizationId from user request
-  * @param externalId is unique identoifier of an device
-  * @returns {}
-  */
+  /**
+   * It is GET api to list all devices with auto complete
+   * @param param0 is getting organizationId from user request
+   * @param externalId is unique identoifier of an device
+   * @returns {}
+   */
   @Get('/my/autocomplete')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
@@ -807,7 +820,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
-  @UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'externalId', type: Number, required: false })
@@ -888,7 +901,7 @@ export class DeviceController {
    * @returns {DeviceCsvFileProcessingJobsEntity}
    */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt','oauth2-client-password']), PermissionGuard)
   //@UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
@@ -903,7 +916,7 @@ export class DeviceController {
     (@UserDecorator() user: ILoggedInUser,
       @Param('organizationId') organizationId: number | null,
       @Body() fileToProcess: CSVBulkUploadDTO): Promise<DeviceCsvFileProcessingJobsEntity> {
-        this.logger.verbose(`With in processCreationBulkFromCSV`);
+    this.logger.verbose(`With in processCreationBulkFromCSV`);
     if (organizationId === null || organizationId === undefined) {
       this.logger.error(`User needs to have organization added`);
       throw new ConflictException({
@@ -934,11 +947,11 @@ export class DeviceController {
 
     }
 
-    let jobCreated : any;
-    if(user.role === Role.ApiUser) {
+    let jobCreated: any;
+    if (user.role === Role.ApiUser) {
       const organization = await this.organizationService.findOne(organizationId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
-      if(organization.api_user_id != user.api_user_id) {
+      if (organization.api_user_id != user.api_user_id) {
         this.logger.error(`The requested organization is belongs to other apiuser`);
         throw new BadRequestException({
           success: false,
@@ -946,9 +959,9 @@ export class DeviceController {
         });
       }
 
-      if(orguser.role != Role.OrganizationAdmin) {
+      if (orguser.role != Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
-        throw new  UnauthorizedException({
+        throw new UnauthorizedException({
           success: false,
           message: 'Unauthorized'
         });
