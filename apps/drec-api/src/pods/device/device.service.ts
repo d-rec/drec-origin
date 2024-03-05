@@ -783,7 +783,7 @@ export class DeviceService {
     return name;
   }
 
-  private getFilteredQuery(filter: FilterDTO, orgId?: number): FindManyOptions<Device> {
+  public getFilteredQuery(filter: FilterDTO, orgId?: number): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
     const limit = 20;
     const where: FindConditions<Device> = cleanDeep({
