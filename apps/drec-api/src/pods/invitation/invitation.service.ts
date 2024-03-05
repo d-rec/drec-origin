@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, ConflictException, } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ConflictException, forwardRef, Inject,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
@@ -24,10 +24,11 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
   inviteuseradd: Boolean = false;
+  randPassword: string;
   constructor(
     @InjectRepository(Invitation)
     private readonly invitationRepository: Repository<Invitation>,
-    private readonly organizationService: OrganizationService,
+    @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly PermissionService: PermissionService,
@@ -127,12 +128,12 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    this.randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     var inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
-      password: randPassword,
+      password: this.randPassword,
       orgName: organization.name,
       organizationType: organization.organizationType,
       //@ts-ignore
@@ -303,7 +304,7 @@ export class InvitationService {
     };
   }
 
-  private ensureIsNotMember(email: string, organization: Organization) {
+  public ensureIsNotMember(email: string, organization: Organization) {
     this.logger.verbose(`With in ensureIsNotMember`);
     const lowerCaseEmail = email.toLowerCase();
 

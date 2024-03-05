@@ -481,7 +481,7 @@ export class OrganizationService {
   //   return Boolean(await this.findOne(conditions));
   // }
 
-  private async getFilteredQuery(filterDto: OrganizationFilterDTO): Promise<SelectQueryBuilder<Organization>> {
+  public async getFilteredQuery(filterDto: OrganizationFilterDTO): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
     const { organizationName } = filterDto;
     const query = this.repository
