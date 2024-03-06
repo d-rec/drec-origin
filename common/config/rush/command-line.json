@@ -2,7 +2,7 @@
  * This configuration file defines custom commands for the "rush" command-line.
  * More documentation is available on the Rush website: https://rushjs.io
  */
-{
+ {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/command-line.schema.json",
   /**
    * Custom "commands" introduce new verbs for the command-line.  To see the help for these
@@ -40,7 +40,7 @@
       "commandKind": "global",
       "name": "start:dev",
       "summary": "Runs API in dev mode",
-      "shellCommand": "concurrently -n ganache,backend \"(cd apps/drec-api && rushx run:ganache)\" \"(cd apps/drec-api && rushx start:dev)\" \"(cd apps/drec-ui && rushx start:dev)\"",
+      "shellCommand": "concurrently -n ,backend \"(cd apps/drec-api && rushx start:dev)\"",
       "autoinstallerName": "rush-tools",
       "safeForSimultaneousRushProcesses": true
     },
@@ -65,36 +65,24 @@
     },
     {
       "commandKind": "bulk",
-      "name": "test:mocha",
-      "summary": "Run all test:mocha in packages",
+      "name": "test:jest",
+      "summary": "Run all test:jest in packages",
       "safeForSimultaneousRushProcesses": false,
       "enableParallelism": false,
       "ignoreMissingScript": true,
       "allowWarningsInSuccessfulBuild": true
   },
-    {
-      "commandKind": "bulk",
-      "name": "deploy:heroku",
-      "summary": "Deploys to Heroku",
-      "safeForSimultaneousRushProcesses": false,
-      "enableParallelism": false,
-      "ignoreMissingScript": true,
-      "allowWarningsInSuccessfulBuild": true
-    },
-    {
-      "commandKind": "global",
-      "name": "storybook",
-      "summary": "Launch storybook UI for local development",
-      "shellCommand": "cd apps/drec-ui && rushx storybook",
-      "safeForSimultaneousRushProcesses": true
-    },
-    {
-      "commandKind": "global",
-      "name": "test:ui",
-      "summary": "Run unit tests in UI package",
-      "shellCommand": "cd apps/drec-ui && rushx test:ui",
-      "safeForSimultaneousRushProcesses": true
-    },
+  {
+
+    "commandKind": "bulk",
+    "name": "coverage:jest",
+    "summary": "Run all coverage:jest in packages",
+    "safeForSimultaneousRushProcesses": false,
+    "enableParallelism": false,
+    "ignoreMissingScript": true,
+    "allowWarningsInSuccessfulBuild": true
+  }
+  
     // {
     //   /**
     //    * (Required) Determines the type of custom command.
