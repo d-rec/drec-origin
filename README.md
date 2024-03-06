@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/EnAccess/OpenSmartMeter">
+  <a href="https://github.com/d-rec/drec-origin">
     <img
       src="https://drecs.org/wp-content/uploads/2022/10/D-RECs_logo_RGB-3-Beatrice-Kennedy.jpg"
       alt="D-REC"
@@ -19,7 +19,7 @@
     alt="GitHub Workflow Status"
     src="https://img.shields.io/github/actions/workflow/status/d-rec/drec-origin/build.yaml"
   >
-  <a href="https://github.com/EnAccess/OpenSmartMeter/blob/main/LICENSE" target="_blank">
+  <a href="https://github.com/d-rec/drec-origin/blob/main/LICENSE" target="_blank">
     <img
       alt="License"
       src="https://img.shields.io/github/license/d-rec/drec-origin"
@@ -40,7 +40,7 @@ wsl --install
 wsl --install --distribution Ubuntu-18.04
 ```
 
-Install `Influx-Client`:
+Install `Influx-Client`: 
 
 ```
 sudo apt install influx client
