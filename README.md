@@ -150,10 +150,24 @@ npm i
 npm run start
 ```
 
+## Metamask Setup:
+
+1. The metamask extension required to add in default browser before generating certificate. Create login 
+2. When selecting netweok option choose the add manual network, use below values to create network manually 
+  a. Network Name - It's depend on user (ex., Volta, Voltatest)
+  b. New RPC URL - https://volta-rpc.energyweb.org
+  c. ChainID - 73799
+  d. Symbol - VT
+  e. Block Explorer URL - https://volta-rpc.energyweb.org
+3. Update your blockchain address and mnemonic as the variables DREC_BLOCKCHAIN_ADDRESS and MNEMONIC in our .env file
+4. Add balance to your wallet using this link https://voltafaucet.energyweb.org/ by providing your blockchain address of your metamask
+5. To get the issuer private key, go to Account details, click on the show private key button, there you will find the your Issuer private key. Add this key in your environment file as ISSUER_PRIVATE_KEY
+
+
 Before running the script, make sure:
 
 1. You have updated the DREC_BACKEND_URL in .env with local - also update the username and password for each integrator
 2. Post generated devices to Server - Bulk Devices
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
-5. The metamask extension required to add in default browser before generating certificate. Create login, select etherum mainnet, add balance to your wallet using this link https://voltafaucet.energyweb.org/ and update your blockchain address and mnemonic in our .env file  
+5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
