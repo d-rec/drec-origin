@@ -11,8 +11,6 @@ import { PermissionService } from '../permission/permission.service';
 import { OrganizationInvitationStatus, OrganizationStatus, Role, UserStatus } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { User } from '../user/user.entity';
-import exp from 'constants';
-import { UserDTO } from '../user/dto/user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 
 describe('InvitationService', () => {
@@ -89,8 +87,6 @@ describe('InvitationService', () => {
        const orgId= 13;
 
        const mockAdminUserEntity : IUser = {
-        //createdAt: '2024-02-18T07:25:29.743Z',
-       // updatedAt: '2024-02-18T07:25:29.743Z',
         id: 1,
         firstName: 'admin',
         lastName: 'drec',
@@ -99,10 +95,7 @@ describe('InvitationService', () => {
         status: UserStatus.Active,//'Active',
         role: Role.Admin,//'Admin',
         roleId: 1,
-        //api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization :{
-          //createdAt: '2024-02-18T07:25:29.669Z',
-          //updatedAt: '2024-02-18T07:25:29.669Z',
           id: 1,
           name: 'Admin_DREC',
           address: 'Bangalore',
@@ -112,12 +105,8 @@ describe('InvitationService', () => {
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
           organizationType: 'ApiUser',
-          //orgEmail: 'aishuutech@gmail.com',
           status: OrganizationStatus.Active,//'Active',
           documentIds: null,
-          //api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
-          //users: [ [User] ],
-          //invitations: []
         } as Organization,
         emailConfirmed: false,
        };
@@ -141,8 +130,6 @@ describe('InvitationService', () => {
         users: [],
        invitations: [
        {
-        //createdAt: '2024-03-02T16:45:15.459Z',
-        //updatedAt: '2024-03-02T16:45:15.459Z',
         id: 2,
         email: 'uyhujjlswzfkdvoaot@cazlv.com',
         role: Role.User as OrganizationRole,//'User',
@@ -219,9 +206,9 @@ describe('InvitationService', () => {
           role,
           firstName,
           lastName,
-          orgId, // Assuming organization ID
+          orgId,
         ),
-      ).resolves.not.toThrow();//.toEqual({});//resolves.not.toThrow();
+      ).resolves.not.toThrow();
 
       await expect(findByEmailSpy).toHaveBeenCalledWith(user.email);
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
@@ -259,7 +246,6 @@ describe('InvitationService', () => {
       } as CreateUserORGDTO,
       email, mockinvitedUser.id,
       );
-      //Math.random = originalRandom;
     });
 
     it('should invite a user By ApiUser', async () => {
@@ -281,8 +267,6 @@ describe('InvitationService', () => {
        const orgId= 18;
 
        const mockApiUserEntity : IUser = {
-        //createdAt: '2024-02-18T07:25:29.743Z',
-       // updatedAt: '2024-02-18T07:25:29.743Z',
         id: 2,
         firstName: 'test',
         lastName: 'apiuser',
@@ -291,10 +275,7 @@ describe('InvitationService', () => {
         status: UserStatus.Active,//'Active',
         role: Role.ApiUser,//'Admin',
         roleId: 6,
-        //api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization :{
-          //createdAt: '2024-02-18T07:25:29.669Z',
-          //updatedAt: '2024-02-18T07:25:29.669Z',
           id: 2,
           name: 'ORG_APIUSER1',
           address: 'Bangalore',
@@ -412,9 +393,9 @@ describe('InvitationService', () => {
           role,
           firstName,
           lastName,
-          orgId, // Assuming organization ID
+          orgId,
         ),
-      ).resolves.not.toThrow();//.toEqual({});//resolves.not.toThrow();
+      ).resolves.not.toThrow();
 
       await expect(findByEmailSpy).toHaveBeenCalledWith(user.email);
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
@@ -442,26 +423,4 @@ describe('InvitationService', () => {
       ); 
     });
   });
-/*
-  describe('update', () => {
-    it('should update invitation status', async () => {
-      // Mock necessary dependencies and implement your test case
-      jest.spyOn(userService, 'findByEmail').mockResolvedValue({});
-      jest.spyOn(invitationRepository, 'findOne').mockResolvedValue({
-        status: 'Pending',
-        organization: { id: 1 },
-      });
-      jest.spyOn(userService, 'addToOrganization').mockResolvedValue({});
-      jest.spyOn(userService, 'changeRole').mockResolvedValue({});
-      jest.spyOn(invitationRepository, 'save').mockResolvedValue({});
-
-      await expect(
-        service.update(
-          { email: 'test@example.com', status: 'Accepted' },
-          'invitationId',
-        ),
-      ).resolves.toEqual(ResponseSuccess());
-    });
-  }); */
-  // Add more test cases for other methods as needed
 });

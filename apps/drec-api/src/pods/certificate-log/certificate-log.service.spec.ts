@@ -210,7 +210,6 @@ describe('CertificateLogService', () => {
 
   describe('getCertifiedlogofDevices', ()=> {
     it('should return old certificates when old reservation information is available', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
@@ -266,7 +265,6 @@ describe('CertificateLogService', () => {
       const getReservationInforDeveloperBsiseSpy = jest.spyOn(devicegroupService, 'getReservationInforDeveloperBsise').mockResolvedValueOnce(getnewreservationinfo);
       const getoldReservationInforDeveloperBsiseSpy = jest.spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise').mockResolvedValueOnce(getoldreservationinfo);
   
-      // Mock getDeveloperfindreservationcertified method
       const expectedCertificates = { certificatelog: [{
         certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
         certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
@@ -307,7 +305,6 @@ describe('CertificateLogService', () => {
     });
   
     it('should return new certificates when new reservation information is available', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
@@ -358,11 +355,9 @@ describe('CertificateLogService', () => {
     ] 
     };
   
-      // Mock getReservationInforDeveloperBsise and getoldReservationInforDeveloperBsise methods
       jest.spyOn(devicegroupService, 'getReservationInforDeveloperBsise').mockResolvedValueOnce(getnewreservationinfo);
       jest.spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise').mockResolvedValueOnce(getoldreservationinfo);
   
-      // Mock getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247 method
       const expectedCertificates = { certificatelog: [{
         certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
         certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
@@ -397,11 +392,10 @@ describe('CertificateLogService', () => {
   
       const result = await service.getCertifiedlogofDevices(user, filterDto, pageNumber);
   
-      expect(result).toEqual(expectedCertificates); // Assert that expected certificates are returned
+      expect(result).toEqual(expectedCertificates);
     });
   
     it('should return empty certificates when both old and new reservation information are unavailable', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
