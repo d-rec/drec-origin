@@ -1,15 +1,33 @@
-<h1 align="center">
-  <br>
-  <a href="https://www.energyweb.org/"><img src="https://www.energyweb.org/wp-content/uploads/2019/04/logo-brand.png" alt="EnergyWeb" width="150"></a>
-  <br>
-  EnergyWeb Origin - DREC 
-  <br>
-  
-  [API Documentation](http://drec-documentation.s3-website-us-east-1.amazonaws.com/entities/AggregateMeterRead.html) | [User guide](https://d-rec.atlassian.net/wiki/spaces/DREC/pages/84377601)
-  
-  <br>
-</h1>
+<p align="center">
+  <a href="https://github.com/EnAccess/OpenSmartMeter">
+    <img
+      src="https://drecs.org/wp-content/uploads/2022/10/D-RECs_logo_RGB-3-Beatrice-Kennedy.jpg"
+      alt="D-REC"
+      width="640"
+    >
+  </a>
+</p>
+<p align="center">
+    <em>The D-REC Initative has designed and created its own open-source automated monitoring, reporting and verification (MRV) platform. The platform will allow distributed renewable energy (DRE) assets to automativally submit meter generation data via an API, which will then be aggregated together and issued as a verified and tradeable D-REC.</em>
+</p>
+<p align="center">
+  <img
+    alt="Project Status"
+    src="https://img.shields.io/badge/Project%20Status-stable-green"
+  >
+  <img
+    alt="GitHub Workflow Status"
+    src="https://img.shields.io/github/actions/workflow/status/d-rec/drec-origin/build.yaml"
+  >
+  <a href="https://github.com/EnAccess/OpenSmartMeter/blob/main/LICENSE" target="_blank">
+    <img
+      alt="License"
+      src="https://img.shields.io/github/license/d-rec/drec-origin"
+    >
+  </a>
+</p>
 
+---
 
 Repository for Origin DREC project
 
@@ -22,7 +40,7 @@ wsl --install
 wsl --install --distribution Ubuntu-18.04
 ```
 
-Install `Influx-Client`: 
+Install `Influx-Client`:
 
 ```
 sudo apt install influx client
