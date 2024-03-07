@@ -108,7 +108,6 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
   DeltaFirstRead,
-  ,
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
   UserLoginSessionEntity,
