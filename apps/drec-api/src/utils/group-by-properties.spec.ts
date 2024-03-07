@@ -15,6 +15,7 @@ describe('groupByProps function', () => {
       ];
     });
   
+    console.log(groupDevices);
     expect(groupDevices).toBeInstanceOf(Array);
     expect(groupDevices).toHaveLength(5);
   });

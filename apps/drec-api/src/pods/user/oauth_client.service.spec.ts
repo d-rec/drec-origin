@@ -6,6 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
 import { OrganizationStatus, Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import * as crypto from 'crypto';
 
 
 describe('OauthClientCredentialsService', () => {
@@ -192,5 +193,37 @@ describe('OauthClientCredentialsService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({ where: { api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa949' } });
       expect(result).toBeUndefined();
     });
+  
   });
+/*
+  describe('generateKeys', ()=> {
+    it('should generate keys and store public key for valid API user ID', async () => {
+      // Mock key pair generation
+      const mockPrivateKey = 'mockPrivateKey';
+      const mockPublicKey = 'mockPublicKey';
+      crypto.generateKeyPairSync.mockReturnValueOnce({ privateKey: mockPrivateKey, publicKey: mockPublicKey });
+  
+      const apiUserId = 'validUserId';
+      const yourClassInstance = new YourClass(mockStore);
+      
+      const privateKey = await yourClassInstance.generateKeys(apiUserId);
+      
+      expect(privateKey).toEqual(mockPrivateKey);
+      expect(mockStore).toHaveBeenCalledWith(mockPublicKey, apiUserId);
+    });
+  
+    it('should generate keys and store public key even when API user ID is not provided', async () => {
+      // Mock key pair generation
+      const mockPrivateKey = 'mockPrivateKey';
+      const mockPublicKey = 'mockPublicKey';
+      crypto.generateKeyPairSync.mockReturnValueOnce({ privateKey: mockPrivateKey, publicKey: mockPublicKey });
+  
+      const yourClassInstance = new YourClass(mockStore);
+      
+      const privateKey = await yourClassInstance.generateKeys();
+      
+      expect(privateKey).toEqual(mockPrivateKey);
+      expect(mockStore).toHaveBeenCalledWith(mockPublicKey, undefined);
+    });      
+  }); */
 });

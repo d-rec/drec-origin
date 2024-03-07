@@ -16,6 +16,7 @@ import { v4 as uuid } from 'uuid';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
+import exp from 'constants';
 
 
 describe('UserService', () => {
@@ -170,6 +171,7 @@ describe('UserService', () => {
     it('should throw a ConflictException if organization name already exists', async () => {
       const isNameAlreadyTakenSpy = jest.spyOn(organizationService, 'isNameAlreadyTaken').mockResolvedValue(true);
 
+      // Test data
       const userData: CreateUserORGDTO = {
         firstName: "test",
         lastName: "ApiUser",
@@ -285,6 +287,7 @@ describe('UserService', () => {
       await expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(userData.orgName);
       await expect(organizationService.newcreate).toHaveBeenCalledWith({
         name: userData.orgName,
+        //api_user_id: userData.api_user_id,
         //@ts-ignore
         organizationType: userData.organizationType,
         //@ts-ignore
@@ -305,6 +308,7 @@ describe('UserService', () => {
         role: Role.OrganizationAdmin,
         roleId: 2,
         organization: { id: 1 },
+        //api_user_id: userData.api_user_id,
       }));
     });
     
@@ -478,6 +482,7 @@ describe('UserService', () => {
       expect(users).toBeDefined();
       expect(users).toHaveLength(userss.length);
       expect(users).toEqual(userss);
+      //await expect(getAllSpy).toHaveBeenCalledWith();
     });
 
     it('should get users based on provided options', async () => {
@@ -523,6 +528,7 @@ describe('UserService', () => {
 
       const users = await service.getAll();
 
+      //await expect(getAllSpy).toHaveBeenCalledWith();
       expect(users).toHaveLength(0);
     });
   });
