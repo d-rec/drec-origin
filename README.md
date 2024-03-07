@@ -141,9 +141,9 @@ npm run start
   c. ChainID - 73799
   d. Symbol - VT
   e. Block Explorer URL - https://volta-rpc.energyweb.org
-3. Update your blockchain address and mnemonic as the variables DREC_BLOCKCHAIN_ADDRESS and MNEMONIC in our .env file
+3. Update your blockchain address and mnemonic as the variables `DREC_BLOCKCHAIN_ADDRESS` and `MNEMONIC` in our .env file
 4. Add balance to your wallet using this link https://voltafaucet.energyweb.org/ by providing your blockchain address of your metamask
-5. To get the issuer private key, go to Account details, click on the show private key button, there you will find the your Issuer private key. Add this key in your environment file as ISSUER_PRIVATE_KEY
+5. To get the issuer private key, go to Account details, click on the show private key button, there you will find the your Issuer private key. Add this key in your environment file as `ISSUER_PRIVATE_KEY`
 
 
 Before running the script, make sure:
