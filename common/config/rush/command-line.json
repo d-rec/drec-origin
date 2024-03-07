@@ -40,7 +40,7 @@
       "commandKind": "global",
       "name": "start:dev",
       "summary": "Runs API in dev mode",
-      "shellCommand": "concurrently -n ,backend \"(cd apps/drec-api && rushx start:dev)\"",
+      "shellCommand": "cd apps/drec-api && rushx start:dev",
       "autoinstallerName": "rush-tools",
       "safeForSimultaneousRushProcesses": true
     },
