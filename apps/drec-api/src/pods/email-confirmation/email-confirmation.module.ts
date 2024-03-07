@@ -7,7 +7,11 @@ import { EmailConfirmationService } from './email-confirmation.service';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EmailConfirmation]), MailModule, forwardRef(() => UserModule)],
+  imports: [
+    TypeOrmModule.forFeature([EmailConfirmation]),
+    MailModule,
+    forwardRef(() => UserModule),
+  ],
   providers: [EmailConfirmationService],
   controllers: [],
   exports: [EmailConfirmationService],

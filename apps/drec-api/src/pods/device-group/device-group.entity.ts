@@ -1,5 +1,12 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import {
   IsString,
   IsNotEmpty,
@@ -7,7 +14,7 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsArray
+  IsArray,
 } from 'class-validator';
 import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
@@ -17,11 +24,11 @@ import {
   OffTaker,
   Sector,
   StandardCompliance,
-  FuelCode
+  FuelCode,
 } from '../../utils/enums';
 //import { Device } from '../device';
 import { Exclude } from 'class-transformer';
-import {Device} from '../device/device.entity'
+import { Device } from '../device/device.entity';
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
@@ -107,7 +114,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   leftoverReads: number;
 
   @Column({
-    type: 'json'
+    type: 'json',
   })
   @IsOptional()
   leftoverReadsByCountryCode: any;
@@ -151,35 +158,33 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @CreateDateColumn({
     type: 'timestamp',
-    precision: 3
+    precision: 3,
   })
   reservationStartDate: Date;
 
   @CreateDateColumn({
     type: 'timestamp',
-    precision: 3
+    precision: 3,
   })
   reservationEndDate: Date;
 
   @Column('int', { array: true })
   deviceIdsInt: number[];
 
-
-  @Column({ type: 'boolean'})
+  @Column({ type: 'boolean' })
   @IsOptional()
   reservationActive: boolean;
-
 
   // @ManyToMany(() => Device)
   // @JoinTable()
   // device: Device[];
 
   @Column({ nullable: true, default: null })
-  api_user_id : string; 
+  api_user_id: string;
 
   @CreateDateColumn({
     type: 'timestamp',
-    precision: 3
-  }) 
-  reservationExpiryDate:Date;
+    precision: 3,
+  })
+  reservationExpiryDate: Date;
 }

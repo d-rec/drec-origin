@@ -33,64 +33,66 @@ describe('DeviceGroupService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeviceGroupService,
+      providers: [
+        DeviceGroupService,
         {
-            provide: getRepositoryToken(DeviceGroup),
-            useClass: Repository,
+          provide: getRepositoryToken(DeviceGroup),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(DeviceCsvProcessingFailedRowsEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(DeviceCsvProcessingFailedRowsEntity),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
-            useClass: Repository,
+          provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(IrecErrorLogInformationEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(IrecErrorLogInformationEntity),
+          useClass: Repository,
         },
         {
-            provide: OrganizationService,
-            useValue: {} as any,
+          provide: OrganizationService,
+          useValue: {} as any,
         },
         {
-            provide: UserService,
-            useValue: {} as any,
+          provide: UserService,
+          useValue: {} as any,
         },
         {
-            provide: DeviceService,
-            useValue: {} as any,
+          provide: DeviceService,
+          useValue: {} as any,
         },
         {
-            provide: FileService,
-            useValue: {} as any,
+          provide: FileService,
+          useValue: {} as any,
         },
         {
-            provide: YieldConfigService,
-            useValue: {} as any,
+          provide: YieldConfigService,
+          useValue: {} as any,
         },
         {
-            provide: getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(
+            CheckCertificateIssueDateLogForDeviceGroupEntity,
+          ),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(HistoryDeviceGroupNextIssueCertificate),
-            useClass: Repository,
+          provide: getRepositoryToken(HistoryDeviceGroupNextIssueCertificate),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(CertificateReadModelEntity),
-            useClass: Repository,
-        }
+          provide: getRepositoryToken(CertificateReadModelEntity),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
     service = module.get<DeviceGroupService>(DeviceGroupService);
-
   });
 
   it('should be defined', () => {

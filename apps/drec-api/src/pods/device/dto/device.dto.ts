@@ -5,7 +5,7 @@ import {
   IsBoolean,
   IsArray,
   IsOptional,
-  Matches
+  Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -15,7 +15,7 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
 } from '../../../utils/enums';
 import { DeviceStatus } from '@energyweb/origin-backend-core';
 import { DeviceDescription, IDevice } from '../../../models';
@@ -28,7 +28,6 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   externalId: string;
-
 
   @IsString()
   @Exclude()
@@ -51,8 +50,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   // @IsOptional()
   @IsString({
-    message:
-      'Address must be added',
+    message: 'Address must be added',
   })
   address: string;
 
@@ -64,7 +62,7 @@ export class DeviceDTO implements IDevice {
       'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
   })
   latitude: string;
-  
+
   @ApiProperty()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {
@@ -84,22 +82,20 @@ export class DeviceDTO implements IDevice {
   // @IsNumber()
   // zipCode: string;
 
-  @ApiProperty({ default: "ES100"})
-  @IsEnum(FuelCode,{
-    message:
-      'FuelCode must be added Or Valid FuelCode values are ES100',
+  @ApiProperty({ default: 'ES100' })
+  @IsEnum(FuelCode, {
+    message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
   // @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsEnum(DevicetypeCode,{
+  @IsEnum(DevicetypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
   // @IsOptional()
   deviceTypeCode: DevicetypeCode;
-
 
   // @ApiProperty()
   // @IsEnum(Installation)
@@ -197,11 +193,11 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsOptional()
   SDGBenefits?: string[];
-  
+
   @IsString()
   @IsOptional()
   meterReadtype?: string;
-  
+
   @IsString()
   @IsOptional()
   timezone: string;
