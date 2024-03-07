@@ -1,0 +1,71 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  lint-prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/gallium
+
+      - name: Install tooling
+        run: |
+          npm i -g yarn
+          npm i -g @microsoft/rush
+          npm i -g pnpm
+
+      - name: Install drec-api
+        working-directory: apps/drec-api
+        run: |
+          rush update
+          rush install
+
+      - name: Run Prettier
+        working-directory: apps/drec-api
+        run: pnpm run prettier
+
+  lint-eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/gallium
+
+      - name: Install tooling
+        run: |
+          npm i -g yarn
+          npm i -g @microsoft/rush
+          npm i -g pnpm
+
+      - name: Install drec-api
+        working-directory: apps/drec-api
+        run: |
+          rush update
+          rush install
+
+      - name: Run ESLint
+        working-directory: apps/drec-api
+        run: pnpm run lint
+        continue-on-error: true
