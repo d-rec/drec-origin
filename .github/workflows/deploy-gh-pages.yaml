@@ -41,6 +41,12 @@ jobs:
           npm i -g @microsoft/rush
           npm i -g pnpm
 
+      - name: Install drec-api
+        working-directory: apps/drec-api
+        run: |
+          rush update
+          rush install
+
       - name: Build docs with compodoc
         working-directory: apps/drec-api
         run: pnpm run compodoc
