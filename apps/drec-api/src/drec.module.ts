@@ -96,7 +96,7 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
-  DeltaFirstRead,,
+  DeltaFirstRead,
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
   UserLoginSessionEntity,
