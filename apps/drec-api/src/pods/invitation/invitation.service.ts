@@ -155,7 +155,7 @@ export class InvitationService {
       orgName: organization.name,
       organizationType: organization.organizationType,
       //@ts-ignore
-      orgid: organization.id,
+      orgid: organization.id | undefined
       // orgAddress:''
     };
     var userid: any;
