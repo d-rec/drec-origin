@@ -1,7 +1,5 @@
 export enum HistoryNextInssuanceStatus {
-    Pending = 'Pending',
-    Running = 'Running',
-    Completed = 'Completed',
-   
-  }
-  
+  Pending = 'Pending',
+  Running = 'Running',
+  Completed = 'Completed',
+}

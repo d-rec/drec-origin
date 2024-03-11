@@ -16,7 +16,8 @@ describe('PermissionService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PermissionService,
+      providers: [
+        PermissionService,
         {
           provide: getRepositoryToken(ACLModulePermissions),
           useClass: Repository,
@@ -37,7 +38,9 @@ describe('PermissionService', () => {
     }).compile();
 
     service = module.get<PermissionService>(PermissionService);
-    repository = module.get<Repository<ACLModulePermissions>>(getRepositoryToken(ACLModulePermissions));
+    repository = module.get<Repository<ACLModulePermissions>>(
+      getRepositoryToken(ACLModulePermissions),
+    );
   });
 
   it('should be defined', () => {

@@ -5,14 +5,23 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { HttpService, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  HttpService,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Role } from '../../utils/enums/role.enum';
 import { FilterDTO, NewDeviceDTO } from './dto';
-import { DevicetypeCode, FuelCode, OffTaker, OrganizationStatus } from '../../utils/enums';
+import {
+  DevicetypeCode,
+  FuelCode,
+  OffTaker,
+  OrganizationStatus,
+} from '../../utils/enums';
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
 
@@ -29,42 +38,45 @@ describe('DeviceService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [DeviceService,
+      providers: [
+        DeviceService,
         {
-            provide: getRepositoryToken(Device),
-            useClass: Repository,
-            useValue: {
-              findOne: jest.fn(),
-              save: jest.fn(),
-            } as any,
+          provide: getRepositoryToken(Device),
+          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+          } as any,
         },
         {
-            provide: getRepositoryToken(HistoryIntermediate_MeterRead),
-            useClass: Repository,
+          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(
+            CheckCertificateIssueDateLogForDeviceEntity,
+          ),
+          useClass: Repository,
         },
         {
-            provide: HttpService,
-            useValue: {} as any,
+          provide: HttpService,
+          useValue: {} as any,
         },
         {
-            provide: getRepositoryToken(IrecDevicesInformationEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(IrecDevicesInformationEntity),
+          useClass: Repository,
         },
         {
-            provide: getRepositoryToken(IrecErrorLogInformationEntity),
-            useClass: Repository,
+          provide: getRepositoryToken(IrecErrorLogInformationEntity),
+          useClass: Repository,
         },
         {
-            provide: OrganizationService,
-            useValue: {} as any,
+          provide: OrganizationService,
+          useValue: {} as any,
         },
         {
-            provide: UserService,
-            useValue: {} as any,
+          provide: UserService,
+          useValue: {} as any,
         },
       ],
     }).compile();
@@ -76,57 +88,57 @@ describe('DeviceService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-  
-  describe('register', ()=> {
+
+  describe('register', () => {
     it('should register a new device with valid inputs', async () => {
       const orgCode = 3;
-      const newDevice : NewDeviceDTO = {
+      const newDevice: NewDeviceDTO = {
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        //@ts-ignore
+        // @ts-ignore
         countryCodename: 'India',
-        fuelCode: FuelCode.ES100,//'ES100',
-        deviceTypeCode: DevicetypeCode.TC110,//'TC110',
+        fuelCode: FuelCode.ES100, //'ES100',
+        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: OffTaker.School,//'School',
+        offTaker: OffTaker.School, //'School',
         impactStory: null,
         data: null,
         images: null,
-        deviceDescription: DeviceDescription.SolarLantern,//'Solar Lantern',
+        deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
         energyStorageCapacity: 900,
         qualityLabels: null,
-        SDGBenefits: [ 'SDG1' ],
+        SDGBenefits: ['SDG1'],
         version: '1.0',
-        countryCode: 'IND'
+        countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
       const role = Role.OrganizationAdmin;
-/*
+      /*
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore 
-        organizationType: Role.OrganizationAdmin, 
-        //@ts-ignore
-        orgEmail: 'testsweya@gmail.com', 
+        // @ts-ignore
+        organizationType: Role.OrganizationAdmin,
+        // @ts-ignore
+        orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
         city: 'Chennai',
         country: 'India',
-        blockchainAccountAddress: 'null', 
-        blockchainAccountSignedMessage: 'null', 
+        blockchainAccountAddress: 'null',
+        blockchainAccountSignedMessage: 'null',
         status: OrganizationStatus.Active,
-        users: [], 
-        invitations: [], 
-        documentIds: [], 
+        users: [],
+        invitations: [],
+        documentIds: [],
         api_user_id: apiUserId,
-      } as Organization; 
+      } as Organization;
 */
       const deviceEntity = {
         externalId: 'ExternalId1',
@@ -148,7 +160,7 @@ describe('DeviceService', () => {
         energyStorage: true,
         energyStorageCapacity: 900,
         qualityLabels: null,
-        SDGBenefits: [ 'No Poverty' ],
+        SDGBenefits: ['No Poverty'],
         version: '1.0',
         countryCode: 'IND',
         organizationId: 3,
@@ -161,11 +173,13 @@ describe('DeviceService', () => {
         createdAt: '2024-02-27T07:00:32.963Z',
         updatedAt: '2024-02-27T07:00:32.963Z',
         id: 44,
-        yieldValue: 1500
+        yieldValue: 1500,
       };
 
       jest.spyOn(repository, 'findOne').mockReturnValue(undefined);
-      const saveSpy = jest.spyOn(repository, 'save').mockResolvedValue(deviceEntity as any);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(deviceEntity as any);
 
       const result = await service.register(orgCode, newDevice);
 
@@ -175,60 +189,60 @@ describe('DeviceService', () => {
           organizationId: orgCode,
         },
       };
-      console.log("Result with in test file:",result);
+      console.log('Result with in test file:', result);
       expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(newDevice));
       expect(result).toEqual(deviceEntity);
     });
-  
+
     it('should reject registration with existing external ID', async () => {
       const orgCode = 3;
-      const newDevice : NewDeviceDTO = {
+      const newDevice: NewDeviceDTO = {
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        //@ts-ignore
+        // @ts-ignore
         countryCodename: 'India',
-        fuelCode: FuelCode.ES100,//'ES100',
-        deviceTypeCode: DevicetypeCode.TC110,//'TC110',
+        fuelCode: FuelCode.ES100, //'ES100',
+        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: OffTaker.School,//'School',
+        offTaker: OffTaker.School, //'School',
         impactStory: null,
         data: null,
         images: null,
-        deviceDescription: DeviceDescription.SolarLantern,//'Solar Lantern',
+        deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
         energyStorageCapacity: 900,
         qualityLabels: null,
-        SDGBenefits: [ 'SDG1' ],
+        SDGBenefits: ['SDG1'],
         version: '1.0',
-        countryCode: 'IND'
+        countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
       const role = Role.OrganizationAdmin;
-/*
+      /*
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore 
-        organizationType: Role.OrganizationAdmin, 
-        //@ts-ignore
-        orgEmail: 'testsweya@gmail.com', 
+        // @ts-ignore
+        organizationType: Role.OrganizationAdmin,
+        // @ts-ignore
+        orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
         city: 'Chennai',
         country: 'India',
-        blockchainAccountAddress: 'null', 
-        blockchainAccountSignedMessage: 'null', 
+        blockchainAccountAddress: 'null',
+        blockchainAccountSignedMessage: 'null',
         status: OrganizationStatus.Active,
-        users: [], 
-        invitations: [], 
-        documentIds: [], 
+        users: [],
+        invitations: [],
+        documentIds: [],
         api_user_id: apiUserId,
-      } as Organization; 
+      } as Organization;
 */
       const deviceEntity = {
         externalId: 'ExternalId1',
@@ -250,7 +264,7 @@ describe('DeviceService', () => {
         energyStorage: true,
         energyStorageCapacity: 900,
         qualityLabels: null,
-        SDGBenefits: [ 'No Poverty' ],
+        SDGBenefits: ['No Poverty'],
         version: '1.0',
         countryCode: 'IND',
         organizationId: 3,
@@ -263,97 +277,101 @@ describe('DeviceService', () => {
         createdAt: '2024-02-27T07:00:32.963Z',
         updatedAt: '2024-02-27T07:00:32.963Z',
         id: 44,
-        yieldValue: 1500
+        yieldValue: 1500,
       };
 
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(deviceEntity as any);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(deviceEntity as any);
 
       const options = {
-         where: {
+        where: {
           developerExternalId: newDevice.externalId,
           organizationId: orgCode,
         },
       };
 
-      await expect(service.register(orgCode, newDevice, apiUserId, role)).rejects.toThrowError(ConflictException);
-      
+      await expect(
+        service.register(orgCode, newDevice, apiUserId, role),
+      ).rejects.toThrowError(ConflictException);
+
       await expect(findOneSpy).toHaveBeenCalledWith(options);
       await expect(findOneSpy).toBeDefined();
     });
   });
 
-  describe('find', ()=> {
-    let organizationEntity = {
+  describe('find', () => {
+    const organizationEntity = {
       id: 1,
       name: 'orgName',
-      //@ts-ignore 
-      organizationType: Role.OrganizationAdmin, 
-      //@ts-ignore
-      orgEmail: 'testsweya@gmail.com', 
+      // @ts-ignore
+      organizationType: Role.OrganizationAdmin,
+      // @ts-ignore
+      orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
       city: 'Chennai',
       country: 'India',
-      blockchainAccountAddress: 'null', 
-      blockchainAccountSignedMessage: 'null', 
+      blockchainAccountAddress: 'null',
+      blockchainAccountSignedMessage: 'null',
       status: OrganizationStatus.Active,
-      users: [], 
-      invitations: [], 
-      documentIds: [], 
+      users: [],
+      invitations: [],
+      documentIds: [],
       api_user_id: 'apiUserId',
-    } as Organization; 
+    } as Organization;
 
-    let deviceEntity = [
+    const deviceEntity = [
       {
-        createdAt: "2024-02-27T07:00:32.963Z",
-        updatedAt: "2024-02-27T07:00:32.963Z",
+        createdAt: '2024-02-27T07:00:32.963Z',
+        updatedAt: '2024-02-27T07:00:32.963Z',
         id: 44,
-        externalId: "ExternalId1",
+        externalId: 'ExternalId1',
         organizationId: 3,
-        projectName: "sampleProject",
-        address: "Bangalore",
-        latitude: "23.65362",
-        longitude: "25.43647",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'sampleProject',
+        address: 'Bangalore',
+        latitude: '23.65362',
+        longitude: '25.43647',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 2500,
-        SDGBenefits: ["No Poverty"],
-        commissioningDate: "2024-02-01T06:59:11.000Z",
+        SDGBenefits: ['No Poverty'],
+        commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: "School",
+        offTaker: 'School',
         yieldValue: 1500,
         impactStory: null,
         images: null,
         groupId: null,
-        deviceDescription: "Solar Lantern",
+        deviceDescription: 'Solar Lantern',
         energyStorage: true,
         energyStorageCapacity: 900,
         qualityLabels: null,
         meterReadtype: null,
         timezone: null,
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-12-13T13:01:00.885Z",
-        updatedAt: "2023-12-13T13:01:00.885Z",
+        createdAt: '2023-12-13T13:01:00.885Z',
+        updatedAt: '2023-12-13T13:01:00.885Z',
         id: 22,
-        externalId: "June4",
+        externalId: 'June4',
         organizationId: 3,
-        projectName: "test4",
-        address: "Bangalore",
-        latitude: "99.09",
-        longitude: "889",
-        countryCode: "AFG",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'test4',
+        address: 'Bangalore',
+        latitude: '99.09',
+        longitude: '889',
+        countryCode: 'AFG',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 600,
         SDGBenefits: [],
-        commissioningDate: "2020-09-04T21:08:21.890Z",
+        commissioningDate: '2020-09-04T21:08:21.890Z',
         gridInterconnection: true,
         offTaker: null,
         yieldValue: 1500,
@@ -366,28 +384,28 @@ describe('DeviceService', () => {
         qualityLabels: null,
         meterReadtype: null,
         timezone: null,
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-12-13T13:01:00.883Z",
-        updatedAt: "2023-12-13T13:01:00.883Z",
+        createdAt: '2023-12-13T13:01:00.883Z',
+        updatedAt: '2023-12-13T13:01:00.883Z',
         id: 21,
-        externalId: "Ext22",
+        externalId: 'Ext22',
         organizationId: 3,
-        projectName: "Test",
-        address: "Bangalore",
-        latitude: "67.89",
-        longitude: "89.09",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'Test',
+        address: 'Bangalore',
+        latitude: '67.89',
+        longitude: '89.09',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 500,
         SDGBenefits: [],
-        commissioningDate: "2020-09-04T21:08:21.890Z",
+        commissioningDate: '2020-09-04T21:08:21.890Z',
         gridInterconnection: true,
         offTaker: null,
         yieldValue: 1500,
@@ -400,200 +418,196 @@ describe('DeviceService', () => {
         qualityLabels: null,
         meterReadtype: null,
         timezone: null,
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-11-13T07:07:27.483Z",
-        updatedAt: "2023-11-13T07:07:27.483Z",
+        createdAt: '2023-11-13T07:07:27.483Z',
+        updatedAt: '2023-11-13T07:07:27.483Z',
         id: 10,
-        externalId: "Ext11",
+        externalId: 'Ext11',
         organizationId: 3,
-        projectName: "SampleProje11",
-        address: "BLR",
-        latitude: "23.6685889",
-        longitude: "24.567568",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'SampleProje11',
+        address: 'BLR',
+        latitude: '23.6685889',
+        longitude: '24.567568',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 9000,
         SDGBenefits: [],
-        commissioningDate: "2022-11-26T10:06:56.640Z",
+        commissioningDate: '2022-11-26T10:06:56.640Z',
         gridInterconnection: true,
-        offTaker: "Residential",
+        offTaker: 'Residential',
         yieldValue: 1500,
-        impactStory: "string",
-        images: ["string"],
+        impactStory: 'string',
+        images: ['string'],
         groupId: null,
-        deviceDescription: "Ground Mount Solar",
+        deviceDescription: 'Ground Mount Solar',
         energyStorage: true,
         energyStorageCapacity: 6000,
-        qualityLabels: "string",
-        meterReadtype: "Delta",
-        timezone: "Asia/Kolkata",
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        qualityLabels: 'string',
+        meterReadtype: 'Delta',
+        timezone: 'Asia/Kolkata',
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-11-08T12:04:45.740Z",
-        updatedAt: "2023-11-08T12:04:45.740Z",
+        createdAt: '2023-11-08T12:04:45.740Z',
+        updatedAt: '2023-11-08T12:04:45.740Z',
         id: 9,
-        externalId: "Ext4",
+        externalId: 'Ext4',
         organizationId: 3,
-        projectName: "SampleProj12",
-        address: "BLR",
-        latitude: "23.558758",
-        longitude: "24.657578",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'SampleProj12',
+        address: 'BLR',
+        latitude: '23.558758',
+        longitude: '24.657578',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 9000,
         SDGBenefits: [],
-        commissioningDate: "1990-11-26T04:30:00.000Z",
+        commissioningDate: '1990-11-26T04:30:00.000Z',
         gridInterconnection: true,
-        offTaker: "Residential",
+        offTaker: 'Residential',
         yieldValue: 1500,
-        impactStory: "string",
-        images: [
-              "string"
-          ],
+        impactStory: 'string',
+        images: ['string'],
         groupId: null,
-        deviceDescription: "Ground Mount Solar",
+        deviceDescription: 'Ground Mount Solar',
         energyStorage: true,
         energyStorageCapacity: 5000,
-        qualityLabels: "string",
-        meterReadtype: "Delta",
-        timezone: "Asia/Kolkata",
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        qualityLabels: 'string',
+        meterReadtype: 'Delta',
+        timezone: 'Asia/Kolkata',
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-11-08T11:55:33.919Z",
-        updatedAt: "2023-11-08T11:55:33.919Z",
+        createdAt: '2023-11-08T11:55:33.919Z',
+        updatedAt: '2023-11-08T11:55:33.919Z',
         id: 8,
-        externalId: "Ext3",
+        externalId: 'Ext3',
         organizationId: 3,
-        projectName: "SampleProj12",
-        address: "BLR",
-        latitude: "23.558758",
-        longitude: "24.657578",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'SampleProj12',
+        address: 'BLR',
+        latitude: '23.558758',
+        longitude: '24.657578',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 9000,
         SDGBenefits: [],
-        commissioningDate: "1990-11-26T04:30:00.000Z",
+        commissioningDate: '1990-11-26T04:30:00.000Z',
         gridInterconnection: true,
-        offTaker: "Residential",
+        offTaker: 'Residential',
         yieldValue: 1500,
-        impactStory: "string",
-        images: ["string"],
+        impactStory: 'string',
+        images: ['string'],
         groupId: null,
-        deviceDescription: "Ground Mount Solar",
+        deviceDescription: 'Ground Mount Solar',
         energyStorage: true,
         energyStorageCapacity: 5000,
-        qualityLabels: "string",
-        meterReadtype: "Delta",
-        timezone: "Asia/Kolkata",
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        qualityLabels: 'string',
+        meterReadtype: 'Delta',
+        timezone: 'Asia/Kolkata',
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-11-06T12:48:18.405Z",
-        updatedAt: "2023-11-06T12:48:18.405Z",
+        createdAt: '2023-11-06T12:48:18.405Z',
+        updatedAt: '2023-11-06T12:48:18.405Z',
         id: 6,
-        externalId: "Ext2",
+        externalId: 'Ext2',
         organizationId: 3,
-        projectName: "Sampleproj12",
-        address: "string",
-        latitude: "23.6367447",
-        longitude: "24.5634276",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'Sampleproj12',
+        address: 'string',
+        latitude: '23.6367447',
+        longitude: '24.5634276',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 2000,
         SDGBenefits: [],
-        commissioningDate: "2022-11-26T11:00:00.640Z",
+        commissioningDate: '2022-11-26T11:00:00.640Z',
         gridInterconnection: true,
-        offTaker: "Residential",
+        offTaker: 'Residential',
         yieldValue: 1500,
-        impactStory: "string",
-        images: ["string"],
+        impactStory: 'string',
+        images: ['string'],
         groupId: null,
-        deviceDescription: "Ground Mount Solar",
+        deviceDescription: 'Ground Mount Solar',
         energyStorage: true,
         energyStorageCapacity: 800,
-        qualityLabels: "string",
-        meterReadtype: "Delta",
-        timezone: "Asia/Kolkata",
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        qualityLabels: 'string',
+        meterReadtype: 'Delta',
+        timezone: 'Asia/Kolkata',
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
       {
-        createdAt: "2023-11-03T10:40:45.486Z",
-        updatedAt: "2023-11-03T10:40:45.486Z",
+        createdAt: '2023-11-03T10:40:45.486Z',
+        updatedAt: '2023-11-03T10:40:45.486Z',
         id: 4,
-        externalId: "ext1",
+        externalId: 'ext1',
         organizationId: 3,
-        projectName: "sampleproj12",
-        address: "string",
-        latitude: "23.343535",
-        longitude: "24.5675786",
-        countryCode: "IND",
-        fuelCode: "ES100",
-        deviceTypeCode: "TC110",
+        projectName: 'sampleproj12',
+        address: 'string',
+        latitude: '23.343535',
+        longitude: '24.5675786',
+        countryCode: 'IND',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
         capacity: 2000,
         SDGBenefits: [],
-        commissioningDate: "2022-10-18T11:35:27.640Z",
+        commissioningDate: '2022-10-18T11:35:27.640Z',
         gridInterconnection: true,
-        offTaker: "Residential",
+        offTaker: 'Residential',
         yieldValue: 1500,
-        impactStory: "string",
-        images: [
-              "string"
-          ],
+        impactStory: 'string',
+        images: ['string'],
         groupId: null,
-        deviceDescription: "Ground Mount Solar",
+        deviceDescription: 'Ground Mount Solar',
         energyStorage: true,
         energyStorageCapacity: 600,
-        qualityLabels: "string",
-        meterReadtype: "Delta",
-        timezone: "Asia/Kolkata",
-        version: "1.0",
-        IREC_Status: "NotRegistered",
+        qualityLabels: 'string',
+        meterReadtype: 'Delta',
+        timezone: 'Asia/Kolkata',
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
         organization: organizationEntity,
       },
-  ];
+    ];
     it('should retrieve devices without pagination', async () => {
       const filterDto: FilterDTO = {
-        fuelCode: undefined,//FuelCode.ES100,
+        fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
-        capacity: undefined,//600,
-        start_date: undefined,//'2023-02-01T06:59:11.000Z',
-        end_date: undefined,//'2024-02-26T06:59:11.000Z',
-        gridInterconnection: undefined,//false
+        capacity: undefined, //600,
+        start_date: undefined, //'2023-02-01T06:59:11.000Z',
+        end_date: undefined, //'2024-02-26T06:59:11.000Z',
+        gridInterconnection: undefined, //false
         offTaker: OffTaker.School,
         country: 'India',
       };
       const orgId = 4;
-/*
+      /*
       const expectedQuery : FindManyOptions<Device> = {
         where: {
           deviceTypeCode: filterDto.deviceTypeCode,
@@ -636,11 +650,15 @@ describe('DeviceService', () => {
           },
         },
         order: { organizationId: 'DESC' },
-      };   
+      };
       //const filterSpy = jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(expectedQuery as FindManyOptions);
-      const getFilteredQueryMock = jest.fn().mockReturnValue(expectedQuery as FindManyOptions<Device>);
+      const getFilteredQueryMock = jest
+        .fn()
+        .mockReturnValue(expectedQuery as FindManyOptions<Device>);
       service.getFilteredQuery = getFilteredQueryMock;
-      const findSpy = jest.spyOn(repository, 'findAndCount').mockResolvedValue([deviceEntity, deviceEntity.length] as any);
+      const findSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
       const result = await service.find(filterDto, undefined, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
@@ -650,9 +668,13 @@ describe('DeviceService', () => {
         ...expectedQuery,
       });
 
-      console.log("Received arguments in findAndCount:", findSpy.mock.calls[0], findSpy.mock.calls[1]);
+      console.log(
+        'Received arguments in findAndCount:',
+        findSpy.mock.calls[0],
+        findSpy.mock.calls[1],
+      );
 
-      console.log("Result with in test:", result);
+      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });
@@ -661,74 +683,74 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore 
-        organizationType: Role.OrganizationAdmin, 
-        //@ts-ignore
-        orgEmail: 'testsweya@gmail.com', 
+        // @ts-ignore
+        organizationType: Role.OrganizationAdmin,
+        // @ts-ignore
+        orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
         city: 'Chennai',
         country: 'India',
-        blockchainAccountAddress: 'null', 
-        blockchainAccountSignedMessage: 'null', 
+        blockchainAccountAddress: 'null',
+        blockchainAccountSignedMessage: 'null',
         status: OrganizationStatus.Active,
-        users: [], 
-        invitations: [], 
-        documentIds: [], 
+        users: [],
+        invitations: [],
+        documentIds: [],
         api_user_id: 'apiUserId',
-      } as Organization; 
-  
+      } as Organization;
+
       const deviceEntity = [
         {
-          createdAt: "2024-02-27T07:00:32.963Z",
-          updatedAt: "2024-02-27T07:00:32.963Z",
+          createdAt: '2024-02-27T07:00:32.963Z',
+          updatedAt: '2024-02-27T07:00:32.963Z',
           id: 44,
-          externalId: "ExternalId1",
+          externalId: 'ExternalId1',
           organizationId: 3,
-          projectName: "sampleProject",
-          address: "Bangalore",
-          latitude: "23.65362",
-          longitude: "25.43647",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'sampleProject',
+          address: 'Bangalore',
+          latitude: '23.65362',
+          longitude: '25.43647',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 2500,
-          SDGBenefits: ["No Poverty"],
-          commissioningDate: "2024-02-01T06:59:11.000Z",
+          SDGBenefits: ['No Poverty'],
+          commissioningDate: '2024-02-01T06:59:11.000Z',
           gridInterconnection: true,
-          offTaker: "School",
+          offTaker: 'School',
           yieldValue: 1500,
           impactStory: null,
           images: null,
           groupId: null,
-          deviceDescription: "Solar Lantern",
+          deviceDescription: 'Solar Lantern',
           energyStorage: true,
           energyStorageCapacity: 900,
           qualityLabels: null,
           meterReadtype: null,
           timezone: null,
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-12-13T13:01:00.885Z",
-          updatedAt: "2023-12-13T13:01:00.885Z",
+          createdAt: '2023-12-13T13:01:00.885Z',
+          updatedAt: '2023-12-13T13:01:00.885Z',
           id: 22,
-          externalId: "June4",
+          externalId: 'June4',
           organizationId: 3,
-          projectName: "test4",
-          address: "Bangalore",
-          latitude: "99.09",
-          longitude: "889",
-          countryCode: "AFG",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'test4',
+          address: 'Bangalore',
+          latitude: '99.09',
+          longitude: '889',
+          countryCode: 'AFG',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 600,
           SDGBenefits: [],
-          commissioningDate: "2020-09-04T21:08:21.890Z",
+          commissioningDate: '2020-09-04T21:08:21.890Z',
           gridInterconnection: true,
           offTaker: null,
           yieldValue: 1500,
@@ -741,28 +763,28 @@ describe('DeviceService', () => {
           qualityLabels: null,
           meterReadtype: null,
           timezone: null,
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-12-13T13:01:00.883Z",
-          updatedAt: "2023-12-13T13:01:00.883Z",
+          createdAt: '2023-12-13T13:01:00.883Z',
+          updatedAt: '2023-12-13T13:01:00.883Z',
           id: 21,
-          externalId: "Ext22",
+          externalId: 'Ext22',
           organizationId: 3,
-          projectName: "Test",
-          address: "Bangalore",
-          latitude: "67.89",
-          longitude: "89.09",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'Test',
+          address: 'Bangalore',
+          latitude: '67.89',
+          longitude: '89.09',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 500,
           SDGBenefits: [],
-          commissioningDate: "2020-09-04T21:08:21.890Z",
+          commissioningDate: '2020-09-04T21:08:21.890Z',
           gridInterconnection: true,
           offTaker: null,
           yieldValue: 1500,
@@ -775,200 +797,196 @@ describe('DeviceService', () => {
           qualityLabels: null,
           meterReadtype: null,
           timezone: null,
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-11-13T07:07:27.483Z",
-          updatedAt: "2023-11-13T07:07:27.483Z",
+          createdAt: '2023-11-13T07:07:27.483Z',
+          updatedAt: '2023-11-13T07:07:27.483Z',
           id: 10,
-          externalId: "Ext11",
+          externalId: 'Ext11',
           organizationId: 3,
-          projectName: "SampleProje11",
-          address: "BLR",
-          latitude: "23.6685889",
-          longitude: "24.567568",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'SampleProje11',
+          address: 'BLR',
+          latitude: '23.6685889',
+          longitude: '24.567568',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 9000,
           SDGBenefits: [],
-          commissioningDate: "2022-11-26T10:06:56.640Z",
+          commissioningDate: '2022-11-26T10:06:56.640Z',
           gridInterconnection: true,
-          offTaker: "Residential",
+          offTaker: 'Residential',
           yieldValue: 1500,
-          impactStory: "string",
-          images: ["string"],
+          impactStory: 'string',
+          images: ['string'],
           groupId: null,
-          deviceDescription: "Ground Mount Solar",
+          deviceDescription: 'Ground Mount Solar',
           energyStorage: true,
           energyStorageCapacity: 6000,
-          qualityLabels: "string",
-          meterReadtype: "Delta",
-          timezone: "Asia/Kolkata",
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          qualityLabels: 'string',
+          meterReadtype: 'Delta',
+          timezone: 'Asia/Kolkata',
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-11-08T12:04:45.740Z",
-          updatedAt: "2023-11-08T12:04:45.740Z",
+          createdAt: '2023-11-08T12:04:45.740Z',
+          updatedAt: '2023-11-08T12:04:45.740Z',
           id: 9,
-          externalId: "Ext4",
+          externalId: 'Ext4',
           organizationId: 3,
-          projectName: "SampleProj12",
-          address: "BLR",
-          latitude: "23.558758",
-          longitude: "24.657578",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'SampleProj12',
+          address: 'BLR',
+          latitude: '23.558758',
+          longitude: '24.657578',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 9000,
           SDGBenefits: [],
-          commissioningDate: "1990-11-26T04:30:00.000Z",
+          commissioningDate: '1990-11-26T04:30:00.000Z',
           gridInterconnection: true,
-          offTaker: "Residential",
+          offTaker: 'Residential',
           yieldValue: 1500,
-          impactStory: "string",
-          images: [
-                "string"
-            ],
+          impactStory: 'string',
+          images: ['string'],
           groupId: null,
-          deviceDescription: "Ground Mount Solar",
+          deviceDescription: 'Ground Mount Solar',
           energyStorage: true,
           energyStorageCapacity: 5000,
-          qualityLabels: "string",
-          meterReadtype: "Delta",
-          timezone: "Asia/Kolkata",
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          qualityLabels: 'string',
+          meterReadtype: 'Delta',
+          timezone: 'Asia/Kolkata',
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-11-08T11:55:33.919Z",
-          updatedAt: "2023-11-08T11:55:33.919Z",
+          createdAt: '2023-11-08T11:55:33.919Z',
+          updatedAt: '2023-11-08T11:55:33.919Z',
           id: 8,
-          externalId: "Ext3",
+          externalId: 'Ext3',
           organizationId: 3,
-          projectName: "SampleProj12",
-          address: "BLR",
-          latitude: "23.558758",
-          longitude: "24.657578",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'SampleProj12',
+          address: 'BLR',
+          latitude: '23.558758',
+          longitude: '24.657578',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 9000,
           SDGBenefits: [],
-          commissioningDate: "1990-11-26T04:30:00.000Z",
+          commissioningDate: '1990-11-26T04:30:00.000Z',
           gridInterconnection: true,
-          offTaker: "Residential",
+          offTaker: 'Residential',
           yieldValue: 1500,
-          impactStory: "string",
-          images: ["string"],
+          impactStory: 'string',
+          images: ['string'],
           groupId: null,
-          deviceDescription: "Ground Mount Solar",
+          deviceDescription: 'Ground Mount Solar',
           energyStorage: true,
           energyStorageCapacity: 5000,
-          qualityLabels: "string",
-          meterReadtype: "Delta",
-          timezone: "Asia/Kolkata",
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          qualityLabels: 'string',
+          meterReadtype: 'Delta',
+          timezone: 'Asia/Kolkata',
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-11-06T12:48:18.405Z",
-          updatedAt: "2023-11-06T12:48:18.405Z",
+          createdAt: '2023-11-06T12:48:18.405Z',
+          updatedAt: '2023-11-06T12:48:18.405Z',
           id: 6,
-          externalId: "Ext2",
+          externalId: 'Ext2',
           organizationId: 3,
-          projectName: "Sampleproj12",
-          address: "string",
-          latitude: "23.6367447",
-          longitude: "24.5634276",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'Sampleproj12',
+          address: 'string',
+          latitude: '23.6367447',
+          longitude: '24.5634276',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 2000,
           SDGBenefits: [],
-          commissioningDate: "2022-11-26T11:00:00.640Z",
+          commissioningDate: '2022-11-26T11:00:00.640Z',
           gridInterconnection: true,
-          offTaker: "Residential",
+          offTaker: 'Residential',
           yieldValue: 1500,
-          impactStory: "string",
-          images: ["string"],
+          impactStory: 'string',
+          images: ['string'],
           groupId: null,
-          deviceDescription: "Ground Mount Solar",
+          deviceDescription: 'Ground Mount Solar',
           energyStorage: true,
           energyStorageCapacity: 800,
-          qualityLabels: "string",
-          meterReadtype: "Delta",
-          timezone: "Asia/Kolkata",
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          qualityLabels: 'string',
+          meterReadtype: 'Delta',
+          timezone: 'Asia/Kolkata',
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
         {
-          createdAt: "2023-11-03T10:40:45.486Z",
-          updatedAt: "2023-11-03T10:40:45.486Z",
+          createdAt: '2023-11-03T10:40:45.486Z',
+          updatedAt: '2023-11-03T10:40:45.486Z',
           id: 4,
-          externalId: "ext1",
+          externalId: 'ext1',
           organizationId: 3,
-          projectName: "sampleproj12",
-          address: "string",
-          latitude: "23.343535",
-          longitude: "24.5675786",
-          countryCode: "IND",
-          fuelCode: "ES100",
-          deviceTypeCode: "TC110",
+          projectName: 'sampleproj12',
+          address: 'string',
+          latitude: '23.343535',
+          longitude: '24.5675786',
+          countryCode: 'IND',
+          fuelCode: 'ES100',
+          deviceTypeCode: 'TC110',
           capacity: 2000,
           SDGBenefits: [],
-          commissioningDate: "2022-10-18T11:35:27.640Z",
+          commissioningDate: '2022-10-18T11:35:27.640Z',
           gridInterconnection: true,
-          offTaker: "Residential",
+          offTaker: 'Residential',
           yieldValue: 1500,
-          impactStory: "string",
-          images: [
-                "string"
-            ],
+          impactStory: 'string',
+          images: ['string'],
           groupId: null,
-          deviceDescription: "Ground Mount Solar",
+          deviceDescription: 'Ground Mount Solar',
           energyStorage: true,
           energyStorageCapacity: 600,
-          qualityLabels: "string",
-          meterReadtype: "Delta",
-          timezone: "Asia/Kolkata",
-          version: "1.0",
-          IREC_Status: "NotRegistered",
+          qualityLabels: 'string',
+          meterReadtype: 'Delta',
+          timezone: 'Asia/Kolkata',
+          version: '1.0',
+          IREC_Status: 'NotRegistered',
           IREC_ID: null,
           api_user_id: null,
           organization: organizationEntity,
         },
-    ];
+      ];
       const filterDto: FilterDTO = {
-        fuelCode: undefined,//FuelCode.ES100,
+        fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
-        capacity: undefined,//600,
-        start_date: undefined,//'2023-02-01T06:59:11.000Z',
-        end_date: undefined,//'2024-02-26T06:59:11.000Z',
-        gridInterconnection: undefined,//false
+        capacity: undefined, //600,
+        start_date: undefined, //'2023-02-01T06:59:11.000Z',
+        end_date: undefined, //'2024-02-26T06:59:11.000Z',
+        gridInterconnection: undefined, //false
         offTaker: OffTaker.School,
         country: 'India',
       };
       const pageNumber = 1;
       const orgId = 4;
-/*
+      /*
       const expectedQuery : FindManyOptions<Device> = {
         where: {
           deviceTypeCode: filterDto.deviceTypeCode,
@@ -977,49 +995,53 @@ describe('DeviceService', () => {
         },
         order: { organizationId: 'DESC' },
       }; */
-      
+
       const limit = 20;
-  const expectedQuery: FindManyOptions<Device> = {
-    where: {
-      capacity: {
-        _type: 'lessThanOrEqual',
-        _value: '200', // Adjust as needed
-        _useParameter: true,
-      },
-      countryCode: filterDto.country,
-      organizationId: orgId.toString(), // Use orgId provided dynamically
-      commissioningDate: {
-        _type: 'moreThanOrEqual',
-        _value: new Date().toISOString(), // Use current date or adjust as needed
-        _useParameter: true,
-      },
-      SDGBenefits: {
-        _type: 'raw',
-        _value: [],
-        _useParameter: true,
-        _multipleParameters: true,
-      },
-      deviceTypeCode: {
-        _type: 'raw',
-        _value: [filterDto.deviceTypeCode], // Adjust as needed
-        _useParameter: true,
-        _multipleParameters: true,
-      },
-      offTaker: {
-        _type: 'raw',
-        _value: [filterDto.offTaker], // Adjust as needed
-        _useParameter: true,
-        _multipleParameters: true,
-      },
-    },
-    order: { organizationId: 'DESC' },
-    skip: (pageNumber - 1) * limit,
-    take: limit,
-  }; 
+      const expectedQuery: FindManyOptions<Device> = {
+        where: {
+          capacity: {
+            _type: 'lessThanOrEqual',
+            _value: '200', // Adjust as needed
+            _useParameter: true,
+          },
+          countryCode: filterDto.country,
+          organizationId: orgId.toString(), // Use orgId provided dynamically
+          commissioningDate: {
+            _type: 'moreThanOrEqual',
+            _value: new Date().toISOString(), // Use current date or adjust as needed
+            _useParameter: true,
+          },
+          SDGBenefits: {
+            _type: 'raw',
+            _value: [],
+            _useParameter: true,
+            _multipleParameters: true,
+          },
+          deviceTypeCode: {
+            _type: 'raw',
+            _value: [filterDto.deviceTypeCode], // Adjust as needed
+            _useParameter: true,
+            _multipleParameters: true,
+          },
+          offTaker: {
+            _type: 'raw',
+            _value: [filterDto.offTaker], // Adjust as needed
+            _useParameter: true,
+            _multipleParameters: true,
+          },
+        },
+        order: { organizationId: 'DESC' },
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      };
       //const filterSpy = jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(expectedQuery as FindManyOptions);
-      const getFilteredQueryMock = jest.fn().mockReturnValue(expectedQuery as FindManyOptions<Device>);
+      const getFilteredQueryMock = jest
+        .fn()
+        .mockReturnValue(expectedQuery as FindManyOptions<Device>);
       service.getFilteredQuery = getFilteredQueryMock;
-      const findSpy = jest.spyOn(repository, 'findAndCount').mockResolvedValue([deviceEntity, deviceEntity.length] as any);
+      const findSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
       const result = await service.find(filterDto, pageNumber, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
@@ -1029,9 +1051,13 @@ describe('DeviceService', () => {
         ...expectedQuery,
       });
 
-      console.log("Received arguments in findAndCount:", findSpy.mock.calls[0], findSpy.mock.calls[1]);
+      console.log(
+        'Received arguments in findAndCount:',
+        findSpy.mock.calls[0],
+        findSpy.mock.calls[1],
+      );
 
-      console.log("Result with in test:", result);
+      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });

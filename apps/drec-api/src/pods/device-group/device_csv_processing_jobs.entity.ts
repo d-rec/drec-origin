@@ -42,7 +42,7 @@ export class DeviceCsvFileProcessingJobsEntity extends ExtendedBaseEntity {
   @IsEnum(StatusCSV)
   status: StatusCSV;
 
-  @Column({nullable: true, default: null})
+  @Column({ nullable: true, default: null })
   @IsOptional()
   api_user_id: string;
 }

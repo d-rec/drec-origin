@@ -23,7 +23,7 @@
 // @Entity('history_next_issuance_date_log')
 
 // // export class HistoryDeviceGroupNextIssueCertificate extends ExtendedBaseEntity {
- 
+
 // //   @PrimaryGeneratedColumn()
 // //   id: number;
 
@@ -49,7 +49,6 @@
 
 // export class reservationEndDate
 
-
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import {
@@ -59,13 +58,11 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
 } from 'class-validator';
-
 
 @Entity('history_next_issueance_log')
 export class HistoryDeviceGroupNextIssueCertificate extends ExtendedBaseEntity {
-  
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -90,5 +87,5 @@ export class HistoryDeviceGroupNextIssueCertificate extends ExtendedBaseEntity {
 
   @Column()
   @IsString()
-  status:string;
+  status: string;
 }

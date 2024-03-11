@@ -1,4 +1,4 @@
-import { ApiProperty, PickType ,IntersectionType} from '@nestjs/swagger';
+import { ApiProperty, PickType, IntersectionType } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
@@ -13,18 +13,18 @@ import { OrganizationDTO } from '../../organization/dto/organization.dto';
 export class SeedUserDTO
   extends IntersectionType(
     PickType(UserDTO, [
-    // 'title',
-    'firstName',
-    'lastName',
-    'email',
-    // 'telephone',
-    'notifications',
-    'status',
-    'role',
-    'organization'
-  ] as const),
-  PickType(OrganizationDTO,['organizationType']as const)
-    )
+      // 'title',
+      'firstName',
+      'lastName',
+      'email',
+      // 'telephone',
+      'notifications',
+      'status',
+      'role',
+      'organization',
+    ] as const),
+    PickType(OrganizationDTO, ['organizationType'] as const),
+  )
   implements Omit<IUserSeed, 'organization' | 'id'>
 {
   @ApiProperty({ type: String })
@@ -43,13 +43,11 @@ export class SeedUserDTO
     message:
       'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
   })
- 
   @ApiProperty({ type: Number })
   @IsNumber()
   organizationId: number;
 
- // permissions?: IModulePermissionsConfig;
+  // permissions?: IModulePermissionsConfig;
   moduleName: string;
-  roleId:number;
-
+  roleId: number;
 }

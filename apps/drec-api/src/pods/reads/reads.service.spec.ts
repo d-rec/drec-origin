@@ -24,7 +24,8 @@ describe('ReadsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ReadsService,
+      providers: [
+        ReadsService,
         {
           provide: getRepositoryToken(AggregateMeterRead),
           useClass: Repository,
@@ -61,7 +62,9 @@ describe('ReadsService', () => {
     }).compile();
 
     service = module.get<ReadsService>(ReadsService);
-    aggregateRepository = module.get<Repository<AggregateMeterRead>>(getRepositoryToken(AggregateMeterRead));
+    aggregateRepository = module.get<Repository<AggregateMeterRead>>(
+      getRepositoryToken(AggregateMeterRead),
+    );
   });
 
   it('should be defined', () => {

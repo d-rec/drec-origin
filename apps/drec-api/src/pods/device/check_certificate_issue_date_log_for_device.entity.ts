@@ -7,31 +7,30 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
 } from 'class-validator';
-
 
 @Entity('check_certificate_issue_date_log_for_device')
 export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ 
-    type: 'timestamp', 
-    precision: 3
+  @Column({
+    type: 'timestamp',
+    precision: 3,
   })
-  certificate_issuance_startdate:Date;
+  certificate_issuance_startdate: Date;
 
-  @Column({ 
-    type: 'timestamp', 
-    precision: 3
+  @Column({
+    type: 'timestamp',
+    precision: 3,
   })
-  certificate_issuance_enddate:Date;
+  certificate_issuance_enddate: Date;
 
   @Column()
   @IsNumber()
   readvalue_watthour: number;
-  
+
   @Column()
   @IsString()
   status: string;
@@ -39,15 +38,14 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @Column()
   @IsString()
   externalId: string;
- 
+
   @Column()
   @IsNumber()
   groupId: number | null;
-  
+
   @Column()
   @IsString()
-  certificateTransactionUID:string
-
+  certificateTransactionUID: string;
 
   @Column()
   @IsDate()
