@@ -24,5 +24,5 @@
     "noFallthroughCasesInSwitch": false
   },
   "include": ["src/**/*", "migrations/*", "test/*", "ormconfig*.ts"],
-  "exclude": ["node_modules", "dist", ".spec.ts"]
+  "exclude": ["node_modules", "dist"]
 }
