@@ -694,9 +694,10 @@ export class DeviceService {
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgbbenifitslist = SDGBenefits;
 
-    //@ts-ignore
     if (
+      // @ts-ignore ts(2367)
       updateDeviceDTO.SDGBenefits === 0 ||
+      // @ts-ignore ts(2367)
       updateDeviceDTO.SDGBenefits === 1
     ) {
       updateDeviceDTO.SDGBenefits = [];
@@ -858,10 +859,10 @@ export class DeviceService {
     });
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId;
-    }
-    //@ts-ignore
-    else if (
+    } else if (
+      // @ts-ignore ts(2339)
       filter.organizationId != null &&
+      // @ts-ignore ts(2339)
       filter.organizationId != undefined
     ) {
       //@ts-ignore

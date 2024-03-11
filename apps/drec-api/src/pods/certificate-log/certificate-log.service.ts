@@ -308,11 +308,14 @@ export class CertificateLogService {
           certifiedlist: ICertificateReadModel<ICertificateMetadata>,
           index: number,
         ) => {
+          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].certificateStartDate =
             new Date(certifiedlist.generationStartTime * 1000).toISOString();
+          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].certificateEndDate = new Date(
             certifiedlist.generationEndTime * 1000,
           ).toISOString();
+          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
@@ -377,6 +380,7 @@ export class CertificateLogService {
 
                 certificatesInReservationWithLog[
                   index
+                  // @ts-ignore ts(2339)
                 ].perDeviceCertificateLog.push(singleDeviceLogEle);
               });
 
@@ -1007,12 +1011,15 @@ export class CertificateLogService {
               certifiedlist: ICertificateReadModel<ICertificateMetadata>,
               index: number,
             ) => {
+              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].certificateStartDate =
                 new Date(
                   certifiedlist.generationStartTime * 1000,
                 ).toISOString();
+              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].certificateEndDate =
                 new Date(certifiedlist.generationEndTime * 1000).toISOString();
+              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].perDeviceCertificateLog =
                 [];
               try {
@@ -1065,6 +1072,7 @@ export class CertificateLogService {
 
                         certificatesInReservationWithLog[
                           index
+                          // @ts-ignore ts(2339)
                         ].perDeviceCertificateLog.push(singleDeviceLogEle);
                       });
                     } else {
@@ -1091,6 +1099,7 @@ export class CertificateLogService {
                         );
                         certificatesInReservationWithLog[
                           index
+                          // @ts-ignore ts(2339)
                         ].perDeviceCertificateLog.push(devicelog[0]);
                       }
                     }
@@ -1112,6 +1121,7 @@ export class CertificateLogService {
                         getLocalTimeZoneFromDevice(device.createdAt, device);
                       certificatesInReservationWithLog[
                         index
+                        // @ts-ignore ts(2339)
                       ].perDeviceCertificateLog.push(singleDeviceLogEle);
                     });
                   }

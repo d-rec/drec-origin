@@ -1833,7 +1833,7 @@ export class DeviceGroupService {
           organizationId,
           records,
         );
-        //////console.log("devicesRegistered",devicesRegistered); 
+        //////console.log("devicesRegistered",devicesRegistered);
         //@ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           if(ele instanceof DeviceDTO)
@@ -1842,7 +1842,7 @@ export class DeviceGroupService {
           }
         })
         //////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
-       
+
         if (recordsErrors.find((ele) => ele.isError === true)) {
           //////console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
@@ -1862,8 +1862,8 @@ export class DeviceGroupService {
       });
     //////console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
-    
-    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
+
+    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{
       //////console.log("csvLine",csvLine);
     // csvLine =>  "1,2,3" and "4,5,6"
     })
@@ -1873,7 +1873,7 @@ export class DeviceGroupService {
       //////console.log("data ending emission");
       readableStream.emit('end');
     },60000);
-    
+
 
     // },1);
   }
@@ -2248,15 +2248,16 @@ export class DeviceGroupService {
           recordsToRegister,
           filesAddedForProcessing.api_user_id,
         );
-        //@ts-ignore
 
         devicesRegistered
+          // @ts-ignore ts(2339)
           .filter((ele) => ele.isError === undefined)
           .forEach((ele) => {
-            //@ts-ignore
             successfullyAddedRowsAndExternalIds.push({
+              // @ts-ignore ts(2339)
               externalId: ele.externalId,
               rowNumber: records.findIndex(
+                // @ts-ignore ts(2339)
                 (recEle) => recEle.developerExternalId === ele.externalId,
               ),
             });

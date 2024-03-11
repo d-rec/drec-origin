@@ -328,10 +328,9 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
       const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -648,10 +647,9 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
       const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;

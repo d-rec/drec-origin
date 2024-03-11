@@ -1481,10 +1481,10 @@ export class ReadsService {
             previousPage,
           );
           if (previousPageData.length > 0) {
-            // @ts-ignore
+            // @ts-ignore ts(2339)
             previousReadTime = previousPageData[0].timestamp;
-            // @ts-ignore
             console.log(
+              // @ts-ignore ts(2339)
               'previous page read data[0]::::' + previousPageData[0].timestamp,
             );
           } else {

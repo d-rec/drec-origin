@@ -123,10 +123,10 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    //@ts-ignore
+    // @ts-ignore ts(2339)
     if (filterDto.organizationId) {
-      //@ts-ignore
       const organization = await this.organizationService.findOne(
+        // @ts-ignore ts(2339)
         filterDto.organizationId,
       );
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -302,8 +302,8 @@ export class DeviceController {
     //@ts-ignore
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
-        //@ts-ignore
         const organization = await this.organizationService.findOne(
+          // @ts-ignore ts(2339)
           filterDto.organizationId,
         );
         const orguser = await this.userService.findByEmail(
