@@ -104,7 +104,7 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    //@ts-ignore
+    // @ts-ignore
     const api_user =
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
@@ -148,9 +148,9 @@ export class UserService {
         );
       }
     }
-    //@ts-ignore
+    // @ts-ignore
     if (data.orgid) {
-      //@ts-ignore
+      // @ts-ignore
       org_id = data.orgid;
     }
     let role;
@@ -208,9 +208,9 @@ export class UserService {
     */
     /*
     if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
-      //@ts-ignore
+      // @ts-ignore
       user['client_id'] = data.client.client_id;
-      //@ts-ignore
+      // @ts-ignore
       user['client_secret'] = data.client.client_secret;
     }
     */
@@ -328,10 +328,9 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
       const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -451,9 +450,9 @@ export class UserService {
       });
     }
     const updateuser = await this.findById(id);
-    //@ts-ignore
+    // @ts-ignore
     if (!(updateuser.email === email.toLowerCase())) {
-      //@ts-ignore
+      // @ts-ignore
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -612,9 +611,9 @@ export class UserService {
     }
 
     const updateuser = await this.findById(id);
-    //@ts-ignore
+    // @ts-ignore
     if (!(updateuser.email === data.email)) {
-      //@ts-ignore
+      // @ts-ignore
       await this.checkForExistingUser(data.email);
     }
 
@@ -648,10 +647,9 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
       const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;

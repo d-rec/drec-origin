@@ -369,7 +369,7 @@ export class AdminController {
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,
   ) {
-    //@ts-ignore
+    // @ts-ignore
     console.log('adminaddorgId', organizationId);
     // if (adminaddorgId != null || adminaddorgId != undefined) {
     //   organizationId = adminaddorgId;
