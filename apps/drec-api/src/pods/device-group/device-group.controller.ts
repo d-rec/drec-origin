@@ -304,7 +304,7 @@ export class DeviceGroupController {
         message: 'start date cannot be less than or same as end date',
       });
     }
-    let maximumBackDateForReservation: Date = new Date(
+    const maximumBackDateForReservation: Date = new Date(
       new Date().getTime() - 3.164e10 * 3,
     );
     if (
@@ -426,7 +426,7 @@ export class DeviceGroupController {
         message: 'Invalid file',
       });
     }
-    let jobCreated = await this.deviceGroupService.createCSVJobForFile(
+    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
       user.id,
       organizationId,
       StatusCSV.Added,
@@ -461,7 +461,7 @@ export class DeviceGroupController {
     @UserDecorator() loggedUser: ILoggedInUser,
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
-    let devicenextissuence: DeviceGroupNextIssueCertificate | null =
+    const devicenextissuence: DeviceGroupNextIssueCertificate | null =
       await this.deviceGroupService.getGroupiCertificateIssueDate({
         groupId: id,
       });
@@ -536,7 +536,7 @@ export class DeviceGroupController {
   ): Promise<JobFailedRowsDTO | undefined> {
     //console.log("jobId", jobId);
 
-    let data =
+    const data =
       await this.deviceGroupService.getFailedRowDetailsForCSVJob(jobId);
     //console.log("data", data);
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(jobId);

@@ -71,7 +71,7 @@ export class PermissionGuard implements CanActivate {
     ) {
       return true;
     }
-    var per: any = [];
+    const per: any = [];
 
     const userpermission1 = await this.userPermission.findById(
       user.roleId,

@@ -15,8 +15,7 @@ export class CertificateWithPerdevicelog extends Certificate {
   metadata: string;
 }
 
-export interface CertificateNewWithPerDeviceLog
-  extends ICertificateReadModel<ICertificateMetadata> {}
+export type CertificateNewWithPerDeviceLog = ICertificateReadModel<ICertificateMetadata>
 
 export class CertificateNewWithPerDeviceLog {
   certificateStartDate: string;

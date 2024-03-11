@@ -133,7 +133,7 @@ export class CertificateLogService {
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
-    let page = pageNumber; // Specify the page number you want to retrieve
+    const page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
     const [certifiedreservation, total] =
@@ -149,7 +149,7 @@ export class CertificateLogService {
       });
     const totalPages = Math.ceil(total / itemsPerPage);
 
-    let request: IGetAllCertificatesOptions = {
+    const request: IGetAllCertificatesOptions = {
       //@ts-ignore
       deviceId: parseInt(groupid),
     };
@@ -291,7 +291,7 @@ export class CertificateLogService {
     //   deviceId: groupid
     // }
     // const certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
-    let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
+    const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
       [];
     certifiedreservation.forEach((ele) =>
       certificatesInReservationWithLog.push({
@@ -316,7 +316,7 @@ export class CertificateLogService {
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
-              let data = JSON.parse(certifiedlist.metadata);
+              const data = JSON.parse(certifiedlist.metadata);
             }
           } catch (e) {
             this.logger.error(
@@ -331,7 +331,7 @@ export class CertificateLogService {
           } else {
             obj = certifiedlist.metadata;
           }
-          let certificateTransactionUID = obj.certificateTransactionUID;
+          const certificateTransactionUID = obj.certificateTransactionUID;
           //console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
           /* Below note can be ignored for newer certificates as we added certificateTransactionUID which will overcome this issue as well
         Please see note below regarding generationStartTime
@@ -828,12 +828,12 @@ export class CertificateLogService {
     certifiedreservation,
     role,
   ): Promise<CertificatelogResponse> {
-    let finalcertificatesInReservationWithLog: Array<any> = [];
+    const finalcertificatesInReservationWithLog: Array<any> = [];
     this.logger.verbose(`With in getDeveloperfindreservationcertified`);
     await Promise.all(
       certifiedreservation.deviceGroups.map(
         async (group: any, index: number) => {
-          let newq = await this.certificaterrepository
+          const newq = await this.certificaterrepository
             .createQueryBuilder('issuar')
             .where(
               `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
@@ -979,10 +979,10 @@ export class CertificateLogService {
     this.logger.verbose(
       `With in getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
-    let finalcertificatesInReservationWithLog: Array<any> = [];
+    const finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
       getreservationinfo.deviceGroups.map(async (group: any, index: number) => {
-        let newq = await this.cretificatereadmoduleRepository
+        const newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(
             `crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
@@ -991,7 +991,7 @@ export class CertificateLogService {
         this.logger.debug(groupedDatasql);
         const result = await newq.getMany();
         // console.log(result)
-        let certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
+        const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
           [];
         result.forEach((ele) =>
           certificatesInReservationWithLog.push({
@@ -1017,7 +1017,7 @@ export class CertificateLogService {
                 [];
               try {
                 if (typeof certifiedlist.metadata === 'string') {
-                  let data = JSON.parse(certifiedlist.metadata);
+                  const data = JSON.parse(certifiedlist.metadata);
                 }
               } catch (e) {
                 this.logger.error(
@@ -1033,7 +1033,7 @@ export class CertificateLogService {
               } else {
                 obj = certifiedlist.metadata;
               }
-              let certificateTransactionUID = obj.certificateTransactionUID;
+              const certificateTransactionUID = obj.certificateTransactionUID;
               const devicereadstartdate = new Date(
                 (certifiedlist.generationStartTime - 1) * 1000,
               ); //as rounding when certificate is issued by EWFs package reference kept above and removing millseconds

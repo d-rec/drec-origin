@@ -366,7 +366,7 @@ export class AdminController {
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
   async autocomplete(
     // @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('externalId') externalId: String,
+    @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,
   ) {
     //@ts-ignore

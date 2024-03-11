@@ -116,7 +116,7 @@ export class FileController {
     // }
     return await Promise.all(
       uploadedFiles.files.map(async (file) => {
-        let response: any = await this.fileService.upload(file);
+        const response: any = await this.fileService.upload(file);
         return response.key;
       }),
     );

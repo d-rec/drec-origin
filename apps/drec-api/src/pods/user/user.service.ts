@@ -101,11 +101,11 @@ export class UserService {
   public async newcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
-    inviteuser?: Boolean,
+    inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     //@ts-ignore
-    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(
+    const api_user = await this.oauthClientCredentialsService.findOneByApiUserId(
       data.api_user_id,
     );
     /*
@@ -114,7 +114,7 @@ export class UserService {
       api_user = await this.oauthClientCredentialsService.createAPIUser();
       console.log("api_user", api_user);
     } */
-    var org_id;
+    let org_id;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
@@ -152,8 +152,8 @@ export class UserService {
       //@ts-ignore
       org_id = data.orgid;
     }
-    var role;
-    var roleId;
+    let role;
+    let roleId;
     if (
       data.organizationType === 'Buyer' ||
       data.organizationType === 'buyer'
@@ -222,10 +222,10 @@ export class UserService {
   public async adminnewcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
-    inviteuser?: Boolean,
+    inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    var org_id;
+    let org_id;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
@@ -249,8 +249,8 @@ export class UserService {
       }
     }
 
-    var role;
-    var roleId;
+    let role;
+    let roleId;
     if (
       data.organizationType === 'Buyer' ||
       data.organizationType === 'buyer'
@@ -561,7 +561,7 @@ export class UserService {
   }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
-      let [users, totalCount] = await query
+      const [users, totalCount] = await query
         .andWhere(`role != :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -673,7 +673,7 @@ export class UserService {
       };
     }
     const { id, confirmed } = getcurrenttoken;
-    let { token, expiryTimestamp } =
+    const { token, expiryTimestamp } =
       await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
     await this.emailConfirmationService.sendInvitation(
       inviteuser,
@@ -769,7 +769,7 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    let filterDto = new UserFilterDTO();
+    const filterDto = new UserFilterDTO();
     filterDto.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDto);
     try {

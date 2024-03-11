@@ -93,12 +93,12 @@ export class DecimalPermissionValue {
       isSet: false,
     },
   ];
-  binaryFormPermission: string = '0000';
-  decimalFormPermission: number = 0;
+  binaryFormPermission = '0000';
+  decimalFormPermission = 0;
 
   computePermissions(addedPermissionList: any) {
     //console.log(PermissionString);
-    let binaryFormPermission: string = '';
+    let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       //console.log(ele);
       binaryFormPermission =
@@ -108,7 +108,7 @@ export class DecimalPermissionValue {
     });
     this.binaryFormPermission = binaryFormPermission;
 
-    let decimalFormPermission: number = 0;
+    let decimalFormPermission = 0;
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       decimalFormPermission =
         decimalFormPermission +

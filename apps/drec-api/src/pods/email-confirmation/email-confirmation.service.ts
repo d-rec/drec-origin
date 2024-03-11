@@ -211,7 +211,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
+    const { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -233,7 +233,7 @@ export class EmailConfirmationService {
       };
     }
     const { id, confirmed } = currentToken;
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
+    const { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),

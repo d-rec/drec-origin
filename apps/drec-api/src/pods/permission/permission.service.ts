@@ -62,7 +62,7 @@ export class PermissionService {
       });
     }
     //console.log(addedPermissionList)
-    var permissionValue =
+    const permissionValue =
       this.Permissionvalue.computePermissions(addedPermissionList);
     const userpermission = await this.findOne({
       aclmodulesId: data.aclmodulesId,
@@ -238,7 +238,7 @@ export class PermissionService {
     }
     const userpermission = await this.findOne({ id });
 
-    var permissionValue =
+    const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
     const checkdata = {
       aclmodulesId: userpermission.aclmodulesId,
@@ -301,7 +301,7 @@ export class PermissionService {
 
     const api_user = await this.userService.findById(loginuser.id);
 
-    var permissionIds: any = [];
+    let permissionIds: any = [];
     //@ts-ignore
     const api_userpermission = await this.userService.getApiuser(
       api_user.api_user_id,

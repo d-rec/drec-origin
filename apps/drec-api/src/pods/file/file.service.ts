@@ -200,7 +200,7 @@ export class FileService {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
-    let a = name.substr(0, name.indexOf('.csv'));
+    const a = name.substr(0, name.indexOf('.csv'));
     this.logger.debug(a);
     const params = {
       Bucket: bucket,

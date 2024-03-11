@@ -108,7 +108,7 @@ export class ReadsController extends BaseReadsController {
     // @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
-    let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+    const device: DeviceDTO | null = await this.deviceService.findReads(meterId);
 
     if (device === null) {
       this.logger.error(`Invalid device id`);
@@ -296,7 +296,7 @@ export class ReadsController extends BaseReadsController {
         year,
       );
     } else if (filter.readType === 'meterReads') {
-      let timezone = getLocalTimeZoneFromDevice(filter.start, device);
+      const timezone = getLocalTimeZoneFromDevice(filter.start, device);
       this.logger.log('the timezone we got from all reads is:::' + timezone);
       const returnedObject = await this.internalReadsService.getAllRead(
         device.externalId,
@@ -490,7 +490,7 @@ export class ReadsController extends BaseReadsController {
       });
     }
     id = id.trim();
-    let device: DeviceDTO | null =
+    const device: DeviceDTO | null =
       await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         user.organizationId,
@@ -513,7 +513,7 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-      let allTimezoneNamesLowerCase: Array<string> = [];
+      const allTimezoneNamesLowerCase: Array<string> = [];
       //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
@@ -538,9 +538,9 @@ export class ReadsController extends BaseReadsController {
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
         ];
-      let dateInvalid: boolean = false;
+      let dateInvalid = false;
       measurements.reads.forEach((ele) => {
-        for (let key in ele) {
+        for (const key in ele) {
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
               const dateTimeRegex =
@@ -595,7 +595,7 @@ export class ReadsController extends BaseReadsController {
                     message: `Invalid date sent  ${ele[key]}`,
                   });
                 } else {
-                  let milliSeondsToAddSentInRequest: string = '';
+                  let milliSeondsToAddSentInRequest = '';
                   //@ts-ignore
                   if (
                     ele[key].includes('.') &&
@@ -654,13 +654,13 @@ export class ReadsController extends BaseReadsController {
 
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
-      let datesContainingNullOrEmptyValues: boolean = false;
-      let datevalid: boolean = true;
-      let allDatesAreBeforeCreatedAt: boolean = true;
-      let allStartDatesAreBeforeEnddate: boolean = true;
-      let readvalue: boolean = true;
-      let historyallStartDatesAreAftercommissioningDate: boolean = true;
-      let historyallEndDatesAreAftercommissioningDate: boolean = true;
+      let datesContainingNullOrEmptyValues = false;
+      let datevalid = true;
+      let allDatesAreBeforeCreatedAt = true;
+      let allStartDatesAreBeforeEnddate = true;
+      let readvalue = true;
+      let historyallStartDatesAreAftercommissioningDate = true;
+      let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
         //@ts-ignore
         if (
@@ -674,10 +674,10 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         //@ts-ignore
-        let startdateformate = isValidUTCDateFormat(ele.starttimestamp);
+        const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
         //@ts-ignore
-        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -822,11 +822,11 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.ReadMeter
     ) {
       this.logger.log('Line No: 505');
-      let datesContainingNullOrEmptyValues: boolean = false;
-      let datevalid1: boolean = true;
-      let allDatesAreAfterCreatedAt: boolean = true;
-      let allDatesAreAftercommissioningDate: boolean = true;
-      let allEndDatesAreBeforSystemDate: boolean = true;
+      let datesContainingNullOrEmptyValues = false;
+      let datevalid1 = true;
+      let allDatesAreAfterCreatedAt = true;
+      let allDatesAreAftercommissioningDate = true;
+      let allEndDatesAreBeforSystemDate = true;
       let enddate: any;
       let currentdate: Date = new Date();
       measurements.reads.forEach((ele) => {
@@ -840,7 +840,7 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         //@ts-ignore
-        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {
           datevalid1 = false;
@@ -955,7 +955,7 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.History ||
       measurements.type === ReadType.Delta
     ) {
-      let readvalue: boolean = true;
+      let readvalue = true;
       measurements.reads.forEach((ele) => {
         if (ele.value <= 0) {
           readvalue = false;
@@ -1058,7 +1058,7 @@ export class ReadsController extends BaseReadsController {
     ) {
       organizationId = user.organizationId;
     }
-    let device: DeviceDTO | null =
+    const device: DeviceDTO | null =
       await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         organizationId,
@@ -1082,7 +1082,7 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-      let allTimezoneNamesLowerCase: Array<string> = [];
+      const allTimezoneNamesLowerCase: Array<string> = [];
       //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
@@ -1107,9 +1107,9 @@ export class ReadsController extends BaseReadsController {
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
         ];
-      let dateInvalid: boolean = false;
+      let dateInvalid = false;
       measurements.reads.forEach((ele) => {
-        for (let key in ele) {
+        for (const key in ele) {
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
               const dateTimeRegex =
@@ -1164,7 +1164,7 @@ export class ReadsController extends BaseReadsController {
                     message: `Invalid date sent  ${ele[key]}`,
                   });
                 } else {
-                  let milliSeondsToAddSentInRequest: string = '';
+                  let milliSeondsToAddSentInRequest = '';
                   //@ts-ignore
                   if (
                     ele[key].includes('.') &&
@@ -1223,13 +1223,13 @@ export class ReadsController extends BaseReadsController {
 
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
-      let datesContainingNullOrEmptyValues: boolean = false;
-      let datevalid: boolean = true;
-      let allDatesAreBeforeCreatedAt: boolean = true;
-      let allStartDatesAreBeforeEnddate: boolean = true;
-      let readvalue: boolean = true;
-      let historyallStartDatesAreAftercommissioningDate: boolean = true;
-      let historyallEndDatesAreAftercommissioningDate: boolean = true;
+      let datesContainingNullOrEmptyValues = false;
+      let datevalid = true;
+      let allDatesAreBeforeCreatedAt = true;
+      let allStartDatesAreBeforeEnddate = true;
+      let readvalue = true;
+      let historyallStartDatesAreAftercommissioningDate = true;
+      let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
         //@ts-ignore
         if (
@@ -1243,10 +1243,10 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         //@ts-ignore
-        let startdateformate = isValidUTCDateFormat(ele.starttimestamp);
+        const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
         //@ts-ignore
-        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -1391,11 +1391,11 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.ReadMeter
     ) {
       this.logger.log('Line No: 505');
-      let datesContainingNullOrEmptyValues: boolean = false;
-      let datevalid1: boolean = true;
-      let allDatesAreAfterCreatedAt: boolean = true;
-      let allDatesAreAftercommissioningDate: boolean = true;
-      let allEndDatesAreBeforSystemDate: boolean = true;
+      let datesContainingNullOrEmptyValues = false;
+      let datevalid1 = true;
+      let allDatesAreAfterCreatedAt = true;
+      let allDatesAreAftercommissioningDate = true;
+      let allEndDatesAreBeforSystemDate = true;
       let enddate: any;
       let currentdate: Date = new Date();
       measurements.reads.forEach((ele) => {
@@ -1409,7 +1409,7 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         //@ts-ignore
-        let enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {
           datevalid1 = false;
@@ -1524,7 +1524,7 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.History ||
       measurements.type === ReadType.Delta
     ) {
-      let readvalue: boolean = true;
+      let readvalue = true;
       measurements.reads.forEach((ele) => {
         if (ele.value <= 0) {
           readvalue = false;

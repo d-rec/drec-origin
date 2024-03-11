@@ -102,7 +102,7 @@ export class YieldConfigController {
       typeof yieldToRegister.countryCode === 'string' &&
       yieldToRegister.countryCode.length === 3
     ) {
-      let countries = countryCodesList;
+      const countries = countryCodesList;
       if (
         countries.find(
           (ele) => ele.countryCode === yieldToRegister.countryCode,

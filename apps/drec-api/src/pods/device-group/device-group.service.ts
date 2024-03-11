@@ -130,7 +130,7 @@ export class DeviceGroupService {
     | any
   > {
     this.logger.verbose(`With in dg service ${filterDto}`);
-    let query: SelectQueryBuilder<DeviceGroup> = await this.repository
+    const query: SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
       .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
       .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
@@ -212,7 +212,7 @@ export class DeviceGroupService {
             typeof filterDto.country === 'string' &&
             filterDto.country.length === 3
           ) {
-            let countries = countryCodesList;
+            const countries = countryCodesList;
             if (
               countries.find(
                 (element) => element.countryCode === filterDto.country,
@@ -546,7 +546,7 @@ export class DeviceGroupService {
                   typeof groupfilterDto.country === 'string' &&
                   groupfilterDto.country.length === 3
                 ) {
-                  let countries = countryCodesList;
+                  const countries = countryCodesList;
                   if (
                     countries.find(
                       (ele) => ele.countryCode === groupfilterDto.country,
@@ -679,7 +679,7 @@ export class DeviceGroupService {
     }
     const skip = (pageNumber - 1) * pageSize;
 
-    let groupedData = await queryBuilder
+    const groupedData = await queryBuilder
       .offset(skip)
       .limit(pageSize)
       .getRawMany();
@@ -827,7 +827,7 @@ export class DeviceGroupService {
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForAdmin`);
-    let whereConditions: any = {};
+    const whereConditions: any = {};
 
     if (orgId) {
       whereConditions.organizationId = orgId;
@@ -921,8 +921,8 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let reservationIsStartingInHistoryForAtleastOneDevice: boolean = false;
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance: boolean = false;
+    const reservationIsStartingInHistoryForAtleastOneDevice = false;
+    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
     devices.filter((ele) => {
       if (
         new Date(data.reservationStartDate).getTime() <
@@ -939,9 +939,9 @@ export class DeviceGroupService {
       //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
       //there will be single device which will have next issuance
       let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
-      let minimumDeviceCreatedAtIndex: number = 0;
+      let minimumDeviceCreatedAtIndex = 0;
       devices.forEach((ele, index) => {
-        let eleDate = new Date(ele.createdAt);
+        const eleDate = new Date(ele.createdAt);
         if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
           minimumDeviceCreatedAtDate = eleDate;
           minimumDeviceCreatedAtIndex = index;
@@ -950,7 +950,7 @@ export class DeviceGroupService {
       ////console.log(minimumDeviceCreatedAtDate)
       //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
       //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
-      let startDate: string = '';
+      let startDate = '';
       if (
         minimumDeviceCreatedAtDate.getTime() <
         new Date(data.reservationStartDate).getTime()
@@ -978,8 +978,8 @@ export class DeviceGroupService {
       ) {
         hours = 91 * 24;
       }
-      let newEndDate: string = '';
-      let end_date = new Date(
+      let newEndDate = '';
+      const end_date = new Date(
         new Date(startDate).getTime() + hours * 3.6e6,
       ).toISOString();
 
@@ -994,8 +994,8 @@ export class DeviceGroupService {
       ////console.log("newEndDate",newEndDate)
       //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
       //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-      let nextMinimumCreatedWhichIsLessThanEndDate: boolean = false;
-      let nextMinimumCreatedAtString: string = '';
+      let nextMinimumCreatedWhichIsLessThanEndDate = false;
+      let nextMinimumCreatedAtString = '';
       devices.forEach((ele, index) => {
         if (index != minimumDeviceCreatedAtIndex) {
           if (
@@ -1076,13 +1076,13 @@ export class DeviceGroupService {
     buyerAddress?: string,
   ): Promise<ResponseDeviceGroupDTO> {
     this.logger.verbose(`With in createOne`);
-    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean: boolean =
+    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
       false;
     let devices =
       await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(
         group.deviceIds,
       );
-    let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> =
+    const unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> =
       [];
     devices.forEach((ele) =>
       ele.groupId != null
@@ -1106,9 +1106,9 @@ export class DeviceGroupService {
         );
       });
     }
-    let allDevicesAvailableforBuyerReservation: boolean = true;
-    let unavailableDeviceIds: Array<number> = [];
-    let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
+    let allDevicesAvailableforBuyerReservation = true;
+    const unavailableDeviceIds: Array<number> = [];
+    const unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       this.logger.error(
@@ -1172,17 +1172,17 @@ export class DeviceGroupService {
       devices.forEach(
         (ele) => (aggregatedCapacity = ele.capacity + aggregatedCapacity),
       );
-      let reservationStartDate = DateTime.fromISO(
+      const reservationStartDate = DateTime.fromISO(
         new Date(group.reservationStartDate).toISOString(),
       );
-      let reservationEndDate = DateTime.fromISO(
+      const reservationEndDate = DateTime.fromISO(
         new Date(group.reservationEndDate).toISOString(),
       );
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()
           ?.hours || 0,
       ); // hours
-      let targetCapacityInKiloWattHour =
+      const targetCapacityInKiloWattHour =
         group.targetCapacityInMegaWattHour * 1000;
       if (
         aggregatedCapacity * meteredTimePeriodInHours <
@@ -1215,7 +1215,7 @@ export class DeviceGroupService {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean ===
       false
     ) {
-      let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(
+      const deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(
         devices,
         group.name,
       );
@@ -1244,7 +1244,7 @@ export class DeviceGroupService {
       if (group.reservationExpiryDate) {
         deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
       }
-      let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
+      const responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,
       );
@@ -1975,7 +1975,7 @@ export class DeviceGroupService {
             }
           }
           if (key == 'yieldValue' && data.countryCode) {
-            let yieldByCountryCode =
+            const yieldByCountryCode =
               await this.yieldConfigService.findByCountryCode(data.countryCode);
             if (yieldByCountryCode) {
               //@ts-ignore
@@ -1983,7 +1983,7 @@ export class DeviceGroupService {
             }
           }
         }
-        for (let key in dataToStore) {
+        for (const key in dataToStore) {
           //@ts-ignore
           dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
@@ -2002,7 +2002,7 @@ export class DeviceGroupService {
       })
       .on('done', async (error: any) => {
         for (let index = 0; index < records.length; index++) {
-          let singleRecord = records[index];
+          const singleRecord = records[index];
           if (records[index].externalId) {
             records[index].externalId = records[index].externalId.trim();
           }
@@ -2177,7 +2177,7 @@ export class DeviceGroupService {
             }
           });
         }
-        var recordsCopy = cloneDeep(records);
+        const recordsCopy = cloneDeep(records);
         recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicatesExternalId: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
@@ -2219,12 +2219,12 @@ export class DeviceGroupService {
           }
         }
 
-        let successfullyAddedRowsAndExternalIds: Array<{
+        const successfullyAddedRowsAndExternalIds: Array<{
           rowNumber: number;
           externalId: string;
         }> = [];
         //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-        let recordsToRegister = records.filter((ele, index) => {
+        const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
             if (
@@ -2296,22 +2296,22 @@ export class DeviceGroupService {
     this.logger.verbose(`With in csvStringToJSON`);
     // Convert the data to String and
     // split it in an array
-    var array = csvFileContentInString.split('\r');
+    const array = csvFileContentInString.split('\r');
 
     // All the rows of the CSV will be
     // converted to JSON objects which
     // will be added to result in an array
-    let result = [];
+    const result = [];
 
     // The array[0] contains all the
     // header columns so we store them
     // in headers array
-    let headers = array[0].split(', ');
+    const headers = array[0].split(', ');
 
     // Since headers are separated, we
     // need to traverse remaining n-1 rows.
     for (let i = 1; i < array.length - 1; i++) {
-      let obj = {};
+      const obj = {};
 
       // Create an empty object to later add
       // values of the current row to it
@@ -2319,7 +2319,7 @@ export class DeviceGroupService {
       // value to change the delimiter and
       // store the generated string in a new
       // string s
-      let str = array[i];
+      const str = array[i];
       let s = '';
 
       // By Default, we get the comma separated
@@ -2342,13 +2342,13 @@ export class DeviceGroupService {
 
       // Split the string using pipe delimiter |
       // and store the values in a properties array
-      let properties = s.split('|');
+      const properties = s.split('|');
 
       // For each header, if the value contains
       // multiple comma separated data, then we
       // store it in the form of array otherwise
       // directly the value is stored
-      for (let j in headers) {
+      for (const j in headers) {
         if (properties[j].includes(', ')) {
           //@ts-ignore
           obj[headers[j]] = properties[j]
@@ -2474,7 +2474,7 @@ export class DeviceGroupService {
     await this.repositorynextDeviceGroupcertificate.delete(
       deviceGroupIssueNextDateDTO.id,
     );
-    let devices = await this.deviceService.findForGroup(groupId);
+    const devices = await this.deviceService.findForGroup(groupId);
 
     if (!devices?.length) {
       return;
@@ -2631,7 +2631,7 @@ export class DeviceGroupService {
       pageNumber = 1;
     }
     const pageSize = 10;
-    let skip = (pageNumber - 1) * pageSize;
+    const skip = (pageNumber - 1) * pageSize;
     const queryBuilder = await this.historynextissuancedaterepository
       .createQueryBuilder('hni')
       .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
@@ -2668,7 +2668,7 @@ export class DeviceGroupService {
     });
     // }),
     // );
-    let AllDeviceshistnextissuansinfo: any = [];
+    const AllDeviceshistnextissuansinfo: any = [];
     device_historynextissuance.forEach((ele) =>
       ele.historynext_issuancer.forEach((he) =>
         AllDeviceshistnextissuansinfo.push(he),
@@ -2768,7 +2768,7 @@ export class DeviceGroupService {
                 typeof filterDto.country === 'string' &&
                 filterDto.country.length === 3
               ) {
-                let countries = countryCodesList;
+                const countries = countryCodesList;
                 if (
                   countries.find(
                     (ele) => ele.countryCode === filterDto.country,
@@ -2933,7 +2933,7 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          let newobj = {};
+          const newobj = {};
 
           const existing1 = acc.find((item) => item.id === curr.id);
           if (existing1) {
@@ -3048,7 +3048,7 @@ export class DeviceGroupService {
                 typeof filterDto.country === 'string' &&
                 filterDto.country.length === 3
               ) {
-                let countries = countryCodesList;
+                const countries = countryCodesList;
                 if (
                   countries.find(
                     (ele) => ele.countryCode === filterDto.country,
@@ -3212,10 +3212,10 @@ export class DeviceGroupService {
     //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
     // }
 
-    let deviceGroups = groupedData.reduce((acc, curr) => {
+    const deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find((item) => item.dg_id === curr.dg_id);
       if (existing) {
-        let newobj = {};
+        const newobj = {};
         const existing1 = acc.find((item) => item.id === curr.id);
         if (existing1) {
           existing.developerdeviceIds.push(curr.id);
@@ -3275,7 +3275,7 @@ export class DeviceGroupService {
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForApiUser`);
-    let query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> =
+    const query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> =
       await this.repositoyCSVJobProcessing
         .createQueryBuilder('csvjobs')
         .orderBy('csvjobs.createdAt', 'DESC');

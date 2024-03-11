@@ -23,7 +23,7 @@ export class OnApplicationBootstrapHookService
     ) as DeploymentPropertiesRepository;
     const isDeployed = await this.deploymentRepository.propertiesExist();
     if (!isDeployed) {
-      let blockchainProperties: BlockchainProperties =
+      const blockchainProperties: BlockchainProperties =
         await this.blockchainPropertiesService.get();
       await this.deploymentRepository.save({
         registry: blockchainProperties.registry,

@@ -301,7 +301,7 @@ describe('DeviceService', () => {
   });
 
   describe('find', () => {
-    let organizationEntity = {
+    const organizationEntity = {
       id: 1,
       name: 'orgName',
       //@ts-ignore
@@ -321,7 +321,7 @@ describe('DeviceService', () => {
       api_user_id: 'apiUserId',
     } as Organization;
 
-    let deviceEntity = [
+    const deviceEntity = [
       {
         createdAt: '2024-02-27T07:00:32.963Z',
         updatedAt: '2024-02-27T07:00:32.963Z',

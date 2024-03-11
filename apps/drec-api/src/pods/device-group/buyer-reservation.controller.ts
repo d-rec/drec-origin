@@ -511,7 +511,7 @@ export class BuyerReservationController {
       });
     }
 
-    let maximumBackDateForReservation: Date = new Date(
+    const maximumBackDateForReservation: Date = new Date(
       new Date().getTime() - 3.164e10 * 3,
     );
     if (
@@ -640,7 +640,7 @@ export class BuyerReservationController {
         message: 'Invalid file',
       });
     }
-    let jobCreated = await this.deviceGroupService.createCSVJobForFile(
+    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
       user.id,
       organizationId,
       StatusCSV.Added,
@@ -674,7 +674,7 @@ export class BuyerReservationController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
-    let devicenextissuence: DeviceGroupNextIssueCertificate | null =
+    const devicenextissuence: DeviceGroupNextIssueCertificate | null =
       await this.deviceGroupService.getGroupiCertificateIssueDate({
         groupId: id,
       });

@@ -266,7 +266,7 @@ export class DeviceController {
         typeof filterDto.country === 'string' &&
         filterDto.country.length === 3
       ) {
-        let countries = countryCodesList;
+        const countries = countryCodesList;
         if (
           countries.find((ele) => ele.countryCode === filterDto.country) ===
           undefined
@@ -496,7 +496,7 @@ export class DeviceController {
       typeof deviceToRegister.countryCode === 'string' &&
       deviceToRegister.countryCode.length === 3
     ) {
-      let countries = countryCodesList;
+      const countries = countryCodesList;
       if (
         countries.find(
           (ele) => ele.countryCode === deviceToRegister.countryCode,
@@ -658,7 +658,7 @@ export class DeviceController {
         typeof deviceToUpdate.countryCode === 'string' &&
         deviceToUpdate.countryCode.length === 3
       ) {
-        let countries = countryCodesList;
+        const countries = countryCodesList;
         if (
           countries.find(
             (ele) => ele.countryCode === deviceToUpdate.countryCode,
@@ -882,7 +882,7 @@ export class DeviceController {
       this.logger.error(`Currently not in dev environment`);
       throw new HttpException('Currently not in dev environment', 400);
     }
-    let device: DeviceDTO | null =
+    const device: DeviceDTO | null =
       await this.deviceService.findDeviceByDeveloperExternalId(
         deviceId,
         organizationId,
@@ -946,7 +946,7 @@ export class DeviceController {
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
   async autocomplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('externalId') externalId: String,
+    @Query('externalId') externalId: string,
   ) {
     this.logger.verbose(`With in autocomplete`);
     return await this.deviceService.atto(organizationId, externalId);
