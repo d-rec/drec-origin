@@ -299,7 +299,7 @@ export class DeviceController {
         });
       }
     }
-    //@ts-ignore
+    // @ts-ignore
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
@@ -327,7 +327,7 @@ export class DeviceController {
           }
         }
       } else {
-        //@ts-ignore
+        // @ts-ignore
         if (filterDto.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
@@ -339,7 +339,7 @@ export class DeviceController {
         }
       }
 
-      //@ts-ignore
+      // @ts-ignore
       organizationId = filterDto.organizationId;
     }
 
@@ -565,10 +565,10 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     if (role === Role.Admin || role === Role.ApiUser) {
-      //@ts-ignore
+      // @ts-ignore
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
-        //@ts-ignore
+        // @ts-ignore
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(

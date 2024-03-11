@@ -229,7 +229,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
       device = await this.deviceService.findOne(parseInt(meterId));
-      //@ts-ignore
+      // @ts-ignore
       if (
         orguser != undefined &&
         // @ts-ignore ts(2339)
@@ -246,7 +246,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (user.role === Role.Buyer) {
-        //@ts-ignore
+        // @ts-ignore
         if (device.api_user_id != null) {
           this.logger.error(
             `An buyer can't view the reads of apiuser's organization`,
@@ -475,7 +475,7 @@ export class ReadsController extends BaseReadsController {
             );
           });
         } else {
-          //@ts-ignore
+          // @ts-ignore
           user.organizationId = measurements.organizationId;
         }
       }
@@ -576,7 +576,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              //@ts-ignore
+              // @ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
                 this.logger.error(
@@ -614,7 +614,7 @@ export class ReadsController extends BaseReadsController {
                       ),
                     ) != NaN
                   ) {
-                    //@ts-ignore
+                    // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
                       // @ts-ignore ts(2339)
                       ele[key].indexOf('.'),
@@ -633,7 +633,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  //@ts-ignore
+                  // @ts-ignore
                   ele[key] = utcString;
                 }
               }
@@ -672,7 +672,7 @@ export class ReadsController extends BaseReadsController {
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
-        //@ts-ignore
+        // @ts-ignore
         if (
           ele.starttimestamp === null ||
           ele.starttimestamp === undefined ||
@@ -685,10 +685,10 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
@@ -851,7 +851,7 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {
@@ -1154,7 +1154,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              //@ts-ignore
+              // @ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
                 this.logger.error(
@@ -1192,11 +1192,11 @@ export class ReadsController extends BaseReadsController {
                       ),
                     ) != NaN
                   ) {
-                    //@ts-ignore
+                    // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
-                      //@ts-ignore
+                      // @ts-ignore
                       ele[key].indexOf('.'),
-                      //@ts-ignore
+                      // @ts-ignore
                       ele[key].length,
                     );
                   }
@@ -1211,7 +1211,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  //@ts-ignore
+                  // @ts-ignore
                   ele[key] = utcString;
                 }
               }
@@ -1262,10 +1262,10 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
@@ -1428,7 +1428,7 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {

@@ -1,9 +1,9 @@
 import { startAPI } from '.';
 
-//@ts-ignore
+// @ts-ignore
 process.setMaxListeners(0);
 
-//@ts-ignore
+// @ts-ignore
 process.on('warning', (e) => {
   console.warn('warning inside main.ts');
   console.warn(e.stack);

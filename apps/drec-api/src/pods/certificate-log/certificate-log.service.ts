@@ -150,7 +150,7 @@ export class CertificateLogService {
     const totalPages = Math.ceil(total / itemsPerPage);
 
     const request: IGetAllCertificatesOptions = {
-      //@ts-ignore
+      // @ts-ignore
       deviceId: parseInt(groupid),
     };
 

@@ -95,11 +95,11 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
-    //@ts-ignore
+    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    //@ts-ignore
+    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    //@ts-ignore
+    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
     this.influxDB = new InfluxDB({ url, token });
@@ -395,7 +395,7 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    //@ts-ignore
+    // @ts-ignore
     const final = await this.NewfindLatestRead(deviceId, device.createdAt);
     console.log('final', final);
     const reads: any = [];
@@ -420,7 +420,7 @@ export class ReadsService {
             element.endtimestamp,
           );
           // console.log(checkhistroyreading)
-          //@ts-ignore
+          // @ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           console.log('historyAge');
@@ -434,23 +434,23 @@ export class ReadsService {
             );
           }
 
-          //@ts-ignore
+          // @ts-ignore
           if (
             requeststartdate <=
               DateTime.fromISO(new Date(historyAge).toISOString()) ||
-            //@ts-ignore
+            // @ts-ignore
             requeststartdate >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
             requestcurrentend <=
               DateTime.fromISO(new Date(historyAge).toISOString()) ||
-            //@ts-ignore
+            // @ts-ignore
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
             return reject(
               new ConflictException({
                 success: false,
-                //@ts-ignore
+                // @ts-ignore
                 message: `For History Type Reads of devices start time and/or end time should be within 3 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within 3 year in past from onboarded date, ${device?.createdAt}`,
               }),
             );
@@ -504,7 +504,7 @@ export class ReadsService {
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
             if (final && final['timestamp']) {
-              //@ts-ignore
+              // @ts-ignore
               if (
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
@@ -513,7 +513,7 @@ export class ReadsService {
                   new ConflictException({
                     success: false,
                     message:
-                      //@ts-ignore
+                      // @ts-ignore
                       `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
                   }),
                 );
@@ -564,7 +564,7 @@ export class ReadsService {
               console.log('Stimestamp', final.timestamp.toISOString());
               console.log(typeof final.timestamp.toISOString());
               if (final && final['timestamp']) {
-                //@ts-ignore
+                // @ts-ignore
                 if (
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
@@ -573,7 +573,7 @@ export class ReadsService {
                     new ConflictException({
                       success: false,
                       message:
-                        //@ts-ignore
+                        // @ts-ignore
                         `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
                     }),
                   );
@@ -724,7 +724,7 @@ export class ReadsService {
                 );
               }
 
-              //@ts-ignore
+              // @ts-ignore
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta,
@@ -769,7 +769,7 @@ export class ReadsService {
     meterId: string,
     deviceregisterdate: Date,
   ): Promise<ReadDTO | void> {
-    //@ts-ignore
+    // @ts-ignore
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
@@ -798,14 +798,14 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-    //@ts-ignore
+    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    //@ts-ignore
+    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    //@ts-ignore
+    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
-    //@ts-ignore
+    // @ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org);
   }
 
@@ -905,9 +905,9 @@ export class ReadsService {
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
 
     //console.log(read.timestamp.toISOString());
-    //@ts-ignore
+    // @ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
-    //@ts-ignore
+    // @ts-ignore
     //console.log(new Date(device.createdAt).toISOString());
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
@@ -1094,12 +1094,12 @@ export class ReadsService {
         if (historynextissue != undefined) {
           const stdate = new Date(startdate).getTime();
           const eddate = new Date(enddate).getTime();
-          //@ts-ignore
+          // @ts-ignore
           const reservSdate = new Date(
             historynextissue.reservationStartDate,
           ).getTime();
           console.log(reservSdate);
-          //@ts-ignore
+          // @ts-ignore
           const reservEdate = new Date(
             historynextissue.reservationEndDate,
           ).getTime();
@@ -1112,7 +1112,7 @@ export class ReadsService {
             eddate <= reservEdate &&
             eddate > reservSdate
           ) {
-            //@ts-ignore
+            // @ts-ignore
             this.deviceGroupService.HistoryUpdatecertificateissuedate(
               historynextissue.id,
               HistoryNextInssuanceStatus.Pending,
@@ -1333,7 +1333,7 @@ export class ReadsService {
     if (numberOfHistReads > 0) {
       numberOfPages = Math.ceil(numberOfHistReads / sizeOfPage);
     }
-    //@ts-ignore
+    // @ts-ignore
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       filter.offset = sizeOfPage * (pageNumber - 1);
@@ -1521,7 +1521,7 @@ export class ReadsService {
             transformedFinalOngoing.push({
               startdate: startdate,
               enddate: enddate,
-              //@ts-ignore
+              // @ts-ignore
               value: currentRead.value,
             });
           }
