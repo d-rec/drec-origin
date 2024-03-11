@@ -171,4 +171,3 @@ Before running the script, make sure:
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
-6. After completed the local setup, before running the script, add environment variables `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_FNAME`, `ADMIN_LNAME`, `ADMIN_ORG_NAME`,`ADMIN_ORG_ADDRESS`  with the user details you wanted to create as default admin user
