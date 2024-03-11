@@ -156,3 +156,4 @@ Before running the script, make sure:
 2. Post generated devices to Server - Bulk Devices
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
+5. After completed the local setup, before running the script, add environment variables `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_FNAME`, `ADMIN_LNAME`, `ADMIN_ORG_NAME`,`ADMIN_ORG_ADDRESS`  with the user details you wanted to create as default admin user
