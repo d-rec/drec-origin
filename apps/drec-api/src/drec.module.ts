@@ -140,7 +140,7 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
-let redisOptions = {
+const redisOptions = {
   host: process.env.REDIS_URL ?? 'localhost',
   port: 6379,
 };

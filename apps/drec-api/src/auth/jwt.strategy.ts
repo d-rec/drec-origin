@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     this.logger.verbose('With in validate');
     //@ts-ignore
     const token = request.headers.authorization?.split(' ')[1];
-    let tokeninvalidate = await this.authService.isTokenBlacklisted(
+    const tokeninvalidate = await this.authService.isTokenBlacklisted(
       token,
       payload,
     );

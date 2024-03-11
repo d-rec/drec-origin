@@ -103,7 +103,7 @@ describe('UserService', () => {
 
   describe('newcreate', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
-      let userData: CreateUserORGDTO = {
+      const userData: CreateUserORGDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya3@gmail.com',
@@ -279,7 +279,7 @@ describe('UserService', () => {
 
   describe('adminnewcreate', () => {
     it('should create a new user with valid input data', async () => {
-      let userData: CreateUserORGDTO = {
+      const userData: CreateUserORGDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya2@gmail.com',
@@ -444,7 +444,7 @@ describe('UserService', () => {
   });
 
   describe('getAll', () => {
-    let mockOrganizationEntity1 = {
+    const mockOrganizationEntity1 = {
       id: 1,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -462,7 +462,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let mockOrganizationEntity2 = {
+    const mockOrganizationEntity2 = {
       id: 2,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -480,7 +480,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let userss: IUser[] = [
+    const userss: IUser[] = [
       {
         id: 1,
         firstName: 'Dev',
@@ -608,7 +608,7 @@ describe('UserService', () => {
   });
 
   describe('findById', () => {
-    let mockOrganizationEntity = {
+    const mockOrganizationEntity = {
       id: 1,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -626,7 +626,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let mockuserEntity = {
+    const mockuserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -723,7 +723,7 @@ describe('UserService', () => {
         api_user_id: 'apiuserId',
       } as Organization;
 
-      let userEntity = {
+      const userEntity = {
         id: 1,
         firstName: 'Dev',
         lastName: 'lastName',
@@ -760,7 +760,7 @@ describe('UserService', () => {
   });
 
   describe('findByEmail', () => {
-    let mockOrganizationEntity = {
+    const mockOrganizationEntity = {
       id: 1,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -778,7 +778,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let mockuserEntity = {
+    const mockuserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -828,7 +828,7 @@ describe('UserService', () => {
   });
 
   describe('getUserAndPasswordByEmail', () => {
-    let mockOrganizationEntity = {
+    const mockOrganizationEntity = {
       id: 1,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -846,7 +846,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let mockuserEntity = {
+    const mockuserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -903,7 +903,7 @@ describe('UserService', () => {
   });
 
   describe('findOne', () => {
-    let mockOrganizationEntity = {
+    const mockOrganizationEntity = {
       id: 1,
       name: 'DIRECT_ORG_DEVELOPER1',
       address: 'Bangalore',
@@ -921,7 +921,7 @@ describe('UserService', () => {
       api_user_id: 'apiuserId',
     } as Organization;
 
-    let mockuserEntity = {
+    const mockuserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -943,7 +943,7 @@ describe('UserService', () => {
       permissionIds: [],
     };
 
-    let mockemailConfirmationEntity = {
+    const mockemailConfirmationEntity = {
       id: 1,
       confirmed: true,
       token:

@@ -398,7 +398,7 @@ export class ReadsService {
     //@ts-ignore
     const final = await this.NewfindLatestRead(deviceId, device.createdAt);
     console.log('final', final);
-    let reads: any = [];
+    const reads: any = [];
 
     if (measurement.type === 'History') {
       await new Promise((resolve, reject) => {
@@ -463,7 +463,7 @@ export class ReadsService {
           //   startdate: requeststartdate,
           //   enddate: requestcurrentend
           // });
-          let read: ReadDTO = {
+          const read: ReadDTO = {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
           };
@@ -519,7 +519,7 @@ export class ReadsService {
                 );
               }
             }
-            let read: ReadDTO = {
+            const read: ReadDTO = {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
@@ -583,7 +583,7 @@ export class ReadsService {
               //   timestamp: new Date(element.endtimestamp),
               //   value: element.value
               // })
-              let read: ReadDTO = {
+              const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
@@ -638,7 +638,7 @@ export class ReadsService {
                 );
               }
 
-              let read: ReadDTO = {
+              const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta,
               };
@@ -664,7 +664,7 @@ export class ReadsService {
                 );
               }
             } else {
-              let read: ReadDTO = {
+              const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
@@ -725,7 +725,7 @@ export class ReadsService {
               }
 
               //@ts-ignore
-              let read: ReadDTO = {
+              const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta,
               };
@@ -1092,15 +1092,15 @@ export class ReadsService {
           );
         console.log('historynextissue');
         if (historynextissue != undefined) {
-          let stdate = new Date(startdate).getTime();
-          let eddate = new Date(enddate).getTime();
+          const stdate = new Date(startdate).getTime();
+          const eddate = new Date(enddate).getTime();
           //@ts-ignore
-          let reservSdate = new Date(
+          const reservSdate = new Date(
             historynextissue.reservationStartDate,
           ).getTime();
           console.log(reservSdate);
           //@ts-ignore
-          let reservEdate = new Date(
+          const reservEdate = new Date(
             historynextissue.reservationEndDate,
           ).getTime();
           console.log(reservEdate);
@@ -1314,16 +1314,16 @@ export class ReadsService {
         400,
       );
     }
-    let historyread = [];
+    const historyread = [];
     let ongoing = [];
-    let finalongoing = [];
+    const finalongoing = [];
     console.log(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
 
-    let sizeOfPage = 5;
+    const sizeOfPage = 5;
     let numberOfPages = 0;
-    let numberOfHistReads = await this.getnumberOfHistReads(
+    const numberOfHistReads = await this.getnumberOfHistReads(
       externalId,
       filter.start,
       filter.end,
@@ -1453,7 +1453,7 @@ export class ReadsService {
           new Date(deviceOnboarded).getTime() ||
         new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()
       ) {
-        let finalongoing = await this.getPaginatedData(
+        const finalongoing = await this.getPaginatedData(
           externalId,
           readsFilter,
           pageNumber,
@@ -1592,7 +1592,7 @@ export class ReadsService {
   |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
   |> count()`;
     }
-    let noOfReads = await this.ongExecute(fluxquery);
+    const noOfReads = await this.ongExecute(fluxquery);
 
     return noOfReads;
   }
@@ -1607,7 +1607,7 @@ export class ReadsService {
   }
 
   async latestread(meterId, deviceOnboarded) {
-    let query = `
+    const query = `
 from(bucket: "${process.env.INFLUXDB_BUCKET}")
 |> range(start: ${deviceOnboarded}, stop: now())
 |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
@@ -1654,7 +1654,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     meter = meter;
     let tempResults = [];
-    let finalResults: { timestamp?: string; value?: any }[] = [];
+    const finalResults: { timestamp?: string; value?: any }[] = [];
     let response;
     let url;
     const offSet = await this.getOffSetForInfluxQuery(
@@ -1706,7 +1706,8 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }
 
     for (let i = 0; i < tempResults.length; i++) {
-      let resultObj: { startTime?: string; endTime?: string; value?: any } = {};
+      const resultObj: { startTime?: string; endTime?: string; value?: any } =
+        {};
       for (let j = 0; j < 2; j++) {
         if (j % 2 === 0) {
           const startDateStr = new Date(tempResults[i][j]).getTime();
@@ -1839,7 +1840,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     let currentQuery: string;
 
     if (filter.lastValue) {
-      let newDateTime = new Date(
+      const newDateTime = new Date(
         new Date(filter.lastValue).getTime() + 1000,
       ).toISOString();
       currentQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
@@ -1877,7 +1878,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   ) {
     let localTime = null;
     let formattedOffset = null;
-    let device = await this.deviceService.findDeviceByDeveloperExternalId(
+    const device = await this.deviceService.findDeviceByDeveloperExternalId(
       developerExternalId,
       organizationId,
     );

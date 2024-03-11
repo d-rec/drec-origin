@@ -196,5 +196,5 @@ export class NewDeviceDTO
   @ApiProperty({ default: '1.0' })
   @IsString()
   @IsOptional()
-  version: string = '1.0';
+  version = '1.0';
 }

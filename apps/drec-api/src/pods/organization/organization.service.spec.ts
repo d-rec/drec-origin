@@ -338,12 +338,12 @@ describe('OrganizationService', () => {
   });
 
   describe('findOrganizationUsers', () => {
-    let orgId = 13;
-    let pageNumber = 1;
-    let limit = 20;
-    let role = undefined;
+    const orgId = 13;
+    const pageNumber = 1;
+    const limit = 20;
+    const role = undefined;
 
-    let users = [
+    const users = [
       {
         //createdAt: '2024-03-03T15:23:29.222Z',
         updatedAt: new Date('2024-03-04T07:03:46.336Z'),
@@ -507,7 +507,7 @@ describe('OrganizationService', () => {
         moduleName: 'any Module',
       } as User,
     ];
-    let totalCount = 5;
+    const totalCount = 5;
     it('should return the list of users for a valid organization ID', async () => {
       jest
         .spyOn(userService, 'findUserByOrganization')

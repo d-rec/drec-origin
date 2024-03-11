@@ -30,7 +30,7 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-  inviteuseradd: Boolean = false;
+  inviteuseradd = false;
   randPassword: string;
   constructor(
     @InjectRepository(Invitation)
@@ -131,7 +131,7 @@ export class InvitationService {
       );
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
-    var saveinviteuser: any = {};
+    let saveinviteuser: any = {};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
       saveinviteuser = await this.invitationRepository.save({
         email: lowerCaseEmail,
@@ -147,7 +147,7 @@ export class InvitationService {
         return x[Math.floor(Math.random() * x.length)];
       })
       .join('');
-    var inviteuser: CreateUserORGDTO = {
+    const inviteuser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
@@ -158,7 +158,7 @@ export class InvitationService {
       orgid: organization.id | undefined,
       // orgAddress:''
     };
-    var userid: any;
+    let userid: any;
     this.logger.debug('invitee');
     //to add for if one user invite by multiple organization
     // if (invitee) {
@@ -175,7 +175,7 @@ export class InvitationService {
     );
 
     //}
-    var updateinviteuser: updateInviteStatusDTO = {
+    const updateinviteuser: updateInviteStatusDTO = {
       email: lowerCaseEmail,
       status: OrganizationInvitationStatus.Accepted,
     };

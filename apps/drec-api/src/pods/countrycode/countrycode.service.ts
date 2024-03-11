@@ -10,7 +10,7 @@ export class CountrycodeService {
     filterDto: FilterKeyDTO,
   ): Promise<CountryCodeNameDTO[]> {
     this.logger.verbose(`With in getCountryCode`);
-    let countries = countryCodesList;
+    const countries = countryCodesList;
     if (filterDto.searchKeyWord && filterDto.searchKeyWord.length > 0) {
       const regex = new RegExp(`${filterDto.searchKeyWord}`, 'i');
       return countries.filter(

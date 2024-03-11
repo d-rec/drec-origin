@@ -4,12 +4,12 @@ import { countryCodesList } from '../models/country-code';
 import { CountryCodeNameDTO } from '../pods/countrycode/dto';
 
 export const getLocalTime = (startDate, device) => {
-  let point = [parseFloat(device.longitude), parseFloat(device.latitude)];
+  const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
   console.log('latitude is::::' + device.latitude);
   console.log('longitue is:::' + device.longitude);
   console.log('point is:::' + point);
-  let timestamp = new Date(startDate);
-  let localTime = mapBoxTimeSpace
+  const timestamp = new Date(startDate);
+  const localTime = mapBoxTimeSpace
     .getFuzzyLocalTimeFromPoint(timestamp, point)
     .startOf('day');
   console.log('localTime Time: ' + localTime.utc().format());
@@ -24,9 +24,9 @@ export const getLocalTimeZoneFromDevice = (localTime, device) => {
   } else if (device.longitude && device.latitude && localTime) {
     try {
       console.log('lat and long are there');
-      var timestamp = new Date(localTime);
+      const timestamp = new Date(localTime);
       const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
-      let time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
+      const time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
       console.log('TIME:::::::::::::::::' + time);
       const actualTimeZone = momentTimeZone.tz.names().find((timezone) => {
         if (momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr()) {
@@ -83,7 +83,7 @@ export const getFormattedOffSetFromOffsetAsJson = (givenOffSet) => {
 
   let hours = Math.floor(Math.abs(givenOffSet) / 60);
 
-  let minutes = Math.abs(givenOffSet % 60);
+  const minutes = Math.abs(givenOffSet % 60);
 
   if (givenOffSet < 0) {
     hours = -1 * hours;

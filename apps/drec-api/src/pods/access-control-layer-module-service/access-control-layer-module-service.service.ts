@@ -44,7 +44,7 @@ export class AccessControlLayerModuleServiceService {
       });
     }
 
-    var permissionValue =
+    const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
 
     await this.checkForExistingmodule(data.name);

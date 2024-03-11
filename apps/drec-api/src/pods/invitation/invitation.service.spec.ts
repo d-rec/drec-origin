@@ -125,7 +125,7 @@ describe('InvitationService', () => {
         emailConfirmed: false,
       };
 
-      let inviteeOrganization = {
+      const inviteeOrganization = {
         createdAt: '2024-03-01T07:59:03.122Z',
         updatedAt: '2024-03-01T07:59:03.122Z',
         id: 13,
@@ -156,7 +156,7 @@ describe('InvitationService', () => {
         ],
       };
 
-      let savedinvitedUser = {
+      const savedinvitedUser = {
         email: 'cccplrtzifwzerosys@cazlp.com',
         organization: {
           createdAt: '2024-03-01T07:59:03.122Z',
@@ -187,7 +187,7 @@ describe('InvitationService', () => {
         id: 4,
       };
 
-      let mockinvitedUser = {
+      const mockinvitedUser = {
         firstName: 'test',
         lastName: 'test',
         email: 'cccplrtzifwzerosys@cazlp.com',
@@ -343,7 +343,7 @@ describe('InvitationService', () => {
         emailConfirmed: false,
       };
 
-      let inviteeOrganization = {
+      const inviteeOrganization = {
         createdAt: '2024-03-01T07:59:03.122Z',
         updatedAt: '2024-03-01T07:59:03.122Z',
         id: 18,
@@ -377,7 +377,7 @@ describe('InvitationService', () => {
         invitations: [],
       };
 
-      let savedinvitedUser = {
+      const savedinvitedUser = {
         email: 'diuqtdpnqttfuvauha@cazlq.com',
         organization: {
           createdAt: '2024-03-03T17:18:55.388Z',
@@ -407,7 +407,7 @@ describe('InvitationService', () => {
         id: 6,
       };
 
-      let mockinvitedUser = {
+      const mockinvitedUser = {
         firstName: 'test',
         lastName: 'test',
         email: 'diuqtdpnqttfuvauha@cazlq.com',

@@ -110,7 +110,7 @@ export class OrganizationService {
       query.andWhere(`organization.organizationType != :organizationType`, {
         organizationType: Role.ApiUser,
       });
-      let [organizations, count] = await query
+      const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();

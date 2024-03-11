@@ -278,7 +278,7 @@ export class DeviceService {
     });
 
     if (device) {
-      let jwtToken = await regenerateToken(this.httpService);
+      const jwtToken = await regenerateToken(this.httpService);
       const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${jwtToken}`,
@@ -309,7 +309,7 @@ export class DeviceService {
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
-        let irecdeviceaddDto = new IrecDevicesInformationEntity();
+        const irecdeviceaddDto = new IrecDevicesInformationEntity();
         (irecdeviceaddDto.IREC_id = data.code),
           (irecdeviceaddDto.event = 'register'),
           (irecdeviceaddDto.request = requestBody),
@@ -324,7 +324,7 @@ export class DeviceService {
           IREC_ID: data.code,
         };
       } catch (error) {
-        let irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
+        const irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
 
         (irecdeviceerrorlogDto.event = 'register'),
           (irecdeviceerrorlogDto.request = requestBody),
@@ -354,13 +354,13 @@ export class DeviceService {
     });
 
     if (device) {
-      let jwtToken = await regenerateToken(this.httpService);
+      const jwtToken = await regenerateToken(this.httpService);
       const headers = {
         'Content-Type': 'application/json', // Set the Content-Type header for JSON data
         Authorization: `Bearer ${jwtToken}`,
         // Add any other custom headers if needed
       };
-      let irec_capacity = device.capacity / 1000;
+      const irec_capacity = device.capacity / 1000;
       //let deId=device.externalId
       const requestBody = {
         deviceType: '/device_types/' + device.deviceTypeCode,
@@ -389,16 +389,18 @@ export class DeviceService {
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`; // Replace with your API endpoint
 
       let data: any;
-      let response = this.httpService.post(url, requestBody, config).subscribe(
-        (response) => {
-          data = response.data;
-          device.IREC_ID = data.code;
-          device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
-        },
-        (error) => {
-          this.logger.error(error);
-        },
-      );
+      const response = this.httpService
+        .post(url, requestBody, config)
+        .subscribe(
+          (response) => {
+            data = response.data;
+            device.IREC_ID = data.code;
+            device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+          },
+          (error) => {
+            this.logger.error(error);
+          },
+        );
       await this.repository.save(device);
       // console.log("response from irec", response._subscribe)
       return data;
@@ -578,7 +580,7 @@ export class DeviceService {
     //console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
-    let sdgbbenifitslist = SDGBenefits;
+    const sdgbbenifitslist = SDGBenefits;
 
     const checkexternalid = await this.repository.findOne({
       where: {
@@ -614,7 +616,7 @@ export class DeviceService {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
       newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        let foundEle = sdgbbenifitslist.find(
+        const foundEle = sdgbbenifitslist.find(
           (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
         );
         if (foundEle) {
@@ -690,7 +692,7 @@ export class DeviceService {
     //console.log(updateDeviceDTO.countryCode);
     // const code = updateDeviceDTO.countryCode.toUpperCase();
     updateDeviceDTO.externalId = currentDevice.externalId;
-    let sdgbbenifitslist = SDGBenefits;
+    const sdgbbenifitslist = SDGBenefits;
 
     //@ts-ignore
     if (
@@ -700,7 +702,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
       updateDeviceDTO.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        let foundEle = sdgbbenifitslist.find(
+        const foundEle = sdgbbenifitslist.find(
           (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
         );
         if (foundEle) {
@@ -911,7 +913,7 @@ export class DeviceService {
     };
     return query;
   }
-  private getRawFilter(filter: String): FindOperator<any> {
+  private getRawFilter(filter: string): FindOperator<any> {
     this.logger.verbose(`With in getRawFilter`);
     return Raw((alias) => `${alias} = Any(SDGBenefits)`, {
       SDGBenefits: [filter],
@@ -1142,7 +1144,7 @@ export class DeviceService {
     externalid,
     latestartDate,
     lateendDate,
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
     const isalreadyadded = await this.latedevciecertificaterepository.findOne({
       where: {
         groupId: groupid,
@@ -1291,10 +1293,10 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { organizationId },
     });
-    let totalamountofreads = [];
+    const totalamountofreads = [];
     await Promise.all(
       devices.map(async (device: Device) => {
-        let certifiedamountofread =
+        const certifiedamountofread =
           await this.checkdevcielogcertificaterepository.find({
             where: { externalId: device.externalId },
           });
@@ -1303,7 +1305,7 @@ export class DeviceService {
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        let totalamount = await this.getallread(device.externalId);
+        const totalamount = await this.getallread(device.externalId);
         const totalReadValue = totalamount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -1378,7 +1380,7 @@ export class DeviceService {
       |> range(start: ${onboardedDate})
       |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
       |> count()`;
-    let noOfReads = await this.ongExecute(fluxQuery);
+    const noOfReads = await this.ongExecute(fluxQuery);
 
     return noOfReads;
   }
@@ -1490,7 +1492,7 @@ export class DeviceService {
       })
       .andWhere('deviceData.groupId= :groupId', { groupId });
     const result = await queryBuilder.getRawOne();
-    let finalresult = { ...result, extenalId: device.developerExternalId };
+    const finalresult = { ...result, extenalId: device.developerExternalId };
 
     return finalresult;
   }
@@ -1504,7 +1506,7 @@ export class DeviceService {
       pageNumber = 1;
     }
     const pageSize = 10;
-    let skip: number = (pageNumber - 1) * pageSize;
+    const skip: number = (pageNumber - 1) * pageSize;
 
     queryBuilder = await this.checkdevcielogcertificaterepository
       .createQueryBuilder('deviceData')
@@ -1533,7 +1535,7 @@ export class DeviceService {
 
   async remove(id: number, filterop): Promise<any> {
     this.logger.verbose(`With in remove`);
-    let checkdeviceunreserve = await this.findOne(id, filterop);
+    const checkdeviceunreserve = await this.findOne(id, filterop);
     if (!checkdeviceunreserve) {
       const message = `Device id: ${checkdeviceunreserve.developerExternalId} already part of the reservation , you cannot delete it`;
       this.logger.error(message);
@@ -1542,7 +1544,7 @@ export class DeviceService {
         message,
       };
     }
-    let certifiedamountofread =
+    const certifiedamountofread =
       await this.checkdevcielogcertificaterepository.findOne({
         where: { externalId: checkdeviceunreserve.externalId },
       });

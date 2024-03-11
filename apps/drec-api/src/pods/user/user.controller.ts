@@ -281,7 +281,7 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    const emailregex: RegExp =
+    const emailregex =
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let emailConfirmation: any;
     if (emailregex.test(token)) {

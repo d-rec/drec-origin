@@ -3,8 +3,8 @@ import { CapacityRange } from './enums';
 export const getCapacityRange = (
   capacityInKiloWatts: number,
 ): CapacityRange => {
-  let capacityWatts = capacityInKiloWatts * 10 ** 3;
-  let capacityMegaWatts = capacityInKiloWatts * 10 ** -3;
+  const capacityWatts = capacityInKiloWatts * 10 ** 3;
+  const capacityMegaWatts = capacityInKiloWatts * 10 ** -3;
   if (capacityWatts <= 1000) {
     return CapacityRange.firstRange;
   } else if (
