@@ -1,9 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class userLoginSession1707301134758 implements MigrationInterface {
-    name = 'userLoginSession1707301134758';
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  name = 'userLoginSession1707301134758';
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         CREATE TABLE user_login_session (
             id SERIAL PRIMARY KEY,
             "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
@@ -13,9 +13,7 @@ export class userLoginSession1707301134758 implements MigrationInterface {
 
            )
           `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }
