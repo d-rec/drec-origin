@@ -19,10 +19,10 @@ import { LoginDataDTO } from './dto/login-data.dto';
 @ApiTags('auth')
 @ApiBearerAuth('access-token')
 @Controller()
-export class AuthController { 
+export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(AuthGuard('local'))
   @Post('auth/login')
@@ -34,17 +34,15 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
-    this.logger.verbose("Within login");
-    return  await this.authService.login(req.user as Omit<IUser, 'password'>);
+    this.logger.verbose('Within login');
+    return await this.authService.login(req.user as Omit<IUser, 'password'>);
   }
-
 
   @UseGuards(AuthGuard('jwt'))
   @Post('auth/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Request() req: ExpressRequest
-  ) {
-    this.logger.verbose("Within login");
+  async logout(@Request() req: ExpressRequest) {
+    this.logger.verbose('Within login');
     await this.authService.logout(req.user as Omit<IUser, 'password'>);
     return { message: 'Logout successful' };
   }
@@ -52,8 +50,15 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('auth/getAccess')
   @ApiBody({ type: LoginDataDTO })
-  async generateToken(@Request() req: ExpressRequest, @Query('privateKey') privateKey: string) {//: Promise<LoginReturnDataDTO> {
-    this.logger.verbose("With in generateToken");
-    return await this.authService.generateToken(req.user as Omit<IUser, 'password'>, privateKey);
+  async generateToken(
+    @Request() req: ExpressRequest,
+    @Query('privateKey') privateKey: string,
+  ) {
+    //: Promise<LoginReturnDataDTO> {
+    this.logger.verbose('With in generateToken');
+    return await this.authService.generateToken(
+      req.user as Omit<IUser, 'password'>,
+      privateKey,
+    );
   }
 }

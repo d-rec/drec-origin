@@ -25,13 +25,9 @@ export class UserRegistrationData {
   @IsNotEmpty()
   @IsString()
   password: string;
-  
 }
 
-
 export class UserORGRegistrationData {
- 
-
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -51,7 +47,7 @@ export class UserORGRegistrationData {
   @IsNotEmpty()
   @IsString()
   confirmPassword?: string;
- 
+
   @IsString()
   @IsOptional()
   orgName?: string;
@@ -59,7 +55,4 @@ export class UserORGRegistrationData {
   @IsString()
   @IsOptional()
   orgAddress?: string;
-
- 
-
 }

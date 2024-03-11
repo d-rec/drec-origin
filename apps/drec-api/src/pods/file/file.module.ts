@@ -1,4 +1,4 @@
-import { Module,forwardRef } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 //import { DeviceGroupModule } from '../device-group/device-group.module';
 //import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
@@ -10,9 +10,7 @@ import { UserModule } from '../user/user.module';
 
 @Module({
   // imports: [TypeOrmModule.forFeature([File,DeviceCsvFileProcessingJobsEntity]),
-  imports: [TypeOrmModule.forFeature([File]), 
-  UserModule
-],
+  imports: [TypeOrmModule.forFeature([File]), UserModule],
   providers: [FileService],
   controllers: [FileController],
   exports: [FileService],

@@ -12,7 +12,7 @@ import {
   Query,
   ParseIntPipe,
   ConflictException,
-  HttpException
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -28,7 +28,7 @@ import { plainToClass } from 'class-transformer';
 
 import { YieldConfigService } from './yieldconfig.service';
 import { YieldConfigDTO, NewYieldConfigDTO, UpdateYieldValueDTO } from './dto';
-import { countryCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -43,20 +43,21 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 @ApiSecurity('drec')
 @Controller('yield/config')
 export class YieldConfigController {
-  constructor(private readonly yieldconfigService: YieldConfigService) { }
+  constructor(private readonly yieldconfigService: YieldConfigService) {}
 
-
-/**
- * This api route use for get all yield value of country
- * @returns {YieldConfigDTO[]}
- */
+  /**
+   * This api route use for get all yield value of country
+   * @returns {YieldConfigDTO[]}
+   */
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all country yield value' })
-
+  @ApiOkResponse({
+    type: [YieldConfigDTO],
+    description: 'Returns all country yield value',
+  })
   async getAll(): Promise<YieldConfigDTO[]> {
     return this.yieldconfigService.getAll();
   }
@@ -67,12 +68,11 @@ export class YieldConfigController {
    * @returns {YieldConfigDTO}
    */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
-
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
     return this.yieldconfigService.findById(id);
   }
@@ -83,7 +83,7 @@ export class YieldConfigController {
    * @returns {YieldConfigDTO}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   //@Roles(Role.Admin)
@@ -96,16 +96,24 @@ export class YieldConfigController {
     @UserDecorator() loggedUser: ILoggedInUser,
     @Body() yieldToRegister: NewYieldConfigDTO,
   ): Promise<YieldConfigDTO> {
-
     yieldToRegister.countryCode = yieldToRegister.countryCode.toUpperCase();
-    if (yieldToRegister.countryCode && typeof yieldToRegister.countryCode === "string" && yieldToRegister.countryCode.length === 3) {
+    if (
+      yieldToRegister.countryCode &&
+      typeof yieldToRegister.countryCode === 'string' &&
+      yieldToRegister.countryCode.length === 3
+    ) {
       let countries = countryCodesList;
-      if (countries.find(ele => ele.countryCode === yieldToRegister.countryCode) === undefined) {
+      if (
+        countries.find(
+          (ele) => ele.countryCode === yieldToRegister.countryCode,
+        ) === undefined
+      ) {
         return new Promise((resolve, reject) => {
           reject(
             new ConflictException({
               success: false,
-              message: ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+              message:
+                ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
             }),
           );
         });
@@ -115,7 +123,8 @@ export class YieldConfigController {
         reject(
           new ConflictException({
             success: false,
-            message: ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+            message:
+              ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
           }),
         );
       });
@@ -125,15 +134,15 @@ export class YieldConfigController {
   }
 
   /**
-   * 
+   *
    * @param id :number
-   * @param body 
-   * @param loggedUser 
+   * @param body
+   * @param loggedUser
    * @returns {YieldConfigDTO}
    */
   @Patch('/update/:id')
   @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard,PermissionGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Update')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateYieldValueDTO })
@@ -147,7 +156,6 @@ export class YieldConfigController {
     @Body() body: UpdateYieldValueDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
-
     return this.yieldconfigService.update(id, body, loggedUser);
   }
 }

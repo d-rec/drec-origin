@@ -34,8 +34,4 @@ export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   password: string;
   // permissions: IModulePermissionsConfig;
   // moduleName: string;
-
 }
-
-
-

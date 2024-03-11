@@ -32,8 +32,8 @@ export class CountryCodeNameDTO {
   @IsNotEmpty()
   @Expose()
   countryCode: string;
- 
-  @ApiProperty({ type: [Object] }) 
+
+  @ApiProperty({ type: [Object] })
   @IsArray()
   @IsNotEmpty()
   @Expose()
