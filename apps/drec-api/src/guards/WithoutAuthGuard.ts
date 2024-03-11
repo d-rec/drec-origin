@@ -51,7 +51,6 @@ export class WithoutAuthGuard implements CanActivate {
       } else if (
         request.body.api_user_id &&
         request.body.api_user_id !=
-          // @ts-ignore ts(2339)
           (await this.userService.findOne({ role: Role.Admin }).api_user_id) &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
