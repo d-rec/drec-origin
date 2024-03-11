@@ -5,7 +5,6 @@ import { AccessControlLayerModuleServiceService } from './access-control-layer-m
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 
-
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
   let repository: Repository<AClModules>;
@@ -13,7 +12,8 @@ describe('AccessControlLayerModuleServiceService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AccessControlLayerModuleServiceService,
+      providers: [
+        AccessControlLayerModuleServiceService,
         {
           provide: getRepositoryToken(AClModules),
           useClass: Repository,
@@ -21,12 +21,16 @@ describe('AccessControlLayerModuleServiceService', () => {
         {
           provide: DecimalPermissionValue,
           useValue: {} as any,
-        },     
+        },
       ],
     }).compile();
 
-    service = module.get<AccessControlLayerModuleServiceService>(AccessControlLayerModuleServiceService);
-    repository = module.get<Repository<AClModules>>(getRepositoryToken(AClModules));
+    service = module.get<AccessControlLayerModuleServiceService>(
+      AccessControlLayerModuleServiceService,
+    );
+    repository = module.get<Repository<AClModules>>(
+      getRepositoryToken(AClModules),
+    );
   });
 
   it('should be defined', () => {

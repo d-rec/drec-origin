@@ -1,14 +1,18 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Inject, Logger,UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../pods/user/user.service';
-import { IJWTPayload ,AuthService} from './auth.service';
+import { IJWTPayload, AuthService } from './auth.service';
 import { IUser } from '../models';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-
   private readonly logger = new Logger(JwtStrategy.name);
 
   constructor(
@@ -20,17 +24,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
-      passReqToCallback: true 
+      passReqToCallback: true,
     });
   }
 
-  async validate(request: Request,payload: IJWTPayload): Promise<IUser | null> {
+  async validate(
+    request: Request,
+    payload: IJWTPayload,
+  ): Promise<IUser | null> {
     this.logger.verbose('With in validate');
     //@ts-ignore
     const token = request.headers.authorization?.split(' ')[1];
-    let tokeninvalidate= await this.authService.isTokenBlacklisted(token,payload);
-    if (token && (!tokeninvalidate)) {
-      
+    const tokeninvalidate = await this.authService.isTokenBlacklisted(
+      token,
+      payload,
+    );
+    if (token && !tokeninvalidate) {
       throw new UnauthorizedException('Token revoked. Please log in again.');
     }
     const user = await this.userService.findByEmail(payload.email);

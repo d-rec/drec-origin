@@ -16,9 +16,9 @@ import { IFullOrganization, IDevice, IUserSeed,IRoleConfig } from '../src/models
 // import UsersJSON from './users.json';
 // import OrganizationsJSON from './organizations.json';
 // import DevicesJSON from './devices.json';
-let UsersJSON =[];
-let OrganizationsJSON =[];
-let DevicesJSON =[];
+const UsersJSON =[];
+const OrganizationsJSON =[];
+const DevicesJSON =[];
 
 import RoleJSON from './user_role.json';
 

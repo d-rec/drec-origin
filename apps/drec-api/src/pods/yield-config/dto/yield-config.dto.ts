@@ -13,12 +13,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
-import {
-  YieldStatus,
-
-} from '../../../utils/enums';
+import { YieldStatus } from '../../../utils/enums';
 export class YieldConfigDTO implements IYieldConfig {
- 
   @ApiProperty({ type: Number })
   @IsNumber()
   @Expose()
@@ -38,11 +34,9 @@ export class YieldConfigDTO implements IYieldConfig {
   @IsNotEmpty()
   @IsNumber()
   yieldValue: number;
-  
+
   @ApiProperty({ enum: YieldStatus, enumName: 'yieldstatus' })
   @IsNotEmpty()
   @IsEnum(YieldStatus)
   status: YieldStatus;
- 
-
 }
