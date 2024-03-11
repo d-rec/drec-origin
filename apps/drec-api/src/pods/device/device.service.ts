@@ -389,16 +389,18 @@ export class DeviceService {
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`; // Replace with your API endpoint
 
       let data: any;
-      const response = this.httpService.post(url, requestBody, config).subscribe(
-        (response) => {
-          data = response.data;
-          device.IREC_ID = data.code;
-          device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
-        },
-        (error) => {
-          this.logger.error(error);
-        },
-      );
+      const response = this.httpService
+        .post(url, requestBody, config)
+        .subscribe(
+          (response) => {
+            data = response.data;
+            device.IREC_ID = data.code;
+            device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
+          },
+          (error) => {
+            this.logger.error(error);
+          },
+        );
       await this.repository.save(device);
       // console.log("response from irec", response._subscribe)
       return data;

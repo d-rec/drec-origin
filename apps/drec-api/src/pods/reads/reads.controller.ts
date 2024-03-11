@@ -108,7 +108,8 @@ export class ReadsController extends BaseReadsController {
     // @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
-    const device: DeviceDTO | null = await this.deviceService.findReads(meterId);
+    const device: DeviceDTO | null =
+      await this.deviceService.findReads(meterId);
 
     if (device === null) {
       this.logger.error(`Invalid device id`);

@@ -105,9 +105,10 @@ export class UserService {
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     //@ts-ignore
-    const api_user = await this.oauthClientCredentialsService.findOneByApiUserId(
-      data.api_user_id,
-    );
+    const api_user =
+      await this.oauthClientCredentialsService.findOneByApiUserId(
+        data.api_user_id,
+      );
     /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");

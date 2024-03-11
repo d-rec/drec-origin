@@ -1706,7 +1706,8 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }
 
     for (let i = 0; i < tempResults.length; i++) {
-      const resultObj: { startTime?: string; endTime?: string; value?: any } = {};
+      const resultObj: { startTime?: string; endTime?: string; value?: any } =
+        {};
       for (let j = 0; j < 2; j++) {
         if (j % 2 === 0) {
           const startDateStr = new Date(tempResults[i][j]).getTime();

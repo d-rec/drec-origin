@@ -609,7 +609,8 @@ export class IssuerService {
     const allDevicesCompleteReadsBetweenTimeRange: Array<
       Array<{ timestamp: Date; value: number }>
     > = [];
-    const filteredDevicesIndexesListIfMeterReadsNotAvailable: Array<number> = [];
+    const filteredDevicesIndexesListIfMeterReadsNotAvailable: Array<number> =
+      [];
     /*Get all devices meter reads between time range */
     /*https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop refer to answer why map and async works */
     await Promise.all(
