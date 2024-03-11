@@ -23,7 +23,7 @@ export class LoggedInUser implements ILoggedInUser {
     this.blockchainAccountAddress = user.organization?.blockchainAccountAddress;
     this.role = user.role;
     this.permissions = user.permissions;
-    //@ts-ignore
+    // @ts-ignore
     this.api_user_id = user.api_user_id;
   }
 

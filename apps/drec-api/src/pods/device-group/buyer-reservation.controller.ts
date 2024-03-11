@@ -553,7 +553,7 @@ export class BuyerReservationController {
       organizationId,
       deviceGroupToRegister,
       user.id,
-      //@ts-ignore
+      // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
     // if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
@@ -805,7 +805,7 @@ export class BuyerReservationController {
         });
       }
     }
-    /*  
+    /*
     let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId
     );

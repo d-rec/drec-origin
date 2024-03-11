@@ -172,7 +172,7 @@ export class UserController {
         );
       });
     }
-    //@ts-ignore
+    // @ts-ignore
     if (
       userRegistrationData.organizationType.toLowerCase() !=
         'Buyer'.toLowerCase() &&
@@ -204,7 +204,7 @@ export class UserController {
       userRegistrationData['client'] = client;
     }  */
     if (!userRegistrationData.api_user_id) {
-      //@ts-ignore
+      // @ts-ignore
       userRegistrationData.api_user_id = user.api_user_id;
     }
     return this.userService.newcreate(userRegistrationData);
@@ -367,7 +367,7 @@ export class UserController {
   ): Promise<SuccessResponseDTO> {
     /*
     const user = await this.userService.findByEmail(body.email);
-    //@ts-ignore
+    // @ts-ignore
     let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
     if (req.headers['client_id'] && req.headers['client_secret']) {
       if (!req.headers['client_secret'] || !req.headers['client_id']) {

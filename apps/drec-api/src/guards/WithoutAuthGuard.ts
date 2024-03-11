@@ -48,11 +48,10 @@ export class WithoutAuthGuard implements CanActivate {
           request.body.organizationType === Role.Buyer)
       ) {
         user = await this.userService.findOne({ role: Role.Admin });
-      }
-      //@ts-ignore
-      else if (
+      } else if (
         request.body.api_user_id &&
         request.body.api_user_id !=
+          // @ts-ignore ts(2339)
           (await this.userService.findOne({ role: Role.Admin }).api_user_id) &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
@@ -79,14 +78,15 @@ export class WithoutAuthGuard implements CanActivate {
       });
     }
 
-    //@ts-ignore
     if (
       request.body.organizationType === undefined &&
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
+      // @ts-ignore ts(2339)
       user.api_user_id !=
-        ((await this.userService.findOne({ role: Role.Admin })) as IUser)
-          .api_user_id
+        // prettier-ignore
+        // @ts-ignore ts(2339)
+        ((await this.userService.findOne({ role: Role.Admin })) as IUser).api_user_id
     ) {
       throw new UnauthorizedException({
         statusCode: 401,
