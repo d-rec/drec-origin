@@ -44,10 +44,9 @@ export class Invitation
     onDelete: 'CASCADE',
   })
   organization: Organization;
- 
+
   @ApiProperty({ type: () => [Number] })
   @Column('simple-array', { nullable: true })
   @IsArray()
   permissionId: number[];
-  
 }

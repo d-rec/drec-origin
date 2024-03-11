@@ -4,10 +4,16 @@ import {
   IsEmail,
   IsOptional,
   IsArray,
-  Matches, MaxLength,IsNotEmpty
+  Matches,
+  MaxLength,
+  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IFullOrganization,IPublicOrganization,IPublicAddOrganization } from '../../../models';
+import {
+  IFullOrganization,
+  IPublicOrganization,
+  IPublicAddOrganization,
+} from '../../../models';
 
 export class NewOrganizationDTO
   implements
@@ -92,17 +98,14 @@ export class NewOrganizationDTO
   signatoryDocumentIds?: string[];
 }
 
-
-
 export class NewAddOrganizationDTO
-  implements
-    Omit<IPublicAddOrganization, 'id' | 'status'>
+  implements Omit<IPublicAddOrganization, 'id' | 'status'>
 {
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
   name: string;
- 
+
   // @ApiProperty({ type: String })
   // @MaxLength(6)
   // @Matches(/((?=.*[0-9])(?=.*[A-Z]).{6,})/, {
@@ -117,10 +120,9 @@ export class NewAddOrganizationDTO
   @IsString()
   @IsNotEmpty()
   organizationType: string;
-  
+
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
   orgEmail: string;
-
 }

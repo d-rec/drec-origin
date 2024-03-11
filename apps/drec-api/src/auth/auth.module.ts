@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { OrganizationModule } from '../pods/organization/organization.module';
 import { UserModule } from '../pods/user/user.module';
-import {PermissionModule} from '../pods/permission/permission.module'
+import { PermissionModule } from '../pods/permission/permission.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -21,14 +21,17 @@ import { ClientJwtStrategy } from './client-jwt.strategy';
     EmailConfirmationModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) =>{
-        return ({
+      useFactory: async (configService: ConfigService) => {
+        return {
           secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
           signOptions: {
-            expiresIn: '180 days' || configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
+            expiresIn:
+              '180 days' ||
+              configService.get<string>('JWT_EXPIRY_TIME') ||
+              '7 days',
           },
-        })
-      } ,
+        };
+      },
       inject: [ConfigService],
     }),
   ],

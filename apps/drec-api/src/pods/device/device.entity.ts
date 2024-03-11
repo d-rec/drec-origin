@@ -1,5 +1,12 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn,BeforeUpdate,ManyToOne, JoinColumn  } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  BeforeUpdate,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import {
   DeviceStatus,
   Installation,
@@ -8,14 +15,19 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
 } from '../../utils/enums';
 import {
-  IsEnum, IsBoolean,IsString, IsNotEmpty, IsNumber,IsArray
+  IsEnum,
+  IsBoolean,
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsArray,
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
-import {Organization} from '../organization/organization.entity'
+import { Organization } from '../organization/organization.entity';
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -44,7 +56,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   organizationId: number;
   @ManyToOne(() => Organization, { eager: true }) // Make sure you have the correct type for Organization
   @JoinColumn({ name: 'organizationId' }) // Make sure the column name matches your database schema
-  organization: Organization; 
+  organization: Organization;
 
   @Column({ nullable: true })
   @IsString()
@@ -74,7 +86,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsEnum(FuelCode)
   fuelCode: FuelCode;
 
-
   @Column({ nullable: true })
   @IsEnum(DevicetypeCode)
   deviceTypeCode: DevicetypeCode;
@@ -90,7 +101,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column('simple-array', { nullable: true })
   @IsArray()
   SDGBenefits?: string[];
-
 
   @Column({ nullable: true })
   @IsString()
@@ -154,10 +164,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
 
-  @Column({ type: 'varchar', nullable: true})
+  @Column({ type: 'varchar', nullable: true })
   meterReadtype: string;
 
-  @Column({ type: 'varchar', nullable: true})
+  @Column({ type: 'varchar', nullable: true })
   timezone: string;
 
   @Column()
@@ -180,6 +190,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
   // }
 
-  @Column({ nullable: true})
-  api_user_id : string;
+  @Column({ nullable: true })
+  api_user_id: string;
 }

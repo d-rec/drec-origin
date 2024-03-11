@@ -36,26 +36,24 @@ export class GroupedDevicesDTO {
   @IsOptional()
   devices: UngroupedDeviceDTO[];
   @ApiProperty({ type: Number })
-  targetCapacityInMegaWattHour?:number;
+  targetCapacityInMegaWattHour?: number;
 
-  
   @ApiProperty({ type: Date })
-  reservationStartDate?:Date;
+  reservationStartDate?: Date;
 
-  
   @ApiProperty({ type: Date })
-  reservationEndDate?:Date;
+  reservationEndDate?: Date;
 
   @ApiProperty({ type: Boolean })
-  continueWithReservationIfOneOrMoreDevicesUnavailableForReservation?:boolean;
+  continueWithReservationIfOneOrMoreDevicesUnavailableForReservation?: boolean;
 
   @ApiProperty({ type: Boolean })
-  continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration?:boolean;
+  continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration?: boolean;
 
   @ApiProperty({ type: Boolean })
-  authorityToExceed?:boolean;
+  authorityToExceed?: boolean;
 
   @ApiProperty()
   @IsEnum(BuyerReservationCertificateGenerationFrequency)
-  frequency?:BuyerReservationCertificateGenerationFrequency;
+  frequency?: BuyerReservationCertificateGenerationFrequency;
 }

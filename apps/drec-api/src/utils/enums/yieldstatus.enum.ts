@@ -1,5 +1,4 @@
 export enum YieldStatus {
-    yes = 'Y',
-    No = 'N',
-    
-  }
+  yes = 'Y',
+  No = 'N',
+}

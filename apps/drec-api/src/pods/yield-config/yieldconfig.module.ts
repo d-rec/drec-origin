@@ -6,8 +6,7 @@ import { YieldConfigService } from './yieldconfig.service';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([YieldConfig]),
-UserModule],
+  imports: [TypeOrmModule.forFeature([YieldConfig]), UserModule],
   providers: [YieldConfigService],
   exports: [YieldConfigService],
   controllers: [YieldConfigController],

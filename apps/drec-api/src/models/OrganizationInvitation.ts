@@ -1,7 +1,11 @@
 import { OrganizationInvitationStatus, Role } from '../utils/enums';
 import { IPublicOrganization } from './Organization';
 
-export type OrganizationRole = Role.DeviceOwner | Role.OrganizationAdmin |Role.SubBuyer |Role.User;
+export type OrganizationRole =
+  | Role.DeviceOwner
+  | Role.OrganizationAdmin
+  | Role.SubBuyer
+  | Role.User;
 
 export interface IOrganizationInvitationProperties {
   id: number;
@@ -15,7 +19,7 @@ export interface IOrganizationInvitation
   organization: IPublicOrganization;
   sender: string;
   createdAt: Date;
-  permissionId?:number[];
+  permissionId?: number[];
 }
 
 export type OrganizationInviteCreateData = {
@@ -29,7 +33,12 @@ export type OrganizationInviteUpdateData = Pick<
 >;
 
 export const ensureOrganizationRole = (role: Role): void => {
-  if (role !== Role.OrganizationAdmin && role !== Role.DeviceOwner && role !== Role.User&& role !== Role.SubBuyer) {
+  if (
+    role !== Role.OrganizationAdmin &&
+    role !== Role.DeviceOwner &&
+    role !== Role.User &&
+    role !== Role.SubBuyer
+  ) {
     throw new Error('Not an organization role');
   }
 };
