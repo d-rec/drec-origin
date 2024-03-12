@@ -22,7 +22,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
 
-
 describe('UserService', () => {
   let service: UserService;
   let repository: Repository<User>;

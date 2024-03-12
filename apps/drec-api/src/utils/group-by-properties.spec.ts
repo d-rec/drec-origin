@@ -13,7 +13,7 @@ describe('groupByProps function', () => {
         item['offTaker'],
       ];
     });
-  
+
     expect(groupDevices).toBeInstanceOf(Array);
     expect(groupDevices).toHaveLength(5);
   });

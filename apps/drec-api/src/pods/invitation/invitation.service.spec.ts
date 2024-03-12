@@ -89,7 +89,7 @@ describe('InvitationService', () => {
       const lastName = 'test';
       const orgId = 13;
 
-       const mockAdminUserEntity : IUser = {
+      const mockAdminUserEntity: IUser = {
         id: 1,
         firstName: 'admin',
         lastName: 'drec',
@@ -98,7 +98,7 @@ describe('InvitationService', () => {
         status: UserStatus.Active, //'Active',
         role: Role.Admin, //'Admin',
         roleId: 1,
-        organization :{
+        organization: {
           id: 1,
           name: 'Admin_DREC',
           address: 'Bangalore',
@@ -108,7 +108,7 @@ describe('InvitationService', () => {
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
           organizationType: 'ApiUser',
-          status: OrganizationStatus.Active,//'Active',
+          status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
         emailConfirmed: false,
@@ -131,16 +131,16 @@ describe('InvitationService', () => {
         documentIds: null,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         users: [],
-       invitations: [
-       {
-        id: 2,
-        email: 'uyhujjlswzfkdvoaot@cazlv.com',
-        role: Role.User as OrganizationRole,//'User',
-        status: OrganizationInvitationStatus.Pending,//'Pending',
-        sender: 'admin drec',
-        permissionId: null
-        } as Invitation,
-       ]
+        invitations: [
+          {
+            id: 2,
+            email: 'uyhujjlswzfkdvoaot@cazlv.com',
+            role: Role.User as OrganizationRole, //'User',
+            status: OrganizationInvitationStatus.Pending, //'Pending',
+            sender: 'admin drec',
+            permissionId: null,
+          } as Invitation,
+        ],
       };
 
       const savedinvitedUser = {
@@ -295,7 +295,7 @@ describe('InvitationService', () => {
       const lastName = 'test';
       const orgId = 18;
 
-       const mockApiUserEntity : IUser = {
+      const mockApiUserEntity: IUser = {
         id: 2,
         firstName: 'test',
         lastName: 'apiuser',
@@ -304,7 +304,7 @@ describe('InvitationService', () => {
         status: UserStatus.Active, //'Active',
         role: Role.ApiUser, //'Admin',
         roleId: 6,
-        organization :{
+        organization: {
           id: 2,
           name: 'ORG_APIUSER1',
           address: 'Bangalore',
@@ -478,5 +478,4 @@ describe('InvitationService', () => {
       );
     });
   });
-
 });

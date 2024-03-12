@@ -420,66 +420,94 @@ describe('CertificateLogService', () => {
 
       const getoldreservationinfo = { deviceGroups: [] };
 
-      const getnewreservationinfo = { deviceGroups: [{
-        dg_id: 5,
-        name: 'secondreservation',
-        deviceIdsInt:[1,2],
-        internalCertificateId: [],
-      },
-      {
-        dg_id: 6,
-        name: 'thirdreservation',
-        deviceIdsInt:[2,3],
-        internalCertificateId: [],
-      },
-      {
-        dg_id: 7,
-        name: 'fourthreservation',
-        deviceIdsInt:[4,5],
-        internalCertificateId: [],
-      }
-    ] 
-    };
-  
+      const getnewreservationinfo = {
+        deviceGroups: [
+          {
+            dg_id: 5,
+            name: 'secondreservation',
+            deviceIdsInt: [1, 2],
+            internalCertificateId: [],
+          },
+          {
+            dg_id: 6,
+            name: 'thirdreservation',
+            deviceIdsInt: [2, 3],
+            internalCertificateId: [],
+          },
+          {
+            dg_id: 7,
+            name: 'fourthreservation',
+            deviceIdsInt: [4, 5],
+            internalCertificateId: [],
+          },
+        ],
+      };
 
-      jest.spyOn(devicegroupService, 'getReservationInforDeveloperBsise').mockResolvedValueOnce(getnewreservationinfo);
-      jest.spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise').mockResolvedValueOnce(getoldreservationinfo);
-  
+      jest
+        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .mockResolvedValueOnce(getnewreservationinfo);
+      jest
+        .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
+        .mockResolvedValueOnce(getoldreservationinfo);
 
-      const expectedCertificates = { certificatelog: [{
-        certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
-        certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
-        readvalue_watthour: 10000,
-        certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-        //@ts-ignore
-        reservation_name: 'secondreservation',
-        externalId: 'Ext2',
-        blockchainCertificateId: 3
-      },
-      {
-        certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
-        certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
-        readvalue_watthour: 10000,
-        certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-        //@ts-ignore
-        reservation_name: 'secondreservation',
-        externalId: 'Ext2',
-        blockchainCertificateId: 2
-      },
-      {
-        certificate_issuance_startdate: new Date('2022-11-26T11:01:00.000Z'),
-        certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
-        readvalue_watthour: 10000,
-        certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-        //@ts-ignore
-        reservation_name: 'secondreservation',
-        externalId: 'Ext2',
-        blockchainCertificateId: 1
-      },], currentpage: 1, totalPages: 1, totalCount: 1 };
-      jest.spyOn(service, 'getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247').mockResolvedValueOnce(expectedCertificates as unknown as CertificatelogResponse);
-  
-      const result = await service.getCertifiedlogofDevices(user, filterDto, pageNumber);
-  
+      const expectedCertificates = {
+        certificatelog: [
+          {
+            certificate_issuance_startdate: new Date(
+              '2023-11-06T12:48:18.405Z',
+            ),
+            certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
+            readvalue_watthour: 10000,
+            certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
+            //@ts-ignore
+            reservation_name: 'secondreservation',
+            externalId: 'Ext2',
+            blockchainCertificateId: 3,
+          },
+          {
+            certificate_issuance_startdate: new Date(
+              '2023-11-06T12:48:18.405Z',
+            ),
+            certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
+            readvalue_watthour: 10000,
+            certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
+            //@ts-ignore
+            reservation_name: 'secondreservation',
+            externalId: 'Ext2',
+            blockchainCertificateId: 2,
+          },
+          {
+            certificate_issuance_startdate: new Date(
+              '2022-11-26T11:01:00.000Z',
+            ),
+            certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
+            readvalue_watthour: 10000,
+            certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
+            //@ts-ignore
+            reservation_name: 'secondreservation',
+            externalId: 'Ext2',
+            blockchainCertificateId: 1,
+          },
+        ],
+        currentpage: 1,
+        totalPages: 1,
+        totalCount: 1,
+      };
+      jest
+        .spyOn(
+          service,
+          'getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247',
+        )
+        .mockResolvedValueOnce(
+          expectedCertificates as unknown as CertificatelogResponse,
+        );
+
+      const result = await service.getCertifiedlogofDevices(
+        user,
+        filterDto,
+        pageNumber,
+      );
+
       expect(result).toEqual(expectedCertificates);
     });
 
