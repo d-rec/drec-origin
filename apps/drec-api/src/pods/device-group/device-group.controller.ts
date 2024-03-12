@@ -338,12 +338,12 @@ export class DeviceGroupController {
         message: 'This frequency is currently not supported',
       });
     }
-    //@ts-ignore
+    // @ts-ignore
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,
       user.id,
-      //@ts-ignore
+      // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
     // if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {

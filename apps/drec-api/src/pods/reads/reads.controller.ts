@@ -229,10 +229,12 @@ export class ReadsController extends BaseReadsController {
         });
       }
       device = await this.deviceService.findOne(parseInt(meterId));
-      //@ts-ignore
+      // @ts-ignore
       if (
         orguser != undefined &&
+        // @ts-ignore ts(2339)
         device.api_user_id === null &&
+        // @ts-ignore ts(2304)
         orguser.role === enums_1.Role.Buyer
       ) {
         this.logger.error(
@@ -244,7 +246,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (user.role === Role.Buyer) {
-        //@ts-ignore
+        // @ts-ignore
         if (device.api_user_id != null) {
           this.logger.error(
             `An buyer can't view the reads of apiuser's organization`,
@@ -473,7 +475,7 @@ export class ReadsController extends BaseReadsController {
             );
           });
         } else {
-          //@ts-ignore
+          // @ts-ignore
           user.organizationId = measurements.organizationId;
         }
       }
@@ -546,14 +548,16 @@ export class ReadsController extends BaseReadsController {
             if (ele[key]) {
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              //@ts-ignore
+              // @ts-ignore ts(2339)
               if (ele[key].includes('.')) {
-                //@ts-ignore
                 if (
                   Number.isNaN(
                     parseFloat(
+                      // @ts-ignore ts(2339)
                       ele[key].substring(
+                        // @ts-ignore ts(2339)
                         ele[key].indexOf('.'),
+                        // @ts-ignore ts(2339)
                         ele[key].length,
                       ),
                     ),
@@ -572,7 +576,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              //@ts-ignore
+              // @ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
                 this.logger.error(
@@ -597,19 +601,24 @@ export class ReadsController extends BaseReadsController {
                   });
                 } else {
                   let milliSeondsToAddSentInRequest = '';
-                  //@ts-ignore
                   if (
+                    // @ts-ignore ts(2339)
                     ele[key].includes('.') &&
                     parseInt(
+                      // @ts-ignore ts(2339)
                       ele[key].substring(
+                        // @ts-ignore ts(2339)
                         ele[key].indexOf('.'),
+                        // @ts-ignore ts(2339)
                         ele[key].length,
                       ),
                     ) != NaN
                   ) {
-                    //@ts-ignore
+                    // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
+                      // @ts-ignore ts(2339)
                       ele[key].indexOf('.'),
+                      // @ts-ignore ts(2339)
                       ele[key].length,
                     );
                   }
@@ -624,7 +633,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  //@ts-ignore
+                  // @ts-ignore
                   ele[key] = utcString;
                 }
               }
@@ -663,21 +672,23 @@ export class ReadsController extends BaseReadsController {
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
-        //@ts-ignore
+        // @ts-ignore
         if (
           ele.starttimestamp === null ||
           ele.starttimestamp === undefined ||
+          // @ts-ignore ts(2367)
           ele.starttimestamp === '' ||
           ele.endtimestamp === null ||
           ele.endtimestamp === undefined ||
+          // @ts-ignore ts(2367)
           ele.endtimestamp === ''
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
@@ -832,15 +843,15 @@ export class ReadsController extends BaseReadsController {
       let currentdate: Date = new Date();
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
-        //@ts-ignore
         if (
           ele.endtimestamp === null ||
           ele.endtimestamp === undefined ||
+          // @ts-ignore ts(2339)
           ele.endtimestamp === ''
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {
@@ -1115,14 +1126,16 @@ export class ReadsController extends BaseReadsController {
             if (ele[key]) {
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              //@ts-ignore
+              // @ts-ignore ts(2339)
               if (ele[key].includes('.')) {
-                //@ts-ignore
                 if (
                   Number.isNaN(
                     parseFloat(
+                      // @ts-ignore ts(2339)
                       ele[key].substring(
+                        // @ts-ignore ts(2339)
                         ele[key].indexOf('.'),
+                        // @ts-ignore ts(2339)
                         ele[key].length,
                       ),
                     ),
@@ -1141,7 +1154,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              //@ts-ignore
+              // @ts-ignore
               if (!dateTimeRegex.test(ele[key])) {
                 dateInvalid = true;
                 this.logger.error(
@@ -1166,19 +1179,24 @@ export class ReadsController extends BaseReadsController {
                   });
                 } else {
                   let milliSeondsToAddSentInRequest = '';
-                  //@ts-ignore
                   if (
+                    // @ts-ignore ts(2339)
                     ele[key].includes('.') &&
                     parseInt(
+                      // @ts-ignore ts(2339)
                       ele[key].substring(
+                        // @ts-ignore ts(2339)
                         ele[key].indexOf('.'),
+                        // @ts-ignore ts(2339)
                         ele[key].length,
                       ),
                     ) != NaN
                   ) {
-                    //@ts-ignore
+                    // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
+                      // @ts-ignore
                       ele[key].indexOf('.'),
+                      // @ts-ignore
                       ele[key].length,
                     );
                   }
@@ -1193,7 +1211,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  //@ts-ignore
+                  // @ts-ignore
                   ele[key] = utcString;
                 }
               }
@@ -1232,21 +1250,22 @@ export class ReadsController extends BaseReadsController {
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
-        //@ts-ignore
         if (
           ele.starttimestamp === null ||
           ele.starttimestamp === undefined ||
+          // @ts-ignore ts(2367)
           ele.starttimestamp === '' ||
           ele.endtimestamp === null ||
           ele.endtimestamp === undefined ||
+          // @ts-ignore ts(2367)
           ele.endtimestamp === ''
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
         //dateFormateToCheck.test(ele.starttimestamp);
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!startdateformate || !enddateformate) {
@@ -1401,15 +1420,15 @@ export class ReadsController extends BaseReadsController {
       let currentdate: Date = new Date();
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
-        //@ts-ignore
         if (
           ele.endtimestamp === null ||
           ele.endtimestamp === undefined ||
+          // @ts-ignore ts(2367)
           ele.endtimestamp === ''
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        //@ts-ignore
+        // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
         if (!enddateformate) {

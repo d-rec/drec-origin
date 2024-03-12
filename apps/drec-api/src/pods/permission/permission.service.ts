@@ -302,8 +302,8 @@ export class PermissionService {
     const api_user = await this.userService.findById(loginuser.id);
 
     let permissionIds: any = [];
-    //@ts-ignore
     const api_userpermission = await this.userService.getApiuser(
+      // @ts-ignore ts(2339)
       api_user.api_user_id,
     );
 
@@ -322,8 +322,8 @@ export class PermissionService {
         permissionIds.push(perId.id);
       }),
     );
-    //@ts-ignore
     await this.userService.apiuser_permission_request(
+      // @ts-ignore ts(2339)
       api_user.api_user_id,
       permissionIds,
     );

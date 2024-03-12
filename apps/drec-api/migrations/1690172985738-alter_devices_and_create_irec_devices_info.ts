@@ -1,8 +1,9 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn } from 'typeorm';
 
-export class alterDevicesAndCreateIrecDevicesInfo1690172985738 implements MigrationInterface {
+export class alterDevicesAndCreateIrecDevicesInfo1690172985738
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
-
     await queryRunner.createTable(
       new Table({
         name: 'irec_devices_information',
@@ -39,7 +40,6 @@ export class alterDevicesAndCreateIrecDevicesInfo1690172985738 implements Migrat
             default: 'now()',
             onUpdate: 'current_timestamp()', // Set the value to the current timestamp on update
           },
-
         ],
       }),
     );
@@ -85,7 +85,7 @@ export class alterDevicesAndCreateIrecDevicesInfo1690172985738 implements Migrat
         name: 'IREC_Status',
         type: 'varchar', // You can use 'string' as well; 'varchar' is equivalent to 'string' in PostgreSQL
         isNullable: true,
-        default: "'NotRegistered'",// Set this to false if the column should not allow null values
+        default: "'NotRegistered'", // Set this to false if the column should not allow null values
       }),
     );
 
@@ -97,9 +97,6 @@ export class alterDevicesAndCreateIrecDevicesInfo1690172985738 implements Migrat
         isNullable: true, // Set this to false if the column should not allow null values
       }),
     );
-
-
-
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

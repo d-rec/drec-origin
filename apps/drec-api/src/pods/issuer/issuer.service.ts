@@ -229,7 +229,7 @@ export class IssuerService {
               allDevicesOfGroup.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
-                //@ts-ignore
+                // @ts-ignore
                 return new Date(b.createdAt) - new Date(a.createdAt);
               });
               // console.log("192", allDevicesOfGroup);
@@ -305,7 +305,7 @@ export class IssuerService {
                // console.log("20619line", endDate)
                this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
              }
-             
+
            }
            else {
              console.log("224line,monthlytestr")
@@ -862,7 +862,7 @@ export class IssuerService {
     }
     if (allPreviousReadingsOfDevices.length > 1) {
       allPreviousReadingsOfDevices.sort(function (a, b) {
-        //@ts-ignore
+        // @ts-ignore
         return a.timestamp - b.timestamp;
       });
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
@@ -1062,7 +1062,7 @@ export class IssuerService {
       };
       await this.certificateService.transfer(transferCommand);
     }
-  
+
     */
 
   private async handleLeftoverReadsByCountryCode(
