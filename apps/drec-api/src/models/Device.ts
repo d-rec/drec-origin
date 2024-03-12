@@ -7,13 +7,13 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
 } from '../utils/enums';
 
 export interface IDevice {
   id: number;
   externalId: string;
-  developerExternalId?:string;
+  developerExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;
   projectName: string;
@@ -45,9 +45,9 @@ export interface IDevice {
   SDGBenefits?: string[];
   qualityLabels?: string;
   meterReadtype?: string;
-  createdAt?:Date;
-  version?:string;
-  timezone?:string;
+  createdAt?: Date;
+  version?: string;
+  timezone?: string;
 }
 
 export enum DeviceDescription {
@@ -83,7 +83,7 @@ export const DeviceSortPropertyMapper: DeviceSortTypeValuedKeys = {
   [DeviceOrderBy.OffTaker]: 'offTaker' as DeviceKey,
   [DeviceOrderBy.FuelCode]: 'fuelCode' as DeviceKey,
   [DeviceOrderBy.Country]: 'countryCode' as DeviceKey,
- /* [DeviceOrderBy.StandardCompliance]: 'standardCompliance' as DeviceKey,
+  /* [DeviceOrderBy.StandardCompliance]: 'standardCompliance' as DeviceKey,
   [DeviceOrderBy.Sector]: 'sector' as DeviceKey,
   [DeviceOrderBy.InstallationConfiguration]:
     'installationConfiguration' as DeviceKey,

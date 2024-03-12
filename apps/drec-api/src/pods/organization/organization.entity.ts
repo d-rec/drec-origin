@@ -25,7 +25,7 @@ export class Organization
   @Column()
   @IsString()
   name: string;
-  
+
   // @ApiProperty({ type: String })
   // @Column()
   // @IsString()
@@ -135,7 +135,6 @@ export class Organization
   @IsArray()
   documentIds: string[];
 
- 
   @Column()
   api_user_id: string;
 }

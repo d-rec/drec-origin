@@ -1,16 +1,11 @@
+import { Unit } from '@energyweb/energy-api-influxdb';
 
-import {
-    Unit,
-  } from '@energyweb/energy-api-influxdb';
-
-  export interface IDeltaintermediate {
-    id: number;   
-    unit: Unit;
-    readsvalue: number;
-    readsEndDate:Date;  
-    createdAt: Date;
-    updatedAt: Date;
-    externalId?:string;
-
-
+export interface IDeltaintermediate {
+  id: number;
+  unit: Unit;
+  readsvalue: number;
+  readsEndDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  externalId?: string;
 }

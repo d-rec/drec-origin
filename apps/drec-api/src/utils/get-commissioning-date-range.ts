@@ -8,7 +8,7 @@ export const getDateRangeFromYear = (
   const range = currentYear - year;
   if (range === 0) {
     const month = new Date(commissioningDate).getMonth();
-    console.log("month:",month);
+    console.log('month:', month);
     if (month < 4) {
       return CommissioningDateRange.Year_1_Q1;
     } else if (month >= 4 && month < 7) {

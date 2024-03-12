@@ -1,7 +1,7 @@
 import { getDeviceTypeFromCode } from './getDeviceTypeFromCode';
 
 describe('getDeviceTypeFromCode function', () => {
-  it('deviceType', async()=> {
+  it('deviceType', async () => {
     const code1 = 'TC110';
     const code2 = 'TC120';
     const code3 = 'TC130';

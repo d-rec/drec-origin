@@ -2,7 +2,7 @@ import { groupByProps } from './group-by-properties';
 import TestDevicesToGroup from '../../test/test-devices-for-grouping.json';
 
 describe('groupByProps function', () => {
-  it('groupByProperties', async()=> {
+  it('groupByProperties', async () => {
     const groupDevices = groupByProps(TestDevicesToGroup, (item) => {
       return [
         item['organizationId'],

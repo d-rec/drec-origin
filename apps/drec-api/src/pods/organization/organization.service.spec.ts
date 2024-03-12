@@ -11,9 +11,12 @@ import { FileService } from '../file';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { LoggedInUser } from 'src/models';
 import { OrganizationStatus, Role, UserStatus } from 'src/utils/enums';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import exp from 'constants';
 import { User } from '../user/user.entity';
-
 
 describe('OrganizationService', () => {
   let service: OrganizationService;
@@ -26,7 +29,8 @@ describe('OrganizationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrganizationService,
+      providers: [
+        OrganizationService,
         {
           provide: getRepositoryToken(Organization),
           useClass: Repository,
@@ -36,7 +40,7 @@ describe('OrganizationService', () => {
           useValue: {
             findUserByOrganization: jest.fn(),
           } as any,
-        },        
+        },
         ConfigService,
         {
           provide: BlockchainPropertiesService,
@@ -54,7 +58,9 @@ describe('OrganizationService', () => {
     }).compile();
 
     service = module.get<OrganizationService>(OrganizationService);
-    repository = module.get<Repository<Organization>>(getRepositoryToken(Organization));
+    repository = module.get<Repository<Organization>>(
+      getRepositoryToken(Organization),
+    );
     userService = module.get<UserService>(UserService);
   });
 
@@ -62,41 +68,42 @@ describe('OrganizationService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('getAll', ()=> {
+  describe('getAll', () => {
     it('should return organizations without filtering when user is not provided', async () => {
-
       const filterDto: OrganizationFilterDTO = {
-        organizationName: undefined
+        organizationName: undefined,
       };
       const pageNumber = 1;
       const limit = 0;
       const user = undefined;
-  
+
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {
         andWhere: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       };
-  
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(queryMock as any);   
+
+      jest
+        .spyOn(service, 'getFilteredQuery')
+        .mockResolvedValue(queryMock as any);
       const result = await service.getAll(filterDto, pageNumber, limit, user);
-  
+
       expect(result.organizations).toBeDefined();
       expect(result.currentPage).toBe(pageNumber);
       expect(result.totalPages).toEqual(NaN);
       expect(result.totalCount).toEqual(result.organizations.length);
     });
-  
+
     it('should return organizations filtered by API user ID when user is an API user', async () => {
       const filterDto: OrganizationFilterDTO = {
-        organizationName:undefined,
+        organizationName: undefined,
       };
       const pageNumber = 1;
       const limit = 10;
       const user = {
-        role: Role.ApiUser,//'ApiUser',
-        api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944'
+        role: Role.ApiUser, //'ApiUser',
+        api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
       };
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {
         andWhere: jest.fn().mockReturnThis(),
@@ -104,16 +111,25 @@ describe('OrganizationService', () => {
         take: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       };
-  
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(queryMock as any);
-  
-      const result = await service.getAll(filterDto, pageNumber, limit, user as LoggedInUser);
-  
-      expect(queryMock.andWhere).toHaveBeenCalledWith(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id });
+
+      jest
+        .spyOn(service, 'getFilteredQuery')
+        .mockResolvedValue(queryMock as any);
+
+      const result = await service.getAll(
+        filterDto,
+        pageNumber,
+        limit,
+        user as LoggedInUser,
+      );
+
+      expect(queryMock.andWhere).toHaveBeenCalledWith(
+        `organization.api_user_id = :apiuserid`,
+        { apiuserid: user.api_user_id },
+      );
     });
-  
+
     it('should throw InternalServerErrorException when an error occurs during retrieval', async () => {
-  
       const filterDto: OrganizationFilterDTO = {
         organizationName: undefined,
       };
@@ -126,130 +142,142 @@ describe('OrganizationService', () => {
         andWhere: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockRejectedValue(new Error('Database error')),
+        getManyAndCount: jest
+          .fn()
+          .mockRejectedValue(new Error('Database error')),
       };
-  
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(queryMock as any);
-  
-      await expect(service.getAll(filterDto, pageNumber, limit, user as LoggedInUser)).rejects.toThrowError(InternalServerErrorException);
+
+      jest
+        .spyOn(service, 'getFilteredQuery')
+        .mockResolvedValue(queryMock as any);
+
+      await expect(
+        service.getAll(filterDto, pageNumber, limit, user as LoggedInUser),
+      ).rejects.toThrowError(InternalServerErrorException);
     });
 
-    it('should return the list of organizations with filteration with pagination', async ()=> {
-
+    it('should return the list of organizations with filteration with pagination', async () => {
       const response = {
-        "organizations": [
-            {
-                "createdAt": "2024-03-01T07:59:03.122Z",
-                "updatedAt": "2024-03-01T07:59:03.122Z",
-                "id": 13,
-                "name": "Dev____ORG",
-                "address": "BLR",
-                "zipCode": null,
-                "city": null,
-                "country": null,
-                "blockchainAccountAddress": null,
-                "blockchainAccountSignedMessage": null,
-                "organizationType": "Developer",
-                "orgEmail": "mgi36509@zslsz.com",
-                "status": "Active",
-                "documentIds": null,
-                "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944",
-                "users": [
-                    {
-                        "createdAt": "2024-03-01T07:59:03.148Z",
-                        "updatedAt": "2024-03-01T07:59:03.148Z",
-                        "id": 14,
-                        "firstName": "test",
-                        "lastName": "test",
-                        "email": "mgi36509@zslsz.com",
-                        "notifications": true,
-                        "status": "Active",
-                        "role": "OrganizationAdmin",
-                        "roleId": 2,
-                        "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944"
-                    },
-                    {
-                        "createdAt": "2024-03-02T16:45:15.601Z",
-                        "updatedAt": "2024-03-02T16:45:15.601Z",
-                        "id": 18,
-                        "firstName": "test",
-                        "lastName": "test",
-                        "email": "uyhujjlswzfkdvoaot@cazlv.com",
-                        "notifications": true,
-                        "status": "Pending",
-                        "role": "OrganizationAdmin",
-                        "roleId": 2,
-                        "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944"
-                    },
-                    {
-                        "createdAt": "2024-03-02T17:12:01.027Z",
-                        "updatedAt": "2024-03-02T17:12:01.027Z",
-                        "id": 19,
-                        "firstName": "tst",
-                        "lastName": "test",
-                        "email": "scjiujrqomsqcgwqkb@cazlp.com",
-                        "notifications": true,
-                        "status": "Pending",
-                        "role": "OrganizationAdmin",
-                        "roleId": 2,
-                        "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944"
-                    },
-                    {
-                        "createdAt": "2024-03-03T06:30:23.936Z",
-                        "updatedAt": "2024-03-03T06:30:23.936Z",
-                        "id": 20,
-                        "firstName": "test",
-                        "lastName": "test",
-                        "email": "zqiscghgjyvfusuypl@cazlv.com",
-                        "notifications": true,
-                        "status": "Pending",
-                        "role": "OrganizationAdmin",
-                        "roleId": 2,
-                        "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944"
-                    },
-                    {
-                        "createdAt": "2024-03-03T15:23:29.222Z",
-                        "updatedAt": "2024-03-04T07:03:46.336Z",
-                        "id": 21,
-                        "firstName": "abc",
-                        "lastName": "abctss",
-                        "email": "test@gmail.com",
-                        "notifications": true,
-                        "status": "Pending",
-                        "role": "OrganizationAdmin",
-                        "roleId": 2,
-                        "api_user_id": "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944"
-                    }
-                ]
-            }
+        organizations: [
+          {
+            createdAt: '2024-03-01T07:59:03.122Z',
+            updatedAt: '2024-03-01T07:59:03.122Z',
+            id: 13,
+            name: 'Dev____ORG',
+            address: 'BLR',
+            zipCode: null,
+            city: null,
+            country: null,
+            blockchainAccountAddress: null,
+            blockchainAccountSignedMessage: null,
+            organizationType: 'Developer',
+            orgEmail: 'mgi36509@zslsz.com',
+            status: 'Active',
+            documentIds: null,
+            api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+            users: [
+              {
+                createdAt: '2024-03-01T07:59:03.148Z',
+                updatedAt: '2024-03-01T07:59:03.148Z',
+                id: 14,
+                firstName: 'test',
+                lastName: 'test',
+                email: 'mgi36509@zslsz.com',
+                notifications: true,
+                status: 'Active',
+                role: 'OrganizationAdmin',
+                roleId: 2,
+                api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+              },
+              {
+                createdAt: '2024-03-02T16:45:15.601Z',
+                updatedAt: '2024-03-02T16:45:15.601Z',
+                id: 18,
+                firstName: 'test',
+                lastName: 'test',
+                email: 'uyhujjlswzfkdvoaot@cazlv.com',
+                notifications: true,
+                status: 'Pending',
+                role: 'OrganizationAdmin',
+                roleId: 2,
+                api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+              },
+              {
+                createdAt: '2024-03-02T17:12:01.027Z',
+                updatedAt: '2024-03-02T17:12:01.027Z',
+                id: 19,
+                firstName: 'tst',
+                lastName: 'test',
+                email: 'scjiujrqomsqcgwqkb@cazlp.com',
+                notifications: true,
+                status: 'Pending',
+                role: 'OrganizationAdmin',
+                roleId: 2,
+                api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+              },
+              {
+                createdAt: '2024-03-03T06:30:23.936Z',
+                updatedAt: '2024-03-03T06:30:23.936Z',
+                id: 20,
+                firstName: 'test',
+                lastName: 'test',
+                email: 'zqiscghgjyvfusuypl@cazlv.com',
+                notifications: true,
+                status: 'Pending',
+                role: 'OrganizationAdmin',
+                roleId: 2,
+                api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+              },
+              {
+                createdAt: '2024-03-03T15:23:29.222Z',
+                updatedAt: '2024-03-04T07:03:46.336Z',
+                id: 21,
+                firstName: 'abc',
+                lastName: 'abctss',
+                email: 'test@gmail.com',
+                notifications: true,
+                status: 'Pending',
+                role: 'OrganizationAdmin',
+                roleId: 2,
+                api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
+              },
+            ],
+          },
         ],
-        "currentPage": 1,
-        "totalPages": 1,
-        "totalCount": 1
-    };
-    
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 1,
+      };
+
       const filterDto = {
         organizationName: 'DEV__ORG',
-      };  
+      };
       const pageNumber = 1;
       const limit = 10;
       const user = {
         role: 'Admin',
       };
-      
+
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {
         andWhere: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       };
-  
-      const getFilteredQuerySpy = jest.spyOn(service, 'getFilteredQuery').mockImplementation(async (filterDto) => {
-        return queryMock as any;
-      });
-  
-      const result = await service.getAll(filterDto, pageNumber, limit, user as LoggedInUser);
-      
+
+      const getFilteredQuerySpy = jest
+        .spyOn(service, 'getFilteredQuery')
+        .mockImplementation(async (filterDto) => {
+          return queryMock as any;
+        });
+
+      const result = await service.getAll(
+        filterDto,
+        pageNumber,
+        limit,
+        user as LoggedInUser,
+      );
+
       expect(getFilteredQuerySpy).toHaveBeenCalledWith(filterDto);
       await expect(result).toEqual({
         organizations: [],
@@ -261,8 +289,8 @@ describe('OrganizationService', () => {
     });
   });
 
-  describe('findOne', ()=> {
-    it('should find an organization with id and conditions', async()=> {
+  describe('findOne', () => {
+    it('should find an organization with id and conditions', async () => {
       const id = 13;
  
       const organization= {
@@ -283,31 +311,35 @@ describe('OrganizationService', () => {
         ],
         invitations:[],
       } as Organization;
- 
+
       const options = {
-        where:  {
-          api_user_id: "dfd2f57d-f2b8-4057-bf48-c19f1a5aa944",
+        where: {
+          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         },
       };
- 
-      jest.spyOn(repository, 'findOne').mockImplementation(async () => organization as any);
+
+      jest
+        .spyOn(repository, 'findOne')
+        .mockImplementation(async () => organization as any);
       const result = await service.findOne(id, options);
- 
+
       expect(result).toEqual(organization);
       expect(repository.findOne).toHaveBeenCalledWith(id, options);
     });
 
     it('should throw NotFoundException when organization is not found', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(undefined);
-      await expect(service.findOne(999)).rejects.toThrowError(NotFoundException);
+      await expect(service.findOne(999)).rejects.toThrowError(
+        NotFoundException,
+      );
     });
   });
 
   describe('findOrganizationUsers', () => {
-    let orgId = 13;
-    let pageNumber = 1;
-    let limit = 20;
-    let role = undefined;
+    const orgId = 13;
+    const pageNumber = 1;
+    const limit = 20;
+    const role = undefined;
 
     let users = [{
       updatedAt: new Date('2024-03-04T07:03:46.336Z'),
@@ -362,9 +394,9 @@ describe('OrganizationService', () => {
           blockchainAccountSignedMessage: null,
           organizationType: 'Developer',
           orgEmail: 'mgi36509@zslsz.com',
-          status: OrganizationStatus.Active,//'Active',
+          status: OrganizationStatus.Active, //'Active',
           documentIds: null,
-          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944'
+          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         } as Organization,
         password: 'Drec@1234',
         moduleName: 'any Module',
@@ -376,8 +408,8 @@ describe('OrganizationService', () => {
         lastName: 'test',
         email: 'scjiujrqomsqcgwqkb@cazlp.com',
         notifications: true,
-        status: UserStatus.Pending,//'Pending',
-        role: Role.OrganizationAdmin,//'OrganizationAdmin',
+        status: UserStatus.Pending, //'Pending',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -391,9 +423,9 @@ describe('OrganizationService', () => {
           blockchainAccountSignedMessage: null,
           organizationType: 'Developer',
           orgEmail: 'mgi36509@zslsz.com',
-          status: OrganizationStatus.Active,//'Active',
+          status: OrganizationStatus.Active, //'Active',
           documentIds: null,
-          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944'
+          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         } as Organization,
         password: 'Drec@1234',
         moduleName: 'anyModule',
@@ -420,9 +452,9 @@ describe('OrganizationService', () => {
           blockchainAccountSignedMessage: null,
           organizationType: 'Developer',
           orgEmail: 'mgi36509@zslsz.com',
-          status: OrganizationStatus.Active,//'Active',
+          status: OrganizationStatus.Active, //'Active',
           documentIds: null,
-          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944'
+          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         } as Organization,
         password: 'Drec@1234',
         moduleName: 'any Module',
@@ -434,8 +466,8 @@ describe('OrganizationService', () => {
         lastName: 'test',
         email: 'mgi36509@zslsz.com',
         notifications: true,
-        status: UserStatus.Active,//'Active',
-        role: Role.OrganizationAdmin,//'OrganizationAdmin',
+        status: UserStatus.Active, //'Active',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -449,37 +481,55 @@ describe('OrganizationService', () => {
           blockchainAccountSignedMessage: null,
           organizationType: 'Developer',
           orgEmail: 'mgi36509@zslsz.com',
-          status: OrganizationStatus.Active,//'Active',
+          status: OrganizationStatus.Active, //'Active',
           documentIds: null,
-          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944'
+          api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         } as Organization,
         password: 'Drec@1234',
         moduleName: 'any Module',
       } as User,
     ];
-    let totalCount = 5;
+    const totalCount = 5;
     it('should return the list of users for a valid organization ID', async () => {
+      jest
+        .spyOn(userService, 'findUserByOrganization')
+        .mockResolvedValue([users, totalCount] as any);
 
-      jest.spyOn(userService, 'findUserByOrganization').mockResolvedValue([users,totalCount] as any);
-
-      const result = await service.findOrganizationUsers(orgId, pageNumber, limit);
+      const result = await service.findOrganizationUsers(
+        orgId,
+        pageNumber,
+        limit,
+      );
 
       expect(result.users).toEqual(users);
       expect(result.totalCount).toBe(totalCount);
     });
 
     it('should filter users based on the provided role parameter', async () => {
-      jest.spyOn(userService, 'findUserByOrganization').mockResolvedValue([users, totalCount] as any);
+      jest
+        .spyOn(userService, 'findUserByOrganization')
+        .mockResolvedValue([users, totalCount] as any);
 
-      const result = await service.findOrganizationUsers(orgId, pageNumber, limit, Role.OrganizationAdmin);
+      const result = await service.findOrganizationUsers(
+        orgId,
+        pageNumber,
+        limit,
+        Role.OrganizationAdmin,
+      );
 
       expect(result.users).toEqual(users);
     });
 
     it('should return empty array when the organization is not found', async () => {
-      jest.spyOn(userService, 'findUserByOrganization').mockResolvedValue([[],0] as any);
+      jest
+        .spyOn(userService, 'findUserByOrganization')
+        .mockResolvedValue([[], 0] as any);
 
-      const result = await service.findOrganizationUsers(999, pageNumber, limit);
+      const result = await service.findOrganizationUsers(
+        999,
+        pageNumber,
+        limit,
+      );
 
       expect(result.users).toEqual([]);
       expect(result.currentPage).toBe(1);
@@ -488,7 +538,9 @@ describe('OrganizationService', () => {
     });
 
     it('should handle edge cases when page number is out of bounds', async () => {
-      jest.spyOn(userService, 'findUserByOrganization').mockResolvedValue([[],0] as any);
+      jest
+        .spyOn(userService, 'findUserByOrganization')
+        .mockResolvedValue([[], 0] as any);
 
       const result = await service.findOrganizationUsers(orgId, 100, 10);
 
