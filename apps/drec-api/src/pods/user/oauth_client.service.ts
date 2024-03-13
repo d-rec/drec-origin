@@ -94,7 +94,7 @@ export class OauthClientCredentialsService {
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { api_user_id } });
   }
-/*
+  /*
   encryptclient_secret(client_secret) {
     console.log(algorithm, process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY);
     const iv = randomBytes(16); // Generate a random IV
