@@ -1,6 +1,10 @@
 {
-    "id": 1,
-    "organizationType": "Admin",
-    "status": "Active",
-    "permission_status": "Request"
+  "id": 1,
+  "firstName": "Super",
+  "lastName": "Admin",
+  "organizationType": "Admin",
+  "orgName": "SuperOrg",
+  "orgAddress": "local",
+  "status": "Active",
+  "permission_status": "Request"
 }
