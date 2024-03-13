@@ -23,7 +23,7 @@ export class PowerFormatter {
   }
 
   static getBaseValueFromValueInDisplayUnitInEthers(amount): string {
-    //@ts-ignore
+    // @ts-ignore
     return BigNumberEthers.from(
       PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount)),
     );

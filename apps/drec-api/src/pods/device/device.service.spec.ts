@@ -98,7 +98,7 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        //@ts-ignore
+        // @ts-ignore
         countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
@@ -123,22 +123,22 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore 
-        organizationType: Role.OrganizationAdmin, 
-        //@ts-ignore
-        orgEmail: 'testsweya@gmail.com', 
+        // @ts-ignore
+        organizationType: Role.OrganizationAdmin,
+        // @ts-ignore
+        orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
         city: 'Chennai',
         country: 'India',
-        blockchainAccountAddress: 'null', 
-        blockchainAccountSignedMessage: 'null', 
+        blockchainAccountAddress: 'null',
+        blockchainAccountSignedMessage: 'null',
         status: OrganizationStatus.Active,
-        users: [], 
-        invitations: [], 
-        documentIds: [], 
+        users: [],
+        invitations: [],
+        documentIds: [],
         api_user_id: apiUserId,
-      } as Organization; 
+      } as Organization;
 */
       const deviceEntity = {
         externalId: 'ExternalId1',
@@ -202,7 +202,7 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        //@ts-ignore
+        // @ts-ignore
         countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
@@ -227,22 +227,22 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore 
-        organizationType: Role.OrganizationAdmin, 
-        //@ts-ignore
-        orgEmail: 'testsweya@gmail.com', 
+        // @ts-ignore
+        organizationType: Role.OrganizationAdmin,
+        // @ts-ignore
+        orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
         city: 'Chennai',
         country: 'India',
-        blockchainAccountAddress: 'null', 
-        blockchainAccountSignedMessage: 'null', 
+        blockchainAccountAddress: 'null',
+        blockchainAccountSignedMessage: 'null',
         status: OrganizationStatus.Active,
-        users: [], 
-        invitations: [], 
-        documentIds: [], 
+        users: [],
+        invitations: [],
+        documentIds: [],
         api_user_id: apiUserId,
-      } as Organization; 
+      } as Organization;
 */
       const deviceEntity = {
         externalId: 'ExternalId1',
@@ -304,9 +304,9 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      //@ts-ignore
+      // @ts-ignore
       organizationType: Role.OrganizationAdmin,
-      //@ts-ignore
+      // @ts-ignore
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -683,9 +683,9 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        //@ts-ignore
+        // @ts-ignore
         organizationType: Role.OrganizationAdmin,
-        //@ts-ignore
+        // @ts-ignore
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',

@@ -39,7 +39,7 @@ export class EmailConfirmationService {
     this.logger.verbose(`With in create`);
     //const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
     //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
-    //@ts-ignore
+    // @ts-ignore
     if (
       (await this.userService.findOne({
         role: Role.Admin,
@@ -308,7 +308,7 @@ export class EmailConfirmationService {
       to: email,
       subject: `[Origin] Welcome TO D-REC`,
       html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
-      <p>UserName:<b>${email}</b></p> 
+      <p>UserName:<b>${email}</b></p>
       <p> PassWord:<b>${password}</b></p>
       <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
     });
