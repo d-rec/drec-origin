@@ -9,13 +9,11 @@ import { Organization } from '../organization/organization.entity';
 
 @Entity({ name: 'yieldconfig' })
 export class YieldConfig extends ExtendedBaseEntity implements IYieldConfig {
-
   constructor(yieldvalue?: Partial<YieldConfig>) {
     super();
     Object.assign(this, yieldvalue);
   }
   @ApiProperty({ type: Number })
-
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
@@ -33,21 +31,19 @@ export class YieldConfig extends ExtendedBaseEntity implements IYieldConfig {
   @Column()
   @IsNumber()
   yieldValue: number;
-  
+
   @ApiProperty({ type: Number })
   @Column()
   @IsNumber()
   created_By: number;
- 
+
   @ApiProperty({ type: Number })
   @Column()
   @IsNumber()
   updated_By: number;
- 
+
   @ApiProperty({ enum: YieldStatus, enumName: 'yieldstatus' })
   @Column({ default: YieldStatus.yes })
   @IsEnum(YieldStatus)
   status: YieldStatus;
-  
-
 }

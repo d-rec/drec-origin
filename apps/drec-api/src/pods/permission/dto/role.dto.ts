@@ -13,12 +13,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
-import {
-  RoleStatus,
-
-} from '../../../utils/enums';
+import { RoleStatus } from '../../../utils/enums';
 export class RoleConfigDTO implements IRoleConfig {
- 
   @ApiProperty({ type: Number })
   @IsNumber()
   @Expose()
@@ -38,6 +34,4 @@ export class RoleConfigDTO implements IRoleConfig {
   @IsNotEmpty()
   @IsEnum(RoleStatus)
   status: RoleStatus;
- 
-
 }

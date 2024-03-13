@@ -10,7 +10,8 @@ describe('YieldConfigService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [YieldConfigService,
+      providers: [
+        YieldConfigService,
         {
           provide: getRepositoryToken(YieldConfig),
           useClass: Repository,
@@ -19,7 +20,9 @@ describe('YieldConfigService', () => {
     }).compile();
 
     service = module.get<YieldConfigService>(YieldConfigService);
-    repository = module.get<Repository<YieldConfig>>(getRepositoryToken(YieldConfig));
+    repository = module.get<Repository<YieldConfig>>(
+      getRepositoryToken(YieldConfig),
+    );
   });
 
   it('should be defined', () => {

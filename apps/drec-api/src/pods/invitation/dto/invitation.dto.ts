@@ -14,7 +14,7 @@ import { IOrganizationInvitation, OrganizationRole } from '../../../models';
 import { PublicOrganizationInfoDTO } from '../../organization/dto/public-organization-info.dto';
 import { OrganizationInvitationStatus, Role } from '../../../utils/enums';
 import { Invitation } from '../invitation.entity';
-import {NewPermissionDTO} from '../../permission/dto/modulepermission.dto'
+import { NewPermissionDTO } from '../../permission/dto/modulepermission.dto';
 export class InvitationDTO implements IOrganizationInvitation {
   @ApiProperty({ type: Number })
   @IsNotEmpty()
@@ -50,13 +50,12 @@ export class InvitationDTO implements IOrganizationInvitation {
   @IsNotEmpty()
   @IsDate()
   createdAt: Date;
- 
+
   @ApiProperty({ type: [Number] })
   @IsArray()
   @IsOptional()
   permissionId?: number[];
-  
-  
+
   public static fromInvitation(invitation: Invitation): InvitationDTO {
     return plainToClass(InvitationDTO, invitation);
   }
