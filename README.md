@@ -128,7 +128,7 @@ rush update
 rush build
 ```
 
-Run UI and API projects
+Run API project
 
 ```
 rush start:dev
