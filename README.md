@@ -120,6 +120,16 @@ Run the InfluxDB instance
 docker run --name energy-influxdb --env-file ./.env -d -p 8086:8086 -v $PWD/influxdb-local:/var/lib/influxdb -v $PWD/influxdb.conf:/etc/influxdb/influxdb.conf:ro influxdb:1.8
 ```
 
+Create Default Admin:
+
+Please update below environment variables under defauld admin credential with the values that you wanted to create as default admin user.
+
+```
+ADMIN_EMAIL
+ADMIN_PASSWORD
+```
+
+
 Install dependencies, Run db migrations:
 
 ```
@@ -156,4 +166,3 @@ Before running the script, make sure:
 2. Post generated devices to Server - Bulk Devices
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
-5. After completed the local setup, before running the script, add environment variables `ADMIN_EMAIL`, `ADMIN_PASSWORD` with the user details you wanted to create as default admin user
