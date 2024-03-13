@@ -15,8 +15,9 @@ export class CertificateWithPerdevicelog extends Certificate {
   metadata: string;
 }
 
-export type CertificateNewWithPerDeviceLog =
-  ICertificateReadModel<ICertificateMetadata>;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface CertificateNewWithPerDeviceLog
+  extends ICertificateReadModel<ICertificateMetadata> {}
 
 export class CertificateNewWithPerDeviceLog {
   certificateStartDate: string;

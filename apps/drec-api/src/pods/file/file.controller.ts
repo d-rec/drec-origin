@@ -111,7 +111,7 @@ export class FileController {
     //   let fileId = await this.fileService.store(user, uploadedFiles.files);
     //   let response =  await this.fileService.get(fileId[0],user);
     //   let jobCreated=await this.fileService.createCSVJobForFile(user.id,organizationId,StatusCSV.Added,response instanceof File? response.id:'');
-    //   //@ts-ignore
+    //   // @ts-ignore
     //   return jobCreated;
     // }
     return await Promise.all(

@@ -798,7 +798,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -850,7 +850,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -1292,7 +1292,7 @@ export class DeviceGroupService {
     );
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
     //console.log(deviceGroup);
-    //@ts-ignore
+    // @ts-ignore
     //console.log("updatetargetmwh")
     //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
     //console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
@@ -1377,7 +1377,7 @@ export class DeviceGroupService {
       );
     //////console.log("existingDevices",existingDevices);
     if (existingDevices && existingDevices.length > 0) {
-      //@ts-ignore
+      // @ts-ignore
       existingDevices.forEach((ele) =>
         existingDeviceIds.push(ele?.developerExternalId),
       );
@@ -1553,7 +1553,7 @@ export class DeviceGroupService {
       countryCode: countryCode, // [devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , ')],
       //standardCompliance: devices[0].standardCompliance,
       deviceTypeCodes: deviceTypeCodes,
-      //@ts-ignore
+      // @ts-ignore
       offTakers: offTakers, //[devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker : '').join(' , ')],
       //installationConfigurations: [devices[0].installationConfiguration],
       //sectors,
@@ -1644,7 +1644,7 @@ export class DeviceGroupService {
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    //@ts-ignore
+    // @ts-ignore
     return await this.repositoyCSVJobProcessing.update(jobId, {
       status: status,
     });
@@ -1662,7 +1662,7 @@ export class DeviceGroupService {
 
     const data = new LoggedInUser({
       id: filesAddedForProcessing.userId,
-      //@ts-ignore
+      // @ts-ignore
       organization: { id: filesAddedForProcessing.organizationId },
     });
     data.id = filesAddedForProcessing.userId;
@@ -1737,23 +1737,23 @@ export class DeviceGroupService {
           //groupId: 0,
         };
         for (const key in dataKeyForValidation) {
-          //@ts-ignore
+          // @ts-ignore
           if (typeof dataKeyForValidation[key] === 'string') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] = data[key];
           }
-          //@ts-ignore
+          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'boolean') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
           }
-          //@ts-ignore
+          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'number') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] =
               parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
-              //@ts-ignore
+              // @ts-ignore
            if(key == 'yieldValue' && dataToStore[key]===0)
            {
             dataToStore[key]=1500;
@@ -1764,29 +1764,29 @@ export class DeviceGroupService {
             let yieldByCountryCode=await this.yieldConfigService.findByCountryCode(data.countryCode);
             if(yieldByCountryCode)
             {
-              //@ts-ignore
+              // @ts-ignore
               dataToStore.yieldValue=yieldByCountryCode.yieldValue;
             }
           }
-          // //@ts-ignore
+          // // @ts-ignore
           // else if (key === 'generatorsIds') {
           //   if (data[key] === '') {
-          //     //@ts-ignore
+          //     // @ts-ignore
           //     dataToStore[key] = [];
           //   } else {
-          //     //@ts-ignore
+          //     // @ts-ignore
           //     dataToStore[key] = data[key].split('|').map(
-          //       //@ts-ignore
+          //       // @ts-ignore
           //       (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
           //     );
-          //     //@ts-ignore
+          //     // @ts-ignore
           //     dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
           //   }
           // }
         }
         for(let key in dataToStore)
         {
-          //@ts-ignore
+          // @ts-ignore
           dataToStore[key] === ''?dataToStore[key]=null:'';
         }
 
@@ -1833,8 +1833,8 @@ export class DeviceGroupService {
           organizationId,
           records,
         );
-        //////console.log("devicesRegistered",devicesRegistered); 
-        //@ts-ignore
+        //////console.log("devicesRegistered",devicesRegistered);
+        // @ts-ignore
         devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
           if(ele instanceof DeviceDTO)
           {
@@ -1842,7 +1842,7 @@ export class DeviceGroupService {
           }
         })
         //////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
-       
+
         if (recordsErrors.find((ele) => ele.isError === true)) {
           //////console.log("insie if ");
           this.createFailedRowDetailsForCSVJob(
@@ -1862,8 +1862,8 @@ export class DeviceGroupService {
       });
     //////console.log("file?.data.toString()",file?.data.toString());
     this.csvStringToJSON(file?.data.toString());
-    
-    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
+
+    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{
       //////console.log("csvLine",csvLine);
     // csvLine =>  "1,2,3" and "4,5,6"
     })
@@ -1873,7 +1873,7 @@ export class DeviceGroupService {
       //////console.log("data ending emission");
       readableStream.emit('end');
     },60000);
-    
+
 
     // },1);
   }
@@ -1946,24 +1946,24 @@ export class DeviceGroupService {
           if (key === 'SDGBenefits' || key === 'version') {
             continue;
           }
-          //@ts-ignore
+          // @ts-ignore
           if (typeof dataKeyForValidation[key] === 'string') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] = data[key];
           }
-          //@ts-ignore
+          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'boolean') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
           }
-          //@ts-ignore
+          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'number') {
-            //@ts-ignore
+            // @ts-ignore
             dataToStore[key] = Number.isNaN(data[key])
               ? 0
               : parseFloat(data[key]);
-            //@ts-ignore
+            // @ts-ignore
             if (key == 'yieldValue' && dataToStore[key] === 0) {
               // dataToStore[key] = 1500;
               dataToStore[key] = 2000;
@@ -1978,13 +1978,13 @@ export class DeviceGroupService {
             const yieldByCountryCode =
               await this.yieldConfigService.findByCountryCode(data.countryCode);
             if (yieldByCountryCode) {
-              //@ts-ignore
+              // @ts-ignore
               dataToStore.yieldValue = yieldByCountryCode.yieldValue;
             }
           }
         }
         for (const key in dataToStore) {
-          //@ts-ignore
+          // @ts-ignore
           dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
 
@@ -2248,15 +2248,16 @@ export class DeviceGroupService {
           recordsToRegister,
           filesAddedForProcessing.api_user_id,
         );
-        //@ts-ignore
 
         devicesRegistered
+          // @ts-ignore ts(2339)
           .filter((ele) => ele.isError === undefined)
           .forEach((ele) => {
-            //@ts-ignore
             successfullyAddedRowsAndExternalIds.push({
+              // @ts-ignore ts(2339)
               externalId: ele.externalId,
               rowNumber: records.findIndex(
+                // @ts-ignore ts(2339)
                 (recEle) => recEle.developerExternalId === ele.externalId,
               ),
             });
@@ -2350,12 +2351,12 @@ export class DeviceGroupService {
       // directly the value is stored
       for (const j in headers) {
         if (properties[j].includes(', ')) {
-          //@ts-ignore
+          // @ts-ignore
           obj[headers[j]] = properties[j]
             .split(', ')
             .map((item) => item.trim());
         } else {
-          //@ts-ignore
+          // @ts-ignore
           obj[headers[j]] = properties[j];
         }
       }
@@ -2439,9 +2440,9 @@ export class DeviceGroupService {
   ): Promise<void> {
     this.logger.verbose(`With in EndReservationGroup`);
     if (!group) group = await this.findDeviceGroupById(groupId, organizationId);
-    //@ts-ignore
+    // @ts-ignore
     ////console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
-    //@ts-ignore
+    // @ts-ignore
     if (
       new Date(group?.reservationEndDate).getTime() ===
       new Date(reservationend.endresavationdate).getTime()
@@ -2452,7 +2453,7 @@ export class DeviceGroupService {
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({
           groupId: groupId,
         });
-      //@ts-ignore
+      // @ts-ignore
 
       this.endReservation(groupId, group, deviceGroupIssueNextDateDTO);
       return;
@@ -3300,7 +3301,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };

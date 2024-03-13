@@ -163,7 +163,7 @@ export class DeviceService {
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.ApiUser) {
-        //@ts-ignore
+        // @ts-ignore
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
         } else {
@@ -184,7 +184,7 @@ export class DeviceService {
       });
       if (totalCount == 0) {
         this.logger.error(`Page number out of range`);
-        throw new HttpException('No Device Availble', HttpStatus.NOT_FOUND);
+        throw new HttpException('No device available', HttpStatus.NOT_FOUND);
       }
 
       const totalPages = Math.ceil(totalCount / limit);
@@ -611,7 +611,7 @@ export class DeviceService {
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
     //console.log(newDevice.developerExternalId)
-    //@ts-ignore
+    // @ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
@@ -694,9 +694,10 @@ export class DeviceService {
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgbbenifitslist = SDGBenefits;
 
-    //@ts-ignore
     if (
+      // @ts-ignore ts(2367)
       updateDeviceDTO.SDGBenefits === 0 ||
+      // @ts-ignore ts(2367)
       updateDeviceDTO.SDGBenefits === 1
     ) {
       updateDeviceDTO.SDGBenefits = [];
@@ -789,7 +790,7 @@ export class DeviceService {
               const deviceKey: DeviceKey = DeviceSortPropertyMapper[
                 order
               ] as DeviceKey;
-              //@ts-ignore
+              // @ts-ignore
               return item[deviceKey];
             }
           }),
@@ -836,7 +837,7 @@ export class DeviceService {
       if (deviceKey === 'deviceTypeCode') {
         return getDeviceTypeFromCode(devices[0][deviceKey]);
       }
-      //@ts-ignore
+      // @ts-ignore
       return devices[0][deviceKey];
     })}`;
     return name;
@@ -858,13 +859,13 @@ export class DeviceService {
     });
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId;
-    }
-    //@ts-ignore
-    else if (
+    } else if (
+      // @ts-ignore ts(2339)
       filter.organizationId != null &&
+      // @ts-ignore ts(2339)
       filter.organizationId != undefined
     ) {
-      //@ts-ignore
+      // @ts-ignore
       where.organizationId = filter.organizationId;
     }
     if (filter.start_date != null && filter.end_date === undefined) {
@@ -1276,14 +1277,14 @@ export class DeviceService {
     // const token = 'admin:admin'
     // const org = '';
 
-    //@ts-ignore
+    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    //@ts-ignore
+    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    //@ts-ignore
+    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
-    //@ts-ignore
+    // @ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org);
   }
 

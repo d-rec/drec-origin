@@ -66,17 +66,15 @@ export const bootstrapTestInstance: any = async () => {
 
   const app = moduleFixture.createNestApplication();
   const databaseService = await app.resolve<DatabaseService>(DatabaseService);
-  const organizationService = await app.resolve<OrganizationService>(
-    OrganizationService,
-  );
+  const organizationService =
+    await app.resolve<OrganizationService>(OrganizationService);
   const userService = await app.resolve<UserService>(UserService);
   const deviceService = await app.resolve<DeviceService>(DeviceService);
   const emailConfirmationService = await app.resolve<EmailConfirmationService>(
     EmailConfirmationService,
   );
-  const invitationService = await app.resolve<InvitationService>(
-    InvitationService,
-  );
+  const invitationService =
+    await app.resolve<InvitationService>(InvitationService);
 
   const blockchainPropertiesService =
     await app.resolve<BlockchainPropertiesService>(BlockchainPropertiesService);
