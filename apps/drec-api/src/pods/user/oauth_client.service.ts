@@ -94,38 +94,7 @@ export class OauthClientCredentialsService {
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { api_user_id } });
   }
-  /*
-  encryptclient_secret(client_secret) {
-    console.log(algorithm, process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY);
-    const iv = randomBytes(16); // Generate a random IV
 
-    const cipher = createCipheriv(
-      algorithm,
-      process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY,
-      iv,
-    );
-    let encrypted = cipher.update(client_secret, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return iv.toString('hex') + encrypted;
-  }
-
-  decryptclient_secret(encryptedclient_secret) {
-    const iv = Buffer.from(encryptedclient_secret.slice(0, 32), 'hex');
-
-    const decipher = createDecipheriv(
-      algorithm,
-      process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY,
-      iv,
-    );
-    let decrypted = decipher.update(
-      encryptedclient_secret.slice(32),
-      'hex',
-      'utf8',
-    );
-    decrypted += decipher.final('utf8');
-    return decrypted;
-  }
-*/
   async findOneByApiUserId(
     api_user_id: string,
   ): Promise<ApiUserEntity | undefined> {
