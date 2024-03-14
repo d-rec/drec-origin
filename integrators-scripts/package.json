@@ -1,0 +1,19 @@
+{
+    "name": "@energyweb/drec-integrators-scripts",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+        "axios": "^0.24.0",
+        "csv-parser": "^3.0.0",
+        "dotenv": "^10.0.0",
+        "form-data": "^4.0.0",
+        "luxon": "^2.1.1"
+    }
+}
