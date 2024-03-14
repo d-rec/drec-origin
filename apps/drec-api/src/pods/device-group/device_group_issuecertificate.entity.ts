@@ -7,9 +7,12 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
 } from 'class-validator';
-import { IDeviceGroupNextIssueCertificate, IFullOrganization } from '../../models';
+import {
+  IDeviceGroupNextIssueCertificate,
+  IFullOrganization,
+} from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
@@ -21,7 +24,10 @@ import {
 import { Device } from '../device';
 
 @Entity('next_issuance_date_log_for_device_group')
-export class DeviceGroupNextIssueCertificate extends ExtendedBaseEntity implements IDeviceGroupNextIssueCertificate {
+export class DeviceGroupNextIssueCertificate
+  extends ExtendedBaseEntity
+  implements IDeviceGroupNextIssueCertificate
+{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -35,5 +41,4 @@ export class DeviceGroupNextIssueCertificate extends ExtendedBaseEntity implemen
   @Column()
   @IsDate()
   end_date: string;
-
 }

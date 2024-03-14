@@ -3,7 +3,7 @@ import { groupByProps } from './group-by-properties';
 import TestDevicesToGroup from '../../test/test-devices-for-grouping.json';
 
 describe('groupByProps function', () => {
-  it('groupByProperties', async()=> {
+  it('groupByProperties', async () => {
     const groupDevices = groupByProps(TestDevicesToGroup, (item) => {
       return [
         item['organizationId'],
@@ -14,7 +14,7 @@ describe('groupByProps function', () => {
         item['offTaker'],
       ];
     });
-  
+
     console.log(groupDevices);
     expect(groupDevices).toBeInstanceOf(Array);
     expect(groupDevices).toHaveLength(5);

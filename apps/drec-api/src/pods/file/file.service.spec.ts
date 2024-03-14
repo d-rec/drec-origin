@@ -7,20 +7,21 @@ import { File } from './file.entity';
 
 describe('FileService', () => {
   let service: FileService;
-  let repository: Repository<File>
+  let repository: Repository<File>;
   let connection: Connection;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FileService,
+      providers: [
+        FileService,
         {
           provide: getRepositoryToken(File),
           useClass: Repository,
         },
         {
-            provide:Connection,
-            useValue: {} as any,
-        }
+          provide: Connection,
+          useValue: {} as any,
+        },
       ],
     }).compile();
 

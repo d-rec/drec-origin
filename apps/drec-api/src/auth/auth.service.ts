@@ -1,4 +1,4 @@
-import { Injectable, Logger, } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { UserLoginReturnData } from '@energyweb/origin-backend-core';
@@ -24,13 +24,13 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly oauthClientService: OauthClientCredentialsService,
-  ) { }
+  ) {}
 
   async validateUser(
     email: string,
     unencryptedPassword: string,
   ): Promise<UserDTO | null> {
-    this.logger.verbose("With in validateUser")
+    this.logger.verbose('With in validateUser');
     const user = await this.userService.getUserAndPasswordByEmail(
       email.toLowerCase(),
     );
@@ -41,40 +41,49 @@ export class AuthService {
   }
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
-    this.logger.verbose("With in login")
+    this.logger.verbose('With in login');
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,
-      role: user.role
+      role: user.role,
     };
-    const token = this.jwtService.sign(payload)
-    this.userService.createUserSession(user, token)
+    const token = this.jwtService.sign(payload);
+    this.userService.createUserSession(user, token);
     return {
       accessToken: token,
     };
   }
-  async logout(payload: IJWTPayload){
-    return await this.userService.removeUsersession(payload.id)
-   
+  async logout(payload: IJWTPayload) {
+    return await this.userService.removeUsersession(payload.id);
   }
 
-  async isTokenBlacklisted(token: string, payload: IJWTPayload):Promise<boolean> {
+  async isTokenBlacklisted(
+    token: string,
+    payload: IJWTPayload,
+  ): Promise<boolean> {
     //hasUser({ email })
-    const tokeninvalidate = await this.userService.hasgetUserTokenvalid({ accesstoken_hash:token, userId: payload.id })
+    const tokeninvalidate = await this.userService.hasgetUserTokenvalid({
+      accesstoken_hash: token,
+      userId: payload.id,
+    });
     return tokeninvalidate;
   }
 
-  async generateToken(user: Omit<IUser, 'password'>, fileData: string) {//: Promise<UserLoginReturnData> {
-    this.logger.verbose("With in generateToken");
+  async generateToken(user: Omit<IUser, 'password'>, fileData: string) {
+    //: Promise<UserLoginReturnData> {
+    this.logger.verbose('With in generateToken');
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,
-      role: user.role
+      role: user.role,
     };
 
-    const token = this.jwtService.sign(payload, {privateKey: fileData, secret: 'my-secret'});
+    const token = this.jwtService.sign(payload, {
+      privateKey: fileData,
+      secret: 'my-secret',
+    });
     return {
       accessToken: token,
-    }
+    };
   }
 }

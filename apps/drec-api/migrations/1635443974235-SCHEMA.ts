@@ -17,7 +17,7 @@ export class SCHEMA1635443974235 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE "device_group" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "name" character varying NOT NULL, "organizationId" integer NOT NULL, "fuelCode" character varying NOT NULL, "countryCode" character varying NOT NULL, "standardCompliance" "device_group_standardcompliance_enum" NOT NULL, "deviceTypeCodes" text array NOT NULL, "offTakers" text array NOT NULL, "installationConfigurations" text array NOT NULL, "sectors" text array NOT NULL, "commissioningDateRange" text array NOT NULL, "gridInterconnection" boolean NOT NULL, "aggregatedCapacity" integer NOT NULL, "capacityRange" "device_group_capacityrange_enum" NOT NULL, "yieldValue" integer NOT NULL DEFAULT '1000', "labels" text, "buyerId" integer, "buyerAddress" character varying, CONSTRAINT "UQ_f2ef78d341a5125990cafc9493c" UNIQUE ("name"), CONSTRAINT "PK_6bb808be579ff0722c914a8d6a1" PRIMARY KEY ("id"))`,
     );
- 
+
     await queryRunner.query(
       `CREATE TABLE "organization_invitation" ("createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "email" character varying NOT NULL, "role" character varying NOT NULL DEFAULT 'OrganizationUser', "status" character varying NOT NULL, "sender" character varying NOT NULL, "organizationId" integer,"permissionId" character varying, CONSTRAINT "PK_cc1ac752952740b92ead1ee9249" PRIMARY KEY ("id"))`,
     );
