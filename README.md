@@ -82,42 +82,18 @@ Copy `.env.example` to `.env` and adjust `.env` with your environment specific p
 cp .env.example .env
 ```
 
-Start Postgres instance
+Start Postgres, Redis, InfluxDB instance
+
+Please create and start your Postgres, Redis and InfluxDB by running below command in our root directory, after that anytime you can manage this images through your docker desktop installed on your system.
 
 ```
-docker pull postgres
-docker run --name origin-postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
+docker-compose up --build
 ```
 
 Create Postgres DB table
 
 ```
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
-```
-
-Create and start a Redis instance
-
-```
-docker pull redis
-docker run --name origin-redis -d -p 6379:6379 redis
-```
-
-
-
-Create InfluxDB to store smart meter readings
-
-These below commands should be run in the directory of cloned drec-project in local environment.
-Replace PWD by your local cloned directory path.
-ex., `docker run -rm --env-file ./.env -v C:/drec/drec-origin/influxdb-local:/var/lib/influxdb influxdb:1.8 /init-influxdb.sh`
-
-```
-docker run --rm --env-file ./.env -v $PWD/influxdb-local:/var/lib/influxdb influxdb:1.8 /init-influxdb.sh
-```
-
-Run the InfluxDB instance
-
-```
-docker run --name energy-influxdb --env-file ./.env -d -p 8086:8086 -v $PWD/influxdb-local:/var/lib/influxdb -v $PWD/influxdb.conf:/etc/influxdb/influxdb.conf:ro influxdb:1.8
 ```
 
 Install dependencies, Run db migrations:
