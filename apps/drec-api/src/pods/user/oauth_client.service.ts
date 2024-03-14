@@ -31,7 +31,6 @@ export class OauthClientCredentialsService {
   ): Promise<OauthClientCredentials> {
     const clientCredentials = new OauthClientCredentials();
     clientCredentials.client_id = client_id;
-    //clientCredentials.client_secret = this.encryptclient_secret(client_secret);
     clientCredentials.api_user_id = userid;
     return await this.clientCredentialsRepository.save(clientCredentials);
   }
@@ -65,7 +64,6 @@ export class OauthClientCredentialsService {
       // Handle error, throw exception, etc.
     }
     clientCredentials.client_id = client_id;
-    //clientCredentials.client_secret = this.encryptclient_secret(client_secret);
     return await this.clientCredentialsRepository.save(clientCredentials);
   }
 
