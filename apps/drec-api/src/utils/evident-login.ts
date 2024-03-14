@@ -10,7 +10,6 @@ export async function login(httpService: any): Promise<string> {
   };
   const response = await httpService.post(url, payload).toPromise();
   jwtToken = response.data.token;
-  console.log('evident', jwtToken);
   return jwtToken;
 }
 
