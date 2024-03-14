@@ -1,23 +1,25 @@
 version: '3.8'
 
 services:
-  origin-postgres:
+  drec-postgres:
     image: postgres
-    container_name: origin-postgress
+    container_name: drec-postgres
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
-  origin-redis:
+  drec-redis:
     image: redis
-    container_name: origin-rediss
+    container_name: drec-redis
     ports:
       - "6379:6379"
 
-  energy-influxdb:
+  drec-influxdb:
     image: influxdb:1.8
-    container_name: energy-influxdbb
+    container_name: drec-influxdb
     environment:
       INFLUXDB_DB: energy
       INFLUXDB_ADMIN_USER: test
@@ -27,6 +29,8 @@ services:
     ports:
       - "8086:8086"
     volumes:
-      - ./influxdb-local:/var/lib/influxdb
-      - ./influxdb.conf:/etc/influxdb/influxdb.conf:ro
-    command: influxd --config /etc/influxdb/influxdb.conf
+      - influxdb-data:/var/lib/influxdb
+
+volumes:
+  postgres-data:
+  influxdb-data:
