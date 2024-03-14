@@ -302,7 +302,7 @@ export class UserService {
       });
     }
   }
-  
+
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
