@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   drec-postgres:
-    image: postgres
+    image: postgres:latest
     container_name: drec-postgres
     environment:
       POSTGRES_PASSWORD: postgres
@@ -12,7 +12,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   drec-redis:
-    image: redis
+    image: redis:latest
     container_name: drec-redis
     ports:
       - "6379:6379"
@@ -30,6 +30,7 @@ services:
       - "8086:8086"
     volumes:
       - influxdb-data:/var/lib/influxdb
+      - ./influxdb.conf:/etc/influxdb/influxdb.conf
 
 volumes:
   postgres-data:
