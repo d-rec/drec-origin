@@ -5,6 +5,8 @@ services:
     image: postgres:latest
     container_name: drec-postgres
     environment:
+      POSTGRES_DB: origin
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
