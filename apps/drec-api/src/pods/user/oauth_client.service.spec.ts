@@ -257,35 +257,4 @@ describe('OauthClientCredentialsService', () => {
       expect(result).toBeUndefined();
     });
   });
-  /*
-  describe('generateKeys', ()=> {
-    it('should generate keys and store public key for valid API user ID', async () => {
-      // Mock key pair generation
-      const mockPrivateKey = 'mockPrivateKey';
-      const mockPublicKey = 'mockPublicKey';
-      crypto.generateKeyPairSync.mockReturnValueOnce({ privateKey: mockPrivateKey, publicKey: mockPublicKey });
-  
-      const apiUserId = 'validUserId';
-      const yourClassInstance = new YourClass(mockStore);
-      
-      const privateKey = await yourClassInstance.generateKeys(apiUserId);
-      
-      expect(privateKey).toEqual(mockPrivateKey);
-      expect(mockStore).toHaveBeenCalledWith(mockPublicKey, apiUserId);
-    });
-  
-    it('should generate keys and store public key even when API user ID is not provided', async () => {
-      // Mock key pair generation
-      const mockPrivateKey = 'mockPrivateKey';
-      const mockPublicKey = 'mockPublicKey';
-      crypto.generateKeyPairSync.mockReturnValueOnce({ privateKey: mockPrivateKey, publicKey: mockPublicKey });
-  
-      const yourClassInstance = new YourClass(mockStore);
-      
-      const privateKey = await yourClassInstance.generateKeys();
-      
-      expect(privateKey).toEqual(mockPrivateKey);
-      expect(mockStore).toHaveBeenCalledWith(mockPublicKey, undefined);
-    });      
-  }); */
 });

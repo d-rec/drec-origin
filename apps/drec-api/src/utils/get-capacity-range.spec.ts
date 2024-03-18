@@ -1,5 +1,3 @@
-//import { expect } from 'chai';
-import exp from 'constants';
 import { CapacityRange } from './enums';
 import { getCapacityRange } from './get-capacity-range';
 
