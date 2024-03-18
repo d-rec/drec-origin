@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
@@ -13,6 +13,8 @@ const algorithm = 'aes-256-cbc';
 
 @Injectable()
 export class OauthClientCredentialsService {
+  private readonly logger = new Logger(OauthClientCredentialsService.name);
+
   constructor(
     @InjectRepository(OauthClientCredentials)
     private readonly clientCredentialsRepository: Repository<OauthClientCredentials>,
@@ -157,7 +159,7 @@ export class OauthClientCredentialsService {
       res.setHeader('Content-Type', 'application/octet-stream');
       //res.send(file);
       res.write(file, 'utf-8', () => {
-        console.log('The CSV file streamed successfully!');
+        this.logger.verbose('The CSV file streamed successfully!');
         res.end();
       });
     } catch (error) {

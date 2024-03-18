@@ -3,8 +3,10 @@
 require('dotenv').config();
 const axios = require('axios');
 const server = process.env.DREC_BACKEND_URL;
+const { Logger } = require('@nestjs/common');
 
 const login = async (username, password) => {
+    const logger = new Logger('login');
     const auth = {
         username: username,
         password: password
@@ -13,7 +15,7 @@ const login = async (username, password) => {
         const resp = await axios.post(`${server}/auth/login`, auth);
         return resp.data.accessToken;
     } catch (err) {
-        console.error('Error: ', err);
+        logger.error('Error: ', err);
     }
 };
 

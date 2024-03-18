@@ -7,20 +7,23 @@ const csv = require('csv-parser');
 const fs = require('fs');
 
 const auth = require('./auth');
+const { Logger } = require('@nestjs/common');
 
 const postMeterReads = async (externalId, meterReads, token) => {
+    const logger = new Logger('postMeterReads');
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
     try {
         const res = await axios.post(`${server}/meter-reads/${externalId}`, meterReads, config);
-        console.log('Meter reads uploaded: ', res.data);
+        logger.log('Meter reads uploaded: ', res.data);
     } catch (err) {
-        console.error('Error while uploading meter reads: ', err.response.data);
+        logger.error('Error while uploading meter reads: ', err.response.data);
     }
 };
 
 const readMeterDataAndStore = (apiToken, csvFilePath) => {
+    const logger = new Logger('readMeterDataAndStore');
     const results = [];
     fs.createReadStream(csvFilePath)
         .pipe(csv())
@@ -42,7 +45,7 @@ const readMeterDataAndStore = (apiToken, csvFilePath) => {
                         reads,
                         unit: 'Wh'
                     };
-                    console.log('Saving reads...', id, meterReads);
+                    logger.log('Saving reads...', id, meterReads);
                     // Save it to D-REC DB
                     await postMeterReads(id, meterReads, apiToken);
                 })

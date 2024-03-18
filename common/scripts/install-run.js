@@ -41,6 +41,7 @@ const RUSH_TEMP_FOLDER_ENV_VARIABLE_NAME = 'RUSH_TEMP_FOLDER';
 const INSTALLED_FLAG_FILENAME = 'installed.flag';
 const NODE_MODULES_FOLDER_NAME = 'node_modules';
 const PACKAGE_JSON_FILENAME = 'package.json';
+const { Logger } = require('@nestjs/common'); 
 /**
  * Parse a package specifier (in the form of name\@version) into name and version parts.
  */
@@ -80,8 +81,9 @@ function _parsePackageSpecifier(rawPackageSpecifier) {
  * IMPORTANT: THIS CODE SHOULD BE KEPT UP TO DATE WITH Utilities.copyAndTrimNpmrcFile()
  */
 function _copyAndTrimNpmrcFile(sourceNpmrcPath, targetNpmrcPath) {
-    console.log(`Transforming ${sourceNpmrcPath}`); // Verbose
-    console.log(`  --> "${targetNpmrcPath}"`);
+    const logger = new Logger('_copyAndTrimNpmrcFile');
+    logger.log(`Transforming ${sourceNpmrcPath}`); // Verbose
+    logger.log(`  --> "${targetNpmrcPath}"`);
     let npmrcFileLines = fs.readFileSync(sourceNpmrcPath).toString().split('\n');
     npmrcFileLines = npmrcFileLines.map((line) => (line || '').trim());
     const resultLines = [];
@@ -126,6 +128,7 @@ function _copyAndTrimNpmrcFile(sourceNpmrcPath, targetNpmrcPath) {
  * IMPORTANT: THIS CODE SHOULD BE KEPT UP TO DATE WITH Utilities._syncNpmrc()
  */
 function _syncNpmrc(sourceNpmrcFolder, targetNpmrcFolder, useNpmrcPublish) {
+    const logger = new Logger('_syncNpmrc');
     const sourceNpmrcPath = path.join(sourceNpmrcFolder, !useNpmrcPublish ? '.npmrc' : '.npmrc-publish');
     const targetNpmrcPath = path.join(targetNpmrcFolder, '.npmrc');
     try {
@@ -134,7 +137,7 @@ function _syncNpmrc(sourceNpmrcFolder, targetNpmrcFolder, useNpmrcPublish) {
         }
         else if (fs.existsSync(targetNpmrcPath)) {
             // If the source .npmrc doesn't exist and there is one in the target, delete the one in the target
-            console.log(`Deleting ${targetNpmrcPath}`); // Verbose
+            logger.log(`Deleting ${targetNpmrcPath}`); // Verbose
             fs.unlinkSync(targetNpmrcPath);
         }
     }
@@ -351,8 +354,9 @@ function _createPackageJson(packageInstallFolder, name, version) {
  * Run "npm install" in the package install folder.
  */
 function _installPackage(packageInstallFolder, name, version) {
+    const logger = new Logger('_installPackage');
     try {
-        console.log(`Installing ${name}...`);
+        logger.log(`Installing ${name}...`);
         const npmPath = getNpmPath();
         const result = childProcess.spawnSync(npmPath, ['install'], {
             stdio: 'inherit',
@@ -362,7 +366,7 @@ function _installPackage(packageInstallFolder, name, version) {
         if (result.status !== 0) {
             throw new Error('"npm install" encountered an error');
         }
-        console.log(`Successfully installed ${name}@${version}`);
+        logger.log(`Successfully installed ${name}@${version}`);
     }
     catch (e) {
         throw new Error(`Unable to install package: ${e}`);
@@ -389,6 +393,7 @@ function _writeFlagFile(packageInstallFolder) {
     }
 }
 function installAndRun(packageName, packageVersion, packageBinName, packageBinArgs) {
+    const logger = new Logger('installAndRun');
     const rushJsonFolder = findRushJsonFolder();
     const rushCommonFolder = path.join(rushJsonFolder, 'common');
     const rushTempFolder = _getRushTempFolder(rushCommonFolder);
@@ -404,7 +409,7 @@ function installAndRun(packageName, packageVersion, packageBinName, packageBinAr
     }
     const statusMessage = `Invoking "${packageBinName} ${packageBinArgs.join(' ')}"`;
     const statusMessageLine = new Array(statusMessage.length + 1).join('-');
-    console.log(os.EOL + statusMessage + os.EOL + statusMessageLine + os.EOL);
+    logger.log(os.EOL + statusMessage + os.EOL + statusMessageLine + os.EOL);
     const binPath = _getBinPath(packageInstallFolder, packageBinName);
     const binFolderPath = path.resolve(packageInstallFolder, NODE_MODULES_FOLDER_NAME, '.bin');
     // Windows environment variables are case-insensitive.  Instead of using SpawnSyncOptions.env, we need to
@@ -437,17 +442,19 @@ function installAndRun(packageName, packageVersion, packageBinName, packageBinAr
 }
 exports.installAndRun = installAndRun;
 function runWithErrorAndStatusCode(fn) {
+    const logger = new Logger('runWithErrorAndStatusCode');
     process.exitCode = 1;
     try {
         const exitCode = fn();
         process.exitCode = exitCode;
     }
     catch (e) {
-        console.error(os.EOL + os.EOL + e.toString() + os.EOL + os.EOL);
+        logger.error(os.EOL + os.EOL + e.toString() + os.EOL + os.EOL);
     }
 }
 exports.runWithErrorAndStatusCode = runWithErrorAndStatusCode;
 function _run() {
+    const logger = new Logger('_run');
     const [nodePath /* Ex: /bin/node */, scriptPath /* /repo/common/scripts/install-run-rush.js */, rawPackageSpecifier /* qrcode@^1.2.0 */, packageBinName /* qrcode */, ...packageBinArgs /* [-f, myproject/lib] */] = process.argv;
     if (!nodePath) {
         throw new Error('Unexpected exception: could not detect node path');
@@ -458,8 +465,8 @@ function _run() {
         return;
     }
     if (process.argv.length < 4) {
-        console.log('Usage: install-run.js <package>@<version> <command> [args...]');
-        console.log('Example: install-run.js qrcode@1.2.2 qrcode https://rushjs.io');
+        logger.log('Usage: install-run.js <package>@<version> <command> [args...]');
+        logger.log('Example: install-run.js qrcode@1.2.2 qrcode https://rushjs.io');
         process.exit(1);
     }
     runWithErrorAndStatusCode(() => {
@@ -469,7 +476,7 @@ function _run() {
         const name = packageSpecifier.name;
         const version = _resolvePackageVersion(rushCommonFolder, packageSpecifier);
         if (packageSpecifier.version !== version) {
-            console.log(`Resolved to ${name}@${version}`);
+            logger.log(`Resolved to ${name}@${version}`);
         }
         return installAndRun(name, version, packageBinName, packageBinArgs);
     });

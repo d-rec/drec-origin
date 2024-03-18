@@ -13,16 +13,18 @@ const distributedEnergyDevices = require(`./integrator-devices/${integrators.Int
 const nsrDevices = require(`./integrator-devices/${integrators.Integrator.NSR}-devices.json`);
 const candiDevices = require(`./integrator-devices/${integrators.Integrator.CANDI}-devices.json`);
 const bboxxDevices = require(`./integrator-devices/${integrators.Integrator.BBOX}-devices.json`);
+const { Logger } = require('@nestjs/common');
 
 const postDevices = async (devices, token) => {
+    const logger = new Logger('postDevices');
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
     try {
         const res = await axios.post(`${server}/device-group/bulk-devices`, devices, config);
-        console.log('Device Group uploaded with result: ', res.data);
+        logger.log('Device Group uploaded with result: ', res.data);
     } catch (err) {
-        console.error('Error: ', err.response.data);
+        logger.error('Error: ', err.response.data);
     }
 };
 

@@ -279,7 +279,6 @@ describe('OrganizationService', () => {
       );
 
       expect(getFilteredQuerySpy).toHaveBeenCalledWith(filterDto);
-      console.log(result);
       await expect(result).toEqual({
         organizations: [],
         currentPage: 1,

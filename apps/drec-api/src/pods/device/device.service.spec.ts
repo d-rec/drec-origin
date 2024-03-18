@@ -189,7 +189,7 @@ describe('DeviceService', () => {
           organizationId: orgCode,
         },
       };
-      console.log('Result with in test file:', result);
+
       expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(newDevice));
       expect(result).toEqual(deviceEntity);
     });
@@ -662,19 +662,10 @@ describe('DeviceService', () => {
       const result = await service.find(filterDto, undefined, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
-      console.log(expectedQuery);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
       });
-
-      console.log(
-        'Received arguments in findAndCount:',
-        findSpy.mock.calls[0],
-        findSpy.mock.calls[1],
-      );
-
-      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });
@@ -1045,19 +1036,11 @@ describe('DeviceService', () => {
       const result = await service.find(filterDto, pageNumber, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
-      console.log(expectedQuery);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
       });
 
-      console.log(
-        'Received arguments in findAndCount:',
-        findSpy.mock.calls[0],
-        findSpy.mock.calls[1],
-      );
-
-      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });
