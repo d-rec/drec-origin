@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2020",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./dist/js",
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",

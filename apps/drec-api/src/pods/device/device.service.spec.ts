@@ -24,6 +24,7 @@ import {
 } from '../../utils/enums';
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
+import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -35,6 +36,7 @@ describe('DeviceService', () => {
   let irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>;
   let organizationService: OrganizationService;
   let userService: UserService;
+  let deviceLateOngoingCertificaterepository: DeviceLateongoingIssueCertificateEntity;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -78,6 +80,10 @@ describe('DeviceService', () => {
           provide: UserService,
           useValue: {} as any,
         },
+        {
+          provide: getRepositoryToken(DeviceLateongoingIssueCertificateEntity),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
@@ -119,27 +125,7 @@ describe('DeviceService', () => {
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
       const role = Role.OrganizationAdmin;
-      /*
-      const organizationEntity = {
-        id: 1,
-        name: 'orgName',
-        // @ts-ignore
-        organizationType: Role.OrganizationAdmin,
-        // @ts-ignore
-        orgEmail: 'testsweya@gmail.com',
-        address: 'Chennai',
-        zipCode: '600001',
-        city: 'Chennai',
-        country: 'India',
-        blockchainAccountAddress: 'null',
-        blockchainAccountSignedMessage: 'null',
-        status: OrganizationStatus.Active,
-        users: [],
-        invitations: [],
-        documentIds: [],
-        api_user_id: apiUserId,
-      } as Organization;
-*/
+
       const deviceEntity = {
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
@@ -189,7 +175,6 @@ describe('DeviceService', () => {
           organizationId: orgCode,
         },
       };
-      console.log('Result with in test file:', result);
       expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(newDevice));
       expect(result).toEqual(deviceEntity);
     });
@@ -223,27 +208,7 @@ describe('DeviceService', () => {
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
       const role = Role.OrganizationAdmin;
-      /*
-      const organizationEntity = {
-        id: 1,
-        name: 'orgName',
-        // @ts-ignore
-        organizationType: Role.OrganizationAdmin,
-        // @ts-ignore
-        orgEmail: 'testsweya@gmail.com',
-        address: 'Chennai',
-        zipCode: '600001',
-        city: 'Chennai',
-        country: 'India',
-        blockchainAccountAddress: 'null',
-        blockchainAccountSignedMessage: 'null',
-        status: OrganizationStatus.Active,
-        users: [],
-        invitations: [],
-        documentIds: [],
-        api_user_id: apiUserId,
-      } as Organization;
-*/
+
       const deviceEntity = {
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
@@ -607,15 +572,6 @@ describe('DeviceService', () => {
         country: 'India',
       };
       const orgId = 4;
-      /*
-      const expectedQuery : FindManyOptions<Device> = {
-        where: {
-          deviceTypeCode: filterDto.deviceTypeCode,
-          offTaker: filterDto.offTaker,
-          countryCode: 'IND',
-        },
-        order: { organizationId: 'DESC' },
-      }; */
       const expectedQuery: FindManyOptions<Device> = {
         where: {
           capacity: {
@@ -651,7 +607,7 @@ describe('DeviceService', () => {
         },
         order: { organizationId: 'DESC' },
       };
-      //const filterSpy = jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(expectedQuery as FindManyOptions);
+
       const getFilteredQueryMock = jest
         .fn()
         .mockReturnValue(expectedQuery as FindManyOptions<Device>);
@@ -662,19 +618,11 @@ describe('DeviceService', () => {
       const result = await service.find(filterDto, undefined, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
-      console.log(expectedQuery);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
       });
 
-      console.log(
-        'Received arguments in findAndCount:',
-        findSpy.mock.calls[0],
-        findSpy.mock.calls[1],
-      );
-
-      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });
@@ -986,16 +934,6 @@ describe('DeviceService', () => {
       };
       const pageNumber = 1;
       const orgId = 4;
-      /*
-      const expectedQuery : FindManyOptions<Device> = {
-        where: {
-          deviceTypeCode: filterDto.deviceTypeCode,
-          offTaker: filterDto.offTaker,
-          countryCode: 'IND',
-        },
-        order: { organizationId: 'DESC' },
-      }; */
-
       const limit = 20;
       const expectedQuery: FindManyOptions<Device> = {
         where: {
@@ -1034,7 +972,7 @@ describe('DeviceService', () => {
         skip: (pageNumber - 1) * limit,
         take: limit,
       };
-      //const filterSpy = jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(expectedQuery as FindManyOptions);
+
       const getFilteredQueryMock = jest
         .fn()
         .mockReturnValue(expectedQuery as FindManyOptions<Device>);
@@ -1045,19 +983,11 @@ describe('DeviceService', () => {
       const result = await service.find(filterDto, pageNumber, orgId);
 
       await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
-      console.log(expectedQuery);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
       });
 
-      console.log(
-        'Received arguments in findAndCount:',
-        findSpy.mock.calls[0],
-        findSpy.mock.calls[1],
-      );
-
-      console.log('Result with in test:', result);
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
     });

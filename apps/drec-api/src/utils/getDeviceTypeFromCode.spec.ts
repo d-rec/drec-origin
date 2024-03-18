@@ -1,4 +1,3 @@
-//import { expect } from 'chai';
 import { getDeviceTypeFromCode } from './getDeviceTypeFromCode';
 
 describe('getDeviceTypeFromCode function', () => {
