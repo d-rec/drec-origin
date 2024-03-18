@@ -27,7 +27,7 @@
     "migrate:docker": "yarn typeorm:run:issuer && node_modules/typeorm/cli.js --config dist/js/ormconfig.js migration:run",
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js --config ormconfig-dev.ts",
     "typeorm:migrate": "yarn typeorm migration:generate -- -n",
-    "typeorm:run": "yarn typeorm migration:run",
+    "typeorm:run": "yarn typeorm migration:run || { echo \"Migration failed\"; exit 1; } && echo \"Migration Successfull\"",
     "typeorm:run:issuer": "node_modules/typeorm/cli.js migration:run --config node_modules/@energyweb/issuer-api/dist/js/ormconfig.js",
     "typeorm:run:certificate": "node_modules/typeorm/cli.js migration:run --config node_modules/@energyweb/origin-247-certificate/dist/js/ormconfig.js",
     "typeorm:drop": "yarn typeorm schema:drop && yarn typeorm:drop:issuer && yarn typeorm:drop:certificate",
