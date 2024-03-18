@@ -1,9 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
-import { checkColumnQuoting } from '../src/utils/get-migration-unquotedColumnQuery'
+import { MigrationInterface, QueryRunner } from 'typeorm';
+import { checkColumnQuoting } from '../src/utils/get-migration-unquotedColumnQuery';
 
 export class querfailError1710419707891 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-
     const query = `
       CREATE TABLE api_user_test (
         "api_user_id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -17,19 +16,14 @@ export class querfailError1710419707891 implements MigrationInterface {
         throw new Error(`Missing double quotes in column names`);
       }
       await queryRunner.query(query);
-      console.log("Table created successfully.");
     } catch (error) {
       // Rollback transaction if an error occurs
       await queryRunner.rollbackTransaction();
-      console.error(error.message);
       throw error; // rethrow the error to mark the migration as failed
     }
-
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Implement down migration if needed
   }
-
-
 }
