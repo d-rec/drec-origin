@@ -1,0 +1,14 @@
+lockfileVersion: 5.4
+
+specifiers:
+  sql-parser: ^0.5.0
+
+dependencies:
+  sql-parser: 0.5.0
+
+packages:
+
+  /sql-parser/0.5.0:
+    resolution: {integrity: sha512-0Lw6wAUF4MGJ5pRKY6W8emkhWB7WmQ/5bioEzVVk0oI7kIvACJxJCdHD/K8EKQb+kniRPOuxhSnmd/kU+gn/9Q==}
+    engines: {'0': node}
+    dev: false
