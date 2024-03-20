@@ -36,7 +36,6 @@ const fs = __importStar(require("fs"));
 const install_run_1 = require("./install-run");
 const PACKAGE_NAME = '@microsoft/rush';
 const RUSH_PREVIEW_VERSION = 'RUSH_PREVIEW_VERSION';
-
 function _getRushVersion() {
     const rushPreviewVersion = process.env[RUSH_PREVIEW_VERSION];
     if (rushPreviewVersion !== undefined) {
@@ -67,11 +66,10 @@ function _run() {
     if (!nodePath || !scriptPath) {
         throw new Error('Unexpected exception: could not detect node path or script path');
     }
-
     if (process.argv.length < 3) {
         console.log(`Usage: ${scriptName} <command> [args...]`);
         if (scriptName === 'install-run-rush.js') {
-            console.log(`Example: ${scriptName} custom-command`);
+            console.log(`Example: ${scriptName} build --to myproject`);
         }
         else {
             console.log(`Example: ${scriptName} custom-command`);
@@ -79,6 +77,7 @@ function _run() {
         process.exit(1);
     }
     install_run_1.runWithErrorAndStatusCode(() => {
+        const version = _getRushVersion();
         console.log(`The rush.json configuration requests Rush version ${version}`);
         return install_run_1.installAndRun(PACKAGE_NAME, version, bin, packageBinArgs);
     });
