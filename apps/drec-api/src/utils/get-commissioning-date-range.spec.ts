@@ -1,4 +1,3 @@
-//import { expect } from 'chai';
 import { CommissioningDateRange } from './enums';
 import { getDateRangeFromYear } from './get-commissioning-date-range';
 
@@ -37,7 +36,5 @@ describe('getDateRangeFromYear function', () => {
     expect(getDateRangeFromYear('2005-02-01')).toEqual(
       CommissioningDateRange.Above_15_years,
     );
-    //expect(dateRange1).to.eq(CommissioningDateRange.Year_1_Q4);
-    //expect(dateRange2).to.eq(CommissioningDateRange.Above_15_years);
   });
 });
