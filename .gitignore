@@ -86,7 +86,7 @@ common/deploy/
 common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
-/common/config/rush/pnpm-lock.yaml
+
 
 # IDE files
 .vscode

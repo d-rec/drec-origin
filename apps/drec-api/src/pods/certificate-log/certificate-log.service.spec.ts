@@ -257,7 +257,6 @@ describe('CertificateLogService', () => {
 
   describe('getCertifiedlogofDevices', () => {
     it('should return old certificates when old reservation information is available', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
@@ -318,7 +317,6 @@ describe('CertificateLogService', () => {
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getoldreservationinfo);
 
-      // Mock getDeveloperfindreservationcertified method
       const expectedCertificates = {
         certificatelog: [
           {
@@ -392,7 +390,6 @@ describe('CertificateLogService', () => {
     });
 
     it('should return new certificates when new reservation information is available', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
@@ -446,7 +443,6 @@ describe('CertificateLogService', () => {
         ],
       };
 
-      // Mock getReservationInforDeveloperBsise and getoldReservationInforDeveloperBsise methods
       jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getnewreservationinfo);
@@ -454,7 +450,6 @@ describe('CertificateLogService', () => {
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getoldreservationinfo);
 
-      // Mock getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247 method
       const expectedCertificates = {
         certificatelog: [
           {
@@ -464,7 +459,7 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-            // @ts-ignore
+            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 3,
@@ -476,7 +471,7 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-            // @ts-ignore
+            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 2,
@@ -488,7 +483,7 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-            // @ts-ignore
+            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 1,
@@ -513,11 +508,10 @@ describe('CertificateLogService', () => {
         pageNumber,
       );
 
-      expect(result).toEqual(expectedCertificates); // Assert that expected certificates are returned
+      expect(result).toEqual(expectedCertificates);
     });
 
     it('should return empty certificates when both old and new reservation information are unavailable', async () => {
-      // Mock user, filter DTO, and page number
       const user: ILoggedInUser = {
         id: 2,
         organizationId: 2,
@@ -566,7 +560,7 @@ describe('CertificateLogService', () => {
         currentpage: 0,
         totalPages: 0,
         totalCount: 0,
-      }); // Assert that empty certificates are returned
+      });
     });
   });
 });

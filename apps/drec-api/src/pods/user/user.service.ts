@@ -302,22 +302,7 @@ export class UserService {
       });
     }
   }
-  /*
-  async validateClient(client_id, client_secret) {
-    // console.log(client_id);
-    // console.log(client_secret);
-    // this.oauthClientCredentialsService.findOneByclient_id
-    const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
-    if (!client) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
-    if (client.client_secret !== client_secret) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    return client;
-  }
-*/
+
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
