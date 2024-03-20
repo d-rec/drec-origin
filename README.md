@@ -28,36 +28,31 @@
 </p>
 
 ---
-
 Repository for Origin DREC project
 
 ## Local environment setup of Ubuntu
 
 Install `wsl`,`ubuntu-18.04` in command prompt running as administrator:
-
 ```
 wsl --install
 wsl --install --distribution Ubuntu-18.04
 ```
 
 Install `Influx-Client`: 
-
 ```
 sudo apt install influx client
 sudo apt update
 ```
-Restart the Ubuntu terminal once, after installation done.
 
+Restart the Ubuntu terminal once, after installation done.
 Clone and Install `nvm`:
 ```
 sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 nvm install 14.19.1
 ```
 
-Install `rush`, `pnpm`, `yarn` if you don't have it:
-
+Install `rush`, `pnpm` if you don't have it:
 ```
-npm i -g yarn
 npm i -g @microsoft/rush
 npm i -g pnpm
 ```
@@ -69,9 +64,7 @@ cd drec
 ```
 
 Clone repository:
-
 It should be cloned in both local and Ubuntu environment.
-
 ```
 git clone https://github.com/drec/drec-origin.git
 chmod -R 777 drec-origin/
@@ -85,33 +78,27 @@ cp .env.example .env
 Start Postgres, Redis, InfluxDB instance
 
 Please create and start your Postgres, Redis and InfluxDB by running below command in our root directory, after that anytime you can manage this images through your docker desktop installed on your system.
-
 ```
 docker-compose up --build
 ```
 
 Create Postgres DB table
-
 ```
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 ```
 
 Install dependencies, Run db migrations:
-
 ```
 rush install
-rush update
 rush build
 ```
 
 Run API project
-
 ```
 rush start:dev
 ```
 
 You may also want to drop local databases with
-
 ```
 rush drop
 ```
@@ -120,7 +107,6 @@ rush drop
 
 Go inside integrators-scripts folder
 Create a .env, copy everything from .env.example and change the necessary variables depending on the environment
-
 ```
 npm i
 npm run start
