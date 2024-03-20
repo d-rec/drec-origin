@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   InternalServerErrorException,
-  forwardRef
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
@@ -16,9 +16,14 @@ import {
   Repository,
   FindManyOptions,
   SelectQueryBuilder,
-  Not
+  Not,
 } from 'typeorm';
-import { ILoggedInUser, IUser, UserPasswordUpdate, UserChangePasswordUpdate } from '../../models';
+import {
+  ILoggedInUser,
+  IUser,
+  UserPasswordUpdate,
+  UserChangePasswordUpdate,
+} from '../../models';
 import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
 import { CreateUserORGDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -35,7 +40,7 @@ import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 import { ApiUserEntity } from './api-user.entity';
-import { UserLoginSessionEntity } from './user_login_session.entity'
+import { UserLoginSessionEntity } from './user_login_session.entity';
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -45,13 +50,13 @@ export class UserService {
     @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
-    @Inject(forwardRef(() => OrganizationService)) private organizationService: OrganizationService,
+    @Inject(forwardRef(() => OrganizationService))
+    private organizationService: OrganizationService,
     @InjectRepository(ApiUserEntity)
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userloginSessionRepository: Repository<UserLoginSessionEntity>,
-
-  ) { }
+  ) {}
 
   public async seed(
     data: CreateUserORGDTO,
@@ -93,27 +98,32 @@ export class UserService {
 
   //   return new User(user);
   // }
-  public async newcreate(data: CreateUserORGDTO,
-    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
+  public async newcreate(
+    data: CreateUserORGDTO,
+    status?: UserStatus,
+    inviteuser?: boolean,
+  ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    //@ts-ignore
-    let api_user = await this.oauthClientCredentialsService.findOneByApiUserId(data.api_user_id);
+    // @ts-ignore
+    const api_user =
+      await this.oauthClientCredentialsService.findOneByApiUserId(
+        data.api_user_id,
+      );
     /*
     if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
       console.log("came here iasjdajsdojsdojasd");
       api_user = await this.oauthClientCredentialsService.createAPIUser();
       console.log("api_user", api_user);
     } */
-    var org_id;
+    let org_id;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
-        address: data.orgAddress
-
-      }
+        address: data.orgAddress,
+      };
 
       orgdata['api_user_id'] = api_user.api_user_id;
 
@@ -130,34 +140,38 @@ export class UserService {
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
-
       } else {
-
-        const org = await this.organizationService.newcreate(orgdata)
+        const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org)}`,
         );
-
-
       }
-
     }
-    //@ts-ignore
+    // @ts-ignore
     if (data.orgid) {
-      //@ts-ignore
+      // @ts-ignore
       org_id = data.orgid;
     }
-    var role;
-    var roleId;
-    if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
-      role = Role.Buyer
+    let role;
+    let roleId;
+    if (
+      data.organizationType === 'Buyer' ||
+      data.organizationType === 'buyer'
+    ) {
+      role = Role.Buyer;
       roleId = 4;
-    } else if (data.organizationType === 'Developer' || data.organizationType === 'Developer') {
-      role = Role.OrganizationAdmin
+    } else if (
+      data.organizationType === 'Developer' ||
+      data.organizationType === 'Developer'
+    ) {
+      role = Role.OrganizationAdmin;
       roleId = 2;
-    } else if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
-      role = Role.ApiUser
+    } else if (
+      data.organizationType === 'ApiUser' ||
+      data.organizationType === 'apiuser'
+    ) {
+      role = Role.ApiUser;
       roleId = 6;
     }
 
@@ -194,41 +208,41 @@ export class UserService {
     */
     /*
     if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
-      //@ts-ignore
+      // @ts-ignore
       user['client_id'] = data.client.client_id;
-      //@ts-ignore
+      // @ts-ignore
       user['client_secret'] = data.client.client_secret;
     }
-    */   
-    
+    */
+
     await this.emailConfirmationService.create(user);
     //return new User(user);
     return user;
   }
 
-  public async adminnewcreate(data: CreateUserORGDTO,
-    status?: UserStatus, inviteuser?: Boolean): Promise<UserDTO> {
+  public async adminnewcreate(
+    data: CreateUserORGDTO,
+    status?: UserStatus,
+    inviteuser?: boolean,
+  ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    var org_id;
+    let org_id;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
-        address: data.orgAddress
-
-      }
+        address: data.orgAddress,
+      };
 
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
-
       } else {
-
-        const org = await this.organizationService.newcreate(orgdata)
+        const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org)}`,
@@ -236,13 +250,16 @@ export class UserService {
       }
     }
 
-    var role;
-    var roleId;
-    if (data.organizationType === 'Buyer' || data.organizationType === 'buyer') {
-      role = Role.Buyer
+    let role;
+    let roleId;
+    if (
+      data.organizationType === 'Buyer' ||
+      data.organizationType === 'buyer'
+    ) {
+      role = Role.Buyer;
       roleId = 4;
     } else {
-      role = Role.OrganizationAdmin
+      role = Role.OrganizationAdmin;
       roleId = 2;
     }
 
@@ -259,7 +276,6 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-
     });
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(user)}`,
@@ -273,8 +289,7 @@ export class UserService {
     return new User(user);
   }
 
-  private async checkForExistingUser(email: string): Promise<void> {
-
+  public async checkForExistingUser(email: string): Promise<void> {
     const isExistingUser = await this.hasUser({ email });
 
     if (isExistingUser) {
@@ -287,22 +302,7 @@ export class UserService {
       });
     }
   }
-/*
-  async validateClient(client_id, client_secret) {
-    // console.log(client_id);
-    // console.log(client_secret);
-    // this.oauthClientCredentialsService.findOneByclient_id
-    const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
-    if (!client) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
-    if (client.client_secret !== client_secret) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    return client;
-  }
-*/
+
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }
@@ -313,12 +313,12 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
-      const api_user = await this.get_apiuser_permission_status(user.api_user_id);
+      const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
+        user.api_user_id,
+      );
       user['permission_status'] = api_user.permission_status;
-
     }
     return user;
   }
@@ -349,7 +349,6 @@ export class UserService {
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
-
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
     if (user) {
@@ -386,24 +385,24 @@ export class UserService {
   ): Promise<void> {
     await this.repository.update(userId, {
       organization: { id: organizationId },
-      status: UserStatus.Active
+      status: UserStatus.Active,
     });
   }
 
-
-  public getatleastoneotheruserinOrg(organizationId: number, userId): Promise<User[]> {
-
+  public getatleastoneotheruserinOrg(
+    organizationId: number,
+    userId,
+  ): Promise<User[]> {
     return this.repository.find({
       where: {
         id: Not(userId),
-        organization: organizationId
+        organization: organizationId,
       },
       order: {
         id: 'DESC',
       },
-      take: 1
+      take: 1,
     });
-
   }
 
   async removeFromOrganization(userId: number): Promise<void> {
@@ -411,8 +410,7 @@ export class UserService {
   }
 
   async remove(userId: number): Promise<void> {
-
-    await this.emailConfirmationService.remove(userId)
+    await this.emailConfirmationService.remove(userId);
     await this.repository.delete(userId);
   }
 
@@ -421,11 +419,9 @@ export class UserService {
     { firstName, lastName, email }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
-
       firstName,
       lastName,
       email: email.toLowerCase(),
-
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -439,9 +435,9 @@ export class UserService {
       });
     }
     const updateuser = await this.findById(id);
-    //@ts-ignore
+    // @ts-ignore
     if (!(updateuser.email === email.toLowerCase())) {
-      //@ts-ignore
+      // @ts-ignore
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -481,7 +477,6 @@ export class UserService {
     });
   }
 
-
   async updatechangePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
@@ -508,7 +503,6 @@ export class UserService {
 
       await this.repository.update(emailConfirmation.id, updateEntity);
       return emailConfirmation;
-
     }
 
     throw new ConflictException({
@@ -522,7 +516,7 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({ name: role })
+    const getrole = await this.rolerepository.findOne({ name: role });
     // var roleId;
     // if (role === Role.DeviceOwner) {
     //   roleId = 3
@@ -536,27 +530,35 @@ export class UserService {
     return this.findOne({ id: userId });
   }
 
-
   async getPlatformAdmin(): Promise<IUser | undefined> {
     return this.findOne({ role: Role.Admin });
   }
 
-  public async getUsersByFilter(filterDto: UserFilterDTO, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+  public async getUsersByFilter(
+    filterDto: UserFilterDTO,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     const query = await this.getFilteredQuery(filterDto);
     try {
-
-
-      let [users, totalCount] = await query
+      const [users, totalCount] = await query
         .andWhere(`role != :role`, { role: Role.ApiUser })
-        .skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
 
       return {
         users: users,
         currentPage: pageNumber,
         totalPages,
-        totalCount
-      }
+        totalCount,
+      };
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
       throw new InternalServerErrorException('Failed to retrieve users');
@@ -583,7 +585,6 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
-
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
@@ -595,14 +596,13 @@ export class UserService {
     }
 
     const updateuser = await this.findById(id);
-    //@ts-ignore
+    // @ts-ignore
     if (!(updateuser.email === data.email)) {
-      //@ts-ignore
+      // @ts-ignore
       await this.checkForExistingUser(data.email);
     }
 
     await this.repository.update(id, {
-
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
@@ -632,25 +632,24 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    //@ts-ignore
     if (user.role === Role.ApiUser) {
-      //@ts-ignore
-      const api_user = await this.get_apiuser_permission_status(user.api_user_id);
+      const api_user = await this.get_apiuser_permission_status(
+        // @ts-ignore ts(2339)
+        user.api_user_id,
+      );
       user['permission_status'] = api_user.permission_status;
-
     }
     return user;
   }
   public async geytokenforResetPassword(email): Promise<ISuccessResponse> {
-
-
-    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(email);
-
-
+    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
+      email,
+    );
   }
 
   public async sentinvitiontoUser(inviteuser, email, invitationId) {
-    const getcurrenttoken = await this.emailConfirmationService.getByEmail(email)
+    const getcurrenttoken =
+      await this.emailConfirmationService.getByEmail(email);
     if (!getcurrenttoken) {
       return {
         message: 'Token not found',
@@ -658,11 +657,20 @@ export class UserService {
       };
     }
     const { id, confirmed } = getcurrenttoken;
-    let { token, expiryTimestamp } = await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(inviteuser, email, invitationId);
+    const { token, expiryTimestamp } =
+      await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    await this.emailConfirmationService.sendInvitation(
+      inviteuser,
+      email,
+      invitationId,
+    );
   }
 
-  public async findUserByOrganization(organizationId: number, pageNumber: number, limit: number) {
+  public async findUserByOrganization(
+    organizationId: number,
+    pageNumber: number,
+    limit: number,
+  ) {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -673,7 +681,12 @@ export class UserService {
       .getManyAndCount();
   }
   /**get all user of apiuser */
-  public async findUserByApiUserId(api_user_id: string, pageNumber: number, limit: number, org_id?) {
+  public async findUserByApiUserId(
+    api_user_id: string,
+    pageNumber: number,
+    limit: number,
+    org_id?,
+  ) {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -691,49 +704,56 @@ export class UserService {
   }
   /**
    * This Function added for request of permission to apiuser in apiuser table
-   * @param api_id 
-   * @param permissionIds 
+   * @param api_id
+   * @param permissionIds
    */
   async apiuser_permission_request(api_id, permissionIds) {
-
     await this.apiUserEntityRepository.update(api_id, {
       permissionIds: permissionIds,
-      permission_status: UserPermissionStatus.Request
-
-    })
+      permission_status: UserPermissionStatus.Request,
+    });
   }
-  async apiuser_permission_accepted_byadmin(api_id: string, status: UserPermissionStatus) {
-
+  async apiuser_permission_accepted_byadmin(
+    api_id: string,
+    status: UserPermissionStatus,
+  ) {
     // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
 
     await this.apiUserEntityRepository.update(api_id, {
-
-      permission_status: status
-
-    })
+      permission_status: status,
+    });
     return await this.apiUserEntityRepository.findOne(api_id);
   }
   /**
    * This service method use for get info of permission request status(Request,Active and Deactive)
-   * @param api_id 
-   * @returns 
+   * @param api_id
+   * @returns
    */
   async get_apiuser_permission_status(api_id: string) {
-
-    const status_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id)
+    const status_apiuser_permissiom =
+      await this.apiUserEntityRepository.findOne(api_id);
 
     return status_apiuser_permissiom;
   }
 
   /**
    * this function create for get user list of ApiUser
-   * @param organizationName 
-   * @param pageNumber 
-   * @param limit 
-   * @returns 
+   * @param organizationName
+   * @param pageNumber
+   * @param limit
+   * @returns
    */
-  public async getApiUsers(organizationName: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
-    let filterDto = new UserFilterDTO;
+  public async getApiUsers(
+    organizationName: string,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    const filterDto = new UserFilterDTO();
     filterDto.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDto);
     try {
@@ -748,8 +768,8 @@ export class UserService {
         users: apiusers,
         currentPage: pageNumber,
         totalPages,
-        totalCount
-      }
+        totalCount,
+      };
     } catch (error) {
       this.logger.error(`Failed to retrieve apiusers`, error.stack);
       throw new InternalServerErrorException('Failed to retrieve apiusers');
@@ -757,29 +777,26 @@ export class UserService {
   }
 
   /**
-   * 
-   * @param email 
-   * @param token 
-   * @returns 
+   *
+   * @param email
+   * @param token
+   * @returns
    */
 
   async createUserSession(user: any, token: string) {
-   
     await this.userloginSessionRepository.save({
       userId: user.id,
-      accesstoken_hash: token
-    })
+      accesstoken_hash: token,
+    });
     return;
   }
   /**
-   * 
-   * @param userId 
-   * @returns 
+   *
+   * @param userId
+   * @returns
    */
-  async removeUsersession(userId:number) {
-   return await this.userloginSessionRepository.delete(
-      { userId:userId }
-    );
+  async removeUsersession(userId: number) {
+    return await this.userloginSessionRepository.delete({ userId: userId });
   }
 
   // async getToken(token, userid):Promise<Boolean> {
@@ -791,7 +808,9 @@ export class UserService {
   //   })
   // }
 
-  async hasgetUserTokenvalid(conditions: FindConditions<UserLoginSessionEntity>) {
+  async hasgetUserTokenvalid(
+    conditions: FindConditions<UserLoginSessionEntity>,
+  ) {
     return Boolean(await this.userloginSessionRepository.findOne(conditions));
   }
 }

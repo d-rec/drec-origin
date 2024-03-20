@@ -1,9 +1,17 @@
-import { ApiProperty, PickType ,IntersectionType} from '@nestjs/swagger';
+import { ApiProperty, PickType, IntersectionType } from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
 import { OrganizationDTO } from '../../organization/dto/organization.dto';
-import { IsNotEmpty, IsString, Matches,MinLength, MaxLength, IsOptional, IsUUID } from 'class-validator';
-import { UserRegistrationData,UserORGRegistrationData } from '../../../models';
-import {Match} from '../decorators/match.decorator';
+import {
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
+import { UserRegistrationData, UserORGRegistrationData } from '../../../models';
+import { Match } from '../decorators/match.decorator';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [
 //     'title',
@@ -11,11 +19,10 @@ import {Match} from '../decorators/match.decorator';
 //     'lastName',
 //     'email',
 //     'telephone'
-   
+
 //   ] as const)
 //   implements UserRegistrationData
 // {
- 
 
 //   @ApiProperty({ type: String })
 //   @MaxLength(20)
@@ -27,24 +34,15 @@ import {Match} from '../decorators/match.decorator';
 //   @IsString()
 //   password: string;
 
- 
-
 // }
 
 export class CreateUserORGDTO
   extends IntersectionType(
-    PickType(UserDTO, [
-      'firstName',
-      'lastName',
-      'email',
-      
-    ] as const),
-    PickType(OrganizationDTO,['organizationType']as const)
-    )
-  
+    PickType(UserDTO, ['firstName', 'lastName', 'email'] as const),
+    PickType(OrganizationDTO, ['organizationType'] as const),
+  )
   implements UserORGRegistrationData
 {
-
   @ApiProperty({ type: String })
   @MaxLength(20)
   @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
@@ -55,15 +53,15 @@ export class CreateUserORGDTO
   @IsString()
   password: string;
 
- @ApiProperty({ type: String })
+  @ApiProperty({ type: String })
   @Match('password')
   confirmPassword?: string;
-  
+
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
   orgName?: string;
-  
+
   /*
   note not to use g flag in regex nest 
   https://github.com/typestack/class-validator/issues/484#issuecomment-595821457
@@ -86,7 +84,7 @@ export class CreateUserORGDTO
   // })
   // @IsString()
   // secretKey?: string;
- 
+
   @IsString()
   @IsUUID('all', { message: 'Invalid UUID format' })
   @IsOptional()

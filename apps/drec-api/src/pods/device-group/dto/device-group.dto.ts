@@ -97,12 +97,10 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsNotEmpty()
   commissioningDateRange: CommissioningDateRange[];
 
- 
-
-// @ApiProperty({ type: [String] })
-//   @IsArray()
-//   @IsOptional()
-//   labels: string[];
+  // @ApiProperty({ type: [String] })
+  //   @IsArray()
+  //   @IsOptional()
+  //   labels: string[];
 
   @ApiPropertyOptional({ type: [DeviceDTO] })
   @IsArray()
@@ -124,7 +122,6 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty({ type: Date })
   @IsOptional()
   reservationEndDate?: Date;
-  
 
   @ApiProperty({ type: Number })
   @IsOptional()
@@ -138,7 +135,6 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsOptional()
   targetVolumeCertificateGenerationRequestedInMegaWattHour?: number;
 
-
   @ApiProperty({ type: Number })
   @IsOptional()
   targetVolumeCertificateGenerationFailedInMegaWattHour?: number;
@@ -147,11 +143,9 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsOptional()
   authorityToExceed?: boolean;
 
-
   @ApiProperty()
   @IsOptional()
   leftoverReadsByCountryCode?: any;
-
 
   @IsOptional()
   @ApiPropertyOptional({ type: Number })
@@ -170,10 +164,10 @@ export class DeviceGroupDTO implements IDeviceGroup {
 
   @IsBoolean()
   reservationActive?: boolean;
-  
+
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
-  reservationExpiryDate:Date;
+  reservationExpiryDate: Date;
 }
 
 export class CSVBulkUploadDTO {
@@ -182,9 +176,7 @@ export class CSVBulkUploadDTO {
   fileName: string;
 }
 
-
-export class ResponseDeviceGroupDTO extends DeviceGroupDTO
-{
+export class ResponseDeviceGroupDTO extends DeviceGroupDTO {
   @IsOptional()
   @ApiPropertyOptional({ type: String })
   @IsString()

@@ -123,7 +123,9 @@ describe('Device tests', () => {
       longitude: '135.717309',
       countryCode: 'DE',
       zipCode: '111111',
+      // @ts-ignore ts(2322)
       fuelCode: 'ES100',
+      // @ts-ignore ts(2322)
       deviceTypeCode: 'TC110',
       installationConfiguration: Installation.StandAlone,
       capacity: 1340,
@@ -178,7 +180,9 @@ describe('Device tests', () => {
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
+      // @ts-ignore ts(2322)
       fuelCode: 'ES100',
+      // @ts-ignore ts(2322)
       deviceTypeCode: 'TC110',
       installationConfiguration: Installation.StandAlone,
       capacity: 1340,
@@ -207,6 +211,7 @@ describe('Device tests', () => {
     };
     await loginUser(loggedUser);
     const orderFilter: Partial<DeviceGroupByDTO> = {
+      // @ts-ignore ts(2339)
       orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
     };
     const { body: deviceGroups } = await requestUngrouppedDevice(

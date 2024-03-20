@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IModulePermissionsConfig, IACLModuleConfig, IaddModulePermission } from '../../../models';
+import {
+  IModulePermissionsConfig,
+  IACLModuleConfig,
+  IaddModulePermission,
+} from '../../../models';
 import { Role, EntityType, UserPermissionStatus } from '../../../utils/enums';
 import { Expose } from 'class-transformer';
 import {
@@ -16,7 +20,6 @@ import {
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { ACLModuleDTO } from '../../access-control-layer-module-service/dto/aclmodule.dto';
 export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
-
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -39,7 +42,6 @@ export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
   @IsArray()
   permissions: string[];
 
-
   @Column()
   permissionValue: number;
   @ApiProperty({ type: Number })
@@ -48,12 +50,8 @@ export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
   // @ApiProperty({ type: ACLModuleDTO })
   // @ValidateNested()
   // aclmodules: IACLModuleConfig;
-
 }
 export class NewPermissionDTO {
-
-
-
   @ApiProperty({ type: Number })
   @Column()
   aclmodulesId: number;
@@ -79,7 +77,6 @@ export class NewPermissionDTO {
   status: number;
 }
 export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
-
   // @ApiProperty({ type: Number })
   @Column()
   aclmodulesId: number;
@@ -106,7 +103,6 @@ export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
 }
 
 export class NewApiUserPermissionDTO {
-
   @ApiProperty({ type: Number })
   @Column()
   aclmodulesId: number;
@@ -133,7 +129,6 @@ export class NewApiUserPermissionDTO {
 }
 
 export class ApiUserPermissionUpdateDTO {
-
   @ApiProperty({ enum: UserPermissionStatus, enumName: 'UserPermissionStatus' })
   @IsEnum(UserPermissionStatus)
   @Column({ default: UserPermissionStatus.Request })

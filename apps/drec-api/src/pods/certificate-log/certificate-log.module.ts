@@ -2,29 +2,31 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CertificateLogController } from './certificate-log.controller';
 import { CertificateLogService } from './certificate-log.service';
-import {CheckCertificateIssueDateLogForDeviceEntity} from '../device/check_certificate_issue_date_log_for_device.entity'
-import {Certificate} from '@energyweb/issuer-api';
-import {DeviceGroupModule} from '../device-group/device-group.module'
-import {DeviceModule} from'../device/device.module';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { Certificate } from '@energyweb/issuer-api';
+import { DeviceGroupModule } from '../device-group/device-group.module';
+import { DeviceModule } from '../device/device.module';
 import { OffChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
-import {DeviceGroup} from '../device-group/device-group.entity'
-import {OrganizationModule} from '../organization/organization.module';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
 
-
 @Module({
-
   imports: [
-  
-    TypeOrmModule.forFeature([CheckCertificateIssueDateLogForDeviceEntity,Certificate,CertificateReadModelEntity,DeviceGroup]),
+    TypeOrmModule.forFeature([
+      CheckCertificateIssueDateLogForDeviceEntity,
+      Certificate,
+      CertificateReadModelEntity,
+      DeviceGroup,
+    ]),
     DeviceGroupModule,
     DeviceModule,
     OffChainCertificateModule,
     OrganizationModule,
-    UserModule
+    UserModule,
   ],
   controllers: [CertificateLogController],
-  providers: [CertificateLogService]
+  providers: [CertificateLogService],
 })
 export class CertificateLogModule {}

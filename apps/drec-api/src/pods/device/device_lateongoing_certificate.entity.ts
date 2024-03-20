@@ -7,9 +7,12 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
 } from 'class-validator';
-import { IDeviceLateOngoingIssueCertificate, IFullOrganization } from '../../models';
+import {
+  IDeviceLateOngoingIssueCertificate,
+  IFullOrganization,
+} from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
@@ -21,7 +24,10 @@ import {
 import { Device } from '.';
 
 @Entity('device_lateongoing_certificate_cycle')
-export class DeviceLateongoingIssueCertificateEntity extends ExtendedBaseEntity implements IDeviceLateOngoingIssueCertificate {
+export class DeviceLateongoingIssueCertificateEntity
+  extends ExtendedBaseEntity
+  implements IDeviceLateOngoingIssueCertificate
+{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -39,10 +45,9 @@ export class DeviceLateongoingIssueCertificateEntity extends ExtendedBaseEntity 
   @Column()
   @IsDate()
   late_end_date: string;
-  
+
   @Column()
   certificate_issued: boolean;
-
 
   @Column()
   createdAt: Date;
