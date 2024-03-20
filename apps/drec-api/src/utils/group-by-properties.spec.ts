@@ -1,4 +1,3 @@
-//import { expect } from 'chai';
 import { groupByProps } from './group-by-properties';
 import TestDevicesToGroup from '../../test/test-devices-for-grouping.json';
 
@@ -15,7 +14,6 @@ describe('groupByProps function', () => {
       ];
     });
 
-    console.log(groupDevices);
     expect(groupDevices).toBeInstanceOf(Array);
     expect(groupDevices).toHaveLength(5);
   });
