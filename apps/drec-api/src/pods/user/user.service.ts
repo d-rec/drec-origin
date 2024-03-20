@@ -188,7 +188,7 @@ export class UserService {
       //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
       api_user_id: api_user ? api_user.api_user_id : null,
     });
-    const {password, ...userData} = user;
+    const { password, ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData)}`,
     );
@@ -278,7 +278,7 @@ export class UserService {
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
     });
-    const {password, ...userData} = user;
+    const { password, ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData)}`,
     );
