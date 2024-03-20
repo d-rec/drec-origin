@@ -36,13 +36,11 @@ const fs = __importStar(require("fs"));
 const install_run_1 = require("./install-run");
 const PACKAGE_NAME = '@microsoft/rush';
 const RUSH_PREVIEW_VERSION = 'RUSH_PREVIEW_VERSION';
-const { Logger } = require('@nestjs/common');
 
 function _getRushVersion() {
-    const logger = new Logger('_getRushVersion');
     const rushPreviewVersion = process.env[RUSH_PREVIEW_VERSION];
     if (rushPreviewVersion !== undefined) {
-        logger.log(`Using Rush version from environment variable ${RUSH_PREVIEW_VERSION}=${rushPreviewVersion}`);
+        console.log(`Using Rush version from environment variable ${RUSH_PREVIEW_VERSION}=${rushPreviewVersion}`);
         return rushPreviewVersion;
     }
     const rushJsonFolder = install_run_1.findRushJsonFolder();
@@ -69,20 +67,19 @@ function _run() {
     if (!nodePath || !scriptPath) {
         throw new Error('Unexpected exception: could not detect node path or script path');
     }
-    const logger = new Logger('_run');
+
     if (process.argv.length < 3) {
-        logger.log(`Usage: ${scriptName} <command> [args...]`);
+        console.log(`Usage: ${scriptName} <command> [args...]`);
         if (scriptName === 'install-run-rush.js') {
-            logger.log(`Example: ${scriptName} build --to myproject`);
+            console.log(`Example: ${scriptName} custom-command`);
         }
         else {
-            logger.log(`Example: ${scriptName} custom-command`);
+            console.log(`Example: ${scriptName} custom-command`);
         }
         process.exit(1);
     }
     install_run_1.runWithErrorAndStatusCode(() => {
-        const version = _getRushVersion();
-        logger.log(`The rush.json configuration requests Rush version ${version}`);
+        console.log(`The rush.json configuration requests Rush version ${version}`);
         return install_run_1.installAndRun(PACKAGE_NAME, version, bin, packageBinArgs);
     });
 }
