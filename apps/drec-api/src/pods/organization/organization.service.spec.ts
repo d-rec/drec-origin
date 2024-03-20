@@ -294,8 +294,6 @@ describe('OrganizationService', () => {
       const id = 13;
 
       const organization = {
-        //"createdAt": "2024-03-01T07:59:03.122Z",
-        //"updatedAt": "2024-03-01T07:59:03.122Z",
         id: 13,
         name: 'Dev____ORG',
         address: 'BLR',
@@ -342,9 +340,8 @@ describe('OrganizationService', () => {
     const limit = 20;
     const role = undefined;
 
-    const users = [
+    let users = [
       {
-        //createdAt: '2024-03-03T15:23:29.222Z',
         updatedAt: new Date('2024-03-04T07:03:46.336Z'),
         id: 21,
         firstName: 'abc',
@@ -356,8 +353,6 @@ describe('OrganizationService', () => {
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
-          //createdAt: '2024-03-01T07:59:03.122Z',
-          //updatedAt: '2024-03-01T07:59:03.122Z',
           id: 13,
           name: 'Dev____ORG',
           address: 'BLR',
@@ -378,7 +373,6 @@ describe('OrganizationService', () => {
         moduleName: 'any ModuleName',
       } as User,
       {
-        //createdAt: '2024-03-03T06:30:23.936Z',
         updatedAt: new Date('2024-03-03T06:30:23.936Z'),
         id: 20,
         firstName: 'test',
@@ -390,8 +384,6 @@ describe('OrganizationService', () => {
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
-          //createdAt: '2024-03-01T07:59:03.122Z',
-          //updatedAt: '2024-03-01T07:59:03.122Z',
           id: 13,
           name: 'Dev____ORG',
           address: 'BLR',
@@ -410,7 +402,6 @@ describe('OrganizationService', () => {
         moduleName: 'any Module',
       } as User,
       {
-        //createdAt: '2024-03-02T17:12:01.027Z',
         updatedAt: new Date('2024-03-02T17:12:01.027Z'),
         id: 19,
         firstName: 'tst',
@@ -422,8 +413,6 @@ describe('OrganizationService', () => {
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
-          //createdAt: '2024-03-01T07:59:03.122Z',
-          //updatedAt: '2024-03-01T07:59:03.122Z',
           id: 13,
           name: 'Dev____ORG',
           address: 'BLR',
@@ -442,7 +431,6 @@ describe('OrganizationService', () => {
         moduleName: 'anyModule',
       } as User,
       {
-        //createdAt: '2024-03-02T16:45:15.601Z',
         updatedAt: new Date('2024-03-02T16:45:15.601Z'),
         id: 18,
         firstName: 'test',
@@ -454,8 +442,6 @@ describe('OrganizationService', () => {
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
-          //createdAt: '2024-03-01T07:59:03.122Z',
-          //updatedAt: '2024-03-01T07:59:03.122Z',
           id: 13,
           name: 'Dev____ORG',
           address: 'BLR',
@@ -474,7 +460,6 @@ describe('OrganizationService', () => {
         moduleName: 'any Module',
       } as User,
       {
-        //createdAt: '2024-03-01T07:59:03.148Z',
         updatedAt: new Date('2024-03-01T07:59:03.148Z'),
         id: 14,
         firstName: 'test',
@@ -486,8 +471,6 @@ describe('OrganizationService', () => {
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
-          //createdAt: '2024-03-01T07:59:03.122Z',
-          //updatedAt: '2024-03-01T07:59:03.122Z',
           id: 13,
           name: 'Dev____ORG',
           address: 'BLR',
@@ -559,7 +542,6 @@ describe('OrganizationService', () => {
         .spyOn(userService, 'findUserByOrganization')
         .mockResolvedValue([[], 0] as any);
 
-      // Assuming there are only 2 users in total and page size is 10
       const result = await service.findOrganizationUsers(orgId, 100, 10);
 
       expect(result.users).toEqual([]);

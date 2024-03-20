@@ -1,4 +1,3 @@
-//import { expect } from 'chai';
 import { groupByProps } from './group-by-properties';
 import TestDevicesToGroup from '../../test/test-devices-for-grouping.json';
 
