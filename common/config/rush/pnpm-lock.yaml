@@ -62,6 +62,7 @@ specifiers:
   class-transformer: 0.3.1
   class-validator: 0.13.1
   clean-deep: 3.4.0
+  concurrently: 5.3.0
   crypto-js: 4.1.1
   csv-parse: ^5.1.0
   csv-parser: ^3.0.0
@@ -72,6 +73,7 @@ specifiers:
   eslint-config-prettier: 7.0.0
   ethers: 5.3.1
   form-data: ~4.0.0
+  ganache-cli: 6.12.2
   handlebars: ^4.7.7
   jest: 26.6.0
   jsonwebtoken: ^9.0.1
@@ -99,7 +101,6 @@ specifiers:
   rxjs: 6.6.7
   shx: 0.3.3
   sinon: ^17.0.1
-  sql-parser: ^0.5.0
   stream: ^0.0.2
   supertest: 6.0.1
   swagger-ui-express: 4.1.6
@@ -172,6 +173,7 @@ dependencies:
   class-transformer: 0.3.1
   class-validator: 0.13.1
   clean-deep: 3.4.0
+  concurrently: 5.3.0
   crypto-js: 4.1.1
   csv-parse: 5.5.0
   csv-parser: 3.0.0
@@ -182,6 +184,7 @@ dependencies:
   eslint-config-prettier: 7.0.0_eslint@7.15.0
   ethers: 5.3.1
   form-data: 4.0.0
+  ganache-cli: 6.12.2
   handlebars: 4.7.8
   jest: 26.6.0_ts-node@9.1.0
   jsonwebtoken: 9.0.2
@@ -209,7 +212,6 @@ dependencies:
   rxjs: 6.6.7
   shx: 0.3.3
   sinon: 17.0.1
-  sql-parser: 0.5.0
   stream: 0.0.2
   supertest: 6.0.1
   swagger-ui-express: 4.1.6
@@ -1756,7 +1758,7 @@ packages:
       object-assign: 4.1.1
       open: 8.4.0
       proxy-middleware: 0.15.0
-      send: 0.18.0
+      send: 1.0.0-beta.2
       serve-index: 1.9.1
     dev: false
 
@@ -6223,6 +6225,12 @@ packages:
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
+    dependencies:
+      ms: 2.0.0
+    dev: false
+
+  /debug/3.1.0:
+    resolution: {integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==}
     dependencies:
       ms: 2.0.0
     dev: false
@@ -12646,19 +12654,18 @@ packages:
       statuses: 1.5.0
     dev: false
 
-  /send/0.18.0:
-    resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
-    engines: {node: '>= 0.8.0'}
+  /send/1.0.0-beta.2:
+    resolution: {integrity: sha512-k1yHu/FNK745PULKdsGpQ+bVSXYNwSk+bWnYzbxGZbt5obZc0JKDVANsCRuJD1X/EG15JtP9eZpwxkhUxIYEcg==}
+    engines: {node: '>= 0.10'}
     dependencies:
-      debug: 2.6.9
-      depd: 2.0.0
+      debug: 3.1.0
       destroy: 1.2.0
       encodeurl: 1.0.2
       escape-html: 1.0.3
       etag: 1.8.1
       fresh: 0.5.2
       http-errors: 2.0.0
-      mime: 1.6.0
+      mime-types: 2.1.35
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
@@ -14859,7 +14866,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-qdnUfvrxbriB09R+N22zJVafrBde1pZPMN3YlzYicxtM+1lQNIHJDYIcaB21mCZcGbE0bNK1jFdqd5ki+G454g==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-DgE8bLwCOX7tFYImvs2/m4AaMUidY+q60aQxQumidRv6ebl3/h8mH5pK2SVTFCtjMlvxD2xft1o0yObOUhzK6A==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
