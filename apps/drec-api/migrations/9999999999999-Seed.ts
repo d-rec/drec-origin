@@ -16,6 +16,7 @@ import {
   IDevice,
   IUserSeed,
   IRoleConfig,
+  IACLModuleConfig,
 } from '../src/models';
 
 // import UsersJSON from './users.json';
@@ -26,6 +27,8 @@ const OrganizationsJSON = [];
 const DevicesJSON = [];
 
 import RoleJSON from './user_role.json';
+import ACLModuleJSON from './acl_modules.json';
+import { PermissionString } from 'src/utils/enums';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
@@ -44,6 +47,7 @@ export class Seed9999999999999 implements MigrationInterface {
     // await this.seedUsers(queryRunner);
     // await this.seedDevices(queryRunner);
     await this.seedUsersRole(queryRunner);
+    await this.seedACLModules(queryRunner);
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -305,5 +309,116 @@ export class Seed9999999999999 implements MigrationInterface {
       registry: registry.address,
       issuer: issuer.address,
     };
+  }
+
+  permissionListMAPToBItPOSITIONSAtAPI: Array<{
+    permissionString: PermissionString;
+    bitPosition: number;
+    andOperationNumber: number;
+  }> = [
+    {
+      permissionString: PermissionString.Read,
+      bitPosition: 1,
+      andOperationNumber: 1,
+    },
+    {
+      permissionString: PermissionString.Write,
+      bitPosition: 2,
+      andOperationNumber: 2,
+    },
+    {
+      permissionString: PermissionString.Update,
+      bitPosition: 3,
+      andOperationNumber: 4,
+    },
+    {
+      permissionString: PermissionString.Delete,
+      bitPosition: 4,
+      andOperationNumber: 8,
+    },
+  ];
+  binaryFormPermission = '0000';
+  decimalFormPermission = 0;
+
+  private async seedACLModules(queryRunner: QueryRunner) {
+    const tableName = 'public.aclmodules';
+    const table = await queryRunner.getTable('public.aclmodules');
+    if (!table) {
+      console.log(`${tableName} table does not exist.`);
+      return;
+    }
+
+    const aclModulesExist = await queryRunner.query(
+      `SELECT * FROM ${tableName}`,
+    );
+
+    if (!aclModulesExist.length) {
+      await Promise.all(
+        (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
+          async (aclModule) => {
+            const addedPermissionList: any = {
+              Read: false,
+              Write: false,
+              Delete: false,
+              Update: false,
+            };
+            for (var key in addedPermissionList) {
+              aclModule.permissions.map((myArr, index) => {
+                if (myArr === key) {
+                  addedPermissionList[key] = true;
+                }
+              });
+            }
+
+            const permissionValue =
+              await this.computePermissions(addedPermissionList);
+
+            const checkForExistingmodule = await queryRunner.query(
+              `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
+            );
+
+            if (!checkForExistingmodule.length) {
+              queryRunner.query(
+                `INSERT INTO public.aclmodules (
+                "id", 
+                "name", 
+                "description", 
+                "status" ,
+                "permissions",
+                "permissionsValue"
+              ) VALUES (
+                '${aclModule.id}', 
+                '${aclModule.name}', 
+                '${aclModule.description}', 
+                '${aclModule.status}',
+                '${aclModule.permissions}',
+                '${permissionValue}'
+              )`,
+              );
+            }
+          },
+        ),
+      );
+    }
+  }
+
+  computePermissions(addedPermissionList: any) {
+    let binaryFormPermission = '';
+    this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
+      binaryFormPermission =
+        (addedPermissionList[ele.permissionString] === true ? '1' : '0') +
+        binaryFormPermission;
+    });
+    this.binaryFormPermission = binaryFormPermission;
+
+    let decimalFormPermission = 0;
+    this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
+      decimalFormPermission =
+        decimalFormPermission +
+        Math.pow(2, ele.bitPosition - 1) *
+          (addedPermissionList[ele.permissionString] === true ? 1 : 0);
+    });
+    this.decimalFormPermission = decimalFormPermission;
+    return this.decimalFormPermission;
   }
 }
