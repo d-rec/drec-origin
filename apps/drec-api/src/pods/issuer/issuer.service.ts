@@ -588,7 +588,6 @@ export class IssuerService {
     countryCodeKey: string,
     dateindex?: number,
   ): Promise<void> {
-    console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
     // console.log(`With in newissueCertificateForGroup`, group, grouprequest, startDate, endDate, countryCodeKey);
 
@@ -1361,7 +1360,6 @@ export class IssuerService {
     countryCodeKey: string,
     dateindex?: number,
   ): Promise<void> {
-    console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
     if (!group?.devices?.length) {
       this.logger.debug('Line No: 463');
