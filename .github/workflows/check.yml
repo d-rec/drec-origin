@@ -22,13 +22,11 @@ jobs:
 
       - name: Install tooling
         run: |
-          npm i -g yarn
           npm i -g @microsoft/rush
           npm i -g pnpm
 
       - name: Install drec-origin
         run: |
-          rush update
           rush install
 
       - name: Run Prettier
@@ -48,13 +46,11 @@ jobs:
 
       - name: Install tooling
         run: |
-          npm i -g yarn
           npm i -g @microsoft/rush
           npm i -g pnpm
 
       - name: Install drec-origin
         run: |
-          rush update
           rush install
 
       - name: Run ESLint
@@ -75,13 +71,11 @@ jobs:
 
       - name: Install tooling
         run: |
-          npm i -g yarn
           npm i -g @microsoft/rush
           npm i -g pnpm
 
       - name: Install drec-origin
         run: |
-          rush update
           rush install
 
       - name: Build drec-origin

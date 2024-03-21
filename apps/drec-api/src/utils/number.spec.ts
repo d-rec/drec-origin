@@ -1,4 +1,3 @@
-//import { expect } from 'chai';
 import { roundToClosestLower } from './number';
 
 describe('roundToClosestLower function', () => {
