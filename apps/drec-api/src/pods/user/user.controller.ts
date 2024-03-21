@@ -83,7 +83,6 @@ export class UserController {
     description: 'Get my user profile',
   })
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
-    console.log('With in user me');
     return this.userService.findById(id);
   }
   /**
