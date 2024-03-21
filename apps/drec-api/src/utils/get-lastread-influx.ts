@@ -6,14 +6,13 @@ import {
   QueryApi,
   FluxTableMetaData,
 } from '@influxdata/influxdb-client';
+import { Logger } from '@nestjs/common';
 
 export const NewfindLatestRead = async (
   meterId: string,
   deviceregisterdate: Date,
 ): Promise<ReadDTO | void> => {
-  //console.log("527")
-  //console.log(deviceregisterdate)
-  //const regisdate = DateTime.fromISO(deviceregisterdate.toISOString());
+  const logger = new Logger('NewfindLatestRead');
 
   // @ts-ignore
   // @ts-ignore
@@ -22,6 +21,8 @@ export const NewfindLatestRead = async (
   const token = process.env.INFLUXDB_TOKEN;
   // @ts-ignore
   const org = process.env.INFLUXDB_ORG;
+
+  logger.log('Connecting to InfluxDB...');
 
   const influx = new InfluxDB({
     url: url,
@@ -34,6 +35,9 @@ export const NewfindLatestRead = async (
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`;
+
+  logger.debug(`Executing Flux query: ${fluxQuery}`);
+
   await influx.getQueryApi(org).queryRows(fluxQuery, {
     next(row: string[], meta: FluxTableMetaData) {
       const obj = meta.toObject(row);
@@ -41,7 +45,7 @@ export const NewfindLatestRead = async (
       //     timestamp: new Date(record._time),
       //     value: Number(record._value),
       // }));
-      console.log(obj);
+      logger.debug(`Received row: ${obj}`);
       result = {
         timestamp: new Date(obj._time),
         value: Number(obj._value),
@@ -49,17 +53,21 @@ export const NewfindLatestRead = async (
       //return obj
     },
     error(error: Error) {
-      console.error(error);
+      logger.error(`Error occurred: ${error}`);
     },
     complete() {
-      console.log('Query complete!');
+      logger.log('Query complete!');
     },
   });
+  logger.debug(`Returning result: ${result}`);
   return result;
 };
 
 export const execute = (query: any) => {
+  const logger = new Logger('execute');
+  logger.debug(`Executing query: ${query}`);
   const data = dbReader.collectRows();
+  logger.debug(`Query result: ${data}`);
   return data.map((record: any) => ({
     timestamp: new Date(record._time),
     value: Number(record._value),

@@ -390,7 +390,7 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    console.log('orginvitee', orginvitee);
+    this.logger.verbose('orginvitee');
     if (orginvitee) {
       await this.invitationRepository.delete(orginvitee.id);
     }
