@@ -18,7 +18,7 @@ import {
   IRoleConfig,
   IACLModuleConfig,
 } from '../src/models';
-
+import { Logger } from '@nestjs/common';
 // import UsersJSON from './users.json';
 // import OrganizationsJSON from './organizations.json';
 // import DevicesJSON from './devices.json';
@@ -40,6 +40,8 @@ const issuerAccount = Wallet.fromMnemonic(
 ); // Index 0 account
 
 export class Seed9999999999999 implements MigrationInterface {
+  private readonly logger = new Logger(Seed9999999999999.name);
+
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
@@ -74,7 +76,7 @@ export class Seed9999999999999 implements MigrationInterface {
     const userTable = await queryRunner.getTable('public.user');
 
     if (!userTable) {
-      console.log('user table does not exist.');
+      this.logger.verbose('user table does not exist.');
       return;
     }
 
@@ -120,7 +122,7 @@ export class Seed9999999999999 implements MigrationInterface {
     );
 
     if (!organizationsTable) {
-      console.log('organization table does not exist.');
+      this.logger.verbose('organization table does not exist.');
       return;
     }
 
@@ -269,7 +271,7 @@ export class Seed9999999999999 implements MigrationInterface {
     const userTable = await queryRunner.getTable('public.user_role');
 
     if (!userTable) {
-      console.log('user table does not exist.');
+      this.logger.verbose('user table does not exist.');
       return;
     }
 
