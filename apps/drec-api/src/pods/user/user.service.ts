@@ -144,7 +144,7 @@ export class UserService {
         const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+          `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
@@ -188,8 +188,9 @@ export class UserService {
       //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
       api_user_id: api_user ? api_user.api_user_id : null,
     });
+    const { password, ...userData } = user;
     this.logger.debug(
-      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
@@ -245,7 +246,7 @@ export class UserService {
         const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+          `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
@@ -277,8 +278,9 @@ export class UserService {
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
     });
+    const { password, ...userData } = user;
     this.logger.debug(
-      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);
@@ -302,22 +304,7 @@ export class UserService {
       });
     }
   }
-  /*
-  async validateClient(client_id, client_secret) {
-    // console.log(client_id);
-    // console.log(client_secret);
-    // this.oauthClientCredentialsService.findOneByclient_id
-    const client = await this.oauthClientCredentialsService.findOneByclient_id(client_id);
-    if (!client) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    client.client_secret = this.oauthClientCredentialsService.decryptclient_secret(client.client_secret);
-    if (client.client_secret !== client_secret) {
-      throw new UnauthorizedException('Invalid client credentials');
-    }
-    return client;
-  }
-*/
+
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
     return this.repository.find(options);
   }

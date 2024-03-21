@@ -19,7 +19,6 @@ export class MailService {
       });
 
       this.logger.log(`Sending email...`);
-      this.logger.error(JSON.stringify(result));
 
       const allSucceeded = result?.response.every((m: { status: string }) =>
         ['sent', 'queued', 'scheduled'].includes(m.status),

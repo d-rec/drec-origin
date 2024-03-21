@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
@@ -13,6 +13,8 @@ const algorithm = 'aes-256-cbc';
 
 @Injectable()
 export class OauthClientCredentialsService {
+  private readonly logger = new Logger(OauthClientCredentialsService.name);
+
   constructor(
     @InjectRepository(OauthClientCredentials)
     private readonly clientCredentialsRepository: Repository<OauthClientCredentials>,
@@ -31,7 +33,6 @@ export class OauthClientCredentialsService {
   ): Promise<OauthClientCredentials> {
     const clientCredentials = new OauthClientCredentials();
     clientCredentials.client_id = client_id;
-    //clientCredentials.client_secret = this.encryptclient_secret(client_secret);
     clientCredentials.api_user_id = userid;
     return await this.clientCredentialsRepository.save(clientCredentials);
   }
@@ -65,7 +66,6 @@ export class OauthClientCredentialsService {
       // Handle error, throw exception, etc.
     }
     clientCredentials.client_id = client_id;
-    //clientCredentials.client_secret = this.encryptclient_secret(client_secret);
     return await this.clientCredentialsRepository.save(clientCredentials);
   }
 
@@ -93,37 +93,6 @@ export class OauthClientCredentialsService {
     api_user_id: string,
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { api_user_id } });
-  }
-
-  encryptclient_secret(client_secret) {
-    console.log(algorithm, process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY);
-    const iv = randomBytes(16); // Generate a random IV
-
-    const cipher = createCipheriv(
-      algorithm,
-      process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY,
-      iv,
-    );
-    let encrypted = cipher.update(client_secret, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return iv.toString('hex') + encrypted;
-  }
-
-  decryptclient_secret(encryptedclient_secret) {
-    const iv = Buffer.from(encryptedclient_secret.slice(0, 32), 'hex');
-
-    const decipher = createDecipheriv(
-      algorithm,
-      process.env.CLIENT_CREDENTIALS_ENCRYPTION_KEY,
-      iv,
-    );
-    let decrypted = decipher.update(
-      encryptedclient_secret.slice(32),
-      'hex',
-      'utf8',
-    );
-    decrypted += decipher.final('utf8');
-    return decrypted;
   }
 
   async findOneByApiUserId(
@@ -157,7 +126,7 @@ export class OauthClientCredentialsService {
       res.setHeader('Content-Type', 'application/octet-stream');
       //res.send(file);
       res.write(file, 'utf-8', () => {
-        console.log('The CSV file streamed successfully!');
+        this.logger.verbose('The CSV file streamed successfully!');
         res.end();
       });
     } catch (error) {
