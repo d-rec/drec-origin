@@ -80,24 +80,7 @@ export class UserService {
     });
   }
 
-  // public async create(data: CreateUserDTO): Promise<UserDTO> {
-  //   await this.checkForExistingUser(data.email);
-  //   const user = await this.repository.save({
-  //     title: data.title,
-  //     firstName: data.firstName,
-  //     lastName: data.lastName,
-  //     email: data.email.toLowerCase(),
-  //     telephone: data.telephone,
-  //     password: this.hashPassword(data.password),
-  //     notifications: true,
-  //     status: UserStatus.Pending,
-  //     role: Role.OrganizationAdmin,
-  //   });
-
-  //   await this.emailConfirmationService.create(user);
-
-  //   return new User(user);
-  // }
+  
   public async newcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
@@ -191,30 +174,7 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(user)}`,
     );
-    // if (inviteuser) {
-    //   await this.emailConfirmationService.create(user, data.orgName, true);
-    // } else {
-    // }
-    /*
-    if (api_user) {
-      let clienCredentialsData = await this.oauthClientCredentialsService.generateClientCredentials();
-      await this.oauthClientCredentialsService.store(clienCredentialsData.client_id, clienCredentialsData.client_secret, api_user.api_user_id);
-      let newUser = new User(user);
-      newUser['client_id'] = clienCredentialsData.client_id;
-      newUser['client_secret'] = clienCredentialsData.client_secret;
-      await this.emailConfirmationService.create(user);
-      return newUser;
-    }
-    */
-    /*
-    if (data.organizationType === 'ApiUser' || data.organizationType === 'apiuser') {
-      // @ts-ignore
-      user['client_id'] = data.client.client_id;
-      // @ts-ignore
-      user['client_secret'] = data.client.client_secret;
-    }
-    */
-
+    
     await this.emailConfirmationService.create(user);
     //return new User(user);
     return user;

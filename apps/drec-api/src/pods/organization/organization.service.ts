@@ -284,22 +284,6 @@ export class OrganizationService {
     return stored;
   }
 
-  // async FindBysecretkey(secretKey:string)
-  // : Promise<boolean> {
-  //   // const organization = await this.repository.findOne({secretKey:secretKey});
-  //   // if (!organization) {
-  //   //   throw new NotFoundException(`No organization found with secretKey ${secretKey}`);
-  //   // }
-  //   // return organization;
-
-  //   const organization = await this.repository
-  //     .createQueryBuilder()
-  //     .where({ secretKey })
-  //     .getCount();
-
-  //   return organization > 0;
-
-  // }
 
   public async newcreate(
     organizationToRegister: NewAddOrganizationDTO,

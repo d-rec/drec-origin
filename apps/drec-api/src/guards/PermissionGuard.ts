@@ -47,16 +47,7 @@ export class PermissionGuard implements CanActivate {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       if (request.body.organizationType === Role.ApiUser) {
         return true;
-      } /*
-      if(request.user.client_id != process.env.client_id) {
-        this.logger.debug('When the client at request');
-        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
-      }
-
-      if(request.user.client_id === process.env.client_id) {
-        this.logger.debug('When the client is same as the client at dotEnv');
-        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
-      } */
+      } 
     } else {
       user = request.user;
     }

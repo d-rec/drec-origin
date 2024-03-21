@@ -172,9 +172,7 @@ export class CertificateLogController {
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
-    //console.log("devicegroup");
-    //console.log(devicegroup);
-
+  
     if (devicegroup === null || devicegroup.buyerId != user.id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -349,48 +347,7 @@ export class CertificateLogController {
    * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
    */
   /* for developre*/
-  // @Get('/issuer/certifiedlogOfdevices')
-  // @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
-  // @Permission('Read')
-  // @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  // @ApiQuery({ name: 'organizationId', type: Number, required: false, description : 'This query parameter is for apiuser' })
-  // @ApiOkResponse({ type: [CertificatelogResponse], description: 'Returns issuer Certificate of Reservation' })
-  // async getCertificatesForDeveloper(
-
-  //     @UserDecorator() user: ILoggedInUser,
-  //     @Query(ValidationPipe) filterDto: FilterDTO,
-  //     @Query('pageNumber') pageNumber: number,
-  //     @Query('organizationId') organizationId: number,
-  // ): Promise<CertificatelogResponse> {
-  //     console.log("238");
-  //     if(organizationId) {
-  //         if(user.role === Role.ApiUser) {
-  //             const organization = await this.organizationService.findOne(organizationId);
-  //             const orguser = await this.userService.findByEmail(organization.orgEmail);
-
-  //             if(organization.api_user_id != user.api_user_id) {
-  //                 throw new BadRequestException({
-  //                     success: false,
-  //                     message: 'Organization requested belongs to other apiuser',
-  //                 });
-  //             }
-  //             else {
-  //                 user.organizationId = organizationId;
-  //                 user.role = orguser.role;
-  //             }
-  //         }
-  //         else {
-  //             if(organizationId != user.organizationId) {
-  //                 throw new BadRequestException({
-  //                     success: false,
-  //                     message: 'Organization requested belongs to other organization',
-  //                 });
-  //             }
-  //         }
-  //     }
-
-  //     return this.certificateLogService.getCertifiedlogofDevices(user, filterDto, pageNumber);
-  // }
+ 
   @Get('/issuer/certifiedlogOfdevices')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
