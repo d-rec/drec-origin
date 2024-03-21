@@ -107,8 +107,7 @@
     "stream": "^0.0.2",
     "swagger-ui-express": "4.1.6",
     "typeorm": "0.2.41",
-    "uuid": "8.3.2",
-    "sql-parser": "~0.5.0"
+    "uuid": "8.3.2"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.22",
