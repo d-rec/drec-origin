@@ -80,7 +80,6 @@ export class UserService {
     });
   }
 
-  
   public async newcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
@@ -174,7 +173,7 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(user)}`,
     );
-    
+
     await this.emailConfirmationService.create(user);
     //return new User(user);
     return user;

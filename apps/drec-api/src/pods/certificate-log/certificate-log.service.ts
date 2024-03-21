@@ -66,14 +66,13 @@ export class CertificateLogService {
     groupId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in findByGroupId`);
-  
+
     return this.repository.find({
       where: {
         groupId,
       },
     });
   }
-
 
   async Findcertificatelog(
     filterDto: FilterDTO,
@@ -549,7 +548,7 @@ export class CertificateLogService {
     //console.log(res);
     return myredme;
   }
-/* this is creted for manually check if certificate missing in any reservation 
+  /* this is creted for manually check if certificate missing in any reservation 
   // async getmissingtoken() {
   //   const grouploglist = grouplog;
   //   // console.log(grouploglist);
@@ -586,8 +585,7 @@ export class CertificateLogService {
   //   return missingtoken
   // }
 */
-  
- 
+
   //  @Cron(CronExpression.EVERY_30_SECONDS)
   async getsCertificateReadModule(
     userOrgId: string,

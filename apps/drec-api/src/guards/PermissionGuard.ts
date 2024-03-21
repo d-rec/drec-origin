@@ -47,7 +47,7 @@ export class PermissionGuard implements CanActivate {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       if (request.body.organizationType === Role.ApiUser) {
         return true;
-      } 
+      }
     } else {
       user = request.user;
     }

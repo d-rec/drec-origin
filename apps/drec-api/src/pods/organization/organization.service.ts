@@ -284,7 +284,6 @@ export class OrganizationService {
     return stored;
   }
 
-
   public async newcreate(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {

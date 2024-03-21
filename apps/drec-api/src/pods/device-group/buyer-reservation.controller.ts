@@ -936,7 +936,6 @@ export class BuyerReservationController {
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
 
-
   /**
    * It is DELETE api to delete an device reservation
    * @param id is unique identifier of an device group

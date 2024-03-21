@@ -3,14 +3,12 @@ import { PermissionString } from '../../../utils/enums';
 //32 bit permission
 
 export class DecimalPermissionValue {
-
   addedPermissionList: { [key in PermissionString]: boolean } = {
     Read: false,
     Write: false,
     Delete: false,
     Update: false,
   };
- 
 
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
     permissionString: PermissionString;
@@ -134,7 +132,7 @@ export class DecimalPermissionValue {
         }
       }
     });
-   
+
     return getpermission;
   }
 }

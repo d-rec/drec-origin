@@ -172,7 +172,7 @@ export class CertificateLogController {
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
-  
+
     if (devicegroup === null || devicegroup.buyerId != user.id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -347,7 +347,7 @@ export class CertificateLogController {
    * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
    */
   /* for developre*/
- 
+
   @Get('/issuer/certifiedlogOfdevices')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')

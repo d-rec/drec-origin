@@ -341,7 +341,6 @@ export class EmailConfirmationService {
     await this.repository.delete(allemialconfirm.id);
   }
 
- 
   public async sendInvitation(
     inviteuser: any,
     email: string,

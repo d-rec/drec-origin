@@ -240,7 +240,7 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
- 
+
   //@Cron('*/30 * * * * *')
   async I_recPostData(deviceId): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
@@ -1133,7 +1133,6 @@ export class DeviceService {
       return true;
     }
   }
-
 
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
