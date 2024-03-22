@@ -118,7 +118,7 @@ specifiers:
   terser: ^5.14.2
   ts-jest: ^26.5.0
   ts-node: 9.1.0
-  typeorm: 0.2.41
+  typeorm: 0.3.0
   typescript: 4.1.3
   uglify-js: 2.6.0
   underscore: ^1.12.1
@@ -158,7 +158,7 @@ dependencies:
   '@nestjs/schedule': 1.0.1_faa6cf4dbb3cf7784855fa0883a48261
   '@nestjs/swagger': 4.7.15_f9c40259506a2de0b1286c86e1c5a0af
   '@nestjs/testing': 7.6.5_916a94de66c10c9d004288a2a21433c9
-  '@nestjs/typeorm': 7.1.5_429a3c55e6060eebb9e65d7d115e3c4b
+  '@nestjs/typeorm': 7.1.5_3b7b44b07d792e5fa3ee6ea54cebe07e
   '@rush-temp/origin-drec-api': file:projects/origin-drec-api.tgz
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
@@ -243,7 +243,7 @@ dependencies:
   terser: 5.21.0
   ts-jest: 26.5.6_jest@26.6.0+typescript@4.1.3
   ts-node: 9.1.0_typescript@4.1.3
-  typeorm: 0.2.41_pg@8.7.1
+  typeorm: 0.3.0_pg@8.7.1
   typescript: 4.1.3
   uglify-js: 2.6.0
   underscore: 1.13.6
@@ -1940,7 +1940,7 @@ packages:
       '@nestjs/common': 7.6.13_3f08a5913cac690a8033809ff96f1ae5
       '@nestjs/core': 7.6.13_cc6176a3c1ea342f4d67886e21f85e5f
       '@nestjs/cqrs': 7.0.1_d23d6dcee8676c3a0658b51375af2405
-      '@nestjs/typeorm': 7.1.5_429a3c55e6060eebb9e65d7d115e3c4b
+      '@nestjs/typeorm': 7.1.5_3b7b44b07d792e5fa3ee6ea54cebe07e
       bull: 3.29.3
       cache-manager-ioredis: 2.1.0
       class-transformer: 0.4.0
@@ -3741,7 +3741,7 @@ packages:
       tslib: 2.0.3
     dev: false
 
-  /@nestjs/typeorm/7.1.5_429a3c55e6060eebb9e65d7d115e3c4b:
+  /@nestjs/typeorm/7.1.5_3b7b44b07d792e5fa3ee6ea54cebe07e:
     resolution: {integrity: sha512-utE1FkYM/gyCXUqw3zKYYS0YZ3DfkAnzsCx4T48cNnSDTCeWS+u3yt0FMDFjwSiQSaLrzpiSff/FaxJQvRlYow==}
     peerDependencies:
       '@nestjs/common': ^6.7.0 || ^7.0.0
@@ -3754,7 +3754,7 @@ packages:
       '@nestjs/core': 7.6.13_cc6176a3c1ea342f4d67886e21f85e5f
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.3.0_pg@8.7.1
       uuid: 8.3.1
     dev: false
 
@@ -6663,6 +6663,11 @@ packages:
   /dotenv/10.0.0:
     resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
     engines: {node: '>=10'}
+    dev: false
+
+  /dotenv/16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
     dev: false
 
   /dotenv/8.2.0:
@@ -14098,6 +14103,80 @@ packages:
       - supports-color
     dev: false
 
+  /typeorm/0.3.0_pg@8.7.1:
+    resolution: {integrity: sha512-fGhJql31DRyxT0bxcjD5kAf9hz+aUppp90M93GmlRlCfHq+qKhY70eCEreAgjrlAYmZkfEgDcyMHpcAfrtCe7A==}
+    engines: {node: '>= 12.9.0'}
+    hasBin: true
+    peerDependencies:
+      '@sap/hana-client': ^2.11.14
+      better-sqlite3: ^7.1.2
+      hdb-pool: ^0.1.6
+      ioredis: ^4.28.3
+      mongodb: ^3.6.0
+      mssql: ^6.3.1
+      mysql2: ^2.2.5
+      oracledb: ^5.1.0
+      pg: ^8.5.1
+      pg-native: ^3.0.0
+      pg-query-stream: ^4.0.0
+      redis: ^3.1.1
+      sql.js: ^1.4.0
+      sqlite3: ^5.0.2
+      typeorm-aurora-data-api-driver: ^2.0.0
+    peerDependenciesMeta:
+      '@sap/hana-client':
+        optional: true
+      better-sqlite3:
+        optional: true
+      hdb-pool:
+        optional: true
+      ioredis:
+        optional: true
+      mongodb:
+        optional: true
+      mssql:
+        optional: true
+      mysql2:
+        optional: true
+      oracledb:
+        optional: true
+      pg:
+        optional: true
+      pg-native:
+        optional: true
+      pg-query-stream:
+        optional: true
+      redis:
+        optional: true
+      sql.js:
+        optional: true
+      sqlite3:
+        optional: true
+      typeorm-aurora-data-api-driver:
+        optional: true
+    dependencies:
+      '@sqltools/formatter': 1.2.5
+      app-root-path: 3.1.0
+      buffer: 6.0.3
+      chalk: 4.1.2
+      cli-highlight: 2.1.11
+      date-fns: 2.30.0
+      debug: 4.3.4
+      dotenv: 16.4.5
+      glob: 7.2.3
+      js-yaml: 4.1.0
+      mkdirp: 1.0.4
+      pg: 8.7.1
+      reflect-metadata: 0.1.13
+      sha.js: 2.4.11
+      tslib: 2.6.2
+      uuid: 8.3.2
+      xml2js: 0.4.23
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /typescript/4.0.5:
     resolution: {integrity: sha512-ywmr/VrTVCmNTJ6iV2LwIrfG1P+lv6luD8sUJs+2eI9NLGigaN+nUQc13iHqisq7bra9lnmUSYqbJvegraBOPQ==}
     engines: {node: '>=4.2.0'}
@@ -15016,7 +15095,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-XTQmaLgmIbqMd3L/wCfd6ZAGNWs5RoZ9nLk0TZeB+dRO36A84UwwacuaIAucbAI3iHyTIkKE3WJavs6vJrGymg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-eqtQ3+tTByRKnJeYrB9tKT6A2vlK2EzsZzfeq0wt+oSIpVkPNvJcMC2PvnORvvJ2eBGeiU4eFg1IMdpkb2/UMQ==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15046,7 +15125,7 @@ packages:
       '@nestjs/schedule': 1.0.1_faa6cf4dbb3cf7784855fa0883a48261
       '@nestjs/swagger': 4.7.15_f9c40259506a2de0b1286c86e1c5a0af
       '@nestjs/testing': 7.6.5_916a94de66c10c9d004288a2a21433c9
-      '@nestjs/typeorm': 7.1.5_429a3c55e6060eebb9e65d7d115e3c4b
+      '@nestjs/typeorm': 7.1.5_3b7b44b07d792e5fa3ee6ea54cebe07e
       '@types/bcryptjs': 2.4.2
       '@types/bull': 3.15.1
       '@types/chai': 4.2.18
@@ -15132,7 +15211,7 @@ packages:
       terser: 5.21.0
       ts-jest: 26.5.6_jest@26.6.0+typescript@4.1.3
       ts-node: 9.1.0_typescript@4.1.3
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.3.0_pg@8.7.1
       typescript: 4.1.3
       uglify-js: 2.6.0
       underscore: 1.13.6
