@@ -64,7 +64,7 @@ specifiers:
   class-validator: 0.14.0
   clean-deep: 3.4.0
   concurrently: 5.3.0
-  crypto-js: 4.1.1
+  crypto-js: 4.2.0
   csv-parse: ^5.1.0
   csv-parser: ^3.0.0
   csvtojson: 2.0.1
@@ -189,7 +189,7 @@ dependencies:
   class-validator: 0.14.0
   clean-deep: 3.4.0
   concurrently: 5.3.0
-  crypto-js: 4.1.1
+  crypto-js: 4.2.0
   csv-parse: 5.5.0
   csv-parser: 3.0.0
   csvtojson: 2.0.1
@@ -6192,6 +6192,10 @@ packages:
 
   /crypto-js/4.1.1:
     resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
+    dev: false
+
+  /crypto-js/4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
   /css-rules/1.1.0:
@@ -15095,7 +15099,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-eqtQ3+tTByRKnJeYrB9tKT6A2vlK2EzsZzfeq0wt+oSIpVkPNvJcMC2PvnORvvJ2eBGeiU4eFg1IMdpkb2/UMQ==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-YtQmK2MmpDlbJhNkE1CpU//eQ2V9+B1mrdQZ08J3d8Pu5mBZaNlbCvTdfUhBXy3S5INr7UiYOm7T437+hsvVJA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15155,7 +15159,7 @@ packages:
       class-validator: 0.14.0
       clean-deep: 3.4.0
       concurrently: 5.3.0
-      crypto-js: 4.1.1
+      crypto-js: 4.2.0
       csv-parse: 5.5.0
       csv-parser: 3.0.0
       csvtojson: 2.0.1
