@@ -296,7 +296,8 @@ export class IssuerService {
           }
           // }
 
-          /*   if (endDate.diff(startDate, ['days']).days <= 1) {
+          /*  this section created for when reservation frequency more then one day like weekly monthly
+           if (endDate.diff(startDate, ['days']).days <= 1) {
              for (let key in countryDevicegroup) {
                //deep clone to avoid duplicates
                let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
