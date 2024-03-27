@@ -103,7 +103,12 @@ export class AdminController {
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
     @UserDecorator() user: LoggedInUser,
   ) /*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(filterDto, pageNumber, limit, user);
+    return await this.organizationService.getAll(
+      filterDto,
+      pageNumber,
+      limit,
+      user,
+    );
   }
   @Get('/organizations/user/:organizationId')
   @Permission('Read')

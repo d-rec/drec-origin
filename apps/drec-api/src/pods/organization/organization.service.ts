@@ -107,7 +107,7 @@ export class OrganizationService {
           apiuserid: user.api_user_id,
         });
       }
-    
+
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
