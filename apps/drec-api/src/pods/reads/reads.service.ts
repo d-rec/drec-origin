@@ -1776,44 +1776,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }).daysInMonth;
   }
 
-  //  @Cron(CronExpression.EVERY_10_SECONDS)
-  //  async  addOffSetToStartAndEndDates(externalId,organizationId,startDate,endDate)
-  //   {
-
-  //     let device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, organizationId);
-  //     console.log("DEVICE:::::::::::"+device)
-
-  //       console.log("THIS IS THE LAT "+device.latitude+"AND LONG"+device.longitude);
-  //       const localTime=getLocalTime(startDate,device);//timezone of the device.
-  //       console.log("calling the localtimezone function")
-  //       const localTimeZone=getLocalTimeZoneFromDevice(localTime,device);
-  //       console.log("calling the offset function");
-  //       const nonFormattedOffSet=getOffsetFromTimeZoneName(localTimeZone);
-  //       const offset=getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-  //       console.log("FINAL OFFSET HOURS::::::"+offset.hours);
-  //       console.log("FINAL OFFSET MINUTES::::::"+offset.minutes);
-
-  //   const parsedStartDate = new Date(startDate);
-  //   const parsedEndDate = new Date(endDate);
-
-  //   parsedStartDate.setUTCHours(parsedStartDate.getUTCHours() + offset.hours);
-  //   parsedStartDate.setUTCMinutes(parsedStartDate.getUTCMinutes() + offset.minutes);
-  //   parsedEndDate.setUTCHours(parsedEndDate.getUTCHours() + offset.hours);
-  //   parsedEndDate.setUTCMinutes(parsedEndDate.getUTCMinutes() + offset.minutes);
-
-  //   const updatedStartDate = parsedStartDate.toISOString();
-  //   const updatedEndDate = parsedEndDate.toISOString();
-
-  //     console.log("UPDATED START DATE::::"+updatedStartDate);
-  //     console.log("UPDATED END DATE::::::::::"+updatedEndDate);
-
-  //   return {
-  //     "startDate":updatedStartDate,
-  //     "endDate":updatedEndDate
-  //   }
-
-  //   }
-
   async getPaginatedData(
     meter: string,
     filter: any,
