@@ -172,8 +172,6 @@ export class CertificateLogController {
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
-    //console.log("devicegroup");
-    //console.log(devicegroup);
 
     if (devicegroup === null || devicegroup.buyerId != user.id) {
       this.logger.error(

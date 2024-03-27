@@ -115,15 +115,12 @@ export class DeviceService {
       relations: ['organization'],
       ...query,
     });
-    //  const [devices, totalCount] = await this.repository.findAndCount({relations: ['organization'],query});
-    //devices.externalId = devices.developerExternalId
     const totalPages = Math.ceil(totalCount / 20);
     const currentPage = pagenumber;
     const newDevices = [];
 
     await devices.map((device: Device) => {
       device['organizationname'] = device.organization.name;
-      // device.externalId = device.developerExternalId
       delete device['organization'];
       newDevices.push(device);
     });

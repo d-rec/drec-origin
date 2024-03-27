@@ -889,20 +889,6 @@ export class BuyerReservationController {
     this.logger.verbose(`With in getdevciegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
-  //   @Post('/buyer-reservation')
-  //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //   @Permission('Write')
-  //   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
-  //   @ApiResponse({
-  //    status: HttpStatus.OK,
-  //    type: JobFailedRowsDTO,
-  //    description: 'Returns status of job id for bulk upload',
-  //  })
-  //  public async createBuyerReservationGroups(
-  //    @UserDecorator() { organizationId }: ILoggedInUser
-  //  ): Promise<JobFailedRowsDTO | undefined> {
-
-  //  }
 
   /**
    * It is DELETE api to delete an device reservation

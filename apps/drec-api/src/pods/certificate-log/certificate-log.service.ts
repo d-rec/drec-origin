@@ -58,7 +58,7 @@ export class CertificateLogService {
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
-    // const query = this.getFilteredQuery(filterDto);
+
     return this.repository.find();
   }
 
@@ -66,7 +66,7 @@ export class CertificateLogService {
     groupId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in findByGroupId`);
-    // const query = this.getFilteredQuery(filterDto);
+
     return this.repository.find({
       where: {
         groupId,

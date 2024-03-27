@@ -80,7 +80,10 @@ export class UserService {
     });
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2f0f691aae7b02c5d26b0a261b6f558893a3bdd6
   public async newcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
