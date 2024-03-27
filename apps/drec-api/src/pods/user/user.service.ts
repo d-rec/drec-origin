@@ -126,7 +126,7 @@ export class UserService {
         const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+          `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
@@ -170,8 +170,9 @@ export class UserService {
       //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
       api_user_id: api_user ? api_user.api_user_id : null,
     });
+    const { password, ...userData } = user;
     this.logger.debug(
-      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
 
     await this.emailConfirmationService.create(user);
@@ -204,7 +205,7 @@ export class UserService {
         const org = await this.organizationService.newcreate(orgdata);
         org_id = org.id;
         this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org)}`,
+          `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
@@ -236,8 +237,9 @@ export class UserService {
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
     });
+    const { password, ...userData } = user;
     this.logger.debug(
-      `Successfully registered a new user with id ${JSON.stringify(user)}`,
+      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
     // if (inviteuser) {
     //   await this.emailConfirmationService.create(user, data.orgName, true);

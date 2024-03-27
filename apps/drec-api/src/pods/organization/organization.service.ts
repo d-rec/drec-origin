@@ -209,7 +209,7 @@ export class OrganizationService {
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
     this.logger.debug(
       `Requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
@@ -231,9 +231,9 @@ export class OrganizationService {
     this.logger.verbose(`With in create`);
     this.logger.debug(
       `User ${JSON.stringify(
-        user,
+        user.id,
       )} requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
@@ -290,7 +290,7 @@ export class OrganizationService {
     this.logger.verbose('With in newcreate');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
     //  const organization = await this.repository.findOne({secretKey:organizationToRegister.secretKey});
