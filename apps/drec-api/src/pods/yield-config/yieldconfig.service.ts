@@ -28,7 +28,7 @@ export class YieldConfigService {
     private readonly repository: Repository<YieldConfig>,
   ) {}
   async getAll(): Promise<YieldConfig[]> {
-    console.log(this.repository.find());
+    this.logger.verbose(this.repository.find());
     return this.repository.find();
   }
 
