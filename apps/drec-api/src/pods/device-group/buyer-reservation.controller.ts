@@ -556,7 +556,6 @@ export class BuyerReservationController {
       // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
-
   }
 
   /**
@@ -596,7 +595,6 @@ export class BuyerReservationController {
       });
     }
     if (!fileToProcess.fileName.endsWith('.csv')) {
-      
       this.logger.error(`Invalid file`);
       throw new ConflictException({
         success: false,
@@ -952,7 +950,7 @@ export class BuyerReservationController {
         );
       });
     }
-   
+
     return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
       groupuId,
       pagenumber,

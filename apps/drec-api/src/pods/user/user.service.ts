@@ -80,10 +80,6 @@ export class UserService {
     });
   }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 2f0f691aae7b02c5d26b0a261b6f558893a3bdd6
   public async newcreate(
     data: CreateUserORGDTO,
     status?: UserStatus,
@@ -95,7 +91,7 @@ export class UserService {
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
-   
+
     let org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -162,7 +158,7 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-   
+
     await this.emailConfirmationService.create(user);
     return user;
   }
@@ -209,7 +205,7 @@ export class UserService {
       role = Role.OrganizationAdmin;
       roleId = 2;
     }
-const user = await this.repository.save({
+    const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email.toLowerCase(),
@@ -224,7 +220,7 @@ const user = await this.repository.save({
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-   await this.emailConfirmationService.admincreate(user, data.password);
+    await this.emailConfirmationService.admincreate(user, data.password);
 
     return new User(user);
   }
@@ -421,7 +417,7 @@ const user = await this.repository.save({
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
-if (emailConfirmation) {
+    if (emailConfirmation) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
       });

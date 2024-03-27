@@ -594,7 +594,7 @@ export class DeviceGroupService {
                 }),
               );
             }
-            
+
             if (groupfilterDto.start_date && groupfilterDto.end_date) {
               qb.orWhere(
                 new Brackets((db) => {
@@ -930,7 +930,7 @@ export class DeviceGroupService {
       ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
       : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-     let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
+      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
       let minimumDeviceCreatedAtIndex = 0;
       devices.forEach((ele, index) => {
         const eleDate = new Date(ele.createdAt);
@@ -939,7 +939,7 @@ export class DeviceGroupService {
           minimumDeviceCreatedAtIndex = index;
         }
       });
-     
+
       //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
       //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
       let startDate = '';
@@ -951,7 +951,7 @@ export class DeviceGroupService {
       } else {
         startDate = minimumDeviceCreatedAtDate.toISOString();
       }
-   
+
       let hours = 1;
 
       const frequency = group.frequency.toLowerCase();
@@ -1283,13 +1283,13 @@ export class DeviceGroupService {
       `With in updateTotalReadingRequestedForCertificateIssuance`,
     );
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-    
+
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour =
       deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour +
       targetVolumeCertificateGenerationRequestedInMegaWattHour;
-    
+
     const updatedGroup = await this.repository.save(deviceGroup);
-    
+
     return updatedGroup;
   }
 
@@ -1536,11 +1536,11 @@ export class DeviceGroupService {
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: fuelCode, 
-       countryCode: countryCode, 
+      fuelCode: fuelCode,
+      countryCode: countryCode,
       deviceTypeCodes: deviceTypeCodes,
       // @ts-ignore
-      offTakers: offTakers, 
+      offTakers: offTakers,
       gridInterconnection,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
@@ -1656,7 +1656,6 @@ export class DeviceGroupService {
     }
   }
 
- 
   async processCsvFileAnotherLibrary(
     file: any,
     organizationId: number,
@@ -1738,7 +1737,6 @@ export class DeviceGroupService {
               : parseFloat(data[key]);
             // @ts-ignore
             if (key == 'yieldValue' && dataToStore[key] === 0) {
-             
               dataToStore[key] = 2000;
             }
           }
@@ -2048,7 +2046,7 @@ export class DeviceGroupService {
 
   csvStringToJSON(csvFileContentInString: string) {
     this.logger.verbose(`With in csvStringToJSON`);
-    
+
     const array = csvFileContentInString.split('\r');
 
     // All the rows of the CSV will be
@@ -2192,7 +2190,7 @@ export class DeviceGroupService {
   ): Promise<void> {
     this.logger.verbose(`With in EndReservationGroup`);
     if (!group) group = await this.findDeviceGroupById(groupId, organizationId);
-   
+
     if (
       new Date(group?.reservationEndDate).getTime() ===
       new Date(reservationend.endresavationdate).getTime()
@@ -2386,7 +2384,6 @@ export class DeviceGroupService {
       .where('hni.groupId = :groupId', { groupId: group.id })
       .offset(skip)
       .limit(pageSize);
-   
 
     const count = await queryBuilder.getCount();
 
@@ -2403,14 +2400,14 @@ export class DeviceGroupService {
     device_historynextissuance.push({
       historynext_issuancer,
     });
-    
+
     const AllDeviceshistnextissuansinfo: any = [];
     device_historynextissuance.forEach((ele) =>
       ele.historynext_issuancer.forEach((he) =>
         AllDeviceshistnextissuansinfo.push(he),
       ),
     );
-    
+
     const totalPages = Math.ceil(count / pageSize);
     let nextissuance = {};
     nextissuance =
@@ -2834,10 +2831,8 @@ export class DeviceGroupService {
                   });
                 }),
               );
-             
             }
             if (filterDto.offTaker) {
-             
               const newoffTaker = filterDto.offTaker.toString();
               const offTakerArray = newoffTaker.split(',');
               qb.orWhere(
@@ -2855,7 +2850,6 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              
             }
             const startTimestamp =
               new Date(filterDto.start_date).getTime() / 1000;
@@ -2953,21 +2947,19 @@ export class DeviceGroupService {
           existing.developerdeviceIds.push(curr.id);
         }
         existing.internalCertificateId.push(curr.id);
-      
       } else {
         acc.push({
           dg_id: curr.devicegroupid,
           name: curr.name,
           deviceIdsInt: curr.deviceIdsInt,
-         
+
           developerdeviceIds: [curr.id],
           internalCertificateId: [curr.id],
         });
-        
       }
       return acc;
     }, []);
-   
+
     const response = {
       deviceGroups,
       pageNumber,

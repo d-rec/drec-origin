@@ -188,7 +188,7 @@ export class InvitationService {
         saveinviteuser.id,
       );
     }
-    }
+  }
 
   public async update(
     user: updateInviteStatusDTO,

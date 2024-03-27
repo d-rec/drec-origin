@@ -1220,7 +1220,6 @@ export class DeviceService {
     }));
   }
   get dbReader() {
-
     // @ts-ignore
     const url = process.env.INFLUXDB_URL;
     // @ts-ignore

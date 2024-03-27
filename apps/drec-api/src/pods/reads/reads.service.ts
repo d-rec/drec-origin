@@ -560,7 +560,7 @@ export class ReadsService {
                   );
                 }
               }
-              
+
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
@@ -803,7 +803,6 @@ export class ReadsService {
       return device.length > 0;
     } catch (error) {
       this.logger.error(`Failed to retrieve device`, error.stack);
-     
     }
   }
   private getexisthistorydevcielogFilteredQuery(
@@ -1145,7 +1144,7 @@ export class ReadsService {
       startDate,
       endDate,
     );
-    
+
     try {
       const device = await query.getRawMany();
       const devices = device.map((s: any) => {
@@ -1170,7 +1169,6 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-   
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
@@ -1349,7 +1347,7 @@ export class ReadsService {
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
-       
+
         await histroread.forEach((element) => {
           historyread.push({
             startdate: element.devicehistory_readsStartDate,
@@ -1361,7 +1359,7 @@ export class ReadsService {
         this.logger.error(`Failed to retrieve device`, error.stack);
       }
     }
-    
+
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       this.logger.verbose(
         'offset::::::::::::' +
@@ -1481,7 +1479,7 @@ export class ReadsService {
         ongoing = transformedFinalOngoing;
       }
     }
-   
+
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
         (await this.getnumberOfOngReads(
@@ -1729,8 +1727,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }).daysInMonth;
   }
 
-
-
   async getPaginatedData(
     meter: string,
     filter: any,
@@ -1800,7 +1796,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       developerExternalId,
       organizationId,
     );
-   
+
     if (device.latitude && device.longitude) {
       localTime = getLocalTime(startDate, device);
     }

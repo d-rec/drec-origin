@@ -342,7 +342,6 @@ export class CertificateLogController {
     );
   }
 
-
   @Get('/issuer/certifiedlogOfdevices')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
@@ -463,5 +462,4 @@ export class CertificateLogController {
       devicegroup.name,
     );
   }
-  
 }

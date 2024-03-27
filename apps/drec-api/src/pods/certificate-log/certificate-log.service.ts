@@ -197,7 +197,7 @@ export class CertificateLogService {
             return;
           }
           const obj = JSON.parse(certifiedlist.metadata);
-         const devicereadstartdate = new Date(
+          const devicereadstartdate = new Date(
             (certifiedlist.generationStartTime - 1) * 1000,
           ); //as rounding when certificate is issued by EWFs package reference kept above and removing millseconds
           const devicereadenddate = new Date(
@@ -287,7 +287,7 @@ export class CertificateLogService {
             obj = certifiedlist.metadata;
           }
           const certificateTransactionUID = obj.certificateTransactionUID;
-         
+
           const devicereadstartdate = new Date(
             (certifiedlist.generationStartTime - 1) * 1000,
           ); //as rounding when certificate is issued by EWFs package reference kept above and removing millseconds
@@ -515,9 +515,7 @@ export class CertificateLogService {
     return myredme;
   }
 
-
-
-    //@Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
   async getsCertificateReadModule(
     userOrgId: string,
     pageNumber: number,

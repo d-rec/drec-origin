@@ -112,13 +112,12 @@ export class PermissionService {
         success: false,
         message: `Permission For ModuleId  and Role already exist`,
       });
-     }
+    }
   }
   private async checkForExistingmodulepermission(
     data: any,
     newpermissionvalue: number,
   ): Promise<boolean> {
-    
     this.logger.verbose(`With in checkForExistingmodulepermission`);
     const moduleId = await this.ACLpermissionService.findOne({
       id: data.aclmodulesId,
@@ -315,7 +314,7 @@ export class PermissionService {
         newpermission.entityType = EntityType.User;
         newpermission.entityId = loginuser.id;
         const perId = await this.create(newpermission, loginuser);
-       
+
         permissionIds.push(perId.id);
       }),
     );

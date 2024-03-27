@@ -51,7 +51,7 @@ supportedFiles.push('image/png');
 @Controller('file')
 export class FileController {
   private readonly logger = new Logger(FileController.name);
- constructor(private readonly fileService: FileService) {}
+  constructor(private readonly fileService: FileService) {}
 
   /**
    * It is POST api to upload multiple files into aws s3 bucket
@@ -94,17 +94,15 @@ export class FileController {
     uploadedFiles: {
       files: Express.Multer.File[];
     },
-    
   ) {
     this.logger.verbose(`With in upload`);
-   
+
     return await Promise.all(
       uploadedFiles.files.map(async (file) => {
         const response: any = await this.fileService.upload(file);
         return response.key;
       }),
     );
-   
   }
 
   /**
@@ -142,5 +140,4 @@ export class FileController {
       })
       .send(file.data);
   }
-
 }

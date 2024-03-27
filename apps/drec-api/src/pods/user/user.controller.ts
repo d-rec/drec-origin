@@ -111,7 +111,6 @@ export class UserController {
     return await this.userService.canViewUserData(id, loggedUser);
   }
 
-
   /**
    * add new for adding user with organization
    * @body {CreateUserORGDTO}
@@ -131,7 +130,7 @@ export class UserController {
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request,
   ): Promise<UserDTO> {
-    const user = request.user; 
+    const user = request.user;
     if (
       userRegistrationData.organizationType === '' ||
       userRegistrationData.organizationType === null ||
@@ -173,7 +172,7 @@ export class UserController {
           }),
         );
       });
-    } 
+    }
     if (!userRegistrationData.api_user_id) {
       // @ts-ignore
       userRegistrationData.api_user_id = user.api_user_id;
@@ -336,7 +335,6 @@ export class UserController {
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
- 
     return this.userService.geytokenforResetPassword(body.email);
   }
 

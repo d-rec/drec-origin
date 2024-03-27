@@ -1015,7 +1015,7 @@ export class DeviceController {
       );
     }
   }
- 
+
   /**
    * It is POST api to create array of devices by uploading csv files with device data
    * @param user is loggedIn user from request
