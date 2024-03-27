@@ -77,8 +77,6 @@ export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 @Injectable()
 export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
-  // private influx: InfluxDB;
-  //  private queryApi: QueryApi;
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
   constructor(
@@ -158,15 +156,12 @@ export class ReadsService {
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
     }
-
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    //console.log(roundedMeasurements);
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
-    //console.log(filteredMeasurements);
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
@@ -178,7 +173,6 @@ export class ReadsService {
     const organization = await this.organizationService.findOne(
       device.organizationId,
     );
-    //console.log('109')
     if (!organization) {
       throw new NotFoundException(
         `No organization found with device organization code ${device.organizationId}`,
@@ -206,7 +200,6 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    //console.log("137")
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -324,15 +317,12 @@ export class ReadsService {
     });
   }
 
-  // new meter read process
   public async newstoreRead(
     id: string,
     measurements: NewIntmediateMeterReadDTO,
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    //console.log(measurements);
-    //change function for find device info by developer externalid
     const device = await this.deviceService.findReads(id);
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
@@ -419,7 +409,6 @@ export class ReadsService {
             element.starttimestamp,
             element.endtimestamp,
           );
-          // console.log(checkhistroyreading)
           // @ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
@@ -455,14 +444,6 @@ export class ReadsService {
               }),
             );
           }
-
-          // reads.push({
-          //   timestamp: new Date(element.endtimestamp),
-          //   value: element.value,
-          //   timeperiod: meteredTimePeriod,
-          //   startdate: requeststartdate,
-          //   enddate: requestcurrentend
-          // });
           const read: ReadDTO = {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
@@ -579,10 +560,7 @@ export class ReadsService {
                   );
                 }
               }
-              // reads.push({
-              //   timestamp: new Date(element.endtimestamp),
-              //   value: element.value
-              // })
+              
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
@@ -819,15 +797,13 @@ export class ReadsService {
       startDate,
       endDate,
     );
-    //console.log("historyexistdevicequery");
     try {
       const device = await query.getRawMany();
 
       return device.length > 0;
     } catch (error) {
-      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
+     
     }
   }
   private getexisthistorydevcielogFilteredQuery(
@@ -838,7 +814,6 @@ export class ReadsService {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
-    //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
@@ -903,17 +878,14 @@ export class ReadsService {
       deviceAge = 1;
     }
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
-
-    //console.log(read.timestamp.toISOString());
     // @ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
     // @ts-ignore
-    //console.log(new Date(device.createdAt).toISOString());
+
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -983,8 +955,6 @@ export class ReadsService {
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
-
-    // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -999,7 +969,6 @@ export class ReadsService {
     this.logger.debug(
       `${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
-    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (read.value < finalmax) {
       return {
         success: true,
@@ -1057,8 +1026,6 @@ export class ReadsService {
       deviceAge = 1;
     }
     const meteredTimePeriod = requestmeteredTimePeriod;
-
-    //const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -1123,10 +1090,6 @@ export class ReadsService {
       return read.value < finalmax;
     } else {
       return false;
-      // throw new ConflictException({
-      //   success: false,
-      //   message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
-      // });
     }
   }
 
@@ -1144,8 +1107,6 @@ export class ReadsService {
         `No organization found with device organization code ${device.organizationId}`,
       );
     }
-
-    //console.log("new store")
     await this.store(id, measurements);
 
     for (const measurement of measurements.reads) {
@@ -1184,10 +1145,9 @@ export class ReadsService {
       startDate,
       endDate,
     );
-    //console.log("devicequery");
+    
     try {
       const device = await query.getRawMany();
-      // console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
           id: s.devicehistory_id,
@@ -1201,9 +1161,7 @@ export class ReadsService {
 
       return devices;
     } catch (error) {
-      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
 
@@ -1212,7 +1170,7 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-    //  const { organizationName, status } = filterDto;
+   
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
@@ -1251,7 +1209,6 @@ export class ReadsService {
         }),
       )
       .andWhere('devicehistory.certificate_issued != true');
-    // //console.log(query.getQuery())
     return query;
   }
 
@@ -1374,8 +1331,6 @@ export class ReadsService {
       };
     }
 
-    //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
-
     if (
       new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()
     ) {
@@ -1394,7 +1349,7 @@ export class ReadsService {
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
-        //console.log("histroread", histroread);
+       
         await histroread.forEach((element) => {
           historyread.push({
             startdate: element.devicehistory_readsStartDate,
@@ -1406,9 +1361,7 @@ export class ReadsService {
         this.logger.error(`Failed to retrieve device`, error.stack);
       }
     }
-    // console.log("1513")
-    //console.log(deviceOnboarded);
-    // console.log(filter.end);
+    
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       this.logger.verbose(
         'offset::::::::::::' +
@@ -1528,7 +1481,7 @@ export class ReadsService {
         ongoing = transformedFinalOngoing;
       }
     }
-    //  console.log(ongoing);
+   
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
         (await this.getnumberOfOngReads(
@@ -1776,43 +1729,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }).daysInMonth;
   }
 
-  //  @Cron(CronExpression.EVERY_10_SECONDS)
-  //  async  addOffSetToStartAndEndDates(externalId,organizationId,startDate,endDate)
-  //   {
 
-  //     let device = await this.deviceService.findDeviceByDeveloperExternalId(externalId, organizationId);
-  //     console.log("DEVICE:::::::::::"+device)
-
-  //       console.log("THIS IS THE LAT "+device.latitude+"AND LONG"+device.longitude);
-  //       const localTime=getLocalTime(startDate,device);//timezone of the device.
-  //       console.log("calling the localtimezone function")
-  //       const localTimeZone=getLocalTimeZoneFromDevice(localTime,device);
-  //       console.log("calling the offset function");
-  //       const nonFormattedOffSet=getOffsetFromTimeZoneName(localTimeZone);
-  //       const offset=getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-  //       console.log("FINAL OFFSET HOURS::::::"+offset.hours);
-  //       console.log("FINAL OFFSET MINUTES::::::"+offset.minutes);
-
-  //   const parsedStartDate = new Date(startDate);
-  //   const parsedEndDate = new Date(endDate);
-
-  //   parsedStartDate.setUTCHours(parsedStartDate.getUTCHours() + offset.hours);
-  //   parsedStartDate.setUTCMinutes(parsedStartDate.getUTCMinutes() + offset.minutes);
-  //   parsedEndDate.setUTCHours(parsedEndDate.getUTCHours() + offset.hours);
-  //   parsedEndDate.setUTCMinutes(parsedEndDate.getUTCMinutes() + offset.minutes);
-
-  //   const updatedStartDate = parsedStartDate.toISOString();
-  //   const updatedEndDate = parsedEndDate.toISOString();
-
-  //     console.log("UPDATED START DATE::::"+updatedStartDate);
-  //     console.log("UPDATED END DATE::::::::::"+updatedEndDate);
-
-  //   return {
-  //     "startDate":updatedStartDate,
-  //     "endDate":updatedEndDate
-  //   }
-
-  //   }
 
   async getPaginatedData(
     meter: string,
@@ -1883,23 +1800,15 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       developerExternalId,
       organizationId,
     );
-    // console.log("DEVICE:::::::::::" + device);
+   
     if (device.latitude && device.longitude) {
-      // console.log("THIS IS THE LAT " + device.latitude + "AND LONG" + device.longitude);
-      // console.log("calling the localtimezone function");
       localTime = getLocalTime(startDate, device);
     }
 
     const localTimeZone = getLocalTimeZoneFromDevice(localTime, device);
-    // console.log("localTimeZone:::::" + localTimeZone);
-    // console.log("calling the offset function");
     const localTimeZoneName = localTimeZone;
-    // console.log("TIME ZONE BEING SENT::::" + localTimeZoneName);
     const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
     const offset = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-    // console.log("FINAL OFFSET HOURS::::::" + typeof (offset.hours));
-    // console.log("FINAL OFFSET MINUTES::::::" + typeof (offset.minutes));
-
     const offSetHoursString = offset.hours.toString();
     const offSetMinutesString = offset.minutes.toString();
 
@@ -1923,14 +1832,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const org = process.env.INFLUXDB_ORG;
     const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
     this.logger.verbose('filter.start:::::::' + filter);
-    // console.log('filter.end:::::::::' + filter.end);
-    // console.log('filter.limit:::::::' + filter.limit);
-    // console.log('filter.offset:::::' + filter.offset);
-    // console.log('meter:::::::::::::' + meter);
-
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}") |> range(start:${filter.start} , stop:${filter.end} ) |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read") |> limit(n:${filter.limit} , offset:${filter.offset})`;
-
-    // const result = await queryApi.queryRaw(fluxQuery);
     const result = await queryApi.collectRows(fluxQuery);
     this.logger.verbose(result);
     this.logger.verbose('\ncollect-rows query SUCCESS');

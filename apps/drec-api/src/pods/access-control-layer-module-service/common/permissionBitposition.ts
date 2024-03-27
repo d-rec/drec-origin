@@ -1,34 +1,12 @@
 import { PermissionString } from '../../../utils/enums';
 
-//32 bit permission
-
 export class DecimalPermissionValue {
-  // permissionModuleNumber: number = 11;
-  // permissionUserTobegiven: number = 6;
-  // constructor() {
-  //   this.checkModulePermissionAgainstUserPermission(
-  //     this.permissionModuleNumber,
-  //     this.permissionUserTobegiven
-  //   );
-  // }
-
   addedPermissionList: { [key in PermissionString]: boolean } = {
     Read: false,
     Write: false,
     Delete: false,
     Update: false,
   };
-  // name = 'u';
-  // oddNumbers = [1, 3, 5, 7];
-  // evenNumbers = [2, 4, 6, 8];
-  // onlyOdd = false;
-
-  // permissionListUI: Array<PermissionString> = [
-  //   PermissionString.Read,
-  //   PermissionString.Delete,
-  //   PermissionString.Write,
-  //   PermissionString.Update,
-  // ];
 
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
     permissionString: PermissionString;
@@ -116,7 +94,6 @@ export class DecimalPermissionValue {
           (addedPermissionList[ele.permissionString] === true ? 1 : 0);
     });
     this.decimalFormPermission = decimalFormPermission;
-    //console.log(this.decimalFormPermission)
     return this.decimalFormPermission;
   }
 
@@ -124,8 +101,6 @@ export class DecimalPermissionValue {
     modulePermission: number,
     userPermission: number,
   ) {
-    //console.log(modulePermission);
-    //console.log(userPermission);
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
         (ele.andOperationNumber & modulePermission) ===
@@ -136,7 +111,6 @@ export class DecimalPermissionValue {
         ).isSet = true;
       }
     });
-    //console.log(this.modulePermissions);
     const getpermission: any = [];
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
@@ -155,10 +129,6 @@ export class DecimalPermissionValue {
         }
       }
     });
-    //console.log("commonpermission");
-    //console.log(getpermission);
-    //console.log(this.modulePermissions);
-    //console.log(this.userPermissions);
     return getpermission;
   }
 }

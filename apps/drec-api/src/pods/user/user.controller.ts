@@ -110,20 +110,7 @@ export class UserController {
   ): Promise<UserDTO | null> {
     return await this.userService.canViewUserData(id, loggedUser);
   }
-  /**
-  @Post('register')
-  @ApiBody({ type: CreateUserDTO })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: UserDTO,
-    description: 'Register a user',
-  })
-  public async register(
-    @Body() userRegistrationData: CreateUserDTO,
-  ): Promise<UserDTO> {
-    return this.userService.create(userRegistrationData);
-  }
-*/
+
 
   /**
    * add new for adding user with organization
@@ -144,19 +131,7 @@ export class UserController {
     @Body() userRegistrationData: CreateUserORGDTO,
     @Req() request: Request,
   ): Promise<UserDTO> {
-    const user = request.user; /*
-    console.log(request.headers);
-    if (request.headers['client_id'] && request.headers['client_secret']) {
-      if (!request.headers['client_secret'] || !request.headers['client_id']) {
-        console.log("When credential not available")
-        throw new UnauthorizedException('Invalid client credentials');
-      }
-      client = await this.userService.validateClient(request.headers['client_id'], request.headers['client_secret']);
-    }
-    else if (userRegistrationData.organizationType.toLowerCase() != 'ApiUser'.toLowerCase()) {
-      client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
-
-    } */
+    const user = request.user; 
     if (
       userRegistrationData.organizationType === '' ||
       userRegistrationData.organizationType === null ||
@@ -198,10 +173,7 @@ export class UserController {
           }),
         );
       });
-    } /*
-    if (client) {
-      userRegistrationData['client'] = client;
-    }  */
+    } 
     if (!userRegistrationData.api_user_id) {
       // @ts-ignore
       userRegistrationData.api_user_id = user.api_user_id;
@@ -364,38 +336,7 @@ export class UserController {
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
-    /*
-    const user = await this.userService.findByEmail(body.email);
-    // @ts-ignore
-    let client = await this.oauthClientCredentialService.findOneByuserid(user.api_user_id)
-    if (req.headers['client_id'] && req.headers['client_secret']) {
-      if (!req.headers['client_secret'] || !req.headers['client_id']) {
-        console.log("When credential not available")
-        throw new UnauthorizedException('Invalid client credentials');
-      }
-      if (user.role === "ApiUser") {
-        client = await this.userService.validateClient(req.headers['client_id'], req.headers['client_secret']);
-        console.log("when apiUser", client, user);
-      }
-      else {
-        throw new UnauthorizedException();
-      }
-    }
-    else if (!req.headers || (!req.headers['client_id'] || !req.headers['client_secret'])) {
-      if (user.role === "ApiUser") {
-        throw new UnauthorizedException({ statusCode: 401, message: "client_id or client_secret missing from headers" });
-      }
-      if (client.client_id != process.env.client_id) {
-        throw new UnauthorizedException();
-      } else if (client.client_id === process.env.client_id) {
-        client = await this.userService.validateClient(process.env.client_id, process.env.client_secret);
-      }
-    }
-
-    if (client) {
-      console.log("when Client:", client)
-      return this.userService.geytokenforResetPassword(body.email);
-    } */
+ 
     return this.userService.geytokenforResetPassword(body.email);
   }
 

@@ -243,29 +243,6 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
-  // Cron pattern for running every 30 seconds
-  // @Cron('*/30 * * * * *')
-  // async fetchDataCronJob() {
-  //   try {
-  //     const data = await this.fetchDataFromApi();
-  //     console.log('Fetched data:', data);
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error.message);
-  //   }
-  // }
-  // async fetchDataFromApi(): Promise<any> {
-  //   console.log("hitting api");
-  //   const apiUrl = `${process.env.IREC_EVIDENT_API_URL}/devices/2A70ES100011`;
-  //   let jwtToken = await regenerateToken(this.httpService);
-
-  //   const headers = {
-  //     // Add your custom headers here
-  //     'Authorization': `Bearer ${jwtToken}`
-  //   };
-
-  //   const response = await this.httpService.get(apiUrl, { headers }).toPromise();
-  //   return response.data;
-  // }
 
   //@Cron('*/30 * * * * *')
   async I_recPostData(deviceId): Promise<any> {
@@ -1160,33 +1137,6 @@ export class DeviceService {
     }
   }
 
-  // public getCheckCertificateIssueDateLogForDevice(deviceid: string,
-  //   startDate: Date,
-  //   endDate: Date
-  // ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity[]> {
-  //   // const groupId = await this.checkdevcielogcertificaterepository.find({
-  //   //   where: {
-  //   //     deviceid: deviceId,
-  //   //     certificate_issuance_startdate: startDate && endDate && Between(startDate, endDate),
-  //   //     certificate_issuance_enddate: startDate && endDate && Between(startDate, endDate),
-  //   //   },
-  //   // });
-  //   //console.log(deviceid)
-  //   const groupId = this.checkdevcielogcertificaterepository
-  //     .createQueryBuilder()
-  //     .where("deviceid = :deviceid", { deviceid: deviceid })
-  //     .andWhere(
-  //       new Brackets((db) => {
-  //         db.where("certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
-  //           .orWhere("certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere", { startDateFirstWhere: startDate, endDateFirstWhere: endDate })
-  //           .orWhere(":startdateThirdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { startdateThirdWhere: startDate })
-  //           .orWhere(":enddateforthdWhere BETWEEN certificate_issuance_startdate AND certificate_issuance_enddate", { enddateThirdWhere: endDate })
-
-  //       }),
-  //     ).getMany();
-  //   //console.log(groupId);
-  //   return groupId
-  // }
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1273,9 +1223,6 @@ export class DeviceService {
     }));
   }
   get dbReader() {
-    // const url = 'http://localhost:8086';
-    // const token = 'admin:admin'
-    // const org = '';
 
     // @ts-ignore
     const url = process.env.INFLUXDB_URL;
@@ -1323,22 +1270,6 @@ export class DeviceService {
     return totalamountofreads;
   }
 
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  // //@Cron('*/3 * * * *')
-  // async updateExternalIdtoDeveloperExternalId() : Promise<void>{
-  //   let alldevices:Device[];
-  //   alldevices= await this.repository.find();
-  //   console.log(alldevices);
-  //   await Promise.all(
-  //     alldevices.map(async (device: Device) => {
-  //       device.developerExternalId = device.externalId;
-  //       await this.repository.save(device);
-
-  //     })
-  //   );
-  // }
-
-  /* */
   public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate) {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistReads: number =
@@ -1424,9 +1355,6 @@ export class DeviceService {
     );
     return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
   }
-  /* */
-
-  ////////////////////////////////////////
 
   public async atto(organizationId, externalId) {
     this.logger.verbose(`With in atto`);
@@ -1452,11 +1380,6 @@ export class DeviceService {
       newDevices.push(device);
     });
     return newDevices;
-    // rows.map(row => ({
-    //   externalId: row.developerExternalId,
-    //   organizationId: row.organizationId
-
-    // }));
   }
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number,
