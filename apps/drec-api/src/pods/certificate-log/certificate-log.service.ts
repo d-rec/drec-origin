@@ -58,7 +58,7 @@ export class CertificateLogService {
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
-    // const query = this.getFilteredQuery(filterDto);
+
     return this.repository.find();
   }
 
@@ -66,44 +66,13 @@ export class CertificateLogService {
     groupId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in findByGroupId`);
-    // const query = this.getFilteredQuery(filterDto);
+
     return this.repository.find({
       where: {
         groupId,
       },
     });
   }
-
-  //   private getFilteredQuery(filter: FilterDTO): FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> {
-  //     const where: FindConditions<CheckCertificateIssueDateLogForDeviceEntity> = cleanDeep({
-
-  //         certificate_issuance_startdate:
-  //         filter.start_date &&
-  //         filter.end_date &&
-  //         Between(filter.start_date, filter.end_date),
-
-  //     });
-  //     const query: FindManyOptions<CheckCertificateIssueDateLogForDeviceEntity> = {
-  //       where
-
-  //     };
-  //     return query;
-  //   }
-
-  //   private getFilteredQuery(filterDto: UserFilterDTO): SelectQueryBuilder<User> {
-  //     const { organizationName, status } = filterDto;
-  //     const query = this.repository
-  //       .createQueryBuilder('user')
-  //       .leftJoinAndSelect('user.organization', 'organization');
-  //     if (organizationName) {
-  //       const baseQuery = 'organization.name ILIKE :organizationName';
-  //       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
-  //     }
-  //     if (status) {
-  //       query.andWhere(`user.status = '${status}'`);
-  //     }
-  //     return query;
-  //   }
 
   async Findcertificatelog(
     filterDto: FilterDTO,
@@ -579,7 +548,7 @@ export class CertificateLogService {
     //console.log(res);
     return myredme;
   }
-
+  /* this is creted for manually check if certificate missing in any reservation 
   // async getmissingtoken() {
   //   const grouploglist = grouplog;
   //   // console.log(grouploglist);
@@ -615,56 +584,7 @@ export class CertificateLogService {
   //   console.log(missingtoken);
   //   return missingtoken
   // }
-
-  // async getsCertificateReadModule(userOrgId: string, generationStartTime, generationEndTime, pageNumber: number) {
-  //   if (pageNumber <= 0) {
-  //     throw new HttpException('Invalid page number', HttpStatus.BAD_REQUEST);
-  //   }
-
-  //   generationStartTime = new Date(generationStartTime).getTime() / 1000;
-  //   generationEndTime = new Date(generationEndTime).getTime() / 1000;
-
-  //   const queryBuilder = this.cretificatereadmoduleRepository.createQueryBuilder('certificate_read_module')
-  //     .innerJoin('DeviceGroup', 'dg', 'certificate_read_module.deviceId = CAST(dg.Id AS character varying)')
-  //     .andWhere('dg.organizationId = :userOrgId', { userOrgId });
-
-  //   if (generationStartTime && generationEndTime) {
-  //     queryBuilder.andWhere('certificate_read_module.generationStartTime <= :generationEndTime', {
-  //       generationEndTime: generationEndTime,
-  //     })
-  //       .andWhere('certificate_read_module.generationEndTime >= :generationStartTime', {
-  //         generationStartTime: generationStartTime,
-  //       });
-  //   }
-
-  //   const limit = 10;
-  //   const offset = (pageNumber - 1) * limit;
-
-  //   const [results, totalCount] = await queryBuilder
-  //     .skip(offset)
-  //     .take(limit)
-  //     .getManyAndCount();
-
-  //   const totalPages = Math.ceil(totalCount / limit);
-
-  //   if (pageNumber > totalPages) {
-  //     throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-  //   }
-
-  //   for (const result of results) {
-  //     const deviceGroup = await this.deviceGroupRepository.findOne({ id: result.deviceId });
-  //     result.deviceGroup = deviceGroup;
-
-  //     // Parse metadata as JSON
-  //     result.metadata = JSON.parse(result.metadata);
-  //   }
-
-  //   return {
-  //     "results": results,
-  //     "pageNumber": pageNumber,
-  //     "totalPages": totalPages,
-  //   };
-  // }
+*/
 
   //  @Cron(CronExpression.EVERY_30_SECONDS)
   async getsCertificateReadModule(
