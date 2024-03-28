@@ -19,16 +19,15 @@ export class querfailError1710419707891 implements MigrationInterface {
       await queryRunner.query(query);
       console.log("Table created successfully.");
     } catch (error) {
-      // Rollback transaction if an error occurs
       await queryRunner.rollbackTransaction();
       console.error(error.message);
-      throw error; // rethrow the error to mark the migration as failed
+      throw error; 
     }
 
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Implement down migration if needed
+    
   }
 
 
