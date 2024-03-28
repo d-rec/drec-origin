@@ -10,11 +10,11 @@ import { DeviceDTO } from '../pods/device/dto';
 import { OrganizationDTO } from '../pods/organization/dto';
 
 export enum BuyerReservationCertificateGenerationFrequency {
-  hourly ='hourly',
-  daily='daily',
-  weekly='weekly',
-  monthly ='monthly',
-  quarterly ='quarterly'
+  hourly = 'hourly',
+  daily = 'daily',
+  weekly = 'weekly',
+  monthly = 'monthly',
+  quarterly = 'quarterly',
 }
 
 export interface IDeviceGroup {
@@ -35,9 +35,9 @@ export interface IDeviceGroup {
   capacityRange: CapacityRange;
   commissioningDateRange: CommissioningDateRange[];
 
- // yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
+  // yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
 
- // labels?: string[];
+  // labels?: string[];
 
   leftoverReads?: number; // in KW
 
@@ -46,5 +46,5 @@ export interface IDeviceGroup {
   deviceIds?: number[];
   buyerId?: number | null;
   buyerAddress?: string | null;
-  type?:string | null;
+  type?: string | null;
 }

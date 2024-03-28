@@ -16,7 +16,6 @@ import { UserService } from '../pods/user/user.service';
 import { Role } from '../utils/enums';
 @Injectable()
 export class PermissionGuard implements CanActivate {
-
   private readonly logger = new Logger(PermissionGuard.name);
 
   constructor(
@@ -24,7 +23,7 @@ export class PermissionGuard implements CanActivate {
     @Inject(PermissionService)
     private readonly userPermission: PermissionService,
     @Inject(UserService)
-    private readonly userService : UserService
+    private readonly userService: UserService,
   ) {}
   //constructor(@Inject(KeyService) private keyService: KeyService) {}
 
@@ -42,41 +41,35 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request = context.switchToHttp().getRequest();
-    let user : IUser;
-      user = request.user;
-    if(request.url.split('/')[3] ===  'register') {
+    let user: IUser;
+    user = request.user;
+    if (request.url.split('/')[3] === 'register') {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
-      if(request.body.organizationType === Role.ApiUser) {
+      if (request.body.organizationType === Role.ApiUser) {
         return true;
-      } /*
-      if(request.user.client_id != process.env.client_id) {
-        this.logger.debug('When the client at request');
-        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.ApiUser });
       }
-
-      if(request.user.client_id === process.env.client_id) {
-        this.logger.debug('When the client is same as the client at dotEnv');
-        user = await this.userService.findOne({ api_user_id: client.api_user_id, role: Role.Admin });
-      } */
-    }
-    else {
+    } else {
       user = request.user;
     }
-   
+
     if (user.role === 'Admin') {
       return true;
     }
-    if(((request.url.split('/')[3] === 'confirm-email') || (request.url.split('/')[3] === 'reset')) && (user.role === Role.ApiUser)) {
+    if (
+      (request.url.split('/')[3] === 'confirm-email' ||
+        request.url.split('/')[3] === 'reset') &&
+      user.role === Role.ApiUser
+    ) {
       return true;
     }
-    var per: any = [];
+    const per: any = [];
 
     const userpermission1 = await this.userPermission.findById(
       user.roleId,
       user.id,
       module,
     );
- 
+
     userpermission1.forEach((e) => {
       e.permissions.forEach((element) => {
         if (!per.includes(element)) {
@@ -89,7 +82,7 @@ export class PermissionGuard implements CanActivate {
     }
     user.permissions = per;
     const loggedInUser = new LoggedInUser(user);
-  
+
     const hasPermission = () =>
       loggedInUser.permissions.includes(permission[0]);
 

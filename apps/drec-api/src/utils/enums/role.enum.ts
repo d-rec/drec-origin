@@ -1,26 +1,25 @@
 export enum Role {
-  User='User',
+  User = 'User',
   DeviceOwner = 'DeviceOwner',
   OrganizationAdmin = 'OrganizationAdmin',
   Buyer = 'Buyer',
   Admin = 'Admin',
   SubBuyer = 'SubBuyer',
- // Intermediary = 'Intermediary',
-  ApiUser="ApiUser"
-
+  // Intermediary = 'Intermediary',
+  ApiUser = 'ApiUser',
 }
 export enum RoleStatus {
   Enable = 'Enable',
-  Disable = 'Disable'
+  Disable = 'Disable',
 }
 export enum EntityType {
   Role = 'Role',
-  User = 'User'
+  User = 'User',
 }
 
 export enum PermissionString {
-    Read = 'Read',
-    Delete = 'Delete',
-    Update = 'Update',
-    Write = 'Write',
-  }
+  Read = 'Read',
+  Delete = 'Delete',
+  Update = 'Update',
+  Write = 'Write',
+}
