@@ -7,7 +7,6 @@ const csv = require('csv-parser');
 const fs = require('fs');
 
 const auth = require('./auth');
-
 const postMeterReads = async (externalId, meterReads, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` }
