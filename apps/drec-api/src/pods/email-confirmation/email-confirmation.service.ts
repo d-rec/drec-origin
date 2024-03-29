@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
@@ -135,10 +135,13 @@ export class EmailConfirmationService {
     );
   }
   async findOne(
-    conditions: FindConditions<EmailConfirmation>,
+    conditions: FindOptionsWhere<EmailConfirmation>,
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
-    const user = await (this.repository.findOne(conditions, {
+    const user = await (this.repository.findOne({
+      where : {
+        conditions,
+      } as FindOptionsWhere<EmailConfirmation>,
       relations: ['user'],
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
 
@@ -148,7 +151,11 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
-    const emailConfirmation = await this.repository.findOne({ token });
+    const emailConfirmation = await this.repository.findOne({ 
+      where: {
+        token
+      }
+    });
 
     if (!emailConfirmation) {
       this.logger.error(`Email confirmation doesn't exist`);

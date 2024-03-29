@@ -1,8 +1,8 @@
 require('dotenv').config({ path: '../../.env' });
 
-import { ConnectionOptions } from 'typeorm';
+import { DataSourceOptions } from 'typeorm';
 
-const getDBConnectionOptions = (): ConnectionOptions => {
+const getDBConnectionOptions = (): DataSourceOptions => {
   return process.env.DATABASE_URL
     ? {
         type: 'postgres',
@@ -21,7 +21,7 @@ const getDBConnectionOptions = (): ConnectionOptions => {
       };
 };
 
-const config: ConnectionOptions = {
+const config: DataSourceOptions = {
   ...getDBConnectionOptions(),
   entities: ['src/**/*.entity.ts'],
   synchronize: false,

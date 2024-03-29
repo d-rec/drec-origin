@@ -21,7 +21,7 @@ import {
   Raw,
   Brackets,
   SelectQueryBuilder,
-  FindConditions,
+  FindOptionsWhere,
   FindManyOptions,
   Between,
   LessThanOrEqual,
@@ -131,17 +131,6 @@ export class DeviceService {
       totalPages,
       totalCount,
     };
-  }
-
-  public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
-    this.logger.verbose(`With in findForIntegrator`);
-    const result = this.repository.find({
-      where: {
-        integrator,
-      },
-    });
-    delete result['organization'];
-    return result;
   }
 
   async getOrganizationDevices(
@@ -468,7 +457,12 @@ export class DeviceService {
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findOne`);
-    const device: Device = await this.repository.findOne(id, options);
+    const device: Device = await this.repository.findOne({
+      where: {
+        id: id, 
+        ...options,
+      },
+    });
     if (!device) {
       return null;
     }
@@ -823,7 +817,7 @@ export class DeviceService {
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
     const limit = 20;
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       // deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
@@ -1018,7 +1012,7 @@ export class DeviceService {
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),

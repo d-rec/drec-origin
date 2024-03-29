@@ -10,7 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
-  FindConditions,
+  FindOptionsWhere,
   FindManyOptions,
   FindOperator,
   Raw,
@@ -362,7 +362,9 @@ export class DeviceGroupService {
   async findById(id: number, user?: ILoggedInUser): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findById`);
     const deviceGroup = await this.repository.findOne({
-      id,
+      where: {
+        id: id,
+      },
     });
     if (!deviceGroup) {
       this.logger.error(`No device group found with id ${id}`);
@@ -744,10 +746,10 @@ export class DeviceGroupService {
   }
 
   async findOne(
-    conditions: FindConditions<DeviceGroup>,
+    conditions: FindOptionsWhere<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
-    return (await this.repository.findOne(conditions)) ?? null;
+    return (await this.repository.findOne({ where: { conditions } as FindOptionsWhere<DeviceGroup>,})) ?? null;
   }
 
   async createCSVJobForFile(
@@ -889,8 +891,10 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
     if (organizationId) {
       const csvjob = await this.repositoyCSVJobProcessing.findOne({
-        jobId: jobId,
-        organizationId: organizationId,
+        where: {
+          jobId: jobId,
+          organizationId: organizationId,
+        },
       });
 
       if (!csvjob) {
@@ -903,7 +907,9 @@ export class DeviceGroupService {
     }
 
     return await this.repositoryJobFailedRows.findOne({
-      jobId: jobId,
+      where: {
+        jobId: jobId, 
+      },
     });
   }
 
@@ -1419,7 +1425,7 @@ export class DeviceGroupService {
     return devices;
   }
 
-  private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
+  private async hasDeviceGroup(conditions: FindOptionsWhere<DeviceGroup>) {
     this.logger.verbose(`With in hasDeviceGroup`);
     return Boolean(await this.findOne(conditions));
   }
@@ -1451,8 +1457,10 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findDeviceGroupById`);
     const deviceGroup = await this.repository.findOne({
-      id,
-      organizationId,
+      where: {
+        id,
+        organizationId,  
+      },
     });
     if (!deviceGroup) {
       this.logger.error(
@@ -1574,7 +1582,7 @@ export class DeviceGroupService {
     filter?: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
     this.logger.verbose(`With in getreservationFilteredQuery`);
-    const where: FindConditions<DeviceGroup> = cleanDeep({
+    const where: FindOptionsWhere<DeviceGroup> = cleanDeep({
       // countryCode: filter.country && getCodeFromCountry(filter.country),
       // gridInterconnection: filter.gridInterconnection,
       // fuelCode: filter.fuelCode,
@@ -1635,7 +1643,9 @@ export class DeviceGroupService {
   > {
     this.logger.verbose(`With in hasSingleAddedJobForCSVProcessing`);
     return await this.repositoyCSVJobProcessing.findOne({
-      status: StatusCSV.Added,
+      where: {
+        status: StatusCSV.Added,
+      },
     });
   }
 
@@ -2391,12 +2401,16 @@ export class DeviceGroupService {
     }
   }
   async getGroupiCertificateIssueDate(
-    conditions: FindConditions<DeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupiCertificateIssueDate`);
     this.logger.log('Line No: 1883');
     return (
-      (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ??
+      (await this.repositorynextDeviceGroupcertificate.findOne({ 
+        where: { 
+          conditions, 
+        } as FindOptionsWhere<DeviceGroupNextIssueCertificate>, 
+      })) ??
       null
     );
   }
@@ -2405,7 +2419,7 @@ export class DeviceGroupService {
   > {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
-      where: { end_date: LessThan(new Date()) },
+      where: { end_date: LessThan(new Date().toISOString()) },
     });
     ////console.log(groupId)
     return groupId;
@@ -2506,7 +2520,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getDeviceGrouplog`);
     return this.checkdevciegrouplogcertificaterepository.find({
       where: {
-        groupid,
+        groupid: groupid.toString(),
       },
     });
   }
@@ -2554,20 +2568,26 @@ export class DeviceGroupService {
       `With in getNextHistoryissuanceDevicelogafterreservation`,
     );
     const result = await this.historynextissuancedaterepository.findOne({
-      device_externalid: developerExternalId,
-      groupId: groupId,
-      status: 'Completed',
+      where: {
+        device_externalid: developerExternalId,
+        groupId: groupId,
+        status: 'Completed',  
+      },
     });
 
     return result;
   }
 
   async getHistoryCertificateIssueDate(
-    conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historynextissuancedaterepository.findOne(conditions)) ?? null
+      (await this.historynextissuancedaterepository.findOne({ 
+        where: { 
+          conditions, 
+        } as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>, 
+      })) ?? null
     );
   }
   async HistoryUpdatecertificateissuedate(

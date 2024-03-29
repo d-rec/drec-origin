@@ -11,7 +11,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindOneOptions,
   Repository,
-  FindConditions,
   SelectQueryBuilder,
 } from 'typeorm';
 import {
@@ -66,8 +65,11 @@ export class OrganizationService {
     options: FindOneOptions<Organization> = {},
   ): Promise<Organization> {
     this.logger.verbose(`With in findOne`);
-    const organization = await this.repository.findOne(id, {
-      ...options,
+    const organization = await this.repository.findOne({
+      where: {
+        id: id,
+        ...options
+      }
     });
     if (!organization) {
       this.logger.error(`No organization found with id ${id}`);
@@ -79,7 +81,9 @@ export class OrganizationService {
   public async findByBlockchainAddress(address: string): Promise<Organization> {
     this.logger.verbose(`With in findByBlockchainAddress`);
     return await this.repository.findOneOrFail({
-      blockchainAccountAddress: address,
+      where: {
+        blockchainAccountAddress: address,
+      },
     });
   }
 
@@ -444,7 +448,9 @@ export class OrganizationService {
     const organization = await this.findOne(orgId);
 
     const alreadyExistingOrganizationWithAddress = await this.repository.count({
-      blockchainAccountAddress: address,
+      where: {
+        blockchainAccountAddress: address,
+      },
     });
 
     if (alreadyExistingOrganizationWithAddress > 0) {

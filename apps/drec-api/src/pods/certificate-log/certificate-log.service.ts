@@ -69,7 +69,7 @@ export class CertificateLogService {
 
     return this.repository.find({
       where: {
-        groupId,
+        groupId: Number(groupId),
       },
     });
   }
@@ -682,7 +682,7 @@ export class CertificateLogService {
     return this.repository.findOne({
       where: {
         groupId: groupId,
-        deviceid: deviceId,
+        externalId: deviceId,
       },
       order: {
         certificate_issuance_enddate: 'DESC',

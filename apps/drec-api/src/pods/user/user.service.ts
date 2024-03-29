@@ -12,7 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import {
-  FindConditions,
+  FindOptionsWhere,
   Repository,
   FindManyOptions,
   SelectQueryBuilder,
@@ -297,18 +297,21 @@ export class UserService {
   async getUserAndPasswordByEmail(
     email: string,
   ): Promise<(Pick<UserDTO, 'id' | 'email'> & { password: string }) | null> {
-    const user = await this.repository.findOne(
-      { email },
-      {
-        select: ['id', 'email', 'password'],
+    const user = await this.repository.findOne({
+      where: {
+        email
       },
-    );
+        select: ['id', 'email', 'password'],
+    });
 
     return user ?? null;
   }
 
-  async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
-    const user = await (this.repository.findOne(conditions, {
+  async findOne(conditions: FindOptionsWhere<User>): Promise<TUserBaseEntity> {
+    const user = await (this.repository.findOne({
+      where: {
+        conditions,  
+      } as FindOptionsWhere<User>,
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
@@ -327,7 +330,7 @@ export class UserService {
     return bcrypt.hashSync(password, 8);
   }
 
-  private async hasUser(conditions: FindConditions<User>) {
+  private async hasUser(conditions: FindOptionsWhere<User>) {
     return Boolean(await this.findOne(conditions));
   }
 
@@ -352,12 +355,14 @@ export class UserService {
 
   public getatleastoneotheruserinOrg(
     organizationId: number,
-    userId,
+    userId: number,
   ): Promise<User[]> {
     return this.repository.find({
       where: {
         id: Not(userId),
-        organization: organizationId,
+        organization: {
+          id: organizationId
+        },
       },
       order: {
         id: 'DESC',
@@ -477,7 +482,11 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({ name: role });
+    const getrole = await this.rolerepository.findOne({
+      where: {
+        name: role,
+      }
+    });
     // var roleId;
     // if (role === Role.DeviceOwner) {
     //   roleId = 3
@@ -661,7 +670,11 @@ export class UserService {
   /** ApiUser Fuction*/
 
   async getApiuser(api_id: string): Promise<ApiUserEntity | undefined> {
-    return await this.apiUserEntityRepository.findOne(api_id);
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      },
+    });
   }
   /**
    * This Function added for request of permission to apiuser in apiuser table
@@ -683,7 +696,11 @@ export class UserService {
     await this.apiUserEntityRepository.update(api_id, {
       permission_status: status,
     });
-    return await this.apiUserEntityRepository.findOne(api_id);
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      }
+    });
   }
   /**
    * This service method use for get info of permission request status(Request,Active and Deactive)
@@ -692,7 +709,11 @@ export class UserService {
    */
   async get_apiuser_permission_status(api_id: string) {
     const status_apiuser_permissiom =
-      await this.apiUserEntityRepository.findOne(api_id);
+      await this.apiUserEntityRepository.findOne({
+        where: {
+          api_user_id: api_id,
+        },
+      });
 
     return status_apiuser_permissiom;
   }
@@ -770,8 +791,12 @@ export class UserService {
   // }
 
   async hasgetUserTokenvalid(
-    conditions: FindConditions<UserLoginSessionEntity>,
+    conditions: FindOptionsWhere<UserLoginSessionEntity>,
   ) {
-    return Boolean(await this.userloginSessionRepository.findOne(conditions));
+    return Boolean(await this.userloginSessionRepository.findOne({
+      where: {
+        conditions,
+      } as FindOptionsWhere<UserLoginSessionEntity>,
+    }));
   }
 }

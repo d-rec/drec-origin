@@ -117,7 +117,9 @@ export class InvitationService {
     const orginvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
-        organization: inviteorg,
+        organization: {
+          id: inviteorg,
+        },
       },
       relations: ['organization'],
     });
@@ -219,15 +221,16 @@ export class InvitationService {
 
   public async update(
     user: updateInviteStatusDTO,
-    invitationId: string,
+    invitationId: number,
     // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
     const userinvite = await this.userService.findByEmail(lowerCaseEmail);
     this.logger.debug(userinvite);
-    const invitation = await this.invitationRepository.findOne(invitationId, {
+    const invitation = await this.invitationRepository.findOne({
       where: {
+        id: invitationId,
         email: lowerCaseEmail,
       },
       relations: ['organization'],
@@ -400,7 +403,9 @@ export class InvitationService {
     const orginvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
-        organization: user.organizationId,
+        organization: {
+          id: user.organizationId,
+        },
       },
       relations: ['organization'],
     });
