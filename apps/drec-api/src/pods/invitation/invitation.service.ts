@@ -188,39 +188,11 @@ export class InvitationService {
         saveinviteuser.id,
       );
     }
-    //to add permission for user role in invitaion
-    // const newpermission: any = [];
-    // await permission.forEach((element) => {
-    //   newpermission.push({
-    //     aclmodulesId: element.aclmodulesId,
-    //     entityType: element.entityType,
-    //     entityId: userid.id,
-    //     permissions: element.permissions,
-    //     status: 0
-    //   })
-    // })
-    // var permissionId: any = [];
-
-    // await Promise.all(
-    //   newpermission.map(
-    //     async (newpermission: NewPermissionDTO) => {
-    //       //console.log(newpermission)
-    //       const perId = await this.PermissionService.create(newpermission, user)
-    //       //console.log(perId);
-    //       permissionId.push(perId.id);
-    //     }),
-    // );
-
-    //console.log(permissionId);
-    // await this.invitationRepository.update(saveinviteuser.id, { permissionId });
-
-    //
   }
 
   public async update(
     user: updateInviteStatusDTO,
     invitationId: string,
-    // status: OrganizationInvitationStatus,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
@@ -232,7 +204,6 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    //console.log(invitation)
     if (!invitation) {
       this.logger.error(`Requested invitation does not exist`);
       throw new BadRequestException('Requested invitation does not exist');
@@ -333,12 +304,6 @@ export class InvitationService {
       .take(limit)
       .orderBy('invitation.createdAt', 'DESC')
       .getManyAndCount();
-
-    /*
-    return this.invitationRepository.find({
-      where: { email: lowerCaseEmail },
-      relations: ['organization'],
-    }); */
     const totalPages = Math.ceil(totalCount / limit);
 
     return {

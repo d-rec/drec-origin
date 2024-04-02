@@ -197,23 +197,6 @@ export class CertificateLogService {
             return;
           }
           const obj = JSON.parse(certifiedlist.metadata);
-          //console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
-          /* Please see note below regarding generationStartTime
-        node_modules\@energyweb\origin-247-certificate\dist\js\src\certificate.service.js
-            async issue(params) {
-            const command = {
-                ...params,
-                fromTime: Math.round(params.fromTime.getTime() / 1000),
-                toTime: Math.round(params.toTime.getTime() / 1000)
-            };
-            const job = await this.blockchainActionsQueue.add({
-                payload: command,
-                type: types_1.BlockchainActionType.Issuance
-            }, jobOptions);
-            const result = await this.waitForJobResult(job);
-            return this.mapCertificate(result);
-            }
-         */
           const devicereadstartdate = new Date(
             (certifiedlist.generationStartTime - 1) * 1000,
           ); //as rounding when certificate is issued by EWFs package reference kept above and removing millseconds
@@ -304,24 +287,7 @@ export class CertificateLogService {
             obj = certifiedlist.metadata;
           }
           const certificateTransactionUID = obj.certificateTransactionUID;
-          //console.log("getdate", certifiedlist.generationStartTime, certifiedlist.generationEndTime)
-          /* Below note can be ignored for newer certificates as we added certificateTransactionUID which will overcome this issue as well
-        Please see note below regarding generationStartTime
-        node_modules\@energyweb\origin-247-certificate\dist\js\src\certificate.service.js
-            async issue(params) {
-            const command = {
-                ...params,
-                fromTime: Math.round(params.fromTime.getTime() / 1000),
-                toTime: Math.DeviceGroupound(params.toTime.getTime() / 1000)
-            };
-            const job = await this.blockchainActionsQueue.add({
-                payload: command,
-                type: types_1.BlockchainActionType.Issuance
-            }, jobOptions);
-            const result = await this.waitForJobResult(job);
-            return this.mapCertificate(result);
-            }
-         */
+
           const devicereadstartdate = new Date(
             (certifiedlist.generationStartTime - 1) * 1000,
           ); //as rounding when certificate is issued by EWFs package reference kept above and removing millseconds
@@ -548,45 +514,8 @@ export class CertificateLogService {
     //console.log(res);
     return myredme;
   }
-  /* this is creted for manually check if certificate missing in any reservation 
-  // async getmissingtoken() {
-  //   const grouploglist = grouplog;
-  //   // console.log(grouploglist);
-  //   const issuerlistlist = issuercertificatelog;
-  //   //  console.log(issuerlistlist);
-  //   const missingtoken = [];
-  //   issuerlistlist.map((issuertoken: any) => {
-  //     console.log("issuertoken");
-  //     // console.log(issuertoken.owners);
-  //     //let issuertokenvalue= JSON.parse(issuertoken.owners);
-  //     var issuertokenvalue = JSON.parse(issuertoken.owners);
-  //     //  console.log(issuertokenvalue);
-  //     var value = issuertokenvalue["0x320Bbee0D0CE23302eDDb2707B2DdED3e49E4437"];
-  //      console.log(value);
-  //     // let firstKey = Object.keys(issuertokenvalue)[0];
-  //     // let firstKeyValue = issuertokenvalue[firstKey];
-  //     // issuertokenvalue[key]
-  //     //   console.log(firstObj);
-  //     //   let firstKey = Object.keys(firstObj);
-  //     //   console.log(firstKey);
-  //     //  // let issuertokenvalue = issuertoken.owners[firstKey];
-  //     //   // let issuertokenvalue = Object.values(issuertoken.owners);
-  //     // console.log(firstKeyValue);
-  //     var foundEle =  grouploglist.find(ele => ele.readvalue_watthour != value);
-  //     if(foundEle){
-  //       missingtoken.push({
-  //         token: foundEle.readvalue_watthour,
-  //         foundEle
-  //       });
-  //     }
 
-  //   });
-  //   console.log(missingtoken);
-  //   return missingtoken
-  // }
-*/
-
-  //  @Cron(CronExpression.EVERY_30_SECONDS)
+  //@Cron(CronExpression.EVERY_30_SECONDS)
   async getsCertificateReadModule(
     userOrgId: string,
     pageNumber: number,

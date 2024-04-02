@@ -112,15 +112,12 @@ export class PermissionService {
         success: false,
         message: `Permission For ModuleId  and Role already exist`,
       });
-      // return userpermission;
-      //throw new NotFoundException(`Permission For ModuleId  and Role already exist`);
     }
   }
   private async checkForExistingmodulepermission(
     data: any,
     newpermissionvalue: number,
   ): Promise<boolean> {
-    //console.log(data)
     this.logger.verbose(`With in checkForExistingmodulepermission`);
     const moduleId = await this.ACLpermissionService.findOne({
       id: data.aclmodulesId,
@@ -298,7 +295,6 @@ export class PermissionService {
       this.logger.error(`No module permission available in requeste`);
       throw new NotFoundException(`No module permission available in requeste`);
     }
-
     const api_user = await this.userService.findById(loginuser.id);
 
     let permissionIds: any = [];
@@ -318,7 +314,7 @@ export class PermissionService {
         newpermission.entityType = EntityType.User;
         newpermission.entityId = loginuser.id;
         const perId = await this.create(newpermission, loginuser);
-        //console.log(perId);
+
         permissionIds.push(perId.id);
       }),
     );

@@ -1220,10 +1220,6 @@ export class DeviceService {
     }));
   }
   get dbReader() {
-    // const url = 'http://localhost:8086';
-    // const token = 'admin:admin'
-    // const org = '';
-
     // @ts-ignore
     const url = process.env.INFLUXDB_URL;
     // @ts-ignore
@@ -1270,7 +1266,6 @@ export class DeviceService {
     return totalamountofreads;
   }
 
-  /* */
   public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate) {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistReads: number =
@@ -1356,9 +1351,6 @@ export class DeviceService {
     );
     return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
   }
-  /* */
-
-  ////////////////////////////////////////
 
   public async atto(organizationId, externalId) {
     this.logger.verbose(`With in atto`);
@@ -1384,11 +1376,6 @@ export class DeviceService {
       newDevices.push(device);
     });
     return newDevices;
-    // rows.map(row => ({
-    //   externalId: row.developerExternalId,
-    //   organizationId: row.organizationId
-
-    // }));
   }
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number,

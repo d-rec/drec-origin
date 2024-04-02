@@ -903,31 +903,6 @@ export class DeviceController {
     );
   }
 
-  /* */
-
-  //////////////////////////////////////////////////
-
-  // @Get('/autocomplete')
-  //   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
-  //   @Permission('Read')
-  //   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-  //   @ApiResponse({
-  //     status: HttpStatus.OK,
-  //     type: [DeviceDTO],
-  //     description: 'Returns auto corrected externalIDs and other data',
-  //   })
-
-  //   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
-
-  //   async autocomplete(
-  //     @UserDecorator() { organizationId }: ILoggedInUser,
-  //     // @Query('externalId') externalId :Number,
-
-  //   ){
-  //     return await this.deviceService.atto(organizationId);
-  //   }
-
   /**
    * It is GET api to list all devices with auto complete
    * @param param0 is getting organizationId from user request
@@ -1040,17 +1015,7 @@ export class DeviceController {
       );
     }
   }
-  // @Get('/certified/date-range-log')
-  // @UseGuards(AuthGuard('jwt'))
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Returns Auto-Complete',
-  // })
-  // async devicecertifiedlogdaterange() {
 
-  //   return "await this.deviceService.atto(organizationId, externalId)";
-  // }
-  /////////////////////////////////////////////////
   /**
    * It is POST api to create array of devices by uploading csv files with device data
    * @param user is loggedIn user from request
@@ -1139,9 +1104,6 @@ export class DeviceController {
         fileToProcess.fileName,
       );
     }
-
-    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
-
     return jobCreated;
   }
 }

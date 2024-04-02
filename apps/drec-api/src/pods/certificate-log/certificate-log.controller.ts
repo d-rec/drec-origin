@@ -342,12 +342,6 @@ export class CertificateLogController {
     );
   }
 
-  /*
-   * It is GET api to fetch certificate log of reserved device.
-   * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
-   */
-  /* for developre*/
-
   @Get('/issuer/certifiedlogOfdevices')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
@@ -468,8 +462,4 @@ export class CertificateLogController {
       devicegroup.name,
     );
   }
-  // @Get('export-csv')
-  // async exportCsv(@Res()res: Response, ) {
-  //     return await this.certificateLogService.createCSV(res);
-  // }
 }
