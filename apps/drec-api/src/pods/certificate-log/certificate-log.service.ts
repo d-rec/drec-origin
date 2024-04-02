@@ -237,7 +237,7 @@ export class CertificateLogService {
     this.logger.verbose(
       `With in getCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
-     const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
+    const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
       [];
     certifiedreservation.forEach((ele) =>
       certificatesInReservationWithLog.push({
@@ -468,7 +468,7 @@ export class CertificateLogService {
                     .replace(',', ' ,')
                     .toString()
                     .split(','),
-                 commissioningDateRange: devicegroup?.commissioningDateRange
+                  commissioningDateRange: devicegroup?.commissioningDateRange
                     .join()
                     .replace(',', ', '),
                   redemptionDate: claims.claimData.periodStartDate.substring(
@@ -642,7 +642,7 @@ export class CertificateLogService {
     }
     let newcertificates;
     if (getnewreservationinfo.deviceGroups.length > 0) {
-     this.logger.debug('Line No: 580');
+      this.logger.debug('Line No: 580');
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
         getnewreservationinfo,
         user.role,
@@ -674,7 +674,7 @@ export class CertificateLogService {
           const groupedDatasql = await newq.getQuery();
           this.logger.debug(groupedDatasql);
           const result = await newq.getMany();
-         const res = await Promise.all(
+          const res = await Promise.all(
             result.map(async (certifiedlist: CertificateWithPerdevicelog) => {
               certifiedlist.certificateStartDate = new Date(
                 certifiedlist.generationStartTime * 1000,
@@ -794,7 +794,6 @@ export class CertificateLogService {
       totalCount: certifiedreservation.totalCount,
     };
     return response;
-    
   }
 
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
@@ -1036,9 +1035,8 @@ export class CertificateLogService {
       }
     } catch (error) {
       this.logger.error(`Error generating CSV: ${error.message}`);
-      
+
       throw new HttpException('Devices log Not found', HttpStatus.NOT_FOUND);
     }
-  
   }
 }

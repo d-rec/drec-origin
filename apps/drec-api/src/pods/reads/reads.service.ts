@@ -1395,7 +1395,7 @@ export class ReadsService {
           readsFilter,
           pageNumber,
         );
-        
+
         let previousReadTime;
         if (pageNumber > 1) {
           const previousPage = pageNumber - 1;
