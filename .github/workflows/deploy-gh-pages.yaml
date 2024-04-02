@@ -37,14 +37,12 @@ jobs:
 
       - name: Install tooling
         run: |
-          npm i -g yarn
           npm i -g @microsoft/rush
           npm i -g pnpm
 
       - name: Install drec-api
         working-directory: apps/drec-api
         run: |
-          rush update
           rush install
 
       - name: Build docs with compodoc

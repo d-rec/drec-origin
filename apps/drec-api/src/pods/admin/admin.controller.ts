@@ -376,11 +376,6 @@ export class AdminController {
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,
   ) {
-    // @ts-ignore
-    console.log('adminaddorgId', organizationId);
-    // if (adminaddorgId != null || adminaddorgId != undefined) {
-    //   organizationId = adminaddorgId;
-    // }
     return await this.deviceService.atto(organizationId, externalId);
   }
 
