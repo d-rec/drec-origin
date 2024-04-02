@@ -1168,7 +1168,7 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()
           ?.hours || 0,
-      ); 
+      );
       const targetCapacityInKiloWattHour =
         group.targetCapacityInMegaWattHour * 1000;
       if (
@@ -2100,7 +2100,6 @@ export class DeviceGroupService {
     }
   }
 
-
   async checkIfOrganizationHasBlockhainAddressAdded(
     organizationId: number,
   ): Promise<boolean> {
@@ -2534,6 +2533,7 @@ export class DeviceGroupService {
                   });
                 }),
               );
+            }
             const startTimestamp =
               new Date(filterDto.start_date).getTime() / 1000;
             const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;

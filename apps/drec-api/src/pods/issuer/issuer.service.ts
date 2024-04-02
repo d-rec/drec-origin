@@ -70,8 +70,7 @@ export class IssuerService {
 
     this.httpService
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`)
-      .subscribe((response) => {
-      });
+      .subscribe((response) => {});
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -212,7 +211,7 @@ export class IssuerService {
             );
           }
           this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
-          this.logger.error('ongoing countryDevicegroup is missing')
+          this.logger.error('ongoing countryDevicegroup is missing');
           const groupdevices = await this.deviceService.findForGroup(group.id);
 
           await Promise.all(
@@ -227,7 +226,7 @@ export class IssuerService {
               }
             }),
           );
-         
+
           for (const key in countryDevicegroup) {
             //deep clone to avoid duplicates
             const newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
@@ -690,7 +689,7 @@ export class IssuerService {
           (devicecertificatelogDto.certificate_issuance_enddate =
             allDevicesCompleteReadsBetweenTimeRange[index][
               allDevicesCompleteReadsBetweenTimeRange[index].length - 1
-            ].timestamp), 
+            ].timestamp),
           (devicecertificatelogDto.status =
             SingleDeviceIssuanceStatus.Requested),
           (devicecertificatelogDto.readvalue_watthour = devciereadvalue);
@@ -741,8 +740,8 @@ export class IssuerService {
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
-      fromTime: minimumStartDate, 
-      toTime: maximumEndDate, 
+      fromTime: minimumStartDate,
+      toTime: maximumEndDate,
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
@@ -776,9 +775,9 @@ export class IssuerService {
       new CheckCertificateIssueDateLogForDeviceGroupEntity();
     (devicegroupcertificatelogDto.groupid = group.id?.toString()),
       (devicegroupcertificatelogDto.certificate_issuance_startdate =
-        minimumStartDate), 
+        minimumStartDate),
       (devicegroupcertificatelogDto.certificate_issuance_enddate =
-        maximumEndDate), 
+        maximumEndDate),
       (devicegroupcertificatelogDto.status =
         SingleDeviceIssuanceStatus.Requested),
       (devicegroupcertificatelogDto.readvalue_watthour = issueTotalReadValue),
@@ -851,7 +850,7 @@ export class IssuerService {
     (devicegroupcertificatelogDto.groupid = group.id?.toString()),
       (devicegroupcertificatelogDto.certificate_issuance_startdate = new Date(
         devicehistoryrequest.readsStartDate.toString(),
-      )), 
+      )),
       (devicegroupcertificatelogDto.certificate_issuance_enddate = new Date(
         devicehistoryrequest.readsEndDate.toString(),
       )),
@@ -1302,8 +1301,8 @@ export class IssuerService {
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
       deviceId: group.id?.toString(), // This is the device group id not a device id
       energyValue: issueTotalReadValue.toString(),
-      fromTime: minimumStartDate, 
-      toTime: maximumEndDate, 
+      fromTime: minimumStartDate,
+      toTime: maximumEndDate,
       toAddress: group.buyerAddress,
       userId: group.buyerAddress,
       metadata: {
@@ -1334,7 +1333,7 @@ export class IssuerService {
       new CheckCertificateIssueDateLogForDeviceGroupEntity();
     (devicegroupcertificatelogDto.groupid = group.id?.toString()),
       (devicegroupcertificatelogDto.certificate_issuance_startdate =
-        minimumStartDate), 
+        minimumStartDate),
       (devicegroupcertificatelogDto.certificate_issuance_enddate =
         maximumEndDate),
       (devicegroupcertificatelogDto.status =

@@ -157,7 +157,7 @@ export class InvitationService {
     };
     let userid: any;
     this.logger.debug('invitee');
-   
+
     inviteuser.api_user_id = organization.api_user_id;
     userid = await this.userService.newcreate(
       inviteuser,
@@ -215,7 +215,6 @@ export class InvitationService {
         invitation.organization.id,
       );
       await this.userService.changeRole(userinvite.id, invitation.role);
-    
     }
 
     invitation.status = user.status;

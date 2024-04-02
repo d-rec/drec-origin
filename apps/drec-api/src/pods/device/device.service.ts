@@ -325,9 +325,9 @@ export class DeviceService {
       const jwtToken = await regenerateToken(this.httpService);
       const headers = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${jwtToken}`,   
+        Authorization: `Bearer ${jwtToken}`,
       };
-      const irec_capacity = device.capacity / 1000;   
+      const irec_capacity = device.capacity / 1000;
       const requestBody = {
         deviceType: '/device_types/' + device.deviceTypeCode,
         fuel: '/fuels/',
@@ -347,7 +347,7 @@ export class DeviceService {
         country: '/countries/' + device.countryCode,
       };
       const config: AxiosRequestConfig = {
-        headers, 
+        headers,
       };
 
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
@@ -553,10 +553,10 @@ export class DeviceService {
           }),
         );
       });
-      }
+    }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
-   
+
     // @ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = [];
@@ -972,7 +972,7 @@ export class DeviceService {
 
     return await this.repository.save(devicereadtype);
   }
-  
+
   private getBuyerFilteredQuery(
     filter: FilterDTO,
     pagenumber,
@@ -1229,8 +1229,7 @@ export class DeviceService {
 
     if (numberOfHistReads <= 0 && numberOfOngReads <= 0) {
       return this.changecreatedAtDate(onboardedDate, givenDate, externalId);
-    } 
-    else {
+    } else {
       this.logger.error(
         `The given device already had some meter reads;Thus you cannot change the createdAt`,
       );
@@ -1393,7 +1392,7 @@ export class DeviceService {
     const result = await queryBuilder.getRawMany();
     const count = await queryBuilder.getCount();
     const totalPages = Math.ceil(count / pageSize);
-   
+
     return {
       certifieddevices_startToend: result,
       totalItems: count,
@@ -1401,7 +1400,6 @@ export class DeviceService {
       totalPages: totalPages,
     };
   }
-  
 
   async remove(id: number, filterop): Promise<any> {
     this.logger.verbose(`With in remove`);

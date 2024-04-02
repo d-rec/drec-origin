@@ -105,7 +105,6 @@ export class ReadsController extends BaseReadsController {
   public async getReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
-   
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -532,7 +531,6 @@ export class ReadsController extends BaseReadsController {
                         ele[key].length,
                       ),
                     ) != NaN
-                    
                   ) {
                     // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
@@ -1017,7 +1015,7 @@ export class ReadsController extends BaseReadsController {
       momentTimeZone.tz
         .names()
         .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      
+
       if (
         !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
       ) {
@@ -1182,7 +1180,7 @@ export class ReadsController extends BaseReadsController {
         }
         // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
-        
+
         // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
@@ -1214,7 +1212,6 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
-
           if (
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
