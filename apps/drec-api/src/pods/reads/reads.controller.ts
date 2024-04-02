@@ -105,7 +105,7 @@ export class ReadsController extends BaseReadsController {
   public async getReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
-    // @UserDecorator() user: ILoggedInUser,
+   
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -438,11 +438,9 @@ export class ReadsController extends BaseReadsController {
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
       const allTimezoneNamesLowerCase: Array<string> = [];
-      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
         .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      //console.log(allTimezoneNamesLowerCase);
       if (
         !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
       ) {
@@ -534,6 +532,7 @@ export class ReadsController extends BaseReadsController {
                         ele[key].length,
                       ),
                     ) != NaN
+                    
                   ) {
                     // @ts-ignore
                     milliSeondsToAddSentInRequest = ele[key].substring(
@@ -996,7 +995,6 @@ export class ReadsController extends BaseReadsController {
         id,
         organizationId,
       );
-    //console.log(device);
     if (device === null) {
       this.logger.error(`Invalid device id`);
       return new Promise((resolve, reject) => {
@@ -1016,11 +1014,10 @@ export class ReadsController extends BaseReadsController {
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
       const allTimezoneNamesLowerCase: Array<string> = [];
-      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
         .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      //console.log(allTimezoneNamesLowerCase);
+      
       if (
         !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
       ) {
@@ -1185,7 +1182,7 @@ export class ReadsController extends BaseReadsController {
         }
         // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
-        //dateFormateToCheck.test(ele.starttimestamp);
+        
         // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
@@ -1217,7 +1214,6 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
-          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
           if (
             new Date(ele.starttimestamp).getTime() <=

@@ -32,7 +32,6 @@ import {
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
 } from './dto';
-//import { jsonbBuildObject, jsonbBuildArray, jsonbPath, jsonbArrayElements } from 'typeorm-plus';
 import { defaults, cloneDeep } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
@@ -678,7 +677,6 @@ export class DeviceGroupService {
       .limit(pageSize)
       .getRawMany();
     this.logger.debug(queryBuilder.getSql());
-    // console.log(groupedData);
     const totalCountQuery = await queryBuilder.getCount();
 
     const totalPages = Math.ceil(totalCountQuery / pageSize);
@@ -983,7 +981,6 @@ export class DeviceGroupService {
       } else {
         newEndDate = data.reservationEndDate.toISOString();
       }
-      ////console.log("newEndDate",newEndDate)
       //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
       //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
       let nextMinimumCreatedWhichIsLessThanEndDate = false;
@@ -995,7 +992,6 @@ export class DeviceGroupService {
           ) {
             nextMinimumCreatedWhichIsLessThanEndDate = true;
             if (nextMinimumCreatedAtString === '') {
-              //newEndDate
               nextMinimumCreatedAtString = new Date(
                 ele.createdAt,
               ).toISOString();
@@ -1013,7 +1009,6 @@ export class DeviceGroupService {
           }
         }
       });
-      ////console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
         if (
           new Date(startDate).getTime() >
@@ -1173,7 +1168,7 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()
           ?.hours || 0,
-      ); // hours
+      ); 
       const targetCapacityInKiloWattHour =
         group.targetCapacityInMegaWattHour * 1000;
       if (
@@ -1397,7 +1392,6 @@ export class DeviceGroupService {
             );
           }
         } catch (e) {
-          //console.log(e);
           this.logger.error(e);
           return { isError: true, device: device, errorDetail: e };
         }
@@ -1565,13 +1559,6 @@ export class DeviceGroupService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-
-    // if (filter.country) {
-    //   where.countryCode = this.getRawFilter(filter.country);
-    // }
-    // if (filter.fuelCode) {
-    //   where.fuelCode = this.getRawFilter(filter.fuelCode);
-    // }
     if (filter.offTaker) {
       where.offTakers = this.getRawFilter(filter.offTaker);
     }
@@ -1760,8 +1747,6 @@ export class DeviceGroupService {
           isError: false,
           errorsList: [],
         });
-
-        // csvLine =>  "1,2,3" and "4,5,6"
       })
       .on('done', async (error: any) => {
         for (let index = 0; index < records.length; index++) {
@@ -2111,23 +2096,10 @@ export class DeviceGroupService {
         }
       }
 
-      // Add the generated object to our
-      // result array
       result.push(obj);
     }
-
-    //////console.log(result);
   }
 
-  // async getGroupiCertificateIssueDate(
-  //   organizationId: number,
-  // ): Promise<DeviceGroupIssueCertificate{}> {
-  //   ////console.log(organizationId);
-  //   return await this.repositoryDeviceGroupcertificate.findByIds({
-  //     organizationId
-  //     //status:StatusCSV.Completed
-  //   });
-  // }
 
   async checkIfOrganizationHasBlockhainAddressAdded(
     organizationId: number,
@@ -2157,7 +2129,6 @@ export class DeviceGroupService {
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
       where: { end_date: LessThan(new Date()) },
     });
-    ////console.log(groupId)
     return groupId;
   }
 
@@ -2167,7 +2138,6 @@ export class DeviceGroupService {
     enddate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in updatecertificateissuenextdate`);
-    // await this.checkNameConflict(data.name);
     const deviceGroupdate = await this.getGroupiCertificateIssueDate({
       id: id,
     });
@@ -2237,7 +2207,6 @@ export class DeviceGroupService {
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
     this.logger.verbose(`With in deactiveReaservation`);
-    //console.log(group);
     let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
@@ -2281,7 +2250,6 @@ export class DeviceGroupService {
     groupId: number,
   ): Promise<number> {
     this.logger.verbose(`With in countgroupIdHistoryissuanceDevicelog`);
-    //const repository = getRepository(HistoryDeviceGroupNextIssueCertificate);
     const count = await this.historynextissuancedaterepository.count({
       where: {
         groupId: groupId,
@@ -2353,7 +2321,6 @@ export class DeviceGroupService {
       devicegroup_uid: groupuid,
       reservationActive: true,
     });
-    // console.log(group)
     if (group === null) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -2416,7 +2383,6 @@ export class DeviceGroupService {
           groupId: group.id,
         },
       })) ?? null;
-    //console.log(nextissuance)
 
     return {
       historynextissuansinfo: {
@@ -2529,8 +2495,6 @@ export class DeviceGroupService {
                     });
                   }),
                 );
-
-                // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
               }
             }
             if (filterDto.fuelCode) {
@@ -2551,10 +2515,8 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
             }
             if (filterDto.offTaker) {
-              // console.log(typeof filterDto.offTaker);
               const newoffTaker = filterDto.offTaker.toString();
               const offTakerArray = newoffTaker.split(',');
               qb.orWhere(
@@ -2572,8 +2534,6 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
-            }
             const startTimestamp =
               new Date(filterDto.start_date).getTime() / 1000;
             const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
@@ -2678,7 +2638,6 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            // deviceIdsInt: curr.deviceIdsInt,
             developerdeviceIds: [curr.id],
             internalCertificateId: [curr.internalCertificateId],
           });
@@ -2809,8 +2768,6 @@ export class DeviceGroupService {
                     });
                   }),
                 );
-
-                // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
               }
             }
             if (filterDto.fuelCode) {

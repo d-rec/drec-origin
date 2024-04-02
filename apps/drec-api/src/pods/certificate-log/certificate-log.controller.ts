@@ -154,7 +154,6 @@ export class CertificateLogController {
     this.logger.verbose(`With in getissueCertificate`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    //console.log(regexExp.test(groupuId));
     if (groupuId === null || !regexExp.test(groupuId)) {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
