@@ -49,7 +49,6 @@ export class InvitationService {
     firstName: string,
     lastName: string,
     orgId?: number,
-    // permission: NewPermissionDTO[],
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
@@ -121,7 +120,6 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    //console.log(invitation)
     if (orginvitee) {
       this.logger.error(
         `Requested invitation User ${lowerCaseEmail} is already exist`,
@@ -156,31 +154,21 @@ export class InvitationService {
       organizationType: organization.organizationType,
       // @ts-ignore
       orgid: organization.id | undefined,
-      // orgAddress:''
     };
     let userid: any;
     this.logger.debug('invitee');
-    //to add for if one user invite by multiple organization
-    // if (invitee) {
-    //   userid = invitee
 
-    // } else {
-    //let client;
-    //inviteuser['client'] = { api_user_id: organization.api_user_id }
     inviteuser.api_user_id = organization.api_user_id;
     userid = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
       true,
     );
-
-    //}
     const updateinviteuser: updateInviteStatusDTO = {
       email: lowerCaseEmail,
       status: OrganizationInvitationStatus.Accepted,
     };
 
-    //await this.update(updateinviteuser, saveinviteuser.id)
     if (sender.role !== Role.ApiUser) {
       await this.userService.sentinvitiontoUser(
         inviteuser,
@@ -227,13 +215,6 @@ export class InvitationService {
         invitation.organization.id,
       );
       await this.userService.changeRole(userinvite.id, invitation.role);
-      // const pre = invitation.permissionId;
-      // //console.log(pre);
-      // await Promise.all(
-      //   pre.map(
-      //     async (pre: number) =>
-      //       await this.PermissionService.updatepermissionstatus(pre)),
-      // );
     }
 
     invitation.status = user.status;

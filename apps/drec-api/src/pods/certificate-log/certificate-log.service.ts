@@ -87,9 +87,7 @@ export class CertificateLogService {
       .where('d.organizationId = :orgid', { orgid: 3 })
       .andWhere('dl.readvalue_watthour>0')
       .groupBy('d.externalId');
-    //console.log(totalExamNumbers.getQuery())
     const devicelog = await totalNumbers.getRawMany();
-    //console.log(devicelog)
 
     return devicelog;
   }
@@ -322,7 +320,6 @@ export class CertificateLogService {
               return devicelog;
             }),
           );
-          //console.log("perDeviceCertificateLog");
           return certificatesInReservationWithLog[index];
         },
       ),
@@ -455,18 +452,14 @@ export class CertificateLogService {
     this.logger.verbose(`With in getCertificateRedemptionReport`);
     const devicegroups =
       await this.devicegroupService.getBuyerDeviceGroups(buyerId);
-    //console.log(devicegroups);
     const myredme = [];
     const res = await Promise.all(
       devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
         const cert = await this.getCertificaterForRedemptionRepot(
           devicegroup.id.toString(),
         );
-        //console.log(cert)
         const res1 = await Promise.all(
           cert.map(async (claimcertificate: Certificate) => {
-            //console.log("datas")
-            //console.log(claimcertificate);
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 // console.log(claims.claimData);
@@ -511,7 +504,6 @@ export class CertificateLogService {
         );
       }),
     );
-    //console.log(res);
     return myredme;
   }
 
@@ -723,7 +715,6 @@ export class CertificateLogService {
               const devicereadenddate = new Date(
                 (certifiedlist.generationEndTime + 1) * 1000,
               ); //going back 1 second in start and going forward 1 second in end
-              //console.log("changegetdate", devicereadstartdate, devicereadenddate)
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
                   const device = await this.deviceService.findOne(deviceid);
@@ -745,9 +736,6 @@ export class CertificateLogService {
                         singleDeviceLogEle.externalId =
                           device.developerExternalId;
                         singleDeviceLogEle['deviceId'] = device.id;
-                        // if (device.timezone != null) {
-                        //   singleDeviceLogEle['timezone'] = device.timezone
-                        // }
                         singleDeviceLogEle['timezone'] =
                           getLocalTimeZoneFromDevice(device.createdAt, device);
                         certifiedlist.perDeviceCertificateLog.push(
@@ -1029,10 +1017,7 @@ export class CertificateLogService {
         organizationId: organizationId,
       })
       .andWhere('dl.readvalue_watthour>0');
-
-    //console.log(totalExamNumbers.getQuery())
     const devicelog = await totalNumbers.getRawMany();
-    //console.log(devicelog)
 
     return devicelog;
   }

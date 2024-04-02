@@ -208,15 +208,12 @@ export class DeviceService {
         totalCount,
       };
     }
-    //devices.externalId = devices.developerExternalId
     const [devices, totalCount] = await this.repository.findAndCount({
       where: { organizationId },
       order: {
         createdAt: 'DESC',
       },
     });
-
-    //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
       device.externalId = device.developerExternalId;
@@ -313,11 +310,8 @@ export class DeviceService {
         };
       }
     }
-
-    //return { status: false, message: 'device not found' };
   }
 
-  //this function for add device details into irec
   async I_RECDeviceDetailsPostData(deviceId): Promise<Observable<any>> {
     this.logger.verbose(`With in I_RECDeviceDetailsPostData`);
     const device = await this.repository.findOne({
@@ -330,12 +324,10 @@ export class DeviceService {
     if (device) {
       const jwtToken = await regenerateToken(this.httpService);
       const headers = {
-        'Content-Type': 'application/json', // Set the Content-Type header for JSON data
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${jwtToken}`,
-        // Add any other custom headers if needed
       };
       const irec_capacity = device.capacity / 1000;
-      //let deId=device.externalId
       const requestBody = {
         deviceType: '/device_types/' + device.deviceTypeCode,
         fuel: '/fuels/',
@@ -354,13 +346,11 @@ export class DeviceService {
         address1: device.address,
         country: '/countries/' + device.countryCode,
       };
-      // console.log("jwtToken", jwtToken);
-
       const config: AxiosRequestConfig = {
-        headers, // Set the headers in the config object
+        headers,
       };
 
-      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`; // Replace with your API endpoint
+      const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
 
       let data: any;
       const response = this.httpService
@@ -376,7 +366,6 @@ export class DeviceService {
           },
         );
       await this.repository.save(device);
-      // console.log("response from irec", response._subscribe)
       return data;
     }
   }
@@ -415,8 +404,6 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
-    //console.log(groupdevice)
-
     groupdevice = groupdevice.filter(
       (ele) =>
         ele.meterReadtype == ReadType.Delta ||
@@ -424,12 +411,10 @@ export class DeviceService {
     );
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
-    //console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry ?? null;
   }
 
   private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
-    ////console.log(array)
     this.logger.verbose(`With in groupBy`);
     return array.reduce((result: any, currentValue: any) => {
       (result[currentValue[key]] = result[currentValue[key]] || []).push(
@@ -454,9 +439,7 @@ export class DeviceService {
     );
     const result = await this.repository.find({
       where: {
-        //id: In(ids), groupId: IsNull()
         id: In(ids),
-        //, groupId: IsNull()
       },
     });
     delete result['organization'];
@@ -496,15 +479,12 @@ export class DeviceService {
     organizationId: number,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findDeviceByDeveloperExternalId`);
-    //change whare condition filter by developerExternalId instead of externalId and organizationid
     const device: Device = await this.repository.findOne({
       where: {
         developerExternalId: meterId,
         organizationId: organizationId,
       },
     });
-
-    // delete device["organization"];
     if (!device) {
       this.logger.warn(`Returning null`);
       return null;
@@ -519,7 +499,6 @@ export class DeviceService {
     meterIdList: Array<string>,
     organizationId: number,
   ): Promise<Array<DeviceDTO | null>> {
-    //console.log("meterIdList", meterIdList);
     this.logger.verbose(`With in findMultipleDevicesBasedExternalId`);
     return (
       (await this.repository.find({
@@ -551,7 +530,6 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
-    //console.log(newDevice);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     const sdgbbenifitslist = SDGBenefits;
@@ -562,7 +540,6 @@ export class DeviceService {
         organizationId: orgCode,
       },
     });
-    //console.log(checkexternalid)
     if (checkexternalid != undefined) {
       this.logger.debug('Line No: 236');
       this.logger.error(
@@ -576,15 +553,10 @@ export class DeviceService {
           }),
         );
       });
-      // throw new ConflictException({
-      //   success: false,
-      //   message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
-      // })
-      // return new NotFoundException(`ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`);
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
-    //console.log(newDevice.developerExternalId)
+
     // @ts-ignore
     if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
       newDevice.SDGBenefits = [];
@@ -663,8 +635,6 @@ export class DeviceService {
       throw new NotFoundException(`No device found with id ${externalId}`);
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
-    //console.log(updateDeviceDTO.countryCode);
-    // const code = updateDeviceDTO.countryCode.toUpperCase();
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgbbenifitslist = SDGBenefits;
 
@@ -693,12 +663,10 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = [];
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
-    // currentDevice.status = DeviceStatus.Submitted;
     const result = await this.repository.save(currentDevice);
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];
     delete result['organization'];
-    //console.log(result);
     return result;
   }
 
@@ -825,10 +793,8 @@ export class DeviceService {
     const limit = 20;
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
-      // deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-      // offTaker: filter.offTaker,
       countryCode: filter.country && getCodeFromCountry(filter.country),
     });
     if (orgId != null || orgId != undefined) {
@@ -861,7 +827,6 @@ export class DeviceService {
         (alias) =>
           `${alias} ILIKE ANY(ARRAY[${sdgBenefitsArray.map((term) => `'%${term}%'`)}])`,
       );
-      // where.SDGBenefits = this.getRawFilter(filter.SDGBenefits.toString());
     }
     if (filter.deviceTypeCode) {
       const newdtype = filter.deviceTypeCode.toString();
@@ -879,7 +844,6 @@ export class DeviceService {
           `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map((term) => `'%${term}%'`)}])`,
       );
     }
-    //console.log(where)
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -951,9 +915,6 @@ export class DeviceService {
     this.logger.verbose(`With in removeFromGroup`);
     const currentDevice = await this.getDeviceForGroup(deviceId, groupId);
     if (!currentDevice) {
-      // throw new NotFoundException(
-      //   `No device found with id ${deviceId} and groupId: ${groupId}`,
-      // );
       this.logger.error(
         `in removeFromGroup 373 No device found with id ${deviceId} and groupId: ${groupId}`,
       );
@@ -1011,7 +972,7 @@ export class DeviceService {
 
     return await this.repository.save(devicereadtype);
   }
-  //
+
   private getBuyerFilteredQuery(
     filter: FilterDTO,
     pagenumber,
@@ -1029,7 +990,6 @@ export class DeviceService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-    //console.log(where);
     const query: FindManyOptions<Device> = {
       where,
       order: {
@@ -1107,7 +1067,6 @@ export class DeviceService {
       where: {
         groupId: groupid,
         device_externalid: externalid,
-        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
         id: 'ASC',
@@ -1158,7 +1117,6 @@ export class DeviceService {
       return devices;
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
 
@@ -1168,7 +1126,6 @@ export class DeviceService {
     endDate: Date,
   ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in getdevcielogFilteredQuery`);
-    //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder('device')
       .where('device.externalId = :deviceid', { deviceid: deviceid })
@@ -1197,8 +1154,6 @@ export class DeviceService {
             );
         }),
       );
-    //   //console.log(query)
-    // //console.log(query.getQuery())
     return query;
   }
 
@@ -1233,7 +1188,6 @@ export class DeviceService {
 
   async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
     this.logger.verbose(`With in getOrganizationDevicesTotal`);
-    //console.log(organizationId);
     const devices = await this.repository.find({
       where: { organizationId },
     });
@@ -1261,8 +1215,6 @@ export class DeviceService {
         });
       }),
     );
-
-    //console.log(totalamountofreads);
     return totalamountofreads;
   }
 
@@ -1276,11 +1228,8 @@ export class DeviceService {
     );
 
     if (numberOfHistReads <= 0 && numberOfOngReads <= 0) {
-      //no reads exist for the given device
-      //So we can change the date
       return this.changecreatedAtDate(onboardedDate, givenDate, externalId);
-    } //If reads exist for the given device
-    else {
+    } else {
       this.logger.error(
         `The given device already had some meter reads;Thus you cannot change the createdAt`,
       );
@@ -1443,7 +1392,7 @@ export class DeviceService {
     const result = await queryBuilder.getRawMany();
     const count = await queryBuilder.getCount();
     const totalPages = Math.ceil(count / pageSize);
-    //let finalresult =
+
     return {
       certifieddevices_startToend: result,
       totalItems: count,
@@ -1451,7 +1400,6 @@ export class DeviceService {
       totalPages: totalPages,
     };
   }
-  ///////////////////
 
   async remove(id: number, filterop): Promise<any> {
     this.logger.verbose(`With in remove`);

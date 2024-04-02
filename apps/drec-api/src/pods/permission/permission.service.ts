@@ -47,7 +47,6 @@ export class PermissionService {
     loginuser: LoggedInUser,
   ): Promise<PermissionDTO> {
     this.logger.verbose(`With in create`);
-    //console.log(data)
     const addedPermissionList: any = {
       Read: false,
       Write: false,
@@ -61,7 +60,6 @@ export class PermissionService {
         }
       });
     }
-    //console.log(addedPermissionList)
     const permissionValue =
       this.Permissionvalue.computePermissions(addedPermissionList);
     const userpermission = await this.findOne({
@@ -69,14 +67,11 @@ export class PermissionService {
       entityType: data.entityType,
       entityId: data.entityId,
     });
-    //console.log("permission69");
-    //console.log(userpermission);
     if (!userpermission) {
       const permissionboolean = await this.checkForExistingmodulepermission(
         data,
         permissionValue,
       );
-      //console.log(permissionboolean)
       if (permissionboolean) {
         const aclpermission = new ACLModulePermissions({
           ...data,
