@@ -1256,6 +1256,7 @@ export class IssuerService {
                   }
                 } else {
                   startDate = DateTime.fromISO(
+                    // @ts-ignore ts(2339)
                     lastcertifieddeviceend_date.certificate_issuance_enddate.toISOString(),
                   ).toUTC();
                 }
