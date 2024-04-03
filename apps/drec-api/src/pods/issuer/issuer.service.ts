@@ -221,14 +221,11 @@ export class IssuerService {
                //deep clone to avoid duplicates
                let newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
                newGroup.devices = countryDevicegroup[key];
-               // console.log("218line", startDate)
-               // console.log("20619line", endDate)
                this.newissueCertificateForGroup(newGroup, grouprequest, startDate, endDate, key);
              }
              
            }
            else {
-             console.log("224line,monthlytestr")
              let startDateCopy = DateTime.fromMillis(startDate.toMillis());
              let endDateCopy = DateTime.fromMillis(endDate.toMillis());
              const arrayofStartAndEndTimeDividedDifferenceBetweenAsOneDay: Array<{ startDate: DateTime, endDate: DateTime }> = [];

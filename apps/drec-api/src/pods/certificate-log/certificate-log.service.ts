@@ -236,10 +236,6 @@ export class CertificateLogService {
     this.logger.verbose(
       `With in getCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
-    // let request: IGetAllCertificatesOptions = {
-    //   deviceId: groupid
-    // }
-    // const certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] = await this.offChainCertificateService.getAll(request);
     const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
       [];
     certifiedreservation.forEach((ele) =>
@@ -361,7 +357,6 @@ export class CertificateLogService {
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
-          // deviceid: s.issuelog_externalId,
           groupId: s.issuelog_groupId,
         };
         return item;
@@ -461,25 +456,20 @@ export class CertificateLogService {
           cert.map(async (claimcertificate: Certificate) => {
             const res2 = await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
-                // console.log(claims.claimData);
-
                 myredme.push({
                   compliance: 'I-REC',
                   certificateId: claimcertificate.id,
                   fuelCode: devicegroup?.fuelCode.toString().split(','),
                   country: devicegroup?.countryCode.toString().split(','),
                   capacityRange: devicegroup?.capacityRange,
-                  // installations: devicegroup?.installationConfigurations ? devicegroup?.installationConfigurations.join().replace(',', ', ') : '',
                   offTakers: devicegroup?.offTakers
                     .join()
                     .replace(',', ' ,')
                     .toString()
                     .split(','),
-                  // sectors: devicegroup?.sectors ? devicegroup?.sectors.join().replace(',', ', ') : '',
                   commissioningDateRange: devicegroup?.commissioningDateRange
                     .join()
                     .replace(',', ', '),
-                  //standardCompliance: devicegroup?.standardCompliance,
                   redemptionDate: claims.claimData.periodStartDate.substring(
                     claims.claimData.periodStartDate.indexOf(':') + 1,
                   ),
@@ -644,7 +634,6 @@ export class CertificateLogService {
     );
     let oldcertificates;
     if (getoldreservationinfo.deviceGroups.length > 0) {
-      //  oldcertificates= await this.getDeveloperfindreservationcertified(getoldreservationinfo, user.role);
       return this.getDeveloperfindreservationcertified(
         getoldreservationinfo,
         user.role,
@@ -652,14 +641,12 @@ export class CertificateLogService {
     }
     let newcertificates;
     if (getnewreservationinfo.deviceGroups.length > 0) {
-      // newcertificates = await this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(getnewreservationinfo, user.role);
       this.logger.debug('Line No: 580');
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
         getnewreservationinfo,
         user.role,
       );
     }
-    //  const final= [...oldcertificates.certificatelog, ...newcertificates.certificatelog]
     return {
       certificatelog: [],
       currentpage: 0,
@@ -686,7 +673,6 @@ export class CertificateLogService {
           const groupedDatasql = await newq.getQuery();
           this.logger.debug(groupedDatasql);
           const result = await newq.getMany();
-          // console.log(result)
           const res = await Promise.all(
             result.map(async (certifiedlist: CertificateWithPerdevicelog) => {
               certifiedlist.certificateStartDate = new Date(
@@ -789,8 +775,6 @@ export class CertificateLogService {
                       );
                     });
                   }
-
-                  //   return devicelog;
                 }),
               );
               finalcertificatesInReservationWithLog.push(certifiedlist);
@@ -809,7 +793,6 @@ export class CertificateLogService {
       totalCount: certifiedreservation.totalCount,
     };
     return response;
-    //return finalcertificatesInReservationWithLog
   }
 
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
@@ -830,7 +813,6 @@ export class CertificateLogService {
         const groupedDatasql = await newq.getQuery();
         this.logger.debug(groupedDatasql);
         const result = await newq.getMany();
-        // console.log(result)
         const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
           [];
         result.forEach((ele) =>
@@ -980,7 +962,6 @@ export class CertificateLogService {
       totalCount: getreservationinfo.totalCount,
     };
     return response;
-    //return finalcertificatesInReservationWithLog
   }
   /**Create new function to get the certifcate log of perdevice */
   async Findperdevicecertificatelog(
@@ -1053,9 +1034,8 @@ export class CertificateLogService {
       }
     } catch (error) {
       this.logger.error(`Error generating CSV: ${error.message}`);
-      //res.status(500).send('Internal Server Error');
+
       throw new HttpException('Devices log Not found', HttpStatus.NOT_FOUND);
     }
-    //return `CSV file generated at ${filePath}`;
   }
 }

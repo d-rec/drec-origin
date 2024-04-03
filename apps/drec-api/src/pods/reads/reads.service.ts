@@ -150,7 +150,6 @@ export class ReadsService {
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    //console.log(measurements);
     const device = await this.deviceService.findReads(id);
 
     if (!device) {
@@ -504,7 +503,6 @@ export class ReadsService {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
-            // if (deltafirstvalidation) {
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -515,8 +513,6 @@ export class ReadsService {
               unit: measurement.unit,
               readsEndDate: element.endtimestamp.toString(),
             });
-            // }
-
             if (measurmentreadindex == measurement.reads.length - 1) {
               resolve(true);
             }
@@ -836,8 +832,6 @@ export class ReadsService {
             );
         }),
       );
-
-    //console.log(query.getQuery())
     return query;
   }
   private firstvalidateEnergy(
@@ -979,8 +973,6 @@ export class ReadsService {
         message: `Failed, MaxEnergy: ${finalmax}`,
       };
     }
-
-    // return Math.round(read.value + margin * read.value) < maxEnergy;
   }
 
   async NewhistoryvalidateEnergy(
@@ -1220,7 +1212,6 @@ export class ReadsService {
     startdate: Date,
     enddate: Date,
   ): Promise<HistoryIntermediate_MeterRead> {
-    // await this.checkNameConflict(data.name);
     const historydevice = await this.getDeviceHistoryCertificateIssueDate({
       id: id,
     });
@@ -1305,7 +1296,6 @@ export class ReadsService {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
     }
     numberOfReads = numberOfHistReads + numberOfOngReads;
-    // numberOfPages=Math.ceil(numberOfReads/sizeOfPage)
     if (numberOfHistReads == 0 && numberOfOngReads == 0) {
       return {
         historyread,
@@ -1395,9 +1385,6 @@ export class ReadsService {
           end: filter.end.toString(),
         };
       }
-
-      //  console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
-
       if (
         new Date(filter.start).getTime() <
           new Date(deviceOnboarded).getTime() ||
@@ -1408,20 +1395,7 @@ export class ReadsService {
           readsFilter,
           pageNumber,
         );
-        //console.log("final ongoing:::::::", finalongoing);
 
-        // const nextPage = pageNumber + 1;
-
-        // const nextPageData = await this.getPaginatedData(externalId, readsFilter, nextPage);
-
-        // let nextReadTime;
-
-        // if (nextPageData.length > 0) {
-        //   // @ts-ignore
-        //   nextReadTime = nextPageData[0].timestamp;
-        // } else {
-        //   nextReadTime = null;
-        // }
         let previousReadTime;
         if (pageNumber > 1) {
           const previousPage = pageNumber - 1;
