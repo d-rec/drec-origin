@@ -1058,7 +1058,7 @@ export class DeviceService {
     })
   }
   public async finddeviceLateCycleOfdaterange(groupid, externalid, latestartDate, lateendDate): Promise<Boolean> {
-  
+
     const isalreadyadded = await this.latedevciecertificaterepository.findOne({
       where: {
         groupId: groupid,
@@ -1067,7 +1067,7 @@ export class DeviceService {
         late_end_date: lateendDate.toString()
       },
     })
-   
+
     if (isalreadyadded) {
       return true;
     }
