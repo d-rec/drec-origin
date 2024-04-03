@@ -1,6 +1,6 @@
 require('dotenv').config({ path: '../../.env' });
 
-import { DataSourceOptions } from 'typeorm';
+import { DataSourceOptions, DataSource } from 'typeorm';
 
 const getDBConnectionOptions = (): DataSourceOptions => {
   return process.env.DATABASE_URL
@@ -21,16 +21,16 @@ const getDBConnectionOptions = (): DataSourceOptions => {
       };
 };
 
-const config: DataSourceOptions = {
+const dataSource = new DataSource({
   ...getDBConnectionOptions(),
   entities: ['src/**/*.entity.ts'],
   synchronize: false,
   migrationsRun: true,
   migrations: ['migrations/*.ts'],
-  migrationsTableName: 'migrations_drec',
+  migrationsTableName: 'migrations_drec',/*
   cli: {
     migrationsDir: 'migrations',
-  },
-};
+  },*/
+});
 
-export = config;
+export default dataSource;
