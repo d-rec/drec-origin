@@ -7,9 +7,8 @@ import {
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsDate
+  IsDate,
 } from 'class-validator';
-
 
 @Entity('irec_devices_information')
 export class IrecDevicesInformationEntity extends ExtendedBaseEntity {
@@ -22,13 +21,11 @@ export class IrecDevicesInformationEntity extends ExtendedBaseEntity {
 
   @Column()
   @IsString()
-  event:string
+  event: string;
 
   @Column('json')
   request: any;
 
   @Column('json')
   responses: any;
-  
-
 }

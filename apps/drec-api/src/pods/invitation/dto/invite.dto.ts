@@ -1,13 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { IsNotEmpty, IsEnum, IsEmail, IsArray, IsOptional, IsString } from 'class-validator';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import {
+  IsNotEmpty,
+  IsEnum,
+  IsEmail,
+  IsArray,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { OrganizationRole } from '../../../models';
 import { Role } from '../../../utils/enums';
 import { Exclude } from 'class-transformer';
-import { NewPermissionDTO } from '../../permission/dto/modulepermission.dto'
+import { NewPermissionDTO } from '../../permission/dto/modulepermission.dto';
 import { OrganizationInvitationStatus } from '../../../utils/enums';
 export class InviteDTO {
-
   @ApiProperty({ type: String })
   @IsOptional()
   @IsString()
@@ -29,7 +41,6 @@ export class InviteDTO {
   @IsEnum(Role)
   role: OrganizationRole;
 
-
   // @ApiProperty({ type: [NewPermissionDTO] })
   // @IsArray()
   // @IsOptional()
@@ -37,14 +48,12 @@ export class InviteDTO {
 
   @IsOptional()
   status?: string;
-
 }
 export class updateInviteStatusDTO {
   @ApiProperty({ type: String })
   @IsNotEmpty()
   @IsEmail()
   email: string;
-
 
   @ApiProperty({
     enum: OrganizationInvitationStatus,

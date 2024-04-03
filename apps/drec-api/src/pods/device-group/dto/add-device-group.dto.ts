@@ -1,5 +1,12 @@
-import { ApiProperty ,ApiPropertyOptional} from '@nestjs/swagger';
-import { IsInt, IsString,IsOptional, Min,IsBoolean,IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  Min,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
 import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 
 export class AddGroupDTO {
@@ -12,40 +19,35 @@ export class AddGroupDTO {
   @Min(1, { each: true })
   deviceIds: number[];
 
-
-
   @ApiProperty({ type: Number })
-  targetCapacityInMegaWattHour:number;
+  targetCapacityInMegaWattHour: number;
 
-  
   @ApiProperty({ type: Date })
-  reservationStartDate:Date;
+  reservationStartDate: Date;
 
-  
   @ApiProperty({ type: Date })
-  reservationEndDate:Date;
+  reservationEndDate: Date;
 
   @ApiProperty({ type: Boolean })
-  continueWithReservationIfOneOrMoreDevicesUnavailableForReservation:boolean;
+  continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: boolean;
 
   @ApiProperty({ type: Boolean })
-  continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:boolean;
+  continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: boolean;
 
   @ApiProperty({ type: Boolean })
-  authorityToExceed:boolean;
+  authorityToExceed: boolean;
 
   @ApiProperty()
   @IsEnum(BuyerReservationCertificateGenerationFrequency)
-  frequency:BuyerReservationCertificateGenerationFrequency;
+  frequency: BuyerReservationCertificateGenerationFrequency;
 
- // @ApiPropertyOptional({ type: String })
+  // @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   blockchainAddress?: string;
 
-  api_user_id ?: string;
+  api_user_id?: string;
 
-
- @ApiPropertyOptional({ type: Date })
-  reservationExpiryDate:Date;
+  @ApiPropertyOptional({ type: Date })
+  reservationExpiryDate: Date;
 }

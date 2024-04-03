@@ -14,7 +14,7 @@ import {
   NotFoundException,
   Patch,
   Post,
-  DefaultValuePipe
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -23,7 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiResponse,
   ApiTags,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 
 import {
@@ -40,16 +40,17 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { ResponseSuccess } from '../../models';
+import { LoggedInUser, ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
-import { DeviceService } from '../device/device.service'
-import { DeviceGroupService } from '../device-group/device-group.service'
+import { DeviceService } from '../device/device.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from './dto/organization-filter.dto';
-import {InvitationService} from '../invitation/invitation.service'
+import { InvitationService } from '../invitation/invitation.service';
+import { UserDecorator } from '../user/decorators/user.decorator';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -62,7 +63,7 @@ export class AdminController {
     private readonly deviceService: DeviceService,
     private readonly devicegroupService: DeviceGroupService,
     private readonly invitationservice: InvitationService,
-  ) { }
+  ) {}
 
   @Get('/users')
   @Roles(Role.Admin)
@@ -77,9 +78,10 @@ export class AdminController {
   })
   public async getUsers(
     @Query(ValidationPipe) filterDto: UserFilterDTO,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  )/*: Promise<UserDTO[]>*/ {
+  ) /*: Promise<UserDTO[]>*/ {
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
@@ -96,15 +98,21 @@ export class AdminController {
   })
   async getAllOrganizations(
     @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  )/*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(filterDto, pageNumber, limit);
+    @UserDecorator() user: LoggedInUser,
+  ) /*: Promise<OrganizationDTO[]>*/ {
+    return await this.organizationService.getAll(
+      filterDto,
+      pageNumber,
+      limit,
+      user,
+    );
   }
   @Get('/organizations/user/:organizationId')
-  @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules("ADMIN_MANAGEMENT_CRUDL")
+  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
@@ -113,16 +121,21 @@ export class AdminController {
   })
   async getAllUserOrganizations(
     @Param('organizationId', new ParseIntPipe()) organizationId: number,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  )/*:  Promise<UserDTO[]>*/ {
-    return this.organizationService.findOrganizationUsers(organizationId, pageNumber, limit);
+  ) /*:  Promise<UserDTO[]>*/ {
+    return this.organizationService.findOrganizationUsers(
+      organizationId,
+      pageNumber,
+      limit,
+    );
   }
   @Get('/organizations/:id')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
-  @ACLModules("ADMIN_MANAGEMENT-CRUDL")
+  @ACLModules('ADMIN_MANAGEMENT-CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
@@ -152,8 +165,7 @@ export class AdminController {
     return await this.userService.adminnewcreate(newUser);
   }
 
-  @Post('/seed/users'
-  )
+  @Post('/seed/users')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Write')
@@ -284,40 +296,48 @@ export class AdminController {
   async deleteUser(
     @Param('id', new ParseIntPipe()) userid: number,
   ): Promise<SuccessResponseDTO> {
-
     const user = await this.userService.findById(userid);
-    
+
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
-   
-    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
-      const buyerresrvation = await this.devicegroupService.findOne({ organizationId: user.organization.id })
-     
-      if (buyerresrvation) {
-        throw new NotFoundException('This user is part of reservation,So you cannot remove this user and organization');
+    const manyotheruserinorg =
+      await this.userService.getatleastoneotheruserinOrg(
+        user.organization.id,
+        user.id,
+      );
 
+    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
+      const buyerresrvation = await this.devicegroupService.findOne({
+        organizationId: user.organization.id,
+      });
+
+      if (buyerresrvation) {
+        throw new NotFoundException(
+          'This user is part of reservation,So you cannot remove this user and organization',
+        );
       }
-      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(user.organization.id)
-     
+      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(
+        user.organization.id,
+      );
+
       if (deviceoforg.length > 0) {
-        throw new NotFoundException('Some device are available in organization ');
+        throw new NotFoundException(
+          'Some device are available in organization ',
+        );
       }
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       // }
-      if (!(manyotheruserinorg.length>0)) {
+      if (!(manyotheruserinorg.length > 0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
-     }
-
-   }
-   else {
-    await this.invitationservice.remove(user.email,user.organization.id)
-     await this.userService.remove(user.id);
-   }
+      }
+    } else {
+      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.userService.remove(user.id);
+    }
 
     return ResponseSuccess();
   }
@@ -340,7 +360,6 @@ export class AdminController {
     return await this.deviceService.I_recPostData(id);
   }
 
-
   @Get('/devices/autocomplete')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
@@ -351,25 +370,18 @@ export class AdminController {
     status: HttpStatus.OK,
     description: 'Returns Auto-Complete',
   })
-
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-
   async autocomplete(
     // @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('externalId') externalId: String,
+    @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,
   ) {
-    //@ts-ignore
-    console.log("adminaddorgId", organizationId)
-    // if (adminaddorgId != null || adminaddorgId != undefined) {
-    //   organizationId = adminaddorgId;
-    // }
     return await this.deviceService.atto(organizationId, externalId);
   }
 
   /*
-  * It is GET api to list all ApiUsers with pagination and filteration by Organization.
-  */
+   * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+   */
   @Get('/apiusers')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
@@ -377,19 +389,20 @@ export class AdminController {
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
-  @ApiQuery({ name: 'organizationName', type: String, required: false})
+  @ApiQuery({ name: 'organizationName', type: String, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
     description: 'Gets all apiusers',
   })
   public async getApiUsers(
-    @Query('organizationName',new DefaultValuePipe(null)) organizationName: string | null,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number,
+    @Query('organizationName', new DefaultValuePipe(null))
+    organizationName: string | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ) {
-   // this.logger.verbose(`With in getAllApiUsers`);
-    return this.userService.getApiUsers(organizationName,pageNumber, limit);
+    // this.logger.verbose(`With in getAllApiUsers`);
+    return this.userService.getApiUsers(organizationName, pageNumber, limit);
   }
-
 }

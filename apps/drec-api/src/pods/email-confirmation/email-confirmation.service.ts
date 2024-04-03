@@ -4,23 +4,23 @@ import {
   Injectable,
   Logger,
   forwardRef,
-  Inject
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository, FindConditions, } from 'typeorm';
+import { Repository, FindConditions } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
-import { EmailConfirmationResponse } from '../../utils/enums';
+import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
 export interface SuccessResponse {
-  success: boolean,
-  message: string,
+  success: boolean;
+  message: string;
 }
 @Injectable()
 export class EmailConfirmationService {
@@ -30,24 +30,32 @@ export class EmailConfirmationService {
     @InjectRepository(EmailConfirmation)
     private readonly repository: Repository<EmailConfirmation>,
     private mailService: MailService,
-    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
-  ) { }
+  ) {}
 
   public async create(user: User): Promise<EmailConfirmation | null> {
     this.logger.verbose(`With in create`);
-    const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
-    //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
-    if ((client != undefined && client.client_id === process.env.client_id) || user.role === 'ApiUser') {
+    // @ts-ignore
+    if (
+      (await this.userService.findOne({
+        role: Role.Admin,
+        api_user_id: user.api_user_id,
+      })) != undefined ||
+      user.role === 'ApiUser'
+    ) {
       const exists = await this.repository.findOne({
         where: {
-          user: { email: user.email }
+          user: { email: user.email },
         },
-        relations: ['user']
+        relations: ['user'],
       });
 
       if (exists) {
-        this.logger.error(`Email confirmation for user with email ${user.email} already exists`);
+        this.logger.error(
+          `Email confirmation for user with email ${user.email} already exists`,
+        );
         throw new ConflictException({
           success: false,
           message: `Email confirmation for user with email ${user.email} already exists`,
@@ -72,17 +80,22 @@ export class EmailConfirmationService {
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
-  public async admincreate(user: User, password: string): Promise<EmailConfirmation> {
+  public async admincreate(
+    user: User,
+    password: string,
+  ): Promise<EmailConfirmation> {
     this.logger.verbose(`With in admincreate`);
     const exists = await this.repository.findOne({
       where: {
-        user: { email: user.email }
+        user: { email: user.email },
       },
-      relations: ['user']
+      relations: ['user'],
     });
 
     if (exists) {
-      this.logger.error(`Email confirmation for user with email ${user.email} already exists`);
+      this.logger.error(
+        `Email confirmation for user with email ${user.email} already exists`,
+      );
       throw new ConflictException({
         success: false,
         message: `Email confirmation for user with email ${user.email} already exists`,
@@ -121,14 +134,13 @@ export class EmailConfirmationService {
         confirmation.user.email.toLowerCase() === email.toLowerCase(),
     );
   }
-  async findOne(conditions: FindConditions<EmailConfirmation>): Promise<EmailConfirmation | undefined> {
+  async findOne(
+    conditions: FindConditions<EmailConfirmation>,
+  ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
     const user = await (this.repository.findOne(conditions, {
       relations: ['user'],
-
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
-
-
 
     return user;
   }
@@ -157,7 +169,7 @@ export class EmailConfirmationService {
     if (
       emailConfirmation.expiryTimestamp < Math.floor(DateTime.now().toSeconds())
     ) {
-      this.logger.warn(`EmailConfirmationResponse.Expired`)
+      this.logger.warn(`EmailConfirmationResponse.Expired`);
       return {
         success: false,
         message: EmailConfirmationResponse.Expired,
@@ -171,8 +183,8 @@ export class EmailConfirmationService {
     this.logger.warn(EmailConfirmationResponse.Success);
     return {
       success: true,
-      message: EmailConfirmationResponse.Success
-    }
+      message: EmailConfirmationResponse.Success,
+    };
   }
 
   public async sendConfirmationEmail(
@@ -197,7 +209,10 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id)
+    const { token, expiryTimestamp } = await this.generatetoken(
+      currentToken,
+      id,
+    );
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -214,25 +229,34 @@ export class EmailConfirmationService {
     if (!currentToken) {
       this.logger.error(`Email not found or Email not registered`);
       return {
-        message: "Email not found or Email not registered",
+        message: 'Email not found or Email not registered',
         success: false,
       };
     }
     const { id, confirmed } = currentToken;
-    let { token, expiryTimestamp } = await this.generatetoken(currentToken, id);
+    const { token, expiryTimestamp } = await this.generatetoken(
+      currentToken,
+      id,
+    );
 
-    await this.sendResetPasswordRequest(email.toLowerCase(), token, currentToken.user.role);
+    await this.sendResetPasswordRequest(
+      email.toLowerCase(),
+      token,
+      currentToken.user.role,
+    );
 
-    this.logger.log(`Password Reset Mail has been sent to your register authorized Email.`);
+    this.logger.log(
+      `Password Reset Mail has been sent to your register authorized Email.`,
+    );
     return {
       success: true,
-      message: 'Password Reset Mail has been sent to your register authorized Email.',
+      message:
+        'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
   public async generatetoken(currentToken, id) {
     this.logger.verbose(`With in generatetoken`);
     let { token, expiryTimestamp } = currentToken;
-
 
     if (expiryTimestamp < Math.floor(DateTime.now().toSeconds())) {
       const newToken = this.generateEmailToken();
@@ -242,8 +266,6 @@ export class EmailConfirmationService {
     } else {
       return ({ token, expiryTimestamp } = currentToken);
     }
-
-
   }
   generateEmailToken(): IEmailConfirmationToken {
     this.logger.verbose(`With in generateEmailToken`);
@@ -284,7 +306,7 @@ export class EmailConfirmationService {
       to: email,
       subject: `[Origin] Welcome TO D-REC`,
       html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
-      <p>UserName:<b>${email}</b></p> 
+      <p>UserName:<b>${email}</b></p>
       <p> PassWord:<b>${password}</b></p>
       <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
     });
@@ -297,7 +319,7 @@ export class EmailConfirmationService {
   private async sendResetPasswordRequest(
     email: string,
     token: string,
-    role?: string
+    role?: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendResetPasswordRequest`);
     const url = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${email}&role=${role}`;
@@ -313,50 +335,21 @@ export class EmailConfirmationService {
     }
   }
 
-
   async remove(userId: number): Promise<void> {
     this.logger.verbose(`With in remove`);
-    const allemialconfirm = await this.get(userId)
+    const allemialconfirm = await this.get(userId);
     await this.repository.delete(allemialconfirm.id);
   }
-
-
-  // private async sendInvitation(
-  //   organization: string,
-  //   email: string,
-  //   token: string,
-  // ): Promise<void> {
-  //   const url = `${process.env.UI_BASE_URL}`;
-
-  //   const result = await this.mailService.send({
-  //     to: email,
-  //     subject: `[Origin] Organization invitation`,
-  //     html: `Organization <b>${organization}</b> has invited you to join. To accept the invitation,<br> 
-  //    <b> Please click the button to confirm your email: </b> <a href="${url}/confirm-email?token=${token}">Confirme</a>.<br>
-  //     <b> and Please change password: </b> <a href="${url}/reset-password?token=${token}&email=${email}">Add Password</a><br>
-  //    and then login and visit`,
-  //   });
-
-  //   if (result) {
-  //     this.logger.log(`Notification email sent to ${email}.`);
-  //   }
-  // }
 
   public async sendInvitation(
     inviteuser: any,
     email: string,
 
-    invitationId: number
+    invitationId: number,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/login`;
 
-    // const htmlTemplate = `
-    //   <p>Organization <b>${organization}</b> has invited you to join.</p>
-    //   <p>To accept the invitation, please change your password using the following link :</p>
-    //   <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
-    //   <p>After changing your password, you can log in and visit the your invitation details in website.</p>
-    // `;
     const htmlTemplate = `
     <p> Dear ${email},<p>
     <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>

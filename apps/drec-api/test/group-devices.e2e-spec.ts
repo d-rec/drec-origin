@@ -102,9 +102,11 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
 
     const firstBatch = devices.filter((device: Device) =>
+      // @ts-ignore ts(2339)
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const secondBatch = firstBatch.filter(
@@ -116,6 +118,7 @@ describe('Device Group tests', () => {
       deviceIds: [firstBatch[0].id, secondBatch[0].id],
       countryCode: firstBatch[0]?.countryCode,
       fuelCode: firstBatch[0]?.fuelCode,
+      // @ts-ignore ts(2353)
       standardCompliance: firstBatch[0]?.standardCompliance,
       deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
       offTakers: [firstBatch[0]?.offTaker],
@@ -123,11 +126,13 @@ describe('Device Group tests', () => {
       sectors: [firstBatch[0]?.sector],
       gridInterconnection: firstBatch[0]?.gridInterconnection,
       aggregatedCapacity: firstBatch[0]?.capacity,
+      // @ts-ignore ts(2339)
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
       labels: [firstBatch[0]?.labels],
     };
+    // @ts-ignore ts(2345)
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
 
@@ -177,9 +182,11 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
 
     const firstBatch = devices.filter((device: Device) =>
+      // @ts-ignore ts(2339)
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
     const newDeviceGroup: NewDeviceGroupDTO = {
@@ -187,6 +194,7 @@ describe('Device Group tests', () => {
       deviceIds: [firstBatch[0]?.id],
       countryCode: firstBatch[0]?.countryCode,
       fuelCode: firstBatch[0]?.fuelCode,
+      // @ts-ignore ts(2322)
       standardCompliance: firstBatch[0]?.standardCompliance,
       deviceTypeCodes: [firstBatch[0]?.deviceTypeCode],
       offTakers: [firstBatch[0]?.offTaker],
@@ -194,11 +202,13 @@ describe('Device Group tests', () => {
       sectors: [firstBatch[0]?.sector],
       gridInterconnection: firstBatch[0]?.gridInterconnection,
       aggregatedCapacity: firstBatch[0]?.capacity,
+      // @ts-ignore ts(2339)
       capacityRange: CapacityRange.Between_51_500_w,
       commissioningDateRange: [CommissioningDateRange.Between_years_6_10],
       yieldValue: firstBatch[0]?.yieldValue,
       labels: [firstBatch[0]?.labels],
     };
+    // @ts-ignore ts(2345)
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
     const { body: deviceGroup } = await requestDeviceGroup(
@@ -224,11 +234,14 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
 
     const firstBatch = devices.filter((device: Device) =>
+      // @ts-ignore ts(2339)
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
+    // @ts-ignore ts(2740)
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
@@ -258,11 +271,14 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
 
     const firstBatch = devices.filter((device: Device) =>
+      // @ts-ignore ts(2339)
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
+    // @ts-ignore ts(2740)
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
       deviceIds: [firstBatch[0].id],
@@ -299,10 +315,13 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
     const firstBatch = devices.filter((device: Device) =>
+      // @ts-ignore ts(2339)
       orgs.map((o: IFullOrganization) => device.organizationId === o.id),
     );
+    // @ts-ignore ts(2740)
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group',
       deviceIds: [firstBatch[0]?.id],

@@ -5,10 +5,15 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  InternalServerErrorException
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository, FindConditions, SelectQueryBuilder, } from 'typeorm';
+import {
+  FindOneOptions,
+  Repository,
+  FindConditions,
+  SelectQueryBuilder,
+} from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -54,7 +59,7 @@ export class OrganizationService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly fileService: FileService,
-  ) { }
+  ) {}
 
   async findOne(
     id: number,
@@ -83,26 +88,42 @@ export class OrganizationService {
     return this.repository.findByIds(ids);
   }
 
-  async getAll(filterDto: OrganizationFilterDTO, pageNumber: number, limit: number, user?: LoggedInUser,): Promise<{ organizations: Organization[], currentPage: number, totalPages: number, totalCount: number }> {
+  async getAll(
+    filterDto: OrganizationFilterDTO,
+    pageNumber: number,
+    limit: number,
+    user?: LoggedInUser,
+  ): Promise<{
+    organizations: Organization[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in getAll`);
     let query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
-        query = query.andWhere(`organization.api_user_id = :apiuserid`, { apiuserid: user.api_user_id })
+        query = query.andWhere(`organization.api_user_id = :apiuserid`, {
+          apiuserid: user.api_user_id,
+        });
       }
-      query.andWhere(`organization.organizationType != :organizationType`, { organizationType: Role.ApiUser })
-      let [organizations, count] = await query.skip((pageNumber - 1) * limit).take(limit).getManyAndCount();
+
+      const [organizations, count] = await query
+        .skip((pageNumber - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
       const totalPages = Math.ceil(count / limit);
       return {
         organizations,
         currentPage: pageNumber,
         totalPages,
-        totalCount: count
+        totalCount: count,
       };
-    }
-    catch (error) {
+    } catch (error) {
       this.logger.error(`Failed to retrieve organizations`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve organizations');
+      throw new InternalServerErrorException(
+        'Failed to retrieve organizations',
+      );
     }
   }
 
@@ -125,41 +146,68 @@ export class OrganizationService {
     return organization.users;
   }
 
-  public async findOrganizationUsers(id: number, pageNumber: number, limit: number, role?: string): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+  public async findOrganizationUsers(
+    id: number,
+    pageNumber: number,
+    limit: number,
+    role?: string,
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in findOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
-    const [users, totalCount] = await this.userService.findUserByOrganization(id, pageNumber, limit);
+    const [users, totalCount] = await this.userService.findUserByOrganization(
+      id,
+      pageNumber,
+      limit,
+    );
     const totalPages = Math.ceil(totalCount / limit);
-    let newuser= users
-    if (role != Role.OrganizationAdmin) {
-      newuser = users.filter(user => user.role != "OrganizationAdmin");
+    let newuser = users;
+    if (role != undefined && role != Role.OrganizationAdmin) {
+      newuser = users.filter((user) => user.role != 'OrganizationAdmin');
     }
 
     return {
       users: newuser,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
-  public async findApiuserOrganizationUsers(apiuser_id: string, pageNumber: number, limit: number): Promise<{ users: IUser[], currentPage: number, totalPages: number, totalCount: number }> {
+  public async findApiuserOrganizationUsers(
+    apiuser_id: string,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in findApiuserOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
-    const [users, totalCount] = await this.userService.findUserByApiUserId(apiuser_id, pageNumber, limit);
+    const [users, totalCount] = await this.userService.findUserByApiUserId(
+      apiuser_id,
+      pageNumber,
+      limit,
+    );
     const totalPages = Math.ceil(totalCount / limit);
     return {
       users: users,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
     this.logger.debug(
       `Requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
@@ -181,14 +229,16 @@ export class OrganizationService {
     this.logger.verbose(`With in create`);
     this.logger.debug(
       `User ${JSON.stringify(
-        user,
+        user.id,
       )} requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
     if (await this.isNameAlreadyTaken(organizationToRegister.name)) {
-      this.logger.error(new OrganizationNameAlreadyTakenError(organizationToRegister.name));
+      this.logger.error(
+        new OrganizationNameAlreadyTakenError(organizationToRegister.name),
+      );
       throw new OrganizationNameAlreadyTakenError(organizationToRegister.name);
     }
     const documents = [
@@ -232,30 +282,13 @@ export class OrganizationService {
     return stored;
   }
 
-  // async FindBysecretkey(secretKey:string)
-  // : Promise<boolean> {
-  //   // const organization = await this.repository.findOne({secretKey:secretKey});
-  //   // if (!organization) {
-  //   //   throw new NotFoundException(`No organization found with secretKey ${secretKey}`);
-  //   // }
-  //   // return organization;
-
-  //   const organization = await this.repository
-  //     .createQueryBuilder()
-  //     .where({ secretKey })
-  //     .getCount();
-
-  //   return organization > 0;
-
-  // }
-
   public async newcreate(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {
     this.logger.verbose('With in newcreate');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
     //  const organization = await this.repository.findOne({secretKey:organizationToRegister.secretKey});
@@ -264,7 +297,6 @@ export class OrganizationService {
       ...organizationToRegister,
 
       status: OrganizationStatus.Active,
-
     });
 
     try {
@@ -283,9 +315,7 @@ export class OrganizationService {
     // else{
     // return organization;
     // }
-
   }
-
 
   private async generateBlockchainAddress(index: number): Promise<string> {
     this.logger.verbose(`With in generateBlockchainAddress`);
@@ -350,7 +380,9 @@ export class OrganizationService {
       isRole(userToBeChanged.role, Role.OrganizationAdmin) &&
       admins.length < 2
     ) {
-      this.logger.error(`Can't change role of admin user from organization. There always has to be at least one admin in the organization.`);
+      this.logger.error(
+        `Can't change role of admin user from organization. There always has to be at least one admin in the organization.`,
+      );
       throw new BadRequestException({
         success: false,
         message: `Can't change role of admin user from organization. There always has to be at least one admin in the organization.`,
@@ -414,7 +446,9 @@ export class OrganizationService {
     });
 
     if (alreadyExistingOrganizationWithAddress > 0) {
-      this.logger.error(`This blockchain address has already been linked to a different organization.`);
+      this.logger.error(
+        `This blockchain address has already been linked to a different organization.`,
+      );
       throw new ConflictException(
         `This blockchain address has already been linked to a different organization.`,
       );
@@ -481,9 +515,11 @@ export class OrganizationService {
   //   return Boolean(await this.findOne(conditions));
   // }
 
-  private async getFilteredQuery(filterDto: OrganizationFilterDTO): Promise<SelectQueryBuilder<Organization>> {
+  public async getFilteredQuery(
+    filterDto: OrganizationFilterDTO,
+  ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName } = filterDto;
+    const { organizationName, organizationType } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
@@ -491,6 +527,11 @@ export class OrganizationService {
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    if (organizationType) {
+      query.andWhere(`organization.organizationType != :organizationType`, {
+        organizationType: `%${organizationType}%`,
+      });
     }
     return query;
   }

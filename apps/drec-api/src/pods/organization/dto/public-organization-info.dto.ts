@@ -6,7 +6,8 @@ import {
   IsISO31661Alpha2,
   IsString,
   Min,
-  IsNotEmpty, IsOptional
+  IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 import { IPublicOrganization } from '../../../models';
 import { OrganizationStatus } from '../../../utils/enums';
@@ -23,7 +24,7 @@ export class PublicOrganizationInfoDTO implements IPublicOrganization {
   @IsString()
   @IsOptional()
   name: string;
-  
+
   // @ApiProperty({ type: String })
   // @IsString()
   // @IsOptional()

@@ -27,7 +27,7 @@ import {
   ApiBody,
   ApiResponse,
   ApiTags,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 import { InvitationService } from './invitation.service';
 import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
@@ -55,18 +55,24 @@ export class InvitationController {
 
   constructor(
     private readonly organizationInvitationService: InvitationService,
-  ) { }
+  ) {}
 
   /**
-   * 
-   * @param loggedUser 
-   * @returns 
+   *
+   * @param loggedUser
+   * @returns
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
-  @ApiQuery({ name: 'organizationId', type: Number, required: false, description: "This organizationId can be used to retrieve records of apiuser" })
+  @ApiQuery({
+    name: 'organizationId',
+    type: Number,
+    required: false,
+    description:
+      'This organizationId can be used to retrieve records of apiuser',
+  })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
@@ -77,23 +83,27 @@ export class InvitationController {
   async getInvitations(
     @UserDecorator() loggedUser: ILoggedInUser,
     @Query('organizationId') organizationId?: number | null,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber?: number,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber?: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
-  )/*: Promise<InvitationDTO[]>*/ {
+  ) /*: Promise<InvitationDTO[]>*/ {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getUsersInvitation(
-        loggedUser, organizationId, pageNumber, limit,
+        loggedUser,
+        organizationId,
+        pageNumber,
+        limit,
       );
 
     return invitations;
   }
 
   /**
-   * 
-   * @param invitationId 
-   * @param useracceptinvitation 
-   * @returns 
+   *
+   * @param invitationId
+   * @param useracceptinvitation
+   * @returns
    */
   @Put(':id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -112,7 +122,7 @@ export class InvitationController {
   async updateInvitation(
     @Param('id') invitationId: string,
     //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation: updateInviteStatusDTO
+    @Body() useracceptinvitation: updateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);
@@ -124,15 +134,26 @@ export class InvitationController {
   }
 
   /**
-   * 
-   * @param param0 
-   * @param organizationId 
-   * @param loggedUser 
-   * @returns 
+   *
+   * @param param0
+   * @param organizationId
+   * @param loggedUser
+   * @returns
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), ActiveUserGuard, RolesGuard, PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin, Role.Buyer, Role.SubBuyer, Role.ApiUser)
+  @UseGuards(
+    AuthGuard(['jwt', 'oauth2-client-password']),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
+  @Roles(
+    Role.OrganizationAdmin,
+    Role.Admin,
+    Role.Buyer,
+    Role.SubBuyer,
+    Role.ApiUser,
+  )
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: InviteDTO })
@@ -146,7 +167,6 @@ export class InvitationController {
     required: false,
     type: Number,
     description: 'This query parameter is used to for admin...',
-
   })
   async invite(
     @Body() { email, role, firstName, lastName }: InviteDTO,
@@ -174,21 +194,40 @@ export class InvitationController {
       if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
-            ResponseFailure(`Organization id is required,please add your Organization id`),
+            ResponseFailure(
+              `Organization id is required,please add your Organization id`,
+            ),
           );
         }
-        await this.organizationInvitationService.invite(loggedUser, email, role, firstName, lastName, organizationId);
-
+        await this.organizationInvitationService.invite(
+          loggedUser,
+          email,
+          role,
+          firstName,
+          lastName,
+          organizationId,
+        );
       } else {
-        await this.organizationInvitationService.invite(loggedUser, email, role, firstName, lastName, organizationId);
+        await this.organizationInvitationService.invite(
+          loggedUser,
+          email,
+          role,
+          firstName,
+          lastName,
+          organizationId,
+        );
       }
-
     } catch (error) {
       this.logger.error(error.toString());
-      this.logger.error(error.toString() instanceof AlreadyPartOfOrganizationError);
+      this.logger.error(
+        error.toString() instanceof AlreadyPartOfOrganizationError,
+      );
       //// if (error instanceof AlreadyPartOfOrganizationError) {
       this.logger.error(error.message);
-      throw new ForbiddenException({ message: error.message, status: error.status });
+      throw new ForbiddenException({
+        message: error.message,
+        status: error.status,
+      });
       ///// }
       //  return error
     }
@@ -197,15 +236,14 @@ export class InvitationController {
   }
 
   /**
-   * 
-   * @param loggedUser 
-   * @returns 
+   *
+   * @param loggedUser
+   * @returns
    */
   @Get('/By_email')
-  @UseGuards(AuthGuard('jwt'), AuthGuard('oauth2-client-password'), PermissionGuard)
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
- 
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
@@ -213,8 +251,7 @@ export class InvitationController {
   })
   async getInvitationsByemail(
     @UserDecorator() loggedUser: ILoggedInUser,
-   
-  )/*: Promise<InvitationDTO[]>*/ {
+  ) /*: Promise<InvitationDTO[]>*/ {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getinvite_info_byEmail(
@@ -223,5 +260,4 @@ export class InvitationController {
 
     return invitations;
   }
-
 }

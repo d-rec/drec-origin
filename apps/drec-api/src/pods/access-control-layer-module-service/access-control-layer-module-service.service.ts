@@ -5,27 +5,28 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FindConditions,
-  Repository,
-} from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { AClModules } from './aclmodule.entity';
-import { ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto';
-import { IACLModuleConfig } from '../../models'
+import {
+  ACLModuleDTO,
+  NewACLModuleDTO,
+  UpdateACLModuleDTO,
+} from './dto/aclmodule.dto';
+import { IACLModuleConfig } from '../../models';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 export type TmoduleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
 import { DecimalPermissionValue } from './common/permissionBitposition';
 
 @Injectable()
 export class AccessControlLayerModuleServiceService {
-
- 
-  private readonly logger = new Logger(AccessControlLayerModuleServiceService.name);
+  private readonly logger = new Logger(
+    AccessControlLayerModuleServiceService.name,
+  );
   constructor(
-    @InjectRepository(AClModules) private readonly repository: Repository<AClModules>,
+    @InjectRepository(AClModules)
+    private readonly repository: Repository<AClModules>,
     private readonly Permissionvalue: DecimalPermissionValue,
-  ) { }
-
+  ) {}
 
   public async create(data: NewACLModuleDTO): Promise<ACLModuleDTO> {
     this.logger.verbose(`With in create`);
@@ -40,20 +41,20 @@ export class AccessControlLayerModuleServiceService {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
-      })
-     
+      });
     }
 
-    var permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
-   
+    const permissionValue =
+      await this.Permissionvalue.computePermissions(addedPermissionList);
+
     await this.checkForExistingmodule(data.name);
     const moduledata = new AClModules({
       ...data,
-      permissionsValue:permissionValue,
-    })
-   
+      permissionsValue: permissionValue,
+    });
+
     const module = await this.repository.save(moduledata);
-   
+
     return module;
   }
   private async checkForExistingmodule(name: string): Promise<void> {
@@ -83,9 +84,13 @@ export class AccessControlLayerModuleServiceService {
     }
     return user;
   }
-  async findOne(conditions: FindConditions<AClModules>): Promise<TmoduleBaseEntity> {
+  async findOne(
+    conditions: FindConditions<AClModules>,
+  ): Promise<TmoduleBaseEntity> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(conditions) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
+    const module = await (this.repository.findOne(
+      conditions,
+    ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
     return module;
   }
 
@@ -106,19 +111,18 @@ export class AccessControlLayerModuleServiceService {
       Update: false,
     };
     for (var key in addedPermissionList) {
-    
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
-      })
-      
+      });
     }
-   
-    const permissionValue = await this.Permissionvalue.computePermissions(addedPermissionList);
+
+    const permissionValue =
+      await this.Permissionvalue.computePermissions(addedPermissionList);
     await this.repository.update(id, {
-     permissions:data.permissions,
-     permissionsValue:permissionValue,
+      permissions: data.permissions,
+      permissionsValue: permissionValue,
     });
 
     return this.findOne({ id });
