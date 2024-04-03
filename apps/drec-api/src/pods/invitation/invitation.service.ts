@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger, ConflictException,Inject } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  ConflictException,
+  Inject,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
@@ -151,17 +157,18 @@ export class InvitationService {
     let userid: any;
     this.logger.debug('invitee');
 
-    }
-    var userid: any;
-    this.logger.debug("invitee")
-    //to add for if one user invite by multiple organization 
+    //to add for if one user invite by multiple organization
     // if (invitee) {
     //   userid = invitee
 
     // } else {
     //let client;
-    inviteuser['client'] = { api_user_id: organization.api_user_id }
-    userid = await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+    inviteuser['client'] = { api_user_id: organization.api_user_id };
+    userid = await this.userService.newcreate(
+      inviteuser,
+      UserStatus.Pending,
+      true,
+    );
 
     //}
     // var updateinviteuser: updateInviteStatusDTO = {

@@ -103,16 +103,17 @@ export class CertificateLogService {
     // let page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
-    const [certifiedreservation, total] = await this.certificaterrepository.findAndCount({
-      where: {
-        deviceId: groupid,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * itemsPerPage,
-      take: itemsPerPage,
-    });
+    const [certifiedreservation, total] =
+      await this.certificaterrepository.findAndCount({
+        where: {
+          deviceId: groupid,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * itemsPerPage,
+        take: itemsPerPage,
+      });
     const totalPages = Math.ceil(total / itemsPerPage);
 
     const request: IGetAllCertificatesOptions = {
@@ -120,17 +121,17 @@ export class CertificateLogService {
       deviceId: parseInt(groupid),
     };
 
-    const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] = await this.cretificatereadmoduleRepository.find({
-      where: {
-        deviceId: groupid,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
-      take: itemsPerPage, // Specify the number of items to take per page
-
-    });
+    const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] =
+      await this.cretificatereadmoduleRepository.find({
+        where: {
+          deviceId: groupid,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
+        take: itemsPerPage, // Specify the number of items to take per page
+      });
     const total1 = await this.cretificatereadmoduleRepository.find({
       where: {
         deviceId: groupid,
