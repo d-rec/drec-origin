@@ -805,7 +805,9 @@ export class DeviceService {
     }
     //@ts-ignore
     else if (
+      // @ts-ignore ts(2339)
       filter.organizationId != null &&
+      // @ts-ignore ts(2339)
       filter.organizationId != undefined
     ) {
       //@ts-ignore
