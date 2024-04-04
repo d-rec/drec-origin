@@ -149,6 +149,15 @@ export class Seed9999999999999 implements MigrationInterface {
       'public.organization',
     ];
 
+    if (
+      process.env.ADMIN_EMAIL == undefined ||
+      process.env.ADMIN_PASSWORD == undefined
+    ) {
+      throw new Error(
+        'Please set your environment variables ADMIN_EMAIL and ADMIN_PASSWORD',
+      );
+    }
+
     for (const tableName of tableNames) {
       const table = await queryRunner.getTable(tableName);
       if (!table) {
