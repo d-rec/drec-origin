@@ -2,7 +2,6 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceModule } from '../device/device.module';
 import { ReadsModule } from '../reads/reads.module';
-//import { DeviceGroupController } from './device-group.controller';
 import { BuyerReservationController } from './buyer-reservation.controller';
 import { DeviceGroup } from './device-group.entity';
 import { DeviceGroupService } from './device-group.service';

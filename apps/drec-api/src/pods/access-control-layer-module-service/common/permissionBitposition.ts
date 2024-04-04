@@ -1,7 +1,5 @@
 import { PermissionString } from '../../../utils/enums';
 
-//32 bit permission
-
 export class DecimalPermissionValue {
   addedPermissionList: { [key in PermissionString]: boolean } = {
     Read: false,
@@ -77,14 +75,11 @@ export class DecimalPermissionValue {
   decimalFormPermission = 0;
 
   computePermissions(addedPermissionList: any) {
-    //console.log(PermissionString);
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
-      //console.log(ele);
       binaryFormPermission =
         (addedPermissionList[ele.permissionString] === true ? '1' : '0') +
         binaryFormPermission;
-      //console.log(binaryFormPermission);
     });
     this.binaryFormPermission = binaryFormPermission;
 
@@ -96,7 +91,6 @@ export class DecimalPermissionValue {
           (addedPermissionList[ele.permissionString] === true ? 1 : 0);
     });
     this.decimalFormPermission = decimalFormPermission;
-    //console.log(this.decimalFormPermission)
     return this.decimalFormPermission;
   }
 
@@ -132,7 +126,6 @@ export class DecimalPermissionValue {
         }
       }
     });
-
     return getpermission;
   }
 }
