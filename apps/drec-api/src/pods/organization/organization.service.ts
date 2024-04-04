@@ -111,9 +111,7 @@ export class OrganizationService {
           apiuserid: user.api_user_id,
         });
       }
-      query.andWhere(`organization.organizationType != :organizationType`, {
-        organizationType: Role.ApiUser,
-      });
+
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -527,7 +525,7 @@ export class OrganizationService {
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName } = filterDto;
+    const { organizationName, organizationType } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
@@ -535,6 +533,11 @@ export class OrganizationService {
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    if (organizationType) {
+      query.andWhere(`organization.organizationType != :organizationType`, {
+        organizationType: `%${organizationType}%`,
+      });
     }
     return query;
   }

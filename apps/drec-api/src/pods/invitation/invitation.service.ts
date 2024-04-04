@@ -49,7 +49,6 @@ export class InvitationService {
     firstName: string,
     lastName: string,
     orgId?: number,
-    // permission: NewPermissionDTO[],
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
@@ -123,7 +122,6 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    //console.log(invitation)
     if (orginvitee) {
       this.logger.error(
         `Requested invitation User ${lowerCaseEmail} is already exist`,
@@ -158,18 +156,17 @@ export class InvitationService {
       organizationType: organization.organizationType,
       // @ts-ignore
       orgid: organization.id | undefined,
-      // orgAddress:''
     };
     let userid: any;
     this.logger.debug('invitee');
+
     //to add for if one user invite by multiple organization
     // if (invitee) {
     //   userid = invitee
 
     // } else {
     //let client;
-    //inviteuser['client'] = { api_user_id: organization.api_user_id }
-    inviteuser.api_user_id = organization.api_user_id;
+    inviteuser['client'] = { api_user_id: organization.api_user_id };
     userid = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
@@ -177,12 +174,11 @@ export class InvitationService {
     );
 
     //}
-    const updateinviteuser: updateInviteStatusDTO = {
-      email: lowerCaseEmail,
-      status: OrganizationInvitationStatus.Accepted,
-    };
+    // var updateinviteuser: updateInviteStatusDTO = {
+    //   email: lowerCaseEmail,
+    //   status: OrganizationInvitationStatus.Accepted
+    // }
 
-    //await this.update(updateinviteuser, saveinviteuser.id)
     if (sender.role !== Role.ApiUser) {
       await this.userService.sentinvitiontoUser(
         inviteuser,
@@ -190,39 +186,11 @@ export class InvitationService {
         saveinviteuser.id,
       );
     }
-    //to add permission for user role in invitaion
-    // const newpermission: any = [];
-    // await permission.forEach((element) => {
-    //   newpermission.push({
-    //     aclmodulesId: element.aclmodulesId,
-    //     entityType: element.entityType,
-    //     entityId: userid.id,
-    //     permissions: element.permissions,
-    //     status: 0
-    //   })
-    // })
-    // var permissionId: any = [];
-
-    // await Promise.all(
-    //   newpermission.map(
-    //     async (newpermission: NewPermissionDTO) => {
-    //       //console.log(newpermission)
-    //       const perId = await this.PermissionService.create(newpermission, user)
-    //       //console.log(perId);
-    //       permissionId.push(perId.id);
-    //     }),
-    // );
-
-    //console.log(permissionId);
-    // await this.invitationRepository.update(saveinviteuser.id, { permissionId });
-
-    //
   }
 
   public async update(
     user: updateInviteStatusDTO,
-    invitationId: number,
-    // status: OrganizationInvitationStatus,
+    invitationId: string,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
@@ -235,7 +203,6 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    //console.log(invitation)
     if (!invitation) {
       this.logger.error(`Requested invitation does not exist`);
       throw new BadRequestException('Requested invitation does not exist');
@@ -259,13 +226,6 @@ export class InvitationService {
         invitation.organization.id,
       );
       await this.userService.changeRole(userinvite.id, invitation.role);
-      // const pre = invitation.permissionId;
-      // //console.log(pre);
-      // await Promise.all(
-      //   pre.map(
-      //     async (pre: number) =>
-      //       await this.PermissionService.updatepermissionstatus(pre)),
-      // );
     }
 
     invitation.status = user.status;
@@ -336,12 +296,6 @@ export class InvitationService {
       .take(limit)
       .orderBy('invitation.createdAt', 'DESC')
       .getManyAndCount();
-
-    /*
-    return this.invitationRepository.find({
-      where: { email: lowerCaseEmail },
-      relations: ['organization'],
-    }); */
     const totalPages = Math.ceil(totalCount / limit);
 
     return {
