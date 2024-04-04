@@ -18,6 +18,9 @@ import {
   IRoleConfig,
   IACLModuleConfig,
 } from '../src/models';
+import { v4 as uuid } from 'uuid';
+import bcrypt from 'bcryptjs';
+
 import { Logger } from '@nestjs/common';
 // import UsersJSON from './users.json';
 // import OrganizationsJSON from './organizations.json';
@@ -27,6 +30,7 @@ const OrganizationsJSON = [];
 const DevicesJSON = [];
 
 import RoleJSON from './user_role.json';
+import AdminJSON from './admin.json';
 import ACLModuleJSON from './acl_modules.json';
 import { PermissionString } from 'src/utils/enums';
 
@@ -46,6 +50,7 @@ export class Seed9999999999999 implements MigrationInterface {
     const { registry } = await this.seedBlockchain(queryRunner);
 
     await this.seedUsersRole(queryRunner);
+    await this.seedAdmin(queryRunner);
     await this.seedACLModules(queryRunner);
     await queryRunner.query(
       `SELECT setval(
@@ -137,6 +142,96 @@ export class Seed9999999999999 implements MigrationInterface {
     };
   }
 
+  private async seedAdmin(queryRunner: QueryRunner) {
+    const tableNames = [
+      'public.user',
+      'public.api_user',
+      'public.organization',
+    ];
+
+    if (
+      process.env.ADMIN_EMAIL == undefined ||
+      process.env.ADMIN_PASSWORD == undefined
+    ) {
+      throw new Error(
+        'Please set your environment variables ADMIN_EMAIL and ADMIN_PASSWORD',
+      );
+    }
+
+    for (const tableName of tableNames) {
+      const table = await queryRunner.getTable(tableName);
+      if (!table) {
+        console.log(`${tableName} table does not exist.`);
+        return;
+      }
+    }
+
+    const adminExists = await queryRunner.query(
+      `SELECT id FROM public.user WHERE "role" = '${RoleJSON[0].name}'`,
+    );
+
+    if (!adminExists.length) {
+      const api_user = await queryRunner.query(`INSERT INTO public.api_user (
+        "api_user_id",
+        "permission_status"
+        ) VALUES (
+            '${uuid()}',
+            'Request'
+        )
+        RETURNING "api_user_id"
+    `);
+
+      const api_user_id = api_user[0].api_user_id;
+
+      const organization =
+        await queryRunner.query(`INSERT INTO public.organization (
+        "id",
+        "name",
+        "address",
+        "organizationType",
+        "orgEmail",
+        "status",
+        "api_user_id"
+        ) VALUES (
+            '${AdminJSON.id}',
+            '${AdminJSON.orgName}',
+            '${AdminJSON.orgAddress}',
+            '${AdminJSON.organizationType}',
+            '${process.env.ADMIN_EMAIL.toLowerCase()}',
+            '${AdminJSON.status}',
+            '${api_user_id}'
+        )
+        RETURNING "id"
+    `);
+
+      const organizationId = organization[0].id;
+      const password = bcrypt.hashSync(process.env.ADMIN_PASSWORD, 8);
+
+      await queryRunner.query(`INSERT INTO public.user (
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "password",
+        "status",
+        "role",
+        "organizationId",
+        "roleId",
+        "api_user_id"
+        ) VALUES (
+            '${AdminJSON.id}',
+            '${AdminJSON.firstName}',
+            '${AdminJSON.lastName}',
+            '${process.env.ADMIN_EMAIL.toLowerCase()}',
+            '${password}',
+            '${AdminJSON.status}',
+            '${RoleJSON[0].name}',    
+            '${organizationId}',
+            '${RoleJSON[0].id}',
+            '${api_user_id}'
+        )`);
+    }
+  }
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
     permissionString: PermissionString;
     bitPosition: number;
