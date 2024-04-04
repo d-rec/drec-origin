@@ -84,7 +84,7 @@
     "dotenv": "8.2.0",
     "ejs": "^3.1.7",
     "ethers": "5.3.1",
-    "follow-redirects": "^1.14.7",
+    "follow-redirects": "1.15.6",
     "form-data": "~4.0.0",
     "handlebars": "^4.7.7",
     "immer": "^9.0.6",
