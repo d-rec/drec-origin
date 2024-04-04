@@ -114,8 +114,6 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
-  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: FilterDTO,
@@ -245,7 +243,6 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -366,7 +363,6 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin)
   @ApiQuery({ name: 'apiUserId', type: Number, required: false })
   @ApiQuery({ name: 'organizationId', type: Number, required: false })
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
@@ -433,7 +429,6 @@ export class DeviceController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
@@ -704,8 +699,6 @@ export class DeviceController {
         );
       });
     }
-    // var commissioningDate = moment(deviceToUpdate.commissioningDate);
-
     if (
       !isValidUTCDateFormat(deviceToUpdate.commissioningDate) &&
       deviceToUpdate.commissioningDate !== undefined
@@ -838,7 +831,6 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -903,31 +895,6 @@ export class DeviceController {
     );
   }
 
-  /* */
-
-  //////////////////////////////////////////////////
-
-  // @Get('/autocomplete')
-  //   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
-  //   @Permission('Read')
-  //   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-  //   @ApiResponse({
-  //     status: HttpStatus.OK,
-  //     type: [DeviceDTO],
-  //     description: 'Returns auto corrected externalIDs and other data',
-  //   })
-
-  //   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
-
-  //   async autocomplete(
-  //     @UserDecorator() { organizationId }: ILoggedInUser,
-  //     // @Query('externalId') externalId :Number,
-
-  //   ){
-  //     return await this.deviceService.atto(organizationId);
-  //   }
-
   /**
    * It is GET api to list all devices with auto complete
    * @param param0 is getting organizationId from user request
@@ -938,7 +905,6 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Auto-Complete',
@@ -975,8 +941,6 @@ export class DeviceController {
     @Query('pagenumber') pagenumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
-    // console.log(externalId);
-    // console.log(groupuId)
     this.logger.verbose(`With in certifiedlogdaterang`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
@@ -999,7 +963,6 @@ export class DeviceController {
     group = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
-    // console.log(group);
     if (group === null || group.buyerId != user.id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -1017,7 +980,6 @@ export class DeviceController {
       let device: DeviceDTO | null;
 
       device = await this.deviceService.findOne(externalId);
-      /// console.log(device);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {
@@ -1040,17 +1002,7 @@ export class DeviceController {
       );
     }
   }
-  // @Get('/certified/date-range-log')
-  // @UseGuards(AuthGuard('jwt'))
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Returns Auto-Complete',
-  // })
-  // async devicecertifiedlogdaterange() {
 
-  //   return "await this.deviceService.atto(organizationId, externalId)";
-  // }
-  /////////////////////////////////////////////////
   /**
    * It is POST api to create array of devices by uploading csv files with device data
    * @param user is loggedIn user from request
@@ -1060,10 +1012,8 @@ export class DeviceController {
    */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
@@ -1086,7 +1036,6 @@ export class DeviceController {
 
     if (fileToProcess.fileName == undefined) {
       this.logger.error(`File Not Found`);
-      //throw new Error("file not found");
       throw new ConflictException({
         success: false,
         message: 'File Not Found',
@@ -1094,7 +1043,6 @@ export class DeviceController {
     }
     if (!fileToProcess.fileName.endsWith('.csv')) {
       this.logger.error(`Invalid file`);
-      //throw new Error("file not found");
       throw new ConflictException({
         success: false,
         message: 'Invalid file',
@@ -1139,9 +1087,6 @@ export class DeviceController {
         fileToProcess.fileName,
       );
     }
-
-    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
-
     return jobCreated;
   }
 }
