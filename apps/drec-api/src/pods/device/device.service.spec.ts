@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceService } from './device.service';
-import { Repository, FindManyOptions, LessThanOrEqual, MoreThanOrEqual, In, } from 'typeorm';
+import {
+  Repository,
+  FindManyOptions,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  In,
+} from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
@@ -919,7 +925,11 @@ describe('DeviceService', () => {
           organizationId: orgId, // Use orgId provided dynamically
           commissioningDate: MoreThanOrEqual(new Date().toISOString()),
           SDGBenefits: In(filterDto.SDGBenefits),
-          deviceTypeCode: In(Array.isArray(filterDto.deviceTypeCode) ? filterDto.deviceTypeCode : [filterDto.deviceTypeCode]),
+          deviceTypeCode: In(
+            Array.isArray(filterDto.deviceTypeCode)
+              ? filterDto.deviceTypeCode
+              : [filterDto.deviceTypeCode],
+          ),
           offTaker: In([filterDto.offTaker]),
         },
         order: { organizationId: 'DESC' },

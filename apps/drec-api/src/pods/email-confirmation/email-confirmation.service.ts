@@ -139,7 +139,7 @@ export class EmailConfirmationService {
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
     const user = await (this.repository.findOne({
-      where : {
+      where: {
         conditions,
       } as FindOptionsWhere<EmailConfirmation>,
       relations: ['user'],
@@ -151,10 +151,10 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
-    const emailConfirmation = await this.repository.findOne({ 
+    const emailConfirmation = await this.repository.findOne({
       where: {
-        token
-      }
+        token,
+      },
     });
 
     if (!emailConfirmation) {

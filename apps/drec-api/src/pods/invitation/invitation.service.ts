@@ -190,7 +190,7 @@ export class InvitationService {
 
   public async update(
     user: updateInviteStatusDTO,
-    invitationId: string,
+    invitationId: number,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();

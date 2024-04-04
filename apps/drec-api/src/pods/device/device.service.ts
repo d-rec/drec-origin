@@ -445,7 +445,7 @@ export class DeviceService {
     this.logger.verbose(`With in findOne`);
     const device: Device = await this.repository.findOne({
       where: {
-        id: id, 
+        id: id,
         ...options,
       },
     });

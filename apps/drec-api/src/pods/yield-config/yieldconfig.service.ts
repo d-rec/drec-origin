@@ -78,8 +78,7 @@ export class YieldConfigService {
       where: {
         conditions,
       } as FindOptionsWhere<YieldConfig>,
-    }
-    ) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
+    }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
 
     return yieldvalue;
   }

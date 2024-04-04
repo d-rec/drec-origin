@@ -741,7 +741,11 @@ export class DeviceGroupService {
     conditions: FindOptionsWhere<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
-    return (await this.repository.findOne({ where: { conditions } as FindOptionsWhere<DeviceGroup>,})) ?? null;
+    return (
+      (await this.repository.findOne({
+        where: { conditions } as FindOptionsWhere<DeviceGroup>,
+      })) ?? null
+    );
   }
 
   async createCSVJobForFile(
@@ -900,7 +904,7 @@ export class DeviceGroupService {
 
     return await this.repositoryJobFailedRows.findOne({
       where: {
-        jobId: jobId, 
+        jobId: jobId,
       },
     });
   }
@@ -1440,7 +1444,7 @@ export class DeviceGroupService {
     const deviceGroup = await this.repository.findOne({
       where: {
         id,
-        organizationId,  
+        organizationId,
       },
     });
     if (!deviceGroup) {
@@ -1557,7 +1561,7 @@ export class DeviceGroupService {
     filter?: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
     this.logger.verbose(`With in getreservationFilteredQuery`);
-    const where: FindConditions<DeviceGroup> = cleanDeep({
+    const where: FindOptionsWhere<DeviceGroup> = cleanDeep({
       reservationStartDate:
         filter.start_date &&
         filter.end_date &&
@@ -2127,12 +2131,11 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getGroupiCertificateIssueDate`);
     this.logger.log('Line No: 1883');
     return (
-      (await this.repositorynextDeviceGroupcertificate.findOne({ 
-        where: { 
-          conditions, 
-        } as FindOptionsWhere<DeviceGroupNextIssueCertificate>, 
-      })) ??
-      null
+      (await this.repositorynextDeviceGroupcertificate.findOne({
+        where: {
+          conditions,
+        } as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
+      })) ?? null
     );
   }
   async getAllNextrequestCertificate(): Promise<
@@ -2284,7 +2287,7 @@ export class DeviceGroupService {
       where: {
         device_externalid: developerExternalId,
         groupId: groupId,
-        status: 'Completed',  
+        status: 'Completed',
       },
     });
 
@@ -2296,10 +2299,10 @@ export class DeviceGroupService {
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historynextissuancedaterepository.findOne({ 
-        where: { 
-          conditions, 
-        } as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>, 
+      (await this.historynextissuancedaterepository.findOne({
+        where: {
+          conditions,
+        } as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
       })) ?? null
     );
   }

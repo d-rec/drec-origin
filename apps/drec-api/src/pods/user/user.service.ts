@@ -274,9 +274,9 @@ export class UserService {
   ): Promise<(Pick<UserDTO, 'id' | 'email'> & { password: string }) | null> {
     const user = await this.repository.findOne({
       where: {
-        email
+        email,
       },
-        select: ['id', 'email', 'password'],
+      select: ['id', 'email', 'password'],
     });
 
     return user ?? null;
@@ -285,7 +285,7 @@ export class UserService {
   async findOne(conditions: FindOptionsWhere<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne({
       where: {
-        conditions,  
+        conditions,
       } as FindOptionsWhere<User>,
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
@@ -336,7 +336,7 @@ export class UserService {
       where: {
         id: Not(userId),
         organization: {
-          id: organizationId
+          id: organizationId,
         },
       },
       order: {
@@ -453,10 +453,10 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({ 
+    const getrole = await this.rolerepository.findOne({
       where: {
         name: role,
-      } 
+      },
     });
     await this.repository.update(userId, { role, roleId: getrole.id });
     return this.findOne({ id: userId });
@@ -659,7 +659,7 @@ export class UserService {
     return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: api_id,
-      }
+      },
     });
   }
   /**
@@ -744,10 +744,12 @@ export class UserService {
   async hasgetUserTokenvalid(
     conditions: FindOptionsWhere<UserLoginSessionEntity>,
   ) {
-    return Boolean(await this.userloginSessionRepository.findOne({
-      where: {
-        conditions,
-      } as FindOptionsWhere<UserLoginSessionEntity>,
-    }));
+    return Boolean(
+      await this.userloginSessionRepository.findOne({
+        where: {
+          conditions,
+        } as FindOptionsWhere<UserLoginSessionEntity>,
+      }),
+    );
   }
 }

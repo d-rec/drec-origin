@@ -8,11 +8,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FindOneOptions,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -68,8 +64,8 @@ export class OrganizationService {
     const organization = await this.repository.findOne({
       where: {
         id: id,
-        ...options
-      }
+        ...options,
+      },
     });
     if (!organization) {
       this.logger.error(`No organization found with id ${id}`);
