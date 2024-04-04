@@ -89,7 +89,7 @@ specifiers:
   moment: ^2.29.4
   moment-timezone: 0.5.40
   multer: 1.4.2
-  nanoid: ~3.1.30
+  nanoid: 3.1.31
   nodemailer: ^6.6.3
   passport: 0.4.1
   passport-http-bearer: 1.0.1
@@ -212,7 +212,7 @@ dependencies:
   moment: 2.29.4
   moment-timezone: 0.5.40
   multer: 1.4.2
-  nanoid: 3.1.32
+  nanoid: 3.1.31
   nodemailer: 6.9.5
   passport: 0.4.1
   passport-http-bearer: 1.0.1
@@ -11024,8 +11024,8 @@ packages:
     hasBin: true
     dev: false
 
-  /nanoid/3.1.32:
-    resolution: {integrity: sha512-F8mf7R3iT9bvThBoW4tGXhXFHCctyCiUUPrWF8WaTqa3h96d9QybkSeba43XVOOE3oiLfkVDe4bT8MeGmkrTxw==}
+  /nanoid/3.1.31:
+    resolution: {integrity: sha512-ZivnJm0o9bb13p2Ot5CpgC2rQdzB9Uxm/mFZweqm5eMViqOJe3PV6LU2E30SiLgheesmcPrjquqraoolONSA0A==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
     dev: false
@@ -15236,7 +15236,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-5outg85KeAA8oWtgQhlrEd9zA2SJno6AvT0glbUQR8YV9y5elzv5kRp+9Xsuuci7DY5ZbJAY9vYo8ma50KnIcg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-8LBIIN9zYeoNm2po0vbJxb7qeKP8swoHvzKxsKr0TzAtFgqve9R9mBnMNfCP60JjPXFaniCSFd5efNwy56bxPw==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15326,7 +15326,7 @@ packages:
       moment: 2.29.4
       moment-timezone: 0.5.40
       multer: 1.4.2
-      nanoid: 3.1.32
+      nanoid: 3.1.31
       nodemailer: 6.9.5
       passport: 0.4.1
       passport-http-bearer: 1.0.1
