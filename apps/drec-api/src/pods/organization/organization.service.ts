@@ -107,9 +107,7 @@ export class OrganizationService {
           apiuserid: user.api_user_id,
         });
       }
-      query.andWhere(`organization.organizationType != :organizationType`, {
-        organizationType: Role.ApiUser,
-      });
+
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -209,7 +207,7 @@ export class OrganizationService {
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
     this.logger.debug(
       `Requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
@@ -231,9 +229,9 @@ export class OrganizationService {
     this.logger.verbose(`With in create`);
     this.logger.debug(
       `User ${JSON.stringify(
-        user,
+        user.id,
       )} requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
 
@@ -284,30 +282,13 @@ export class OrganizationService {
     return stored;
   }
 
-  // async FindBysecretkey(secretKey:string)
-  // : Promise<boolean> {
-  //   // const organization = await this.repository.findOne({secretKey:secretKey});
-  //   // if (!organization) {
-  //   //   throw new NotFoundException(`No organization found with secretKey ${secretKey}`);
-  //   // }
-  //   // return organization;
-
-  //   const organization = await this.repository
-  //     .createQueryBuilder()
-  //     .where({ secretKey })
-  //     .getCount();
-
-  //   return organization > 0;
-
-  // }
-
   public async newcreate(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {
     this.logger.verbose('With in newcreate');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
-        organizationToRegister,
+        organizationToRegister.name,
       )}`,
     );
     //  const organization = await this.repository.findOne({secretKey:organizationToRegister.secretKey});
@@ -538,7 +519,7 @@ export class OrganizationService {
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName } = filterDto;
+    const { organizationName, organizationType } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
@@ -546,6 +527,11 @@ export class OrganizationService {
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    if (organizationType) {
+      query.andWhere(`organization.organizationType != :organizationType`, {
+        organizationType: `%${organizationType}%`,
+      });
     }
     return query;
   }

@@ -3,14 +3,12 @@ let jwtToken;
 
 export async function login(httpService: any): Promise<string> {
   const url = `${process.env.IREC_EVIDENT_API_URL}/auth/token`;
-  console.log('In login, url: ' + url);
   const payload = {
     email: process.env.IREC_EVIDENT_REGISTRANT_EMAIL,
     token: process.env.IREC_EVIDENT_API_Token,
   };
   const response = await httpService.post(url, payload).toPromise();
   jwtToken = response.data.token;
-  console.log('evident', jwtToken);
   return jwtToken;
 }
 
@@ -29,7 +27,7 @@ export async function regenerateToken(httpService: any): Promise<string> {
 }
 
 export function isTokenExpired(token: string): boolean {
-  const decodedToken = jwt.decode(token);
+  const decodedToken = jwt.decode(token) as { exp: number };
   const expirationDate = new Date(decodedToken.exp * 1000); // Convert expiration time from seconds to milliseconds
   return expirationDate < new Date();
 }

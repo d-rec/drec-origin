@@ -556,36 +556,6 @@ export class BuyerReservationController {
       // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
-    // if (deviceGroupToRegister.blockchainAddress !== null && deviceGroupToRegister.blockchainAddress !== undefined && deviceGroupToRegister.blockchainAddress.trim() !== "") {
-    //   console.log("deviceGroupToRegister.blockchainAddress");
-    //   deviceGroupToRegister.blockchainAddress = deviceGroupToRegister.blockchainAddress.trim();
-
-    //   return await this.deviceGroupService.createOne(
-    //     organizationId,
-    //     deviceGroupToRegister,
-    //     user.id,
-    //     deviceGroupToRegister.blockchainAddress
-    //   );
-
-    // } else {
-    //   console.log(user.blockchainAccountAddress);
-    //   if (user.blockchainAccountAddress !== null && user.blockchainAccountAddress !== undefined) {
-    //     console.log("user.blockchainAddress")
-    //     return await this.deviceGroupService.createOne(
-    //       organizationId,
-    //       deviceGroupToRegister,
-    //       user.id,
-    //       user.blockchainAccountAddress
-    //     );
-
-    //   } else {
-
-    //     throw new ConflictException({
-    //       success: false,
-    //       message: 'No blockchain address sent and no blockchain address attached to this account',
-    //     });
-    //   }
-    // }
   }
 
   /**
@@ -597,10 +567,6 @@ export class BuyerReservationController {
    */
   @Post('process-creation-bulk-devices-csv')
   @UseGuards(AuthGuard('jwt'))
-  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
-  //@Permission('Write')
-  //@ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
@@ -620,10 +586,6 @@ export class BuyerReservationController {
         message: 'User needs to have organization added',
       });
     }
-
-    //let response:any = await this.fileService.GetuploadS3(fileToProcess.fileName);
-    // let response = await this.fileService.get(fileToProcess.fileName, user);
-
     if (fileToProcess.fileName == undefined) {
       //throw new Error("file not found");
       this.logger.error(`File Not Found`);
@@ -633,7 +595,6 @@ export class BuyerReservationController {
       });
     }
     if (!fileToProcess.fileName.endsWith('.csv')) {
-      //throw new Error("file not found");
       this.logger.error(`Invalid file`);
       throw new ConflictException({
         success: false,
@@ -646,8 +607,6 @@ export class BuyerReservationController {
       StatusCSV.Added,
       fileToProcess.fileName,
     );
-
-    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
 
     return jobCreated;
   }
@@ -805,12 +764,6 @@ export class BuyerReservationController {
         });
       }
     }
-    /*
-    let data = await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId
-    );
-    console.log("data", data); */
-
     return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
       jobId,
       orgId,
@@ -934,20 +887,6 @@ export class BuyerReservationController {
     this.logger.verbose(`With in getdevciegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
-  //   @Post('/buyer-reservation')
-  //   @UseGuards(AuthGuard('jwt'),PermissionGuard)
-  //   @Permission('Write')
-  //   @ACLModules('DEVICE_BUYER_RESERVATION_MANAGEMENT_CRUDL')
-  //   @ApiResponse({
-  //    status: HttpStatus.OK,
-  //    type: JobFailedRowsDTO,
-  //    description: 'Returns status of job id for bulk upload',
-  //  })
-  //  public async createBuyerReservationGroups(
-  //    @UserDecorator() { organizationId }: ILoggedInUser
-  //  ): Promise<JobFailedRowsDTO | undefined> {
-
-  //  }
 
   /**
    * It is DELETE api to delete an device reservation
@@ -1011,15 +950,6 @@ export class BuyerReservationController {
         );
       });
     }
-    // const devicegroup = await this.deviceGroupService.findOne({ devicegroup_uid: groupuId })
-    // if (devicegroup === null || devicegroup.buyerId != user.id) {
-    //     return new Promise((resolve, reject) => {
-    //         reject(new ConflictException({
-    //             success: false,
-    //             message: 'Group UId is not of this buyer, invalid value was sent',
-    //         }))
-    //     })
-    // }
 
     return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
       groupuId,

@@ -1,12 +1,15 @@
 import { startAPI } from '.';
+import { Logger } from '@nestjs/common';
 
 // @ts-ignore
 process.setMaxListeners(0);
 
+const logger = new Logger();
+
 // @ts-ignore
 process.on('warning', (e) => {
-  console.warn('warning inside main.ts');
-  console.warn(e.stack);
+  logger.warn('warning inside main.ts');
+  logger.warn(e.stack);
 });
 
 /*
