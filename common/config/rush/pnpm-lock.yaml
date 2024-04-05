@@ -91,7 +91,7 @@ specifiers:
   multer: 1.4.2
   nanoid: 3.1.31
   nodemailer: ^6.6.3
-  passport: 0.4.1
+  passport: 0.6.0
   passport-http-bearer: 1.0.1
   passport-jwt: 4.0.0
   passport-local: 1.0.0
@@ -127,7 +127,7 @@ dependencies:
   '@compodoc/compodoc': 1.1.22_typescript@4.1.3
   '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
   '@energyweb/issuer': 7.0.1
-  '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_d5bea8f1c0886170e0a1bfaff1ffe302
+  '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_fcc845980376b610124eee52109da022
   '@energyweb/origin-247-certificate': 4.1.5_d41fe8ade040ec2e65b45907221c0918
   '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
   '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
@@ -151,7 +151,7 @@ dependencies:
   '@nestjs/core': 7.6.13_cc6176a3c1ea342f4d67886e21f85e5f
   '@nestjs/cqrs': 7.0.1_d23d6dcee8676c3a0658b51375af2405
   '@nestjs/jwt': 7.2.0_@nestjs+common@7.6.13
-  '@nestjs/passport': 7.1.5_a72873bf376dac6b496f8d79b7ef8c30
+  '@nestjs/passport': 7.1.5_38107f84e9a79f9cdd463f894eb7275d
   '@nestjs/platform-express': 7.6.13_482ecb7fc1344b7ddb92c74eaa880d5f
   '@nestjs/schedule': 1.0.1_faa6cf4dbb3cf7784855fa0883a48261
   '@nestjs/swagger': 4.7.15_f9c40259506a2de0b1286c86e1c5a0af
@@ -214,7 +214,7 @@ dependencies:
   multer: 1.4.2
   nanoid: 3.1.31
   nodemailer: 6.9.5
-  passport: 0.4.1
+  passport: 0.6.0
   passport-http-bearer: 1.0.1
   passport-jwt: 4.0.0
   passport-local: 1.0.0
@@ -1837,7 +1837,7 @@ packages:
       - swagger-ui-express
     dev: false
 
-  /@energyweb/issuer-api/0.4.1-alpha.1634225870.0_d5bea8f1c0886170e0a1bfaff1ffe302:
+  /@energyweb/issuer-api/0.4.1-alpha.1634225870.0_fcc845980376b610124eee52109da022:
     resolution: {integrity: sha512-LicAgx4n49efFICb0KqgM792nyx8EGr8PO7F1aOQPxWYt4YCPKklEAJseWp7Q7TgGA4ASHwNaKcdlIaYW+bY0w==}
     hasBin: true
     dependencies:
@@ -1849,7 +1849,7 @@ packages:
       '@nestjs/config': 1.0.2_ad92c204621b18a69181da190abca121
       '@nestjs/core': 7.6.18_7a3a1497da37e5ec1892d251d02d75a3
       '@nestjs/cqrs': 7.0.1_b3355eaaab723e52e70bfca874d5ccb9
-      '@nestjs/passport': 7.1.6_fd45a09fcff1f973814c588ad08d33e0
+      '@nestjs/passport': 7.1.6_8d42ea30448d48ad0196edfc993c5a2c
       '@nestjs/schedule': 1.0.1_9241aa6ee00b75edbdf05596e17eb42e
       '@nestjs/swagger': 4.8.2_d7a751e9d3f2b7adf81a9509448f2f4e
       '@nestjs/typeorm': 7.1.5_770ecc3e0a72b32465b4dc73ad110208
@@ -3538,14 +3538,14 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
-  /@nestjs/passport/7.1.5_a72873bf376dac6b496f8d79b7ef8c30:
+  /@nestjs/passport/7.1.5_38107f84e9a79f9cdd463f894eb7275d:
     resolution: {integrity: sha512-Hu9hPxTdBZA0C4GrWTsSflzwsJ99oAk9jqAwpcszdFNqfjMjkPGuCM9QsVZbBP2bE8fxrVrPsNOILS6puY8e/A==}
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0
       passport: ^0.4.0
     dependencies:
       '@nestjs/common': 7.6.13_3f08a5913cac690a8033809ff96f1ae5
-      passport: 0.4.1
+      passport: 0.6.0
     dev: false
 
   /@nestjs/passport/7.1.6_1b8f5eed36ce747133de95b67a6002a2:
@@ -3558,14 +3558,14 @@ packages:
       passport: 0.5.0
     dev: false
 
-  /@nestjs/passport/7.1.6_fd45a09fcff1f973814c588ad08d33e0:
+  /@nestjs/passport/7.1.6_8d42ea30448d48ad0196edfc993c5a2c:
     resolution: {integrity: sha512-iHD/4D01CsKKWg7kUzo4yGNS4m90z1an0eUz+6nBlE5VeEOuCzhGFoBKAt0OKLJLOTEsJKuj4C2b5QfjqXVTyQ==}
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0
       passport: ^0.4.0
     dependencies:
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      passport: 0.4.1
+      passport: 0.6.0
     dev: false
 
   /@nestjs/platform-express/7.6.13_482ecb7fc1344b7ddb92c74eaa880d5f:
@@ -11719,20 +11719,21 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: false
 
-  /passport/0.4.1:
-    resolution: {integrity: sha512-IxXgZZs8d7uFSt3eqNjM9NQ3g3uQCW5avD8mRNoXV99Yig50vjuaez6dQK2qC0kVWPRTujxY0dWgGfT09adjYg==}
-    engines: {node: '>= 0.4.0'}
-    dependencies:
-      passport-strategy: 1.0.0
-      pause: 0.0.1
-    dev: false
-
   /passport/0.5.0:
     resolution: {integrity: sha512-ln+ue5YaNDS+fes6O5PCzXKSseY5u8MYhX9H5Co4s+HfYI5oqvnHKoOORLYDUPh+8tHvrxugF2GFcUA1Q1Gqfg==}
     engines: {node: '>= 0.4.0'}
     dependencies:
       passport-strategy: 1.0.0
       pause: 0.0.1
+    dev: false
+
+  /passport/0.6.0:
+    resolution: {integrity: sha512-0fe+p3ZnrWRW74fe8+SvCyf4a3Pb2/h7gFkQ8yTJpAO50gDzlfjZUZTO1k5Eg9kUct22OxHLqDZoKUWRHOh9ug==}
+    engines: {node: '>= 0.4.0'}
+    dependencies:
+      passport-strategy: 1.0.0
+      pause: 0.0.1
+      utils-merge: 1.0.1
     dev: false
 
   /path-browserify/1.0.1:
@@ -15246,14 +15247,14 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-W/esQ7XgFXrOSixYOPrsRx21xD58ucyBLLiP8C6S45sV0kG39Ct4Ln11JKO75l1/v9cJs618XOVR/SgEJK6bjg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-HDDWVrL0JW+pXGmWeuAkHLqDOF1vc/H7OhQYxUmQv+DhZaqDNrrJhkRUW9qHjYg8oAKyjz9w/pOBv1Fr1PW2bA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
       '@compodoc/compodoc': 1.1.22_typescript@4.1.3
       '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
       '@energyweb/issuer': 7.0.1
-      '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_d5bea8f1c0886170e0a1bfaff1ffe302
+      '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_fcc845980376b610124eee52109da022
       '@energyweb/origin-247-certificate': 4.1.5_d41fe8ade040ec2e65b45907221c0918
       '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
       '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
@@ -15271,7 +15272,7 @@ packages:
       '@nestjs/core': 7.6.13_cc6176a3c1ea342f4d67886e21f85e5f
       '@nestjs/cqrs': 7.0.1_d23d6dcee8676c3a0658b51375af2405
       '@nestjs/jwt': 7.2.0_@nestjs+common@7.6.13
-      '@nestjs/passport': 7.1.5_a72873bf376dac6b496f8d79b7ef8c30
+      '@nestjs/passport': 7.1.5_38107f84e9a79f9cdd463f894eb7275d
       '@nestjs/platform-express': 7.6.13_482ecb7fc1344b7ddb92c74eaa880d5f
       '@nestjs/schedule': 1.0.1_faa6cf4dbb3cf7784855fa0883a48261
       '@nestjs/swagger': 4.7.15_f9c40259506a2de0b1286c86e1c5a0af
@@ -15338,7 +15339,7 @@ packages:
       multer: 1.4.2
       nanoid: 3.1.31
       nodemailer: 6.9.5
-      passport: 0.4.1
+      passport: 0.6.0
       passport-http-bearer: 1.0.1
       passport-jwt: 4.0.0
       passport-local: 1.0.0
