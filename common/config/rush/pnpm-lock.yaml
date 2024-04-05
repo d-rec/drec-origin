@@ -3483,7 +3483,7 @@ packages:
     dependencies:
       '@nestjs/common': 7.6.13_3f08a5913cac690a8033809ff96f1ae5
       '@types/jsonwebtoken': 8.5.0
-      jsonwebtoken: 8.5.1
+      jsonwebtoken: 9.0.2
     dev: false
 
   /@nestjs/jwt/8.0.0_@nestjs+common@7.6.18:
@@ -3493,7 +3493,7 @@ packages:
     dependencies:
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
       '@types/jsonwebtoken': 8.5.4
-      jsonwebtoken: 8.5.1
+      jsonwebtoken: 9.0.2
     dev: false
 
   /@nestjs/mapped-types/0.3.0_e69a5f9e2545a652e6b3cefc68b57f9e:
@@ -11696,7 +11696,7 @@ packages:
   /passport-jwt/4.0.0:
     resolution: {integrity: sha512-BwC0n2GP/1hMVjR4QpnvqA61TxenUMlmfNjYNgK0ZAs0HK4SOQkHcSv4L328blNTLtHq7DbmvyNJiH+bn6C5Mg==}
     dependencies:
-      jsonwebtoken: 8.5.1
+      jsonwebtoken: 9.0.2
       passport-strategy: 1.0.0
     dev: false
 
