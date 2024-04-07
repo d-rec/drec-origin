@@ -71,7 +71,7 @@
     "@nestjs/typeorm": "7.1.5",
     "ansi-regex": "^4.1.1",
     "aws-sdk": "^2.1272.0",
-    "axios": "^0.21.2",
+    "axios": "0.28.0",
     "bcryptjs": "2.4.3",
     "class-transformer": "0.3.1",
     "class-validator": "0.14.0",

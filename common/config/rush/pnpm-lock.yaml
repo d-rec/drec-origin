@@ -57,7 +57,7 @@ specifiers:
   '@typescript-eslint/parser': 3.10.1
   ansi-regex: ^4.1.1
   aws-sdk: ^2.1272.0
-  axios: ^0.21.2
+  axios: 0.28.0
   bcryptjs: 2.4.3
   chai: 4.2.0
   class-transformer: 0.3.1
@@ -180,7 +180,7 @@ dependencies:
   '@typescript-eslint/parser': 3.10.1_eslint@7.15.0+typescript@4.1.3
   ansi-regex: 4.1.1
   aws-sdk: 2.1469.0
-  axios: 0.21.4
+  axios: 0.28.0
   bcryptjs: 2.4.3
   chai: 4.2.0
   class-transformer: 0.3.1
@@ -4998,6 +4998,16 @@ packages:
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios/0.28.0:
+    resolution: {integrity: sha512-Tu7NYoGY4Yoc7I+Npf9HhUMtEEpV7ZiLH9yndTCoNhcpBH0kwcvFbzYN9/u5QKI5A6uefjsNNWaz5olJVYS62Q==}
+    dependencies:
+      follow-redirects: 1.15.6
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -11579,7 +11589,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       degenerator: 3.0.4
-      ip: 2.0.1
+      ip: 1.1.8
       netmask: 2.0.2
     dev: false
 
@@ -13187,7 +13197,7 @@ packages:
     resolution: {integrity: sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==}
     engines: {node: '>= 10.13.0', npm: '>= 3.0.0'}
     dependencies:
-      ip: 2.0.1
+      ip: 2.0.0
       smart-buffer: 4.2.0
     dev: false
 
@@ -15251,7 +15261,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-T1jXC39IiNcmGymx9VG1R+hgW/XXbwNOsNtrvM/9LGw7nwrM4pX7X55RgBa+sby9oRPbqqlFgUoInoM8HcCrDg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-O7r3VfHO3ZMdX1xvsNilbVkwrAsbyzCgss4EcRzydy9RPxSuY+NrYckOUf/HyyBmP8ZvoaBUxmO2O9+Y6v+oQg==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15304,7 +15314,7 @@ packages:
       '@typescript-eslint/parser': 3.10.1_eslint@7.15.0+typescript@4.1.3
       ansi-regex: 4.1.1
       aws-sdk: 2.1469.0
-      axios: 0.21.4
+      axios: 0.28.0
       bcryptjs: 2.4.3
       chai: 4.2.0
       class-transformer: 0.3.1
