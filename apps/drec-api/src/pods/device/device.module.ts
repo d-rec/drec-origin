@@ -1,4 +1,4 @@
-import { Module, forwardRef, HttpModule } from '@nestjs/common';
+import { Module, forwardRef, } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { DeviceController } from './device.controller';
@@ -15,6 +15,7 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),

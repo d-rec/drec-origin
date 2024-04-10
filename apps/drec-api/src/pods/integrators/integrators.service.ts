@@ -58,7 +58,7 @@ export class IntegratorsService {
     endDate: string,
   ): Promise<any> {
     this.logger.verbose(`With in getBBOXproductReadData`);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig = {
       headers: { Authorization: `Token token=${token}` },
       params: {
         start: startDate,

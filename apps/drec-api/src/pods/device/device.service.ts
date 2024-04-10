@@ -6,7 +6,6 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
-  HttpService,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -67,13 +66,13 @@ import { SDGBenefits } from '../../models/Sdgbenefit';
 import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
-import { AxiosRequestConfig } from 'axios';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -258,7 +257,7 @@ export class DeviceService {
         name: `${device.externalId}`,
         fuel: `/fuels/${device.fuelCode}`,
       };
-      const config: AxiosRequestConfig = {
+      const config = {
         headers,
       };
 
@@ -337,7 +336,7 @@ export class DeviceService {
         address1: device.address,
         country: '/countries/' + device.countryCode,
       };
-      const config: AxiosRequestConfig = {
+      const config = {
         headers,
       };
 

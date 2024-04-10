@@ -12,7 +12,6 @@ import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_met
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import {
-  HttpService,
   UnauthorizedException,
   ConflictException,
 } from '@nestjs/common';
@@ -31,6 +30,7 @@ import {
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('DeviceService', () => {
   let service: DeviceService;
