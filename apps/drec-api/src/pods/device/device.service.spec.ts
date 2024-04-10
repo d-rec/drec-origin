@@ -11,10 +11,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import {
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { OrganizationService } from '../organization/organization.service';
