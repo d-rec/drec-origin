@@ -13,7 +13,7 @@ import {
   Brackets,
   SelectQueryBuilder,
   In,
-  FindConditions,
+  FindOptionsWhere,
   Any,
 } from 'typeorm';
 
@@ -1203,9 +1203,15 @@ export class ReadsService {
   }
 
   async getDeviceHistoryCertificateIssueDate(
-    conditions: FindConditions<HistoryIntermediate_MeterRead>,
+    conditions: FindOptionsWhere<HistoryIntermediate_MeterRead>,
   ): Promise<HistoryIntermediate_MeterRead | null> {
-    return (await this.historyrepository.findOne(conditions)) ?? null;
+    return (
+      (await this.historyrepository.findOne({
+        where: {
+          conditions,
+        } as FindOptionsWhere<HistoryIntermediate_MeterRead>,
+      })) ?? null
+    );
   }
   async updatehistorycertificateissuedate(
     id: number,
