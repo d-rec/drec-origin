@@ -161,7 +161,7 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-      userid = await this.userService.newcreate(
+    userid = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
       true,
