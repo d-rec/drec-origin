@@ -160,24 +160,12 @@ export class InvitationService {
     let userid: any;
     this.logger.debug('invitee');
 
-    //to add for if one user invite by multiple organization
-    // if (invitee) {
-    //   userid = invitee
-
-    // } else {
-    //let client;
-    inviteuser['client'] = { api_user_id: organization.api_user_id };
-    userid = await this.userService.newcreate(
+    inviteuser.api_user_id = organization.api_user_id;
+      userid = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
       true,
     );
-
-    //}
-    // var updateinviteuser: updateInviteStatusDTO = {
-    //   email: lowerCaseEmail,
-    //   status: OrganizationInvitationStatus.Accepted
-    // }
 
     if (sender.role !== Role.ApiUser) {
       await this.userService.sentinvitiontoUser(
@@ -196,9 +184,8 @@ export class InvitationService {
     const lowerCaseEmail = user.email.toLowerCase();
     const userinvite = await this.userService.findByEmail(lowerCaseEmail);
     this.logger.debug(userinvite);
-    const invitation = await this.invitationRepository.findOne({
+    const invitation = await this.invitationRepository.findOne(invitationId, {
       where: {
-        id: invitationId,
         email: lowerCaseEmail,
       },
       relations: ['organization'],
