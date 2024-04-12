@@ -87,6 +87,16 @@ Create Postgres DB table
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 ```
 
+Create Default Admin:
+
+Please update below environment variables under defauld admin credential with the values that you wanted to create as default admin user.
+
+```
+ADMIN_EMAIL
+ADMIN_PASSWORD
+```
+
+
 Install dependencies, Run db migrations:
 ```
 rush install

@@ -6,7 +6,6 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
-  HttpService,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +20,7 @@ import {
   Raw,
   Brackets,
   SelectQueryBuilder,
-  FindConditions,
+  FindOptionsWhere,
   FindManyOptions,
   Between,
   LessThanOrEqual,
@@ -67,13 +66,13 @@ import { SDGBenefits } from '../../models/Sdgbenefit';
 import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
-import { AxiosRequestConfig } from 'axios';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -131,17 +130,6 @@ export class DeviceService {
       totalPages,
       totalCount,
     };
-  }
-
-  public async findForIntegrator(integrator: Integrator): Promise<Device[]> {
-    this.logger.verbose(`With in findForIntegrator`);
-    const result = this.repository.find({
-      where: {
-        integrator,
-      },
-    });
-    delete result['organization'];
-    return result;
   }
 
   async getOrganizationDevices(
@@ -269,7 +257,7 @@ export class DeviceService {
         name: `${device.externalId}`,
         fuel: `/fuels/${device.fuelCode}`,
       };
-      const config: AxiosRequestConfig = {
+      const config = {
         headers,
       };
 
@@ -348,7 +336,7 @@ export class DeviceService {
         address1: device.address,
         country: '/countries/' + device.countryCode,
       };
-      const config: AxiosRequestConfig = {
+      const config = {
         headers,
       };
 
@@ -454,7 +442,12 @@ export class DeviceService {
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findOne`);
-    const device: Device = await this.repository.findOne(id, options);
+    const device: Device = await this.repository.findOne({
+      where: {
+        id: id,
+        ...options,
+      },
+    });
     if (!device) {
       return null;
     }
@@ -794,7 +787,7 @@ export class DeviceService {
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
     const limit = 20;
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
@@ -984,7 +977,7 @@ export class DeviceService {
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),

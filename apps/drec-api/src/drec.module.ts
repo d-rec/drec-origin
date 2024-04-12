@@ -1,9 +1,4 @@
-import {
-  Module,
-  MiddlewareConsumer,
-  NestModule,
-  HttpModule,
-} from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -66,6 +61,7 @@ import { OauthClientCredentials } from './pods/user/oauth_client_credentials.ent
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { HttpModule } from '@nestjs/axios';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
