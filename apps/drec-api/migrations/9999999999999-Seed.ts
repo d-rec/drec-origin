@@ -18,6 +18,9 @@ import {
   IRoleConfig,
   IACLModuleConfig,
 } from '../src/models';
+import { v4 as uuid } from 'uuid';
+import bcrypt from 'bcryptjs';
+
 import { Logger } from '@nestjs/common';
 // import UsersJSON from './users.json';
 // import OrganizationsJSON from './organizations.json';
@@ -27,6 +30,7 @@ const OrganizationsJSON = [];
 const DevicesJSON = [];
 
 import RoleJSON from './user_role.json';
+import AdminJSON from './admin.json';
 import ACLModuleJSON from './acl_modules.json';
 import { PermissionString } from 'src/utils/enums';
 
@@ -45,10 +49,8 @@ export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const { registry } = await this.seedBlockchain(queryRunner);
 
-    // await this.seedOrganizations(queryRunner, registry);
-    // await this.seedUsers(queryRunner);
-    // await this.seedDevices(queryRunner);
     await this.seedUsersRole(queryRunner);
+    await this.seedAdmin(queryRunner);
     await this.seedACLModules(queryRunner);
     await queryRunner.query(
       `SELECT setval(
@@ -71,179 +73,6 @@ export class Seed9999999999999 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {}
-
-  private async seedUsers(queryRunner: QueryRunner) {
-    const userTable = await queryRunner.getTable('public.user');
-
-    if (!userTable) {
-      this.logger.verbose('user table does not exist.');
-      return;
-    }
-
-    await Promise.all(
-      (UsersJSON as unknown as IUserSeed[]).map(async (user) => {
-        queryRunner.query(
-          `INSERT INTO public.user (
-            "id", 
-            "title", 
-            "firstName", 
-            "lastName", 
-            "telephone", 
-            "email", 
-            password, 
-            "notifications", 
-            "status", 
-            "role", 
-            "organizationId"
-            ) VALUES (
-              '${user.id}', 
-              '${user.title}', 
-              '${user.firstName}', 
-              '${user.lastName}', 
-              '${user.telephone}', 
-              '${user.email.toLowerCase()}', 
-              '${user.password}', 
-              '${user.notifications}', 
-              '${user.status}', 
-              '${user.role}', 
-              '${user.organizationId}'
-            )`,
-        );
-      }),
-    );
-  }
-
-  private async seedOrganizations(
-    queryRunner: QueryRunner,
-    registryAddress: string,
-  ) {
-    const organizationsTable = await queryRunner.getTable(
-      'public.organization',
-    );
-
-    if (!organizationsTable) {
-      this.logger.verbose('organization table does not exist.');
-      return;
-    }
-
-    for (const [index, organization] of (OrganizationsJSON as Array<any>)
-      // OrganizationsJSON as IFullOrganization[]
-      .entries()) {
-      const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
-      const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
-      const blockchainAccount = Wallet.fromMnemonic(
-        process.env.MNEMONIC!,
-        `m/44'/60'/0'/0/${index + 1}`,
-      );
-
-      const registryWithSigner =
-        Contracts.factories.RegistryExtendedFactory.connect(
-          registryAddress,
-          new Wallet(blockchainAccount.privateKey, provider),
-        );
-
-      await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
-
-      // await queryRunner.query(
-      //   `INSERT INTO public.organization (
-      //     "id",
-      //     "name",
-      //     "address",
-      //     "zipCode",
-      //     "city",
-      //     "country",
-      //     "businessType",
-      //     "tradeRegistryCompanyNumber",
-      //     "vatNumber",
-      //     status,
-      //     "blockchainAccountAddress",
-      //     "signatoryFullName",
-      //     "signatoryAddress",
-      //     "signatoryCity",
-      //     "signatoryZipCode",
-      //     "signatoryCountry",
-      //     "signatoryEmail",
-      //     "signatoryPhoneNumber"
-      //   ) VALUES (
-      //     '${organization.id}',
-      //     '${organization.name}',
-      //     '${organization.address}',
-      //     '${organization.zipCode}',
-      //     '${organization.city}',
-      //     '${organization.country}',
-      //     '${organization.businessType}',
-      //     '${organization.tradeRegistryCompanyNumber}',
-      //     '${organization.vatNumber}',
-      //     '${organization.status}',
-      //     '${blockchainAccount.address}',
-      //     '${organization.signatoryFullName}',
-      //     '${organization.signatoryAddress}',
-      //     '${organization.signatoryCity}',
-      //     '${organization.signatoryZipCode}',
-      //     '${organization.signatoryCountry}',
-      //     '${organization.signatoryEmail}',
-      //     '${organization.signatoryPhoneNumber}'
-      //   )`,
-      // );
-    }
-  }
-
-  /*
-  private async seedDevices(queryRunner: QueryRunner) {
-    const devicesTable = await queryRunner.getTable('public.device');
-
-    if (!devicesTable) {
-      console.log('device table does not exist.');
-      return;
-    }
-
-    await Promise.all(
-      (DevicesJSON as IDevice[]).map((device) =>
-        queryRunner.query(
-          `INSERT INTO public.device (
-            "externalId", 
-            "organizationId", 
-            "projectName", 
-            latitude, 
-            longitude, 
-            "fuelCode", 
-            "deviceTypeCode", 
-            "installationConfiguration", 
-            capacity, 
-            "commissioningDate", 
-            "gridInterconnection", 
-            "offTaker", 
-            sector, 
-            "standardCompliance", 
-            "yieldValue", 
-            labels, 
-            "impactStory", 
-            "countryCode"
-          ) VALUES (
-              '${device.externalId}', 
-              '${device.organizationId}', 
-              '${device.projectName}', 
-              '${device.latitude}', 
-              '${device.longitude}', 
-              '${device.fuelCode}', 
-              '${device.deviceTypeCode}', 
-              '${device.installationConfiguration}', 
-              '${device.capacity}', 
-              '${device.commissioningDate}', 
-              '${device.gridInterconnection}', 
-              '${device.offTaker}', 
-              '${device.sector}', 
-              '${device.standardCompliance}', 
-              '${device.yieldValue}', 
-              '${device.labels}', 
-              '${device.impactStory}', 
-              '${device.countryCode}'
-            )`,
-        ),
-      ),
-    );
-  }
-  */
 
   private async seedBlockchain(
     queryRunner: QueryRunner,
@@ -313,6 +142,96 @@ export class Seed9999999999999 implements MigrationInterface {
     };
   }
 
+  private async seedAdmin(queryRunner: QueryRunner) {
+    const tableNames = [
+      'public.user',
+      'public.api_user',
+      'public.organization',
+    ];
+
+    if (
+      process.env.ADMIN_EMAIL == undefined ||
+      process.env.ADMIN_PASSWORD == undefined
+    ) {
+      throw new Error(
+        'Please set your environment variables ADMIN_EMAIL and ADMIN_PASSWORD',
+      );
+    }
+
+    for (const tableName of tableNames) {
+      const table = await queryRunner.getTable(tableName);
+      if (!table) {
+        console.log(`${tableName} table does not exist.`);
+        return;
+      }
+    }
+
+    const adminExists = await queryRunner.query(
+      `SELECT id FROM public.user WHERE "role" = '${RoleJSON[0].name}'`,
+    );
+
+    if (!adminExists.length) {
+      const api_user = await queryRunner.query(`INSERT INTO public.api_user (
+        "api_user_id",
+        "permission_status"
+        ) VALUES (
+            '${uuid()}',
+            'Request'
+        )
+        RETURNING "api_user_id"
+    `);
+
+      const api_user_id = api_user[0].api_user_id;
+
+      const organization =
+        await queryRunner.query(`INSERT INTO public.organization (
+        "id",
+        "name",
+        "address",
+        "organizationType",
+        "orgEmail",
+        "status",
+        "api_user_id"
+        ) VALUES (
+            '${AdminJSON.id}',
+            '${AdminJSON.orgName}',
+            '${AdminJSON.orgAddress}',
+            '${AdminJSON.organizationType}',
+            '${process.env.ADMIN_EMAIL.toLowerCase()}',
+            '${AdminJSON.status}',
+            '${api_user_id}'
+        )
+        RETURNING "id"
+    `);
+
+      const organizationId = organization[0].id;
+      const password = bcrypt.hashSync(process.env.ADMIN_PASSWORD, 8);
+
+      await queryRunner.query(`INSERT INTO public.user (
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "password",
+        "status",
+        "role",
+        "organizationId",
+        "roleId",
+        "api_user_id"
+        ) VALUES (
+            '${AdminJSON.id}',
+            '${AdminJSON.firstName}',
+            '${AdminJSON.lastName}',
+            '${process.env.ADMIN_EMAIL.toLowerCase()}',
+            '${password}',
+            '${AdminJSON.status}',
+            '${RoleJSON[0].name}',    
+            '${organizationId}',
+            '${RoleJSON[0].id}',
+            '${api_user_id}'
+        )`);
+    }
+  }
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
     permissionString: PermissionString;
     bitPosition: number;

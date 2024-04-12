@@ -105,7 +105,6 @@ export class ReadsController extends BaseReadsController {
   public async getReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
-    // @UserDecorator() user: ILoggedInUser,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -322,85 +321,6 @@ export class ReadsController extends BaseReadsController {
   }
   /* */
 
-  // @Get('/:meter/difference')
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   type: [ReadDTO],
-  //   description:
-  //     'Returns time-series of difference between subsequent meter reads',
-  // })
-  // @)UseGuards(AuthGuard('jwt'))
-  // public async getReadsDifference(
-  //   @Param('meter') meterId: string,
-  //   @Query() filter: FilterDTO,
-  // ): Promise<ReadDTO[]> {
-  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
-
-  //   if (device === null) {
-
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `Invalid device id`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   return super.getReadsDifference(device.externalId, filter);
-  // }
-
-  // @Get('group/:groupId/aggregate')
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   type: [AggregatedReadDTO],
-  //   description:
-  //     'Returns aggregated time-series of difference between subsequent meter reads',
-  // })
-  // public async getGroupAggregatedReads(
-  //   @Param('groupId') groupId: number,
-  //   @Query() filter: AggregateFilterDTO,
-  // ): Promise<AggregatedReadDTO[]> {
-  //   return this.internalReadsService.getGroupAggregatedReads(groupId, filter);
-  // }
-
-  // @Get('/:meter/aggregate')
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   type: [AggregatedReadDTO],
-  //   description:
-  //     'Returns aggregated time-series of difference between subsequent meter reads',
-  // })
-  // public async getReadsAggregates(
-  //   @Param('meter') meterId: string,
-  //   @Query() filter: AggregateFilterDTO,
-  // ): Promise<AggregatedReadDTO[]> {
-  //   let device: DeviceDTO | null = await this.deviceService.findReads(meterId);
-
-  //   if (device === null) {
-
-  //     return new Promise((resolve, reject) => {
-  //       reject(
-  //         new ConflictException({
-  //           success: false,
-  //           message: `Invalid device id`,
-  //         })
-  //       );
-  //     });
-  //   }
-  //   return super.getReadsAggregates(device.externalId, filter);
-  // }
-
-  // @Post('/:id')
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
-  // public async storeReads(
-  //   @Param('id') id: string,
-  //   @Body() measurements: MeasurementDTO,
-  // ): Promise<void> {
-  //   return await this.internalReadsService.storeRead(id, measurements);
-  // }
-
   /**
    * This api route use for add meter read of devices
    * @param id
@@ -517,11 +437,9 @@ export class ReadsController extends BaseReadsController {
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
       const allTimezoneNamesLowerCase: Array<string> = [];
-      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
         .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      //console.log(allTimezoneNamesLowerCase);
       if (
         !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
       ) {
@@ -1075,7 +993,6 @@ export class ReadsController extends BaseReadsController {
         id,
         organizationId,
       );
-    //console.log(device);
     if (device === null) {
       this.logger.error(`Invalid device id`);
       return new Promise((resolve, reject) => {
@@ -1095,11 +1012,10 @@ export class ReadsController extends BaseReadsController {
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
       const allTimezoneNamesLowerCase: Array<string> = [];
-      //momentTimeZone.tz.names().forEach(ele=>console.log(ele.toLowerCase()));
       momentTimeZone.tz
         .names()
         .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      //console.log(allTimezoneNamesLowerCase);
+
       if (
         !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
       ) {
@@ -1264,7 +1180,7 @@ export class ReadsController extends BaseReadsController {
         }
         // @ts-ignore
         const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
-        //dateFormateToCheck.test(ele.starttimestamp);
+
         // @ts-ignore
         const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
 
@@ -1296,8 +1212,6 @@ export class ReadsController extends BaseReadsController {
           readvalue = false;
         }
         if (device && device.commissioningDate) {
-          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
-
           if (
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()

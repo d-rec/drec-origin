@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { ACLModulePermissions } from './permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -47,7 +47,6 @@ export class PermissionService {
     loginuser: LoggedInUser,
   ): Promise<PermissionDTO> {
     this.logger.verbose(`With in create`);
-    //console.log(data)
     const addedPermissionList: any = {
       Read: false,
       Write: false,
@@ -61,7 +60,6 @@ export class PermissionService {
         }
       });
     }
-    //console.log(addedPermissionList)
     const permissionValue =
       this.Permissionvalue.computePermissions(addedPermissionList);
     const userpermission = await this.findOne({
@@ -69,14 +67,11 @@ export class PermissionService {
       entityType: data.entityType,
       entityId: data.entityId,
     });
-    //console.log("permission69");
-    //console.log(userpermission);
     if (!userpermission) {
       const permissionboolean = await this.checkForExistingmodulepermission(
         data,
         permissionValue,
       );
-      //console.log(permissionboolean)
       if (permissionboolean) {
         const aclpermission = new ACLModulePermissions({
           ...data,
@@ -112,15 +107,12 @@ export class PermissionService {
         success: false,
         message: `Permission For ModuleId  and Role already exist`,
       });
-      // return userpermission;
-      //throw new NotFoundException(`Permission For ModuleId  and Role already exist`);
     }
   }
   private async checkForExistingmodulepermission(
     data: any,
     newpermissionvalue: number,
   ): Promise<boolean> {
-    //console.log(data)
     this.logger.verbose(`With in checkForExistingmodulepermission`);
     const moduleId = await this.ACLpermissionService.findOne({
       id: data.aclmodulesId,
@@ -154,7 +146,7 @@ export class PermissionService {
           status: 1,
         },
         {
-          entityType: 'User',
+          entityType: EntityType.User,
           entityId: userId,
           aclmodulesId: moduleId.id,
           status: 1,
@@ -169,12 +161,14 @@ export class PermissionService {
     return userpermission;
   }
   async findOne(
-    conditions: FindConditions<ACLModulePermissions>,
+    conditions: FindOptionsWhere<ACLModulePermissions>,
   ): Promise<ACLModulePermissions> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(
-      conditions,
-    ) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
+    const module = await (this.repository.findOne({
+      where: {
+        conditions,
+      } as FindOptionsWhere<ACLModulePermissions>,
+    }) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
     return module;
   }
   async getAll(): Promise<ACLModulePermissions[]> {
@@ -192,7 +186,7 @@ export class PermissionService {
     const aclpermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
-        entityType: 'Role',
+        entityType: EntityType.Role,
         entityId: id,
       },
       order: {
@@ -207,7 +201,7 @@ export class PermissionService {
     const useraclpermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
-        entityType: 'User',
+        entityType: EntityType.User,
         entityId: id,
       },
       order: {
@@ -298,7 +292,6 @@ export class PermissionService {
       this.logger.error(`No module permission available in requeste`);
       throw new NotFoundException(`No module permission available in requeste`);
     }
-
     const api_user = await this.userService.findById(loginuser.id);
 
     let permissionIds: any = [];
@@ -318,7 +311,7 @@ export class PermissionService {
         newpermission.entityType = EntityType.User;
         newpermission.entityId = loginuser.id;
         const perId = await this.create(newpermission, loginuser);
-        //console.log(perId);
+
         permissionIds.push(perId.id);
       }),
     );

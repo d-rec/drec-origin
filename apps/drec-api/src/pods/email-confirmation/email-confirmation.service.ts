@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
@@ -37,8 +37,6 @@ export class EmailConfirmationService {
 
   public async create(user: User): Promise<EmailConfirmation | null> {
     this.logger.verbose(`With in create`);
-    //const client = await this.oauthClientCredentialsService.findOneByuserid(user.api_user_id);
-    //console.log("Client with email create:",client,(client.client_id === process.env.client_id),user.role === 'ApiUser' )
     // @ts-ignore
     if (
       (await this.userService.findOne({
@@ -137,10 +135,13 @@ export class EmailConfirmationService {
     );
   }
   async findOne(
-    conditions: FindConditions<EmailConfirmation>,
+    conditions: FindOptionsWhere<EmailConfirmation>,
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
-    const user = await (this.repository.findOne(conditions, {
+    const user = await (this.repository.findOne({
+      where: {
+        conditions,
+      } as FindOptionsWhere<EmailConfirmation>,
       relations: ['user'],
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
 
@@ -150,7 +151,11 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
-    const emailConfirmation = await this.repository.findOne({ token });
+    const emailConfirmation = await this.repository.findOne({
+      where: {
+        token,
+      },
+    });
 
     if (!emailConfirmation) {
       this.logger.error(`Email confirmation doesn't exist`);
@@ -343,27 +348,6 @@ export class EmailConfirmationService {
     await this.repository.delete(allemialconfirm.id);
   }
 
-  // private async sendInvitation(
-  //   organization: string,
-  //   email: string,
-  //   token: string,
-  // ): Promise<void> {
-  //   const url = `${process.env.UI_BASE_URL}`;
-
-  //   const result = await this.mailService.send({
-  //     to: email,
-  //     subject: `[Origin] Organization invitation`,
-  //     html: `Organization <b>${organization}</b> has invited you to join. To accept the invitation,<br>
-  //    <b> Please click the button to confirm your email: </b> <a href="${url}/confirm-email?token=${token}">Confirme</a>.<br>
-  //     <b> and Please change password: </b> <a href="${url}/reset-password?token=${token}&email=${email}">Add Password</a><br>
-  //    and then login and visit`,
-  //   });
-
-  //   if (result) {
-  //     this.logger.log(`Notification email sent to ${email}.`);
-  //   }
-  // }
-
   public async sendInvitation(
     inviteuser: any,
     email: string,
@@ -373,12 +357,6 @@ export class EmailConfirmationService {
     this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/login`;
 
-    // const htmlTemplate = `
-    //   <p>Organization <b>${organization}</b> has invited you to join.</p>
-    //   <p>To accept the invitation, please change your password using the following link :</p>
-    //   <p><a href="${url}/reset-password?token=${token}&email=${email}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Add Password</a></p>
-    //   <p>After changing your password, you can log in and visit the your invitation details in website.</p>
-    // `;
     const htmlTemplate = `
     <p> Dear ${email},<p>
     <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
