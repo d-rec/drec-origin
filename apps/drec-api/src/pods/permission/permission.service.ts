@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { ACLModulePermissions } from './permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -146,7 +146,7 @@ export class PermissionService {
           status: 1,
         },
         {
-          entityType: 'User',
+          entityType: EntityType.User,
           entityId: userId,
           aclmodulesId: moduleId.id,
           status: 1,
@@ -161,12 +161,14 @@ export class PermissionService {
     return userpermission;
   }
   async findOne(
-    conditions: FindConditions<ACLModulePermissions>,
+    conditions: FindOptionsWhere<ACLModulePermissions>,
   ): Promise<ACLModulePermissions> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(
-      conditions,
-    ) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
+    const module = await (this.repository.findOne({
+      where: {
+        conditions,
+      } as FindOptionsWhere<ACLModulePermissions>,
+    }) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
     return module;
   }
   async getAll(): Promise<ACLModulePermissions[]> {
@@ -184,7 +186,7 @@ export class PermissionService {
     const aclpermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
-        entityType: 'Role',
+        entityType: EntityType.Role,
         entityId: id,
       },
       order: {
@@ -199,7 +201,7 @@ export class PermissionService {
     const useraclpermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
-        entityType: 'User',
+        entityType: EntityType.User,
         entityId: id,
       },
       order: {

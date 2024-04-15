@@ -10,10 +10,11 @@
     "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "axios": "^0.24.0",
+        "axios": "^0.28.0",
         "csv-parser": "^3.0.0",
         "dotenv": "^10.0.0",
         "form-data": "^4.0.0",
-        "luxon": "^2.1.1"
+        "luxon": "^2.5.2",
+        "minimist": "^1.2.6"
     }
 }
