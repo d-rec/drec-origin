@@ -1207,9 +1207,8 @@ export class ReadsService {
   ): Promise<HistoryIntermediate_MeterRead | null> {
     return (
       (await this.historyrepository.findOne({
-        where: {
-          conditions,
-        } as FindOptionsWhere<HistoryIntermediate_MeterRead>,
+        where:
+          conditions as FindOptionsWhere<HistoryIntermediate_MeterRead>,
       })) ?? null
     );
   }

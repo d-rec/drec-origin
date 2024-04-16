@@ -284,9 +284,8 @@ export class UserService {
 
   async findOne(conditions: FindOptionsWhere<User>): Promise<TUserBaseEntity> {
     const user = await (this.repository.findOne({
-      where: {
-        conditions,
-      } as FindOptionsWhere<User>,
+      where:
+        conditions as FindOptionsWhere<User>,
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
@@ -746,9 +745,8 @@ export class UserService {
   ) {
     return Boolean(
       await this.userloginSessionRepository.findOne({
-        where: {
-          conditions,
-        } as FindOptionsWhere<UserLoginSessionEntity>,
+        where:
+          conditions as FindOptionsWhere<UserLoginSessionEntity>,
       }),
     );
   }
