@@ -161,7 +161,7 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-    userid = await this.userService.newcreate(
+      userid = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
       true,
@@ -184,8 +184,9 @@ export class InvitationService {
     const lowerCaseEmail = user.email.toLowerCase();
     const userinvite = await this.userService.findByEmail(lowerCaseEmail);
     this.logger.debug(userinvite);
-    const invitation = await this.invitationRepository.findOne(invitationId, {
+    const invitation = await this.invitationRepository.findOne({
       where: {
+        id: invitationId,
         email: lowerCaseEmail,
       },
       relations: ['organization'],
