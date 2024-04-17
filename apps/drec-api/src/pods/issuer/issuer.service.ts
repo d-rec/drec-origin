@@ -207,7 +207,7 @@ export class IssuerService {
         this.logger.error("ongoing countryDevicegroup is missing");
         // if (Object.keys(countryDevicegroup).length === 0) {
         const groupdevices = await this.deviceService.findForGroup(group.id);
-    
+
         await Promise.all(
           groupdevices.map(async (device: IDevice) => {
             if (device.meterReadtype === null) {
@@ -608,12 +608,12 @@ export class IssuerService {
                 //console.log("aggregateReadings", aggregateReadings);
               }
               catch (e) {
-                this.logger.error(`error in getting aggregate read ${e}`);
-              }
+                        this.logger.error(`error in getting aggregate read ${e}`);
+                      }
 
-            }
-            //console.log("device previous reading", device.externalId, previousReading);
-          }
+                    }
+                    //console.log("device previous reading", device.externalId, previousReading);
+                  }
 
           //change this to when was initial reading came for aggregate or else if delta then its the createdAt
           if (previousReading.length > 0) {
@@ -1041,13 +1041,13 @@ export class IssuerService {
                 // }
                 await Promise.all(
                   lateongoing.map(async (element1) => {
-                   
+
                     let startDate = DateTime.fromISO(element1.late_start_date).toUTC();
                     let endDate = DateTime.fromISO(element1.late_end_date).toUTC();
                     nextissuance.start_date = element1.late_start_date;
                     nextissuance.end_date = element1.late_end_date;
                     const certifieddevices = await this.deviceService.getCheckCertificateIssueDateLogForDevice(element1.device_externalid, new Date(startDate.toString()), new Date(endDate.toString()));
-                   
+
                     if (certifieddevices.length === 0) {
                       await this.LateOngoingissueCertificateForGroup(newGroupwithsingledevice, nextissuance, startDate, endDate, key);
 
