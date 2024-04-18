@@ -232,7 +232,12 @@ describe('InvitationService', () => {
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
       await expect(inviteefindOneSpy).toHaveBeenCalledWith({
-        where: { email: email, organization: orgId },
+        where: {
+          email: email,
+          organization: {
+            id: orgId,
+          },
+        },
         relations: ['organization'],
       });
       await expect(ensureIsNotMemberSpy).toHaveBeenCalledWith(
@@ -257,7 +262,9 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          api_user_id: inviteeOrganization.api_user_id,
+          client: {
+            api_user_id: inviteeOrganization.api_user_id,
+          },
         } as CreateUserORGDTO,
         UserStatus.Pending,
         true,
@@ -271,7 +278,9 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          api_user_id: inviteeOrganization.api_user_id,
+          client: {
+            api_user_id: inviteeOrganization.api_user_id,
+          },
         } as CreateUserORGDTO,
         email,
         mockinvitedUser.id,
@@ -446,7 +455,12 @@ describe('InvitationService', () => {
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
       await expect(inviteefindOneSpy).toHaveBeenCalledWith({
-        where: { email: email, organization: orgId },
+        where: {
+          email: email,
+          organization: {
+            id: orgId,
+          },
+        },
         relations: ['organization'],
       });
       await expect(ensureIsNotMemberSpy).toHaveBeenCalledWith(
@@ -471,7 +485,9 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          api_user_id: inviteeOrganization.api_user_id,
+          client: {
+            api_user_id: inviteeOrganization.api_user_id,
+          },
         } as CreateUserORGDTO,
         UserStatus.Pending,
         true,
