@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  FindOneOptions, Repository, In, IsNull, Not, FindOperator,
+  FindOneOptions, Repository, In, IsNull, Not, FindOperator,LessThan,
   Raw, Brackets, SelectQueryBuilder, FindConditions, FindManyOptions, Between, LessThanOrEqual, MoreThanOrEqual, ILike
 } from 'typeorm';
 import { Device } from './device.entity';
@@ -53,6 +53,7 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity'
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -67,8 +68,10 @@ export class DeviceService {
     private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
     @InjectRepository(IrecErrorLogInformationEntity)
     private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
-    private readonly organizationService : OrganizationService,
+    private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    @InjectRepository(DeviceLateongoingIssueCertificateEntity)
+    private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
   ) { }
 
   public async find(filterDto: FilterDTO, pagenumber: number, OrgId?: number): Promise<{ devices: Device[], currentPage, totalPages, totalCount }> {
@@ -127,18 +130,18 @@ export class DeviceService {
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
-      if(role == Role.ApiUser) {
-       //@ts-ignore
-       if(filterDto.organizationId) {
-          where = { ...where, organizationId};          
+      if (role == Role.ApiUser) {
+        //@ts-ignore
+        if (filterDto.organizationId) {
+          where = { ...where, organizationId };
         }
         else {
           where = { ...where, api_user_id };
         }
-      }else{
-        where = { ...where, organizationId};
+      } else {
+        where = { ...where, organizationId };
       }
- 
+
       query.where = where;
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query, skip: (pagenumber - 1) * limit,
@@ -147,6 +150,11 @@ export class DeviceService {
           createdAt: 'DESC',
         }
       });
+      if (totalCount == 0) {
+        this.logger.error(`Page number out of range`);
+        throw new HttpException('No Device Availble', HttpStatus.NOT_FOUND);
+      }
+
       const totalPages = Math.ceil(totalCount / limit);
       if (pagenumber > totalPages) {
         this.logger.error(`Page number out of range`);
@@ -158,7 +166,7 @@ export class DeviceService {
         device.externalId = device.developerExternalId
         delete device["developerExternalId"];
         delete device["organization"];
- 
+
         newDevices.push(device);
       })
       return {
@@ -175,7 +183,7 @@ export class DeviceService {
         createdAt: 'DESC',
       },
     });
- 
+
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
@@ -184,7 +192,7 @@ export class DeviceService {
       delete device["organization"];
       newDevices.push(device);
     })
- 
+
     return newDevices;
   }
 
@@ -406,7 +414,7 @@ export class DeviceService {
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
     //console.log(deviceGroupedByCountry);
-    return deviceGroupedByCountry;
+    return deviceGroupedByCountry ?? null;
   }
 
   private groupBy(array: any, key: any): Promise<{ [key: string]: Device[] }> {
@@ -579,8 +587,8 @@ export class DeviceService {
       });
 
       const orguser = await this.userService.findByEmail(org.orgEmail);
- 
-      if(orguser.role != Role.OrganizationAdmin) {
+
+      if (orguser.role != Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,
@@ -789,6 +797,11 @@ export class DeviceService {
     });
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId
+    }
+    //@ts-ignore
+    else if (filter.organizationId != null && filter.organizationId != undefined) {
+      //@ts-ignore
+      where.organizationId = filter.organizationId
     }
     if (filter.start_date != null && filter.end_date === undefined) {
       where.commissioningDate = MoreThanOrEqual(filter.start_date);
@@ -1023,6 +1036,46 @@ export class DeviceService {
 
     });
   }
+  //add new fuction for add window cycle date for late certificate
+  public async AddLateCertificateIssueDateLogForDevice(params: DeviceLateongoingIssueCertificateEntity
+  ): Promise<DeviceLateongoingIssueCertificateEntity> {
+    this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
+    return await this.latedevciecertificaterepository.save({
+      ...params,
+
+    });
+  }
+  public async findAllLateCycle(groupid, externalid,reservation_endDate:Date): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+    const reservation_end_UtcDate = new Date(reservation_endDate);
+    console.log(reservation_end_UtcDate)
+    return await this.latedevciecertificaterepository.find({
+      where: {
+        groupId: groupid,
+        device_externalid: externalid,
+        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
+      },
+      order: {
+        id: 'ASC'
+      }
+    })
+  }
+  public async finddeviceLateCycleOfdaterange(groupid, externalid, latestartDate, lateendDate): Promise<Boolean> {
+  
+    const isalreadyadded = await this.latedevciecertificaterepository.findOne({
+      where: {
+        groupId: groupid,
+        device_externalid: externalid,
+        late_start_date: latestartDate.toString(),
+        late_end_date: lateendDate.toString()
+      },
+    })
+   
+    if (isalreadyadded) {
+      return true;
+    }
+
+  }
+
   // public getCheckCertificateIssueDateLogForDevice(deviceid: string,
   //   startDate: Date,
   //   endDate: Date
@@ -1053,7 +1106,7 @@ export class DeviceService {
   public async getCheckCertificateIssueDateLogForDevice(deviceid: string,
     startDate: Date,
     endDate: Date): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-      this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
+    this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
     const query = this.getdevcielogFilteredQuery(deviceid,
       startDate,
       endDate);
@@ -1081,7 +1134,7 @@ export class DeviceService {
   private getdevcielogFilteredQuery(deviceid: string,
     startDate: Date,
     endDate: Date): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
-      this.logger.verbose(`With in getdevcielogFilteredQuery`);
+    this.logger.verbose(`With in getdevcielogFilteredQuery`);
     //  const { organizationName, status } = filterDto;
     const query = this.checkdevcielogcertificaterepository
       .createQueryBuilder("device").
@@ -1296,9 +1349,9 @@ export class DeviceService {
   }
   async getLastCertifiedDevicelogBYgroupId(
     groupId: number, deviceId: string
-  ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return this.checkdevcielogcertificaterepository.findOne(
+    return await this.checkdevcielogcertificaterepository.find(
       {
         where: {
           groupId: groupId,
