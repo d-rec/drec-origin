@@ -75,8 +75,7 @@ export class YieldConfigService {
     conditions: FindOptionsWhere<YieldConfig>,
   ): Promise<TUserBaseEntity> {
     const yieldvalue = await (this.repository.findOne({
-      where:
-        conditions as FindOptionsWhere<YieldConfig>,
+      where: conditions as FindOptionsWhere<YieldConfig>,
     }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
 
     return yieldvalue;

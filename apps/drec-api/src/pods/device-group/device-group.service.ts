@@ -1630,7 +1630,10 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
-    if (filesAddedForProcessing === undefined || filesAddedForProcessing === null)  {
+    if (
+      filesAddedForProcessing === undefined ||
+      filesAddedForProcessing === null
+    ) {
       return;
     }
 
@@ -2132,8 +2135,7 @@ export class DeviceGroupService {
     this.logger.log('Line No: 1883');
     return (
       (await this.repositorynextDeviceGroupcertificate.findOne({
-        where:
-          conditions as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
+        where: conditions as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
       })) ?? null
     );
   }

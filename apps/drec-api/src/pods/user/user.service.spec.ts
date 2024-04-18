@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { Repository, DeepPartial, FindManyOptions, FindOptionsWhere } from 'typeorm';
+import {
+  Repository,
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsWhere,
+} from 'typeorm';
 import { User } from './user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserRole } from './user_role.entity';
@@ -877,8 +882,7 @@ describe('UserService', () => {
           email,
         },
         select: ['id', 'email', 'password'],
-      }
-      );
+      });
     });
 
     it('should return null when no user with the provided email is found', async () => {
@@ -896,8 +900,7 @@ describe('UserService', () => {
           email,
         },
         select: ['id', 'email', 'password'],
-      }
-      );
+      });
     });
   });
 
@@ -960,11 +963,9 @@ describe('UserService', () => {
 
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
-        where:
-          {email: mockuserEntity.email} as FindOptionsWhere<User>,
+        where: { email: mockuserEntity.email } as FindOptionsWhere<User>,
         relations: ['organization'],
-      }
-      );
+      });
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
     });
 
@@ -982,11 +983,9 @@ describe('UserService', () => {
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(true);
       expect(findOneSpy).toHaveBeenCalledWith({
-        where:
-          {email: 'test@example.com'} as FindOptionsWhere<User>,
+        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
         relations: ['organization'],
-      }
-      );
+      });
       expect(emailConfirmationSpy).toHaveBeenCalledWith(1);
     });
 
@@ -1000,11 +999,9 @@ describe('UserService', () => {
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(false);
       expect(repository.findOne).toHaveBeenCalledWith({
-        where:
-          {email: 'test@example.com'} as FindOptionsWhere<User>,
+        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
         relations: ['organization'],
-      }
-      );
+      });
       expect(emailConfirmationService.get).toHaveBeenCalledWith(1);
     });
   });
