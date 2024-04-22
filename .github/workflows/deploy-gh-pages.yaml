@@ -38,7 +38,7 @@ jobs:
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm
+          npm i -g pnpm@6
 
       - name: Install drec-api
         working-directory: apps/drec-api
