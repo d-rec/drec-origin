@@ -345,6 +345,6 @@ export class UserController {
     @Param('api_user_id') api_user_id: string,
     @Res() res: Response,
   ) {
-    return await this.oauthClientService.createKeyFile(api_user_id, res);
+    return this.oauthClientService.createKeyFile(api_user_id, res);
   }
 }
