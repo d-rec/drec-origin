@@ -165,7 +165,9 @@ export class PermissionService {
   ): Promise<ACLModulePermissions> {
     this.logger.verbose(`With in findOne`);
     const module = await (this.repository.findOne({
-      where: conditions as FindOptionsWhere<ACLModulePermissions>,
+      where: {
+        conditions,
+      } as FindOptionsWhere<ACLModulePermissions>,
     }) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
     return module;
   }

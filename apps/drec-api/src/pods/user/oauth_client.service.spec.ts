@@ -103,9 +103,7 @@ describe('OauthClientCredentialsService', () => {
       const result = await service.get(mockClientCredentialEntity.api_user_id);
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: {
-          api_user_id: mockClientCredentialEntity.api_user_id,
-        },
+        api_user_id: mockClientCredentialEntity.api_user_id,
       });
 
       expect(result).toEqual(mockClientCredentialEntity);
@@ -119,9 +117,7 @@ describe('OauthClientCredentialsService', () => {
       const result = await service.get('af8af558-ce8a-419e-a2fb-1ba225ffd813');
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: {
-          api_user_id: 'af8af558-ce8a-419e-a2fb-1ba225ffd813',
-        },
+        api_user_id: 'af8af558-ce8a-419e-a2fb-1ba225ffd813',
       });
 
       expect(result).toBeNull();

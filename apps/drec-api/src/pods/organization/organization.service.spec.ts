@@ -323,12 +323,7 @@ describe('OrganizationService', () => {
       const result = await service.findOne(id, options);
 
       expect(result).toEqual(organization);
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: {
-          id: id,
-          ...options,
-        },
-      });
+      expect(repository.findOne).toHaveBeenCalledWith(id, options);
     });
 
     it('should throw NotFoundException when organization is not found', async () => {

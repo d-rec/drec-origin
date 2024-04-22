@@ -743,7 +743,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in findOne`);
     return (
       (await this.repository.findOne({
-        where: conditions as FindOptionsWhere<DeviceGroup>,
+        where: { conditions } as FindOptionsWhere<DeviceGroup>,
       })) ?? null
     );
   }
@@ -1630,10 +1630,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
-    if (
-      filesAddedForProcessing === undefined ||
-      filesAddedForProcessing === null
-    ) {
+    if (filesAddedForProcessing === undefined) {
       return;
     }
 
@@ -2135,7 +2132,9 @@ export class DeviceGroupService {
     this.logger.log('Line No: 1883');
     return (
       (await this.repositorynextDeviceGroupcertificate.findOne({
-        where: conditions as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
+        where: {
+          conditions,
+        } as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
       })) ?? null
     );
   }
@@ -2301,8 +2300,9 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
       (await this.historynextissuancedaterepository.findOne({
-        where:
-          conditions as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
+        where: {
+          conditions,
+        } as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
       })) ?? null
     );
   }
