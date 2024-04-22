@@ -75,7 +75,6 @@ export class DrecIssuerController {
    * @returns
    */
   @Post()
- 
   @ApiOkResponse({
     description: 'Re ISSUE certificates for failed data',
   })
