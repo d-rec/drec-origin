@@ -126,15 +126,16 @@ export class OauthClientCredentialsService {
 
   async createKeyFile(api_user_id: string, res: Response) {
     try {
+      const privateKey = await this.generateKeys(api_user_id); // Generate the private key using your service
+      fs.writeFileSync('private_key.pem', privateKey); // Write the private key to a file
+      const file = fs.readFileSync('private_key.pem'); // Read the file as a buffer
       res.setHeader(
         'Content-Disposition',
         'attachment; filename=private_key.pem',
       );
       res.setHeader('Content-Type', 'application/octet-stream');
-      const privateKey = await this.generateKeys(api_user_id); // Generate the private key using your service
-      fs.writeFileSync('private_key.pem', privateKey); // Write the private key to a file
-      const file = fs.readFileSync('private_key.pem'); // Read the file as a buffer
-      return res.write(file, 'utf-8', () => {
+      //res.send(file);
+      res.write(file, 'utf-8', () => {
         this.logger.verbose('The CSV file streamed successfully!');
         res.end();
       });
