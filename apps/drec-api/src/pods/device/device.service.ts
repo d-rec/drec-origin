@@ -73,6 +73,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
+import { Organization } from '../organization/organization.entity';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -576,10 +577,8 @@ export class DeviceService {
     let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
-        where: {
-          api_user_id: api_user_id,
-        },
-      });
+        api_user_id: api_user_id,
+      } as FindOneOptions<Organization>);
 
       const orguser = await this.userService.findByEmail(org.orgEmail);
 
