@@ -13,6 +13,7 @@ export interface IUserProperties {
   role: Role;
   roleId?: number;
   permissions?: PermissionString;
+  api_user_id?: string;
 }
 
 export interface IUserSeed extends IUser {
