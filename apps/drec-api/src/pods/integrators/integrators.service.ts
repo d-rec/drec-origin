@@ -34,58 +34,6 @@ export class IntegratorsService {
     private readonly eventBus: EventBus,
   ) {}
 
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  @Cron('0 30 01 * * *') // Every day at 01:30 - Server Time
-  async handleBBOXcron(): Promise<void> {
-    this.logger.verbose(`With in handleBBOXcron`);
-    this.logger.debug('BBOX Cron called every day at 01:30 - Server Time');
-
-    const integrator: Integrator = Integrator.BBOX;
-    const startDate = DateTime.now()
-      .minus({ days: 1 })
-      .toUTC()
-      .toFormat('yyyy-MM-dd HH:mm:ss');
-    const endDate = DateTime.now()
-      .minus({ minute: 1 })
-      .toUTC()
-      .toFormat('yyyy-MM-dd HH:mm:ss');
-
-    this.logger.debug(`Start date ${startDate} - End date ${endDate}`);
-
-    const devices = await this.deviceService.findForIntegrator(integrator);
-
-    if (!devices?.length) {
-      return;
-    }
-    const server = this.configService.get<string>('BBOX_SERVER');
-
-    if (!server) {
-      this.logger.error(`BBOX server property is missing from configuration`);
-      return;
-    }
-
-    const username = this.configService.get<string>('BBOX_USERNAME');
-    const password = this.configService.get<string>('BBOX_PASSWORD');
-    const loginForm = new FormData();
-    loginForm.append('username', username);
-    loginForm.append('password', password);
-
-    const authToken = await this.loginBBOX(server, loginForm);
-
-    await Promise.all(
-      devices.map(async (device: DeviceDTO) =>
-        this.storeBBOXenergyReads(
-          server,
-          authToken,
-          device.externalId,
-          startDate,
-          endDate,
-          device.organizationId,
-        ),
-      ),
-    );
-  }
-
   private loginBBOX(server: string, loginForm: FormData): Promise<string> {
     this.logger.verbose(`With in loginBBOX`);
     return this.httpService
@@ -110,7 +58,7 @@ export class IntegratorsService {
     endDate: string,
   ): Promise<any> {
     this.logger.verbose(`With in getBBOXproductReadData`);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig = {
       headers: { Authorization: `Token token=${token}` },
       params: {
         start: startDate,

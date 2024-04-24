@@ -1,11 +1,16 @@
 import { startAPI } from '.';
+import { Logger } from '@nestjs/common';
 
-//@ts-ignore
+// @ts-ignore
 process.setMaxListeners(0);
 
-//@ts-ignore
-process.on('warning', e => {console.warn("warning inside main.ts");console.warn(e.stack)});
+const logger = new Logger();
 
+// @ts-ignore
+process.on('warning', (e) => {
+  logger.warn('warning inside main.ts');
+  logger.warn(e.stack);
+});
 
 /*
 https://stackoverflow.com/questions/57115918/maxlistenersexceededwarning-possible-eventemitter-memory-leak-dete

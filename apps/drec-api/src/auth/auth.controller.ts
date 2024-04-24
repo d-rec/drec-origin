@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -18,12 +19,12 @@ import { LoginDataDTO } from './dto/login-data.dto';
 @ApiTags('auth')
 @ApiBearerAuth('access-token')
 @Controller()
-export class AuthController { 
+export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'), AuthGuard('oauth2-client-password'))
+  @UseGuards(AuthGuard('local'))
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })
@@ -33,7 +34,31 @@ export class AuthController {
     description: 'Log in',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
-    this.logger.verbose("Within login");
-    return  this.authService.login(req.user as Omit<IUser, 'password'>);
+    this.logger.verbose('Within login');
+    return await this.authService.login(req.user as Omit<IUser, 'password'>);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('auth/logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req: ExpressRequest) {
+    this.logger.verbose('Within login');
+    await this.authService.logout(req.user as Omit<IUser, 'password'>);
+    return { message: 'Logout successful' };
+  }
+
+  @UseGuards(AuthGuard('local'))
+  @Post('auth/getAccess')
+  @ApiBody({ type: LoginDataDTO })
+  async generateToken(
+    @Request() req: ExpressRequest,
+    @Query('privateKey') privateKey: string,
+  ) {
+    //: Promise<LoginReturnDataDTO> {
+    this.logger.verbose('With in generateToken');
+    return await this.authService.generateToken(
+      req.user as Omit<IUser, 'password'>,
+      privateKey,
+    );
   }
 }

@@ -164,7 +164,7 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==
-  /minimatch/3.0.4:
+  /minimatch/3.0.5:
     dependencies:
       brace-expansion: 1.1.11
     dev: false
@@ -182,7 +182,7 @@ packages:
       array-differ: 3.0.0
       array-union: 2.1.0
       arrify: 2.0.1
-      minimatch: 3.0.4
+      minimatch: 3.0.5
     dev: false
     engines:
       node: '>=8'

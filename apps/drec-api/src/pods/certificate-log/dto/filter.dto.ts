@@ -1,7 +1,6 @@
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 
-
 import { IsNotEmpty, IsString } from 'class-validator';
 import {
   Installation,
@@ -10,16 +9,24 @@ import {
   StandardCompliance,
   FuelCode,
   DevicetypeCode,
-  SDGBenefitsList
+  SDGBenefitsList,
 } from '../../../utils/enums';
 
 export class FilterDTO {
   @IsOptional()
-  @ApiPropertyOptional({ type: FuelCode, description: 'Fuel Code', enum: FuelCode })
+  @ApiPropertyOptional({
+    type: FuelCode,
+    description: 'Fuel Code',
+    enum: FuelCode,
+  })
   fuelCode: FuelCode;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code', enum: DevicetypeCode })
+  @ApiPropertyOptional({
+    type: DevicetypeCode,
+    description: 'Device Type Code',
+    enum: DevicetypeCode,
+  })
   deviceTypeCode: DevicetypeCode;
 
   @IsOptional()
@@ -28,7 +35,7 @@ export class FilterDTO {
     description: 'Amount Read from ',
   })
   fromAmountread: number;
-  
+
   @IsOptional()
   @ApiPropertyOptional({
     type: Number,
@@ -59,26 +66,19 @@ export class FilterDTO {
   @ApiPropertyOptional({
     description: 'SDG Benefit',
     enum: SDGBenefitsList,
-    isArray: true
+    isArray: true,
   })
   SDGBenefits?: string[] | undefined;
-
 }
 
 export class GroupIDBasedFilteringDTO {
-
   @IsOptional()
   @ApiPropertyOptional({ description: 'Group Id' })
   groupId: string;
-
-
 }
 
 export class AmountFormattingDTO {
-
   @ApiProperty({ type: String })
   @IsString()
   amount: string;
-
-
 }

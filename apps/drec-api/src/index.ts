@@ -26,12 +26,12 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
     };
   };
 
-  console.log(`Backend starting on port: ${PORT}`);
-  console.log(`Backend versions: ${JSON.stringify(getVersion())}`);
+  logger?.log(`Backend starting on port: ${PORT}`);
+  logger?.log(`Backend versions: ${JSON.stringify(getVersion())}`);
 
   const app = await NestFactory.create(DrecModule);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
 
   app.enableShutdownHooks();
   app.enableCors();

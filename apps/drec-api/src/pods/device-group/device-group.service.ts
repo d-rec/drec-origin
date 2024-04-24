@@ -10,12 +10,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
-  FindConditions,
+  FindOptionsWhere,
   FindManyOptions,
   FindOperator,
   Raw,
   LessThan,
-  In, Between, Brackets, SelectQueryBuilder
+  In,
+  Between,
+  Brackets,
+  SelectQueryBuilder,
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -27,13 +30,16 @@ import {
   UnreservedDeviceGroupsFilterDTO,
   EndReservationdateDTO,
   NewUpdateDeviceGroupDTO,
-  ResponseDeviceGroupDTO
+  ResponseDeviceGroupDTO,
 } from './dto';
-//import { jsonbBuildObject, jsonbBuildArray, jsonbPath, jsonbArrayElements } from 'typeorm-plus';
 import { defaults, cloneDeep } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import { DeviceDescription, IDevice, BuyerReservationCertificateGenerationFrequency } from '../../models';
+import {
+  DeviceDescription,
+  IDevice,
+  BuyerReservationCertificateGenerationFrequency,
+} from '../../models';
 import { DeviceDTO, NewDeviceDTO, FilterDTO } from '../device/dto';
 import {
   CommissioningDateRange,
@@ -42,7 +48,7 @@ import {
   Sector,
   FuelCode,
   DevicetypeCode,
-  Role
+  Role,
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -52,7 +58,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { nanoid } from 'nanoid';
-import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum'
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
@@ -63,25 +69,21 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { Readable } from 'stream';
 import csv from 'csv-parser';
 
-import csvtojsonV2 from "csvtojson";
+import csvtojsonV2 from 'csvtojson';
 
-import { countryCodesList } from '../../models/country-code'
+import { countryCodesList } from '../../models/country-code';
 
 import { FileService } from '../file';
 import { ILoggedInUser, LoggedInUser } from '../../models';
-import {
-  validate,
-} from 'class-validator';
+import { validate } from 'class-validator';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { DateTime } from 'luxon';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity'
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
-
-
 
 @Injectable()
 export class DeviceGroupService {
@@ -105,14 +107,29 @@ export class DeviceGroupService {
     private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-    @InjectRepository(CertificateReadModelEntity) private readonly cretificatereadmoduleRepository,
+    @InjectRepository(CertificateReadModelEntity)
+    private readonly cretificatereadmoduleRepository,
     private readonly userService: UserService,
+  ) {}
 
-  ) { }
-
-  async getAll(user?: ILoggedInUser, organizationId?: number, apiuserId?: string, pageNumber?: number, limit?: number, filterDto?: UnreservedDeviceGroupsFilterDTO): Promise<{ devicegroups: DeviceGroupDTO[], currentPage: number, totalPages: number, totalCount: number } | any> {
+  async getAll(
+    user?: ILoggedInUser,
+    organizationId?: number,
+    apiuserId?: string,
+    pageNumber?: number,
+    limit?: number,
+    filterDto?: UnreservedDeviceGroupsFilterDTO,
+  ): Promise<
+    | {
+        devicegroups: DeviceGroupDTO[];
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in dg service ${filterDto}`);
-    let query: SelectQueryBuilder<DeviceGroup> = await this.repository
+    const query: SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
       .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
       .addSelect('ARRAY_AGG(device."SDGBenefits")', 'sdgBenefits')
@@ -122,8 +139,7 @@ export class DeviceGroupService {
     if (apiuserId) {
       if (user.role === Role.Admin && apiuserId === user.api_user_id) {
         query.andWhere(`group.api_user_id IS NULL`);
-      }
-      else {
+      } else {
         query.andWhere(`group.api_user_id = '${apiuserId}'`);
       }
     }
@@ -133,111 +149,176 @@ export class DeviceGroupService {
     }
 
     if (filterDto) {
-      if (filterDto.start_date != undefined && filterDto.end_date != undefined) {
-        if ((filterDto.start_date != null && filterDto.end_date === null)) {
+      if (
+        filterDto.start_date != undefined &&
+        filterDto.end_date != undefined
+      ) {
+        if (filterDto.start_date != null && filterDto.end_date === null) {
           this.logger.error(`End Date should be mandatory`);
           return new Promise((resolve, reject) => {
-            reject(new ConflictException({
-              success: false,
-              message: `End Date should be mandatory`,
-            }))
-          })
+            reject(
+              new ConflictException({
+                success: false,
+                message: `End Date should be mandatory`,
+              }),
+            );
+          });
         }
 
-        if (!(new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime())) {
+        if (
+          !(
+            new Date(filterDto.start_date).getTime() <
+            new Date(filterDto.end_date).getTime()
+          )
+        ) {
           this.logger.error(`End date should be greater then from Start date`);
           return new Promise((resolve, reject) => {
-            reject(new ConflictException({
-              success: false,
-              message: `End date should be greater then from Start date `,
-            }))
-          })
+            reject(
+              new ConflictException({
+                success: false,
+                message: `End date should be greater then from Start date `,
+              }),
+            );
+          });
         }
 
-        if (!(new Date(filterDto.start_date).getTime() < new Date(filterDto.end_date).getTime())) {
+        if (
+          !(
+            new Date(filterDto.start_date).getTime() <
+            new Date(filterDto.end_date).getTime()
+          )
+        ) {
           this.logger.error(`End date should be greater then from Start date`);
           return new Promise((resolve, reject) => {
-            reject(new ConflictException({
-              success: false,
-              message: `End date should be greater then from Start date `,
-            }))
-          })
+            reject(
+              new ConflictException({
+                success: false,
+                message: `End date should be greater then from Start date `,
+              }),
+            );
+          });
         }
       }
 
       if (filterDto.country) {
         const countrystr = filterDto.country;
-        const values = countrystr.split(",");
+        const values = countrystr.split(',');
         let invalidCountry = false;
-        values.forEach(element => {
+        values.forEach((element) => {
           filterDto.country = element.toUpperCase();
-          if (filterDto.country && typeof (filterDto.country) === 'string' && filterDto.country.length === 3) {
-            let countries = countryCodesList;
-            if (countries.find(element => element.countryCode === filterDto.country) === undefined) {
+          if (
+            filterDto.country &&
+            typeof filterDto.country === 'string' &&
+            filterDto.country.length === 3
+          ) {
+            const countries = countryCodesList;
+            if (
+              countries.find(
+                (element) => element.countryCode === filterDto.country,
+              ) === undefined
+            ) {
               invalidCountry = true;
             }
           }
         });
 
         if (!invalidCountry) {
-          query.andWhere('group.countryCode @> ARRAY[:...countryCodes]', { countryCodes: values });
+          query.andWhere('group.countryCode @> ARRAY[:...countryCodes]', {
+            countryCodes: values,
+          });
         }
       }
 
       if (filterDto.fuelCode) {
         if (typeof filterDto.fuelCode === 'string') {
-          query.andWhere('group.fuelCode = :fuelcode', { fuelcode: [filterDto.fuelCode] });
+          query.andWhere('group.fuelCode = :fuelcode', {
+            fuelcode: [filterDto.fuelCode],
+          });
         } else if (typeof filterDto.fuelCode === 'object') {
-          query.andWhere('group.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: filterDto.fuelCode })
+          query.andWhere('group.fuelCode @> ARRAY[:...fuelcode]', {
+            fuelcode: filterDto.fuelCode,
+          });
         }
       }
 
       if (filterDto.offTaker) {
         const newoffTaker = filterDto.offTaker.toString();
         const offTakerArray = newoffTaker.split(',');
-        query.andWhere(new Brackets(qb => {
-
-          offTakerArray.forEach((offTaker, index) => {
-            if (index === 0) {
-              qb.orWhere(`EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
-
-            } else {
-              qb.orWhere(`EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
-
-            }
-          });
-        }));
+        query.andWhere(
+          new Brackets((qb) => {
+            offTakerArray.forEach((offTaker, index) => {
+              if (index === 0) {
+                qb.orWhere(
+                  `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                  { [`offtaker${index}`]: `%${offTaker}%` },
+                );
+              } else {
+                qb.orWhere(
+                  `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                  { [`offtaker${index}`]: `%${offTaker}%` },
+                );
+              }
+            });
+          }),
+        );
       }
 
       if (filterDto.start_date && filterDto.end_date) {
-        query.andWhere(new Brackets((db) => {
-          db.where(
-            new Brackets((db1) => {
-              db1.where("group.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: filterDto.start_date, reservationEndDate1: filterDto.end_date })
-                .orWhere("group.reservationStartDate = :reservationStartDate", { reservationStartDate: filterDto.start_date })
-            })
-          )
-            .andWhere(
+        query.andWhere(
+          new Brackets((db) => {
+            db.where(
+              new Brackets((db1) => {
+                db1
+                  .where(
+                    'group.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
+                    {
+                      reservationStartDate1: filterDto.start_date,
+                      reservationEndDate1: filterDto.end_date,
+                    },
+                  )
+                  .orWhere(
+                    'group.reservationStartDate = :reservationStartDate',
+                    { reservationStartDate: filterDto.start_date },
+                  );
+              }),
+            ).andWhere(
               new Brackets((db2) => {
-                db2.where("group.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: filterDto.start_date, reservationEndDate2: filterDto.end_date })
-                  .orWhere("group.reservationEndDate = :reservationStartDate ", { reservationStartDate: filterDto.end_date })
-              })
-            )
-        }))
+                db2
+                  .where(
+                    'group.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
+                    {
+                      reservationStartDate2: filterDto.start_date,
+                      reservationEndDate2: filterDto.end_date,
+                    },
+                  )
+                  .orWhere(
+                    'group.reservationEndDate = :reservationStartDate ',
+                    { reservationStartDate: filterDto.end_date },
+                  );
+              }),
+            );
+          }),
+        );
       }
 
       if (filterDto.sdgbenefit) {
         const sdgstr = filterDto.sdgbenefit.toString();
         const sdgBenefitsArray = sdgstr.split(',');
-        query.andWhere(new Brackets(qb => {
-          sdgBenefitsArray.forEach((benefit, index) => {
-            if (index === 0) {
-              qb.where(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-            } else {
-              qb.orWhere(`device.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-            }
-          });
-        }))
+        query.andWhere(
+          new Brackets((qb) => {
+            sdgBenefitsArray.forEach((benefit, index) => {
+              if (index === 0) {
+                qb.where(`device.SDGBenefits ILIKE :benefit${index}`, {
+                  [`benefit${index}`]: `%${benefit}%`,
+                });
+              } else {
+                qb.orWhere(`device.SDGBenefits ILIKE :benefit${index}`, {
+                  [`benefit${index}`]: `%${benefit}%`,
+                });
+              }
+            });
+          }),
+        );
       }
 
       if (filterDto.reservationActive) {
@@ -245,7 +326,9 @@ export class DeviceGroupService {
           query.andWhere('group.reservationActive = :active', { active: true });
         }
         if (filterDto.reservationActive === 'Deactive') {
-          query.andWhere('group.reservationActive = :active', { active: false });
+          query.andWhere('group.reservationActive = :active', {
+            active: false,
+          });
         }
       }
     }
@@ -271,14 +354,16 @@ export class DeviceGroupService {
       groupedData: groupsWithOrganization,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
 
   async findById(id: number, user?: ILoggedInUser): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findById`);
     const deviceGroup = await this.repository.findOne({
-      id,
+      where: {
+        id: id,
+      },
     });
     if (!deviceGroup) {
       this.logger.error(`No device group found with id ${id}`);
@@ -286,44 +371,66 @@ export class DeviceGroupService {
     }
     if (user) {
       if (user.role === Role.ApiUser) {
-        const organization = await this.organizationService.findOne(user.organizationId);
-        const orguser = await this.userService.findByEmail(organization.orgEmail);
-        if (orguser.role === Role.OrganizationAdmin || orguser.role === Role.DeviceOwner) {
-          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+        const organization = await this.organizationService.findOne(
+          user.organizationId,
+        );
+        const orguser = await this.userService.findByEmail(
+          organization.orgEmail,
+        );
+        if (
+          orguser.role === Role.OrganizationAdmin ||
+          orguser.role === Role.DeviceOwner
+        ) {
+          const isMyDevice = await this.checkdeveloperorganization(
+            deviceGroup.deviceIdsInt,
+            user.organizationId,
+          );
           if (!isMyDevice) {
-            this.logger.error(`Unauthorized to view the reservation of other's devices`);
+            this.logger.error(
+              `Unauthorized to view the reservation of other's devices`,
+            );
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other's devices`,
             });
           }
-        }
-        else if (orguser.role === Role.Buyer || orguser.role === Role.SubBuyer) {
+        } else if (
+          orguser.role === Role.Buyer ||
+          orguser.role === Role.SubBuyer
+        ) {
           if (deviceGroup.organizationId != user.organizationId) {
-            this.logger.error(`Unauthorized to view the reservation of other organizations`);
+            this.logger.error(
+              `Unauthorized to view the reservation of other organizations`,
+            );
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other organizations`,
             });
           }
         }
-
-      }
-
-      else {
-        if (user.role === Role.OrganizationAdmin || user.role === Role.DeviceOwner) {
-          const isMyDevice = await this.checkdeveloperorganization(deviceGroup.deviceIdsInt, user.organizationId);
+      } else {
+        if (
+          user.role === Role.OrganizationAdmin ||
+          user.role === Role.DeviceOwner
+        ) {
+          const isMyDevice = await this.checkdeveloperorganization(
+            deviceGroup.deviceIdsInt,
+            user.organizationId,
+          );
           if (!isMyDevice) {
-            this.logger.error(`Unauthorized to view the reservation of other's devices`);
+            this.logger.error(
+              `Unauthorized to view the reservation of other's devices`,
+            );
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other's devices`,
             });
           }
-        }
-        else if (user.role === Role.Buyer || user.role === Role.SubBuyer) {
+        } else if (user.role === Role.Buyer || user.role === Role.SubBuyer) {
           if (deviceGroup.organizationId != user.organizationId) {
-            this.logger.error(`Unauthorized to view the reservation of other organizations`);
+            this.logger.error(
+              `Unauthorized to view the reservation of other organizations`,
+            );
             throw new UnauthorizedException({
               success: false,
               message: `Unauthorized to view the reservation of other organizations`,
@@ -360,7 +467,6 @@ export class DeviceGroupService {
     buyerId: number,
     pageNumber?: number,
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
-
   ): Promise<any> {
     this.logger.verbose(`With in getBuyerDeviceGroups`);
     let deviceGroups: any;
@@ -368,140 +474,190 @@ export class DeviceGroupService {
     const pageSize = 10;
 
     if (!groupfilterDto || Object.keys(groupfilterDto).length === 0) {
-
       queryBuilder = this.repository
         .createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg."deviceIdsInt")')
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
-        .groupBy('dg.id')
+        .groupBy('dg.id');
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId
-        })
+          buyerid: buyerId,
+        });
       });
-    }
-    else {
+    } else {
       const skip = (pageNumber - 1) * pageSize;
-      if (groupfilterDto.start_date != undefined && groupfilterDto.end_date != undefined) {
-        if ((groupfilterDto.start_date != null && groupfilterDto.end_date === null)) {
+      if (
+        groupfilterDto.start_date != undefined &&
+        groupfilterDto.end_date != undefined
+      ) {
+        if (
+          groupfilterDto.start_date != null &&
+          groupfilterDto.end_date === null
+        ) {
           this.logger.error(`End Date should be mandatory`);
           return new Promise((resolve, reject) => {
-            reject(new ConflictException({
-              success: false,
-              message: `End Date should be mandatory`,
-            }))
-          })
+            reject(
+              new ConflictException({
+                success: false,
+                message: `End Date should be mandatory`,
+              }),
+            );
+          });
         }
 
-        if (!(new Date(groupfilterDto.start_date).getTime() < new Date(groupfilterDto.end_date).getTime())) {
+        if (
+          !(
+            new Date(groupfilterDto.start_date).getTime() <
+            new Date(groupfilterDto.end_date).getTime()
+          )
+        ) {
           this.logger.error(`End date should be greater then from Start date`);
           return new Promise((resolve, reject) => {
-            reject(new ConflictException({
-              success: false,
-              message: `End date should be greater then from Start date `,
-            }))
-          })
+            reject(
+              new ConflictException({
+                success: false,
+                message: `End date should be greater then from Start date `,
+              }),
+            );
+          });
         }
       }
-      this.logger.debug("Line No: 187");
+      this.logger.debug('Line No: 187');
       queryBuilder = this.repository
         .createQueryBuilder('dg')
         .innerJoin(Device, 'd', 'd.id = ANY(dg."deviceIdsInt")')
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
-        .groupBy('dg.id')
+        .groupBy('dg.id');
 
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId
-        })
-          .andWhere(new Brackets(qb => {
-
+          buyerid: buyerId,
+        }).andWhere(
+          new Brackets((qb) => {
             if (groupfilterDto.country) {
               const string = groupfilterDto.country;
-              const values = string.split(",");
+              const values = string.split(',');
               let CountryInvalid = false;
-              values.forEach(ele => {
+              values.forEach((ele) => {
                 groupfilterDto.country = ele.toUpperCase();
-                if (groupfilterDto.country && typeof groupfilterDto.country === "string" && groupfilterDto.country.length === 3) {
-                  let countries = countryCodesList;
-                  if (countries.find(ele => ele.countryCode === groupfilterDto.country) === undefined) {
+                if (
+                  groupfilterDto.country &&
+                  typeof groupfilterDto.country === 'string' &&
+                  groupfilterDto.country.length === 3
+                ) {
+                  const countries = countryCodesList;
+                  if (
+                    countries.find(
+                      (ele) => ele.countryCode === groupfilterDto.country,
+                    ) === undefined
+                  ) {
                     CountryInvalid = true;
                   }
                 }
               });
               if (!CountryInvalid) {
-
-                qb.orWhere('dg.countryCode @> ARRAY[:...countrycode]', { countrycode: values })
-
+                qb.orWhere('dg.countryCode @> ARRAY[:...countrycode]', {
+                  countrycode: values,
+                });
               }
             }
-            if ((groupfilterDto.fuelCode)) {
+            if (groupfilterDto.fuelCode) {
               if (typeof groupfilterDto.fuelCode === 'string') {
-                qb.orWhere('dg.fuelCode = :fuelcode', { fuelcode: [groupfilterDto.fuelCode] });
+                qb.orWhere('dg.fuelCode = :fuelcode', {
+                  fuelcode: [groupfilterDto.fuelCode],
+                });
               } else if (typeof groupfilterDto.fuelCode === 'object') {
-                qb.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', { fuelcode: groupfilterDto.fuelCode })
+                qb.orWhere('dg.fuelCode @> ARRAY[:...fuelcode]', {
+                  fuelcode: groupfilterDto.fuelCode,
+                });
               }
             }
             if (groupfilterDto.offTaker) {
-              const newoffTaker = groupfilterDto.offTaker.toString()
+              const newoffTaker = groupfilterDto.offTaker.toString();
               const offTakerArray = newoffTaker.split(',');
-              qb.orWhere(new Brackets(qb => {
-
-                offTakerArray.forEach((offTaker, index) => {
-                  if (index === 0) {
-                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
-
-                  } else {
-                    qb.orWhere(`EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`, { [`offtaker${index}`]: `%${offTaker}%` });
-
-                  }
-                });
-              }));
+              qb.orWhere(
+                new Brackets((qb) => {
+                  offTakerArray.forEach((offTaker, index) => {
+                    if (index === 0) {
+                      qb.orWhere(
+                        `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                        { [`offtaker${index}`]: `%${offTaker}%` },
+                      );
+                    } else {
+                      qb.orWhere(
+                        `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                        { [`offtaker${index}`]: `%${offTaker}%` },
+                      );
+                    }
+                  });
+                }),
+              );
             }
-            // if (groupfilterDto.start_date) {
 
-            //   qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-            // }
-            // if (groupfilterDto.end_date) {
-            //   qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
-            // }
             if (groupfilterDto.start_date && groupfilterDto.end_date) {
-              qb.orWhere(new Brackets((db) => {
-                db.where(
-                  new Brackets((db1) => {
-                    db1.where("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-                      .orWhere("dg.reservationStartDate = :reservationStartDate", { reservationStartDate: groupfilterDto.start_date })
-                  })
-                )
-                  .andWhere(
+              qb.orWhere(
+                new Brackets((db) => {
+                  db.where(
+                    new Brackets((db1) => {
+                      db1
+                        .where(
+                          'dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
+                          {
+                            reservationStartDate1: groupfilterDto.start_date,
+                            reservationEndDate1: groupfilterDto.end_date,
+                          },
+                        )
+                        .orWhere(
+                          'dg.reservationStartDate = :reservationStartDate',
+                          { reservationStartDate: groupfilterDto.start_date },
+                        );
+                    }),
+                  ).andWhere(
                     new Brackets((db2) => {
-                      db2.where("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
-                        .orWhere("dg.reservationEndDate = :reservationStartDate ", { reservationStartDate: groupfilterDto.end_date })
-                    })
-                  )
-              }))
+                      db2
+                        .where(
+                          'dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
+                          {
+                            reservationStartDate2: groupfilterDto.start_date,
+                            reservationEndDate2: groupfilterDto.end_date,
+                          },
+                        )
+                        .orWhere(
+                          'dg.reservationEndDate = :reservationStartDate ',
+                          { reservationStartDate: groupfilterDto.end_date },
+                        );
+                    }),
+                  );
+                }),
+              );
             }
 
             if (groupfilterDto.sdgbenefit) {
-
-              const newsdg = groupfilterDto.sdgbenefit.toString()
+              const newsdg = groupfilterDto.sdgbenefit.toString();
 
               const sdgBenefitsArray = newsdg.split(',');
 
-              const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
+              const sdgBenefitString = sdgBenefitsArray
+                .map((benefit) => benefit)
+                .join(',');
 
-              qb.orWhere(new Brackets(qb => {
-                sdgBenefitsArray.forEach((benefit, index) => {
-                  if (index === 0) {
-                    qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                  } else {
-                    qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                  }
-                });
-              }));
-
+              qb.orWhere(
+                new Brackets((qb) => {
+                  sdgBenefitsArray.forEach((benefit, index) => {
+                    if (index === 0) {
+                      qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    }
+                  });
+                }),
+              );
             }
             if (groupfilterDto.reservationActive) {
               if (groupfilterDto.reservationActive === 'Active') {
@@ -511,30 +667,35 @@ export class DeviceGroupService {
                 qb.orWhere('dg.reservationActive = :active', { active: false });
               }
             }
-
-          }));
-      })
+          }),
+        );
+      });
       const groupedDatasql = await queryBuilder.getSql();
     }
     const skip = (pageNumber - 1) * pageSize;
 
-    let groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    const groupedData = await queryBuilder
+      .offset(skip)
+      .limit(pageSize)
+      .getRawMany();
     this.logger.debug(queryBuilder.getSql());
-    // console.log(groupedData);
-    const totalCountQuery = await queryBuilder
-      .getCount()
+    const totalCountQuery = await queryBuilder.getCount();
 
     const totalPages = Math.ceil(totalCountQuery / pageSize);
     if (totalCountQuery > 0) {
       if (pageNumber > totalPages) {
         this.logger.error(`Page number out of range`);
-        throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Page number out of range',
+          HttpStatus.NOT_FOUND,
+        );
       }
     }
 
     // If deviceGroups is not an array, return an empty array
     const finalreservation = groupedData.map((deviceGroup) => ({
       id: deviceGroup.dg_id,
+      createdAt: deviceGroup.dg_createdAt,
       name: deviceGroup.dg_name,
       organizationId: deviceGroup.dg_organizationId,
       fuelCode: deviceGroup.dg_fuelCode,
@@ -554,33 +715,38 @@ export class DeviceGroupService {
       reservationEndDate: deviceGroup.dg_reservationEndDate,
       reservationActive: deviceGroup.dg_reservationActive,
       targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
-      targetVolumeCertificateGenerationRequestedInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
-      targetVolumeCertificateGenerationSucceededInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
-      targetVolumeCertificateGenerationFailedInMegaWattHour: deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
+      targetVolumeCertificateGenerationRequestedInMegaWattHour:
+        deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
+      targetVolumeCertificateGenerationSucceededInMegaWattHour:
+        deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
+      targetVolumeCertificateGenerationFailedInMegaWattHour:
+        deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
       authorityToExceed: deviceGroup.dg_authorityToExceed,
       leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
       devicegroup_uid: deviceGroup.dg_devicegroup_uid,
       type: deviceGroup.dg_type,
       deviceIds: deviceGroup.dg_deviceIdsInt,
-      SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits))
-
+      SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
     }));
     const response = {
       groupedData: finalreservation,
       pageNumber,
       totalPages,
-      totalCount: totalCountQuery
+      totalCount: totalCountQuery,
     };
     return response;
   }
 
   async findOne(
-    conditions: FindConditions<DeviceGroup>,
+    conditions: FindOptionsWhere<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
-    return (await this.repository.findOne(conditions)) ?? null;
+    return (
+      (await this.repository.findOne({
+        where: conditions as FindOptionsWhere<DeviceGroup>,
+      })) ?? null
+    );
   }
-
 
   async createCSVJobForFile(
     userId: number,
@@ -603,16 +769,25 @@ export class DeviceGroupService {
     organizationId: number,
     pageNumber?: number,
     limit?: number,
-  ): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
+  ): Promise<
+    | {
+        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [csvjobs, totalCount] = await this.repositoyCSVJobProcessing.findAndCount({
-      where: { organizationId },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit
-    });
+    const [csvjobs, totalCount] =
+      await this.repositoyCSVJobProcessing.findAndCount({
+        where: { organizationId },
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      });
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -621,7 +796,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -633,29 +808,38 @@ export class DeviceGroupService {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
   async getAllCSVJobsForAdmin(
     orgId?: number,
     pageNumber?: number,
     limit?: number,
-  ): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
+  ): Promise<
+    | {
+        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in getAllCSVJobsForAdmin`);
-    let whereConditions: any = {};
+    const whereConditions: any = {};
 
     if (orgId) {
       whereConditions.organizationId = orgId;
     }
 
-    const [csvjobs, totalCount] = await this.repositoyCSVJobProcessing.findAndCount({
-      where: whereConditions,
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit
-    });
+    const [csvjobs, totalCount] =
+      await this.repositoyCSVJobProcessing.findAndCount({
+        where: whereConditions,
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      });
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -664,7 +848,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -676,18 +860,23 @@ export class DeviceGroupService {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
   async createFailedRowDetailsForCSVJob(
     jobId: number,
     errorDetails: Array<any>,
-    successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }>
+    successfullyAddedRowsAndExternalIds: Array<{
+      rowNumber: number;
+      externalId: string;
+    }>,
   ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
     return await this.repositoryJobFailedRows.save({
       jobId,
-      errorDetails: { log: { errorDetails, successfullyAddedRowsAndExternalIds } }
+      errorDetails: {
+        log: { errorDetails, successfullyAddedRowsAndExternalIds },
+      },
     });
   }
 
@@ -698,21 +887,25 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
     if (organizationId) {
       const csvjob = await this.repositoyCSVJobProcessing.findOne({
-        jobId: jobId,
-        organizationId: organizationId,
+        where: {
+          jobId: jobId,
+          organizationId: organizationId,
+        },
       });
 
       if (!csvjob) {
         this.logger.error(`The job requested is belongs to other organization`);
         throw new UnauthorizedException({
           success: false,
-          message: `The job requested is belongs to other organization`
+          message: `The job requested is belongs to other organization`,
         });
       }
     }
 
     return await this.repositoryJobFailedRows.findOne({
-      jobId: jobId,
+      where: {
+        jobId: jobId,
+      },
     });
   }
 
@@ -730,112 +923,142 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let reservationIsStartingInHistoryForAtleastOneDevice: boolean = false;
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance: boolean = false;
-    devices.filter(ele => {
-      if ((new Date(data.reservationStartDate).getTime() < new Date(ele.createdAt).getTime()) && (new Date(data.reservationEndDate).getTime() <= new Date(ele.createdAt).getTime())) {
-
+    const reservationIsStartingInHistoryForAtleastOneDevice = false;
+    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
+    devices.filter((ele) => {
+      if (
+        new Date(data.reservationStartDate).getTime() <
+          new Date(ele.createdAt).getTime() &&
+        new Date(data.reservationEndDate).getTime() <=
+          new Date(ele.createdAt).getTime()
+      ) {
         return true;
       }
-    }).length === devices.length ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true) : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+    }).length === devices.length
+      ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
+      : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-      //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
-      //there will be single device which will have next issuance
-      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962);// future date in 2064 just to find minimum
-      let minimumDeviceCreatedAtIndex: number = 0;
+      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
+      let minimumDeviceCreatedAtIndex = 0;
       devices.forEach((ele, index) => {
-        let eleDate = new Date(ele.createdAt)
+        const eleDate = new Date(ele.createdAt);
         if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
           minimumDeviceCreatedAtDate = eleDate;
           minimumDeviceCreatedAtIndex = index;
         }
       });
-      ////console.log(minimumDeviceCreatedAtDate)
-      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum 
-      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date 
-      let startDate: string = '';
-      if (minimumDeviceCreatedAtDate.getTime() < new Date(data.reservationStartDate).getTime()) {
-        startDate = new Date(data.reservationStartDate).toISOString()
+
+      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
+      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
+      let startDate = '';
+      if (
+        minimumDeviceCreatedAtDate.getTime() <
+        new Date(data.reservationStartDate).getTime()
+      ) {
+        startDate = new Date(data.reservationStartDate).toISOString();
+      } else {
+        startDate = minimumDeviceCreatedAtDate.toISOString();
       }
-      else {
-        startDate = minimumDeviceCreatedAtDate.toISOString()
-      }
-      ////console.log(minimumDeviceCreatedAtDate)
+
       let hours = 1;
 
       const frequency = group.frequency.toLowerCase();
       if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
         hours = 1 * 24;
-      } else if (frequency === BuyerReservationCertificateGenerationFrequency.monthly) {
+      } else if (
+        frequency === BuyerReservationCertificateGenerationFrequency.monthly
+      ) {
         hours = 30 * 24;
-      } else if (frequency === BuyerReservationCertificateGenerationFrequency.weekly) {
+      } else if (
+        frequency === BuyerReservationCertificateGenerationFrequency.weekly
+      ) {
         hours = 7 * 24;
-      } else if (frequency === BuyerReservationCertificateGenerationFrequency.quarterly) {
+      } else if (
+        frequency === BuyerReservationCertificateGenerationFrequency.quarterly
+      ) {
         hours = 91 * 24;
       }
-      let newEndDate: string = '';
-      let end_date = new Date((new Date(startDate).getTime() + (hours * 3.6e+6))).toISOString()
+      let newEndDate = '';
+      const end_date = new Date(
+        new Date(startDate).getTime() + hours * 3.6e6,
+      ).toISOString();
 
-      if (new Date(end_date).getTime() < new Date(data.reservationEndDate).getTime()) {
+      if (
+        new Date(end_date).getTime() <
+        new Date(data.reservationEndDate).getTime()
+      ) {
         newEndDate = end_date;
-      }
-      else {
+      } else {
         newEndDate = data.reservationEndDate.toISOString();
       }
-      ////console.log("newEndDate",newEndDate)
-      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date 
+      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
       //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-      let nextMinimumCreatedWhichIsLessThanEndDate: boolean = false;
-      let nextMinimumCreatedAtString: string = '';
+      let nextMinimumCreatedWhichIsLessThanEndDate = false;
+      let nextMinimumCreatedAtString = '';
       devices.forEach((ele, index) => {
         if (index != minimumDeviceCreatedAtIndex) {
-          if (new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()) {
+          if (
+            new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()
+          ) {
             nextMinimumCreatedWhichIsLessThanEndDate = true;
             if (nextMinimumCreatedAtString === '') {
-              //newEndDate
-              nextMinimumCreatedAtString = new Date(ele.createdAt).toISOString();
-            }
-            else {
-              //check if nextMinimum is not minimum then change else leave it 
-              if (new Date(ele.createdAt).getTime() < new Date(nextMinimumCreatedAtString).getTime()) {
-                nextMinimumCreatedAtString = new Date(ele.createdAt).toISOString();
+              nextMinimumCreatedAtString = new Date(
+                ele.createdAt,
+              ).toISOString();
+            } else {
+              //check if nextMinimum is not minimum then change else leave it
+              if (
+                new Date(ele.createdAt).getTime() <
+                new Date(nextMinimumCreatedAtString).getTime()
+              ) {
+                nextMinimumCreatedAtString = new Date(
+                  ele.createdAt,
+                ).toISOString();
               }
             }
-
           }
         }
-      })
-      ////console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
+      });
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
-
-        if (new Date(startDate).getTime() > new Date(nextMinimumCreatedAtString).getTime()) {
+        if (
+          new Date(startDate).getTime() >
+          new Date(nextMinimumCreatedAtString).getTime()
+        ) {
           newEndDate = newEndDate;
-        }
-        else {
+        } else {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
-      const nextgroupcrtifecateissue = this.repositorynextDeviceGroupcertificate.save({
-        start_date: startDate,
-        end_date: newEndDate,
-        groupId: group.id
-      });
+      const nextgroupcrtifecateissue =
+        this.repositorynextDeviceGroupcertificate.save({
+          start_date: startDate,
+          end_date: newEndDate,
+          groupId: group.id,
+        });
     }
     await Promise.all(
       devices.map(async (device: Device) => {
-        if (new Date(data.reservationStartDate).getTime() < new Date(device.createdAt).getTime()) {
-          const nexthistorydevicecrtifecateissue = await this.historynextissuancedaterepository.save({
-            groupId: group.id,
-            device_externalid: device.externalId,
-            reservationStartDate: data.reservationStartDate,
-            reservationEndDate: new Date(data.reservationEndDate).getTime() < new Date(device.createdAt).getTime() ? data.reservationEndDate : device.createdAt,
-            device_createdAt: device.createdAt,
-            status: HistoryNextInssuanceStatus.Pending
-          });
+        if (
+          new Date(data.reservationStartDate).getTime() <
+          new Date(device.createdAt).getTime()
+        ) {
+          const nexthistorydevicecrtifecateissue =
+            await this.historynextissuancedaterepository.save({
+              groupId: group.id,
+              device_externalid: device.externalId,
+              reservationStartDate: data.reservationStartDate,
+              reservationEndDate:
+                new Date(data.reservationEndDate).getTime() <
+                new Date(device.createdAt).getTime()
+                  ? data.reservationEndDate
+                  : device.createdAt,
+              device_createdAt: device.createdAt,
+              status: HistoryNextInssuanceStatus.Pending,
+            });
         }
         return await this.deviceService.addGroupIdToDeviceForReserving(
           device,
-          group.id
+          group.id,
         );
       }),
     );
@@ -847,95 +1070,167 @@ export class DeviceGroupService {
     organizationId: number,
     group: AddGroupDTO,
     buyerId?: number,
-    buyerAddress?: string
+    buyerAddress?: string,
   ): Promise<ResponseDeviceGroupDTO> {
     this.logger.verbose(`With in createOne`);
-    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean: boolean = false;
-    let devices = await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(group.deviceIds);
-    let unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> = [];
-    devices.forEach(ele => ele.groupId != null ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(ele.id) : "");
-    devices = devices.filter(ele => ele.groupId === null);
+    let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
+      false;
+    let devices =
+      await this.deviceService.findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation(
+        group.deviceIds,
+      );
+    const unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> =
+      [];
+    devices.forEach((ele) =>
+      ele.groupId != null
+        ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(
+            ele.id,
+          )
+        : '',
+    );
+    devices = devices.filter((ele) => ele.groupId === null);
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
-      this.logger.error(`Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`);
+      this.logger.error(
+        `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
+      );
       return new Promise((resolve, reject) => {
-        reject(new ConflictException({
-          success: false,
-          message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
-        }))
-      })
+        reject(
+          new ConflictException({
+            success: false,
+            message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
+          }),
+        );
+      });
     }
-    let allDevicesAvailableforBuyerReservation: boolean = true;
-    let unavailableDeviceIds: Array<number> = [];
-    let unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
+    let allDevicesAvailableforBuyerReservation = true;
+    const unavailableDeviceIds: Array<number> = [];
+    const unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
-      this.logger.error(`Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`);
+      this.logger.error(
+        `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
+      );
       return new Promise((resolve, reject) => {
         let message = '';
-        if (unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0) {
-          message = message + `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
+        if (
+          unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
+        ) {
+          message =
+            message +
+            `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
         }
-        this.logger.error(`Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`);
-        message = message + `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
-        reject(new ConflictException({
-          success: false,
-          message: message
-        }))
-      })
+        this.logger.error(
+          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`,
+        );
+        message =
+          message +
+          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
+        reject(
+          new ConflictException({
+            success: false,
+            message: message,
+          }),
+        );
+      });
     }
-    group.deviceIds.forEach(ele => {
-      if (!devices.find(deviceSingle => deviceSingle.id === ele)) {
+    group.deviceIds.forEach((ele) => {
+      if (!devices.find((deviceSingle) => deviceSingle.id === ele)) {
         allDevicesAvailableforBuyerReservation = false;
         unavailableDeviceIds.push(ele);
       }
     });
-    if (!group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation) {
+    if (
+      !group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation
+    ) {
       if (!allDevicesAvailableforBuyerReservation) {
-        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
-        this.logger.error(`One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices`);
+        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
+          true;
+        this.logger.error(
+          `One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices`,
+        );
         return new Promise((resolve, reject) => {
-          reject(new ConflictException({
-            success: false,
-            message: 'One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices',
-          }))
-        })
+          reject(
+            new ConflictException({
+              success: false,
+              message:
+                'One or more devices device Ids: ' +
+                unavailableDeviceIds.join(',') +
+                ' are already included in buyer reservation, please add other devices',
+            }),
+          );
+        });
       }
     }
-    if (!group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration) {
+    if (
+      !group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration
+    ) {
       let aggregatedCapacity = 0;
-      devices.forEach(ele => aggregatedCapacity = ele.capacity + aggregatedCapacity);
-      let reservationStartDate = DateTime.fromISO(new Date(group.reservationStartDate).toISOString());
-      let reservationEndDate = DateTime.fromISO(new Date(group.reservationEndDate).toISOString());
+      devices.forEach(
+        (ele) => (aggregatedCapacity = ele.capacity + aggregatedCapacity),
+      );
+      const reservationStartDate = DateTime.fromISO(
+        new Date(group.reservationStartDate).toISOString(),
+      );
+      const reservationEndDate = DateTime.fromISO(
+        new Date(group.reservationEndDate).toISOString(),
+      );
       const meteredTimePeriodInHours = Math.abs(
-        reservationEndDate.diff(reservationStartDate, ['hours']).toObject()?.hours || 0,
-      ); // hours
-      let targetCapacityInKiloWattHour = group.targetCapacityInMegaWattHour * 1000;
-      if (aggregatedCapacity * meteredTimePeriodInHours < targetCapacityInKiloWattHour) {
-        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
-        this.logger.error(`Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration`);
+        reservationEndDate.diff(reservationStartDate, ['hours']).toObject()
+          ?.hours || 0,
+      );
+      const targetCapacityInKiloWattHour =
+        group.targetCapacityInMegaWattHour * 1000;
+      if (
+        aggregatedCapacity * meteredTimePeriodInHours <
+        targetCapacityInKiloWattHour
+      ) {
+        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
+          true;
+        this.logger.error(
+          `Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration`,
+        );
         return new Promise((resolve, reject) => {
-          reject(new ConflictException({
-            success: false,
-            message: 'Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration',
-            details: { meteredTimePeriodInHours, targetCapacityInMegaWattHour: group.targetCapacityInMegaWattHour, probablyAchievableCapacityInMegaWattHour: aggregatedCapacity * meteredTimePeriodInHours * 0.001 }
-          }))
-        })
+          reject(
+            new ConflictException({
+              success: false,
+              message:
+                'Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration',
+              details: {
+                meteredTimePeriodInHours,
+                targetCapacityInMegaWattHour:
+                  group.targetCapacityInMegaWattHour,
+                probablyAchievableCapacityInMegaWattHour:
+                  aggregatedCapacity * meteredTimePeriodInHours * 0.001,
+              },
+            }),
+          );
+        });
       }
     }
-    if (smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean === false) {
-      let deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(devices, group.name);
+    if (
+      smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean ===
+      false
+    ) {
+      const deviceGroup: NewDeviceGroupDTO = this.createDeviceGroupFromDevices(
+        devices,
+        group.name,
+      );
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
       deviceGroup['reservationEndDate'] = group.reservationEndDate;
       deviceGroup['authorityToExceed'] = group.authorityToExceed;
-      deviceGroup['targetVolumeInMegaWattHour'] = group.targetCapacityInMegaWattHour;
+      deviceGroup['targetVolumeInMegaWattHour'] =
+        group.targetCapacityInMegaWattHour;
       deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
-      deviceGroup['targetVolumeCertificateGenerationSucceededInMegaWattHour'] = 0;
-      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
-      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] = 0;
+      deviceGroup['targetVolumeCertificateGenerationSucceededInMegaWattHour'] =
+        0;
+      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] =
+        0;
+      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] =
+        0;
       deviceGroup['frequency'] = group.frequency;
       deviceGroup['deviceIdsInt'] = group.deviceIds;
-      deviceGroup['reservationActive'] = true
+      deviceGroup['reservationActive'] = true;
       if (buyerId && buyerAddress) {
         deviceGroup['buyerId'] = buyerId;
         deviceGroup['buyerAddress'] = buyerAddress;
@@ -944,19 +1239,22 @@ export class DeviceGroupService {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
       if (group.reservationExpiryDate) {
-        
         deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
       }
-      let responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
+      const responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,
       );
-      responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation = unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0 ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ') : '';
-      delete responseDeviceGroupDTO["deviceIdsInt"];
+      responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation =
+        unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
+          ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(
+              ' , ',
+            )
+          : '';
+      delete responseDeviceGroupDTO['deviceIdsInt'];
       return responseDeviceGroupDTO;
     }
   }
-
 
   async update(
     id: number,
@@ -986,18 +1284,17 @@ export class DeviceGroupService {
     organizationId: number,
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
   ) {
-    this.logger.verbose(`With in updateTotalReadingRequestedForCertificateIssuance`);
+    this.logger.verbose(
+      `With in updateTotalReadingRequestedForCertificateIssuance`,
+    );
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-    //console.log(deviceGroup);
-    //@ts-ignore
-    //console.log("updatetargetmwh")
-    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    //console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour = deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour + targetVolumeCertificateGenerationRequestedInMegaWattHour;
-    //console.log("afterupdatetargetmwh")
-    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
+
+    deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour =
+      deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour +
+      targetVolumeCertificateGenerationRequestedInMegaWattHour;
+
     const updatedGroup = await this.repository.save(deviceGroup);
-    //console.log(updatedGroup);
+
     return updatedGroup;
   }
 
@@ -1015,18 +1312,26 @@ export class DeviceGroupService {
   async updateLeftOverReadByCountryCode(
     id: number,
     leftOverRead: number,
-    countryCodeKey: string
+    countryCodeKey: string,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in updateLeftOverReadByCountryCode`);
     const deviceGroup = await this.findById(id);
-    if (deviceGroup.leftoverReadsByCountryCode === null || deviceGroup.leftoverReadsByCountryCode === undefined || deviceGroup.leftoverReadsByCountryCode === '') {
+    if (
+      deviceGroup.leftoverReadsByCountryCode === null ||
+      deviceGroup.leftoverReadsByCountryCode === undefined ||
+      deviceGroup.leftoverReadsByCountryCode === ''
+    ) {
       deviceGroup.leftoverReadsByCountryCode = {};
     }
     if (typeof deviceGroup.leftoverReadsByCountryCode === 'string') {
-      deviceGroup.leftoverReadsByCountryCode = JSON.parse(deviceGroup.leftoverReadsByCountryCode);
+      deviceGroup.leftoverReadsByCountryCode = JSON.parse(
+        deviceGroup.leftoverReadsByCountryCode,
+      );
     }
     deviceGroup.leftoverReadsByCountryCode[countryCodeKey] = leftOverRead;
-    deviceGroup.leftoverReadsByCountryCode = JSON.stringify(deviceGroup.leftoverReadsByCountryCode);
+    deviceGroup.leftoverReadsByCountryCode = JSON.stringify(
+      deviceGroup.leftoverReadsByCountryCode,
+    );
     const updatedGroup = await this.repository.save(deviceGroup);
     return updatedGroup;
   }
@@ -1049,7 +1354,7 @@ export class DeviceGroupService {
 
   public async checkIfDeviceExisting(
     newDevices: NewDeviceDTO[],
-    organizationId: number
+    organizationId: number,
   ): Promise<Array<string>> {
     this.logger.verbose(`With in checkIfDeviceExisting`);
     const allExternalIds: Array<string> = [];
@@ -1060,12 +1365,14 @@ export class DeviceGroupService {
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
         allExternalIds,
-        organizationId
+        organizationId,
       );
-    //////console.log("existingDevices",existingDevices);
+
     if (existingDevices && existingDevices.length > 0) {
-      //@ts-ignore
-      existingDevices.forEach((ele) => existingDeviceIds.push(ele?.developerExternalId));
+      // @ts-ignore
+      existingDevices.forEach((ele) =>
+        existingDeviceIds.push(ele?.developerExternalId),
+      );
     }
     return existingDeviceIds;
   }
@@ -1086,12 +1393,15 @@ export class DeviceGroupService {
         try {
           if (api_user_id == null) {
             return await this.deviceService.register(orgCode, device);
-          }
-          else {
-            return await this.deviceService.register(orgCode, device, api_user_id, Role.ApiUser);
+          } else {
+            return await this.deviceService.register(
+              orgCode,
+              device,
+              api_user_id,
+              Role.ApiUser,
+            );
           }
         } catch (e) {
-          //console.log(e);
           this.logger.error(e);
           return { isError: true, device: device, errorDetail: e };
         }
@@ -1100,7 +1410,7 @@ export class DeviceGroupService {
     return devices;
   }
 
-  private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
+  private async hasDeviceGroup(conditions: FindOptionsWhere<DeviceGroup>) {
     this.logger.verbose(`With in hasDeviceGroup`);
     return Boolean(await this.findOne(conditions));
   }
@@ -1132,11 +1442,15 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findDeviceGroupById`);
     const deviceGroup = await this.repository.findOne({
-      id,
-      organizationId,
+      where: {
+        id,
+        organizationId,
+      },
     });
     if (!deviceGroup) {
-      this.logger.error(`No device group found with id ${id} and organization ${organizationId}`);
+      this.logger.error(
+        `No device group found with id ${id} and organization ${organizationId}`,
+      );
       throw new NotFoundException(
         `No device group found with id ${id} and organization ${organizationId}`,
       );
@@ -1198,14 +1512,25 @@ export class DeviceGroupService {
     );
 
     const fuelCode = Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode.trim() : ''
-      )),
+      new Set(
+        devices.map((device: DeviceDTO) =>
+          device.fuelCode ? device.fuelCode.trim() : '',
+        ),
+      ),
     );
     const countryCode = Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode.trim() : '')),
+      new Set(
+        devices.map((device: DeviceDTO) =>
+          device.countryCode ? device.countryCode.trim() : '',
+        ),
+      ),
     );
     const deviceTypeCodes = Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.deviceTypeCode ? device.deviceTypeCode.trim() : '')),
+      new Set(
+        devices.map((device: DeviceDTO) =>
+          device.deviceTypeCode ? device.deviceTypeCode.trim() : '',
+        ),
+      ),
     );
     const offTakers = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.offTaker)),
@@ -1217,21 +1542,15 @@ export class DeviceGroupService {
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: fuelCode,//[devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode : '').join(' , ')],
-      countryCode: countryCode,// [devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , ')],
-      //standardCompliance: devices[0].standardCompliance,
+      fuelCode: fuelCode,
+      countryCode: countryCode,
       deviceTypeCodes: deviceTypeCodes,
-      //@ts-ignore
-      offTakers: offTakers,//[devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker : '').join(' , ')],
-      //installationConfigurations: [devices[0].installationConfiguration],
-      //sectors,
+      // @ts-ignore
+      offTakers: offTakers,
       gridInterconnection,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
-      //yieldValue: averageYieldValue,
-      // labels: labels ?? [],
-      //devicesIds: devicesIds
     };
 
     return deviceGroup;
@@ -1239,13 +1558,10 @@ export class DeviceGroupService {
 
   private getreservationFilteredQuery(
     buyerId: number,
-    filter?: UnreservedDeviceGroupsFilterDTO
+    filter?: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
     this.logger.verbose(`With in getreservationFilteredQuery`);
-    const where: FindConditions<DeviceGroup> = cleanDeep({
-      // countryCode: filter.country && getCodeFromCountry(filter.country),
-      // gridInterconnection: filter.gridInterconnection,
-      // fuelCode: filter.fuelCode,
+    const where: FindOptionsWhere<DeviceGroup> = cleanDeep({
       reservationStartDate:
         filter.start_date &&
         filter.end_date &&
@@ -1255,21 +1571,9 @@ export class DeviceGroupService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-
-    // if (filter.country) {
-    //   where.countryCode = this.getRawFilter(filter.country);
-    // }
-    // if (filter.fuelCode) {
-    //   where.fuelCode = this.getRawFilter(filter.fuelCode);
-    // }
     if (filter.offTaker) {
       where.offTakers = this.getRawFilter(filter.offTaker);
     }
-    // if (filter.commissioningDateRange) {
-    //   where.commissioningDateRange = this.getRawFilter(
-    //     filter.commissioningDateRange,
-    //   );
-    // }
     const query: FindManyOptions<DeviceGroup> = {
       where: {
         buyerId: buyerId || null,
@@ -1303,7 +1607,9 @@ export class DeviceGroupService {
   > {
     this.logger.verbose(`With in hasSingleAddedJobForCSVProcessing`);
     return await this.repositoyCSVJobProcessing.findOne({
-      status: StatusCSV.Added,
+      where: {
+        status: StatusCSV.Added,
+      },
     });
   }
 
@@ -1312,7 +1618,7 @@ export class DeviceGroupService {
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    //@ts-ignore
+    // @ts-ignore
     return await this.repositoyCSVJobProcessing.update(jobId, {
       status: status,
     });
@@ -1324,28 +1630,27 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
-    if (filesAddedForProcessing === undefined) {
+    if (
+      filesAddedForProcessing === undefined ||
+      filesAddedForProcessing === null
+    ) {
       return;
     }
 
     const data = new LoggedInUser({
       id: filesAddedForProcessing.userId,
-      //@ts-ignore
+      // @ts-ignore
       organization: { id: filesAddedForProcessing.organizationId },
     });
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.GetuploadS3(filesAddedForProcessing.fileId);
-
-    // const response = await this.fileService.get(
-    //   filesAddedForProcessing.fileId,
-    //   data,
-    // );
+    const response = await this.fileService.GetuploadS3(
+      filesAddedForProcessing.fileId,
+    );
     this.logger.debug(response);
     if (response == undefined) {
       return;
     } else {
-      ////console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -1355,196 +1660,6 @@ export class DeviceGroupService {
     }
   }
 
-  /* Readable Stream didnt work for second file sent only when first file sent was working
-  async processCsvFileAnotherLibrary(
-    file: File,
-    organizationId: number,
-    filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
-  ) {
-    //////console.log("into method");
-    const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
-      [];
-      let rowsConvertedToCsvCount=0;
-    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
-    const readableStream = new Readable();
-    readableStream._read = () => {}; // _read is required but you can noop it
-    readableStream
-      .pipe(this.csvParser)
-      .on('data', async (data) => {
-        rowsConvertedToCsvCount++;
-        data.images = [];
-        data.groupId = null;
-        const dataToStore = new NewDeviceDTO();
-
-        const dataKeyForValidation: NewDeviceDTO = {
-          externalId: '',
-          projectName: '',
-          address: '',
-          latitude: '',
-          longitude: '',
-          countryCode: '',
-          fuelCode: '',
-          deviceTypeCode: '',
-          capacity: 0,
-          commissioningDate: '',
-          gridInterconnection: false,
-          offTaker: OffTaker.Commercial,
-          yieldValue: 0,
-          labels: '',
-          impactStory: '',
-          data: '',
-          images: [],
-          deviceDescription: DeviceDescription.GroundmountSolar,
-          energyStorage: true,
-          energyStorageCapacity: 0,
-          qualityLabels: '',
-          SDGBenefits:0,
-          //groupId: 0,
-        };
-        for (const key in dataKeyForValidation) {
-          //@ts-ignore
-          if (typeof dataKeyForValidation[key] === 'string') {
-            //@ts-ignore
-            dataToStore[key] = data[key];
-          }
-          //@ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'boolean') {
-            //@ts-ignore
-            dataToStore[key] =
-              data[key].toLowerCase() === 'true' ? true : false;
-          }
-          //@ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'number') {
-            //@ts-ignore
-            dataToStore[key] =
-              parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
-              //@ts-ignore
-           if(key == 'yieldValue' && dataToStore[key]===0)
-           {
-            dataToStore[key]=1500;
-           }
-          }
-          if(key == 'yieldValue' && data.countryCode)
-          {
-            let yieldByCountryCode=await this.yieldConfigService.findByCountryCode(data.countryCode);
-            if(yieldByCountryCode)
-            {
-              //@ts-ignore
-              dataToStore.yieldValue=yieldByCountryCode.yieldValue;
-            }
-          }
-          // //@ts-ignore
-          // else if (key === 'generatorsIds') {
-          //   if (data[key] === '') {
-          //     //@ts-ignore
-          //     dataToStore[key] = [];
-          //   } else {
-          //     //@ts-ignore
-          //     dataToStore[key] = data[key].split('|').map(
-          //       //@ts-ignore
-          //       (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
-          //     );
-          //     //@ts-ignore
-          //     dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
-          //   }
-          // }
-        }
-        for(let key in dataToStore)
-        {
-          //@ts-ignore
-          dataToStore[key] === ''?dataToStore[key]=null:'';
-        }
-
-        //////console.log("records",JSON.stringify(records));
-
-        records.push(dataToStore);
-        recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
-      })
-      .on('end', async () => {
-        //////console.log("data end transmissiodsdddddddddddn",records);
-        for(let index=0;index<records.length;index++)
-        {
-          let singleRecord = records[index];
-          //////console.log("waiting");
-          const errors = await validate(singleRecord);
-          //////console.log("validation errors",errors);
-          // errors is an array of validation errors
-          if (errors.length > 0) {
-            recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
-          } else {
-            recordsErrors[index] = { rowNumber: index, isError: false, errorsList: errors };
-          }
-        }
-
-        const noErrorRecords = records.filter(
-          (record, index) => recordsErrors[index].isError === false,
-        );
-        const listofExistingDevices = await this.checkIfDeviceExisting(records);
-        if (listofExistingDevices.length > 0) {
-          records.forEach((singleRecord, index) => {
-            listofExistingDevices.find(
-              (ele) => ele === singleRecord.externalId,
-            );
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              error: 'Smae ExternalId already exist, cant add entry with same external id ',
-            });
-          });
-        }
-        //////console.log("listofExistingDevices",listofExistingDevices);
-        let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
-        //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-        const devicesRegistered = await this.registerCSVBulkDevices(
-          organizationId,
-          records,
-        );
-        //////console.log("devicesRegistered",devicesRegistered); 
-        //@ts-ignore
-        devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
-          if(ele instanceof DeviceDTO)
-          {
-            successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
-          }
-        })
-        //////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
-       
-        if (recordsErrors.find((ele) => ele.isError === true)) {
-          //////console.log("insie if ");
-          this.createFailedRowDetailsForCSVJob(
-            filesAddedForProcessing.jobId,
-            recordsErrors,
-            successfullyAddedRowsAndExternalIds
-          );
-        }
-
-        //////console.log("osdksnd if ");
-
-        this.updateJobStatus(
-          filesAddedForProcessing.jobId,
-          StatusCSV.Completed,
-        );
-
-      });
-    //////console.log("file?.data.toString()",file?.data.toString());
-    this.csvStringToJSON(file?.data.toString());
-    
-    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{ 
-      //////console.log("csvLine",csvLine);
-    // csvLine =>  "1,2,3" and "4,5,6"
-    })
-
-    readableStream.emit('data', file?.data.toString());
-    setTimeout(()=>{
-      //////console.log("data ending emission");
-      readableStream.emit('end');
-    },60000);
-    
-
-    // },1);
-  }
-  */
-
   async processCsvFileAnotherLibrary(
     file: any,
     organizationId: number,
@@ -1553,307 +1668,403 @@ export class DeviceGroupService {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ externalId: string; rowNumber: number; isError: boolean; errorsList: Array<any> }> =
-      [];
+    const recordsErrors: Array<{
+      externalId: string;
+      rowNumber: number;
+      isError: boolean;
+      errorsList: Array<any>;
+    }> = [];
     let rowsConvertedToCsvCount = 0;
     //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
     const readableStream = new Readable();
-    readableStream._read = () => { }; // _read is required but you can noop it
+    readableStream._read = () => {};
     readableStream
       .pipe(this.csvParser)
-      .on('data', async (data) => {
-
-      })
-      .on('end', async () => {
-
-
-      });
-    this.logger.debug("file?.data.toString()", file?.data.toString());
-    const filedata = file.data.Body.toString('utf-8')
+      .on('data', async (data) => {})
+      .on('end', async () => {});
+    this.logger.debug('file?.data.toString()', file?.data.toString());
+    const filedata = file.data.Body.toString('utf-8');
     this.csvStringToJSON(filedata);
 
-    csvtojsonV2().fromString(filedata).subscribe(async (data: any, lineNumber: any) => {
-      ////console.log("csvLine",data,"sdsds",lineNumber);
-      rowsConvertedToCsvCount++;
-      data.images = [];
-      data.groupId = null;
-      const dataToStore = new NewDeviceDTO();
-      dataToStore.SDGBenefits = [];
-      dataToStore.version = '1.0';
+    csvtojsonV2()
+      .fromString(filedata)
+      .subscribe(async (data: any, lineNumber: any) => {
+        rowsConvertedToCsvCount++;
+        data.images = [];
+        data.groupId = null;
+        const dataToStore = new NewDeviceDTO();
+        dataToStore.SDGBenefits = [];
+        dataToStore.version = '1.0';
 
-      const dataKeyForValidation: NewDeviceDTO = {
-        externalId: '',
-        projectName: '',
-        address: '',
-        latitude: '',
-        longitude: '',
-        countryCode: '',
-        fuelCode: FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC150,
-        capacity: 0,
-        commissioningDate: '',
-        gridInterconnection: false,
-        offTaker: OffTaker.Commercial,
-        //yieldValue: 0,
-        //labels: '',
-        impactStory: '',
-        // data: '',
-        images: [],
-        deviceDescription: DeviceDescription.GroundmountSolar,
-        energyStorage: true,
-        energyStorageCapacity: 0,
-        qualityLabels: '',
-        SDGBenefits: [],
-        version: "1.0",
-        //groupId: 0,
-      };
-      for (const key in dataKeyForValidation) {
-        if (key === "SDGBenefits" || key === "version") {
-          continue;
-        }
-        //@ts-ignore
-        if (typeof dataKeyForValidation[key] === 'string') {
-          //@ts-ignore
-          dataToStore[key] = data[key];
-        }
-        //@ts-ignore
-        else if (typeof dataKeyForValidation[key] === 'boolean') {
-          //@ts-ignore
-          dataToStore[key] =
-            data[key].toLowerCase() === 'true' ? true : false;
-        }
-        //@ts-ignore
-        else if (typeof dataKeyForValidation[key] === 'number') {
-          //@ts-ignore
-          dataToStore[key] =
-            Number.isNaN(data[key]) ? 0 : parseFloat(data[key]);
-          //@ts-ignore
-          if (key == 'yieldValue' && dataToStore[key] === 0) {
-            // dataToStore[key] = 1500;
-            dataToStore[key] = 2000;
+        const dataKeyForValidation: NewDeviceDTO = {
+          externalId: '',
+          projectName: '',
+          address: '',
+          latitude: '',
+          longitude: '',
+          countryCode: '',
+          fuelCode: FuelCode.ES100,
+          deviceTypeCode: DevicetypeCode.TC150,
+          capacity: 0,
+          commissioningDate: '',
+          gridInterconnection: false,
+          offTaker: OffTaker.Commercial,
+          impactStory: '',
+          images: [],
+          deviceDescription: DeviceDescription.GroundmountSolar,
+          energyStorage: true,
+          energyStorageCapacity: 0,
+          qualityLabels: '',
+          SDGBenefits: [],
+          version: '1.0',
+        };
+        for (const key in dataKeyForValidation) {
+          if (key === 'SDGBenefits' || key === 'version') {
+            continue;
           }
-
-          if (key === "SdgBenefits") {
-            ////console.log("data[key]",data[key]);
-            ////console.log("dataToStore[key]",dataToStore[key]);
+          // @ts-ignore
+          if (typeof dataKeyForValidation[key] === 'string') {
+            // @ts-ignore
+            dataToStore[key] = data[key];
           }
-        }
-        if (key == 'yieldValue' && data.countryCode) {
-          let yieldByCountryCode = await this.yieldConfigService.findByCountryCode(data.countryCode);
-          if (yieldByCountryCode) {
-            //@ts-ignore
-            dataToStore.yieldValue = yieldByCountryCode.yieldValue;
+          // @ts-ignore
+          else if (typeof dataKeyForValidation[key] === 'boolean') {
+            // @ts-ignore
+            dataToStore[key] =
+              data[key].toLowerCase() === 'true' ? true : false;
+          }
+          // @ts-ignore
+          else if (typeof dataKeyForValidation[key] === 'number') {
+            // @ts-ignore
+            dataToStore[key] = Number.isNaN(data[key])
+              ? 0
+              : parseFloat(data[key]);
+            // @ts-ignore
+            if (key == 'yieldValue' && dataToStore[key] === 0) {
+              dataToStore[key] = 2000;
+            }
+          }
+          if (key == 'yieldValue' && data.countryCode) {
+            const yieldByCountryCode =
+              await this.yieldConfigService.findByCountryCode(data.countryCode);
+            if (yieldByCountryCode) {
+              // @ts-ignore
+              dataToStore.yieldValue = yieldByCountryCode.yieldValue;
+            }
           }
         }
-      }
-      for (let key in dataToStore) {
-        //@ts-ignore
-        dataToStore[key] === '' ? dataToStore[key] = null : '';
-      }
-
-      // console.log("records", JSON.stringify(records));
-
-      records.push(dataToStore);
-      recordsErrors.push({ externalId: '', rowNumber: rowsConvertedToCsvCount, isError: false, errorsList: [] });
-
-      // csvLine =>  "1,2,3" and "4,5,6"
-    }).on('done', async (error: any) => {
-
-      for (let index = 0; index < records.length; index++) {
-        let singleRecord = records[index];
-        if (records[index].externalId) {
-          records[index].externalId = records[index].externalId.trim();
+        for (const key in dataToStore) {
+          // @ts-ignore
+          dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
-        const errors = await validate(singleRecord);
-        if (errors.length > 0) {
-
-          errors.forEach(ele => {
-            delete ele.target;
-            delete ele.children;
-          })
-          recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: true, errorsList: errors };
-        } else {
-          recordsErrors[index] = { externalId: records[index].externalId, rowNumber: index, isError: false, errorsList: errors };
-        }
-        // if (singleRecord.externalId != undefined || singleRecord.externalId != null) {
-        //   const Regex = /^[a-zA-Z\d\-_\s]+$/;
-
-        //   if(!Regex.test(singleRecord.externalId)){
-        //     recordsErrors[index].isError = true;
-        //     recordsErrors[index].errorsList.push({ value: singleRecord.externalId, property: "externalId", constraints: { invalidExternalId: "external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between" } })
-
-        //   }
-
-        // }
-        if (singleRecord.countryCode != undefined) {
-
-          singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
-          if (singleRecord.countryCode && typeof singleRecord.countryCode === "string" && singleRecord.countryCode.length === 3) {
-
-            if (countryCodesList.find(ele => ele.countryCode === singleRecord.countryCode) === undefined) {
+        records.push(dataToStore);
+        recordsErrors.push({
+          externalId: '',
+          rowNumber: rowsConvertedToCsvCount,
+          isError: false,
+          errorsList: [],
+        });
+      })
+      .on('done', async (error: any) => {
+        for (let index = 0; index < records.length; index++) {
+          const singleRecord = records[index];
+          if (records[index].externalId) {
+            records[index].externalId = records[index].externalId.trim();
+          }
+          const errors = await validate(singleRecord);
+          if (errors.length > 0) {
+            errors.forEach((ele) => {
+              delete ele.target;
+              delete ele.children;
+            });
+            recordsErrors[index] = {
+              externalId: records[index].externalId,
+              rowNumber: index,
+              isError: true,
+              errorsList: errors,
+            };
+          } else {
+            recordsErrors[index] = {
+              externalId: records[index].externalId,
+              rowNumber: index,
+              isError: false,
+              errorsList: errors,
+            };
+          }
+          if (singleRecord.countryCode != undefined) {
+            singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
+            if (
+              singleRecord.countryCode &&
+              typeof singleRecord.countryCode === 'string' &&
+              singleRecord.countryCode.length === 3
+            ) {
+              if (
+                countryCodesList.find(
+                  (ele) => ele.countryCode === singleRecord.countryCode,
+                ) === undefined
+              ) {
+                recordsErrors[index].isError = true;
+                recordsErrors[index].errorsList.push({
+                  value: singleRecord.countryCode,
+                  property: 'countryCode',
+                  constraints: { invalidCountryCode: 'Invalid countryCode' },
+                });
+              }
+            } else {
               recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.countryCode,
+                property: 'countryCode',
+                constraints: { invalidCountryCode: 'Invalid countryCode' },
+              });
             }
           } else {
             recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
+            recordsErrors[index].errorsList.push({
+              value: singleRecord.countryCode,
+              property: 'countryCode',
+              constraints: { invalidCountryCode: 'Invalid countryCode' },
+            });
           }
-        } else {
-          recordsErrors[index].isError = true;
-          recordsErrors[index].errorsList.push({ value: singleRecord.countryCode, property: "countryCode", constraints: { invalidCountryCode: "Invalid countryCode" } })
-        }
-        if (singleRecord.commissioningDate && typeof singleRecord.commissioningDate === "string") {
-
-          this.logger.debug(!isValidUTCDateFormat(singleRecord.commissioningDate));
-          if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
-            const hasValidSeconds = moment(singleRecord.commissioningDate).seconds() < 60;
-            const hasValidMinutes = moment(singleRecord.commissioningDate).minutes() < 60;
-            recordsErrors[index].isError = true;
-            if (!hasValidMinutes) {
-              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid minutes value." } })
-            }
-            else if (!hasValidSeconds) {
-              recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid seconds value." } })
-            }
-            recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z" } })
-          }
-          if (new Date(singleRecord.commissioningDate).getTime() > new Date().getTime()) {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({ value: singleRecord.commissioningDate, property: "commissioningDate", constraints: { invalidDate: "Invalid commissioning date, commissioning is greater than current date" } })
-          }
-        }
-        if (singleRecord.capacity <= 0) {
-          recordsErrors[index].isError = true;
-          recordsErrors[index].errorsList.push({ value: singleRecord.capacity, property: "capacity", constraints: { greaterThanZero: "Capacity should be greater than 0" } })
-        }
-        if (singleRecord.energyStorageCapacity < 0) {
-          recordsErrors[index].isError = true;
-          recordsErrors[index].errorsList.push({ value: singleRecord.energyStorageCapacity, property: "energyStorageCapacity", constraints: { greaterThanZero: "Energy Storage Capacity should be greater than 0" } })
-        }
-      }
-
-      records.forEach((singleRecord, index) => {
-        recordsErrors[index].errorsList.forEach(error => {
-          singleRecord[error.property] = null;//making null field if it has any validation issue 
-        })
-      });
-
-      const noErrorRecords = records.filter(
-        (record, index) => recordsErrors[index].isError === false,
-      );
-      const listofExistingDevices = await this.checkIfDeviceExisting(records, organizationId);
-
-      if (listofExistingDevices.length > 0) {
-        records.forEach((singleRecord, index) => {
-          if (listofExistingDevices.find(
-            (ele) => ele === singleRecord.externalId,
-          )) {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push(
-              { value: singleRecord.externalId, property: "externalId", constraints: { externalIdExists: "ExternalId already exist, cant add entry with same external id" } }
+          if (
+            singleRecord.commissioningDate &&
+            typeof singleRecord.commissioningDate === 'string'
+          ) {
+            this.logger.debug(
+              !isValidUTCDateFormat(singleRecord.commissioningDate),
             );
+            if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
+              const hasValidSeconds =
+                moment(singleRecord.commissioningDate).seconds() < 60;
+              const hasValidMinutes =
+                moment(singleRecord.commissioningDate).minutes() < 60;
+              recordsErrors[index].isError = true;
+              if (!hasValidMinutes) {
+                recordsErrors[index].errorsList.push({
+                  value: singleRecord.commissioningDate,
+                  property: 'commissioningDate',
+                  constraints: { invalidDate: 'Invalid minutes value.' },
+                });
+              } else if (!hasValidSeconds) {
+                recordsErrors[index].errorsList.push({
+                  value: singleRecord.commissioningDate,
+                  property: 'commissioningDate',
+                  constraints: { invalidDate: 'Invalid seconds value.' },
+                });
+              }
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.commissioningDate,
+                property: 'commissioningDate',
+                constraints: {
+                  invalidDate:
+                    'Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
+                },
+              });
+            }
+            if (
+              new Date(singleRecord.commissioningDate).getTime() >
+              new Date().getTime()
+            ) {
+              recordsErrors[index].isError = true;
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.commissioningDate,
+                property: 'commissioningDate',
+                constraints: {
+                  invalidDate:
+                    'Invalid commissioning date, commissioning is greater than current date',
+                },
+              });
+            }
+          }
+          if (singleRecord.capacity <= 0) {
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({
+              value: singleRecord.capacity,
+              property: 'capacity',
+              constraints: {
+                greaterThanZero: 'Capacity should be greater than 0',
+              },
+            });
+          }
+          if (singleRecord.energyStorageCapacity < 0) {
+            recordsErrors[index].isError = true;
+            recordsErrors[index].errorsList.push({
+              value: singleRecord.energyStorageCapacity,
+              property: 'energyStorageCapacity',
+              constraints: {
+                greaterThanZero:
+                  'Energy Storage Capacity should be greater than 0',
+              },
+            });
+          }
+        }
+
+        records.forEach((singleRecord, index) => {
+          recordsErrors[index].errorsList.forEach((error) => {
+            singleRecord[error.property] = null; //making null field if it has any validation issue
+          });
+        });
+
+        const noErrorRecords = records.filter(
+          (record, index) => recordsErrors[index].isError === false,
+        );
+        const listofExistingDevices = await this.checkIfDeviceExisting(
+          records,
+          organizationId,
+        );
+
+        if (listofExistingDevices.length > 0) {
+          records.forEach((singleRecord, index) => {
+            if (
+              listofExistingDevices.find(
+                (ele) => ele === singleRecord.externalId,
+              )
+            ) {
+              recordsErrors[index].isError = true;
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.externalId,
+                property: 'externalId',
+                constraints: {
+                  externalIdExists:
+                    'ExternalId already exist, cant add entry with same external id',
+                },
+              });
+            }
+          });
+        }
+        const recordsCopy = cloneDeep(records);
+        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
+        const duplicatesExternalId: any = [];
+        for (let i = 0; i < recordsCopy.length - 1; i++) {
+          this.logger.debug(recordsCopy[i].externalId);
+          for (let j = i + 1; j < recordsCopy.length; j++) {
+            this.logger.debug(recordsCopy[j].externalId);
+            if (
+              recordsCopy[i].externalId != null &&
+              recordsCopy[j].externalId != null
+            ) {
+              if (
+                recordsCopy[i].externalId.toLowerCase() ===
+                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[j]['statusDuplicate'] === false
+              ) {
+                recordsCopy[j]['statusDuplicate'] = true;
+                duplicatesExternalId.push({
+                  duplicateIndex: j,
+                  duplicateWith: i,
+                  projectName: records[j].projectName,
+                  externalId: records[j].externalId,
+                });
+                recordsErrors[j].isError = true;
+                recordsErrors[j].errorsList.push({
+                  value: recordsCopy[j].externalId,
+                  property: 'externalId',
+                  constraints: {
+                    externalIdExists:
+                      'Row ' +
+                      (j + 1) +
+                      ' Duplicate with row ' +
+                      (i + 1) +
+                      ' Exists with externalId ' +
+                      records[j].externalId,
+                  },
+                });
+              }
+            }
+          }
+        }
+
+        const successfullyAddedRowsAndExternalIds: Array<{
+          rowNumber: number;
+          externalId: string;
+        }> = [];
+        const recordsToRegister = records.filter((ele, index) => {
+          if (recordsErrors[index].errorsList.length > 0) {
+            //these are required fields and if one is having error we cannot try to insert the record
+            if (
+              recordsErrors[index].errorsList.find(
+                (errorRec) =>
+                  errorRec.property === 'externalId' ||
+                  errorRec.property === 'commissioningDate' ||
+                  errorRec.property === 'capacity' ||
+                  errorRec.property === 'countryCode',
+              )
+            ) {
+              return false;
+            } else {
+              return true;
+            }
+          } else return true;
+        });
+
+        const devicesRegistered = await this.registerCSVBulkDevices(
+          organizationId,
+          recordsToRegister,
+          filesAddedForProcessing.api_user_id,
+        );
+
+        devicesRegistered
+          // @ts-ignore ts(2339)
+          .filter((ele) => ele.isError === undefined)
+          .forEach((ele) => {
+            successfullyAddedRowsAndExternalIds.push({
+              // @ts-ignore ts(2339)
+              externalId: ele.externalId,
+              rowNumber: records.findIndex(
+                // @ts-ignore ts(2339)
+                (recEle) => recEle.developerExternalId === ele.externalId,
+              ),
+            });
+          });
+
+        recordsErrors.forEach((ele, index) => {
+          if (ele.isError === false) {
+            ele['status'] = 'Success';
+          } else if (
+            ele.isError === true &&
+            successfullyAddedRowsAndExternalIds.find(
+              (successEle) =>
+                successEle.externalId === ele.externalId &&
+                successEle.rowNumber === index,
+            )
+          ) {
+            ele['status'] =
+              'Success with validation errors, please update fields';
+          } else {
+            ele['status'] = 'Failed';
           }
         });
-      }
-      var recordsCopy = cloneDeep(records);
-      recordsCopy.forEach(ele => ele['statusDuplicate'] = false)
-      const duplicatesExternalId: any = [];
-      for (let i = 0; i < recordsCopy.length - 1; i++) {
-        this.logger.debug(recordsCopy[i].externalId);
-        for (let j = i + 1; j < recordsCopy.length; j++) {
-          this.logger.debug(recordsCopy[j].externalId);
-          if (recordsCopy[i].externalId != null && recordsCopy[j].externalId != null) {
-            if (recordsCopy[i].externalId.toLowerCase() === recordsCopy[j].externalId.toLowerCase() && recordsCopy[j]['statusDuplicate'] === false) {
-              recordsCopy[j]['statusDuplicate'] = true;
-              duplicatesExternalId.push({
-                duplicateIndex: j,
-                duplicateWith: i,
-                projectName: records[j].projectName,
-                externalId: records[j].externalId
-              });
-              recordsErrors[j].isError = true;
-              recordsErrors[j].errorsList.push(
-                { value: recordsCopy[j].externalId, property: "externalId", constraints: { externalIdExists: "Row " + (j + 1) + " Duplicate with row " + (i + 1) + " Exists with externalId " + records[j].externalId } }
-              );
-            }
-          }
-
-        }
-      }
-
-      let successfullyAddedRowsAndExternalIds: Array<{ rowNumber: number, externalId: string }> = [];
-      //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-      let recordsToRegister = records.filter((ele, index) => {
-        if (recordsErrors[index].errorsList.length > 0) {
-          //these are required fields and if one is having error we cannot try to insert the record
-          if (recordsErrors[index].errorsList.find(errorRec => errorRec.property === "externalId" || errorRec.property === "commissioningDate" || errorRec.property === "capacity" || errorRec.property === "countryCode")) {
-            return false;
-          }
-          else {
-            return true;
-          }
-        }
-        else
-          return true;
-      })
-
-      const devicesRegistered = await this.registerCSVBulkDevices(
-        organizationId,
-        recordsToRegister,
-        filesAddedForProcessing.api_user_id,
-      );
-      //@ts-ignore
-
-      devicesRegistered.filter(ele => ele.isError === undefined).forEach(ele => {
-
-        //@ts-ignore
-        successfullyAddedRowsAndExternalIds.push({ externalId: ele.externalId, rowNumber: records.findIndex(recEle => recEle.developerExternalId === ele.externalId) });
-      })
-
-      recordsErrors.forEach((ele, index) => {
-        if (ele.isError === false) { ele["status"] = 'Success'; }
-
-        else if (ele.isError === true && successfullyAddedRowsAndExternalIds.find(successEle => (successEle.externalId === ele.externalId && successEle.rowNumber === index))) {
-          ele['status'] = 'Success with validation errors, please update fields';
-        }
-        else {
-          ele['status'] = 'Failed';
-        }
+        this.createFailedRowDetailsForCSVJob(
+          filesAddedForProcessing.jobId,
+          recordsErrors,
+          successfullyAddedRowsAndExternalIds,
+        );
+        this.updateJobStatus(
+          filesAddedForProcessing.jobId,
+          StatusCSV.Completed,
+        );
       });
-      //console.log(recordsErrors);
-      this.createFailedRowDetailsForCSVJob(
-        filesAddedForProcessing.jobId,
-        recordsErrors,
-        successfullyAddedRowsAndExternalIds
-      );
-      this.updateJobStatus(
-        filesAddedForProcessing.jobId,
-        StatusCSV.Completed,
-      );
-    })
-
   }
 
   csvStringToJSON(csvFileContentInString: string) {
     this.logger.verbose(`With in csvStringToJSON`);
-    // Convert the data to String and
-    // split it in an array
-    var array = csvFileContentInString.split("\r");
+
+    const array = csvFileContentInString.split('\r');
 
     // All the rows of the CSV will be
     // converted to JSON objects which
     // will be added to result in an array
-    let result = [];
+    const result = [];
 
     // The array[0] contains all the
     // header columns so we store them
     // in headers array
-    let headers = array[0].split(", ")
+    const headers = array[0].split(', ');
 
     // Since headers are separated, we
     // need to traverse remaining n-1 rows.
     for (let i = 1; i < array.length - 1; i++) {
-      let obj = {}
+      const obj = {};
 
       // Create an empty object to later add
       // values of the current row to it
@@ -1861,8 +2072,8 @@ export class DeviceGroupService {
       // value to change the delimiter and
       // store the generated string in a new
       // string s
-      let str = array[i]
-      let s = ''
+      const str = array[i];
+      let s = '';
 
       // By Default, we get the comma separated
       // values of a cell in quotes " " so we
@@ -1873,83 +2084,69 @@ export class DeviceGroupService {
       // we replace them with pipe |
       // We keep adding the characters we
       // traverse to a String s
-      let flag = 0
+      let flag = 0;
       for (let ch of str) {
         if (ch === '"' && flag === 0) {
-          flag = 1
-        }
-        else if (ch === '"' && flag == 1) flag = 0
-        if (ch === ', ' && flag === 0) ch = '|'
-        if (ch !== '"') s += ch
+          flag = 1;
+        } else if (ch === '"' && flag == 1) flag = 0;
+        if (ch === ', ' && flag === 0) ch = '|';
+        if (ch !== '"') s += ch;
       }
 
       // Split the string using pipe delimiter |
       // and store the values in a properties array
-      let properties = s.split("|")
+      const properties = s.split('|');
 
       // For each header, if the value contains
       // multiple comma separated data, then we
       // store it in the form of array otherwise
       // directly the value is stored
-      for (let j in headers) {
-        if (properties[j].includes(", ")) {
-          //@ts-ignore
+      for (const j in headers) {
+        if (properties[j].includes(', ')) {
+          // @ts-ignore
           obj[headers[j]] = properties[j]
-            .split(", ").map(item => item.trim())
-        }
-        else {
-          //@ts-ignore
+            .split(', ')
+            .map((item) => item.trim());
+        } else {
+          // @ts-ignore
           obj[headers[j]] = properties[j];
         }
       }
 
-      // Add the generated object to our
-      // result array
-      result.push(obj)
+      result.push(obj);
     }
-
-    //////console.log(result);
   }
 
-  // async getGroupiCertificateIssueDate(
-  //   organizationId: number,
-  // ): Promise<DeviceGroupIssueCertificate{}> {
-  //   ////console.log(organizationId);
-  //   return await this.repositoryDeviceGroupcertificate.findByIds({
-  //     organizationId
-  //     //status:StatusCSV.Completed
-  //   });
-  // }
-
-
-  async checkIfOrganizationHasBlockhainAddressAdded(organizationId: number): Promise<boolean> {
+  async checkIfOrganizationHasBlockhainAddressAdded(
+    organizationId: number,
+  ): Promise<boolean> {
     this.logger.verbose(`With in checkIfOrganizationHasBlockhainAddressAdded`);
-    const organization = await this.organizationService.findOne(
-      organizationId,
-    );
+    const organization = await this.organizationService.findOne(organizationId);
     if (organization.blockchainAccountAddress) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
-
   }
   async getGroupiCertificateIssueDate(
-    conditions: FindConditions<DeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
-    this.logger.verbose(`With in getGroupiCertificateIssueDate`)
-    this.logger.log("Line No: 1883");
-    return (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null;
+    this.logger.verbose(`With in getGroupiCertificateIssueDate`);
+    this.logger.log('Line No: 1883');
+    return (
+      (await this.repositorynextDeviceGroupcertificate.findOne({
+        where: conditions as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
+      })) ?? null
+    );
   }
-  async getAllNextrequestCertificate(
-  ): Promise<DeviceGroupNextIssueCertificate[]> {
+  async getAllNextrequestCertificate(): Promise<
+    DeviceGroupNextIssueCertificate[]
+  > {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
       where: { end_date: LessThan(new Date().toISOString()) },
     });
-    ////console.log(groupId)
-    return groupId
+    return groupId;
   }
 
   async updatecertificateissuedate(
@@ -1957,17 +2154,16 @@ export class DeviceGroupService {
     startdate: string,
     enddate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in updatecertificateissuedate`);
-    // await this.checkNameConflict(data.name);
-    const deviceGroupdate = await this.getGroupiCertificateIssueDate({ id: id });
+    this.logger.verbose(`With in updatecertificateissuenextdate`);
+    const deviceGroupdate = await this.getGroupiCertificateIssueDate({
+      id: id,
+    });
     let updatedissuedate = new DeviceGroupNextIssueCertificate();
     if (deviceGroupdate) {
-
       deviceGroupdate.start_date = startdate;
       deviceGroupdate.end_date = enddate;
-      updatedissuedate = await this.repositorynextDeviceGroupcertificate.save(deviceGroupdate);
-
-
+      updatedissuedate =
+        await this.repositorynextDeviceGroupcertificate.save(deviceGroupdate);
     }
     return updatedissuedate;
   }
@@ -1980,41 +2176,39 @@ export class DeviceGroupService {
     deviceGroupIssueNextDateDTO?: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     this.logger.verbose(`With in EndReservationGroup`);
-    if (!group)
-      group = await this.findDeviceGroupById(groupId, organizationId);
-    //@ts-ignore
-    ////console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
-    //@ts-ignore
-    if (new Date(group?.reservationEndDate).getTime() === new Date(reservationend.endresavationdate).getTime()) {
-      ////console.log("came inside ending reservation");
+    if (!group) group = await this.findDeviceGroupById(groupId, organizationId);
 
+    if (
+      new Date(group?.reservationEndDate).getTime() ===
+      new Date(reservationend.endresavationdate).getTime()
+    ) {
       if (!deviceGroupIssueNextDateDTO)
-        deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({ groupId: groupId });
-      //@ts-ignore
+        deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({
+          groupId: groupId,
+        });
+      // @ts-ignore
 
-      this.endReservation(groupId, group, deviceGroupIssueNextDateDTO)
+      this.endReservation(groupId, group, deviceGroupIssueNextDateDTO);
       return;
     }
-
   }
-
 
   async endReservation(
     groupId: number,
     group: DeviceGroup,
-    deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate
+    deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     this.logger.verbose(`With in endReservation`);
     let updatedissuedatestatus = new DeviceGroup();
     if (group) {
-
-      group.reservationActive = false
+      group.reservationActive = false;
       updatedissuedatestatus = await this.repository.save(group);
-
     }
 
-    await this.repositorynextDeviceGroupcertificate.delete(deviceGroupIssueNextDateDTO.id);
-    let devices = await this.deviceService.findForGroup(groupId);
+    await this.repositorynextDeviceGroupcertificate.delete(
+      deviceGroupIssueNextDateDTO.id,
+    );
+    const devices = await this.deviceService.findForGroup(groupId);
 
     if (!devices?.length) {
       return;
@@ -2030,14 +2224,12 @@ export class DeviceGroupService {
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
     this.logger.verbose(`With in deactiveReaservation`);
-    //console.log(group);
     let updatedissuedatestatus = new DeviceGroup();
     if (group) {
-      group.reservationActive = false
+      group.reservationActive = false;
       updatedissuedatestatus = await this.repository.save(group);
       return;
     }
-
   }
 
   public async getDeviceGrouplog(
@@ -2046,35 +2238,35 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getDeviceGrouplog`);
     return this.checkdevciegrouplogcertificaterepository.find({
       where: {
-        groupid,
+        groupid: groupid.toString(),
       },
     });
   }
 
-  public async AddCertificateIssueDateLogForDeviceGroup(params: CheckCertificateIssueDateLogForDeviceGroupEntity
+  public async AddCertificateIssueDateLogForDeviceGroup(
+    params: CheckCertificateIssueDateLogForDeviceGroupEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
-    this.logger.verbose(`With in AddCertificateIssueDateLogForDeviceGroup`)
+    this.logger.verbose(`With in AddCertificateIssueDateLogForDeviceGroup`);
     return await this.checkdevciegrouplogcertificaterepository.save({
       ...params,
-
     });
   }
 
-
-  public async getNextHistoryissuanceDevicelog(
-
-  ): Promise<HistoryDeviceGroupNextIssueCertificate[] | undefined> {
+  public async getNextHistoryissuanceDevicelog(): Promise<
+    HistoryDeviceGroupNextIssueCertificate[] | undefined
+  > {
     this.logger.verbose(`With in getNextHistoryissuanceDevicelog`);
     return this.historynextissuancedaterepository.find({
       where: {
-        status: HistoryNextInssuanceStatus.Pending
-      }
+        status: HistoryNextInssuanceStatus.Pending,
+      },
     });
   }
 
-  public async countgroupIdHistoryissuanceDevicelog(groupId: number): Promise<number> {
+  public async countgroupIdHistoryissuanceDevicelog(
+    groupId: number,
+  ): Promise<number> {
     this.logger.verbose(`With in countgroupIdHistoryissuanceDevicelog`);
-    //const repository = getRepository(HistoryDeviceGroupNextIssueCertificate);
     const count = await this.historynextissuancedaterepository.count({
       where: {
         groupId: groupId,
@@ -2085,42 +2277,48 @@ export class DeviceGroupService {
     return count;
   }
 
-
-
   public async getNextHistoryissuanceDevicelogafterreservation(
     developerExternalId: any,
-    groupId: any
+    groupId: any,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
-    this.logger.verbose(`With in getNextHistoryissuanceDevicelogafterreservation`);
+    this.logger.verbose(
+      `With in getNextHistoryissuanceDevicelogafterreservation`,
+    );
     const result = await this.historynextissuancedaterepository.findOne({
-      device_externalid: developerExternalId,
-      groupId: groupId,
-      status: 'Completed'
+      where: {
+        device_externalid: developerExternalId,
+        groupId: groupId,
+        status: 'Completed',
+      },
     });
 
-    return result
+    return result;
   }
 
   async getHistoryCertificateIssueDate(
-    conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
-    return (await this.historynextissuancedaterepository.findOne(conditions)) ?? null;
+    return (
+      (await this.historynextissuancedaterepository.findOne({
+        where:
+          conditions as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
+      })) ?? null
+    );
   }
   async HistoryUpdatecertificateissuedate(
     id: number,
-    Status: HistoryNextInssuanceStatus
+    Status: HistoryNextInssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in HistoryUpdatecertificateissuedate`);
-    ////console.log("HistoryUpdatecertificateissuedate")
-    // await this.checkNameConflict(data.name);
-    const historynextdate = await this.getHistoryCertificateIssueDate({ id: id });
+    const historynextdate = await this.getHistoryCertificateIssueDate({
+      id: id,
+    });
     let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
     if (historynextdate) {
-
-      historynextdate.status = Status
-      updatedissuedatestatus = await this.historynextissuancedaterepository.save(historynextdate);
-
+      historynextdate.status = Status;
+      updatedissuedatestatus =
+        await this.historynextissuancedaterepository.save(historynextdate);
     }
     return updatedissuedatestatus;
   }
@@ -2129,36 +2327,42 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getallReservationactive`);
     const activeresvation = await this.repository.find({
       where: {
-        reservationActive: true
-      }
-    })
+        reservationActive: true,
+      },
+    });
 
-    return activeresvation
+    return activeresvation;
   }
 
-  async getcurrentInformationofDevicesInReservation(groupuid, pageNumber?): Promise<any> {
+  async getcurrentInformationofDevicesInReservation(
+    groupuid,
+    pageNumber?,
+  ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationofDevicesInReservation`);
-    const group = await this.findOne({ devicegroup_uid: groupuid, reservationActive: true })
-    // console.log(group)
+    const group = await this.findOne({
+      devicegroup_uid: groupuid,
+      reservationActive: true,
+    });
     if (group === null) {
-      this.logger.error(`Group UId is not of this buyer, invalid value was sent`);
+      this.logger.error(
+        `Group UId is not of this buyer, invalid value was sent`,
+      );
       return new Promise((resolve, reject) => {
-        reject(new ConflictException({
-          success: false,
-          message: 'Group UId is not of this buyer, invalid value was sent',
-        }))
-      })
+        reject(
+          new ConflictException({
+            success: false,
+            message: 'Group UId is not of this buyer, invalid value was sent',
+          }),
+        );
+      });
     }
     const devices = await this.deviceService.findByIds(group.deviceIdsInt);
     const device_historynextissuance = [];
-    // await Promise.all(
-    //   devices.map(async (device) => {
-    // console.log(device);
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
     const pageSize = 10;
-    let skip = (pageNumber - 1) * pageSize;
+    const skip = (pageNumber - 1) * pageSize;
     const queryBuilder = await this.historynextissuancedaterepository
       .createQueryBuilder('hni')
       .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
@@ -2167,60 +2371,59 @@ export class DeviceGroupService {
         'hni.* AS historynextissuance',
       ])
       .where('hni.groupId = :groupId', { groupId: group.id })
-      .offset(skip).limit(pageSize)
-    //await this.historynextissuancedaterepository.find(
-    //   {
-    //     where: {
-    //       groupId: group.id,
-    //       device_externalid: device.externalId
-    //     },
-    //   }
-    // );
+      .offset(skip)
+      .limit(pageSize);
 
     const count = await queryBuilder.getCount();
 
     const result = await queryBuilder.getRawMany();
-    const historynext_issuancer = result
+    const historynext_issuancer = result;
 
-    historynext_issuancer.forEach(element => {
-      element.device_externalid = element.externalId
-      delete element["createdAt"];
-      delete element["groupId"];
-      delete element["id"];
-      delete element["updatedAt"];
-
+    historynext_issuancer.forEach((element) => {
+      element.device_externalid = element.externalId;
+      delete element['createdAt'];
+      delete element['groupId'];
+      delete element['id'];
+      delete element['updatedAt'];
     });
     device_historynextissuance.push({
       historynext_issuancer,
+    });
 
-    })
-    // }),
-    // );
-    let AllDeviceshistnextissuansinfo: any = []
-    device_historynextissuance.forEach(ele => ele.historynext_issuancer.forEach(he => AllDeviceshistnextissuansinfo.push(he)))
-    //console.log(group.id)
+    const AllDeviceshistnextissuansinfo: any = [];
+    device_historynextissuance.forEach((ele) =>
+      ele.historynext_issuancer.forEach((he) =>
+        AllDeviceshistnextissuansinfo.push(he),
+      ),
+    );
+
     const totalPages = Math.ceil(count / pageSize);
     let nextissuance = {};
-    nextissuance = await this.repositorynextDeviceGroupcertificate.findOne({
-      where: {
-        groupId: group.id
-      }
-    }) ?? null;
-    //console.log(nextissuance)
+    nextissuance =
+      (await this.repositorynextDeviceGroupcertificate.findOne({
+        where: {
+          groupId: group.id,
+        },
+      })) ?? null;
 
     return {
-
       historynextissuansinfo: {
         AllDeviceshistnextissuansinfo: AllDeviceshistnextissuansinfo,
         totalItems: count,
         currentPage: pageNumber,
         totalPages: totalPages,
       },
-      ongoing_next_issuance: nextissuance
-    }
+      ongoing_next_issuance: nextissuance,
+    };
   }
 
-  async getReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber, apiuser_id?): Promise<any> {
+  async getReservationInforDeveloperBsise(
+    orgId,
+    role,
+    filterDto,
+    pageNumber,
+    apiuser_id?,
+  ): Promise<any> {
     this.logger.verbose(`With in getReservationInforDeveloperBsise`);
     const pageSize = 10;
     if (pageNumber <= 0) {
@@ -2230,194 +2433,254 @@ export class DeviceGroupService {
     const skip = (pageNumber - 1) * pageSize;
 
     let queryBuilder: any;
-    queryBuilder = this.repository.createQueryBuilder('dg')
+    queryBuilder = this.repository
+      .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
         CheckCertificateIssueDateLogForDeviceGroupEntity,
         'dg_log',
-        'dg_log.groupId = dg.id'
+        'dg_log.groupId = dg.id',
       )
       .innerJoin(
         CertificateReadModelEntity,
         'crm',
-        'dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\''
+        "dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
-      .select('DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId')
-      .orderBy('dg.id, crm.internalCertificateId, dg_log.readvalue_watthour', 'ASC')
+      .select(
+        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
+      )
+      .orderBy(
+        'dg.id, crm.internalCertificateId, dg_log.readvalue_watthour',
+        'ASC',
+      );
 
     queryBuilder.where((qb) => {
       let where_orgnaizationId: any;
       if (role === 'OrganizationAdmin') {
-        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, {
+          orgId: orgId,
+        });
       }
       if (role === 'Buyer') {
-        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, {
+          orgId: orgId,
+        });
       }
 
       if (role === 'ApiUser') {
-        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id });
+        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiuser_id,
+        });
       }
 
       where_orgnaizationId
-        .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-        .andWhere(new Brackets(qb => {
-          if (filterDto.country) {
-            const string = filterDto.country;
-            const values = string.split(",");
-            let CountryInvalid = false;
-            filterDto.country = filterDto.country.toUpperCase();
-            if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
-              let countries = countryCodesList;
-              if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
-                CountryInvalid = true;
+        .andWhere(
+          "EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->'deviceIds') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)",
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            if (filterDto.country) {
+              const string = filterDto.country;
+              const values = string.split(',');
+              let CountryInvalid = false;
+              filterDto.country = filterDto.country.toUpperCase();
+              if (
+                filterDto.country &&
+                typeof filterDto.country === 'string' &&
+                filterDto.country.length === 3
+              ) {
+                const countries = countryCodesList;
+                if (
+                  countries.find(
+                    (ele) => ele.countryCode === filterDto.country,
+                  ) === undefined
+                ) {
+                  CountryInvalid = true;
+                }
+              }
+
+              if (!CountryInvalid) {
+                const newCountry = filterDto.country.toString();
+                const CountryArray = newCountry.split(',');
+                qb.orWhere(
+                  new Brackets((qb) => {
+                    CountryArray.forEach((country, index) => {
+                      if (index === 0) {
+                        qb.where(`d.countryCode ILIKE :benefit${index}`, {
+                          [`benefit${index}`]: `%${country}%`,
+                        });
+                      } else {
+                        qb.orWhere(`d.countryCode ILIKE :benefit${index}`, {
+                          [`benefit${index}`]: `%${country}%`,
+                        });
+                      }
+                    });
+                  }),
+                );
               }
             }
-
-            if (!CountryInvalid) {
-              const newCountry = filterDto.country.toString()
-              const CountryArray = newCountry.split(',');
-              qb.orWhere(new Brackets(qb => {
-
-                CountryArray.forEach((country, index) => {
-                  if (index === 0) {
-                    qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
-                  } else {
-                    qb.orWhere(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
-                  }
-                });
-              }));
-
-              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
-
+            if (filterDto.fuelCode) {
+              const newfuelCode = filterDto.fuelCode.toString();
+              const fuelCodeArray = newfuelCode.split(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  fuelCodeArray.forEach((fuelCode, index) => {
+                    if (index === 0) {
+                      qb.where(`d.fuelCode ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${fuelCode}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.fuelCode ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${fuelCode}%`,
+                      });
+                    }
+                  });
+                }),
+              );
             }
-          }
-          if ((filterDto.fuelCode)) {
-            const newfuelCode = filterDto.fuelCode.toString()
-            const fuelCodeArray = newfuelCode.split(',');
-            qb.orWhere(new Brackets(qb => {
-
-              fuelCodeArray.forEach((fuelCode, index) => {
-                if (index === 0) {
-                  qb.where(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
-                } else {
-                  qb.orWhere(`d.fuelCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${fuelCode}%` });
-                }
+            if (filterDto.offTaker) {
+              const newoffTaker = filterDto.offTaker.toString();
+              const offTakerArray = newoffTaker.split(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  offTakerArray.forEach((offTaker, index) => {
+                    if (index === 0) {
+                      qb.where(`d.offTaker ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${offTaker}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.offTaker ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${offTaker}%`,
+                      });
+                    }
+                  });
+                }),
+              );
+            }
+            const startTimestamp =
+              new Date(filterDto.start_date).getTime() / 1000;
+            const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
+            if (filterDto.start_date && filterDto.end_date === undefined) {
+              qb.orWhere('crm.generationStartTime > :certificateStartDate ', {
+                certificateStartDate: startTimestamp,
               });
-            }));
-            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
-
-          }
-          if (filterDto.offTaker) {
-            // console.log(typeof filterDto.offTaker);
-            const newoffTaker = filterDto.offTaker.toString()
-            const offTakerArray = newoffTaker.split(',');
-            qb.orWhere(new Brackets(qb => {
-
-              offTakerArray.forEach((offTaker, index) => {
-                if (index === 0) {
-                  qb.where(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
-                } else {
-                  qb.orWhere(`d.offTaker ILIKE :benefit${index}`, { [`benefit${index}`]: `%${offTaker}%` });
-                }
+            }
+            if (filterDto.end_date && filterDto.start_date === undefined) {
+              qb.orWhere('crm.generationEndTime  <:certificateEndDate', {
+                certificateEndDate: endTimestamp,
               });
-            }));
-            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
-
-          }
-          const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
-          const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-          if (filterDto.start_date && filterDto.end_date === undefined) {
-            qb.orWhere("crm.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
-          }
-          if (filterDto.end_date && filterDto.start_date === undefined) {
-            qb.orWhere("crm.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
-          }
-          if (filterDto.start_date && filterDto.end_date) {
-            qb.orWhere("crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
-          }
-          if (filterDto.SDGBenefits) {
-
-            const newsdg = filterDto.SDGBenefits.toString()
-            const sdgBenefitsArray = newsdg.split(',');
-            const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
-            qb.orWhere(new Brackets(qb => {
-              sdgBenefitsArray.forEach((benefit, index) => {
-                if (index === 0) {
-                  qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                } else {
-                  qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                }
+            }
+            if (filterDto.start_date && filterDto.end_date) {
+              qb.orWhere(
+                'crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
+                {
+                  certificateStartDate1: startTimestamp,
+                  certificateEndDate1: endTimestamp,
+                },
+              );
+            }
+            if (filterDto.SDGBenefits) {
+              const newsdg = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newsdg.split(',');
+              const sdgBenefitString = sdgBenefitsArray
+                .map((benefit) => benefit)
+                .join(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  sdgBenefitsArray.forEach((benefit, index) => {
+                    if (index === 0) {
+                      qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    }
+                  });
+                }),
+              );
+            }
+            if (filterDto.fromAmountread && filterDto.toAmountread) {
+              qb.orWhere(
+                'dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread',
+                {
+                  fromAmountread: filterDto.fromAmountread,
+                  toAmountread: filterDto.toAmountread,
+                },
+              );
+            }
+            if (
+              filterDto.fromAmountread != null &&
+              filterDto.toAmountread === undefined
+            ) {
+              qb.orWhere('dg_log.readvalue_watthour > :fromAmountread', {
+                fromAmountread: filterDto.fromAmountread,
               });
-            }));
-
-          }
-          if (filterDto.fromAmountread && filterDto.toAmountread) {
-            qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
-          }
-          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
-            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
-          }
-          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
-            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
-          }
-        }));
-
-    })
+            }
+            if (
+              filterDto.fromAmountread === undefined &&
+              filterDto.toAmountread != null
+            ) {
+              qb.orWhere('dg_log.readvalue_watthour < :toAmountread', {
+                toAmountread: filterDto.toAmountread,
+              });
+            }
+          }),
+        );
+    });
     const totalCountQuery = await queryBuilder.getRawMany();
-    const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
+    const groupedDatasql = await queryBuilder
+      .offset(skip)
+      .limit(pageSize)
+      .getSql();
     this.logger.debug(groupedDatasql);
-    const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    const groupedData = await queryBuilder
+      .offset(skip)
+      .limit(pageSize)
+      .getRawMany();
     const totalCount = totalCountQuery.length;
-    this.logger.debug("totalCountQuery", totalCount);
+    this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
-
 
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
-
-        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          let newobj = {};
+          const newobj = {};
 
-          const existing1 = acc.find(item => item.id === curr.id);
+          const existing1 = acc.find((item) => item.id === curr.id);
           if (existing1) {
             existing.developerdeviceIds.push(curr.id);
           }
-          existing.internalCertificateId.push(curr.internalCertificateId)
-
+          existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
-
           acc.push({
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            // deviceIdsInt: curr.deviceIdsInt,
             developerdeviceIds: [curr.id],
-            internalCertificateId: [curr.internalCertificateId]
+            internalCertificateId: [curr.internalCertificateId],
           });
-
         }
         return acc;
       }, []);
     }
     if (role === 'Buyer' || role === Role.ApiUser) {
       deviceGroups = groupedData.reduce((acc, curr) => {
-
-        const existing = acc.find(item => item.dg_id === curr.devicegroupid);
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          existing.internalCertificateId.push(curr.internalCertificateId)
+          existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
-
           acc.push({
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            internalCertificateId: [curr.internalCertificateId]
+            internalCertificateId: [curr.internalCertificateId],
           });
-
         }
         return acc;
       }, []);
@@ -2427,11 +2690,17 @@ export class DeviceGroupService {
       deviceGroups,
       pageNumber,
       totalPages,
-      totalCount
+      totalCount,
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(orgId, role, filterDto, pageNumber, apiuser_id?): Promise<any> {
+  async getoldReservationInforDeveloperBsise(
+    orgId,
+    role,
+    filterDto,
+    pageNumber,
+    apiuser_id?,
+  ): Promise<any> {
     this.logger.verbose(`With in getoldReservationInforDeveloperBsise`);
     const pageSize = 10;
     // const pageNumber = 2
@@ -2443,194 +2712,277 @@ export class DeviceGroupService {
     const skip = (pageNumber - 1) * pageSize;
 
     let queryBuilder: any;
-    queryBuilder = this.repository.createQueryBuilder('dg')
+    queryBuilder = this.repository
+      .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
         CheckCertificateIssueDateLogForDeviceGroupEntity,
         'dg_log',
-        'dg_log.groupId = dg.id'
+        'dg_log.groupId = dg.id',
       )
-      .innerJoin(Certificate, 'issuer', 'CAST(issuer.deviceId AS INTEGER) = dg.id')
-      .select('DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id')
-      .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC')
+      .innerJoin(
+        Certificate,
+        'issuer',
+        'CAST(issuer.deviceId AS INTEGER) = dg.id',
+      )
+      .select(
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id',
+      )
+      .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
     queryBuilder.where((qb) => {
       let where_orgnaizationId: any;
       if (role === 'OrganizationAdmin') {
-        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, { orgId: orgId })
+        where_orgnaizationId = qb.where(`d.organizationId = :orgId`, {
+          orgId: orgId,
+        });
       }
       if (role === 'Buyer') {
-        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, { orgId: orgId })
+        where_orgnaizationId = qb.where(`dg.organizationId = :orgId`, {
+          orgId: orgId,
+        });
       }
       if (role === 'ApiUser') {
-        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, { api_user_id: apiuser_id })
+        where_orgnaizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiuser_id,
+        });
       }
       where_orgnaizationId
-        .andWhere('EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->\'deviceIds\') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)')
-        .andWhere(new Brackets(qb => {
-          if (filterDto.country) {
-            const string = filterDto.country;
-            const values = string.split(",");
-            let CountryInvalid = false;
-            filterDto.country = filterDto.country.toUpperCase();
-            if (filterDto.country && typeof filterDto.country === "string" && filterDto.country.length === 3) {
-              let countries = countryCodesList;
-              if (countries.find(ele => ele.countryCode === filterDto.country) === undefined) {
-                CountryInvalid = true;
+        .andWhere(
+          "EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(issuer.metadata  AS jsonb)->'deviceIds') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)",
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            if (filterDto.country) {
+              const string = filterDto.country;
+              const values = string.split(',');
+              let CountryInvalid = false;
+              filterDto.country = filterDto.country.toUpperCase();
+              if (
+                filterDto.country &&
+                typeof filterDto.country === 'string' &&
+                filterDto.country.length === 3
+              ) {
+                const countries = countryCodesList;
+                if (
+                  countries.find(
+                    (ele) => ele.countryCode === filterDto.country,
+                  ) === undefined
+                ) {
+                  CountryInvalid = true;
+                }
+              }
+
+              if (!CountryInvalid) {
+                const newCountry = filterDto.country.toString();
+                const CountryArray = newCountry.split(',');
+                qb.orWhere(
+                  new Brackets((qb) => {
+                    CountryArray.forEach((country, index) => {
+                      if (index === 0) {
+                        qb.where(`d.countryCode ILIKE :benefit${index}`, {
+                          [`benefit${index}`]: `%${country}%`,
+                        });
+                      } else {
+                        qb.orWhere(`d.countryCode ILIKE :benefit${index}`, {
+                          [`benefit${index}`]: `%${country}%`,
+                        });
+                      }
+                    });
+                  }),
+                );
               }
             }
-
-            if (!CountryInvalid) {
-              const newCountry = filterDto.country.toString()
-              const CountryArray = newCountry.split(',');
-              qb.orWhere(new Brackets(qb => {
-
-                CountryArray.forEach((country, index) => {
-                  if (index === 0) {
-                    qb.where(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
-                  } else {
-                    qb.orWhere(`d.countryCode ILIKE :benefit${index}`, { [`benefit${index}`]: `%${country}%` });
-                  }
-                });
-              }));
-
-              // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
-
+            if (filterDto.fuelCode) {
+              const newfuelCode = filterDto.fuelCode.toString();
+              const fuelCodeArray = newfuelCode.split(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  fuelCodeArray.forEach((fuelCode, index) => {
+                    if (index === 0) {
+                      qb.where(`d.fuelCode ILIKE :fuelcode${index}`, {
+                        [`fuelcode${index}`]: `%${fuelCode}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.fuelCode ILIKE :fuelcode${index}`, {
+                        [`fuelcode${index}`]: `%${fuelCode}%`,
+                      });
+                    }
+                  });
+                }),
+              );
             }
-          }
-          if ((filterDto.fuelCode)) {
-            const newfuelCode = filterDto.fuelCode.toString()
-            const fuelCodeArray = newfuelCode.split(',');
-            qb.orWhere(new Brackets(qb => {
-
-              fuelCodeArray.forEach((fuelCode, index) => {
-                if (index === 0) {
-                  qb.where(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
-                } else {
-                  qb.orWhere(`d.fuelCode ILIKE :fuelcode${index}`, { [`fuelcode${index}`]: `%${fuelCode}%` });
-                }
+            if (filterDto.offTaker) {
+              const newoffTaker = filterDto.offTaker.toString();
+              const offTakerArray = newoffTaker.split(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  offTakerArray.forEach((offTaker, index) => {
+                    if (index === 0) {
+                      qb.where(`d.offTaker ILIKE :offtaker${index}`, {
+                        [`offtaker${index}`]: `%${offTaker}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.offTaker ILIKE :offtaker${index}`, {
+                        [`offtaker${index}`]: `%${offTaker}%`,
+                      });
+                    }
+                  });
+                }),
+              );
+            }
+            const startTimestamp =
+              new Date(filterDto.start_date).getTime() / 1000;
+            const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
+            if (filterDto.start_date && filterDto.end_date === undefined) {
+              qb.orWhere(
+                'issuer.generationStartTime > :certificateStartDate ',
+                { certificateStartDate: startTimestamp },
+              );
+            }
+            if (filterDto.end_date && filterDto.start_date === undefined) {
+              qb.orWhere('issuer.generationEndTime  <:certificateEndDate', {
+                certificateEndDate: endTimestamp,
               });
-            }));
-            //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
-
-          }
-          if (filterDto.offTaker) {
-            // console.log(typeof filterDto.offTaker);
-            const newoffTaker = filterDto.offTaker.toString()
-            const offTakerArray = newoffTaker.split(',');
-            qb.orWhere(new Brackets(qb => {
-
-              offTakerArray.forEach((offTaker, index) => {
-                if (index === 0) {
-                  qb.where(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
-                } else {
-                  qb.orWhere(`d.offTaker ILIKE :offtaker${index}`, { [`offtaker${index}`]: `%${offTaker}%` });
-                }
+            }
+            if (filterDto.start_date && filterDto.end_date) {
+              qb.orWhere(
+                'issuer.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
+                {
+                  certificateStartDate1: startTimestamp,
+                  certificateEndDate1: endTimestamp,
+                },
+              );
+            }
+            if (filterDto.SDGBenefits) {
+              const newsdg = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newsdg.split(',');
+              const sdgBenefitString = sdgBenefitsArray
+                .map((benefit) => benefit)
+                .join(',');
+              qb.orWhere(
+                new Brackets((qb) => {
+                  sdgBenefitsArray.forEach((benefit, index) => {
+                    if (index === 0) {
+                      qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    } else {
+                      qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, {
+                        [`benefit${index}`]: `%${benefit}%`,
+                      });
+                    }
+                  });
+                }),
+              );
+            }
+            if (filterDto.fromAmountread && filterDto.toAmountread) {
+              qb.orWhere(
+                'dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread',
+                {
+                  fromAmountread: filterDto.fromAmountread,
+                  toAmountread: filterDto.toAmountread,
+                },
+              );
+            }
+            if (
+              filterDto.fromAmountread != null &&
+              filterDto.toAmountread === undefined
+            ) {
+              qb.orWhere('dg_log.readvalue_watthour > :fromAmountread', {
+                fromAmountread: filterDto.fromAmountread,
               });
-            }));
-            // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
-
-          }
-          const startTimestamp = new Date(filterDto.start_date).getTime() / 1000;
-          const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-          if (filterDto.start_date && filterDto.end_date === undefined) {
-            qb.orWhere("issuer.generationStartTime > :certificateStartDate ", { certificateStartDate: startTimestamp })
-          }
-          if (filterDto.end_date && filterDto.start_date === undefined) {
-            qb.orWhere("issuer.generationEndTime  <:certificateEndDate", { certificateEndDate: endTimestamp })
-          }
-          if (filterDto.start_date && filterDto.end_date) {
-            qb.orWhere("issuer.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1", { certificateStartDate1: startTimestamp, certificateEndDate1: endTimestamp })
-          }
-          if (filterDto.SDGBenefits) {
-
-            const newsdg = filterDto.SDGBenefits.toString()
-            const sdgBenefitsArray = newsdg.split(',');
-            const sdgBenefitString = sdgBenefitsArray.map((benefit) => benefit).join(',');
-            qb.orWhere(new Brackets(qb => {
-              sdgBenefitsArray.forEach((benefit, index) => {
-                if (index === 0) {
-                  qb.where(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                } else {
-                  qb.orWhere(`d.SDGBenefits ILIKE :benefit${index}`, { [`benefit${index}`]: `%${benefit}%` });
-                }
+            }
+            if (
+              filterDto.fromAmountread === undefined &&
+              filterDto.toAmountread != null
+            ) {
+              qb.orWhere('dg_log.readvalue_watthour < :toAmountread', {
+                toAmountread: filterDto.toAmountread,
               });
-            }));
-
-          }
-          if (filterDto.fromAmountread && filterDto.toAmountread) {
-            qb.orWhere("dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread", { fromAmountread: filterDto.fromAmountread, toAmountread: filterDto.toAmountread })
-          }
-          if (filterDto.fromAmountread != null && filterDto.toAmountread === undefined) {
-            qb.orWhere("dg_log.readvalue_watthour > :fromAmountread", { fromAmountread: filterDto.fromAmountread })
-          }
-          if (filterDto.fromAmountread === undefined && filterDto.toAmountread != null) {
-            qb.orWhere("dg_log.readvalue_watthour < :toAmountread", { toAmountread: filterDto.toAmountread })
-          }
-        }));
-
-    })
+            }
+          }),
+        );
+    });
     const totalCountQuery = await queryBuilder.getRawMany();
-    const groupedDatasql = await queryBuilder.offset(skip).limit(pageSize).getSql();
+    const groupedDatasql = await queryBuilder
+      .offset(skip)
+      .limit(pageSize)
+      .getSql();
     this.logger.debug(groupedDatasql);
-    const groupedData = await queryBuilder.offset(skip).limit(pageSize).getRawMany();
+    const groupedData = await queryBuilder
+      .offset(skip)
+      .limit(pageSize)
+      .getRawMany();
     const totalCount = totalCountQuery.length;
-    this.logger.debug("totalCountQuery", totalCount);
+    this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // if (pageNumber > totalPages) {
-    //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    // }
-
-
-    let deviceGroups = groupedData.reduce((acc, curr) => {
-      const existing = acc.find(item => item.dg_id === curr.dg_id);
+    const deviceGroups = groupedData.reduce((acc, curr) => {
+      const existing = acc.find((item) => item.dg_id === curr.dg_id);
       if (existing) {
-        let newobj = {};
-        const existing1 = acc.find(item => item.id === curr.id);
+        const newobj = {};
+        const existing1 = acc.find((item) => item.id === curr.id);
         if (existing1) {
           existing.developerdeviceIds.push(curr.id);
         }
-        existing.internalCertificateId.push(curr.id)
-        // existing.certificatelog.push(newobj);
+        existing.internalCertificateId.push(curr.id);
       } else {
         acc.push({
           dg_id: curr.devicegroupid,
           name: curr.name,
           deviceIdsInt: curr.deviceIdsInt,
-          // deviceIdsInt: curr.deviceIdsInt,
+
           developerdeviceIds: [curr.id],
-          internalCertificateId: [curr.id]
+          internalCertificateId: [curr.id],
         });
-        // console.log(acc);
       }
       return acc;
     }, []);
-    // const totalPages = 10;
+
     const response = {
       deviceGroups,
       pageNumber,
       totalPages,
-      totalCount
+      totalCount,
     };
     return response;
   }
 
-  public async checkdeveloperorganization(deviceIds: number[], organizationId: number): Promise<any> {
+  public async checkdeveloperorganization(
+    deviceIds: number[],
+    organizationId: number,
+  ): Promise<any> {
     this.logger.verbose(`With in checkdeveloperorganization`);
-    const isMyDevice = await Promise.all(await deviceIds.map(async (deviceId) => {
-      const device = await this.deviceService.findOne(Number(deviceId));
-      return device.organizationId === Number(organizationId);
-    }));
+    const isMyDevice = await Promise.all(
+      await deviceIds.map(async (deviceId) => {
+        const device = await this.deviceService.findOne(Number(deviceId));
+        return device.organizationId === Number(organizationId);
+      }),
+    );
 
     return isMyDevice.some((result) => result);
   }
 
-  async getAllCSVJobsForApiUser(apiuserId: string, organizationId?: number, pageNumber?: number, limit?: number): Promise<{ csvJobs: Array<DeviceCsvFileProcessingJobsEntity>, currentPage: number, totalPages: number, totalCount: number } | any> {
+  async getAllCSVJobsForApiUser(
+    apiuserId: string,
+    organizationId?: number,
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<
+    | {
+        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in getAllCSVJobsForApiUser`);
-    let query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> = await this.repositoyCSVJobProcessing
-      .createQueryBuilder('csvjobs')
-      .orderBy('csvjobs.createdAt', 'DESC');
+    const query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> =
+      await this.repositoyCSVJobProcessing
+        .createQueryBuilder('csvjobs')
+        .orderBy('csvjobs.createdAt', 'DESC');
 
     if (apiuserId) {
       query.andWhere(`csvjobs.api_user_id = '${apiuserId}'`);
@@ -2652,7 +3004,7 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        //@ts-ignore
+        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -2664,7 +3016,7 @@ export class DeviceGroupService {
       csvJobs: csvjobsWithOrganization,
       currentPage: pageNumber,
       totalPages,
-      totalCount
-    }
+      totalCount,
+    };
   }
 }
