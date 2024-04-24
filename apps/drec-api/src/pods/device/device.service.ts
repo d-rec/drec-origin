@@ -576,7 +576,9 @@ export class DeviceService {
     }
     let result: any;
     if (role === Role.ApiUser) {
-      const org = await this.organizationService.findOne(orgCode, { api_user_id: api_user_id} as FindOneOptions<Organization>);
+      const org = await this.organizationService.findOne(orgCode, {
+        api_user_id: api_user_id,
+      } as FindOneOptions<Organization>);
 
       const orguser = await this.userService.findByEmail(org.orgEmail);
 
