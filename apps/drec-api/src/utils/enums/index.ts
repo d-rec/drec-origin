@@ -17,5 +17,4 @@ export * from './read-type.enum';
 export * from './certificate-type.enum';
 export * from './history_next_issuance.enum';
 export * from './fuel&devicetype-code.enum';
-export * from './sdgbenefits.enum'
-
+export * from './sdgbenefits.enum';

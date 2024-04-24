@@ -1,16 +1,16 @@
 import { ICertificate as IOriginalCertificate } from '@energyweb/origin-247-certificate';
 import { DeviceGroupDTO } from '../pods/device-group/dto';
-import { StandardCompliance,CertificateType } from './enums';
+import { StandardCompliance, CertificateType } from './enums';
 
 export interface ICertificateMetadata {
-  version:string;
+  version: string;
   deviceIds: number[];
   //deviceGroup: DeviceGroupDTO;
   groupId: null | string;
-  buyerReservationId?:string;
-  isStandardIssuanceRequested?:StandardCompliance;
-  type?:CertificateType;
-  certificateTransactionUID?:string;
+  buyerReservationId?: string;
+  isStandardIssuanceRequested?: StandardCompliance;
+  type?: CertificateType;
+  certificateTransactionUID?: string;
   //isStandardIssued?:boolean;
 }
 

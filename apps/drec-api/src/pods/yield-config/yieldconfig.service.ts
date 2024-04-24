@@ -10,32 +10,34 @@ import {
 import { validate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { IYieldConfig,ILoggedInUser } from '../../models'
+import { IYieldConfig, ILoggedInUser } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
 import { defaults } from 'lodash';
-import { YieldConfigDTO,UpdateYieldValueDTO} from './dto';
+import { YieldConfigDTO, UpdateYieldValueDTO } from './dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { FindConditions, FindManyOptions, Between } from 'typeorm';
+import { FindOptionsWhere, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
-import { YieldConfig } from './yieldconfig.entity'
+import { YieldConfig } from './yieldconfig.entity';
 @Injectable()
 export class YieldConfigService {
   private readonly logger = new Logger(YieldConfigService.name);
 
   constructor(
-    @InjectRepository(YieldConfig) private readonly repository: Repository<YieldConfig>,
-  ) { }
+    @InjectRepository(YieldConfig)
+    private readonly repository: Repository<YieldConfig>,
+  ) {}
   async getAll(): Promise<YieldConfig[]> {
-    console.log(this.repository.find())
+    this.logger.verbose(this.repository.find());
     return this.repository.find();
   }
 
-
-  public async create(data: NewYieldConfigDTO, loggedUser: any): Promise<YieldConfigDTO> {
-   
+  public async create(
+    data: NewYieldConfigDTO,
+    loggedUser: any,
+  ): Promise<YieldConfigDTO> {
     await this.checkForExistingyieldvalue(data.countryCode, data.countryName);
-    if (data.yieldValue === 0 ) {
+    if (data.yieldValue === 0) {
       throw new BadRequestException({
         success: false,
         message: `add the valid yield value`,
@@ -46,13 +48,15 @@ export class YieldConfigService {
       countryName: data.countryName,
       yieldValue: data.yieldValue,
       created_By: loggedUser.id,
-      status:data.status
+      status: data.status,
     });
-
 
     return new YieldConfig(yieldvalue);
   }
-  private async checkForExistingyieldvalue(countryCode: string, countryname: string): Promise<void> {
+  private async checkForExistingyieldvalue(
+    countryCode: string,
+    countryname: string,
+  ): Promise<void> {
     const isExistingUser = await this.hasvalue({ countryCode });
     if (isExistingUser) {
       const message = `Yield value  for this country ${countryname} already exists`;
@@ -64,12 +68,15 @@ export class YieldConfigService {
       });
     }
   }
-  private async hasvalue(conditions: FindConditions<YieldConfig>) {
+  private async hasvalue(conditions: FindOptionsWhere<YieldConfig>) {
     return Boolean(await this.findOne(conditions));
   }
-  async findOne(conditions: FindConditions<YieldConfig>): Promise<TUserBaseEntity> {
-    const yieldvalue = await (this.repository.findOne(conditions) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
-
+  async findOne(
+    conditions: FindOptionsWhere<YieldConfig>,
+  ): Promise<TUserBaseEntity> {
+    const yieldvalue = await (this.repository.findOne({
+      where: conditions as FindOptionsWhere<YieldConfig>,
+    }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
 
     return yieldvalue;
   }
@@ -81,16 +88,19 @@ export class YieldConfigService {
     return yieldvaluebyId;
   }
 
-  async findByCountryCode(countryCode:string) {
-    return await this.repository.findOne({countryCode});
+  async findByCountryCode(countryCode: string) {
+    return await this.repository.findOne({
+      where: {
+        countryCode: countryCode,
+      },
+    });
   }
 
   async update(
     id: number,
     data: UpdateYieldValueDTO,
-     user:ILoggedInUser
+    user: ILoggedInUser,
   ): Promise<ExtendedBaseEntity & IYieldConfig> {
-  
     await this.findById(id);
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
@@ -105,12 +115,10 @@ export class YieldConfigService {
 
     await this.repository.update(id, {
       yieldValue: data.yieldValue,
-     // status: data.status,
-      updated_By:user.id
+      // status: data.status,
+      updated_By: user.id,
     });
 
     return this.findOne({ id });
   }
-
-
 }

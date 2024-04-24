@@ -1,17 +1,23 @@
-import { Module,MiddlewareConsumer, NestModule,HttpModule  } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import path from 'path';
-import { BlockchainPropertiesModule, entities as IssuerEntities } from '@energyweb/issuer-api';
-import {OnChainCertificateEntities,OffChainCertificateEntities, OnChainCertificateModule} from '@energyweb/origin-247-certificate';
-
+import {
+  BlockchainPropertiesModule,
+  entities as IssuerEntities,
+} from '@energyweb/issuer-api';
+import {
+  OnChainCertificateEntities,
+  OffChainCertificateEntities,
+  OnChainCertificateModule,
+} from '@energyweb/origin-247-certificate';
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
-import {UserRole} from './pods/user/user_role.entity';
+import { UserRole } from './pods/user/user_role.entity';
 import { UserModule } from './pods/user/user.module';
 import { Organization } from './pods/organization/organization.entity';
 import { OrganizationModule } from './pods/organization/organization.module';
@@ -37,24 +43,25 @@ import { ACLModulePermissions } from './pods/permission/permission.entity';
 import { PermissionModule } from './pods/permission/permission.module';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
-import {DeviceGroupNextIssueCertificate} from './pods/device-group/device_group_issuecertificate.entity'
-import {AggregateMeterRead} from './pods/reads/aggregate_readvalue.entity';
-import {HistoryIntermediate_MeterRead} from './pods/reads/history_intermideate_meterread.entity';
-import {CheckCertificateIssueDateLogForDeviceEntity} from './pods/device/check_certificate_issue_date_log_for_device.entity'
-import {CheckCertificateIssueDateLogForDeviceGroupEntity} from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { CountrycodeModule}from './pods/countrycode/countrycode.module'
-import {SdgbenefitModule} from './pods/sdgbenefit/sdgbenefit.module';
-import {SdgBenefit} from './pods/sdgbenefit/sdgbenefit.entity';
+import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
+import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
+import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { CountrycodeModule } from './pods/countrycode/countrycode.module';
+import { SdgbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { SdgBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
-import {HistoryDeviceGroupNextIssueCertificate} from './pods/device-group/history_next_issuance_date_log.entity'
-import {DeltaFirstRead} from './pods/reads/delta_firstread.entity'
+import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
+import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-import {IrecDevicesInformationEntity} from './pods/device/irec_devices_information.entity';
-import {IrecErrorLogInformationEntity} from './pods/device/irec_error_log_information.entity'
+import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
+import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
-//import {UserLoginSessionEntity} from './pods/user/user_login_session.entity';
-import {DeviceLateongoingIssueCertificateEntity} from './pods/device/device_lateongoing_certificate.entity';
+import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
+import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { HttpModule } from '@nestjs/axios';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -96,14 +103,14 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SdgBenefit,
-  DeltaFirstRead,,
+  DeltaFirstRead,
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
- // UserLoginSessionEntity,
+  UserLoginSessionEntity,
   DeviceLateongoingIssueCertificateEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
-  ...OffChainCertificateEntities
+  ...OffChainCertificateEntities,
 ];
 
 const OriginAppTypeOrmModule = () => {
@@ -129,14 +136,14 @@ const OriginAppTypeOrmModule = () => {
       });
 };
 
-let redisOptions= {
-  host:process.env.REDIS_URL ?? 'localhost',
-  port: 6379
-}
+const redisOptions = {
+  host: process.env.REDIS_URL ?? 'localhost',
+  port: 6379,
+};
 
 const QueueingModule = () => {
   return BullModule.forRoot({
-    redis: redisOptions 
+    redis: redisOptions,
     //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
   });
 };
@@ -172,12 +179,7 @@ const QueueingModule = () => {
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,
-    
-   
   ],
-  providers:[OnApplicationBootstrapHookService]
+  providers: [OnApplicationBootstrapHookService],
 })
-export class DrecModule {
-  
-
-}
+export class DrecModule {}

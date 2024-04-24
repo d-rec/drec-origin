@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "name": "USER_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for User module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 2,
+    "name": "ORGANIZATION_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Organization module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 3,
+    "name": "FILE_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Organization module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 4,
+    "name": "DEVICE_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Device module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 5,
+    "name": "BUYER_RESERVATION_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Buyer Reservation module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 6,
+    "name": "DEVICE_BULK_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Bulk Device management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 7,
+    "name": "READS_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Reads module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 8,
+    "name": "CERTIFICATE_LOG_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Certificate Log module management",
+    "status": "Enable",
+    "permissions": ["Read"]
+  },
+  {
+    "id": 9,
+    "name": "INVITATION_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Invitation module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 10,
+    "name": "ADMIN_APIUSER_ORGANIZATION_CRUDL",
+    "description": "ACL Module Name for getting organization information management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
+  },
+  {
+    "id": 11,
+    "name": "PASSWORD_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for password management",
+    "status": "Enable",
+    "permissions": ["Write"]
+  },
+  {
+    "id": 12,
+    "name": "PERMISSION_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Permission module management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update"]
+  }
+]

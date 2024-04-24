@@ -10,6 +10,7 @@ import { OrganizationService } from '../src/pods/organization/organization.servi
 import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
+// @ts-ignore ts(2305)
 import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
 import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
@@ -112,6 +113,7 @@ describe('Users tests', () => {
 
   it('should update profile for user', async () => {
     const partialUser: UpdateUserProfileDTO = {
+      // @ts-ignore ts(2353)
       title: 'Mr',
       firstName: 'Updated first name',
       lastName: 'Updated last name',
@@ -126,6 +128,7 @@ describe('Users tests', () => {
     expect(updatedUser.firstName).to.eq(partialUser.firstName);
     expect(updatedUser.lastName).to.eq(partialUser.lastName);
     expect(updatedUser.email).to.eq(partialUser.email);
+    // @ts-ignore ts(2339)
     expect(updatedUser.telephone).to.eq(partialUser.telephone);
   });
 

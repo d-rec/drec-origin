@@ -16,7 +16,6 @@ CHANGELOG.*
 
 # Package manager files
 pnpm-lock.yaml
-yarn.lock
 package-lock.json
 shrinkwrap.json
 
