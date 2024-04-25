@@ -425,15 +425,15 @@ export class ReadsService {
           // @ts-ignore
           if (
             requeststartdate <=
-              DateTime.fromISO(new Date(historyAge).toISOString()) ||
+            DateTime.fromISO(new Date(historyAge).toISOString()) ||
             // @ts-ignore
             requeststartdate >=
-              DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
+            DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
             requestcurrentend <=
-              DateTime.fromISO(new Date(historyAge).toISOString()) ||
+            DateTime.fromISO(new Date(historyAge).toISOString()) ||
             // @ts-ignore
             requestcurrentend >=
-              DateTime.fromISO(new Date(device?.createdAt).toISOString())
+            DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
             return reject(
               new ConflictException({
@@ -601,7 +601,7 @@ export class ReadsService {
 
               if (
                 new Date(element.endtimestamp).getTime() <
-                  new Date(lastvalue[0].datetime).getTime() ||
+                new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
                 return reject(
@@ -687,7 +687,7 @@ export class ReadsService {
               Delta = Math.abs(element.value - lastvalue[0].value);
               if (
                 new Date(element.endtimestamp).getTime() <
-                  new Date(lastvalue[0].datetime).getTime() ||
+                new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
                 return reject(
@@ -761,6 +761,7 @@ export class ReadsService {
       |> range(start: ${startdate.getTime()}, stop: ${enddate.getTime()})
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
       |> last()`;
+  
     return await this.execute(fluxQuery);
   }
 
@@ -1357,13 +1358,13 @@ export class ReadsService {
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       this.logger.verbose(
         'offset::::::::::::' +
-          filter.offset +
-          '\nlimit:::::::::::::' +
-          filter.limit +
-          '\n device onboarded::::::::::' +
-          deviceOnboarded.toString() +
-          '\nend:::::::::' +
-          filter.end.toString(),
+        filter.offset +
+        '\nlimit:::::::::::::' +
+        filter.limit +
+        '\n device onboarded::::::::::' +
+        deviceOnboarded.toString() +
+        '\nend:::::::::' +
+        filter.end.toString(),
       );
 
       let readsFilter: FilterDTO = {
@@ -1391,7 +1392,7 @@ export class ReadsService {
       }
       if (
         new Date(filter.start).getTime() <
-          new Date(deviceOnboarded).getTime() ||
+        new Date(deviceOnboarded).getTime() ||
         new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()
       ) {
         const finalongoing = await this.getPaginatedData(
@@ -1460,12 +1461,12 @@ export class ReadsService {
 
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
-        (await this.getnumberOfOngReads(
-          filter.start,
-          filter.end,
-          externalId,
-          deviceOnboarded,
-        )),
+      (await this.getnumberOfOngReads(
+        filter.start,
+        filter.end,
+        externalId,
+        deviceOnboarded,
+      )),
     );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {

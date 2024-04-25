@@ -203,8 +203,15 @@ export class CertificateLogService {
           ); //going back 1 second in start and going forward 1 second in end
 
           await Promise.all(
-            obj.deviceIds.map(async (deviceid: number) => {
-              const device = await this.deviceService.findOne(deviceid);
+            obj.deviceIds.map(async (deviceid) => {
+              let device: Device;
+              if(typeof deviceid==='number'){
+                 device = await this.deviceService.findOne(deviceid);
+              }
+              if (typeof deviceid==='string'){
+                device = await this.deviceService.findReads(deviceid);
+              }
+              
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),
@@ -291,7 +298,14 @@ export class CertificateLogService {
 
           await Promise.all(
             obj.deviceIds.map(async (deviceid: number) => {
-              const device = await this.deviceService.findOne(deviceid);
+              let device: Device;
+              if(typeof deviceid==='number'){
+                 device = await this.deviceService.findOne(deviceid);
+              }
+              if (typeof deviceid==='string'){
+                device = await this.deviceService.findReads(deviceid);
+              }
+              
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),

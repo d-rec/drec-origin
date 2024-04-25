@@ -460,11 +460,15 @@ export class DeviceService {
     return device;
   }
 
-  async findReads(meterId: string): Promise<DeviceDTO | null> {
+  async findReads(meterId: string): Promise<Device | null> {
     this.logger.verbose(`With in findReads`);
     const result = await this.repository.findOne({
       where: { externalId: meterId },
     });
+    result.timezone = await getLocalTimeZoneFromDevice(
+      result.createdAt,
+      result,
+    );
     delete result['organization'];
 
     return result ?? null;
