@@ -757,7 +757,6 @@ export class ReadsService {
     startdate: Date,
     enddate: Date,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
-
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${new Date(startdate).toISOString()}, stop: ${new Date(enddate).toISOString()})
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
