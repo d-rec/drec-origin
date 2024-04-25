@@ -553,7 +553,6 @@ export class BuyerReservationController {
       organizationId,
       deviceGroupToRegister,
       user.id,
-      // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
   }
