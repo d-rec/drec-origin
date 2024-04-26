@@ -25,15 +25,15 @@ specifiers:
   '@nestjs/cli': 7.5.4
   '@nestjs/common': 8.1.1
   '@nestjs/config': 0.6.3
-  '@nestjs/core': 8.1.1
-  '@nestjs/cqrs': 8.0.0
+  '@nestjs/core': 7.6.13
+  '@nestjs/cqrs': 7.0.1
   '@nestjs/jwt': 7.2.0
-  '@nestjs/passport': 8.0.1
+  '@nestjs/passport': 7.1.5
   '@nestjs/platform-express': 7.6.13
   '@nestjs/schedule': 1.0.1
   '@nestjs/swagger': 4.7.15
   '@nestjs/testing': 7.6.5
-  '@nestjs/typeorm': 8.0.2
+  '@nestjs/typeorm': 7.1.5
   '@rush-temp/origin-drec-api': file:./projects/origin-drec-api.tgz
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
@@ -128,7 +128,7 @@ dependencies:
   '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
   '@energyweb/issuer': 6.0.2-alpha.1646058469.0
   '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_6bc3a670ae994ee00f12ca9399ab0837
-  '@energyweb/origin-247-certificate': 4.1.5_802429b3c4725e564012d632dc79ab7f
+  '@energyweb/origin-247-certificate': 4.1.5_a8fd741a313b44cd27b51d6a62143d30
   '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
   '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
   '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
@@ -142,21 +142,21 @@ dependencies:
   '@ethersproject/wallet': 5.3.0
   '@influxdata/influxdb-client': 1.9.0
   '@mapbox/timespace': 2.0.4
-  '@nestjs-modules/mailer': 1.9.1_ce851543783f0b1ad29d2f4cf992494a
+  '@nestjs-modules/mailer': 1.9.1_baf912c16209fdc58ad438ecb2a1c830
   '@nestjs/axios': 0.0.8_1ff213b2bf543851d119392fe9a57eb1
-  '@nestjs/bull': 0.4.2_9569caea4829e1e6a54e03a46e955ce7
+  '@nestjs/bull': 0.4.2_22cb67e357581713dee5a0ec7827bcac
   '@nestjs/cli': 7.5.4_uglify-js@2.6.0
   '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
   '@nestjs/config': 0.6.3_1ff213b2bf543851d119392fe9a57eb1
-  '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
-  '@nestjs/cqrs': 8.0.0_23d114fd8ab0c2e38280e37f5f378229
+  '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
+  '@nestjs/cqrs': 7.0.1_c297c99c91e0f603c8336901dae65f27
   '@nestjs/jwt': 7.2.0_@nestjs+common@8.1.1
-  '@nestjs/passport': 8.0.1_bf0fc9c7c0961b315e6e317523225cc5
-  '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
-  '@nestjs/schedule': 1.0.1_ca8a8c4fec30006bad441fa41a3f81c3
-  '@nestjs/swagger': 4.7.15_b8f974227d6d1a64d7a7c786b02f817e
-  '@nestjs/testing': 7.6.5_57728e2ef2e5a7364bc38b92a8e73e1f
-  '@nestjs/typeorm': 8.0.2_0c08361fdb91d863b0be7fff462061a6
+  '@nestjs/passport': 7.1.5_bf0fc9c7c0961b315e6e317523225cc5
+  '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
+  '@nestjs/schedule': 1.0.1_f6d9b2b6043a9c3165cb69dbd935925a
+  '@nestjs/swagger': 4.7.15_da7218db8d6a901dc9a2935b382d63eb
+  '@nestjs/testing': 7.6.5_77a3e69e8cc6c2c3773f21e2e0f1131e
+  '@nestjs/typeorm': 7.1.5_fbc559a5f9508e766e9f45f545d585bf
   '@rush-temp/origin-drec-api': file:projects/origin-drec-api.tgz
   '@types/bcryptjs': 2.4.2
   '@types/bull': 3.15.1
@@ -1921,7 +1921,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-247-certificate/4.1.5_802429b3c4725e564012d632dc79ab7f:
+  /@energyweb/origin-247-certificate/4.1.5_a8fd741a313b44cd27b51d6a62143d30:
     resolution: {integrity: sha512-wTba6HlfulZi1KCazNjgTrGUy1CPZmFco4lXMYS1ZiPono8ddN0VlMoIFY8Efmo1/JYqrHYspt/di5dMP84VqA==}
     peerDependencies:
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
@@ -1932,11 +1932,11 @@ packages:
       '@nestjs/typeorm': 8.0.2
     dependencies:
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
-      '@nestjs/bull': 0.4.2_9569caea4829e1e6a54e03a46e955ce7
+      '@nestjs/bull': 0.4.2_22cb67e357581713dee5a0ec7827bcac
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
-      '@nestjs/cqrs': 8.0.0_23d114fd8ab0c2e38280e37f5f378229
-      '@nestjs/typeorm': 8.0.2_0c08361fdb91d863b0be7fff462061a6
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/cqrs': 7.0.1_c297c99c91e0f603c8336901dae65f27
+      '@nestjs/typeorm': 7.1.5_fbc559a5f9508e766e9f45f545d585bf
       bull: 3.29.3
       cache-manager-ioredis: 2.1.0
       class-transformer: 0.4.0
@@ -3093,7 +3093,7 @@ packages:
       tile-cover: 3.0.1
     dev: false
 
-  /@nestjs-modules/mailer/1.9.1_ce851543783f0b1ad29d2f4cf992494a:
+  /@nestjs-modules/mailer/1.9.1_baf912c16209fdc58ad438ecb2a1c830:
     resolution: {integrity: sha512-9kSDgg4qA6+2BXOzfY4IltL70uMGXDeE8u/dhkzM2gnCCOKu8Y+wIxWmh8xyLGYcrFHQ3Mke+ap0O1T98Tyjaw==}
     peerDependencies:
       '@nestjs/common': ^7.0.9 || ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -3101,7 +3101,7 @@ packages:
       nodemailer: ^6.4.6
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       glob: 10.3.3
       inline-css: 4.0.2
       mjml: 4.14.1
@@ -3133,7 +3133,7 @@ packages:
       - debug
     dev: false
 
-  /@nestjs/bull/0.4.2_9569caea4829e1e6a54e03a46e955ce7:
+  /@nestjs/bull/0.4.2_22cb67e357581713dee5a0ec7827bcac:
     resolution: {integrity: sha512-HYRMbgqoUIpGplXN8kaZ23E/yHn6TRrQ297ILRqaHTxBp4vO+XNLfL1qUmJ4Z6weufsNKGg0xcX4dSC5AhXV9g==}
     peerDependencies:
       '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0
@@ -3141,7 +3141,7 @@ packages:
       bull: ^3.3 || ^3.22.0
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
     dev: false
 
   /@nestjs/cli/7.5.4_uglify-js@2.6.0:
@@ -3335,7 +3335,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 7.6.12_989b90aa2e92e0af49cad765bf76261d
-      '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
+      '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.0.7
       iterare: 1.2.1
@@ -3343,6 +3343,39 @@ packages:
       path-to-regexp: 3.2.0
       reflect-metadata: 0.1.13
       rxjs: 6.6.3
+      tslib: 2.1.0
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@nestjs/core/7.6.13_a4dd688dcb2d02316268e05ad63578f5:
+    resolution: {integrity: sha512-8oY8yZSgri2DngqmvBMtwYw1GIAaXbUXS7Y0mp/iSZ6jP7CQqYCybdcMPneunrt5PG8rtJsq6n+4JNRvxXrVmA==}
+    requiresBuild: true
+    peerDependencies:
+      '@nestjs/common': ^7.0.0
+      '@nestjs/microservices': ^7.0.0
+      '@nestjs/platform-express': ^7.0.0
+      '@nestjs/websockets': ^7.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0
+    peerDependenciesMeta:
+      '@nestjs/microservices':
+        optional: true
+      '@nestjs/platform-express':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+    dependencies:
+      '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
+      '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
+      '@nuxtjs/opencollective': 0.3.2
+      fast-safe-stringify: 2.0.7
+      iterare: 1.2.1
+      object-hash: 2.1.1
+      path-to-regexp: 3.2.0
+      reflect-metadata: 0.1.13
+      rxjs: 6.6.7
       tslib: 2.1.0
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -3368,7 +3401,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 7.6.18_fbc9982997ba253269f25bdc348cb93c
-      '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
+      '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.0.7
       iterare: 1.2.1
@@ -3415,39 +3448,6 @@ packages:
       - encoding
     dev: false
 
-  /@nestjs/core/8.1.1_a4dd688dcb2d02316268e05ad63578f5:
-    resolution: {integrity: sha512-EnQcLVK5Ct2flMg86Iz4rR5SW8yiCxMQPUZmbPdAH64u5ZArtA1E6kwZXrEUkstUYu5en+W+Q/iwCC8l252b6Q==}
-    requiresBuild: true
-    peerDependencies:
-      '@nestjs/common': ^8.0.0
-      '@nestjs/microservices': ^8.0.0
-      '@nestjs/platform-express': ^8.0.0
-      '@nestjs/websockets': ^8.0.0
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@nestjs/microservices':
-        optional: true
-      '@nestjs/platform-express':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-    dependencies:
-      '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
-      '@nuxtjs/opencollective': 0.3.2
-      fast-safe-stringify: 2.1.1
-      iterare: 1.2.1
-      object-hash: 2.2.0
-      path-to-regexp: 3.2.0
-      reflect-metadata: 0.1.13
-      rxjs: 6.6.7
-      tslib: 2.3.1
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /@nestjs/cqrs/7.0.1_b3355eaaab723e52e70bfca874d5ccb9:
     resolution: {integrity: sha512-4UJAH3ryJvT+SDeuB5ls1OpJsPr3xqsyiuWCfVd1oyzCLazuxl04t/xup005HtWdxczwLgaAau7SIAb+XZotBQ==}
     peerDependencies:
@@ -3462,16 +3462,16 @@ packages:
       rxjs: 6.6.7
     dev: false
 
-  /@nestjs/cqrs/8.0.0_23d114fd8ab0c2e38280e37f5f378229:
-    resolution: {integrity: sha512-6Fy0jgUZatRXirfAhDVy3Du2UYoBLrlT7yjK4ZX3L7rBMdfTYPqmn8wE2JH3kXW3yUqLDdnS9PotHf6Y0UzLxw==}
+  /@nestjs/cqrs/7.0.1_c297c99c91e0f603c8336901dae65f27:
+    resolution: {integrity: sha512-4UJAH3ryJvT+SDeuB5ls1OpJsPr3xqsyiuWCfVd1oyzCLazuxl04t/xup005HtWdxczwLgaAau7SIAb+XZotBQ==}
     peerDependencies:
-      '@nestjs/common': ^8.0.0
-      '@nestjs/core': ^8.0.0
+      '@nestjs/common': ^6.0.0 || ^7.0.0
+      '@nestjs/core': ^6.0.0 || ^7.0.0
       reflect-metadata: 0.1.13
-      rxjs: ^7.2.0
+      rxjs: ^6.4.0
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
     dev: false
@@ -3538,6 +3538,16 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
+  /@nestjs/passport/7.1.5_bf0fc9c7c0961b315e6e317523225cc5:
+    resolution: {integrity: sha512-Hu9hPxTdBZA0C4GrWTsSflzwsJ99oAk9jqAwpcszdFNqfjMjkPGuCM9QsVZbBP2bE8fxrVrPsNOILS6puY8e/A==}
+    peerDependencies:
+      '@nestjs/common': ^6.0.0 || ^7.0.0
+      passport: ^0.4.0
+    dependencies:
+      '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
+      passport: 0.6.0
+    dev: false
+
   /@nestjs/passport/7.1.6_1b8f5eed36ce747133de95b67a6002a2:
     resolution: {integrity: sha512-iHD/4D01CsKKWg7kUzo4yGNS4m90z1an0eUz+6nBlE5VeEOuCzhGFoBKAt0OKLJLOTEsJKuj4C2b5QfjqXVTyQ==}
     peerDependencies:
@@ -3558,24 +3568,14 @@ packages:
       passport: 0.6.0
     dev: false
 
-  /@nestjs/passport/8.0.1_bf0fc9c7c0961b315e6e317523225cc5:
-    resolution: {integrity: sha512-vn/ZJLXQKvSf9D0BvEoNFJLfzl9AVqfGtDyQMfWDLbaNpoEB2FyeaHGxdiX6H71oLSrQV78c/yuhfantzwdjdg==}
-    peerDependencies:
-      '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
-      passport: ^0.4.0
-    dependencies:
-      '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      passport: 0.6.0
-    dev: false
-
-  /@nestjs/platform-express/7.6.13_9569caea4829e1e6a54e03a46e955ce7:
+  /@nestjs/platform-express/7.6.13_22cb67e357581713dee5a0ec7827bcac:
     resolution: {integrity: sha512-o9h6MJJccr+yR9FoAX4Cz/GrxNTeQAfHGSHkzPxElhph5QR23tWuwy9jvgUOCfxaH7T5hgg50R025b5XuGhozg==}
     peerDependencies:
       '@nestjs/common': ^7.0.0
       '@nestjs/core': ^7.0.0
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       body-parser: 1.19.0
       cors: 2.8.5
       express: 4.17.1
@@ -3612,7 +3612,7 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /@nestjs/schedule/1.0.1_ca8a8c4fec30006bad441fa41a3f81c3:
+  /@nestjs/schedule/1.0.1_f6d9b2b6043a9c3165cb69dbd935925a:
     resolution: {integrity: sha512-EU2tB4rxuEgum8JlorAFvXkU982EYZm/IBa7n6kgkyps5BbxQSFf7iR1CLkP9zODO9ApZTWk5z3q9L3O7vrkoQ==}
     peerDependencies:
       '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0
@@ -3620,7 +3620,7 @@ packages:
       reflect-metadata: ^0.1.12
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       cron: 1.7.2
       reflect-metadata: 0.1.13
       uuid: 8.3.2
@@ -3665,7 +3665,7 @@ packages:
       - class-validator
     dev: false
 
-  /@nestjs/swagger/4.7.15_b8f974227d6d1a64d7a7c786b02f817e:
+  /@nestjs/swagger/4.7.15_da7218db8d6a901dc9a2935b382d63eb:
     resolution: {integrity: sha512-Nfj/s3Rp+pk4bzLWjDCkYF0rrp8g+KTfSjP5w6hxnIYV2nSuQuD0joJFVnSj91wyTeMULvCQ4/FEUzxP8Qmi1Q==}
     peerDependencies:
       '@nestjs/common': ^6.8.0 || ^7.0.0
@@ -3680,7 +3680,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       '@nestjs/mapped-types': 0.3.0_8b60bd86c1975c9f7faec29f3af412ca
       lodash: 4.17.20
       path-to-regexp: 3.2.0
@@ -3717,7 +3717,7 @@ packages:
       - class-validator
     dev: false
 
-  /@nestjs/testing/7.6.5_57728e2ef2e5a7364bc38b92a8e73e1f:
+  /@nestjs/testing/7.6.5_77a3e69e8cc6c2c3773f21e2e0f1131e:
     resolution: {integrity: sha512-CVjECV3pqy5+HlBSLBRitHgJ8WRW2jns3mKJpSBzUgbJbrGWCB7Y7JGYkP7CQ+29EDKfetnz3+z0q6GPdubfUQ==}
     peerDependencies:
       '@nestjs/common': ^7.0.0
@@ -3732,8 +3732,8 @@ packages:
     dependencies:
       optional: 0.1.4
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
-      '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
       tslib: 2.0.3
     dev: false
 
@@ -3754,21 +3754,21 @@ packages:
       uuid: 8.3.1
     dev: false
 
-  /@nestjs/typeorm/8.0.2_0c08361fdb91d863b0be7fff462061a6:
-    resolution: {integrity: sha512-UHn4IsRkzm22eNDir/uI+x8gmgo66EO7SxWfVOiPpeLSdrTfZHKYz6q/P9KRgYbwXs8TrywVdIbJhp+4C0tzjQ==}
+  /@nestjs/typeorm/7.1.5_fbc559a5f9508e766e9f45f545d585bf:
+    resolution: {integrity: sha512-utE1FkYM/gyCXUqw3zKYYS0YZ3DfkAnzsCx4T48cNnSDTCeWS+u3yt0FMDFjwSiQSaLrzpiSff/FaxJQvRlYow==}
     peerDependencies:
-      '@nestjs/common': ^8.0.0
-      '@nestjs/core': ^8.0.0
-      reflect-metadata: ^0.1.13
-      rxjs: ^7.2.0
-      typeorm: ^0.2.34
+      '@nestjs/common': ^6.7.0 || ^7.0.0
+      '@nestjs/core': ^6.7.0 || ^7.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0
+      typeorm: ^0.2.7
     dependencies:
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
       reflect-metadata: 0.1.13
       rxjs: 6.6.7
       typeorm: 0.3.12_pg@8.7.1+ts-node@9.1.0
-      uuid: 8.3.2
+      uuid: 8.3.1
     dev: false
 
   /@nodelib/fs.scandir/2.1.5:
@@ -11257,11 +11257,6 @@ packages:
     engines: {node: '>= 6'}
     dev: false
 
-  /object-hash/2.2.0:
-    resolution: {integrity: sha512-gScRMn0bS5fH+IuwyIFgnh9zBdo4DV+6GhygmWM9HyNJSgS0hScp1f5vjtm7oIIOiT9trXrShAkLFSc2IqKNgw==}
-    engines: {node: '>= 6'}
-    dev: false
-
   /object-inspect/1.12.3:
     resolution: {integrity: sha512-geUvdk7c+eizMNUDkRpW1wJwgfOiOeHbxBR/hLXK1aT6zmVSO0jsQcs7fj6MGw89jC/cjGfLcNOrtMYtGqm81g==}
     dev: false
@@ -15221,7 +15216,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-UXvyOWh4qZJyzbRz0Yt3r/R83p5t+L7v06pcu9Bgc1mNH73lYAG5qb6qz6Glo9KdinASRnweJCq3k8Ygk9HRXQ==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-Axm4g4dfBmcJ/W/tgoTQJpsDwGFnBBFzVKEyjLwlwnaiUiONsppadmLEInIfr1kotrXdYnkH4GEPZrTdqCseSg==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15229,7 +15224,7 @@ packages:
       '@energyweb/energy-api-influxdb': 0.8.0_6405b212efd18473393a71e5822074cf
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
       '@energyweb/issuer-api': 0.4.1-alpha.1634225870.0_6bc3a670ae994ee00f12ca9399ab0837
-      '@energyweb/origin-247-certificate': 4.1.5_802429b3c4725e564012d632dc79ab7f
+      '@energyweb/origin-247-certificate': 4.1.5_a8fd741a313b44cd27b51d6a62143d30
       '@energyweb/origin-backend': 11.0.2-alpha.1634225870.0_swagger-ui-express@4.1.6
       '@energyweb/origin-backend-core': 8.0.4-alpha.1634225870.0
       '@energyweb/origin-backend-utils': 1.6.2-alpha.1634225870.0_a5df9406a476462f1b7ccd7e962bcb31
@@ -15237,21 +15232,21 @@ packages:
       '@ethersproject/bignumber': 5.3.0
       '@influxdata/influxdb-client': 1.9.0
       '@mapbox/timespace': 2.0.4
-      '@nestjs-modules/mailer': 1.9.1_ce851543783f0b1ad29d2f4cf992494a
+      '@nestjs-modules/mailer': 1.9.1_baf912c16209fdc58ad438ecb2a1c830
       '@nestjs/axios': 0.0.8_1ff213b2bf543851d119392fe9a57eb1
-      '@nestjs/bull': 0.4.2_9569caea4829e1e6a54e03a46e955ce7
+      '@nestjs/bull': 0.4.2_22cb67e357581713dee5a0ec7827bcac
       '@nestjs/cli': 7.5.4_uglify-js@2.6.0
       '@nestjs/common': 8.1.1_3f08a5913cac690a8033809ff96f1ae5
       '@nestjs/config': 0.6.3_1ff213b2bf543851d119392fe9a57eb1
-      '@nestjs/core': 8.1.1_a4dd688dcb2d02316268e05ad63578f5
-      '@nestjs/cqrs': 8.0.0_23d114fd8ab0c2e38280e37f5f378229
+      '@nestjs/core': 7.6.13_a4dd688dcb2d02316268e05ad63578f5
+      '@nestjs/cqrs': 7.0.1_c297c99c91e0f603c8336901dae65f27
       '@nestjs/jwt': 7.2.0_@nestjs+common@8.1.1
-      '@nestjs/passport': 8.0.1_bf0fc9c7c0961b315e6e317523225cc5
-      '@nestjs/platform-express': 7.6.13_9569caea4829e1e6a54e03a46e955ce7
-      '@nestjs/schedule': 1.0.1_ca8a8c4fec30006bad441fa41a3f81c3
-      '@nestjs/swagger': 4.7.15_b8f974227d6d1a64d7a7c786b02f817e
-      '@nestjs/testing': 7.6.5_57728e2ef2e5a7364bc38b92a8e73e1f
-      '@nestjs/typeorm': 8.0.2_0c08361fdb91d863b0be7fff462061a6
+      '@nestjs/passport': 7.1.5_bf0fc9c7c0961b315e6e317523225cc5
+      '@nestjs/platform-express': 7.6.13_22cb67e357581713dee5a0ec7827bcac
+      '@nestjs/schedule': 1.0.1_f6d9b2b6043a9c3165cb69dbd935925a
+      '@nestjs/swagger': 4.7.15_da7218db8d6a901dc9a2935b382d63eb
+      '@nestjs/testing': 7.6.5_77a3e69e8cc6c2c3773f21e2e0f1131e
+      '@nestjs/typeorm': 7.1.5_fbc559a5f9508e766e9f45f545d585bf
       '@types/bcryptjs': 2.4.2
       '@types/bull': 3.15.1
       '@types/chai': 4.2.18
