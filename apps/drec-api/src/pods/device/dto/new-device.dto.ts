@@ -202,4 +202,9 @@ export class NewDeviceDTO
   @IsOptional()
   @IsNumber()
   organizationId?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  yieldValue?: number | null;
 }

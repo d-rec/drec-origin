@@ -19,6 +19,7 @@ import {
   Between,
   Brackets,
   SelectQueryBuilder,
+  UpdateResult,
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -39,6 +40,8 @@ import {
   DeviceDescription,
   IDevice,
   BuyerReservationCertificateGenerationFrequency,
+  IFullOrganization,
+  IUser,
 } from '../../models';
 import { DeviceDTO, NewDeviceDTO, FilterDTO } from '../device/dto';
 import {
@@ -49,6 +52,8 @@ import {
   FuelCode,
   DevicetypeCode,
   Role,
+  OrganizationStatus,
+  UserStatus,
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -796,7 +801,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -848,7 +852,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -1369,7 +1372,6 @@ export class DeviceGroupService {
       );
 
     if (existingDevices && existingDevices.length > 0) {
-      // @ts-ignore
       existingDevices.forEach((ele) =>
         existingDeviceIds.push(ele?.developerExternalId),
       );
@@ -1545,7 +1547,6 @@ export class DeviceGroupService {
       fuelCode: fuelCode,
       countryCode: countryCode,
       deviceTypeCodes: deviceTypeCodes,
-      // @ts-ignore
       offTakers: offTakers,
       gridInterconnection,
       aggregatedCapacity,
@@ -1618,10 +1619,19 @@ export class DeviceGroupService {
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    // @ts-ignore
-    return await this.repositoyCSVJobProcessing.update(jobId, {
-      status: status,
+    const updateResult: UpdateResult = await this.repositoyCSVJobProcessing.update({ jobId: jobId },
+      { status: status },
+    );
+
+    if (updateResult.affected === 0) {
+      throw new Error(`No job found with ID ${jobId}`);
+    }
+
+    const updatedJob: DeviceCsvFileProcessingJobsEntity = await this.repositoyCSVJobProcessing.findOne({
+      where: { jobId: jobId }
     });
+  
+    return updatedJob;
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -1637,11 +1647,9 @@ export class DeviceGroupService {
       return;
     }
 
-    const data = new LoggedInUser({
-      id: filesAddedForProcessing.userId,
-      // @ts-ignore
-      organization: { id: filesAddedForProcessing.organizationId },
-    });
+    const user = await this.userService.findById(filesAddedForProcessing.userId);
+
+    const data = new LoggedInUser(user);
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
     const response = await this.fileService.GetuploadS3(
@@ -1722,24 +1730,17 @@ export class DeviceGroupService {
           if (key === 'SDGBenefits' || key === 'version') {
             continue;
           }
-          // @ts-ignore
           if (typeof dataKeyForValidation[key] === 'string') {
-            // @ts-ignore
             dataToStore[key] = data[key];
           }
-          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'boolean') {
-            // @ts-ignore
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
           }
-          // @ts-ignore
           else if (typeof dataKeyForValidation[key] === 'number') {
-            // @ts-ignore
             dataToStore[key] = Number.isNaN(data[key])
               ? 0
               : parseFloat(data[key]);
-            // @ts-ignore
             if (key == 'yieldValue' && dataToStore[key] === 0) {
               dataToStore[key] = 2000;
             }
@@ -1748,13 +1749,11 @@ export class DeviceGroupService {
             const yieldByCountryCode =
               await this.yieldConfigService.findByCountryCode(data.countryCode);
             if (yieldByCountryCode) {
-              // @ts-ignore
               dataToStore.yieldValue = yieldByCountryCode.yieldValue;
             }
           }
         }
         for (const key in dataToStore) {
-          // @ts-ignore
           dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
         records.push(dataToStore);
@@ -2004,15 +2003,12 @@ export class DeviceGroupService {
         );
 
         devicesRegistered
-          // @ts-ignore ts(2339)
-          .filter((ele) => ele.isError === undefined)
+          .filter((ele) => (ele as any).isError === undefined)
           .forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
-              // @ts-ignore ts(2339)
-              externalId: ele.externalId,
+              externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
-                // @ts-ignore ts(2339)
-                (recEle) => recEle.developerExternalId === ele.externalId,
+                (recEle) => recEle.developerExternalId === (ele as any).externalId,
               ),
             });
           });
@@ -2103,12 +2099,10 @@ export class DeviceGroupService {
       // directly the value is stored
       for (const j in headers) {
         if (properties[j].includes(', ')) {
-          // @ts-ignore
           obj[headers[j]] = properties[j]
             .split(', ')
             .map((item) => item.trim());
         } else {
-          // @ts-ignore
           obj[headers[j]] = properties[j];
         }
       }
@@ -2186,9 +2180,8 @@ export class DeviceGroupService {
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({
           groupId: groupId,
         });
-      // @ts-ignore
 
-      this.endReservation(groupId, group, deviceGroupIssueNextDateDTO);
+      this.endReservation(groupId, group as DeviceGroup, deviceGroupIssueNextDateDTO);
       return;
     }
   }
@@ -3004,7 +2997,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };

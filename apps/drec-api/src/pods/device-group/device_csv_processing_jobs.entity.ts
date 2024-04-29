@@ -38,6 +38,10 @@ export class DeviceCsvFileProcessingJobsEntity extends ExtendedBaseEntity {
   @IsNumber()
   organizationId: number;
 
+  organization?: {
+    name: string;
+  };
+
   @Column()
   @IsEnum(StatusCSV)
   status: StatusCSV;
