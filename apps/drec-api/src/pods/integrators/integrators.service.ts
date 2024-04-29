@@ -42,7 +42,7 @@ export class IntegratorsService {
       })
       .pipe(
         map(
-          (response) =>
+          (response:any) =>
             response.data.message.login_successful.API_token as string,
         ),
         catchError((err) => throwError('Error while logging in to BBOX', err)),
