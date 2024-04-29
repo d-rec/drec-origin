@@ -15,7 +15,7 @@ import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
 import { defaults } from 'lodash';
 import { YieldConfigDTO, UpdateYieldValueDTO } from './dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { FindOptionsWhere, FindManyOptions, Between } from 'typeorm';
+import { FindConditions, FindManyOptions, Between } from 'typeorm';
 import cleanDeep from 'clean-deep';
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
 import { YieldConfig } from './yieldconfig.entity';
@@ -68,15 +68,13 @@ export class YieldConfigService {
       });
     }
   }
-  private async hasvalue(conditions: FindOptionsWhere<YieldConfig>) {
+  private async hasvalue(conditions: FindConditions<YieldConfig>) {
     return Boolean(await this.findOne(conditions));
   }
   async findOne(
-    conditions: FindOptionsWhere<YieldConfig>,
+    conditions: FindConditions<YieldConfig>,
   ): Promise<TUserBaseEntity> {
-    const yieldvalue = await (this.repository.findOne({
-      where: conditions as FindOptionsWhere<YieldConfig>,
-    }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
+    const yieldvalue = await (this.repository.findOne( conditions) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
 
     return yieldvalue;
   }

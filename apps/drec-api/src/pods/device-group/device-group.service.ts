@@ -10,7 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
-  FindOptionsWhere,
+  FindConditions,
   FindManyOptions,
   FindOperator,
   Raw,
@@ -738,13 +738,12 @@ export class DeviceGroupService {
   }
 
   async findOne(
-    conditions: FindOptionsWhere<DeviceGroup>,
+    conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
     return (
-      (await this.repository.findOne({
-        where: conditions as FindOptionsWhere<DeviceGroup>,
-      })) ?? null
+      (await this.repository.findOne(conditions
+      )) ?? null
     );
   }
 
@@ -1410,7 +1409,7 @@ export class DeviceGroupService {
     return devices;
   }
 
-  private async hasDeviceGroup(conditions: FindOptionsWhere<DeviceGroup>) {
+  private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
     this.logger.verbose(`With in hasDeviceGroup`);
     return Boolean(await this.findOne(conditions));
   }
@@ -1561,7 +1560,7 @@ export class DeviceGroupService {
     filter?: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
     this.logger.verbose(`With in getreservationFilteredQuery`);
-    const where: FindOptionsWhere<DeviceGroup> = cleanDeep({
+    const where: FindConditions<DeviceGroup> = cleanDeep({
       reservationStartDate:
         filter.start_date &&
         filter.end_date &&
@@ -2129,14 +2128,12 @@ export class DeviceGroupService {
     }
   }
   async getGroupiCertificateIssueDate(
-    conditions: FindOptionsWhere<DeviceGroupNextIssueCertificate>,
+    conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupiCertificateIssueDate`);
     this.logger.log('Line No: 1883');
     return (
-      (await this.repositorynextDeviceGroupcertificate.findOne({
-        where: conditions as FindOptionsWhere<DeviceGroupNextIssueCertificate>,
-      })) ?? null
+      (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null
     );
   }
   async getAllNextrequestCertificate(): Promise<
@@ -2296,14 +2293,11 @@ export class DeviceGroupService {
   }
 
   async getHistoryCertificateIssueDate(
-    conditions: FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
+    conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historynextissuancedaterepository.findOne({
-        where:
-          conditions as FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
-      })) ?? null
+      (await this.historynextissuancedaterepository.findOne(conditions)) ?? null
     );
   }
   async HistoryUpdatecertificateissuedate(

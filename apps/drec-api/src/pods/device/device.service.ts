@@ -20,7 +20,7 @@ import {
   Raw,
   Brackets,
   SelectQueryBuilder,
-  FindOptionsWhere,
+  FindConditions,
   FindManyOptions,
   Between,
   LessThanOrEqual,
@@ -786,7 +786,7 @@ export class DeviceService {
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
     const limit = 20;
-    const where: FindOptionsWhere<Device> = cleanDeep({
+    const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
@@ -976,7 +976,7 @@ export class DeviceService {
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
-    const where: FindOptionsWhere<Device> = cleanDeep({
+    const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
