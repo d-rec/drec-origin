@@ -37,7 +37,6 @@ export class EmailConfirmationService {
 
   public async create(user: User): Promise<EmailConfirmation | null> {
     this.logger.verbose(`With in create`);
-    // @ts-ignore
     if (
       (await this.userService.findOne({
         role: Role.Admin,

@@ -154,8 +154,7 @@ export class InvitationService {
       password: this.randPassword,
       orgName: organization.name,
       organizationType: organization.organizationType,
-      // @ts-ignore
-      orgid: organization.id | undefined,
+      orgid: organization.id || undefined,
     };
     let userid: any;
     this.logger.debug('invitee');
