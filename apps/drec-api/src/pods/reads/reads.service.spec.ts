@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ReadsService } from './reads.service';
+import { MeterReadsService } from './reads.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
@@ -12,7 +12,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 
 describe('ReadsService', () => {
-  let service: ReadsService;
+  let service: MeterReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;
   let historyRepository: Repository<HistoryIntermediate_MeterRead>;
   let deltaRepository: Repository<DeltaFirstRead>;
@@ -25,7 +25,7 @@ describe('ReadsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ReadsService,
+        MeterReadsService,
         {
           provide: getRepositoryToken(AggregateMeterRead),
           useClass: Repository,
@@ -61,7 +61,7 @@ describe('ReadsService', () => {
       ],
     }).compile();
 
-    service = module.get<ReadsService>(ReadsService);
+    service = module.get<MeterReadsService>(MeterReadsService);
     aggregateRepository = module.get<Repository<AggregateMeterRead>>(
       getRepositoryToken(AggregateMeterRead),
     );

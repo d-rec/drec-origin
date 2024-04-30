@@ -42,7 +42,7 @@ import {
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { ReadsService } from '../reads/reads.service';
+import { MeterReadsService } from '../reads/reads.service';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
 import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
@@ -56,7 +56,7 @@ export class IssuerService {
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
-    private readservice: ReadsService,
+    private readservice: MeterReadsService,
     // @Inject(CERTIFICATE_SERVICE_TOKEN)
     // private readonly certificateService: CertificateService<ICertificateMetadata>,
     @Inject(BASE_READ_SERVICE)

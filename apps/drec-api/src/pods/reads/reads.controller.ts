@@ -22,7 +22,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
-import { ReadsService } from './reads.service';
+import { MeterReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -50,7 +50,7 @@ export class ReadsController extends BaseReadsController {
   private readonly logger = new Logger(ReadsController.name);
 
   constructor(
-    private internalReadsService: ReadsService,
+    private internalReadsService: MeterReadsService,
     private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,

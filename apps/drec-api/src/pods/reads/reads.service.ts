@@ -25,7 +25,7 @@ import {
   MeasurementDTO,
   ReadDTO,
   FilterDTO,
-  ReadsService as BaseReadService,
+  ReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -75,7 +75,7 @@ import { log } from 'console';
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
-export class ReadsService {
+export class MeterReadsService {
   private readonly logger = new Logger(ReadsService.name);
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
@@ -87,12 +87,13 @@ export class ReadsService {
     @InjectRepository(DeltaFirstRead)
     private readonly deltarepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadService,
+    private baseReadsService: ReadsService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
+    
     // @ts-ignore
     const url = process.env.INFLUXDB_URL;
     // @ts-ignore
@@ -199,6 +200,7 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
+    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 

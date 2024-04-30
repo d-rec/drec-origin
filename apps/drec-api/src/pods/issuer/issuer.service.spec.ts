@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationService } from '../organization/organization.service';
 import { IssuerService } from './issuer.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { ReadsService } from '../reads/reads.service';
+import { MeterReadsService } from '../reads/reads.service';
 import { DeviceService } from '../device';
 import { ReadsService as BaseReadsService } from '@energyweb/energy-api-influxdb';
 import { HttpService } from '@nestjs/axios';
@@ -14,7 +14,7 @@ describe('IssuerService', () => {
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
-  let readservice: ReadsService;
+  let readservice: MeterReadsService;
   let httpService: HttpService;
   let offChainCertificateService: OffChainCertificateService;
 
@@ -35,7 +35,7 @@ describe('IssuerService', () => {
           useValue: {} as any,
         },
         {
-          provide: ReadsService,
+          provide: MeterReadsService,
           useValue: {} as any,
         },
         {

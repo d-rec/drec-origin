@@ -7,7 +7,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsController } from './reads.controller';
-import { ReadsService } from './reads.service';
+import { MeterReadsService } from './reads.service';
 import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,7 +21,7 @@ const baseReadServiceProvider = {
     if (configService.get<string>('MODE') == 'CI') {
       return new BaseReadServiceForCi();
     } else {
-      new BaseReadService(configService as any);
+      return  new BaseReadService(configService as any);
     }
   },
   inject: [ConfigService],
@@ -42,7 +42,7 @@ const baseReadServiceProvider = {
     OrganizationModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService],
-  exports: [baseReadServiceProvider, ReadsService],
+  providers: [baseReadServiceProvider, MeterReadsService],
+  exports: [baseReadServiceProvider, MeterReadsService],
 })
 export class ReadsModule {}
