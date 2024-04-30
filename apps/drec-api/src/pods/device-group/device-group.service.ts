@@ -741,10 +741,7 @@ export class DeviceGroupService {
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
-    return (
-      (await this.repository.findOne(conditions
-      )) ?? null
-    );
+    return (await this.repository.findOne(conditions)) ?? null;
   }
 
   async createCSVJobForFile(
@@ -2133,7 +2130,8 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getGroupiCertificateIssueDate`);
     this.logger.log('Line No: 1883');
     return (
-      (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ?? null
+      (await this.repositorynextDeviceGroupcertificate.findOne(conditions)) ??
+      null
     );
   }
   async getAllNextrequestCertificate(): Promise<

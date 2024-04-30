@@ -17,11 +17,11 @@ import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.
 import { DeltaFirstRead } from './delta_firstread.entity';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
-  useFactory:(configService: ConfigService<Record<string, any>>) => {
+  useFactory: (configService: ConfigService<Record<string, any>>) => {
     if (configService.get<string>('MODE') == 'CI') {
       return new BaseReadServiceForCi();
     } else {
-      return  new BaseReadService(configService as any);
+      return new BaseReadService(configService as any);
     }
   },
   inject: [ConfigService],

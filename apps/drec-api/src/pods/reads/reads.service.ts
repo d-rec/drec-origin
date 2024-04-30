@@ -93,7 +93,6 @@ export class MeterReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
-    
     // @ts-ignore
     const url = process.env.INFLUXDB_URL;
     // @ts-ignore
@@ -1209,9 +1208,7 @@ export class MeterReadsService {
   async getDeviceHistoryCertificateIssueDate(
     conditions: FindConditions<HistoryIntermediate_MeterRead>,
   ): Promise<HistoryIntermediate_MeterRead | null> {
-    return (
-      (await this.historyrepository.findOne( conditions )) ?? null
-    );
+    return (await this.historyrepository.findOne(conditions)) ?? null;
   }
   async updatehistorycertificateissuedate(
     id: number,

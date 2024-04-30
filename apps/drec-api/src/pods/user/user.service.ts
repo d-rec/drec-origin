@@ -283,7 +283,7 @@ export class UserService {
   }
 
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
-    const user = await (this.repository.findOne( conditions ,{
+    const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
@@ -741,8 +741,6 @@ export class UserService {
   async hasgetUserTokenvalid(
     conditions: FindConditions<UserLoginSessionEntity>,
   ) {
-    return Boolean(
-      await this.userloginSessionRepository.findOne(conditions ),
-    );
+    return Boolean(await this.userloginSessionRepository.findOne(conditions));
   }
 }

@@ -89,7 +89,7 @@ export class AccessControlLayerModuleServiceService {
   ): Promise<TmoduleBaseEntity> {
     this.logger.verbose(`With in findOne`);
     const module = await (this.repository.findOne(
-       conditions
+      conditions,
     ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
     return module;
   }
