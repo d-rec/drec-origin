@@ -7,7 +7,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsController } from './reads.controller';
-import { MeterReadsService } from './reads.service';
+import { ReadsService } from './reads.service';
 import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -42,7 +42,7 @@ const baseReadServiceProvider = {
     OrganizationModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, MeterReadsService],
-  exports: [baseReadServiceProvider, MeterReadsService],
+  providers: [baseReadServiceProvider, ReadsService],
+  exports: [baseReadServiceProvider, ReadsService],
 })
 export class ReadsModule {}

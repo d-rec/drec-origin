@@ -25,7 +25,7 @@ import {
   MeasurementDTO,
   ReadDTO,
   FilterDTO,
-  ReadsService,
+  ReadsService as BaseReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -75,7 +75,7 @@ import { log } from 'console';
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
-export class MeterReadsService {
+export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
@@ -87,7 +87,7 @@ export class MeterReadsService {
     @InjectRepository(DeltaFirstRead)
     private readonly deltarepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
-    private baseReadsService: ReadsService,
+    private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
