@@ -1,10 +1,11 @@
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { UserService } from '../src/pods/user/user.service';
-// @ts-ignore ts(2305)
-import { CreateUserDTO } from '../src/pods/user/dto/create-user.dto';
+import { CreateUserORGDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/enums/role.enum';
 import { DeviceDTO, NewDeviceDTO } from '../src/pods/device/dto';
 import {
+  DevicetypeCode,
+  FuelCode,
   Installation,
   OffTaker,
   OrganizationStatus,
@@ -23,19 +24,9 @@ export const testOrgs: OrganizationDTO[] = [
     zipCode: 'Zip code',
     city: 'City',
     country: 'DE',
-    // @ts-ignore ts(2353)
-    businessType: 'Issuer',
-    tradeRegistryCompanyNumber: '987654321',
-    vatNumber: 'DE1000',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress111',
-    signatoryFullName: 'Jane Williams',
-    signatoryAddress: 'Address',
-    signatoryZipCode: 'Zip Code',
-    signatoryCity: 'City',
-    signatoryCountry: 'DE',
-    signatoryEmail: 'owner2@mailinator.com',
-    signatoryPhoneNumber: 'Phone number',
+    organizationType: 'Developer',
   },
   {
     id: 11,
@@ -44,19 +35,9 @@ export const testOrgs: OrganizationDTO[] = [
     zipCode: 'Zip code',
     city: 'City',
     country: 'null',
-    // @ts-ignore ts(2353)
-    businessType: 'Issuer',
-    tradeRegistryCompanyNumber: '987654321',
-    vatNumber: 'DE1000',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress222',
-    signatoryFullName: 'John Smith',
-    signatoryAddress: 'Address',
-    signatoryZipCode: 'Zip Code',
-    signatoryCity: 'City',
-    signatoryCountry: 'DE',
-    signatoryEmail: 'buyer2@mailinator.com',
-    signatoryPhoneNumber: 'Phone number',
+    organizationType: 'Buyer',
   },
   {
     id: 12,
@@ -65,19 +46,9 @@ export const testOrgs: OrganizationDTO[] = [
     zipCode: 'Zip code',
     city: 'City',
     country: 'DE',
-    // @ts-ignore ts(2353)
-    businessType: 'Issuer',
-    tradeRegistryCompanyNumber: '987654321',
-    vatNumber: 'DE1000',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress333',
-    signatoryFullName: 'Jane Doe',
-    signatoryAddress: 'Address',
-    signatoryZipCode: 'Zip Code',
-    signatoryCity: 'City',
-    signatoryCountry: 'DE',
-    signatoryEmail: 'admin2@mailinator.com',
-    signatoryPhoneNumber: 'Phone number',
+    organizationType: 'Admin',
   },
   {
     id: 13,
@@ -86,54 +57,40 @@ export const testOrgs: OrganizationDTO[] = [
     zipCode: 'Zip code',
     city: 'City',
     country: 'DE',
-    // @ts-ignore ts(2353)
-    businessType: 'Issuer',
-    tradeRegistryCompanyNumber: '987654321',
-    vatNumber: 'DE1000',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress444',
-    signatoryFullName: 'Maria Robbins',
-    signatoryAddress: 'Address',
-    signatoryZipCode: 'Zip Code',
-    signatoryCity: 'City',
-    signatoryCountry: 'DE',
-    signatoryEmail: 'owner3@mailinator.com',
-    signatoryPhoneNumber: 'Phone number',
+    organizationType: 'Developer',
   },
 ];
 
-export const testUsers: Omit<CreateUserDTO, 'organizationId'>[] = [
+export const testUsers: Omit<CreateUserORGDTO, 'organizationId'>[] = [
   {
-    title: 'Mrs',
     firstName: 'Jane',
     lastName: 'Williams',
     email: 'owner2@mailinator.com',
-    telephone: 'telephone',
     password: '******123',
+    organizationType: 'Developer',
   },
   {
-    title: 'Mr',
     firstName: 'John',
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
-    telephone: 'telephone',
     password: '******123',
+    organizationType: 'Buyer'
   },
   {
-    title: 'Mr',
     firstName: 'Joe',
     lastName: 'Miller2',
     email: 'admin2@mailinator.com',
-    telephone: 'telephone',
     password: '******123',
+    organizationType: 'ApiUser',
   },
   {
-    title: 'Mrs',
     firstName: 'Maria',
     lastName: 'Williams',
     email: 'owner3@mailinator.com',
-    telephone: 'telephone',
     password: '******123',
+    organizationType: 'Developer',
   },
 ];
 
@@ -155,13 +112,8 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.HealthFacility,
-    sector: Sector.Agriculture,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
   },
   {
