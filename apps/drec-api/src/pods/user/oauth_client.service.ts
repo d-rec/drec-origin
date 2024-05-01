@@ -66,7 +66,7 @@ export class OauthClientCredentialsService {
   }
 
   async edit(id: number, client_id: string): Promise<OauthClientCredentials> {
-    const clientCredentials = await this.clientCredentialsRepository.findOneBy({
+    const clientCredentials = await this.clientCredentialsRepository.findOne({
       id: id,
     });
     if (!clientCredentials) {

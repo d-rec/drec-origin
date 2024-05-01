@@ -917,23 +917,41 @@ describe('DeviceService', () => {
       const limit = 20;
       const expectedQuery: FindManyOptions<Device> = {
         where: {
-          capacity: LessThanOrEqual(200),
+          capacity: {
+            _type: 'lessThanOrEqual',
+            _value: '200', // Adjust as needed
+            _useParameter: true,
+          },
           countryCode: filterDto.country,
-          organizationId: orgId, // Use orgId provided dynamically
-          commissioningDate: MoreThanOrEqual(new Date().toISOString()),
-          SDGBenefits: In(filterDto.SDGBenefits),
-          deviceTypeCode: In(
-            Array.isArray(filterDto.deviceTypeCode)
-              ? filterDto.deviceTypeCode
-              : [filterDto.deviceTypeCode],
-          ),
-          offTaker: In([filterDto.offTaker]),
+          organizationId: orgId.toString(), // Use orgId provided dynamically
+          commissioningDate: {
+            _type: 'moreThanOrEqual',
+            _value: new Date().toISOString(), // Use current date or adjust as needed
+            _useParameter: true,
+          },
+          SDGBenefits: {
+            _type: 'raw',
+            _value: [],
+            _useParameter: true,
+            _multipleParameters: true,
+          },
+          deviceTypeCode: {
+            _type: 'raw',
+            _value: [filterDto.deviceTypeCode], // Adjust as needed
+            _useParameter: true,
+            _multipleParameters: true,
+          },
+          offTaker: {
+            _type: 'raw',
+            _value: [filterDto.offTaker], // Adjust as needed
+            _useParameter: true,
+            _multipleParameters: true,
+          },
         },
         order: { organizationId: 'DESC' },
         skip: (pageNumber - 1) * limit,
         take: limit,
       };
-
       const getFilteredQueryMock = jest
         .fn()
         .mockReturnValue(expectedQuery as FindManyOptions<Device>);
