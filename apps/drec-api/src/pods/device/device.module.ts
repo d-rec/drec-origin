@@ -37,4 +37,4 @@ import { HttpModule } from '@nestjs/axios';
   exports: [DeviceService],
   controllers: [DeviceController],
 })
-export class DeviceModule { }
+export class DeviceModule {}
