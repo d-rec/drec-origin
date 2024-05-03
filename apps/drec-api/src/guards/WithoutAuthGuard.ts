@@ -82,7 +82,8 @@ export class WithoutAuthGuard implements CanActivate {
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
       user.api_user_id !=
-        ((await this.userService.findOne({ role: Role.Admin })) as IUser).api_user_id
+        ((await this.userService.findOne({ role: Role.Admin })) as IUser)
+          .api_user_id
     ) {
       throw new UnauthorizedException({
         statusCode: 401,

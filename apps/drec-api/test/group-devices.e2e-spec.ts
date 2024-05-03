@@ -18,7 +18,10 @@ import {
   UpdateDeviceGroupDTO,
 } from '../src/pods/device-group/dto';
 import { Device } from '../src/pods/device';
-import { BuyerReservationCertificateGenerationFrequency, IFullOrganization } from '../src/models';
+import {
+  BuyerReservationCertificateGenerationFrequency,
+  IFullOrganization,
+} from '../src/models';
 import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
 import TestDevicesToGroup from './test-devices-for-grouping.json';
 import { NewDeviceDTO } from '../src/pods/device/dto';
@@ -101,7 +104,7 @@ describe('Device Group tests', () => {
       email: 'admin2@mailinator.com',
       password: '******123',
     };
-    const filterDto : OrganizationFilterDTO = {
+    const filterDto: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
@@ -111,7 +114,9 @@ describe('Device Group tests', () => {
     const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
-      orgs.organizations.map((o: IFullOrganization) => device.organizationId === o.id),
+      orgs.organizations.map(
+        (o: IFullOrganization) => device.organizationId === o.id,
+      ),
     );
     const secondBatch = firstBatch.filter(
       (device: Device) =>
@@ -127,7 +132,8 @@ describe('Device Group tests', () => {
       authorityToExceed: true,
       frequency: BuyerReservationCertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
-      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: false,
+      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
+        false,
     };
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
@@ -178,7 +184,7 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto : OrganizationFilterDTO = {
+    const filterDto: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
@@ -186,7 +192,9 @@ describe('Device Group tests', () => {
     const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
-      orgs.organizations.map((o: IFullOrganization) => device.organizationId === o.id),
+      orgs.organizations.map(
+        (o: IFullOrganization) => device.organizationId === o.id,
+      ),
     );
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-2',
@@ -198,7 +206,8 @@ describe('Device Group tests', () => {
       authorityToExceed: true,
       frequency: BuyerReservationCertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
-      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: false,
+      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
+        false,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -225,7 +234,7 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto : OrganizationFilterDTO = {
+    const filterDto: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
@@ -233,7 +242,9 @@ describe('Device Group tests', () => {
     const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
-      orgs.organizations.map((o: IFullOrganization) => device.organizationId === o.id),
+      orgs.organizations.map(
+        (o: IFullOrganization) => device.organizationId === o.id,
+      ),
     );
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
@@ -245,7 +256,8 @@ describe('Device Group tests', () => {
       authorityToExceed: true,
       frequency: BuyerReservationCertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
-      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: false,
+      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
+        false,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -272,7 +284,7 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto : OrganizationFilterDTO = {
+    const filterDto: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
@@ -280,7 +292,9 @@ describe('Device Group tests', () => {
     const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
-      orgs.organizations.map((o: IFullOrganization) => device.organizationId === o.id),
+      orgs.organizations.map(
+        (o: IFullOrganization) => device.organizationId === o.id,
+      ),
     );
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group-3',
@@ -292,7 +306,8 @@ describe('Device Group tests', () => {
       authorityToExceed: true,
       frequency: BuyerReservationCertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
-      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: false,
+      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
+        false,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
 
@@ -326,14 +341,16 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto : OrganizationFilterDTO = {
+    const filterDto: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
     const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
     const firstBatch = devices.filter((device: Device) =>
-      orgs.organizations.map((o: IFullOrganization) => device.organizationId === o.id),
+      orgs.organizations.map(
+        (o: IFullOrganization) => device.organizationId === o.id,
+      ),
     );
     const newDeviceGroup: AddGroupDTO = {
       name: 'test-device-group',
@@ -345,7 +362,8 @@ describe('Device Group tests', () => {
       authorityToExceed: true,
       frequency: BuyerReservationCertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
-      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: false,
+      continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
+        false,
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };

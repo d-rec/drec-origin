@@ -575,19 +575,23 @@ export class ReadsController extends BaseReadsController {
       measurements.reads.forEach((ele) => {
         if (
           (ele.starttimestamp instanceof Date &&
-          (ele.starttimestamp === null ||
-          ele.starttimestamp === undefined ||
-          isNaN(ele.starttimestamp.getTime()))) ||
+            (ele.starttimestamp === null ||
+              ele.starttimestamp === undefined ||
+              isNaN(ele.starttimestamp.getTime()))) ||
           (ele.endtimestamp instanceof Date &&
-          (ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          isNaN(ele.endtimestamp.getTime())))
+            (ele.endtimestamp === null ||
+              ele.endtimestamp === undefined ||
+              isNaN(ele.endtimestamp.getTime())))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startdateformate = isValidUTCDateFormat(ele.starttimestamp.toISOString());
+        const startdateformate = isValidUTCDateFormat(
+          ele.starttimestamp.toISOString(),
+        );
         //dateFormateToCheck.test(ele.starttimestamp);
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp.toISOString());
+        const enddateformate = isValidUTCDateFormat(
+          ele.endtimestamp.toISOString(),
+        );
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -744,12 +748,14 @@ export class ReadsController extends BaseReadsController {
         if (
           ele.endtimestamp instanceof Date &&
           (ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          isNaN(ele.endtimestamp.getTime()))
+            ele.endtimestamp === undefined ||
+            isNaN(ele.endtimestamp.getTime()))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp.toISOString());
+        const enddateformate = isValidUTCDateFormat(
+          ele.endtimestamp.toISOString(),
+        );
 
         if (!enddateformate) {
           datevalid1 = false;
@@ -1135,19 +1141,23 @@ export class ReadsController extends BaseReadsController {
       measurements.reads.forEach((ele) => {
         if (
           (ele.starttimestamp instanceof Date &&
-          (ele.starttimestamp === null ||
-          ele.starttimestamp === undefined ||
-          isNaN(ele.starttimestamp.getTime()))) ||
+            (ele.starttimestamp === null ||
+              ele.starttimestamp === undefined ||
+              isNaN(ele.starttimestamp.getTime()))) ||
           (ele.endtimestamp instanceof Date &&
-          (ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          isNaN(ele.endtimestamp.getTime())))
+            (ele.endtimestamp === null ||
+              ele.endtimestamp === undefined ||
+              isNaN(ele.endtimestamp.getTime())))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startdateformate = isValidUTCDateFormat(ele.starttimestamp.toISOString());
+        const startdateformate = isValidUTCDateFormat(
+          ele.starttimestamp.toISOString(),
+        );
 
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp.toISOString());
+        const enddateformate = isValidUTCDateFormat(
+          ele.endtimestamp.toISOString(),
+        );
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -1300,14 +1310,16 @@ export class ReadsController extends BaseReadsController {
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
         if (
-            (ele.endtimestamp instanceof Date &&
-            (ele.endtimestamp === null ||
+          ele.endtimestamp instanceof Date &&
+          (ele.endtimestamp === null ||
             ele.endtimestamp === undefined ||
-            isNaN(ele.endtimestamp.getTime())))
+            isNaN(ele.endtimestamp.getTime()))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp.toISOString());
+        const enddateformate = isValidUTCDateFormat(
+          ele.endtimestamp.toISOString(),
+        );
 
         if (!enddateformate) {
           datevalid1 = false;

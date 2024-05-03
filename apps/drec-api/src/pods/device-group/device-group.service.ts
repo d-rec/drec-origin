@@ -1619,18 +1619,21 @@ export class DeviceGroupService {
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    const updateResult: UpdateResult = await this.repositoyCSVJobProcessing.update({ jobId: jobId },
-      { status: status },
-    );
+    const updateResult: UpdateResult =
+      await this.repositoyCSVJobProcessing.update(
+        { jobId: jobId },
+        { status: status },
+      );
 
     if (updateResult.affected === 0) {
       throw new Error(`No job found with ID ${jobId}`);
     }
 
-    const updatedJob: DeviceCsvFileProcessingJobsEntity = await this.repositoyCSVJobProcessing.findOne({
-      where: { jobId: jobId }
-    });
-  
+    const updatedJob: DeviceCsvFileProcessingJobsEntity =
+      await this.repositoyCSVJobProcessing.findOne({
+        where: { jobId: jobId },
+      });
+
     return updatedJob;
   }
 
@@ -1647,7 +1650,9 @@ export class DeviceGroupService {
       return;
     }
 
-    const user = await this.userService.findById(filesAddedForProcessing.userId);
+    const user = await this.userService.findById(
+      filesAddedForProcessing.userId,
+    );
 
     const data = new LoggedInUser(user);
     data.id = filesAddedForProcessing.userId;
@@ -1732,12 +1737,10 @@ export class DeviceGroupService {
           }
           if (typeof dataKeyForValidation[key] === 'string') {
             dataToStore[key] = data[key];
-          }
-          else if (typeof dataKeyForValidation[key] === 'boolean') {
+          } else if (typeof dataKeyForValidation[key] === 'boolean') {
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
-          }
-          else if (typeof dataKeyForValidation[key] === 'number') {
+          } else if (typeof dataKeyForValidation[key] === 'number') {
             dataToStore[key] = Number.isNaN(data[key])
               ? 0
               : parseFloat(data[key]);
@@ -2008,7 +2011,8 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({
               externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
-                (recEle) => recEle.developerExternalId === (ele as any).externalId,
+                (recEle) =>
+                  recEle.developerExternalId === (ele as any).externalId,
               ),
             });
           });
@@ -2181,7 +2185,11 @@ export class DeviceGroupService {
           groupId: groupId,
         });
 
-      this.endReservation(groupId, group as DeviceGroup, deviceGroupIssueNextDateDTO);
+      this.endReservation(
+        groupId,
+        group as DeviceGroup,
+        deviceGroupIssueNextDateDTO,
+      );
       return;
     }
   }

@@ -229,7 +229,10 @@ export class IssuerService {
               allDevicesOfGroup.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                return (
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+                );
               });
               // console.log("192", allDevicesOfGroup);
               let deviceOnBoardedWhichIsInBetweenNextIssuance: Device =

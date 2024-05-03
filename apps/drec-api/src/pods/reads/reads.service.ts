@@ -482,8 +482,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message:
-                      `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
+                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
                   }),
                 );
               }
@@ -537,8 +536,7 @@ export class ReadsService {
                   return reject(
                     new ConflictException({
                       success: false,
-                      message:
-                        `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
+                      message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
                     }),
                   );
                 }
@@ -1386,7 +1384,8 @@ export class ReadsService {
           if (previousPageData.length > 0) {
             previousReadTime = (previousPageData[0] as any).timestamp;
             this.logger.verbose(
-              'previous page read data[0]::::' + (previousPageData[0] as any).timestamp,
+              'previous page read data[0]::::' +
+                (previousPageData[0] as any).timestamp,
             );
           } else {
             previousReadTime = null;

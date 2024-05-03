@@ -109,7 +109,7 @@ describe('CertificateLogService', () => {
           certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
           externalId: 'Ext2',
           groupId: 2,
-          status: "Active",
+          status: 'Active',
           ongoing_start_date: '2023-11-06T12:48:18.405Z',
           ongoing_end_date: '2023-11-10T04:15:58.000Z',
         } as CheckCertificateIssueDateLogForDeviceEntity,

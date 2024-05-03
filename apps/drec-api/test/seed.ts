@@ -76,7 +76,7 @@ export const testUsers: Omit<CreateUserORGDTO, 'organizationId'>[] = [
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
     password: '******123',
-    organizationType: 'Buyer'
+    organizationType: 'Buyer',
   },
   {
     firstName: 'Joe',
@@ -209,7 +209,7 @@ export const batchDevices: NewDeviceDTO[] = [
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
-    version:'1.0',
+    version: '1.0',
   },
   {
     externalId: 'DREC32',
@@ -230,7 +230,7 @@ export const batchDevices: NewDeviceDTO[] = [
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
-    version:'1.0',
+    version: '1.0',
   },
   {
     externalId: 'DREC33',
@@ -251,7 +251,7 @@ export const batchDevices: NewDeviceDTO[] = [
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
-    version:'1.0',
+    version: '1.0',
   },
   {
     externalId: 'DREC34',
@@ -302,18 +302,8 @@ export const seed = async ({
     Role.DeviceOwner,
     UserStatus.Active,
   );
-  await userService.seed(
-    user2,
-    createdOrg2.id,
-    Role.Buyer,
-    UserStatus.Active,
-  );
-  await userService.seed(
-    user3,
-    createdOrg3.id,
-    Role.Admin,
-    UserStatus.Active,
-  );
+  await userService.seed(user2, createdOrg2.id, Role.Buyer, UserStatus.Active);
+  await userService.seed(user3, createdOrg3.id, Role.Admin, UserStatus.Active);
   await userService.seed(
     user4,
     createdOrg4.id,
@@ -322,7 +312,7 @@ export const seed = async ({
   );
 
   const [device1, device2, device3, device4] = testDevices;
-  const [ batchdevice1, batchdevice2, batchdevice3, batchdevice4 ] = batchDevices;
+  const [batchdevice1, batchdevice2, batchdevice3, batchdevice4] = batchDevices;
 
   await deviceService.seed(createdOrg1.id, batchdevice1);
   await deviceService.seed(createdOrg1.id, batchdevice2);

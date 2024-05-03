@@ -9,7 +9,12 @@ import {
 import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, UserStatus, PermissionString, UserPermissionStatus } from '../../utils/enums';
+import {
+  Role,
+  UserStatus,
+  PermissionString,
+  UserPermissionStatus,
+} from '../../utils/enums';
 import { IsEnum, IsString } from 'class-validator';
 import { IUser } from '../../models';
 import { Organization } from '../organization/organization.entity';

@@ -136,7 +136,7 @@ describe('Device tests', () => {
       energyStorage: true,
       energyStorageCapacity: 900,
       qualityLabels: '',
-      version:'1.0',
+      version: '1.0',
     };
     await loginUser(loggedUser);
     const { body: updatedDevice } = await postDevice(
@@ -190,7 +190,7 @@ describe('Device tests', () => {
       energyStorage: true,
       energyStorageCapacity: 900,
       qualityLabels: '',
-      version:'1.0',
+      version: '1.0',
     };
     await loginUser(loggedUser);
     await postDevice('', HttpStatus.FORBIDDEN, partialDevice);

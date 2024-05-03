@@ -553,7 +553,11 @@ export class DeviceService {
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
-    if (newDevice.SDGBenefits && (newDevice.SDGBenefits.includes('0') || newDevice.SDGBenefits.includes('1'))) {
+    if (
+      newDevice.SDGBenefits &&
+      (newDevice.SDGBenefits.includes('0') ||
+        newDevice.SDGBenefits.includes('1'))
+    ) {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
       newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
@@ -788,8 +792,7 @@ export class DeviceService {
     });
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId;
-    }
-    else if (
+    } else if (
       filter.organizationId != null &&
       filter.organizationId != undefined
     ) {
