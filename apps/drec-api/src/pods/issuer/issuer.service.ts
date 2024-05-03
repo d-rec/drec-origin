@@ -748,7 +748,6 @@ export class IssuerService {
       totalReadValue,
       countryCodeKey,
     );
-    //  console.log("560Kw", totalReadValueKw);
     if (!totalReadValueKw) {
       return;
     }

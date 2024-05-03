@@ -13,7 +13,7 @@ import {
   Brackets,
   SelectQueryBuilder,
   In,
-  FindOptionsWhere,
+  FindConditions,
   Any,
 } from 'typeorm';
 
@@ -25,7 +25,7 @@ import {
   MeasurementDTO,
   ReadDTO,
   FilterDTO,
-  ReadsService as BaseReadService,
+  ReadsService as BaseReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -87,7 +87,7 @@ export class ReadsService {
     @InjectRepository(DeltaFirstRead)
     private readonly deltarepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadService,
+    private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
@@ -196,6 +196,7 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
+    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -741,9 +742,11 @@ export class ReadsService {
     enddate: Date,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${startdate.getTime()}, stop: ${enddate.getTime()})
-      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-      |> last()`;
+    |> range(start: ${new Date(startdate).toISOString()}, stop: ${new Date(enddate).toISOString()})
+    |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+    |> last()
+    `;
+
     return await this.execute(fluxQuery);
   }
 
@@ -1177,13 +1180,9 @@ export class ReadsService {
   }
 
   async getDeviceHistoryCertificateIssueDate(
-    conditions: FindOptionsWhere<HistoryIntermediate_MeterRead>,
+    conditions: FindConditions<HistoryIntermediate_MeterRead>,
   ): Promise<HistoryIntermediate_MeterRead | null> {
-    return (
-      (await this.historyrepository.findOne({
-        where: conditions as FindOptionsWhere<HistoryIntermediate_MeterRead>,
-      })) ?? null
-    );
+    return (await this.historyrepository.findOne(conditions)) ?? null;
   }
   async updatehistorycertificateissuedate(
     id: number,

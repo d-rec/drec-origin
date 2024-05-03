@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { AClModules } from './aclmodule.entity';
 import {
   ACLModuleDTO,
@@ -70,7 +70,7 @@ export class AccessControlLayerModuleServiceService {
       });
     }
   }
-  private async hasModule(conditions: FindOptionsWhere<AClModules>) {
+  private async hasModule(conditions: FindConditions<AClModules>) {
     this.logger.verbose(`With in hasModule`);
     return Boolean(await this.findOne(conditions));
   }
@@ -85,12 +85,12 @@ export class AccessControlLayerModuleServiceService {
     return user;
   }
   async findOne(
-    conditions: FindOptionsWhere<AClModules>,
+    conditions: FindConditions<AClModules>,
   ): Promise<TmoduleBaseEntity> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne({
-      where: conditions as FindOptionsWhere<AClModules>,
-    }) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
+    const module = await (this.repository.findOne(
+      conditions,
+    ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
     return module;
   }
 

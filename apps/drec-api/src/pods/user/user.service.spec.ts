@@ -4,7 +4,7 @@ import {
   Repository,
   DeepPartial,
   FindManyOptions,
-  FindOptionsWhere,
+  FindConditions,
 } from 'typeorm';
 import { User } from './user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -944,7 +944,7 @@ describe('UserService', () => {
 
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: mockuserEntity.email } as FindOptionsWhere<User>,
+        where: { email: mockuserEntity.email } as FindConditions<User>,
         relations: ['organization'],
       });
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
@@ -964,7 +964,7 @@ describe('UserService', () => {
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(true);
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
+        where: { email: 'test@example.com' } as FindConditions<User>,
         relations: ['organization'],
       });
       expect(emailConfirmationSpy).toHaveBeenCalledWith(1);
@@ -980,7 +980,7 @@ describe('UserService', () => {
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(false);
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
+        where: { email: 'test@example.com' } as FindConditions<User>,
         relations: ['organization'],
       });
       expect(emailConfirmationService.get).toHaveBeenCalledWith(1);
