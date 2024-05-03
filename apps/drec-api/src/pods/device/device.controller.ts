@@ -63,6 +63,7 @@ import {
 import { Device } from './device.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { FindOneOptions } from 'typeorm';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -363,7 +364,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @ApiQuery({ name: 'apiUserId', type: Number, required: false })
+  @ApiQuery({ name: 'apiUserId', type: String, required: false })
   @ApiQuery({ name: 'organizationId', type: Number, required: false })
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
@@ -378,11 +379,9 @@ export class DeviceController {
     let devicedata: Device;
     if (api_user_id && organizationId) {
       devicedata = await this.deviceService.findOne(id, {
-        where: {
-          api_user_id: api_user_id,
-          organizationId: organizationId,
-        },
-      });
+        api_user_id: api_user_id,
+        organizationId: organizationId,
+      } as FindOneOptions<Device>);
     } else {
       devicedata = await this.deviceService.findOne(id);
     }

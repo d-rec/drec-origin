@@ -12,7 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import {
-  FindOptionsWhere,
+  FindConditions,
   Repository,
   FindManyOptions,
   SelectQueryBuilder,
@@ -282,9 +282,8 @@ export class UserService {
     return user ?? null;
   }
 
-  async findOne(conditions: FindOptionsWhere<User>): Promise<TUserBaseEntity> {
-    const user = await (this.repository.findOne({
-      where: conditions as FindOptionsWhere<User>,
+  async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
+    const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
@@ -303,7 +302,7 @@ export class UserService {
     return bcrypt.hashSync(password, 8);
   }
 
-  private async hasUser(conditions: FindOptionsWhere<User>) {
+  private async hasUser(conditions: FindConditions<User>) {
     return Boolean(await this.findOne(conditions));
   }
 
@@ -740,12 +739,8 @@ export class UserService {
   }
 
   async hasgetUserTokenvalid(
-    conditions: FindOptionsWhere<UserLoginSessionEntity>,
+    conditions: FindConditions<UserLoginSessionEntity>,
   ) {
-    return Boolean(
-      await this.userloginSessionRepository.findOne({
-        where: conditions as FindOptionsWhere<UserLoginSessionEntity>,
-      }),
-    );
+    return Boolean(await this.userloginSessionRepository.findOne(conditions));
   }
 }
