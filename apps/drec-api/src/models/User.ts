@@ -1,5 +1,5 @@
 import { IEmailConfirmation, IFullOrganization } from '.';
-import { Role, UserStatus, PermissionString } from '../utils/enums';
+import { Role, UserStatus, PermissionString, UserPermissionStatus } from '../utils/enums';
 import { IModulePermissionsConfig } from './ACLModulesPermission';
 export interface IUserProperties {
   id: number;
@@ -14,6 +14,7 @@ export interface IUserProperties {
   roleId?: number;
   permissions?: PermissionString;
   api_user_id?: string;
+  permission_status?: UserPermissionStatus;
 }
 
 export interface IUserSeed extends IUser {

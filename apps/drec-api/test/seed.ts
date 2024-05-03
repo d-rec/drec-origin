@@ -102,12 +102,8 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'T020001',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1500,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -115,6 +111,12 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
+    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    timezone: '',
   },
   {
     externalId: 'DREC03',
@@ -123,24 +125,21 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1600,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.PublicSector,
-    sector: Sector.Education,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    timezone: '',
   },
   {
     externalId: 'DREC04',
@@ -149,24 +148,21 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.Commercial,
-    sector: Sector.PublicServices,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    timezone: '',
   },
   {
     externalId: 'DREC05',
@@ -175,24 +171,21 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.Residential,
-    sector: Sector.Health,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    timezone: '',
   },
 ];
 
@@ -204,24 +197,19 @@ export const batchDevices: NewDeviceDTO[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'T020001',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1500,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.Industrial,
-    sector: Sector.Agriculture,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    version:'1.0',
   },
   {
     externalId: 'DREC32',
@@ -230,24 +218,19 @@ export const batchDevices: NewDeviceDTO[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1600,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.Commercial,
-    sector: Sector.Manufacturing,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    version:'1.0',
   },
   {
     externalId: 'DREC33',
@@ -256,24 +239,19 @@ export const batchDevices: NewDeviceDTO[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.Residential,
-    sector: Sector.Financial,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    version:'1.0',
   },
   {
     externalId: 'DREC34',
@@ -282,24 +260,19 @@ export const batchDevices: NewDeviceDTO[] = [
     latitude: '34.921213',
     longitude: '135.717309',
     countryCode: 'DE',
-    zipCode: '111111',
-    // @ts-ignore ts(2322)
-    fuelCode: 'ES200',
-    // @ts-ignore ts(2322)
-    deviceTypeCode: 'TC110',
-    installationConfiguration: Installation.StandAlone,
+    fuelCode: FuelCode.ES100,
+    deviceTypeCode: DevicetypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
     offTaker: OffTaker.School,
-    sector: Sector.Education,
-    standardCompliance: StandardCompliance.REC,
     yieldValue: 1000,
-    generatorsIds: [],
-    labels: '',
     impactStory: '',
-    data: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
+    version: '1.0',
   },
 ];
 
@@ -324,28 +297,24 @@ export const seed = async ({
   const [user1, user2, user3, user4] = testUsers;
 
   await userService.seed(
-    // @ts-ignore ts(2345)
     user1,
     createdOrg1.id,
     Role.DeviceOwner,
     UserStatus.Active,
   );
   await userService.seed(
-    // @ts-ignore ts(2345)
     user2,
     createdOrg2.id,
     Role.Buyer,
     UserStatus.Active,
   );
   await userService.seed(
-    // @ts-ignore ts(2345)
     user3,
     createdOrg3.id,
     Role.Admin,
     UserStatus.Active,
   );
   await userService.seed(
-    // @ts-ignore ts(2345)
     user4,
     createdOrg4.id,
     Role.DeviceOwner,
@@ -353,13 +322,10 @@ export const seed = async ({
   );
 
   const [device1, device2, device3, device4] = testDevices;
+  const [ batchdevice1, batchdevice2, batchdevice3, batchdevice4 ] = batchDevices;
 
-  // @ts-ignore ts(2345)
-  await deviceService.seed(createdOrg1.id, device1);
-  // @ts-ignore ts(2345)
-  await deviceService.seed(createdOrg1.id, device3);
-  // @ts-ignore ts(2345)
-  await deviceService.seed(createdOrg4.id, device2);
-  // @ts-ignore ts(2345)
-  await deviceService.seed(createdOrg4.id, device4);
+  await deviceService.seed(createdOrg1.id, batchdevice1);
+  await deviceService.seed(createdOrg1.id, batchdevice2);
+  await deviceService.seed(createdOrg4.id, batchdevice3);
+  await deviceService.seed(createdOrg4.id, batchdevice4);
 };

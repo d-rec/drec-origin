@@ -9,7 +9,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, UserStatus, PermissionString } from '../../utils/enums';
+import { Role, UserStatus, PermissionString, UserPermissionStatus } from '../../utils/enums';
 import { IsEnum, IsString } from 'class-validator';
 import { IUser } from '../../models';
 import { Organization } from '../organization/organization.entity';
@@ -98,4 +98,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   // updateTimestamp() {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
   // }
+
+  @IsEnum(UserPermissionStatus)
+  permission_status?: UserPermissionStatus;
 }

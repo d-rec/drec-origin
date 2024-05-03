@@ -102,35 +102,41 @@ describe('CertificateLogService', () => {
     it('should create CSV file and send it as response', async () => {
       const mockData: CheckCertificateIssueDateLogForDeviceEntity[] = [
         {
+          id: 1,
           certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
           certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 3,
-        },
+          groupId: 2,
+          status: "Active",
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-10T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
         {
+          id: 2,
           certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
           certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 2,
-        },
+          groupId: 3,
+          status: 'Active',
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-10T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
         {
+          id: 3,
           certificate_issuance_startdate: new Date('2022-11-26T11:01:00.000Z'),
           certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 1,
-        },
+          groupId: 4,
+          status: 'Pending',
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-10T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
       ];
 
       jest
@@ -175,35 +181,41 @@ describe('CertificateLogService', () => {
 
       const expectedLogs: CheckCertificateIssueDateLogForDeviceEntity[] = [
         {
+          id: 1,
+          groupId: 2,
           certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
           certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 3,
-        },
+          status: 'Active',
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-10T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
         {
+          id: 2,
+          groupId: 3,
           certificate_issuance_startdate: new Date('2023-11-06T12:48:18.405Z'),
           certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 2,
-        },
+          status: 'pending',
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-09T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
         {
+          id: 3,
+          groupId: 4,
           certificate_issuance_startdate: new Date('2022-11-26T11:01:00.000Z'),
           certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
           readvalue_watthour: 10000,
           certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-          // @ts-ignore
-          reservation_name: 'secondreservation',
           externalId: 'Ext2',
-          blockchainCertificateId: 1,
-        },
+          status: 'pending',
+          ongoing_start_date: '2023-11-06T12:48:18.405Z',
+          ongoing_end_date: '2023-11-09T04:15:58.000Z',
+        } as CheckCertificateIssueDateLogForDeviceEntity,
       ];
 
       jest
@@ -268,8 +280,10 @@ describe('CertificateLogService', () => {
         },
         ownerId: '',
         hasOrganization: false,
-        // @ts-ignore
-        hasPermission: true,
+        permissions: PermissionString.Write,
+        hasPermission: function (...permissions: PermissionString[]): boolean {
+          throw new Error('Function not implemented.');
+        },
         api_user_id: 'apiuserId',
       };
       const filterDto: FilterDTO = {
@@ -326,7 +340,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-            // @ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 3,
@@ -338,7 +351,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-            // @ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 2,
@@ -350,7 +362,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-            // @ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 1,
@@ -401,8 +412,10 @@ describe('CertificateLogService', () => {
         },
         ownerId: '',
         hasOrganization: false,
-        // @ts-ignore
-        hasPermission: true,
+        permissions: PermissionString.Write,
+        hasPermission: function (...permissions: PermissionString[]): boolean {
+          throw new Error('Function not implemented.');
+        },
         api_user_id: 'apiuserId',
       };
       const filterDto: FilterDTO = {
@@ -459,7 +472,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-10T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '14f8bcd3-095b-4659-90d8-bbc7523d14b4',
-            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 3,
@@ -471,7 +483,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-09T04:15:58.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '37aa312a-405d-4e37-97f3-8af06a0b1e10',
-            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 2,
@@ -483,7 +494,6 @@ describe('CertificateLogService', () => {
             certificate_issuance_enddate: new Date('2023-11-06T08:27:44.000Z'),
             readvalue_watthour: 10000,
             certificateTransactionUID: '770d39fd-fbb3-4eb9-82df-260a740b5151',
-            //@ts-ignore
             reservation_name: 'secondreservation',
             externalId: 'Ext2',
             blockchainCertificateId: 1,
@@ -523,8 +533,10 @@ describe('CertificateLogService', () => {
         },
         ownerId: '',
         hasOrganization: false,
-        // @ts-ignore
-        hasPermission: true,
+        permissions: PermissionString.Write,
+        hasPermission: function (...permissions: PermissionString[]): boolean {
+          throw new Error('Function not implemented.');
+        },
         api_user_id: 'apiuserId',
       };
       const filterDto: FilterDTO = {
