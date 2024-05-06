@@ -44,14 +44,14 @@ export class WithoutAuthGuard implements CanActivate {
     } else if (request.url.split('/')[3] === 'register') {
       const userData = await this.userService.findOne({ role: Role.Admin });
       if (
-        !request.body.api_user_id &&
+        request.body.api_user_id == undefined &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
       ) {
         user = userData;
       } else if (
-        request.body.api_user_id &&
-        request.body.api_user_id != user.api_user_id &&
+        request.body.api_user_id != undefined &&
+        request.body.api_user_id != userData.api_user_id &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
       ) {

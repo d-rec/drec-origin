@@ -459,7 +459,7 @@ export class ReadsController extends BaseReadsController {
         for (const key in ele) {
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
-              let dateString = ele[key].toISOString();
+              let dateString = ele[key].toString();
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
               if (dateString.includes('.')) {
@@ -586,11 +586,11 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         const startdateformate = isValidUTCDateFormat(
-          ele.starttimestamp.toISOString(),
+          new Date(ele.starttimestamp).toISOString(),
         );
         //dateFormateToCheck.test(ele.starttimestamp);
         const enddateformate = isValidUTCDateFormat(
-          ele.endtimestamp.toISOString(),
+          new Date(ele.endtimestamp).toISOString(),
         );
 
         if (!startdateformate || !enddateformate) {
@@ -754,7 +754,7 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         const enddateformate = isValidUTCDateFormat(
-          ele.endtimestamp.toISOString(),
+          new Date(ele.endtimestamp).toISOString(),
         );
 
         if (!enddateformate) {
@@ -1025,7 +1025,7 @@ export class ReadsController extends BaseReadsController {
         for (const key in ele) {
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
-              let dateString = ele[key].toISOString();
+              let dateString = new Date(ele[key]).toISOString();
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
               if (dateString.includes('.')) {
@@ -1152,11 +1152,11 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         const startdateformate = isValidUTCDateFormat(
-          ele.starttimestamp.toISOString(),
+          ele.starttimestamp.toString(),
         );
 
         const enddateformate = isValidUTCDateFormat(
-          ele.endtimestamp.toISOString(),
+          ele.endtimestamp.toString(),
         );
 
         if (!startdateformate || !enddateformate) {
