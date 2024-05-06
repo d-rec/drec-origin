@@ -7,16 +7,25 @@ import {
   StandardCompliance,
   FuelCode,
   DevicetypeCode,
-  SDGBenefitsList
+  SDGBenefitsList,
 } from '../../../utils/enums';
 
 export class FilterDTO {
   @IsOptional()
-  @ApiPropertyOptional({ type: FuelCode, description: 'Fuel Code',enum:FuelCode })
+  @ApiPropertyOptional({
+    type: FuelCode,
+    description: 'Fuel Code',
+    enum: FuelCode,
+  })
   fuelCode: FuelCode;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode, isArray:true })
+  @ApiPropertyOptional({
+    type: DevicetypeCode,
+    description: 'Device Type Code',
+    enum: DevicetypeCode,
+    isArray: true,
+  })
   deviceTypeCode: DevicetypeCode;
 
   // @IsOptional()
@@ -35,11 +44,15 @@ export class FilterDTO {
   capacity: number;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Start date Commissioning Date filter 2020-01-01T00:00:00Z' })
+  @ApiPropertyOptional({
+    description: 'Start date Commissioning Date filter 2020-01-01T00:00:00Z',
+  })
   start_date: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ description: 'End date Commissioning Date filter 2020-01-01T00:00:00Z' })
+  @ApiPropertyOptional({
+    description: 'End date Commissioning Date filter 2020-01-01T00:00:00Z',
+  })
   end_date: string;
 
   @IsOptional()
@@ -51,7 +64,7 @@ export class FilterDTO {
     type: OffTaker,
     description: 'Off-taker',
     enum: OffTaker,
-     isArray:true
+    isArray: true,
   })
   offTaker: OffTaker;
 
@@ -83,9 +96,9 @@ export class FilterDTO {
   @ApiPropertyOptional({
     description: 'SDG Benefit',
     enum: SDGBenefitsList,
-    isArray:true
+    isArray: true,
   })
-  SDGBenefits?: string[]| undefined;
+  SDGBenefits?: string[] | undefined;
 }
 export class BuyerDeviceFilterDTO {
   @IsOptional()
@@ -93,14 +106,20 @@ export class BuyerDeviceFilterDTO {
   country: string;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: FuelCode, description: 'Fuel Code',enum:FuelCode })
+  @ApiPropertyOptional({
+    type: FuelCode,
+    description: 'Fuel Code',
+    enum: FuelCode,
+  })
   fuelCode: FuelCode;
 
   @IsOptional()
-  @ApiPropertyOptional({ type: DevicetypeCode, description: 'Device Type Code',enum:DevicetypeCode })
+  @ApiPropertyOptional({
+    type: DevicetypeCode,
+    description: 'Device Type Code',
+    enum: DevicetypeCode,
+  })
   deviceTypeCode: DevicetypeCode;
-
-
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -108,7 +127,6 @@ export class BuyerDeviceFilterDTO {
     description: 'Search number for target capacity in KiloWatts',
   })
   capacity: number;
-
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -118,8 +136,7 @@ export class BuyerDeviceFilterDTO {
   })
   offTaker: OffTaker;
 
- 
-  groupId?: number|null;
+  groupId?: number | null;
 
-  organiozationId ?: number | null;
+  organizationId?: number | null;
 }

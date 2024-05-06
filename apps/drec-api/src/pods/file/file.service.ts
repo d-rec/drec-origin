@@ -1,4 +1,8 @@
-import { Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import {
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
 import { Connection, Repository } from 'typeorm';
@@ -25,7 +29,7 @@ export class FileService {
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     private readonly connection: Connection,
-  ) { }
+  ) {}
 
   public async store(
     user: ILoggedInUser,
@@ -38,7 +42,8 @@ export class FileService {
       throw new NotAcceptableException('No files added');
     }
     this.logger.debug(
-      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${files.length
+      `User ${user ? JSON.stringify(user) : 'Anonymous'} requested store for ${
+        files.length
       } files`,
     );
 
@@ -59,7 +64,8 @@ export class FileService {
       }
     });
     this.logger.debug(
-      `User ${user ? JSON.stringify(user) : 'Anonymous'
+      `User ${
+        user ? JSON.stringify(user) : 'Anonymous'
       } has stored ${JSON.stringify(storedFile)}`,
     );
 
@@ -76,18 +82,24 @@ export class FileService {
     );
     if (user) {
       if (user.role === Role.Admin) {
-        return this.repository.findOne(id);
+        return this.repository.findOne({
+          where: {
+            id: id,
+          },
+        });
       }
 
-      return this.repository.findOne(id, {
+      return this.repository.findOne({
         where: {
+          id: id,
           userId: user.id.toString(),
           organizationId: user.organizationId?.toString(),
         },
       });
     }
-    return this.repository.findOne(id, {
+    return this.repository.findOne({
       where: {
+        id: id,
         isPublic: true,
       },
     });
@@ -132,14 +144,14 @@ export class FileService {
 
       const where = hasOrganization
         ? {
-          id: documentId,
-          userId: user.id.toString(),
-          organizationId: user.organizationId.toString(),
-        }
+            id: documentId,
+            userId: user.id.toString(),
+            organizationId: user.organizationId.toString(),
+          }
         : {
-          id: documentId,
-          userId: user.id.toString(),
-        };
+            id: documentId,
+            userId: user.id.toString(),
+          };
 
       const count = await this.repository.count({ where });
 
@@ -181,28 +193,26 @@ export class FileService {
   //   });
   // }
 
-
-
   async upload(file) {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
     const result = await this.uploadS3(file.buffer, bucketS3, originalname);
-    return result
+    return result;
   }
 
   async uploadS3(file, bucket, name) {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
-    this.logger.debug(`${uuid()}-${String(name)}`)
-    let a= name.substr(0,name.indexOf(".csv"))
+    this.logger.debug(`${uuid()}-${String(name)}`);
+    const a = name.substr(0, name.indexOf('.csv'));
     this.logger.debug(a);
     const params = {
       Bucket: bucket,
       Key: `${a}-${uuid()}.csv`,
       Body: file,
-      ACL: 'public-read'
+      ACL: 'public-read',
     };
     return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
@@ -210,8 +220,7 @@ export class FileService {
           this.logger.error(err);
           reject(err.message);
         }
-        resolve(data
-        );
+        resolve(data);
       });
     });
   }
@@ -223,8 +232,6 @@ export class FileService {
     });
   }
 
-
-
   public async GetuploadS3(key: string) {
     this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
@@ -235,20 +242,19 @@ export class FileService {
       let response: any;
       return new Promise((resolve, reject) => {
         s3.getObject(
-          { Bucket: process.env.bucketname, Key: key }, (err, data) => {
-
+          { Bucket: process.env.bucketname, Key: key },
+          (err, data) => {
             if (err) {
               this.logger.error(err);
               reject(err.message);
             }
             resolve({
               data,
-              filename: key
-            }
-            );
-          })
+              filename: key,
+            });
+          },
+        );
       });
-      
     }
     this.logger.error(`Object not found`);
     throw new NotFoundException();

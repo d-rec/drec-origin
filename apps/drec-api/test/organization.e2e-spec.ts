@@ -111,6 +111,7 @@ describe('Organization tests', () => {
     const partialOrg = {
       name: 'Device Owner - Update',
     };
+    // @ts-ignore ts(2554)
     const orgs = await organizationService.getAll();
     await loginUser(loggedUser);
     const { body: updatedOrg } = await updateAdminOrganization(
@@ -147,6 +148,7 @@ describe('Organization tests', () => {
       zipCode: 'Zip code',
       city: 'City',
       country: 'DE',
+      // @ts-ignore ts(2353)
       businessType: 'Issuer',
       tradeRegistryCompanyNumber: '987654321',
       vatNumber: 'DE1000',

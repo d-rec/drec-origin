@@ -5,7 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
-  Matches
+  Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -14,12 +14,21 @@ import {
   Sector,
   StandardCompliance,
   FuelCode,
-  DevicetypeCode
+  DevicetypeCode,
 } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 import { Exclude } from 'class-transformer';
 export class UpdateDeviceDTO
-  implements Omit<IDevice, 'id' | 'externalId' | 'status' | 'organizationId' | 'yieldValue' | 'labels'>
+  implements
+    Omit<
+      IDevice,
+      | 'id'
+      | 'externalId'
+      | 'status'
+      | 'organizationId'
+      | 'yieldValue'
+      | 'labels'
+    >
 {
   @ApiProperty()
   @IsOptional()
@@ -29,7 +38,7 @@ export class UpdateDeviceDTO
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
   externalId?: string;
-  
+
   @IsOptional()
   @IsString()
   @Exclude()
@@ -43,8 +52,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString({
-    message:
-      'Address must be added',
+    message: 'Address must be added',
   })
   address: string;
 
@@ -56,14 +64,14 @@ export class UpdateDeviceDTO
       'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
   })
   latitude: string;
-  
+
   @ApiProperty()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {
     message:
       'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
   })
- @IsOptional()
+  @IsOptional()
   longitude: string;
 
   @ApiProperty()
@@ -75,20 +83,19 @@ export class UpdateDeviceDTO
   // @IsOptional()
   // @IsNumber()
   // zipCode: string;
-  @ApiProperty({ default: "ES100"})
-  @IsEnum(FuelCode,{
-    message:
-      'FuelCode must be added Or Valid FuelCode values are ES100',
+  @ApiProperty({ default: 'ES100' })
+  @IsEnum(FuelCode, {
+    message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
   @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsEnum(DevicetypeCode,{
+  @IsEnum(DevicetypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-   @IsOptional()
+  @IsOptional()
   deviceTypeCode: DevicetypeCode;
 
   // @ApiProperty()
@@ -112,9 +119,9 @@ export class UpdateDeviceDTO
   gridInterconnection: boolean;
 
   @ApiProperty()
-  @IsEnum(OffTaker,{
+  @IsEnum(OffTaker, {
     message:
-    'Valid OffTaker values are  Education , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture,Off-Grid Community,Utility',
+      'Valid OffTaker values are  Education , Health Facility , Residential , Commercial , Industrial , Public Sector,Agriculture,Off-Grid Community,Utility',
   })
   @IsOptional()
   offTaker: OffTaker;
@@ -163,7 +170,7 @@ export class UpdateDeviceDTO
   @IsArray()
   @IsOptional()
   SDGBenefits?: string[];
- 
+
   @IsString()
   @IsOptional()
   meterReadtype?: string;
@@ -171,7 +178,6 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   IREC_Status?: string;
-  
 
   @IsString()
   @IsOptional()

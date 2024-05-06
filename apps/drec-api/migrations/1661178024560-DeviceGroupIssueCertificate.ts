@@ -1,10 +1,12 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class DeviceGroupIssueCertificate1661178024560 implements MigrationInterface {
-    name = 'DeviceGroupIssueCertificate1661178024560';
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(
-            `CREATE TABLE IF NOT EXISTS public.next_issuance_date_log_for_device_group
+export class DeviceGroupIssueCertificate1661178024560
+  implements MigrationInterface
+{
+  name = 'DeviceGroupIssueCertificate1661178024560';
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `CREATE TABLE IF NOT EXISTS public.next_issuance_date_log_for_device_group
             (
                 id SERIAL NOT NULL,
                 "groupId" integer,
@@ -16,10 +18,8 @@ export class DeviceGroupIssueCertificate1661178024560 implements MigrationInterf
                 CONSTRAINT devicegroup_issue_certificate_pkey PRIMARY KEY (id)
             )
             `,
-          );
-    }
+    );
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }

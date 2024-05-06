@@ -1,10 +1,10 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Sdgbenefit1663329270791 implements MigrationInterface {
-    name = 'Sdgbenefit1663329270791';
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(
-            `CREATE TABLE IF NOT EXISTS public.sdgbenefit
+  name = 'Sdgbenefit1663329270791';
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `CREATE TABLE IF NOT EXISTS public.sdgbenefit
             (
                 id SERIAL NOT NULL,
                 "SdgbenefitName" character varying NOT NULL,
@@ -15,10 +15,8 @@ export class Sdgbenefit1663329270791 implements MigrationInterface {
                 CONSTRAINT sdgbenefit_pkey PRIMARY KEY (id)
             )
             `,
-          );
-    }
+    );
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }
