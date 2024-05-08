@@ -13,7 +13,7 @@ export default defineConfig({
 
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
-        logo: 'img/D-REC-banner.png',
+        logo: '/D-REC-banner.png',
         nav: [
             { text: 'Home', link: '/' },
             { text: 'Documentation', link: '/introduction/technology-overview' }
@@ -56,6 +56,10 @@ export default defineConfig({
             }
         ],
 
-        socialLinks: [{ icon: 'github', link: 'https://github.com/d-rec/drec-origin' }]
+        socialLinks: [{ icon: 'github', link: 'https://github.com/d-rec/drec-origin' }],
+
+        search: {
+            provider: 'local'
+        }
     }
 });

@@ -17,7 +17,7 @@ hero:
           text: D-REC Homepage
           link: https://drecs.org
     image:
-        src: img/D-REC-logo.png
+        src: /D-REC-logo.png
         alt: VitePress
 
 features:
