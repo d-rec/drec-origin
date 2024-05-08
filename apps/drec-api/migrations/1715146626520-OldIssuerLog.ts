@@ -1,9 +1,8 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class OldIssuerLog1715146626520 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         CREATE TABLE old_issuer_log (
             "id" integer PRIMARY KEY,
             "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
@@ -20,9 +19,7 @@ export class OldIssuerLog1715146626520 implements MigrationInterface {
             "issuedPrivately" boolean NOT NULL,
             "blockchainNetId" integer,
             "metadata" character varying NOT NULL)`);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }
