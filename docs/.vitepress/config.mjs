@@ -5,10 +5,11 @@ export default defineConfig({
     title: 'D-REC Docs',
     description: 'Documentation for the D-REC (Distributed Renewable Energy Certificates) platform',
 
-    /* prettier-ignore */
-    head: [
-      ['link', { rel: 'icon', type: 'image/png', href: 'favicon.png' }],
-    ],
+    head: [['link', { rel: 'icon', type: 'image/png', href: 'favicon.png' }]],
+
+    // For hosting on Github pages
+    // https://vitepress.dev/guide/deploy#github-pages
+    base: '/drec-origin/',
 
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
