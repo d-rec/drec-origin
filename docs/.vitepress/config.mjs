@@ -38,6 +38,7 @@ export default defineConfig({
             {
                 text: 'Usage Guide',
                 items: [
+                    { text: 'Get Started', link: '/usage_guide/get-started.md' },
                     { text: 'Buyer Manual', link: '/usage_guide/buyer-manual.md' },
                     {
                         text: 'Project Developer Manual',

@@ -12,10 +12,10 @@ hero:
           link: /introduction/technology-overview
         - theme: alt
           text: Get Started
-          link: https://drecs.org
+          link: /usage_guide/get-started
         - theme: alt
-          text: D-REC Homepage
-          link: https://drecs.org
+          text: API Documentation
+          link: https://dev-api.drecs.org/swagger/
     image:
         src: /D-REC-logo.png
         alt: VitePress
