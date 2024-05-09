@@ -100,7 +100,7 @@ export class CertificateLogService {
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
-    // let page = pageNumber; // Specify the page number you want to retrieve
+    let page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
     const [certifiedreservation, total] =
@@ -111,7 +111,7 @@ export class CertificateLogService {
         order: {
           createdAt: 'DESC',
         },
-        skip: (pageNumber - 1) * itemsPerPage,
+        skip: (page - 1) * itemsPerPage,
         take: itemsPerPage,
       });
     const totalPages = Math.ceil(total / itemsPerPage);
@@ -129,7 +129,7 @@ export class CertificateLogService {
         order: {
           createdAt: 'DESC',
         },
-        skip: (pageNumber - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
+        skip: (page - 1) * itemsPerPage, // Calculate the number of items to skip based on the page number
         take: itemsPerPage, // Specify the number of items to take per page
       });
     const total1 = await this.cretificatereadmoduleRepository.find({
@@ -147,7 +147,7 @@ export class CertificateLogService {
       const response = {
         certificatelog: logdata,
         totalItems: total,
-        currentPage: pageNumber,
+        currentPage: page,
         totalPages: totalPages,
       };
 
@@ -161,7 +161,7 @@ export class CertificateLogService {
       const response2 = {
         certificatelog: logdata1,
         totalItems: total1.length,
-        currentPage: pageNumber,
+        currentPage: page,
         totalPages: totalPages1,
       };
 
@@ -205,13 +205,13 @@ export class CertificateLogService {
           await Promise.all(
             obj.deviceIds.map(async (deviceid) => {
               let device: Device;
-              if(typeof deviceid==='number'){
-                 device = await this.deviceService.findOne(deviceid);
+              if (typeof deviceid === 'number') {
+                device = await this.deviceService.findOne(deviceid);
               }
-              if (typeof deviceid==='string'){
+              if (typeof deviceid === 'string') {
                 device = await this.deviceService.findReads(deviceid);
               }
-              
+
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),
@@ -299,13 +299,13 @@ export class CertificateLogService {
           await Promise.all(
             obj.deviceIds.map(async (deviceid: number) => {
               let device: Device;
-              if(typeof deviceid==='number'){
-                 device = await this.deviceService.findOne(deviceid);
+              if (typeof deviceid === 'number') {
+                device = await this.deviceService.findOne(deviceid);
               }
-              if (typeof deviceid==='string'){
+              if (typeof deviceid === 'string') {
                 device = await this.deviceService.findReads(deviceid);
               }
-              
+
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),

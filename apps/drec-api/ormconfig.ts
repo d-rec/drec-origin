@@ -1,8 +1,6 @@
-require('dotenv').config({ path: '../../.env' });
+import { ConnectionOptions } from 'typeorm';
 
-import { DataSource, DataSourceOptions } from 'typeorm';
-
-const getDBConnectionOptions = (): DataSourceOptions => {
+const getDBConnectionOptions = (): ConnectionOptions => {
   return process.env.DATABASE_URL
     ? {
         type: 'postgres',
@@ -21,12 +19,12 @@ const getDBConnectionOptions = (): DataSourceOptions => {
       };
 };
 
-const dataSource = new DataSource({
+const config: ConnectionOptions = {
   ...getDBConnectionOptions(),
   synchronize: false,
   migrationsRun: true,
   migrations: [`${__dirname}/migrations/*.js`],
   migrationsTableName: 'migrations_drec',
-});
+};
 
-export default dataSource;
+export = config;
