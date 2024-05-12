@@ -1,4 +1,14 @@
 import { defineConfig } from 'vitepress';
+import { generateSidebar } from 'vitepress-sidebar';
+
+// https://vitepress-sidebar.jooy2.com/getting-started
+const vitepressSidebarOptions = {
+    excludeFilesByFrontmatter: true,
+    sortMenusByFrontmatterOrder: true,
+    useFolderTitleFromIndexFile: true,
+    useTitleFromFileHeading: true,
+    useTitleFromFrontmatter: true
+};
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -23,39 +33,7 @@ export default defineConfig({
             copyright: `Copyright © ${new Date().getFullYear()} D-REC Initiative.`
         },
 
-        sidebar: [
-            {
-                text: 'Introduction',
-                items: [
-                    { text: 'Technology Overview', link: '/introduction/technology-overview' },
-                    {
-                        text: 'DRE Project Developers',
-                        link: '/introduction/dre-project-developers'
-                    },
-                    { text: 'REC Buyers', link: '/introduction/rec-buyers' }
-                ]
-            },
-            {
-                text: 'Usage Guide',
-                items: [
-                    { text: 'Get Started', link: '/usage_guide/get-started.md' },
-                    { text: 'Buyer Manual', link: '/usage_guide/buyer-manual.md' },
-                    {
-                        text: 'Project Developer Manual',
-                        link: '/usage_guide/project-developer-manual.md'
-                    },
-                    { text: 'API User Manual', link: '/usage_guide/api-user-manual' }
-                ]
-            },
-            {
-                text: 'Developer Documentation',
-                items: [
-                    { text: 'Function Requirements', link: '/dev_docs/functional-requirements' },
-                    { text: 'Developer Onboarding', link: '/dev_docs/developer-onboarding' },
-                    { text: 'ACL Module', link: '/dev_docs/ACL-module' }
-                ]
-            }
-        ],
+        sidebar: generateSidebar(vitepressSidebarOptions),
 
         socialLinks: [{ icon: 'github', link: 'https://github.com/d-rec/drec-origin' }],
 

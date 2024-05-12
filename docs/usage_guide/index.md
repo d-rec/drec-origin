@@ -2,4 +2,4 @@
 order: 2
 ---
 
-# Buyer Manual
+# Usage Guide
