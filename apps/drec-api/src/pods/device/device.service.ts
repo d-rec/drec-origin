@@ -149,7 +149,6 @@ export class DeviceService {
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.ApiUser) {
-        //@ts-ignore
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
         } else {
@@ -461,11 +460,15 @@ export class DeviceService {
     return device;
   }
 
-  async findReads(meterId: string): Promise<DeviceDTO | null> {
+  async findReads(meterId: string): Promise<Device | null> {
     this.logger.verbose(`With in findReads`);
     const result = await this.repository.findOne({
       where: { externalId: meterId },
     });
+    result.timezone = await getLocalTimeZoneFromDevice(
+      result.createdAt,
+      result,
+    );
     delete result['organization'];
 
     return result ?? null;
@@ -554,8 +557,11 @@ export class DeviceService {
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
-    // @ts-ignore
-    if (newDevice.SDGBenefits === 0 || newDevice.SDGBenefits === 1) {
+    if (
+      newDevice.SDGBenefits &&
+      (newDevice.SDGBenefits.includes('0') ||
+        newDevice.SDGBenefits.includes('1'))
+    ) {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
       newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
@@ -634,10 +640,8 @@ export class DeviceService {
     const sdgbbenifitslist = SDGBenefits;
 
     if (
-      // @ts-ignore ts(2367)
-      updateDeviceDTO.SDGBenefits === 0 ||
-      // @ts-ignore ts(2367)
-      updateDeviceDTO.SDGBenefits === 1
+      updateDeviceDTO.SDGBenefits.includes('0') ||
+      updateDeviceDTO.SDGBenefits.includes('1')
     ) {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
@@ -727,7 +731,6 @@ export class DeviceService {
               const deviceKey: DeviceKey = DeviceSortPropertyMapper[
                 order
               ] as DeviceKey;
-              // @ts-ignore
               return item[deviceKey];
             }
           }),
@@ -774,7 +777,6 @@ export class DeviceService {
       if (deviceKey === 'deviceTypeCode') {
         return getDeviceTypeFromCode(devices[0][deviceKey]);
       }
-      // @ts-ignore
       return devices[0][deviceKey];
     })}`;
     return name;
@@ -794,15 +796,10 @@ export class DeviceService {
     });
     if (orgId != null || orgId != undefined) {
       where.organizationId = orgId;
-    }
-    //@ts-ignore
-    else if (
-      // @ts-ignore ts(2339)
+    } else if (
       filter.organizationId != null &&
-      // @ts-ignore ts(2339)
       filter.organizationId != undefined
     ) {
-      //@ts-ignore
       where.organizationId = filter.organizationId;
     }
     if (filter.start_date != null && filter.end_date === undefined) {
@@ -1174,14 +1171,10 @@ export class DeviceService {
     }));
   }
   get dbReader() {
-    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
-    // @ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org);
   }
 

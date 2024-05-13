@@ -204,4 +204,8 @@ export class DeviceDTO implements IDevice {
 
   @IsOptional()
   createdAt?: Date;
+
+  @IsString()
+  @IsOptional()
+  api_user_id?: string;
 }

@@ -117,8 +117,7 @@ export class CertificateLogService {
     const totalPages = Math.ceil(total / itemsPerPage);
 
     const request: IGetAllCertificatesOptions = {
-      // @ts-ignore
-      deviceId: parseInt(groupid),
+      deviceId: `${parseInt(groupid)}`,
     };
 
     const certifiedreservation1: ICertificateReadModel<ICertificateMetadata>[] =
@@ -203,8 +202,15 @@ export class CertificateLogService {
           ); //going back 1 second in start and going forward 1 second in end
 
           await Promise.all(
-            obj.deviceIds.map(async (deviceid: number) => {
-              const device = await this.deviceService.findOne(deviceid);
+            obj.deviceIds.map(async (deviceid) => {
+              let device: Device;
+              if (typeof deviceid === 'number') {
+                device = await this.deviceService.findOne(deviceid);
+              }
+              if (typeof deviceid === 'string') {
+                device = await this.deviceService.findReads(deviceid);
+              }
+
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),
@@ -254,14 +260,11 @@ export class CertificateLogService {
           certifiedlist: ICertificateReadModel<ICertificateMetadata>,
           index: number,
         ) => {
-          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].certificateStartDate =
             new Date(certifiedlist.generationStartTime * 1000).toISOString();
-          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].certificateEndDate = new Date(
             certifiedlist.generationEndTime * 1000,
           ).toISOString();
-          // @ts-ignore ts(2339)
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
@@ -291,7 +294,14 @@ export class CertificateLogService {
 
           await Promise.all(
             obj.deviceIds.map(async (deviceid: number) => {
-              const device = await this.deviceService.findOne(deviceid);
+              let device: Device;
+              if (typeof deviceid === 'number') {
+                device = await this.deviceService.findOne(deviceid);
+              }
+              if (typeof deviceid === 'string') {
+                device = await this.deviceService.findReads(deviceid);
+              }
+
               const devicelog =
                 await this.getCheckCertificateIssueDateLogForDevice(
                   parseInt(groupid),
@@ -309,7 +319,6 @@ export class CertificateLogService {
 
                 certificatesInReservationWithLog[
                   index
-                  // @ts-ignore ts(2339)
                 ].perDeviceCertificateLog.push(singleDeviceLogEle);
               });
 
@@ -830,15 +839,12 @@ export class CertificateLogService {
               certifiedlist: ICertificateReadModel<ICertificateMetadata>,
               index: number,
             ) => {
-              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].certificateStartDate =
                 new Date(
                   certifiedlist.generationStartTime * 1000,
                 ).toISOString();
-              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].certificateEndDate =
                 new Date(certifiedlist.generationEndTime * 1000).toISOString();
-              // @ts-ignore ts(2339)
               certificatesInReservationWithLog[index].perDeviceCertificateLog =
                 [];
               try {
@@ -891,7 +897,6 @@ export class CertificateLogService {
 
                         certificatesInReservationWithLog[
                           index
-                          // @ts-ignore ts(2339)
                         ].perDeviceCertificateLog.push(singleDeviceLogEle);
                       });
                     } else {
@@ -918,7 +923,6 @@ export class CertificateLogService {
                         );
                         certificatesInReservationWithLog[
                           index
-                          // @ts-ignore ts(2339)
                         ].perDeviceCertificateLog.push(devicelog[0]);
                       }
                     }
@@ -940,7 +944,6 @@ export class CertificateLogService {
                         getLocalTimeZoneFromDevice(device.createdAt, device);
                       certificatesInReservationWithLog[
                         index
-                        // @ts-ignore ts(2339)
                       ].perDeviceCertificateLog.push(singleDeviceLogEle);
                     });
                   }
