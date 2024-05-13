@@ -53,7 +53,12 @@ jobs:
         run: |
           rush install
 
-      - name: Run ESLint
+      - name: Run ESLint (error)
+        working-directory: apps/drec-api
+        run: pnpm run lint:error
+        continue-on-error: true
+
+      - name: Run ESLint (all)
         working-directory: apps/drec-api
         run: pnpm run lint
         continue-on-error: true
