@@ -23,7 +23,6 @@ export class OauthClientCredentialsService {
   ) {}
 
   async createAPIUser(): Promise<ApiUserEntity> {
-    // @ts-ignore
     return await this.apiUserEntityRepository.save({ api_user_id: uuid() });
   }
 

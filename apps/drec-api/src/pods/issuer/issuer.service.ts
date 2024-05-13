@@ -183,8 +183,10 @@ export class IssuerService {
               allDevicesOfGroup.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
-                //@ts-ignore
-                return new Date(b.createdAt) - new Date(a.createdAt);
+                return (
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+                );
               });
 
               let deviceOnBoardedWhichIsInBetweenNextIssuance: Device =
@@ -720,8 +722,7 @@ export class IssuerService {
     }
     if (allPreviousReadingsOfDevices.length > 1) {
       allPreviousReadingsOfDevices.sort(function (a, b) {
-        //@ts-ignore
-        return a.timestamp - b.timestamp;
+        return Number(a.timestamp) - Number(b.timestamp);
       });
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
