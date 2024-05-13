@@ -3,10 +3,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class OldIssuerLog1715146626520 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-        CREATE TABLE old_issuer_log (
-            "id" integer PRIMARY KEY,
+        CREATE TABLE old_issuer_certificate (            
             "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
             "updatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+            "id" SERIAL NOT NULL, 
             "deviceId" character varying NOT NULL,
             "generationStartTime" integer NOT NULL,
             "generationEndTime" integer NOT NULL,
@@ -18,7 +18,8 @@ export class OldIssuerLog1715146626520 implements MigrationInterface {
             "latestCommitment" text,
             "issuedPrivately" boolean NOT NULL,
             "blockchainNetId" integer,
-            "metadata" character varying NOT NULL)`);
+            "metadata" character varying NOT NULL,
+        )`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}
