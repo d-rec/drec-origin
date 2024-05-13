@@ -48,6 +48,22 @@
     --vp-c-brand-2: #c47f2e;
     --vp-c-brand-3: #eac046;
     /* --vp-c-brand-soft: var(--vp-c-indigo-soft); */
+
+    /* Custom block colors inspired by Github colors*/
+    --vp-custom-block-info-border: transparent;
+    --vp-custom-block-info-text: var(--vp-c-text-1);
+    --vp-custom-block-info-bg: var(--vp-c-indigo-soft);
+    --vp-custom-block-info-code-bg: var(--vp-c-indigo-soft);
+
+    --vp-custom-block-note-border: transparent;
+    --vp-custom-block-note-text: var(--vp-c-text-1);
+    --vp-custom-block-note-bg: var(--vp-c-default-soft);
+    --vp-custom-block-note-code-bg: var(--vp-c-default-soft);
+
+    --vp-custom-block-tip-border: transparent;
+    --vp-custom-block-tip-text: var(--vp-c-text-1);
+    --vp-custom-block-tip-bg: var(--vp-c-green-soft);
+    --vp-custom-block-tip-code-bg: var(--vp-c-green-soft);
 }
 
 /**
