@@ -2,6 +2,9 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class OldIssuerLog1715146626520 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    //IMPORTANT NOTE:  We have generated this entity to have a backup of our old certificate logs
+    //generated before upgraded the @energyweb/issuer-api... because the old certificate logs are
+    //not compatible with newly upgraded issuer-certificates struture..
     await queryRunner.query(`
         CREATE TABLE old_issuer_certificate (            
             "createdAt" timestamp with time zone NOT NULL DEFAULT now(),
