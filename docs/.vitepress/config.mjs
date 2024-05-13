@@ -3,6 +3,7 @@ import { generateSidebar } from 'vitepress-sidebar';
 
 // https://vitepress-sidebar.jooy2.com/getting-started
 const vitepressSidebarOptions = {
+    excludeFiles: 'README.md',
     excludeFilesByFrontmatter: true,
     sortMenusByFrontmatterOrder: true,
     useFolderTitleFromIndexFile: true,
@@ -20,10 +21,10 @@ export default defineConfig({
     // For hosting on Github pages
     // https://vitepress.dev/guide/deploy#github-pages
     base: '/drec-origin/',
-
     vite: {
         publicDir: '.public'
     },
+    srcExclude: ['README.md'],
 
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
