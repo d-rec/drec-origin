@@ -21,6 +21,10 @@ export default defineConfig({
     // https://vitepress.dev/guide/deploy#github-pages
     base: '/drec-origin/',
 
+    vite: {
+        publicDir: '.public'
+    },
+
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         logo: '/D-REC-banner.png',
