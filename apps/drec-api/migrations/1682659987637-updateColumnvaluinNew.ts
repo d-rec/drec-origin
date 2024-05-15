@@ -14,5 +14,8 @@ export class updateColumnvaluinNew1682659987637 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    // Since updating column values in a down migration can lead to data loss or inconsistency,
+    // and reverting the update operation is complex and risky, leaving the down method empty.
+  }
 }

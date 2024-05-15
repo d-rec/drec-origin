@@ -14,5 +14,9 @@ export class certificateTransactionUID1678690129095
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE "check_certificate_issue_date_log_for_device_group" DROP COLUMN IF EXISTS "certificateTransactionUID"`);
+    await queryRunner.query(`ALTER TABLE "check_certificate_issue_date_log_for_device" DROP COLUMN IF EXISTS "certificateTransactionUID"`);
+    await queryRunner.query(`DROP EXTENSION IF EXISTS citext`);  
+  }
 }

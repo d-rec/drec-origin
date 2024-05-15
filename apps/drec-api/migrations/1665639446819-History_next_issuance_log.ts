@@ -20,5 +20,7 @@ export class HistoryNextIssuanceLog1665639446819 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS public.history_next_issuance_log`);
+  }
 }

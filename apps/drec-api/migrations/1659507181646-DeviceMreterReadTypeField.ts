@@ -10,5 +10,7 @@ export class DeviceMreterReadTypeField1659507181646
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "meterReadtype"`);
+  }
 }

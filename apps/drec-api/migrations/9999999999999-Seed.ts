@@ -283,7 +283,7 @@ export class Seed9999999999999 implements MigrationInterface {
               Delete: false,
               Update: false,
             };
-            for (var key in addedPermissionList) {
+            for (let key in addedPermissionList) {
               aclModule.permissions.map((myArr, index) => {
                 if (myArr === key) {
                   addedPermissionList[key] = true;

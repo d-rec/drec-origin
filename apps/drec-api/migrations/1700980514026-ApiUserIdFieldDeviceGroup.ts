@@ -9,5 +9,10 @@ export class ApiUserIdFieldDeviceGroup1700980514026
           `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      ALTER TABLE "device_group" 
+      DROP COLUMN "api_user_id"
+    `);
+  }
 }

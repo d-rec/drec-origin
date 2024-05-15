@@ -30,5 +30,8 @@ export class HistoryIntermideateFirlds1665490980305
           ADD "type" character varying`);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS public.history_intermediate_meteread`);
+    await queryRunner.query(`ALTER TABLE "device_group" DROP COLUMN IF EXISTS "type"`);  
+  }
 }

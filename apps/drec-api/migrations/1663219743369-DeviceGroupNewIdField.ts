@@ -10,5 +10,8 @@ export class DeviceGroupNewIdField1663219743369 implements MigrationInterface {
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE "device_group" DROP COLUMN "devicegroup_uid"`);
+    await queryRunner.query(`ALTER TABLE "check_certificate_issue_date_log_for_device_group" DROP COLUMN "countryCode"`);  
+  }
 }

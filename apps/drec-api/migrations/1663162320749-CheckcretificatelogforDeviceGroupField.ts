@@ -24,5 +24,7 @@ export class CheckcretificatelogforDeviceGroupField1663162320749
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS public.check_certificate_issue_date_log_for_device_group`);
+  }
 }
