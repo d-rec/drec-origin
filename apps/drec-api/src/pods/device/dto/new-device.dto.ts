@@ -197,4 +197,14 @@ export class NewDeviceDTO
   @IsString()
   @IsOptional()
   version = '1.0';
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  organizationId?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  yieldValue?: number | null;
 }

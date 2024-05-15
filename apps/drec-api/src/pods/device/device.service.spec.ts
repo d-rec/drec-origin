@@ -107,8 +107,6 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        // @ts-ignore
-        countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
@@ -116,7 +114,6 @@ describe('DeviceService', () => {
         gridInterconnection: true,
         offTaker: OffTaker.School, //'School',
         impactStory: null,
-        data: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
@@ -190,8 +187,6 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        // @ts-ignore
-        countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
@@ -199,7 +194,6 @@ describe('DeviceService', () => {
         gridInterconnection: true,
         offTaker: OffTaker.School, //'School',
         impactStory: null,
-        data: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
@@ -272,9 +266,7 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      // @ts-ignore
       organizationType: Role.OrganizationAdmin,
-      // @ts-ignore
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -611,9 +603,7 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        // @ts-ignore
         organizationType: Role.OrganizationAdmin,
-        // @ts-ignore
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',

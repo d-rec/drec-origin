@@ -7,7 +7,7 @@ RUN npm cache clean --force
 COPY . .
 
 RUN npm i -g @microsoft/rush
-RUN npm i -g pnpm@6
+RUN npm i -g pnpm@7
 
 WORKDIR /dist/src/app/apps/drec-api
 

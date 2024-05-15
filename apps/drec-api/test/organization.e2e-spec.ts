@@ -15,6 +15,7 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
+import { OrganizationFilterDTO } from 'src/pods/admin/dto/organization-filter.dto';
 
 describe('Organization tests', () => {
   let app: INestApplication;
@@ -111,8 +112,13 @@ describe('Organization tests', () => {
     const partialOrg = {
       name: 'Device Owner - Update',
     };
-    // @ts-ignore ts(2554)
-    const orgs = await organizationService.getAll();
+    const filterDto: OrganizationFilterDTO = {
+      organizationName: undefined,
+      organizationType: undefined,
+    };
+    const pageNumber = 1;
+    const limit = 5;
+    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
     await loginUser(loggedUser);
     const { body: updatedOrg } = await updateAdminOrganization(
       orgs[0]?.id.toString(),
@@ -148,17 +154,7 @@ describe('Organization tests', () => {
       zipCode: 'Zip code',
       city: 'City',
       country: 'DE',
-      // @ts-ignore ts(2353)
-      businessType: 'Issuer',
-      tradeRegistryCompanyNumber: '987654321',
-      vatNumber: 'DE1000',
-      signatoryFullName: 'New user',
-      signatoryAddress: 'Address',
-      signatoryZipCode: 'Zip Code',
-      signatoryCity: 'City',
-      signatoryCountry: 'DE',
-      signatoryEmail: 'owner3@mailinator.com',
-      signatoryPhoneNumber: 'Phone number',
+      organizationType: 'DeviceOwner',
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);
