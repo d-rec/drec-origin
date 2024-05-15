@@ -1073,7 +1073,7 @@ export class DeviceService {
     externalid,
     latestartDate,
     lateendDate,
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
     const isalreadyadded = await this.latedevciecertificaterepository.findOne({
       where: {
         groupId: groupid,
