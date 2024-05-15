@@ -408,7 +408,7 @@ export class BuyerReservationController {
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
-      deviceGroupToRegister.targetCapacityInMegaWattHour == -0
+      deviceGroupToRegister.targetCapacityInMegaWattHour === -0
     ) {
       this.logger.error(
         `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,

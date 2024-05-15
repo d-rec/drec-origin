@@ -100,7 +100,7 @@ export class CertificateLogService {
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
-    let page = pageNumber; // Specify the page number you want to retrieve
+    const page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
     const [certifiedreservation, total] =
