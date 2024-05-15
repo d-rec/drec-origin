@@ -967,7 +967,8 @@ export class DeviceController {
       });
     }
     if (externalId != null || externalId != undefined) {
-      const device: DeviceDTO | null = await this.deviceService.findOne(externalId);
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {
