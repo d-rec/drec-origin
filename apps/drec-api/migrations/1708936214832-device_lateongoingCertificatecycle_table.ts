@@ -21,7 +21,9 @@ export class deviceLateongoingCertificatecycleTable1708936214832
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS device_lateongoing_certificate_cycle`);
+    await queryRunner.query(
+      `DROP TABLE IF EXISTS device_lateongoing_certificate_cycle`,
+    );
     await queryRunner.query(`ALTER TABLE "check_certificate_issue_date_log_for_device"
           DROP COLUMN IF EXISTS "ongoing_start_date",
           DROP COLUMN IF EXISTS "ongoing_end_date"`);

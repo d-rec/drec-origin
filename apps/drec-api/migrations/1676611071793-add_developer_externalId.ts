@@ -10,7 +10,9 @@ export class addDeveloperExternalId1676611071793 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN IF EXISTS "developerExternalId"`);
-    await queryRunner.query(`DROP EXTENSION IF EXISTS citext`);  
+    await queryRunner.query(
+      `ALTER TABLE "device" DROP COLUMN IF EXISTS "developerExternalId"`,
+    );
+    await queryRunner.query(`DROP EXTENSION IF EXISTS citext`);
   }
 }

@@ -11,6 +11,8 @@ export class devicesdgbdatatypechange1671692507995
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "device" ALTER COLUMN "SDGBenefits" TYPE jsonb`);
+    await queryRunner.query(
+      `ALTER TABLE "device" ALTER COLUMN "SDGBenefits" TYPE jsonb`,
+    );
   }
 }

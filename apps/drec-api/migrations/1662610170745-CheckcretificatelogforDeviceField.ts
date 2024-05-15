@@ -24,6 +24,8 @@ export class CheckcretificatelogforDeviceField1662610170745
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS public.check_certificate_issue_date_log_for_device`);
+    await queryRunner.query(
+      `DROP TABLE IF EXISTS public.check_certificate_issue_date_log_for_device`,
+    );
   }
 }

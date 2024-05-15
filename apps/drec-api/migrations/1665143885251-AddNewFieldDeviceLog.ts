@@ -8,6 +8,8 @@ export class AddNewFieldDeviceLog1665143885251 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "check_certificate_issue_date_log_for_device" DROP COLUMN "groupId"`);
+    await queryRunner.query(
+      `ALTER TABLE "check_certificate_issue_date_log_for_device" DROP COLUMN "groupId"`,
+    );
   }
 }

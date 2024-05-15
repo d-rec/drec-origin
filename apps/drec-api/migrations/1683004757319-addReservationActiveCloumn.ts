@@ -13,6 +13,6 @@ export class addReservationActiveCloumn1683004757319
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `ALTER TABLE "device_group" DROP COLUMN IF EXISTS "reservationActive"`,
-    );  
+    );
   }
 }

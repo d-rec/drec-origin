@@ -9,6 +9,8 @@ export class devicesIdscolumn1673435097445 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "device_group" DROP COLUMN "deviceIds"`);
+    await queryRunner.query(
+      `ALTER TABLE "device_group" DROP COLUMN "deviceIds"`,
+    );
   }
 }

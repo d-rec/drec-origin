@@ -17,6 +17,6 @@ export class addDeviceTimezone1683267973604 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "device" DROP COLUMN IF EXISTS "version"`,
-    );  
+    );
   }
 }

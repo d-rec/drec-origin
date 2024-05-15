@@ -21,8 +21,10 @@ export class apiUserIdtableandcolumn1695380379771
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE api_user`);
-        await queryRunner.query(`ALTER TABLE "organization" DROP COLUMN "api_user_id"`);
-        await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "api_user_id"`);    
+    await queryRunner.query(`DROP TABLE api_user`);
+    await queryRunner.query(
+      `ALTER TABLE "organization" DROP COLUMN "api_user_id"`,
+    );
+    await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "api_user_id"`);
   }
 }

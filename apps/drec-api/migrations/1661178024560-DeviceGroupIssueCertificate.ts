@@ -22,6 +22,8 @@ export class DeviceGroupIssueCertificate1661178024560
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS public.next_issuance_date_log_for_device_group`);
+    await queryRunner.query(
+      `DROP TABLE IF EXISTS public.next_issuance_date_log_for_device_group`,
+    );
   }
 }
