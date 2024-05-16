@@ -1020,11 +1020,9 @@ export class DeviceGroupService {
       });
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
         if (
-          new Date(startDate).getTime() >
-          new Date(nextMinimumCreatedAtString).getTime()
+          !(new Date(startDate).getTime() >
+          new Date(nextMinimumCreatedAtString).getTime())
         ) {
-          newEndDate = newEndDate;
-        } else {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
@@ -1684,13 +1682,6 @@ export class DeviceGroupService {
       errorsList: Array<any>;
     }> = [];
     let rowsConvertedToCsvCount = 0;
-    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
-    const readableStream = new Readable();
-    readableStream._read = () => {};
-    readableStream
-      .pipe(this.csvParser)
-      .on('data', async (data) => {})
-      .on('end', async () => {});
     this.logger.debug('file?.data.toString()', file?.data.toString());
     const filedata = file.data.Body.toString('utf-8');
     this.csvStringToJSON(filedata);
