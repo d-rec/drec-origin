@@ -1020,8 +1020,10 @@ export class DeviceGroupService {
       });
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
         if (
-          !(new Date(startDate).getTime() >
-          new Date(nextMinimumCreatedAtString).getTime())
+          !(
+            new Date(startDate).getTime() >
+            new Date(nextMinimumCreatedAtString).getTime()
+          )
         ) {
           newEndDate = nextMinimumCreatedAtString;
         }
