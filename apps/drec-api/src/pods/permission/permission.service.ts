@@ -63,39 +63,37 @@ export class PermissionService {
     const permissionValue =
       this.Permissionvalue.computePermissions(addedPermissionList);
 
-      const permissionboolean = await this.checkForExistingmodulepermission(
-        data,
-        permissionValue,
-      );
-      if (permissionboolean) {
-        const aclpermission = new ACLModulePermissions({
-          ...data,
-          permissionValue: permissionValue,
-        });
-        if (
-          (loginuser.role === Role.OrganizationAdmin &&
-            data.entityType != 'Role') ||
-          loginuser.role === Role.Admin ||
-          loginuser.role === Role.ApiUser
-        ) {
-          const modulepermission = await this.repository.save(aclpermission);
-          return modulepermission;
-        } else {
-          this.logger.error(
-            `You are not authorized to add module for any Role`,
-          );
-          throw new ConflictException({
-            success: false,
-            message: `You are not authorized to add module for any Role`,
-          });
-        }
+    const permissionboolean = await this.checkForExistingmodulepermission(
+      data,
+      permissionValue,
+    );
+    if (permissionboolean) {
+      const aclpermission = new ACLModulePermissions({
+        ...data,
+        permissionValue: permissionValue,
+      });
+      if (
+        (loginuser.role === Role.OrganizationAdmin &&
+          data.entityType != 'Role') ||
+        loginuser.role === Role.Admin ||
+        loginuser.role === Role.ApiUser
+      ) {
+        const modulepermission = await this.repository.save(aclpermission);
+        return modulepermission;
       } else {
-        this.logger.error(`This Permission not available in this module Name`);
+        this.logger.error(`You are not authorized to add module for any Role`);
         throw new ConflictException({
           success: false,
-          message: `This Permission not available in this module Name`,
+          message: `You are not authorized to add module for any Role`,
         });
       }
+    } else {
+      this.logger.error(`This Permission not available in this module Name`);
+      throw new ConflictException({
+        success: false,
+        message: `This Permission not available in this module Name`,
+      });
+    }
   }
   private async checkForExistingmodulepermission(
     data: any,
@@ -293,23 +291,24 @@ export class PermissionService {
     }
 
     const userpermissions = await this.repository.find({
-      entityType: EntityType.User, 
-      entityId: loginuser.id
+      entityType: EntityType.User,
+      entityId: loginuser.id,
     });
 
-    const hasId = data.some(aclmodule =>
+    const hasId = data.some((aclmodule) =>
       userpermissions.some(
-        userpermission => userpermission.aclmodulesId === aclmodule.aclmodulesId
+        (userpermission) =>
+          userpermission.aclmodulesId === aclmodule.aclmodulesId,
       ),
     );
 
-    if(!hasId) {
+    if (!hasId) {
       await Promise.all(
         data.map(async (newpermission: NewPermissionDTO) => {
           newpermission.entityType = EntityType.User;
           newpermission.entityId = loginuser.id;
           const perId = await this.create(newpermission, loginuser);
-  
+
           permissionIds.push(perId.id);
         }),
       );
@@ -317,13 +316,12 @@ export class PermissionService {
         api_user.api_user_id,
         permissionIds,
       );
-  
+
       return {
         statsu: 'success',
         message: 'Your permission request send successfully',
       };
-    }
-    else if(hasId) {
+    } else if (hasId) {
       this.logger.error(`Permission For ModuleId  and Role already exist`);
       throw new ConflictException({
         success: false,
