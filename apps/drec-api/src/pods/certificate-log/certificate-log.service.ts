@@ -677,7 +677,7 @@ export class CertificateLogService {
           const newq = await this.certificaterrepository
             .createQueryBuilder('issuar')
             .where(
-              `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
+              `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[[]]/g, '')})`
             );
 
           const groupedDatasql = await newq.getQuery();
