@@ -2418,8 +2418,7 @@ export class DeviceGroupService {
     }
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
@@ -2697,8 +2696,7 @@ export class DeviceGroupService {
 
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
