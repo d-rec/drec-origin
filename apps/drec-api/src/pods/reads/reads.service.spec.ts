@@ -56,7 +56,8 @@ describe('ReadsService', () => {
         },
         {
           provide: BASE_READ_SERVICE,
-          useValue: {} as any,        },
+          useValue: {} as any,
+        },
         {
           provide: DeviceService,
           useValue: {} as any,
