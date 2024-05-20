@@ -63,7 +63,7 @@ export class IssuerService {
 
     this.httpService
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`)
-      .subscribe((response) => {});
+      .subscribe();
   }
 
   hitTheCronFromIssuerAPIHistory() {
@@ -71,7 +71,7 @@ export class IssuerService {
 
     this.httpService
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`)
-      .subscribe((response) => {});
+      .subscribe();
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
