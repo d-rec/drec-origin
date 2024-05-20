@@ -818,7 +818,7 @@ export class CertificateLogService {
         const newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(
-            `crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
+            `crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[[\]]/g, '')})`
           );
         const groupedDatasql = await newq.getQuery();
         this.logger.debug(groupedDatasql);
