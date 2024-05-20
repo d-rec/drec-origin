@@ -250,7 +250,7 @@ export class UserController {
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
     const emailregex =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,}))$/;
     let emailConfirmation: any;
     if (emailregex.test(token)) {
       emailConfirmation = await this.userService.findOne({ email: token });
