@@ -1335,9 +1335,8 @@ export class DeviceService {
   }
   async getcertifieddevicedaterange(groupId, device?): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterange`);
-    let queryBuilder;
 
-    queryBuilder = this.checkdevcielogcertificaterepository
+    const queryBuilder = this.checkdevcielogcertificaterepository
       .createQueryBuilder('deviceData')
       .select(
         'MIN(deviceData.certificate_issuance_startdate)',
@@ -1362,14 +1361,13 @@ export class DeviceService {
     pageNumber?: number,
   ): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterangeBygroupid`);
-    let queryBuilder;
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
     const pageSize = 10;
     const skip: number = (pageNumber - 1) * pageSize;
 
-    queryBuilder = await this.checkdevcielogcertificaterepository
+    const queryBuilder = await this.checkdevcielogcertificaterepository
       .createQueryBuilder('deviceData')
       .leftJoin('device', 'd', 'deviceData.externalId = d.externalId')
       .select([
