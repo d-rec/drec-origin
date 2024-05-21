@@ -2468,7 +2468,17 @@ export class DeviceGroupService {
 
       where_orgnaizationId
         .andWhere(
-          "EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->'deviceIds') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)",
+          new Brackets((qb) => {
+            qb.where(
+              `EXISTS(
+                SELECT 1
+                FROM jsonb_array_elements_text(CAST(crm.metadata AS jsonb)->'deviceIds') AS ids(deviceId)
+                WHERE
+                  (deviceId ~ '^[0-9]+$' AND CAST(deviceId AS INTEGER) = d.id)
+                  OR (deviceId !~ '^[0-9]+$' AND deviceId = d.id::TEXT)
+              )`
+            );
+          })
         )
         .andWhere(
           new Brackets((qb) => {
