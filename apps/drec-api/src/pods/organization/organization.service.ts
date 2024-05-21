@@ -104,10 +104,14 @@ export class OrganizationService {
     try {
       if (user != undefined && user?.role === 'ApiUser') {
         query = query.andWhere((qb) => {
-          qb.where("organization.api_user_id = :apiuserid", { apiuserid: user.api_user_id })
-            .andWhere(`organization.organizationType NOT IN (:...excludedRoles)`, {
-            excludedRoles: ['ApiUser', 'Admin']
-          });
+          qb.where('organization.api_user_id = :apiuserid', {
+            apiuserid: user.api_user_id,
+          }).andWhere(
+            `organization.organizationType NOT IN (:...excludedRoles)`,
+            {
+              excludedRoles: ['ApiUser', 'Admin'],
+            },
+          );
         });
       }
 
