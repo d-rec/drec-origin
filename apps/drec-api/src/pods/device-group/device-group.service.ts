@@ -2476,9 +2476,9 @@ export class DeviceGroupService {
                 WHERE
                   (deviceId ~ '^[0-9]+$' AND CAST(deviceId AS INTEGER) = d.id)
                   OR (deviceId !~ '^[0-9]+$' AND deviceId = d.id::TEXT)
-              )`
+              )`,
             );
-          })
+          }),
         )
         .andWhere(
           new Brackets((qb) => {
