@@ -83,7 +83,6 @@ export class DrecIssuerController {
     this.logger.verbose(`With in reIssueCertificates`);
 
     return new Promise((resolve, reject) => {
-      // @ts-ignore
       this.issuerService.issueCertificateFromAPI(certificateData);
       this.logger.log(`hit the issueance data`);
       resolve('hit the issueance data');

@@ -18,6 +18,8 @@ import {
 import { DeviceService } from '../src/pods/device/device.service';
 import {
   DeviceOrderBy,
+  DevicetypeCode,
+  FuelCode,
   Installation,
   OffTaker,
   Sector,
@@ -122,24 +124,19 @@ describe('Device tests', () => {
       latitude: '34.921213',
       longitude: '135.717309',
       countryCode: 'DE',
-      zipCode: '111111',
-      // @ts-ignore ts(2322)
-      fuelCode: 'ES100',
-      // @ts-ignore ts(2322)
-      deviceTypeCode: 'TC110',
-      installationConfiguration: Installation.StandAlone,
+      fuelCode: FuelCode.ES100,
+      deviceTypeCode: DevicetypeCode.TC110,
       capacity: 1340,
       commissioningDate: '2012-07-01',
       gridInterconnection: true,
       offTaker: OffTaker.Commercial,
-      sector: Sector.Agriculture,
-      standardCompliance: StandardCompliance.IREC,
       yieldValue: 1000,
-      generatorsIds: [],
-      labels: '',
       impactStory: '',
-      data: '',
       images: [],
+      energyStorage: true,
+      energyStorageCapacity: 900,
+      qualityLabels: '',
+      version: '1.0',
     };
     await loginUser(loggedUser);
     const { body: updatedDevice } = await postDevice(
@@ -180,25 +177,20 @@ describe('Device tests', () => {
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
-      // @ts-ignore ts(2322)
-      fuelCode: 'ES100',
-      // @ts-ignore ts(2322)
-      deviceTypeCode: 'TC110',
-      installationConfiguration: Installation.StandAlone,
+      fuelCode: FuelCode.ES100,
+      deviceTypeCode: DevicetypeCode.TC110,
       capacity: 1340,
       countryCode: 'DE',
-      zipCode: '111111',
       commissioningDate: '2012-07-01',
       gridInterconnection: true,
       offTaker: OffTaker.Commercial,
-      sector: Sector.Agriculture,
-      standardCompliance: StandardCompliance.IREC,
       yieldValue: 1000,
-      generatorsIds: [],
-      labels: '',
       impactStory: '',
-      data: '',
       images: [],
+      energyStorage: true,
+      energyStorageCapacity: 900,
+      qualityLabels: '',
+      version: '1.0',
     };
     await loginUser(loggedUser);
     await postDevice('', HttpStatus.FORBIDDEN, partialDevice);
@@ -211,8 +203,7 @@ describe('Device tests', () => {
     };
     await loginUser(loggedUser);
     const orderFilter: Partial<DeviceGroupByDTO> = {
-      // @ts-ignore ts(2339)
-      orderBy: [DeviceOrderBy.Sector, DeviceOrderBy.OffTaker],
+      orderBy: [DeviceOrderBy.Country, DeviceOrderBy.OffTaker],
     };
     const { body: deviceGroups } = await requestUngrouppedDevice(
       HttpStatus.OK,

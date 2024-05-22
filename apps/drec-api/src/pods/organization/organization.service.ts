@@ -103,8 +103,15 @@ export class OrganizationService {
     let query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
-        query = query.andWhere(`organization.api_user_id = :apiuserid`, {
-          apiuserid: user.api_user_id,
+        query = query.andWhere((qb) => {
+          qb.where('organization.api_user_id = :apiuserid', {
+            apiuserid: user.api_user_id,
+          }).andWhere(
+            `organization.organizationType NOT IN (:...excludedRoles)`,
+            {
+              excludedRoles: ['ApiUser', 'Admin'],
+            },
+          );
         });
       }
 

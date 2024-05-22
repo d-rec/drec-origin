@@ -10,5 +10,10 @@ export class expiryDateColumnDevicegroupTable1703838718793
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      ALTER TABLE "device_group"
+      DROP COLUMN "reservationExpiryDate"
+    `);
+  }
 }

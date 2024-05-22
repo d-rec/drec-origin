@@ -23,10 +23,9 @@ export class PowerFormatter {
   }
 
   static getBaseValueFromValueInDisplayUnitInEthers(amount): string {
-    // @ts-ignore
     return BigNumberEthers.from(
       PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount)),
-    );
+    ).toString();
   }
 
   static format(powerInWatt: number, includeDisplayUnit?: boolean): string {
@@ -47,7 +46,6 @@ export class PowerFormatter {
     powerInWatt: number,
     includeDisplayUnit?: boolean,
   ): string {
-    // @ts-ignore
     return `${PowerFormatter.formatter.format(powerInWatt / Unit[PowerFormatter.displayUnit])}${
       includeDisplayUnit ? ' ' + PowerFormatter.capacityDisplayUnit : ''
     }`;

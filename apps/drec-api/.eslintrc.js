@@ -7,9 +7,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
-    // Temporarily disable `eslint:recommended` until other lint issues have been fixed
-    // 'eslint:recommended',
-    // 'plugin:@typescript-eslint/eslint-recommended',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'prettier/@typescript-eslint',

@@ -120,7 +120,7 @@ export class CertificateLogController {
     @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    if (parseInt(filterDto.groupId) === NaN) {
+    if (isNaN(parseInt(filterDto.groupId))) {
       this.logger.error(`Group Id is a number, invalid value was sent`);
       return new Promise((resolve, reject) => {
         reject(

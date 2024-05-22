@@ -14,12 +14,8 @@ export const NewfindLatestRead = async (
 ): Promise<ReadDTO | void> => {
   const logger = new Logger('NewfindLatestRead');
 
-  // @ts-ignore
-  // @ts-ignore
   const url = process.env.INFLUXDB_URL;
-  // @ts-ignore
   const token = process.env.INFLUXDB_TOKEN;
-  // @ts-ignore
   const org = process.env.INFLUXDB_ORG;
 
   logger.log('Connecting to InfluxDB...');
@@ -78,13 +74,9 @@ export const dbReader: any = () => {
   // const token = 'admin:admin'
   // const org = '';
 
-  // @ts-ignore
   const url = process.env.INFLUXDB_URL;
-  // @ts-ignore
   const token = process.env.INFLUXDB_TOKEN;
-  // @ts-ignore
   const org = process.env.INFLUXDB_ORG;
 
-  // @ts-ignore
   return new InfluxDB({ url, token }).getQueryApi(org);
 };

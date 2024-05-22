@@ -21,5 +21,7 @@ export class IntermideatryTableFields1658924656241
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS aggregate_meterread`);
+  }
 }
