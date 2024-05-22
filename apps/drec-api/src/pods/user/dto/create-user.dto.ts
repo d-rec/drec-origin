@@ -89,4 +89,7 @@ export class CreateUserORGDTO
   @IsUUID('all', { message: 'Invalid UUID format' })
   @IsOptional()
   api_user_id?: string;
+
+  @IsOptional()
+  orgid?: number;
 }

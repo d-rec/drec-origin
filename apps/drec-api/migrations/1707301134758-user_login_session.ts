@@ -15,5 +15,9 @@ export class userLoginSession1707301134758 implements MigrationInterface {
           `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+    DROP TABLE IF EXISTS user_login_session
+  `);
+  }
 }

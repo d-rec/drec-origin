@@ -99,6 +99,8 @@ export class FilterDTO {
     isArray: true,
   })
   SDGBenefits?: string[] | undefined;
+
+  organizationId?: number;
 }
 export class BuyerDeviceFilterDTO {
   @IsOptional()

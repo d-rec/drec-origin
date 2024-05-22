@@ -122,9 +122,7 @@ describe('UserService', () => {
       const orgData: Organization = {
         id: 1,
         name: userData.orgName,
-        // @ts-ignore
         organizationType: userData.organizationType,
-        // @ts-ignore
         orgEmail: userData.email,
         address: userData.orgAddress,
         zipCode: null,
@@ -165,7 +163,6 @@ describe('UserService', () => {
       const result = await service.newcreate(userData);
 
       expect(result).toBeDefined();
-      // @ts-ignore
       expect(service.checkForExistingUser).toHaveBeenCalledWith(
         userData.email.toLowerCase(),
       );
@@ -178,9 +175,7 @@ describe('UserService', () => {
       expect(organizationService.newcreate).toHaveBeenCalledWith(
         expect.objectContaining({
           name: userData.orgName,
-          // @ts-ignore
           organizationType: userData.organizationType,
-          // @ts-ignore
           orgEmail: userData.email,
           address: userData.orgAddress,
           api_user_id: userData.api_user_id,
@@ -189,11 +184,8 @@ describe('UserService', () => {
 
       expect(repository.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          // @ts-ignore
           firstName: userData.firstName,
-          // @ts-ignore
           lastName: userData.lastName,
-          // @ts-ignore
           email: userData.email.toLowerCase(),
           password: expect.any(String),
           notifications: true,
@@ -298,9 +290,7 @@ describe('UserService', () => {
         id: 1,
         api_user_id: userData.api_user_id,
         name: userData.orgName,
-        // @ts-ignore
         organizationType: userData.organizationType,
-        // @ts-ignore
         orgEmail: userData.email,
         address: userData.orgAddress,
         zipCode: null,
@@ -334,7 +324,6 @@ describe('UserService', () => {
       const resultPromise = service.adminnewcreate(userData);
 
       await expect(resultPromise).resolves.toBeDefined();
-      // @ts-ignore
       await expect(service.checkForExistingUser).toHaveBeenCalledWith(
         userData.email.toLowerCase(),
       );
@@ -343,19 +332,14 @@ describe('UserService', () => {
       );
       await expect(organizationService.newcreate).toHaveBeenCalledWith({
         name: userData.orgName,
-        //@ts-ignore
         organizationType: userData.organizationType,
-        // @ts-ignore
         orgEmail: userData.email,
         address: userData.orgAddress,
       });
       await expect(repository.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          // @ts-ignore
           firstName: userData.firstName,
-          // @ts-ignore
           lastName: userData.lastName,
-          // @ts-ignore
           email: userData.email.toLowerCase(),
           password: expect.any(String),
           notifications: true,
@@ -679,7 +663,6 @@ describe('UserService', () => {
 
     it('should include permission_status when the found user has a role of Role.ApiUser', async () => {
       const userId = 1;
-      // @ts-ignore
       mockuserEntity.permission_status = UserPermissionStatus.Active;
       const findOneSpy = jest
         .spyOn(service, 'findOne')
@@ -697,7 +680,6 @@ describe('UserService', () => {
       expect(permission_statusSpy).toHaveBeenCalledWith(
         mockuserEntity.api_user_id,
       );
-      // @ts-ignore
       expect(user.permission_status).toBe(UserPermissionStatus.Request);
     });
 
@@ -752,7 +734,6 @@ describe('UserService', () => {
       const user = await service.findById(userId);
 
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
-      // @ts-ignore
       expect(user.permission_status).toBeUndefined();
     });
   });
@@ -962,10 +943,10 @@ describe('UserService', () => {
       const result = await service.findOne({ email: mockuserEntity.email });
 
       expect(result).toBeNull();
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: mockuserEntity.email } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(findOneSpy).toHaveBeenCalledWith(
+        { email: mockuserEntity.email } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
     });
 
@@ -982,10 +963,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(true);
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(findOneSpy).toHaveBeenCalledWith(
+        { email: 'test@example.com' } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationSpy).toHaveBeenCalledWith(1);
     });
 
@@ -998,10 +979,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(false);
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(repository.findOne).toHaveBeenCalledWith(
+        { email: 'test@example.com' } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationService.get).toHaveBeenCalledWith(1);
     });
   });

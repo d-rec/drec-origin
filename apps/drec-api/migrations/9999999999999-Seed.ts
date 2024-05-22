@@ -83,13 +83,17 @@ export class Seed9999999999999 implements MigrationInterface {
 
     if (provider && contractsLookup) {
       await queryRunner.query(
-        `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback", "platformOperatorPrivateKey") VALUES (${
+        `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback") VALUES (${
           provider.network.chainId
         }, '${contractsLookup.registry}', '${
           contractsLookup.issuer
-        }', '${primaryRpc}', '${fallbackRpc ?? ''}', '${
-          issuerAccount.privateKey
-        }')`,
+        }', '${primaryRpc}', '${fallbackRpc ?? ''}'
+        )`,
+      );
+
+      await queryRunner.query(
+        `INSERT INTO public.issuer_signer ("blockchainNetId", "platformOperatorPrivateKey", "isEncrypted") VALUES (${provider.network.chainId}, '${issuerAccount.privateKey}', false
+        )`,
       );
     }
 
@@ -283,7 +287,7 @@ export class Seed9999999999999 implements MigrationInterface {
               Delete: false,
               Update: false,
             };
-            for (var key in addedPermissionList) {
+            for (const key in addedPermissionList) {
               aclModule.permissions.map((myArr, index) => {
                 if (myArr === key) {
                   addedPermissionList[key] = true;

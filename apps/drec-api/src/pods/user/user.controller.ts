@@ -145,7 +145,6 @@ export class UserController {
         );
       });
     }
-    // @ts-ignore
     if (
       userRegistrationData.organizationType.toLowerCase() !=
         'Buyer'.toLowerCase() &&
@@ -174,8 +173,7 @@ export class UserController {
       });
     }
     if (!userRegistrationData.api_user_id) {
-      // @ts-ignore
-      userRegistrationData.api_user_id = user.api_user_id;
+      userRegistrationData.api_user_id = (user as any).api_user_id;
     }
     return this.userService.newcreate(userRegistrationData);
   }
@@ -252,7 +250,7 @@ export class UserController {
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
     const emailregex =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
     let emailConfirmation: any;
     if (emailregex.test(token)) {
       emailConfirmation = await this.userService.findOne({ email: token });

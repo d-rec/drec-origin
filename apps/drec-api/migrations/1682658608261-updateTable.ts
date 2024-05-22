@@ -11,5 +11,14 @@ export class updateTable1682658608261 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `CREATE TABLE "developer_specific_manageGroupDevices_notFor_buyerReservation" (
+        -- Define table columns here if needed
+      )`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE device_group DROP COLUMN IF EXISTS "deviceIdsInt"`,
+    );
+  }
 }

@@ -23,7 +23,7 @@ jobs:
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@6
+          npm i -g pnpm@7
 
       - name: Install drec-origin
         run: |
@@ -47,13 +47,17 @@ jobs:
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@6
+          npm i -g pnpm@7
 
       - name: Install drec-origin
         run: |
           rush install
 
-      - name: Run ESLint
+      - name: Run ESLint (error)
+        working-directory: apps/drec-api
+        run: pnpm run lint:error
+
+      - name: Run ESLint (all)
         working-directory: apps/drec-api
         run: pnpm run lint
         continue-on-error: true
@@ -72,7 +76,7 @@ jobs:
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@6
+          npm i -g pnpm@7
 
       - name: Install drec-origin
         run: |

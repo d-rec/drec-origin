@@ -90,3 +90,5 @@ apps/drec-api/bin/drec-api
 
 # Docs build output
 apps/drec-api/documentation
+docs/.vitepress/cache
+docs/.vitepress/dist

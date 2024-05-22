@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Pages
         uses: actions/configure-pages@v2
@@ -36,23 +36,17 @@ jobs:
           node-version: lts/gallium
 
       - name: Install tooling
-        run: |
-          npm i -g @microsoft/rush
-          npm i -g pnpm@6
+        working-directory: docs
+        run: npm install
 
-      - name: Install drec-api
-        working-directory: apps/drec-api
-        run: |
-          rush install
-
-      - name: Build docs with compodoc
-        working-directory: apps/drec-api
-        run: pnpm run compodoc
+      - name: Build docs with VitePress
+        working-directory: docs
+        run: npm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: apps/drec-api/documentation/
+          path: docs/.vitepress/dist/
 
   # Deployment job
   deploy:

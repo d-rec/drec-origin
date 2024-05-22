@@ -366,7 +366,6 @@ export class OrganizationController {
     const user = await this.userService.findById(userid);
     if (
       loggedUser.role === Role.ApiUser &&
-      // @ts-ignore ts(2339)
       loggedUser.api_user_id != user.api_user_id
     ) {
       throw new NotFoundException('User does not exist in this organization');

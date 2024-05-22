@@ -122,10 +122,8 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    // @ts-ignore ts(2339)
     if (filterDto.organizationId) {
       const organization = await this.organizationService.findOne(
-        // @ts-ignore ts(2339)
         filterDto.organizationId,
       );
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -297,11 +295,9 @@ export class DeviceController {
         });
       }
     }
-    // @ts-ignore
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
-          // @ts-ignore ts(2339)
           filterDto.organizationId,
         );
         const orguser = await this.userService.findByEmail(
@@ -325,7 +321,6 @@ export class DeviceController {
           }
         }
       } else {
-        // @ts-ignore
         if (filterDto.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
@@ -337,7 +332,6 @@ export class DeviceController {
         }
       }
 
-      // @ts-ignore
       organizationId = filterDto.organizationId;
     }
 
@@ -559,10 +553,8 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     if (role === Role.Admin || role === Role.ApiUser) {
-      // @ts-ignore
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
-        // @ts-ignore
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
@@ -958,8 +950,7 @@ export class DeviceController {
       });
     }
 
-    let group: DeviceGroup | null;
-    group = await this.deviceGroupService.findOne({
+    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
     if (group === null || group.buyerId != user.id) {
@@ -976,9 +967,8 @@ export class DeviceController {
       });
     }
     if (externalId != null || externalId != undefined) {
-      let device: DeviceDTO | null;
-
-      device = await this.deviceService.findOne(externalId);
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {

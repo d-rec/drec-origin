@@ -53,7 +53,7 @@ export class PermissionService {
       Delete: false,
       Update: false,
     };
-    for (var key in addedPermissionList) {
+    for (const key in addedPermissionList) {
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
@@ -207,7 +207,7 @@ export class PermissionService {
       Delete: false,
       Update: false,
     };
-    for (var key in addedPermissionList) {
+    for (const key in addedPermissionList) {
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
@@ -280,7 +280,6 @@ export class PermissionService {
 
     let permissionIds: any = [];
     const api_userpermission = await this.userService.getApiuser(
-      // @ts-ignore ts(2339)
       api_user.api_user_id,
     );
 
@@ -314,7 +313,6 @@ export class PermissionService {
         }),
       );
       await this.userService.apiuser_permission_request(
-        // @ts-ignore ts(2339)
         api_user.api_user_id,
         permissionIds,
       );

@@ -404,11 +404,10 @@ export class BuyerReservationController {
         );
       });
     }
-
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
-      deviceGroupToRegister.targetCapacityInMegaWattHour == -0
+      Object.is(deviceGroupToRegister.targetCapacityInMegaWattHour, -0)
     ) {
       this.logger.error(
         `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,
@@ -553,7 +552,6 @@ export class BuyerReservationController {
       organizationId,
       deviceGroupToRegister,
       user.id,
-      // @ts-ignore
       process.env.DREC_BLOCKCHAIN_ADDRESS,
     );
   }
