@@ -45,5 +45,8 @@ export default defineConfig({
         search: {
             provider: 'local'
         }
+    },
+    enhanceApp({ app }) {
+        app.component('LiveData',require('./components/LiveData.vue').default);
     }
 });
