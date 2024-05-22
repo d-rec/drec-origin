@@ -943,10 +943,10 @@ describe('UserService', () => {
       const result = await service.findOne({ email: mockuserEntity.email });
 
       expect(result).toBeNull();
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: mockuserEntity.email } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(findOneSpy).toHaveBeenCalledWith(
+        { email: mockuserEntity.email } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
     });
 
@@ -963,10 +963,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(true);
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(findOneSpy).toHaveBeenCalledWith(
+        { email: 'test@example.com' } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationSpy).toHaveBeenCalledWith(1);
     });
 
@@ -979,10 +979,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockuserEntity));
       expect(result.emailConfirmed).toBe(false);
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' } as FindConditions<User>,
-        relations: ['organization'],
-      });
+      expect(repository.findOne).toHaveBeenCalledWith(
+        { email: 'test@example.com' } as FindConditions<User>,
+        { relations: ['organization'] },
+      );
       expect(emailConfirmationService.get).toHaveBeenCalledWith(1);
     });
   });

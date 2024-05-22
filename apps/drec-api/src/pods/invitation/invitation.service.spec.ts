@@ -203,7 +203,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
@@ -422,7 +422,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);

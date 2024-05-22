@@ -1547,7 +1547,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.verbose('startDate::::::::::::' + startDate);
     this.logger.verbose('End DAte:::::::::::::' + endDate);
 
-    meter = meter;
     let tempResults = [];
     const finalResults: { timestamp?: string; value?: any }[] = [];
     let response;

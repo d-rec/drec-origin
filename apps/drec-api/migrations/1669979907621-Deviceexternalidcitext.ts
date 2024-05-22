@@ -9,5 +9,10 @@ export class Deviceexternalidcitext1669979907621 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "device" ALTER COLUMN "externalId" TYPE varchar`,
+    );
+    await queryRunner.query(`DROP EXTENSION IF EXISTS citext`);
+  }
 }

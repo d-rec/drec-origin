@@ -18,5 +18,18 @@ export class renamedeviceIdtoexternalId1683279891527
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "aggregate_meterread" RENAME COLUMN "externalId" TO "deviceId"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "check_certificate_issue_date_log_for_device" RENAME COLUMN "externalId" TO "deviceid"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "delta_firstread" RENAME COLUMN "externalId" TO "deviceId"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "history_intermediate_meteread" RENAME COLUMN "externalId" TO "deviceId"`,
+    );
+  }
 }

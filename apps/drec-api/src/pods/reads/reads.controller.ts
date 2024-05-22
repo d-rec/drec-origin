@@ -499,8 +499,10 @@ export class ReadsController extends BaseReadsController {
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 });
               } else {
-                let dateTime;
-                dateTime = momentTimeZone.tz(dateString, measurements.timezone);
+                const dateTime = momentTimeZone.tz(
+                  dateString,
+                  measurements.timezone,
+                );
                 if (!dateTime.isValid()) {
                   dateInvalid = true;
                   this.logger.error(`Invalid date sent  ${dateString}`);
@@ -512,12 +514,14 @@ export class ReadsController extends BaseReadsController {
                   let milliSeondsToAddSentInRequest = '';
                   if (
                     dateString.includes('.') &&
-                    parseInt(
-                      dateString.substring(
-                        dateString.indexOf('.'),
-                        dateString.length,
+                    !isNaN(
+                      parseInt(
+                        dateString.substring(
+                          dateString.indexOf('.'),
+                          dateString.length,
+                        ),
                       ),
-                    ) != NaN
+                    )
                   ) {
                     milliSeondsToAddSentInRequest = dateString.substring(
                       dateString.indexOf('.'),
@@ -1065,8 +1069,10 @@ export class ReadsController extends BaseReadsController {
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 });
               } else {
-                let dateTime;
-                dateTime = momentTimeZone.tz(dateString, measurements.timezone);
+                const dateTime = momentTimeZone.tz(
+                  dateString,
+                  measurements.timezone,
+                );
                 if (!dateTime.isValid()) {
                   this.logger.error(`Invalid date sent  ${dateString}`);
                   dateInvalid = true;
@@ -1078,12 +1084,14 @@ export class ReadsController extends BaseReadsController {
                   let milliSeondsToAddSentInRequest = '';
                   if (
                     dateString.includes('.') &&
-                    parseInt(
-                      dateString.substring(
-                        dateString.indexOf('.'),
-                        dateString.length,
+                    !isNaN(
+                      parseInt(
+                        dateString.substring(
+                          dateString.indexOf('.'),
+                          dateString.length,
+                        ),
                       ),
-                    ) != NaN
+                    )
                   ) {
                     milliSeondsToAddSentInRequest = dateString.substring(
                       dateString.indexOf('.'),
@@ -1528,11 +1536,10 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    let deviceExternalId;
     let latestReadObject;
     let latestRead;
 
-    deviceExternalId = device.externalId;
+    const deviceExternalId = device.externalId;
 
     if (!device.meterReadtype) {
       this.logger.error(`Read not found`);

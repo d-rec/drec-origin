@@ -7,5 +7,10 @@ export class AddColumnDevice1698645660886 implements MigrationInterface {
           `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      ALTER TABLE "device" 
+      DROP COLUMN "api_user_id"
+    `);
+  }
 }

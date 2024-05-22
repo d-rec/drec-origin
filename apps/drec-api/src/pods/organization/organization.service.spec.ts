@@ -345,7 +345,7 @@ describe('OrganizationService', () => {
     const limit = 20;
     const role = undefined;
 
-    let users = [
+    const users = [
       {
         updatedAt: new Date('2024-03-04T07:03:46.336Z'),
         id: 21,

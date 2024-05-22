@@ -18,5 +18,17 @@ export class alterOAuthClientCredential1708000840858
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "oauth_client_credentials" ADD COLUMN "client_secret" TEXT`,
+    );
+    await queryRunner.query(`ALTER TABLE "oauth_client_credentials"
+        DROP CONSTRAINT "UQ_oauth_client_credentials_client_id"`);
+
+    await queryRunner.query(`ALTER TABLE "oauth_client_credentials"
+        ALTER COLUMN "client_id" DROP NOT NULL`);
+
+    await queryRunner.query(`ALTER TABLE "oauth_client_credentials"
+        ALTER COLUMN "client_id" TYPE VARCHAR`);
+  }
 }

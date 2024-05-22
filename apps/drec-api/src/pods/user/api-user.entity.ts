@@ -16,8 +16,6 @@ import { Organization } from '../organization/organization.entity';
 import { ACLModulePermissions } from '../permission/permission.entity';
 @Entity({ name: 'api_user' })
 export class ApiUserEntity {
-  constructor() {}
-
   @PrimaryGeneratedColumn('uuid')
   api_user_id: string;
 
