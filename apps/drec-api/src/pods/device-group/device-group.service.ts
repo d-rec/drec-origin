@@ -1020,11 +1020,11 @@ export class DeviceGroupService {
       });
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
         if (
-          new Date(startDate).getTime() >
-          new Date(nextMinimumCreatedAtString).getTime()
+          !(
+            new Date(startDate).getTime() >
+            new Date(nextMinimumCreatedAtString).getTime()
+          )
         ) {
-          newEndDate = newEndDate;
-        } else {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
@@ -1684,13 +1684,6 @@ export class DeviceGroupService {
       errorsList: Array<any>;
     }> = [];
     let rowsConvertedToCsvCount = 0;
-    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
-    const readableStream = new Readable();
-    readableStream._read = () => {};
-    readableStream
-      .pipe(this.csvParser)
-      .on('data', async (data) => {})
-      .on('end', async () => {});
     this.logger.debug('file?.data.toString()', file?.data.toString());
     const filedata = file.data.Body.toString('utf-8');
     this.csvStringToJSON(filedata);
@@ -2425,8 +2418,7 @@ export class DeviceGroupService {
     }
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
@@ -2714,8 +2706,7 @@ export class DeviceGroupService {
 
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(

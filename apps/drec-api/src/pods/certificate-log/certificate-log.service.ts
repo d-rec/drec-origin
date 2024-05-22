@@ -100,7 +100,7 @@ export class CertificateLogService {
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
-    let page = pageNumber; // Specify the page number you want to retrieve
+    const page = pageNumber; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
     const [certifiedreservation, total] =
@@ -677,7 +677,7 @@ export class CertificateLogService {
           const newq = await this.certificaterrepository
             .createQueryBuilder('issuar')
             .where(
-              `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
+              `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[[]]/g, '')})`,
             );
 
           const groupedDatasql = await newq.getQuery();
@@ -818,7 +818,7 @@ export class CertificateLogService {
         const newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(
-            `crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[\[\]]/g, '')})`,
+            `crm.internalCertificateId IN (${JSON.stringify(group.internalCertificateId).replace(/[[\]]/g, '')})`,
           );
         const groupedDatasql = await newq.getQuery();
         this.logger.debug(groupedDatasql);

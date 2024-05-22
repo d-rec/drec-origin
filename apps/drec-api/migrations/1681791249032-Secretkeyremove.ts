@@ -8,5 +8,9 @@ export class Secretkeyremove1681791249032 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "organization" ADD "secretKey" character varying`,
+    );
+  }
 }

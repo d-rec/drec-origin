@@ -11,5 +11,12 @@ export class addDeviceTimezone1683267973604 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "device" DROP COLUMN IF EXISTS "timezone"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "device" DROP COLUMN IF EXISTS "version"`,
+    );
+  }
 }

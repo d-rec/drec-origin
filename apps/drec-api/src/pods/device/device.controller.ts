@@ -950,8 +950,7 @@ export class DeviceController {
       });
     }
 
-    let group: DeviceGroup | null;
-    group = await this.deviceGroupService.findOne({
+    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
     if (group === null || group.buyerId != user.id) {
@@ -968,9 +967,8 @@ export class DeviceController {
       });
     }
     if (externalId != null || externalId != undefined) {
-      let device: DeviceDTO | null;
-
-      device = await this.deviceService.findOne(externalId);
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {

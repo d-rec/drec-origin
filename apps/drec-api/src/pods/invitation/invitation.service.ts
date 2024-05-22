@@ -156,11 +156,10 @@ export class InvitationService {
       organizationType: organization.organizationType,
       orgid: organization.id || undefined,
     };
-    let userid: any;
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-    userid = await this.userService.newcreate(
+    const userid: any = await this.userService.newcreate(
       inviteuser,
       UserStatus.Pending,
       true,

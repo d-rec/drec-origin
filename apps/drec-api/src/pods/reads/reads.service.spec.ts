@@ -10,19 +10,35 @@ import { DeviceService } from '../device';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
+import { BASE_READ_SERVICE } from './const';
+
+jest.mock('@influxdata/influxdb-client', () => {
+  return {
+    InfluxDB: jest.fn().mockImplementation(() => {
+      return {
+        getQueryApi: jest.fn().mockReturnValue({
+          queryRows: jest.fn(),
+        }),
+      };
+    }),
+  };
+});
 
 describe('ReadsService', () => {
   let service: ReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;
   let historyRepository: Repository<HistoryIntermediate_MeterRead>;
   let deltaRepository: Repository<DeltaFirstRead>;
-  let baseReadsService: BaseReadService;
   let deviceService: DeviceService;
   let deviceGroupService: DeviceGroupService;
   let organizationService: OrganizationService;
   let eventBus: EventBus;
 
   beforeEach(async () => {
+    process.env.INFLUXDB_URL = 'http://localhost:8086';
+    process.env.INFLUXDB_TOKEN = 'test-token';
+    process.env.INFLUXDB_ORG = 'test-org';
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReadsService,
@@ -39,7 +55,7 @@ describe('ReadsService', () => {
           useClass: Repository,
         },
         {
-          provide: BaseReadService,
+          provide: BASE_READ_SERVICE,
           useValue: {} as any,
         },
         {

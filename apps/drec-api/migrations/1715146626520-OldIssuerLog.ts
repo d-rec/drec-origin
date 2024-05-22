@@ -25,5 +25,7 @@ export class OldIssuerLog1715146626520 implements MigrationInterface {
         )`);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS old_issuer_certificate`);
+  }
 }
