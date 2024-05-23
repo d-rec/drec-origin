@@ -429,8 +429,7 @@ export class IssuerService {
               ) {
                 await this.groupService.deactiveReaservation(group);
               }
-            }
-            else {
+            } else {
               await this.groupService.deactiveReaservation(group);
             }
           }
