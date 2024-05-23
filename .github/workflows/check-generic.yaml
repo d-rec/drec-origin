@@ -6,10 +6,10 @@ name: Check Generic
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
   editorconfig-checker:
