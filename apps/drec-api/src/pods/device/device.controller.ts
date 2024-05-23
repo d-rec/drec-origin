@@ -400,13 +400,22 @@ export class DeviceController {
   })
   async getByExternalId(
     @Param('id') id: string,
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
-      id,
-      organizationId,
-    );
+    let devicedata: Device;
+    if(loginUser.role=== Role.ApiUser) {
+      devicedata = await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
+        id,
+        loginUser.api_user_id,
+      );
+    }
+    else{
+      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+        id,
+        loginUser.organizationId,
+      );
+    }
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata['developerExternalId'];
     return devicedata;
