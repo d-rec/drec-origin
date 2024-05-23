@@ -430,6 +430,9 @@ export class IssuerService {
                 await this.groupService.deactiveReaservation(group);
               }
             }
+            else {
+              await this.groupService.deactiveReaservation(group);
+            }
           }
         },
       ),
