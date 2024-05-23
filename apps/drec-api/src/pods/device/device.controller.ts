@@ -404,13 +404,13 @@ export class DeviceController {
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
     let devicedata: Device;
-    if(loginUser.role=== Role.ApiUser) {
-      devicedata = await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-        id,
-        loginUser.api_user_id,
-      );
-    }
-    else{
+    if (loginUser.role === Role.ApiUser) {
+      devicedata =
+        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
+          id,
+          loginUser.api_user_id,
+        );
+    } else {
       devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         loginUser.organizationId,
