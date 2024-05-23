@@ -1,8 +1,8 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "./apps/drec-api"
+  - package-ecosystem: npm
+    directory: ./apps/drec-api
     schedule:
-      interval: "daily"
+      interval: daily
     labels:
-      - "dependencies"
+      - dependencies
