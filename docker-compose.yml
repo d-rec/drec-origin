@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -17,7 +17,7 @@ services:
     image: redis:latest
     container_name: drec-redis
     ports:
-      - "6379:6379"
+      - 6379:6379
 
   drec-influxdb:
     image: influxdb:1.8
@@ -29,7 +29,7 @@ services:
       INFLUXDB_USER: api
       INFLUXDB_USER_PASSWORD: secret
     ports:
-      - "8086:8086"
+      - 8086:8086
     volumes:
       - influxdb-data:/var/lib/influxdb
       - ./influxdb.conf:/etc/influxdb/influxdb.conf
