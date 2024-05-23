@@ -4,13 +4,6 @@ order: 2
 
 # Developer Onboarding
 
-<LiveData />
-
-**<span style="font-size: 12px;">Owned by Vijay (Unlicensed)</span>**<br>
-**<span style="font-size: 12px;">Last updated: May 14, 2024 by Daniel</span>**<br>
-**<span style="font-size: 12px;">6 min read</span>**<br>
-**<span style="font-size: 12px;">18 people viewed</span>**
-
 This page captures requirements of on boarding functionalities of developer, project, and site.
 
 ## High-Level Understanding
@@ -49,11 +42,13 @@ User clicks on registration button on D-Rec landing page and enters the followin
 
 On the successful registration, this user account will be the admin account of organisation. User will be landed on Organisation Details Page
 
-## <u>Organisation Registration (Developer)</u>
+## Organisation Registration (Developer)
 
 ### Organisation Details Page
 
-Organisation admin user will successfully login to D-Rec platform and see “No organisations registered” message and button to register organisation. (Note - This message is subjective to change as per future requirements).
+Organisation admin user will successfully login to D-Rec platform and see “No organisations registered” message and button to register organisation.
+>[!NOTE]
+>This message is subjective to change as per future requirements.
 
 ![Organization regitration flow](99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
 
@@ -85,23 +80,24 @@ On the successful registration of the organisation, organisation admin user will
 
 “Add Project” button appears on Organisation Details page.
 
-## <u>Project Registration</u>
+## Project Registration
 
-This is new API development from D-Rec platform. User will enter the following details while registering project.
+This is new API development from D-Rec platform. User will enter the following details while registeringz projvect.
 
-NOTE - <span style="color: red;">Ricky will confirm us on considering I-REC standards to be used while creating D-Rec certificate</span>
+>[!NOTE]
+>Client will confirm us on considering I-REC standards to be used while creating D-Rec certificate
 
-    Country 
-    Status of the project (dropdown) - Current
-    Technology Type (dropdown) - Solar Lanterns, Solar Home Systems, Community Mini Grids, Others
+- Country 
+- Status of the project (dropdown) - Current
+- Technology Type (dropdown) - Solar Lanterns, Solar Home Systems, Community Mini Grids, Others
     On selection of Others, text field should appear
-    Aggregate Nameplate Capacity for project (kW)
-    Expected or Actual kWhs to be generated from the first year of operation
-    Description of the project
-    Electricity off-taker category (dropdown) - Agriculture, Manufacturing, Public Services etc…
-    Sector
-    Description of Social / Environmental Impact
-    Project Image to browse (types accepted - PNGs, JPEGs)
+- Aggregate Nameplate Capacity for project (kW)
+- Expected or Actual kWhs to be generated from the first year of operation
+- Description of the project
+- Electricity off-taker category (dropdown) - Agriculture, Manufacturing, Public Services etc…
+- Sector
+- Description of Social / Environmental Impact
+-  Project Image to browse (types accepted - PNGs, JPEGs)
 
 Form with above fields and Submit, Reset and Back buttons should appear at the bottom of the page. 
 
@@ -111,34 +107,35 @@ Upon successful registration of project, project details should appear in tabula
 
 Each row in table should consist of “Details” button and “Add Site” button. These details should appear on Organisation Details page.
 
-## <u>Device Onboarding (Site Registration)</u>
+## Device Onboarding (Site Registration)
 
 User fills the following details on Site Registration Page. Site Registration is happening against to the project. Hence, Site Registration Page will auto populate Project Name, Off Taker, Sector and Impact Story details.
 
 ![Device Onboarding Flow](6faf99ae-11e2-4b95-89d8-c027cc2542bf.png)
 
-Site Registration (radio button) - Single, Multiple<br>
-Country for the Site<br>
-City for the Site<br>
-Address<br>
-Zip Code<br>
-Labels (e.g. Women owned business)<br>
-Latitude Value<br>
-Longitude Value<br>
-Fuel Code<br>
-Device Type Code<br>
-Number of Devices<br>
-Installation Configuration (dropdown) - StandAlone, Microgrid<br>
-Grid Interconnection (dropdown) - True , False<br>
-Commissioning / Commissioned Year (dropdown) - 2021, 2022 etc…<br>
-Quarter of the Year (dropdown) - Q1, Q2, Q3 and Q4<br>
-Nameplate Capacity for Site (kW)<br>
-Expected Year One kWhs<br>
-Site Image Upload (expected image formats - PNGs, JPEGs)<br>
+Site Registration (radio button) - Single, Multiple
+Country for the Site
+City for the Site
+Address
+Zip Code
+Labels (e.g. Women owned business)
+Latitude Value
+Longitude Value
+Fuel Code
+Device Type Code
+Number of Devices
+Installation Configuration (dropdown) - StandAlone, Microgrid
+Grid Interconnection (dropdown) - True , False
+Commissioning / Commissioned Year (dropdown) - 2021, 2022 etc…
+Quarter of the Year (dropdown) - Q1, Q2, Q3 and Q4
+Nameplate Capacity for Site (kW)
+Expected Year One kWhs
+Site Image Upload (expected image formats - PNGs, JPEGs)
 
 This registration page will consist of Submit (creating new entry), Reset (for resetting the page) and Back (to disappear form and go back to project details page). 
 
-NOTE - If user selects Single Site entry option, then site registration form will appear. Otherwise, form with file browse field and submit button will appear.
+>[!NOTE]
+If user selects Single Site entry option, then site registration form will appear. Otherwise, form with file browse field and submit button will appear.
 
 ### Expected Page
 
@@ -148,7 +145,7 @@ User will see tabular data of available sites against to the project upon the su
 
 Below tabular data, “Add Site” button also will be available to add new site in the same project.
 
-## <u>Device Onboarding (Site Registration)</u>
+## Device Onboarding (Site Registration)
 
 Through file (needs to update the steps) and need to finalise the file type, fields in the file.
 
@@ -160,7 +157,7 @@ JWT would be better with redis as lot of devices will hit meter reads api freque
 
 Including Meter Reads API in AWS Lambda: This is proposed architectural change where api of meter reads would be in AWS LAMbda which will help to scale up and scale down automatically.
 
-#### <u>User Login</u>
+#### User Login
 User fills the below details to perform login action
 
 - Username
@@ -177,31 +174,31 @@ For Developer login (DeviceOwner account) - Organisation Details page with corre
 
 For Buyer login - Buyer dashboard page
 
-#### <u>Buyer Dashboard</u>
+#### Buyer Dashboard
 
 No requirement to implement buyer dashboard
 
-#### <u>Buyer Registration</u>
+#### Buyer Registration
 
 Buyer will login to D-Rec and send request for purchasing D-Recs. This request form consists of below fields 
 
 - Country
 - Fuel Type
 - Sector (Off Taker)
-- <span style="background-color: orange"><u>Capacity (kW)</u></span>
+- Capacity (kW)
 
 As per request, buyer dashboard will reflect project high level details like countrywide and sector based projects whichever meeting requested energy units.
 
-#### <u>Add Device and Group Device</u>
+#### Add Device and Group Device
 
-- first creates the json file of the device from this product json.<br>
+- first creates the json file of the device from this product json.
     ` integrator-script=>index.js=>device-generator.js`
     (runGenerateIntegrators)function
 - it adds all the devices to the device table, then a group is created in 
 the group device table, then updates its id with all the devices that are grouped, with the help of this
-    `integrator-script=>index.js=>post-devices.js`<br>
-    `using-API /device-group/bulk-devices`<br>
-    `drec-api=>src=>pods=>device-group`<br>
+    `integrator-script=>index.js=>post-devices.js`
+    `using-API /device-group/bulk-devices`
+    `drec-api=>src=>pods=>device-group`
 
 1. BBOX-devices
 2. Candi-devices
@@ -210,7 +207,8 @@ the group device table, then updates its id with all the devices that are groupe
 5. NSR-devices
 6. Okra-devices
 
-Note: according api working process,For each device ID, add a groupId but make sure they all belong to the <i>same owner</i>
+>[!NOTE]
+>According api working process,For each device ID, add a groupId but make sure they all belong to the same owner
 
 This means that both the device and the group add are associated with the same org.
 
@@ -227,21 +225,21 @@ Create Group based on the criteria
 
 - In 3rd step, this will upload meter reads for each devices
 
-`integrator-script=>index.js=>post-reads.js`<br>
-`(postOkraReads,postNSRReads,postEngieReads etc)function`<br>
-`using-API /meter-reads/id`<br>
-`drec-api=>src=>pods=>reads`<br>
+`integrator-script=>index.js=>post-reads.js`
+`(postOkraReads,postNSRReads,postEngieReads etc)function`
+`using-API /meter-reads/id`
+`drec-api=>src=>pods=>reads`
 
 ![ER Diagram](86790720-fb7c-4228-969c-cc2740854428.png)
 
-#### <u>Working Of all api of group Devices</u>
-- Post-/device-group<br>
-    &nbsp;&nbsp;&nbsp;Add group device only these role- deviceowner or admin
-- Get-/device-group/my<br>
-    &nbsp;&nbsp;&nbsp;Get all the data for these roles- deviceowner Or OrganizationAdmin Or Buyer
-- Post-/device-group/reserve<br>
-    &nbsp;&nbsp;&nbsp;This api used for role Buyer,  login user is buyer and reserved group so it used id, bolckchainaccountaddres, and group id then it update buyer_id and buyer_address in group device table
-- Post-/device-group/unreserve<br>
-    &nbsp;&nbsp;&nbsp;This api used for role Buyer,  login user is buyer and reserved group so it used login id, and group id then it update buyer_id and buyer_address is null in group device table.
-- Get-/device-group/reserve Or /device-group/unreserve<br>
-    &nbsp;&nbsp;&nbsp;Get all list of reserve and unreserved for these role-admin or buyer
+#### Working Of all api of group Devices
+- Post-/device-group
+    Add group device only these role- deviceowner or admin
+- Get-/device-group/my
+    Get all the data for these roles- deviceowner Or OrganizationAdmin Or Buyer
+- Post-/device-group/reserve
+    This api used for role Buyer,  login user is buyer and reserved group so it used id, bolckchainaccountaddres, and group id then it update buyer_id and buyer_address in group device table
+- Post-/device-group/unreserve
+    This api used for role Buyer,  login user is buyer and reserved group so it used login id, and group id then it update buyer_id and buyer_address is null in group device table.
+- Get-/device-group/reserve Or /device-group/unreserve
+    Get all list of reserve and unreserved for these role-admin or buyer
