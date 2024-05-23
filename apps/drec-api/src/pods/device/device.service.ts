@@ -495,6 +495,29 @@ export class DeviceService {
     );
     return device;
   }
+
+  async findDeviceByDeveloperExternalIByApiUser(
+    meterId: string,
+    api_user_id: string,
+  ): Promise<Device | null> {
+    this.logger.verbose(`With in findDeviceByDeveloperExternalIByApiUser`);
+    const device: Device = await this.repository.findOne({
+      where: {
+        developerExternalId: meterId,
+        api_user_id: api_user_id,
+      },
+    });
+    if (!device) {
+      this.logger.warn(`Returning null`);
+      return null;
+    }
+    device.timezone = await getLocalTimeZoneFromDevice(
+      device.createdAt,
+      device,
+    );
+    return device;
+  }
+
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
     organizationId: number,
