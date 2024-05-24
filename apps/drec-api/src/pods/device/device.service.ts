@@ -93,7 +93,7 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateongoingIssueCertificateEntity)
     private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
-  ) { }
+  ) {}
 
   public async find(
     filterDto: FilterDTO,
@@ -648,10 +648,10 @@ export class DeviceService {
     const rule =
       role === Role.DeviceOwner
         ? {
-          where: {
-            organizationId,
-          },
-        }
+            where: {
+              organizationId,
+            },
+          }
         : undefined;
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
