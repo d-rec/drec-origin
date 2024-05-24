@@ -93,7 +93,7 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateongoingIssueCertificateEntity)
     private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
-  ) {}
+  ) { }
 
   public async find(
     filterDto: FilterDTO,
@@ -183,8 +183,10 @@ export class DeviceService {
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
+        device['internalexternalId'] = device.externalId;
         device.externalId = device.developerExternalId;
         delete device['developerExternalId'];
+
         delete device['organization'];
 
         newDevices.push(device);
@@ -206,6 +208,7 @@ export class DeviceService {
     //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
+      device['internalexternalId'] = device.externalId;
       device.externalId = device.developerExternalId;
       delete device['developerExternalId'];
       delete device['organization'];
@@ -645,10 +648,10 @@ export class DeviceService {
     const rule =
       role === Role.DeviceOwner
         ? {
-            where: {
-              organizationId,
-            },
-          }
+          where: {
+            organizationId,
+          },
+        }
         : undefined;
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),

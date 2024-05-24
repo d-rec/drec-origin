@@ -476,7 +476,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getBuyerDeviceGroups`);
     let deviceGroups: any;
     let queryBuilder: any;
-    const pageSize = 10;
+    let pageSize = 10;
 
     if (!groupfilterDto || Object.keys(groupfilterDto).length === 0) {
       queryBuilder = this.repository
