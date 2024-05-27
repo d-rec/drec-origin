@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress';
 import { generateSidebar } from 'vitepress-sidebar';
+import MermaidMarkdownOptionTransformer from './mermaid-markdown-transformer.js';
 
 // https://vitepress-sidebar.jooy2.com/getting-started
 const vitepressSidebarOptions = {
@@ -26,6 +27,7 @@ export default defineConfig({
     publicDir: '.public',
   },
   srcExclude: ['README.md'],
+  markdown: MermaidMarkdownOptionTransformer,
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
