@@ -12,7 +12,7 @@ Developers and buyers will register with D-Rec platform by using register functi
 
 Each developer will have multiple projects in same or different locations.
 
-Each project will consist of multiple sites. Site is completely dependent on location. E.g. if a project is consisting of two sites with same infrastructure and different locale based, then that project is known to have two sites. Projects will be with CURRENT statuses only. 
+Each project will consist of multiple sites. Site is completely dependent on location. E.g. if a project is consisting of two sites with same infrastructure and different locale based, then that project is known to have two sites. Projects will be with CURRENT statuses only.
 
 Each site may have combination of different OEMs in multiple devices. E.g. one site may have 100 solar panels from Schindler OEM and another 100 solar panels from GE OEM.
 
@@ -38,7 +38,7 @@ User clicks on registration button on D-Rec landing page and enters the followin
 
 ![User Registration Flow](fef5c2ea-9e92-4316-9fe9-e45eff0a327d.png)
 
-### Expected Page
+### User Registration Expected Page
 
 On the successful registration, this user account will be the admin account of organisation. User will be landed on Organisation Details Page
 
@@ -52,7 +52,7 @@ Organisation admin user will successfully login to D-Rec platform and see “No 
 
 ![Organization regitration flow](99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
 
-#### Mandatory fields - 
+#### Mandatory fields -
 
 - Name
 - Address
@@ -64,7 +64,7 @@ Organisation admin user will successfully login to D-Rec platform and see “No 
 - Vat Number
 - Organisation Logo (allowed file type - PNGs, JPEGs)
 
-#### Optional fields - 
+#### Optional fields -
 
 - Signatory Full Name
 - Signatory Address
@@ -74,7 +74,7 @@ Organisation admin user will successfully login to D-Rec platform and see “No 
 - Signatory Email
 - Signatory Phone Number
 
-### Expected Page
+### Organization Registration Expected Page
 
 On the successful registration of the organisation, organisation admin user will see registered organisation details.
 
@@ -87,7 +87,7 @@ This is new API development from D-Rec platform. User will enter the following d
 >[!NOTE]
 >Client will confirm us on considering I-REC standards to be used while creating D-Rec certificate
 
-- Country 
+- Country
 - Status of the project (dropdown) - Current
 - Technology Type (dropdown) - Solar Lanterns, Solar Home Systems, Community Mini Grids, Others
     On selection of Others, text field should appear
@@ -97,11 +97,11 @@ This is new API development from D-Rec platform. User will enter the following d
 - Electricity off-taker category (dropdown) - Agriculture, Manufacturing, Public Services etc…
 - Sector
 - Description of Social / Environmental Impact
--  Project Image to browse (types accepted - PNGs, JPEGs)
+- Project Image to browse (types accepted - PNGs, JPEGs)
 
-Form with above fields and Submit, Reset and Back buttons should appear at the bottom of the page. 
+Form with above fields and Submit, Reset and Back buttons should appear at the bottom of the page.
 
-### Expected Page
+### Project Registrtaion Expected Page
 
 Upon successful registration of project, project details should appear in tabular format along with search (filter) field on project details page. This filter should appear on tabular data.
 
@@ -132,32 +132,33 @@ Nameplate Capacity for Site (kW)
 Expected Year One kWhs
 Site Image Upload (expected image formats - PNGs, JPEGs)
 
-This registration page will consist of Submit (creating new entry), Reset (for resetting the page) and Back (to disappear form and go back to project details page). 
+This registration page will consist of Submit (creating new entry), Reset (for resetting the page) and Back (to disappear form and go back to project details page).
 
 >[!NOTE]
 If user selects Single Site entry option, then site registration form will appear. Otherwise, form with file browse field and submit button will appear.
 
-### Expected Page
+### Device Onboarding Expected Page
 
 User will be redirected to Project Details page on the successful submission of the site details form.
 
-User will see tabular data of available sites against to the project upon the successful registering the site. Filter field will appear on top of tabular data. 
+User will see tabular data of available sites against to the project upon the successful registering the site. Filter field will appear on top of tabular data.
 
 Below tabular data, “Add Site” button also will be available to add new site in the same project.
 
-## Device Onboarding (Site Registration)
+## Device Onboarding with Bulk Upload (Site Registration)
 
 Through file (needs to update the steps) and need to finalise the file type, fields in the file.
 
-### JWT Issuance for Devices to send generated Data:
+### JWT Issuance for Devices to send generated Data
 
-This is proposed feature in new system where Project Developer can request authentication token (JWT) for each device which will help server uniquely identify device and verify the token and store the meter reads of that device. Device would need to send the token along with power generated data to the api. 
+This is proposed feature in new system where Project Developer can request authentication token (JWT) for each device which will help server uniquely identify device and verify the token and store the meter reads of that device. Device would need to send the token along with power generated data to the api.
 
-JWT would be better with redis as lot of devices will hit meter reads api frequently storing jwt in redis especially of deivces would be efficient. 
+JWT would be better with redis as lot of devices will hit meter reads api frequently storing jwt in redis especially of deivces would be efficient.
 
 Including Meter Reads API in AWS Lambda: This is proposed architectural change where api of meter reads would be in AWS LAMbda which will help to scale up and scale down automatically.
 
 #### User Login
+
 User fills the below details to perform login action
 
 - Username
@@ -166,7 +167,7 @@ User fills the below details to perform login action
 
 - Login Type (radio button) - Developer, Buyer
 
-### Expected Page
+### User Login Expected Page
 
 For Developer login (OrganisationaAdmin account) - Organisation Details page
 
@@ -180,7 +181,7 @@ No requirement to implement buyer dashboard
 
 #### Buyer Registration
 
-Buyer will login to D-Rec and send request for purchasing D-Recs. This request form consists of below fields 
+Buyer will login to D-Rec and send request for purchasing D-Recs. This request form consists of below fields
 
 - Country
 - Fuel Type
@@ -192,9 +193,9 @@ As per request, buyer dashboard will reflect project high level details like cou
 #### Add Device and Group Device
 
 - first creates the json file of the device from this product json.
-    ` integrator-script=>index.js=>device-generator.js`
+    `integrator-script=>index.js=>device-generator.js`
     (runGenerateIntegrators)function
-- it adds all the devices to the device table, then a group is created in 
+- it adds all the devices to the device table, then a group is created in
 the group device table, then updates its id with all the devices that are grouped, with the help of this
     `integrator-script=>index.js=>post-devices.js`
     `using-API /device-group/bulk-devices`
@@ -233,6 +234,7 @@ Create Group based on the criteria
 ![ER Diagram](86790720-fb7c-4228-969c-cc2740854428.png)
 
 #### Working Of all api of group Devices
+
 - Post-/device-group
     Add group device only these role- deviceowner or admin
 - Get-/device-group/my
