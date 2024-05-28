@@ -101,13 +101,13 @@ They can also see org by using filter by organization name.
 
 ##### Device working process
 
-1. Apiuser can devices, they first need to select organization name, then after fill all required device related information.
+Apiuser can devices, they first need to select organization name, then after fill all required device related information.
 
 ![Add Device Form](88774ce7-a63e-4413-a445-15442470ea56.png)
 
 after submitting device form, they will be redirect Device list view.
 
-2. To see all Device of all org which belongs to apiuser.
+To see all Device of all org which belongs to apiuser.
 
 ![Device Listing](6eedb79d-11ab-416f-9719-084c8f946f6d.png)
 
