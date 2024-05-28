@@ -47,8 +47,9 @@ On the successful registration, this user account will be the admin account of o
 ### Organisation Details Page
 
 Organisation admin user will successfully login to D-Rec platform and see “No organisations registered” message and button to register organisation.
->[!NOTE]
->This message is subjective to change as per future requirements.
+
+> [!NOTE]
+> This message is subjective to change as per future requirements.
 
 ![Organization regitration flow](99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
 
@@ -84,13 +85,13 @@ On the successful registration of the organisation, organisation admin user will
 
 This is new API development from D-Rec platform. User will enter the following details while registeringz projvect.
 
->[!NOTE]
->Client will confirm us on considering I-REC standards to be used while creating D-Rec certificate
+> [!NOTE]
+> Client will confirm us on considering I-REC standards to be used while creating D-Rec certificate
 
 - Country
 - Status of the project (dropdown) - Current
 - Technology Type (dropdown) - Solar Lanterns, Solar Home Systems, Community Mini Grids, Others
-    On selection of Others, text field should appear
+  On selection of Others, text field should appear
 - Aggregate Nameplate Capacity for project (kW)
 - Expected or Actual kWhs to be generated from the first year of operation
 - Description of the project
@@ -134,8 +135,8 @@ Site Image Upload (expected image formats - PNGs, JPEGs)
 
 This registration page will consist of Submit (creating new entry), Reset (for resetting the page) and Back (to disappear form and go back to project details page).
 
->[!NOTE]
-If user selects Single Site entry option, then site registration form will appear. Otherwise, form with file browse field and submit button will appear.
+> [!NOTE]
+> If user selects Single Site entry option, then site registration form will appear. Otherwise, form with file browse field and submit button will appear.
 
 ### Device Onboarding Expected Page
 
@@ -193,13 +194,13 @@ As per request, buyer dashboard will reflect project high level details like cou
 #### Add Device and Group Device
 
 - first creates the json file of the device from this product json.
-    `integrator-script=>index.js=>device-generator.js`
-    (runGenerateIntegrators)function
+  `integrator-script=>index.js=>device-generator.js`
+  (runGenerateIntegrators)function
 - it adds all the devices to the device table, then a group is created in
-the group device table, then updates its id with all the devices that are grouped, with the help of this
-    `integrator-script=>index.js=>post-devices.js`
-    `using-API /device-group/bulk-devices`
-    `drec-api=>src=>pods=>device-group`
+  the group device table, then updates its id with all the devices that are grouped, with the help of this
+  `integrator-script=>index.js=>post-devices.js`
+  `using-API /device-group/bulk-devices`
+  `drec-api=>src=>pods=>device-group`
 
 1. BBOX-devices
 2. Candi-devices
@@ -208,8 +209,8 @@ the group device table, then updates its id with all the devices that are groupe
 5. NSR-devices
 6. Okra-devices
 
->[!NOTE]
->According api working process,For each device ID, add a groupId but make sure they all belong to the same owner
+> [!NOTE]
+> According api working process,For each device ID, add a groupId but make sure they all belong to the same owner
 
 This means that both the device and the group add are associated with the same org.
 
@@ -236,12 +237,12 @@ Create Group based on the criteria
 #### Working Of all api of group Devices
 
 - Post-/device-group
-    Add group device only these role- deviceowner or admin
+  Add group device only these role- deviceowner or admin
 - Get-/device-group/my
-    Get all the data for these roles- deviceowner Or OrganizationAdmin Or Buyer
+  Get all the data for these roles- deviceowner Or OrganizationAdmin Or Buyer
 - Post-/device-group/reserve
-    This api used for role Buyer,  login user is buyer and reserved group so it used id, bolckchainaccountaddres, and group id then it update buyer_id and buyer_address in group device table
+  This api used for role Buyer, login user is buyer and reserved group so it used id, bolckchainaccountaddres, and group id then it update buyer_id and buyer_address in group device table
 - Post-/device-group/unreserve
-    This api used for role Buyer,  login user is buyer and reserved group so it used login id, and group id then it update buyer_id and buyer_address is null in group device table.
+  This api used for role Buyer, login user is buyer and reserved group so it used login id, and group id then it update buyer_id and buyer_address is null in group device table.
 - Get-/device-group/reserve Or /device-group/unreserve
-    Get all list of reserve and unreserved for these role-admin or buyer
+  Get all list of reserve and unreserved for these role-admin or buyer
