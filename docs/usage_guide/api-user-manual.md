@@ -6,11 +6,11 @@ order: 4
 
 ## DREC API User Manual - UI
 
-### Step 1. Admin create:
+### Step 1. Admin create
 
 The super admin will be created by default when the migrations running in our api end.
 
-### Step 2. After Admin login, admin can create or use existing ACLModule name with crdul permission:
+### Step 2. After Admin login, admin can create or use existing ACLModule name with crdul permission
 
 **1. Migration update:**
 
@@ -76,7 +76,7 @@ After admin change status, apiuser will get changed status in own side then afte
 
 ### Step4. ApiUser workflow
 
-#### Organization:
+#### Organization
 
 Create User Organization (Developer and Buyer)
 from ui apiuser can create organization for developer and buyer from add organization form.
@@ -97,7 +97,7 @@ Api users can see all added organization list from “All organization” menu i
 
 They can also see org by using filter by organization name.
 
-#### Device:
+#### Device
 
 ##### Device working process
 
@@ -107,7 +107,7 @@ They can also see org by using filter by organization name.
 
 after submitting device form, they will be redirect Device list view.
 
-2. To see all Device of all org which belongs to apiuser :
+2. To see all Device of all org which belongs to apiuser.
 
 ![Device Listing](6eedb79d-11ab-416f-9719-084c8f946f6d.png)
 
@@ -119,7 +119,7 @@ And see the job of bulk upload process
 
 ![Listing of Bulk Upload Job](2932d6ee-eb0e-4a3e-9cc7-e4668cfed395.png)
 
-#### Read:
+#### Read
 
 ##### Apiuser Meter read working process
 
@@ -135,7 +135,7 @@ Apiuser also gets meter read list of all org devices which belong their platform
 
 ![Listing of Meter Read](d3e18c24-c673-498c-8182-815db95d12bd.png)
 
-#### Permission:
+#### Permission
 
 ##### apiuser can view update permission from permission menu
 
@@ -147,7 +147,7 @@ but status will be ’inactive” which can be made active by super admin.
 
 ![listing of permission request form](3074d878-d244-4ffb-a2d8-31b19227d2ba.png)
 
-#### AddReaservaion:
+#### AddReaservaion
 
 Apiuser can make reservation from “add reservation” menu,
 
@@ -167,7 +167,7 @@ From the “action button” apiuser will be able to check all certificates of t
 
 ![All Certificate listing of an reservation](037de940-9eb3-45a8-8b79-12ef56d18b0c.png)
 
-#### Certificate:
+#### Certificate
 
 Apiuser can check all certificates by the reservation base and device base by selecting type of organization (developer or buyer).
 
@@ -175,19 +175,19 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ## DREC API User Manual - API
 
-### 1. User Module:
+### 1. User Module
 
-#### 1.1 Register Api:
+#### 1.1 Register Api
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/user/register
+**Request URL:** [http://localhost:3040/api/user/register](http://localhost:3040/api/user/register)
 
 **Authorization:** Not Required
 
 **ACL Module Name:** USER_MANAGEMENT_CRUDL
 
-##### 1.1.1 Organization Type - ApiUser:
+##### 1.1.1 Organization Type - ApiUser
 
 **Permission:** Not Required (It’s true by default).
 
@@ -197,7 +197,7 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ![Register ApiUser Response](905cb8de-0715-437a-b040-ece23f1fd279.png)
 
-##### 1.1.2. Organization Type - Developer/Buyer under an ApiUser:
+##### 1.1.2. Organization Type - Developer/Buyer under an ApiUser
 
 **Permission:** Write permission required. (Need to login (Ref: 2.1) and Request permission for this ACL module Name (Ref: 3.1))
 
@@ -211,11 +211,11 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ![Register ApiUser Response](008dcc14-f44d-4d04-bace-727a7a8d57da.png)
 
-#### 1.2. FORGET-PASSWORD API:
+#### 1.2. FORGET-PASSWORD API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/user/forget-password
+**Request URL:** [http://localhost:3040/api/user/forget-password](http://localhost:3040/api/user/forget-password)
 
 **ACL Module Name:** PASSWORD_MANAGEMENT_CRUDL
 
@@ -239,11 +239,11 @@ Developer or Buyer under an apiuser is unauthorized to access this api.
 
 ![Dev or Buyer Forget Password Response](7720e0d6-af72-4e76-ae67-27efd09078dd.png)
 
-#### 1.3. ME API:
+#### 1.3. ME API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/user/me
+**Request URL:** [http://localhost:3040/api/user/me](http://localhost:3040/api/user/me)
 
 **ACL Module Name:** Not Required
 
@@ -261,11 +261,11 @@ Developer or Buyer under an apiuser is unauthorized to access this api.
 
 ![User/me Response Form](5217f30f-3adb-4c40-8789-dabadf34c3b5.png)
 
-#### 1.4. RESEND CONFIRM MAIL API:
+#### 1.4. RESEND CONFIRM MAIL API
 
 **Request Type:** PUT
 
-**Request URL:** http://localhost:3040/api/user/resend-confirm-email
+**Request URL:** [http://localhost:3040/api/user/resend-confirm-email](http://localhost:3040/api/user/resend-confirm-email)
 
 **ACL Module Name:** Required. USER_MANAGEMENT_CRUDL
 
@@ -280,11 +280,11 @@ Headers: Not Required
 
 ![Resend Confirm mail Response](b17f14fe-f975-4115-a445-dee98356b894.png)
 
-#### 1.5. CONFIRM-EMAIL API:
+#### 1.5. CONFIRM-EMAIL API
 
 **Request Type:** PUT
 
-**Request URL:** http://localhost:3040/api/user/confirm-email/a3a7b310f3fecb245a16ce4643d4600a965d637156c17a84a1360223173079f41401ad5689213dd41f8036b671d7c8386aec7af29f8aab3a076008f3c2b962f3
+**Request URL:** [http://localhost:3040/api/user/confirm-email/a3a7b310f3fecb245a16ce4643d4600a965d637156c17a84a1360223173079f41401ad5689213dd41f8036b671d7c8386aec7af29f8aab3a076008f3c2b962f3](http://localhost:3040/api/user/confirm-email/a3a7b310f3fecb245a16ce4643d4600a965d637156c17a84a1360223173079f41401ad5689213dd41f8036b671d7c8386aec7af29f8aab3a076008f3c2b962f3)
 
 **ACL Module Name:** Required. USER_MANAGEMENT_CRUDL
 
@@ -301,11 +301,11 @@ Headers: Not Required
 
 ![Resend Confirm mail Response](c7c97a90-37e3-4c88-b8d1-a998e58c79cd.png)
 
-#### 1.6. RESET PASSWORD API:
+#### 1.6. RESET PASSWORD API
 
 **Request Type:** PUT
 
-**Request URL:** http://localhost:3040/api/user/reset/password/c1c7dc38d5de4e6f4f5747f3cc06fb858172079129528f3fcbb5f8809ac5cc1e6c1ac8bcd94f73cc2cf48cffd0da035e4f92c67aa3185f7d6e1607650a2a2d0e
+**Request URL:** [http://localhost:3040/api/user/confirm-email/a3a7b310f3fecb245a16ce4643d4600a965d637156c17a84a1360223173079f41401ad5689213dd41f8036b671d7c8386aec7af29f8aab3a076008f3c2b962f3](http://localhost:3040/api/user/reset/password/c1c7dc38d5de4e6f4f5747f3cc06fb858172079129528f3fcbb5f8809ac5cc1e6c1ac8bcd94f73cc2cf48cffd0da035e4f92c67aa3185f7d6e1607650a2a2d0e)
 
 **ACL Module Name:** Required. USER_MANAGEMENT_CRUDL
 
@@ -324,13 +324,13 @@ Headers: Not Required
 
 ![Reset Password Response](32707094-1b66-4881-a16d-7f28f4fd15ee.png)
 
-### 2. Auth Module:
+### 2. Auth Module
 
-#### 2.1. LOGIN API:
+#### 2.1. LOGIN API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/auth/login
+**Request URL:** [http://localhost:3040/api/auth/login](http://localhost:3040/api/auth/login)
 
 **ACL Module Name:** Not Required
 
@@ -352,13 +352,13 @@ Developer and Buyer of an apiuser is unauthorized to aceess this api.
 
 ![Login Api Response for Dev or Buyer](b663ca92-c978-4f51-86d6-f1ef61311b47.png)
 
-### 3. Permission Module:
+### 3. Permission Module
 
-#### 3.1. REQUEST PERMISSION API:
+#### 3.1. REQUEST PERMISSION API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/permission/module/apiuser/request
+**Request URL:** [http://localhost:3040/api/permission/module/apiuser/request](http://localhost:3040/api/permission/module/apiuser/request)
 
 **ACL Module Name:** Not Required
 
@@ -376,13 +376,13 @@ Developer and Buyer of an apiuser is unauthorized to aceess this api.
 
 ![Permission Request Response](<16dfd755-7467-4acf-bc42-8bad99ac713d (1).png>)
 
-### 4. Device Module:
+### 4. Device Module
 
-#### 4.1 REGISTER DEVICE API:
+#### 4.1 REGISTER DEVICE API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/device
+**Request URL:** [http://localhost:3040/api/device](http://localhost:3040/api/device)
 
 **ACL Module Name:** Required. DEVICE_MANAGEMENT_CRUDL
 
@@ -408,11 +408,11 @@ It will throw unauthorized exception when give buyer’s organizationId in paylo
 
 ![Device Register Response for with Buyer's OrgId](e2fa432c-2859-4157-aa8e-dfe1547b21d1.png)
 
-#### 4.2 GET DEVICE BY ID API:
+#### 4.2 GET DEVICE BY ID API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/device/10?organizationId=10&apiUserId=958c05ec-feac-48b7-ba10-6fcd76d9b122
+**Request URL:** [http://localhost:3040/api/device/10?organizationId=10&apiUserId=958c05ec-feac-48b7-ba10-6fcd76d9b122](http://localhost:3040/api/device/10?organizationId=10&apiUserId=958c05ec-feac-48b7-ba10-6fcd76d9b122)
 
 **ACL Module Name:** Required. DEVICE_MANAGEMENT_CRUDL
 
@@ -433,11 +433,11 @@ This organization Id and apiUserId in query params should be same as the device�
 
 ![Get Device By Id Response](8f6c0fea-bd17-46dd-8eb5-a4a3a773d1ad.png)
 
-#### 4.3 GET MY DEVICES API:
+#### 4.3 GET MY DEVICES API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/device/my?organizationId=25&pagenumber=1
+**Request URL:** [http://localhost:3040/api/device/my?organizationId=25&pagenumber=1](http://localhost:3040/api/device/my?organizationId=25&pagenumber=1)
 
 **ACL Module Name:** Required. DEVICE_MANAGEMENT_CRUDL
 
@@ -472,11 +472,11 @@ Response when buyer’s organizationId given.
 
 ![Get My Device Response for Buyers](02695c52-4f8c-48bb-a2b8-c63744976874.png)
 
-#### 4.4 CREATE DEVICES BY BULK UPLOAD API:
+#### 4.4 CREATE DEVICES BY BULK UPLOAD API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/device/addByAdmin/process-creation-bulk-devices-csv/21
+**Request URL:** [http://localhost:3040/api/device/addByAdmin/process-creation-bulk-devices-csv/21](http://localhost:3040/api/device/addByAdmin/process-creation-bulk-devices-csv/21)
 
 **ACL Module Name:** Required. DEVICE_BULK_MANAGEMENT_CRUDL
 
@@ -505,11 +505,11 @@ If buyer’s organizationId given
 
 ![Bulk Upload Buyer Response2](940f70e3-f0f1-4c82-a018-fc3f360c6669.png)
 
-#### 4.5. GET UNGROUPED DEVICES API:
+#### 4.5. GET UNGROUPED DEVICES API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/device/ungrouped/buyerreservation?pagenumber=1&organizationId=26
+**Request URL:** [http://localhost:3040/api/device/ungrouped/buyerreservation?pagenumber=1&organizationId=26](http://localhost:3040/api/device/ungrouped/buyerreservation?pagenumber=1&organizationId=26)
 
 **ACL Module Name:** Required. DEVICE_MANAGEMENT_CRUDL
 
@@ -533,13 +533,13 @@ Page Number in query param is given to retrieve the page you want to view.
 
 ![Get UnGrouped Devices Response](687890a6-abcb-44f5-a280-efe42f534d46.png)
 
-### 5. Reads Module:
+### 5. Reads Module
 
-#### 5.1 ADD METER READS API:
+#### 5.1 ADD METER READS API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/meter-reads/new/Ext1
+**Request URL:** [http://localhost:3040/api/meter-reads/new/Ext1](http://localhost:3040/api/meter-reads/new/Ext1)
 
 **ACL Module Name:** Required. READS_MANAGEMENT_CRUDL
 
@@ -564,11 +564,11 @@ The id in URL params is the developer external id of the device for which we wan
 
 If the buyer’s organizationId in body payload is given, the unauthorized exception will be thrown.
 
-#### 5.2 GET METER READS BY EXTERNAL ID API:
+#### 5.2 GET METER READS BY EXTERNAL ID API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/meter-reads/new/Ext1?readType=meterReads&start=2023-01-01T00:00:00Z&end=2023-11-26T07:32:59Z&pagenumber=2&organizationId=15
+**Request URL:** [http://localhost:3040/api/meter-reads/new/Ext1?readType=meterReads&start=2023-01-01T00:00:00Z&end=2023-11-26T07:32:59Z&pagenumber=2&organizationId=15](http://localhost:3040/api/meter-reads/new/Ext1?readType=meterReads&start=2023-01-01T00:00:00Z&end=2023-11-26T07:32:59Z&pagenumber=2&organizationId=15)
 
 **ACL Module Name:** Required. READS_MANAGEMENT_CRUDL
 
@@ -605,13 +605,13 @@ If the developer’s organizationId is given
 
 ![Get Meter Reads Response2.2](a24be8f3-96d0-439b-8321-34b3a3c9a085.png)
 
-### 6. INVITATION MODULE:
+### 6. INVITATION MODULE
 
-#### 6.1 INVITE API:
+#### 6.1 INVITE API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/invitation?organizationId=3
+**Request URL:** [http://localhost:3040/api/invitation?organizationId=3](http://localhost:3040/api/invitation?organizationId=3)
 
 **ACL Module Name:** Required. INVITATION_MANAGEMENT_CRUDL
 
@@ -637,11 +637,11 @@ If the buyer’s and developer’s organizationId
 
 ![Invite api Response](aa379133-e55e-4f88-8930-40a8b42c75d2.png)
 
-#### 6.2 GET INVITATION API:
+#### 6.2 GET INVITATION API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/invitation?organizationId&pageNumber&limit
+**Request URL:** [http://localhost:3040/api/invitation?organizationId&pageNumber&limit](http://localhost:3040/api/invitation?organizationId&pageNumber&limit)
 
 **ACL Module Name:** Required. INVITATION_MANAGEMENT_CRUDL
 
@@ -675,13 +675,13 @@ If the buyer’s organizationId is given
 
 ![Get Invitation Response3](3619f406-1575-4c07-8d3d-87e19f3240d2.png)
 
-### 7. BUYER-RESERVATION MODULE:
+### 7. BUYER-RESERVATION MODULE
 
-#### 7.1 RESERVATION API:
+#### 7.1 RESERVATION API
 
 **Request Type:** POST
 
-**Request URL:** http://localhost:3040/api/buyer-reservation?orgId=26
+**Request URL:** [http://localhost:3040/api/buyer-reservation?orgId=26](http://localhost:3040/api/buyer-reservation?orgId=26)
 
 **ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
 
@@ -709,11 +709,11 @@ If the buyer’s organizationId is given
 
 ![Create Reservation Response](a2cd27ac-5014-4a0a-92d7-fc0aa8e3f27f.png)
 
-#### 7.2 GET RESERVATION API:
+#### 7.2 GET RESERVATION API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/buyer-reservation?apiuserId=37110d08-e1af-4909-88c9-3f57025a7965&organizationId=26&pageNumber=1&limit=3
+**Request URL:** [http://localhost:3040/api/buyer-reservation?apiuserId=37110d08-e1af-4909-88c9-3f57025a7965&organizationId=26&pageNumber=1&limit=3](http://localhost:3040/api/buyer-reservation?apiuserId=37110d08-e1af-4909-88c9-3f57025a7965&organizationId=26&pageNumber=1&limit=3)
 
 **ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
 
@@ -747,11 +747,11 @@ If apiuserId and organizationId given, It also filter the response by organizati
 
 ![Get Reservation Response2](ae6a57eb-3372-480e-b53e-c5a2b4ef9cc0.png)
 
-#### 7.3 GET RESERVATION BY ID API:
+#### 7.3 GET RESERVATION BY ID API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/buyer-reservation/41?organizationId=26
+**Request URL:** [http://localhost:3040/api/buyer-reservation/41?organizationId=26](http://localhost:3040/api/buyer-reservation/41?organizationId=26)
 
 **ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
 
@@ -777,11 +777,11 @@ The url param id is the reservationId that you want to retrieve.
 
 ![Get Reservation By Id Response](40b56370-e723-4fe3-b316-be4c5fe3ccc6.png)
 
-#### 7.4. BULK UPLOAD JOBS API:
+#### 7.4. BULK UPLOAD JOBS API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization?orgId=25&pageNumber=1&limit=1
+**Request URL:** [http://localhost:3040/api/buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization?orgId=25&pageNumber=1&limit=1](http://localhost:3040/api/buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization?orgId=25&pageNumber=1&limit=1)
 
 **ACL Module Name:** Required. DEVICE_BULK_MANAGEMENT_CRUDL
 
@@ -807,11 +807,11 @@ Limit is the number of items to be viewed per page.
 
 ![Get Bulk Upload Response](df4a9538-8356-4671-be12-7f3acc6563f3.png)
 
-#### 7.5. GET BULK UPLOAD STATUS API:
+#### 7.5. GET BULK UPLOAD STATUS API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/buyer-reservation/bulk-upload-status/48?orgId=25
+**Request URL:** [http://localhost:3040/api/buyer-reservation/bulk-upload-status/48?orgId=25](http://localhost:3040/api/buyer-reservation/bulk-upload-status/48?orgId=25)
 
 **ACL Module Name:** Required. DEVICE_BULK_MANAGEMENT_CRUDL
 
@@ -833,13 +833,13 @@ OrganizationId in query param is given organization of developer.
 
 ![Get Bulk Upload Api](bfab2776-30a1-47b6-b6c2-e6939e4e5783.png)
 
-### 8. CERTIFICATE LOG MODULE:
+### 8. CERTIFICATE LOG MODULE
 
-#### 8.1. CERTIFICATE LOG API:
+#### 8.1. CERTIFICATE LOG API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/certificate-log/issuer/certifiedlogOfdevices?pageNumber=1&organizationId=26
+**Request URL:** [http://localhost:3040/api/certificate-log/issuer/certifiedlogOfdevices?pageNumber=1&organizationId=26](http://localhost:3040/api/certificate-log/issuer/certifiedlogOfdevices?pageNumber=1&organizationId=26)
 
 **ACL Module Name:** Required. CERTIFICATE_LOG_MANAGEMENT_CRUDL
 
@@ -863,11 +863,11 @@ Page number in query param is to request which page we want to view.
 
 ![Get Certificate Log Response1](21c1dadd-5f63-46a1-bf57-26a83d900844.png)
 
-#### 8.2. ISSUER CERTIFIED API:
+#### 8.2. ISSUER CERTIFIED API
 
 **Request Type:** GET
 
-**Request URL:** http://localhost:3040/api/certificate-log/issuer/certified/new/3ea3d485-6920-4632-9c7f-a6ac8566b1bd?pageNumber=1
+**Request URL:** [http://localhost:3040/api/certificate-log/issuer/certified/new/3ea3d485-6920-4632-9c7f-a6ac8566b1bd?pageNumber=1](http://localhost:3040/api/certificate-log/issuer/certified/new/3ea3d485-6920-4632-9c7f-a6ac8566b1bd?pageNumber=1)
 
 **ACL Module Name:** Required. CERTIFICATE_LOG_MANAGEMENT_CRUDL
 
