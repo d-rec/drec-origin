@@ -18,9 +18,9 @@ Each site may have combination of different OEMs in multiple devices. E.g. one s
 
 Once the Developer got on-boarded in D-Rec platform, Developer will login to D-Rec platform and starts adding the projects. Then, Developer will add site to his project on the completion of successfully adding project. In each site, Developer will select OEM of devices, add number of devices, type of devices, total capacity of energy generation of the site and so on. High level illustration of Developer, Project and Site is as follows.
 
-![High level illustration of Developer, Project and Site](c46d4d41-5581-4a64-b68c-2e8783108353.png)
+![High level illustration of Developer, Project and Site](img/developer-onboarding/c46d4d41-5581-4a64-b68c-2e8783108353.png)
 
-![Drec-PT-Arch](d33333c7-d781-4a7b-a7e0-d06497a2e478.png)
+![Drec-PT-Arch](img/developer-onboarding/d33333c7-d781-4a7b-a7e0-d06497a2e478.png)
 
 ## User Registration
 
@@ -36,7 +36,7 @@ User clicks on registration button on D-Rec landing page and enters the followin
 - Confirm Password
 - Organisation Type (radio buttons) - Developer, Buyer
 
-![User Registration Flow](fef5c2ea-9e92-4316-9fe9-e45eff0a327d.png)
+![User Registration Flow](img/developer-onboarding/fef5c2ea-9e92-4316-9fe9-e45eff0a327d.png)
 
 ### User Registration Expected Page
 
@@ -51,7 +51,7 @@ Organisation admin user will successfully login to D-Rec platform and see “No 
 > [!NOTE]
 > This message is subjective to change as per future requirements.
 
-![Organization regitration flow](99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
+![Organization regitration flow](img/developer-onboarding/99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
 
 #### Mandatory fields -
 
@@ -112,7 +112,7 @@ Each row in table should consist of “Details” button and “Add Site” butt
 
 User fills the following details on Site Registration Page. Site Registration is happening against to the project. Hence, Site Registration Page will auto populate Project Name, Off Taker, Sector and Impact Story details.
 
-![Device Onboarding Flow](6faf99ae-11e2-4b95-89d8-c027cc2542bf.png)
+![Device Onboarding Flow](img/developer-onboarding/6faf99ae-11e2-4b95-89d8-c027cc2542bf.png)
 
 Site Registration (radio button) - Single, Multiple
 Country for the Site
@@ -232,7 +232,7 @@ Create Group based on the criteria
 `using-API /meter-reads/id`
 `drec-api=>src=>pods=>reads`
 
-![ER Diagram](86790720-fb7c-4228-969c-cc2740854428.png)
+![ER Diagram](img/developer-onboarding/86790720-fb7c-4228-969c-cc2740854428.png)
 
 #### Working Of all api of group Devices
 
