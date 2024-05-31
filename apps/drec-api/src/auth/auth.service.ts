@@ -53,8 +53,8 @@ export class AuthService {
       accessToken: token,
     };
   }
-  async logout(payload: IJWTPayload) {
-    return await this.userService.removeUsersession(payload.id);
+  async logout(payload: IJWTPayload, token: string) {
+    return await this.userService.removeUsersession(payload.id, token);
   }
 
   async isTokenBlacklisted(
