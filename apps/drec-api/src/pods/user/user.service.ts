@@ -725,8 +725,11 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number) {
-    return await this.userloginSessionRepository.delete({ userId: userId });
+  async removeUsersession(userId: number, token: string) {
+    return await this.userloginSessionRepository.delete({
+      userId: userId,
+      accesstoken_hash: token.trim(),
+    });
   }
 
   async hasgetUserTokenvalid(
