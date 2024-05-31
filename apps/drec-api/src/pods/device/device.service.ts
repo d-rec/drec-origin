@@ -633,6 +633,7 @@ export class DeviceService {
         organizationId: orgCode,
       });
     }
+    result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];
     delete result['organization'];
@@ -689,6 +690,7 @@ export class DeviceService {
     }
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
+    result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];
     delete result['organization'];
