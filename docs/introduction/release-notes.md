@@ -22,7 +22,6 @@ order: 3
 
 [https://stage-api.drecs.org/swagger/](https://stage-api.drecs.org/swagger/)
 
-
 | Release ID (phaseNo, ReleaseNo) | Feature/Bug                                 | Relevant JIRA Tickets | Impact on other feature | Environment | Release Date    |
 |---------------------------------|---------------------------------------------|-----------------------|-------------------------|-------------|-----------------|
 | DR 1.1                          | Developer and Organisation registration     |                       |                         | Stage       | Sept 08, 2022   |
@@ -35,8 +34,7 @@ order: 3
 | DR 1.1                          | Bulk Device upload                          |                       |                         | Stage       | Sept 08, 2022   |
 | DR 1.1                          | Meter reads of type - HISTORY, DELTA, and AGGREGATE |                       |                         | Stage       | Sept 08, 2022   |
 
-
-The below collection covers the functionalities of 
+The below collection covers the functionalities of
 
 1. Developer and Organization registration
 
@@ -50,11 +48,11 @@ The below collection covers the functionalities of
 
 6. Buyer reservation
 
-[D-Rec STAGE.postman_collection.json](./file/D-Rec%20STAGE.postman_collection.json)
+[D-Rec STAGE.postman_collection.json](./D-Rec_STAGE.postman_collection.json.md)
 
-[STAGE API Guide](./file/STAGE%20API%20guide.pdf)
+[STAGE API Guide](./stage-api-guide.md)
 
-[D-Rec PROD.postman_collection](./file/D-Rec%20PROD.postman_collection.json)
+[D-Rec PROD.postman_collection](./D-Rec_PROD.postman_collection.json.md)
 
 ## Prod release notes 14-jul-23
 
@@ -118,7 +116,7 @@ The below collection covers the functionalities of
 
 4. list > headings > “capacity (Kw)” changed to “Capacity (kW)”.
 
--  Changes in developer's side:
+- Changes in developer's side:
 
          Devices > My devices > My all devices >
 
@@ -317,24 +315,21 @@ after the login of invited user, their status changes.
 
 9. User/forget-password
 
-
 - UI- added “get the meter read” functionality of device in apiuser:
 
 1. added the organization input filed in get meter read ui form
 
 2. added header in post api service for apiuser
 
-
 - implemented ApiUser in Invite user api.
 
-- API-Get listing of issuer certificate log for api user: 
+- API-Get listing of issuer certificate log for api user:
 
 1. Implemented apiuser in Get certificate-log/issuer/certifiedlogOfdevices
 
 2. Pagination added.
 
 3. The organizationId in query params is the Buyer’s organization of apiuser
-
 
 - Implemented ApiUser at Get listings of ungrouped devices for reservation at buyer end (ungrouped/buyerreservation). The query parameter organizationId is for apiuser’s buyer.
 
@@ -364,7 +359,7 @@ after the login of invited user, their status changes.
 
 - optimized certificate page as certificate api and loading was taking time.
 
-- Api-added new field expiry date in reservation api: 
+- Api-added new field expiry date in reservation api:
 
 1. Reservation end date will be able to be in the past from present date in drec.
 
@@ -382,7 +377,6 @@ after the login of invited user, their status changes.
 
 3. Request URL : [https://dev-api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId](https://dev-api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId)
 
-
 - UI-added export action option to download csv file of perdevice log from reservation list: added new action button in reservation list to get the perdevcie log of certified devcie in reservation
 
 - update- apiuser will be able to see only the devices that are added by that specific apiuser only:
@@ -390,7 +384,6 @@ after the login of invited user, their status changes.
 1. An Buyer of an apiuser can list the ungrouped devices of his own apiuser only
 
 2. An direct buyer can list the ungrouped devices of direct developer’s / device owner’s…  can’t view the devices of any apiuser’s ungrouped devices.
- 
 
 - added Show/Hide button in login screen password box
 
