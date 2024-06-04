@@ -6,7 +6,7 @@ order: 4
 
 ## Certificate Management
 
-- According to energy webs documentation : [https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview](https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview) access  setting gas price lower is one of the factors but it shouldn't be too lower else transaction will never be accepted but after exploring to some extent in EWF packages I couldn't find a way to set gas limit for the transaction or a gas price for the transaction(issuance of certificate).
+- According to energy webs documentation : [https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview](https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview) access setting gas price lower is one of the factors but it shouldn't be too lower else transaction will never be accepted but after exploring to some extent in EWF packages I couldn't find a way to set gas limit for the transaction or a gas price for the transaction(issuance of certificate).
 
 - After searching found this link GitHub - [energywebfoundation/gasprice: estimate ethereum gas price](https://github.com/energywebfoundation/gasprice) for getting standard, faster gas prices of energy-web but its in python need a way to be in NodeJS.
 
@@ -22,8 +22,7 @@ Fast Validation gas price(take <30 seconds to success), standard validation gas 
 
 - [GitHub - energywebfoundation/gasprice: estimate ethereum gas price](https://github.com/energywebfoundation/gasprice) this might be useful a repo to check gas price but its in python.
 
-
-Following are the requirements for certificate structure - 
+Following are the requirements for certificate structure -
 
 "Version": "v1.0" (Version 1.0 needed in certificate structure),
 
@@ -47,7 +46,7 @@ createdAt":"2022-10-05T16:09:03.076Z",
 
 "id":14 (What is the significance of this field?),
 
-"devicegroup_uid":"4c619b19-4e4d-4a81-9c27d2cf46101333", 
+"devicegroup_uid":"4c619b19-4e4d-4a81-9c27d2cf46101333",
 
 "name":"Feroke_Board_Test",
 
@@ -57,15 +56,15 @@ createdAt":"2022-10-05T16:09:03.076Z",
 
 "countryCode":"IND",
 
-"standardCompliance":null, 
+"standardCompliance":null,
 
 "deviceTypeCodes":["TC100"],
 
 "offTakers":["School"] (Make it as NULL),
 
-"installationConfigurations":null, 
+"installationConfigurations":null,
 
-"sectors":null, 
+"sectors":null,
 
 "commissioningDateRange":["15 years+"] (Please make it as “1 year”),
 
@@ -115,7 +114,7 @@ createdAt":"2022-10-05T16:09:03.076Z",
 
 **Requirements gathered in February meetings:**
 
-- Transaction certificate id add in certificate and log too. Add transaction certificate ID. 
+- Transaction certificate id add in certificate and log too. Add transaction certificate ID.
 
 - cron job history to re-pick history until reservations end.
 
@@ -137,18 +136,17 @@ Meter Reading process is segregated in three main categories:
 
 ![Meter Reads Flow](./img/user-flows/2d53ddf4-c870-4c82-8265-e70f3e83a8e6.png)
 
-1. **Historic Readings(Back-dated):**
+**Historic Readings(Back-dated):**
 
-1.1. Use Cases:
+Use Cases:
 
-- Historical type of data will have configuration value as 3 years, even for this data type system should not discard older data instead it should prompt developer for acceptance.  
+- Historical type of data will have configuration value as 3 years, even for this data type system should not discard older data instead it should prompt developer for acceptance.
 
 - Historical Readings: User with incorrect time duration as per threshold
 
 ![Historic Readings](./img/user-flows/a75743fb-2487-43b6-94a7-9b865388eab3.png)
 
-
-1.2. Requirements:
+Requirements:
 
 - Historic Meter reads needs to be validated that it should not be back dated more than 3 years , as data older than that is not valid for certification.
 
@@ -156,41 +154,39 @@ Meter Reading process is segregated in three main categories:
 
 - This type of Meter readings will be entered in the system with time duration of reads(start date to end date).
 
-1.3. Business Logic:
+Business Logic:
 
 - User will need to enter the back dated data related to meter reads of devices which are registered previously but had not logged any read values or if developer missed to enter read values for any intermediate tenure.
 
 - These read values can be considered for certification also until and unless it is not more than -365 days.
 
-1.3. API Input:
+API Input:
 
-```
+```json
 {
+  "type": "history",
 
-      "type": "history",
-
-      "reads": [
-      {
-                 "starttimestamp": "2020-01-01T00:00:00Z",
-                 "endtimestamp": "2020-01-01T00:00:00Z",
-                 "value": 10000000
-      }],
-      "unit": "Wh"
+  "reads": [
+    {
+      "starttimestamp": "2020-01-01T00:00:00Z",
+      "endtimestamp": "2020-01-01T00:00:00Z",
+      "value": 10000000
+    }
+  ],
+  "unit": "Wh"
 }
 ```
 
-1.4. API Output:
+API Output:
 
-```
-{   
-
-"endtimestamp": "2020-01-01T00:00:00Z",
- "value": 10000000
-
+```json
+{
+  "endtimestamp": "2020-01-01T00:00:00Z",
+  "value": 10000000
 }
 ```
 
-1.5. Validation:
+Validation:
 
 - Historic Meter Read value should not be negative.
 
@@ -198,10 +194,9 @@ Meter Reading process is segregated in three main categories:
 
 - Meter read tenure should not be starting from value which is less than “system date-3 years“.
 
+**Delta Readings(Calculated)**:
 
-2. **Delta Readings(Calculated)**:
-
-2.1. Use Cases:
+Use Cases:
 
 - Delta Readings: Correct Data
 
@@ -211,25 +206,25 @@ Meter Reading process is segregated in three main categories:
 
 ![Delta Readings- Incorrect Data](./img/user-flows/764ebdba-2eb5-4b1f-8232-f8ab141c1c56.png)
 
-2.2. Requirements:
+Requirements:
 
 - Developer can enter data on daily, weekly or monthly basis as per the convenience.
 
-- On the first instance of reading entry, reading value will not be considered for certification and only the end time will be recorded for calculations. 
+- On the first instance of reading entry, reading value will not be considered for certification and only the end time will be recorded for calculations.
 
 - Delta readings are the values pre-calculated by the Developer, which will be entered in the system and should be considered for certification.
 
 - For Delta type of Meter Read entries, the end time of current entry will be considered as start time of next entry.
 
-2.3. Business Logic:
+Business Logic:
 
 - Developers will need to update the read values in the system for devices registered under their organisation.
 
 - In this case, Developers will be updating the pre-calculated meter read values in the system.
 
-2.4. API Input:
+API Input:
 
-```
+```ts
 {
 
 "type": "delta",
@@ -240,26 +235,25 @@ Meter Reading process is segregated in three main categories:
            "value": 10000000
 }],
 
-"unit": "Wh”
+"unit": "Wh",
 
 }
 ```
 
-2.5. API Output:
-```
-{     
+API Output:
 
-"endtimestamp": "2020-01-01T00:00:00Z",
- "value": 10000000
-
+```json
+{
+  "endtimestamp": "2020-01-01T00:00:00Z",
+  "value": 10000000
 }
 ```
 
-2.5. Validation:
+Validation:
 
 - Validation formula for DELTA:
-    
-    `const maxEnergy = capacity * meteredTimePeriod * deviceAge * degradation * yieldValue`
+
+  `const maxEnergy = capacity * meteredTimePeriod * deviceAge * degradation * yieldValue`
 
 ![validation Formula of Delta](./img/user-flows/1e50017e-3a32-44ac-b411-3ecd4b8886bd.png)
 
@@ -269,9 +263,9 @@ Meter Reading process is segregated in three main categories:
 
 - Gap between two entries should not be more than 365 days as data older than that will not be eligible for I-REC certification.
 
-3. **Aggregate Readings(Running):**
+**Aggregate Readings(Running):**
 
-3.1. Use Class:
+Use Case:
 
 - Aggregate Readings: Correct Entry
 
@@ -281,49 +275,45 @@ Meter Reading process is segregated in three main categories:
 
 ![Aggregate Readings- Incorrect Entry](./img/user-flows/b578c9c2-bd76-405f-aba8-77d356cf1fad.png)
 
-3.2. Requirements:
+Requirements:
 
 - The calculation will take place on the basis of Current shared reading and last reading count. The formula/logic for the same will look like:
 
-    `Delta= Current Meter Reads – Previous Meter Reads`
+  `Delta= Current Meter Reads – Previous Meter Reads`
 
 - In case of first read entry for the device, application will wait for next data entry to calculate Delta.
 
-3.3. Business Logic:
+Business Logic:
 
 - Developers will need to update the read values in the system for devices registered under their organisation.
 
 - In this case, Developers will be updating the raw meter read values in the system and application will have backend logic to be implemented for the calculation of exact value to be used for certificate issuance.
 
-3.4. API Input:
+API Input:
 
-```
+```json
 {
-
-"type": "meter read",
-"reads":
-
-[{
+  "type": "meter read",
+  "reads": [
+    {
       "endtimestamp": "2020-01-01T00:00:00Z",
       "value": 10000000
- }],
- "unit": "Wh"
-
+    }
+  ],
+  "unit": "Wh"
 }
 ```
 
-3.5. API Output:
+API Output:
 
-```
+```json
 {
-
-"endtimestamp": "2020-01-01T00:00:00Z",
-"value": 10000000
-
+  "endtimestamp": "2020-01-01T00:00:00Z",
+  "value": 10000000
 }
 ```
 
-3.6. Validation:
+Validation:
 
 - Meter read values should not be negative.
 
@@ -361,13 +351,13 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 2. Use Cases:
 
-    ***No Authority to Exceed***
+   **_No Authority to Exceed_**
 
-    ![No Authority to Exceed](./img/user-flows/eb3314dc-6a12-4869-9e07-ce783ec30e64.png)
+   ![No Authority to Exceed](./img/user-flows/eb3314dc-6a12-4869-9e07-ce783ec30e64.png)
 
-    ***Authority to Exceed***
+   **_Authority to Exceed_**
 
-    ![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
+   ![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
 
 3. Requirements:
 
@@ -379,38 +369,37 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - Buyer should be able to filter the devices on the below listed parameters while making a reservation:
 
-    1. Country Code
+  1. Country Code
 
-    2. Fuel Type (Fuel Code)
+  2. Fuel Type (Fuel Code)
 
-    3. Off Taker
+  3. Off Taker
 
-    4. Device Code
+  4. Device Code
 
-    5. Target Capacity (kW)
+  5. Target Capacity (kW)
 
 - Data Schema
 
-| Field             | Type    | Description                                                                                                                        |
-|-------------------|---------|------------------------------------------------------------------------------------------------------------------------------------|
-| Reservation ID    | String  | This is autogenerated by the system when a reservation is first set up                                                             |
-| Standards         | String  | Indicates whether the platform also needs to call into other registries (I-REC, Gold Standard, VERRA). For now, it can only be one value |
-| Frequency         | String  | How frequently certificates should be issued, possible values are: hourly, daily, weekly, monthly, quarterly                        |
-| StartTime         | String  | Time from which issuance will start, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time. |
-| EndTime           | String  | Time after which issuance will stop, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time. This time also must be later than start time. |
-| TargetVolume      | String  | The total volume, in MWh, that the buyer wants to purchase                                                                          |
+| Field             | Type    | Description                                                                                                                                                                                                                                                                                              |
+| ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Reservation ID    | String  | This is autogenerated by the system when a reservation is first set up                                                                                                                                                                                                                                   |
+| Standards         | String  | Indicates whether the platform also needs to call into other registries (I-REC, Gold Standard, VERRA). For now, it can only be one value                                                                                                                                                                 |
+| Frequency         | String  | How frequently certificates should be issued, possible values are: hourly, daily, weekly, monthly, quarterly                                                                                                                                                                                             |
+| StartTime         | String  | Time from which issuance will start, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time.                                                                                                                                     |
+| EndTime           | String  | Time after which issuance will stop, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time. This time also must be later than start time.                                                                                       |
+| TargetVolume      | String  | The total volume, in MWh, that the buyer wants to purchase                                                                                                                                                                                                                                               |
 | AuthorityToExceed | Boolean | If this is set, then the platform will continue to create D-REC certificates even if the target volume is reached, until the end time is reached. This allows the platform to override the volume quantity. If the buyer or intermediary wants to stop the reservation, they can delete the reservation. |
-| TargetAddress     | String  | This is the public wallet address where the certificates must be assigned                                                          |
-| DeviceIDs         | Array   | List of individual device IDs                                                                                                      |
-
+| TargetAddress     | String  | This is the public wallet address where the certificates must be assigned                                                                                                                                                                                                                                |
+| DeviceIDs         | Array   | List of individual device IDs                                                                                                                                                                                                                                                                            |
 
 - Endpoints
 
-| Endpoint | Method | Description                                                                          |
-|----------|--------|--------------------------------------------------------------------------------------|
-| /devices | POST   | Allow the buyer to send in a set of device IDs in batch or individual                |
-| /reservations | DELETE | Allow the buyer to delete or close a reservation                                 |
-| /reservations | PATCH  | Allow for user to add or remove individual devices within a single reservation   |
+| Endpoint      | Method | Description                                                                    |
+| ------------- | ------ | ------------------------------------------------------------------------------ |
+| /devices      | POST   | Allow the buyer to send in a set of device IDs in batch or individual          |
+| /reservations | DELETE | Allow the buyer to delete or close a reservation                               |
+| /reservations | PATCH  | Allow for user to add or remove individual devices within a single reservation |
 
 - Developer should be notified on every reservation of their device.
 
@@ -422,30 +411,28 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - Once 12 hours are passed from conclusion of reservation, the devices will be relieved for another reservation.
 
-- **Certificate Issuance:** Reservations contains devices belonging to multiple organisation so first certificate ownership cannot be organisation but rather it will directly be  transferred to buyer.
+- **Certificate Issuance:** Reservations contains devices belonging to multiple organisation so first certificate ownership cannot be organisation but rather it will directly be transferred to buyer.
 
 - Once certificate issuance frequency is fixed it should be fixed at-least for this Netflix contract. For frequency of certificate generation there will be lot of cases for us to handle if frequency is changing.
 
 - **Device Grouping:** As per the fields(Country Code, Fuel Type Code, Device Code, Off Taker, Target Capacity) from Buyer Reservation form, platform will show eligible devices by grouping them together. This grouping can span across different organisations which are from the same country.
 
 - **Device Ungrouping:** Developer with (UPDATE or DELETE ACLs) can update the devices which are part of reservation.
-System will automatically release the devices which are part of expired reservations. 
-In case automatic release of device is unsuccessful, then users shall be able to release the devices manually whereas in case of active reservations, users should not be allowed to update the device groups.
+  System will automatically release the devices which are part of expired reservations.
+  In case automatic release of device is unsuccessful, then users shall be able to release the devices manually whereas in case of active reservations, users should not be allowed to update the device groups.
 
 **Requirements Gathered in February Meetings:**
 
-    - capacity can be changed while in reservation.
+- capacity can be changed while in reservation.
 
-    - device capacity can be changed in future then old certificate will have conflict as capacity changed even though - add in device log table the device's capacity and commissioning date.
+- device capacity can be changed in future then old certificate will have conflict as capacity changed even though - add in device log table the device's capacity and commissioning date.
 
 4. API Input:
 
-```
+```json
 {
   "name": "string",
-  "deviceIds": [
-    0
-  ],
+  "deviceIds": [0],
   "targetCapacityInMegaWattHour": 0,
   "reservationStartDate": "2022-12-18T13:00:50.476Z",
   "reservationEndDate": "2022-12-18T13:00:50.476Z",
@@ -459,9 +446,9 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 **Device Grouping:**
 
-```
+```json
 {
-"countryCode": "string", 
+"countryCode": "string",
 "fuelCode": "string",
 "deviceCode": “string”,
 "offTaker": “string”,
@@ -474,7 +461,7 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 5. API Response:
 
-```
+```json
 {
   "id": 0,
   "name": "string",
@@ -482,28 +469,16 @@ In case automatic release of device is unsuccessful, then users shall be able to
   "countryCode": "string",
   "fuelCode": "string",
   "standardCompliance": "string",
-  "deviceTypeCodes": [
-    "string"
-  ],
-  "offTakers": [
-    "School"
-  ],
-  "installationConfigurations": [
-    "StandAlone"
-  ],
-  "sectors": [
-    "Agriculture"
-  ],
+  "deviceTypeCodes": ["string"],
+  "offTakers": ["School"],
+  "installationConfigurations": ["StandAlone"],
+  "sectors": ["Agriculture"],
   "gridInterconnection": true,
   "aggregatedCapacity": 0,
   "capacityRange": "string",
-  "commissioningDateRange": [
-    "Year 1 - Q1"
-  ],
+  "commissioningDateRange": ["Year 1 - Q1"],
   "yieldValue": 0,
-  "labels": [
-    "string"
-  ],
+  "labels": ["string"],
   "devices": [
     {
       "id": 0,
@@ -525,9 +500,7 @@ In case automatic release of device is unsuccessful, then users shall be able to
       "labels": "string",
       "impactStory": "string",
       "data": "string",
-      "images": [
-        "string"
-      ],
+      "images": ["string"],
       "integrator": "string",
       "deviceDescription": "string",
       "energyStorage": true,
@@ -547,12 +520,8 @@ In case automatic release of device is unsuccessful, then users shall be able to
     "country": "string",
     "organizationType": "string",
     "status": "Submitted",
-    "documentIds": [
-      "string"
-    ],
-    "signatoryDocumentIds": [
-      "string"
-    ],
+    "documentIds": ["string"],
+    "signatoryDocumentIds": ["string"],
     "blockchainAccountAddress": "string",
     "blockchainAccountSignedMessage": "string"
   },
@@ -577,13 +546,13 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 - If the set target end date is before the current date, then the reservation panel should flag this as an error.
 
-- In case, set target date or volume has reached before other, then the reservation should end if  “volume to exceed is marked as NO“ then Warning should be raised for the Buyer..
+- In case, set target date or volume has reached before other, then the reservation should end if “volume to exceed is marked as NO“ then Warning should be raised for the Buyer..
 
-- In case, set target date or volume has reached before other, then the reservation should end if  “volume to exceed is marked as YES“ then Error should be raised for the Buyer.
+- In case, set target date or volume has reached before other, then the reservation should end if “volume to exceed is marked as YES“ then Error should be raised for the Buyer.
 
 - Required certificate issuance frequency should be in sync with the devices read entry frequency.
 
-    **Example:**  If the certificate issuance frequency is weekly, but the device is reporting monthly, then that device will only be included when it has data. If the buyer reservation only has one device, and that device has not reported anything when the buyer has requested issuance, it would be great if we can log a warning (not error) saying that there is no data from which to issue.
+  **Example:** If the certificate issuance frequency is weekly, but the device is reporting monthly, then that device will only be included when it has data. If the buyer reservation only has one device, and that device has not reported anything when the buyer has requested issuance, it would be great if we can log a warning (not error) saying that there is no data from which to issue.
 
 ## Device Registration v1
 
@@ -605,73 +574,73 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 - A site manager/ organisation admin should be able to register devices by hitting device registration end point.
 
-- Developers who use the programmatic interface can use the ID as External ID that they use for their systems, they don’t need to persist the ID that the drec platform assigns. However, that means that even though an externalID is unique to a particular developer, it does not have to be unique across developers. 
+- Developers who use the programmatic interface can use the ID as External ID that they use for their systems, they don’t need to persist the ID that the drec platform assigns. However, that means that even though an externalID is unique to a particular developer, it does not have to be unique across developers.
 
-- Platform will accept CSV file type, stores the file in S3 and shares the job id in email notification to the user.  As it’s synchronous way of processing the data, platform will process the data at designated batch process or immediately (NOTE - this has to go as per design)
+- Platform will accept CSV file type, stores the file in S3 and shares the job id in email notification to the user. As it’s synchronous way of processing the data, platform will process the data at designated batch process or immediately (NOTE - this has to go as per design)
 
 - **Device Group Metadata:** D-REC platform should allow user to specify impact stories, SDGs and project images. These details should be captured against to each project
 
 - **Requirements collected during February Meetings:**
 
-***Device ExternalId discussion:***
+**_Device ExternalId discussion:_**
 
 - As developers(from different organisations) might have same externalId we currently cannot make externalId as unique (Srinivas suggestion use device name + organisation id ), make use of deviceId in the meter reads in influx db consider production data.
 
-- Update the external ID validation not to include URL characters like #.(what will we do for French characters?). We could restrict them to the Alphanumeric characters and then allow to use – and _ .
+- Update the external ID validation not to include URL characters like #.(what will we do for French characters?). We could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 
-4. API Input:
+4. API Input
 
 - For individual device registration:
 
-```
-[ { 
-
-"version":"v0.1", 
-"externalId":"DREC01",
-"deviceGrpId":"UUID", 
-"orgId":"5560b4ea-a6d8-4776-aee2-d3424fd18547", 
-"organisationName":"Project Device 1", 
-"deviceOnBoardedBy":"developer", 
-"deviceOEM":"SCHNDLR", 
-"address":"", 
-"latitude":"34.921213", 
-"longitude":"135.717309", 
-"countryCode":"DE", 
-"postalCode":"", 
-"fuelCode":"ES200", 
-"deviceTypeCode":"T020001", 
-"deviceDescription":"solar home system", 
-"capacity":1500, 
-"commissioningDate":"2012-07-01", 
-"gridInterconnection":false, 
-"energyStorage":true, 
-"energyStorageCapacity":324, 
-"offTaker":"School", 
-"qualityLabels":"Label 1", 
-"SDGBenefits":"string", 
-"impactStory":"string", 
-"images":["string"] 
-
-} ]
+```json
+[
+  {
+    "version": "v0.1",
+    "externalId": "DREC01",
+    "deviceGrpId": "UUID",
+    "orgId": "5560b4ea-a6d8-4776-aee2-d3424fd18547",
+    "organisationName": "Project Device 1",
+    "deviceOnBoardedBy": "developer",
+    "deviceOEM": "SCHNDLR",
+    "address": "",
+    "latitude": "34.921213",
+    "longitude": "135.717309",
+    "countryCode": "DE",
+    "postalCode": "",
+    "fuelCode": "ES200",
+    "deviceTypeCode": "T020001",
+    "deviceDescription": "solar home system",
+    "capacity": 1500,
+    "commissioningDate": "2012-07-01",
+    "gridInterconnection": false,
+    "energyStorage": true,
+    "energyStorageCapacity": 324,
+    "offTaker": "School",
+    "qualityLabels": "Label 1",
+    "SDGBenefits": "string",
+    "impactStory": "string",
+    "images": ["string"]
+  }
+]
 ```
 
 - For bulk device registration, CSV file entries should look like:
 
 **File Header:**
 
-`“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
+    `“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
 
 **Content:**
 
-`“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
+    `“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
 
 - For Device Group MetaData
 
-```
+```ts
 {
-deviceGrpId: “string”,
-deviceGrpName: “string”,
-“SDGBenefits”: “string” [This shouldn’t be a text field, but rather a numeric field, with perhaps each bit set for a particular SDG (so bit 0 would be SDG1, bit 1 would be SDG2, etc. This could cleanly support multiple SDGs],
+"deviceGrpId": “string”,
+"deviceGrpName": “string”,
+“SDGBenefits”: “string” [This shouldn’t be a text field, but rather a numeric field, with perhaps each bit set for a particular SDG (so bit 0 would be SDG1, bit 1 would be SDG2, etc. This could cleanly support multiple SDGs)],
 "impactStory": "string",
 "images": ["string"]
 }
@@ -679,19 +648,19 @@ deviceGrpName: “string”,
 
 5. API Response
 
-6. Validation:
+6. Validation
 
 - **Validations on Requirements collected during February Meetings:**
 
-    - Old devices registered before shall also be able to send the meter reads data
+  - Old devices registered before shall also be able to send the meter reads data
 
-    - New devices registered shall also be able to send the meter reads data.
+  - New devices registered shall also be able to send the meter reads data.
 
-    - Also certificates shall be issued to old devices history and ongoing properly.
+  - Also certificates shall be issued to old devices history and ongoing properly.
 
-    - Also certificates shall be issued to new devices history and ongoing properly.
+  - Also certificates shall be issued to new devices history and ongoing properly.
 
-    - External ID validation not to include URL characters like #. We could restrict them to the Alphanumeric characters and then allow to use – and _ .
+  - External ID validation not to include URL characters like #. We could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 
 ## User Registration v1
 
@@ -703,17 +672,17 @@ There should be a menu item “invitation” under “organization” in the sid
 
 1. Invite user: here, there should be following text fields to enter by the user:
 
-    1.1. First name
+   - First name
 
-    1.2. Last name
+   - Last name
 
-    1.3. Email address
+   - Email address
 
-    1.4. Role (should be drop down) to choose roles from
+   - Role (should be drop down) to choose roles from
 
-        1.4.1. Device owner.
+     - Device owner
 
-        1.4.2. User
+     - User
 
 After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
@@ -729,7 +698,6 @@ under this menu we will show the invitation details that have been sent in a tab
 
 - Action: “delete user” icon, can only be done by organization admin.
 
- 
 the first user will have the role of organization admin who registers the organization in the platform, and he should be able to invite other users to the platform through invitation process.
 
 user role description:
@@ -746,7 +714,7 @@ An email should be sent to the entered email address from DREC with random gener
 
 **Email Body:**
 
-```
+```text
 dear >email address<
 
 you have been invited to register with D-REC from >organization name<. Use your email and the password below to login into D-REC Initiative.
@@ -755,7 +723,7 @@ you have been invited to register with D-REC from >organization name<. Use your 
 
 >random generated password<
 
- 
+
 
 Thank you
 
@@ -772,17 +740,17 @@ There should be a menu item “invitation” under “organization” in the sid
 
 1. Invite user: here, there should be following text fields to enter by the user:
 
-    1.1. First name
+   - First name
 
-    1.2. Last name
+   - Last name
 
-    1.3. Email address
+   - Email address
 
-    1.4. Role (should be drop down) to choose roles from
+   - Role (should be drop down) to choose roles from
 
-        1.4.1. sub buyer.
+     - sub buyer
 
-        1.4.2. User
+     - User
 
 After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
@@ -804,7 +772,7 @@ user role description:
 
 1. organization admin- can invite users to the organization, delete users, create reservation, view reservations, view certificates.
 
-2. sub buyer-  can invite users to the organization, create reservation, view reservations, view certificates.
+2. sub buyer- can invite users to the organization, create reservation, view reservations, view certificates.
 
 3. users- will have all the view permissions, cannot create reservation.
 
@@ -812,9 +780,9 @@ organization admin and sub-buyers roles will have same permissions that we curre
 
 an email should be sent to the entered email address from DREC with random generated password which the invited user can use to login to the platform.
 
- 
 **Email Body:**
-```
+
+```text
 dear >email address<
 
 you have been invited to register with D-REC from >organization name<. Use your email and the password below to login into D-REC Initiative.
@@ -823,7 +791,7 @@ you have been invited to register with D-REC from >organization name<. Use your 
 
 >random generated password<
 
- 
+
 
 Thank you
 
@@ -832,6 +800,4 @@ Best Regards
 DREC initiative
 ```
 
-
 after the invited user logins with the password and email address, the status of the invitation should be changed to “accepted” in the invitation table.
-    
