@@ -10,22 +10,24 @@ Endpoint:Post: [https://stage-api.drecs.org/api/user/registerWithOrganization](h
 
 ### Input Payload Register With Organization
 
+```
 {
- "firstName": "UAT",
- "lastName": "Testing",
- "email": "uattesting1@gmail.com",
- "organizationType": "developer",
- "password": "DEF123",
- "confirmPassword": "DEF123",
- "orgName": "rooftop solar",
- "orgAddress": "Hyderabad",
- "secretKey": "AB0123"
+"firstName": "UAT",
+"lastName": "Testing",
+"email": "uattesting1@gmail.com",
+"organizationType": "developer",
+"password": "DEF123",
+"confirmPassword": "DEF123",
+"orgName": "rooftop solar",
+"orgAddress": "Hyderabad",
+"secretKey": "AB0123"
 }
+
+```
 
 ### Response
 
-![Register With Org Response](<Screenshot 2024-06-04 113355.png>)
-
+![Register With Org Response](<./img/Screenshot 2024-06-04 113355.png>)
 
 ## Login
 
@@ -42,7 +44,7 @@ Endpoint: [https://stage-api.drecs.org/api/auth/login](https://stage-api.drecs.o
 
 ### Response
 
-![Login Response](image.png)
+![Login Response](./img/image.png)
 
 ## Device Registration
 
@@ -82,7 +84,7 @@ End point: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drec
 
 ### Login Response
 
-![Login Response](image-1.png)
+![Login Response](./img/image-1.png)
 
 ## Device registration2
 
@@ -122,7 +124,7 @@ Endpoint: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drecs
 
 ### Device Registration2 Response
 
-![Device Registration2 Response](<Screenshot 2024-06-04 115321.png>)
+![Device Registration2 Response](<./img/Screenshot 2024-06-04 115321.png>)
 
 ## Registered Devices
 
@@ -134,7 +136,7 @@ null
 
 ### Registered Devices Response
 
-![Registered Devices Response](<Screenshot 2024-06-04 120226.png>)
+![Registered Devices Response](<./img/Screenshot 2024-06-04 120226.png>)
 
 ## Meter Reads
 
@@ -160,7 +162,7 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting12](https:/
 
 ### Meter Reads Response
 
-![Meter Reads Response](<Screenshot 2024-06-04 121236.png>)
+![Meter Reads Response](<./img/Screenshot 2024-06-04 121236.png>)
 
 ### Delta
 
@@ -182,9 +184,9 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https:
 }
 ```
 
-### Delta Response 
+### Delta Response
 
-![Delta Response](<Screenshot 2024-06-04 121723.png>)
+![Delta Response](<./img/Screenshot 2024-06-04 121723.png>)
 
 ### Aggregate
 
@@ -208,4 +210,4 @@ End point: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https
 
 ### Aggregate Response
 
-![Aggregate Response](<Screenshot 2024-06-04 122031.png>)
+![Aggregate Response](<./img/Screenshot 2024-06-04 122031.png>)

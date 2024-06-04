@@ -22,17 +22,17 @@ order: 3
 
 [https://stage-api.drecs.org/swagger/](https://stage-api.drecs.org/swagger/)
 
-| Release ID (phaseNo, ReleaseNo) | Feature/Bug                                 | Relevant JIRA Tickets | Impact on other feature | Environment | Release Date    |
-|---------------------------------|---------------------------------------------|-----------------------|-------------------------|-------------|-----------------|
-| DR 1.1                          | Developer and Organisation registration     |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | User Login and Invitation                   |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | Register the devices                        |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | List the registered devices                 |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | Certificate issuance                        |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | Yield value configurations                  |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | ACL Implementation                          |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | Bulk Device upload                          |                       |                         | Stage       | Sept 08, 2022   |
-| DR 1.1                          | Meter reads of type - HISTORY, DELTA, and AGGREGATE |                       |                         | Stage       | Sept 08, 2022   |
+| Release ID (phaseNo, ReleaseNo) | Feature/Bug                                         | Relevant JIRA Tickets | Impact on other feature | Environment | Release Date  |
+| ------------------------------- | --------------------------------------------------- | --------------------- | ----------------------- | ----------- | ------------- |
+| DR 1.1                          | Developer and Organisation registration             |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | User Login and Invitation                           |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | Register the devices                                |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | List the registered devices                         |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | Certificate issuance                                |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | Yield value configurations                          |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | ACL Implementation                                  |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | Bulk Device upload                                  |                       |                         | Stage       | Sept 08, 2022 |
+| DR 1.1                          | Meter reads of type - HISTORY, DELTA, and AGGREGATE |                       |                         | Stage       | Sept 08, 2022 |
 
 The below collection covers the functionalities of
 
@@ -62,7 +62,7 @@ The below collection covers the functionalities of
 
 - Time zone drop-down is updated for meter reads based on device's country.
 
-- Updated certificate log API to return from new updated package tables and use  transactionCertificateUID to do it.
+- Updated certificate log API to return from new updated package tables and use transactionCertificateUID to do it.
 
 - Now Showing date and time in meter reads listing according to the time zone.
 
@@ -83,8 +83,9 @@ The below collection covers the functionalities of
 - Created API for listing certified devices for developers, also added pagination and filter.
 
 - Certificates now shows meter reads date and time according to device's time zone.
-   1. time zone of different countries is included.
-   2. different time zone of each device is displayed when the devices are grouped from same country  which have different time zones.
+
+  1.  time zone of different countries is included.
+  2.  different time zone of each device is displayed when the devices are grouped from same country which have different time zones.
 
 - Date-time format is now implemented to be like "16 May 2023 03:20" across the application wherever date-time is displayed except for some places where time is not necessary, date is displayed like: “16 May 2023”.
 
@@ -235,7 +236,7 @@ only devices that are not part of the reservation or the devices that have never
 3. Forget password and Login api will require client details at header for ApiUsers. If user under an ApiUser attempt to to access these api’s with / without client details at header will be unauthorized. all other direct users without client at headers will be authorized.
 
 - showing invited users also in the user list when the super admin invites a user- in invitation process ,when admin or developer or buyer invite user, we will be showing invited user in user list with status pending
-after the login of invited user, their status changes.
+  after the login of invited user, their status changes.
 
 - Implementation of apiuser in “create reading” api:
 
@@ -383,7 +384,7 @@ after the login of invited user, their status changes.
 
 1. An Buyer of an apiuser can list the ungrouped devices of his own apiuser only
 
-2. An direct buyer can list the ungrouped devices of direct developer’s / device owner’s…  can’t view the devices of any apiuser’s ungrouped devices.
+2. An direct buyer can list the ungrouped devices of direct developer’s / device owner’s… can’t view the devices of any apiuser’s ungrouped devices.
 
 - added Show/Hide button in login screen password box
 
