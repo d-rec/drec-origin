@@ -335,7 +335,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 ## Buyer Reservation v1
 
-1. Business Logic:
+Business Logic:
 
 - Buyer whoever wants to consume the energy generated will need to make reservations via platform to get the certified energy generated.
 
@@ -349,7 +349,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - Buyer will have two options at the time of reserving the device with respect to the target capacity, i.e, Authority to exceed or Authority not to exceed.
 
-2. Use Cases:
+Use Cases:
 
    **_No Authority to Exceed_**
 
@@ -359,7 +359,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
    ![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
 
-3. Requirements:
+Requirements:
 
 - A device must be reserved by a buyer to be eligible for certificate issuance.
 
@@ -427,7 +427,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - device capacity can be changed in future then old certificate will have conflict as capacity changed even though - add in device log table the device's capacity and commissioning date.
 
-4. API Input:
+API Input:
 
 ```json
 {
@@ -459,7 +459,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 }
 ```
 
-5. API Response:
+API Response:
 
 ```json
 {
@@ -540,7 +540,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 }
 ```
 
-6. Validation:
+Validation:
 
 - One blockchain address can be used for multiple reservations.
 
@@ -556,7 +556,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 ## Device Registration v1
 
-1. Business Logic
+Business Logic
 
 - Developers whoever is generating renewable energy and is part of D-REC ecosystem will be registering their devices on D-REC platform.
 
@@ -566,11 +566,11 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - Individual Device onboarding is by using User Interface fields whereas Bulk Device onboarding will be accommodated with csv file upload option provided on User Interface.
 
-2. Use Cases:
+Use Cases:
 
 ![Use Cases of Device Onboarding](./img/user-flows/62ac0f5a-9a58-45a5-914f-162aabf609ca.png)
 
-3. Requirements:
+Requirements:
 
 - A site manager/ organisation admin should be able to register devices by hitting device registration end point.
 
@@ -588,7 +588,7 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 - Update the external ID validation not to include URL characters like #.(what will we do for French characters?). We could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 
-4. API Input
+API Input
 
 - For individual device registration:
 
@@ -628,11 +628,11 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 
 **File Header:**
 
-    `“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
+  `“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
 
 **Content:**
 
-    `“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
+  `“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
 
 - For Device Group MetaData
 
@@ -646,9 +646,9 @@ In future, Developer may have functionality to switch from Aggregate to Delta an
 }
 ```
 
-5. API Response
+**API Response**
 
-6. Validation
+**Validation**
 
 - **Validations on Requirements collected during February Meetings:**
 
@@ -684,7 +684,7 @@ There should be a menu item “invitation” under “organization” in the sid
 
      - User
 
-After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
+  After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
 2. Invitation:
 
@@ -752,7 +752,7 @@ There should be a menu item “invitation” under “organization” in the sid
 
      - User
 
-After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
+  After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
 2. Invitation:
 
