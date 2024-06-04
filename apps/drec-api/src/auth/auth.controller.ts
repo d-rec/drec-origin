@@ -43,7 +43,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req: ExpressRequest) {
     this.logger.verbose('Within login');
-    await this.authService.logout(req.user as Omit<IUser, 'password'>);
+    const token: string = req.headers.authorization?.split(' ')[1];
+    await this.authService.logout(req.user as Omit<IUser, 'password'>, token);
     return { message: 'Logout successful' };
   }
 
