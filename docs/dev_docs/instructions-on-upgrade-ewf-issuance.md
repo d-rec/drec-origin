@@ -13,15 +13,15 @@ Then, from time to time (configurable) these offchain representations are synchr
 We actually implemented this to increase the throughput of transactions, and handle synchronization problems (retry + logging). Now the retry is automated, so no action is required from the user (doesn't need to resend data or something).Also, offchain certificates are available immediately, so frontend could just query them from the database directly, to show them to user.
 
 In the UI user can be presented with the information whether these changes are visible on the blockchain or not (using synchronization state information).We are using this approach on other applications, tested hundreds of thousands of certificates if not more, and didn't see any data corrupted.Because as much as I would like to solve the problem that you encounter on EWF chain, this may be just anything to be honest (including network error etc), and whenever such integration between two systems (app and blockchain in this case) happens
-it's best practice to use Outbox pattern -> and upgraded version of origin-247-certificate works exactly like outbox.Adapting this to your case will make application run flawlessly from the end user perspective, even if there were some problems with the blockchain (like you currently have) 
+it's best practice to use Outbox pattern -> and upgraded version of origin-247-certificate works exactly like outbox.Adapting this to your case will make application run flawlessly from the end user perspective, even if there were some problems with the blockchain (like you currently have)
 
 ![Upgrade info](./img/28940d51-b238-440a-a937-cca7e8fbf9bb.png)
 
-## Origin 247 Certificate README:
+## Origin 247 Certificate README
 
 [https://github.com/energywebfoundation/origin-247-sdk/tree/master/packages/origin-247-certificate](https://github.com/energywebfoundation/origin-247-sdk/tree/master/packages/origin-247-certificate)
 
-## After upgrading origin-247-certificate following steps would be required:
+## After upgrading origin-247-certificate following steps would be required
 
 ### Cleanup
 
@@ -54,12 +54,9 @@ But production environment probably will require reusing valua) `this.onChangeCe
 #### Local environment
 
 1. In `onApplicationBootstrap` hook in AppModule add following code:
- 
 
 ```ts
-
 await this.onChangeCertificateFacade.deploy();
-
 ```
 
 2. `this.onChangeCertificateFacade` is `@Inject(OnChainCertificateFacade)` (see README, required `OnChainCertificateModule` module)
@@ -68,24 +65,16 @@ await this.onChangeCertificateFacade.deploy();
 
 1. In `onApplicationBootstrap` hook in AppModule add following code:
 
- 
-
 ```ts
-
 const isDeployed = await this.deploymentRepository.propertiesExist();
 
 if (!isDeployed) {
-
   await this.deploymentRepository.save({
-
     registry: registryValueString,
 
     issuer: issuerValueString,
-
   });
-
 }
-
 ```
 
 - `this.deploymentRepository` is `@Inject(DeploymentPropertiesRepository)` (requires `OnChainCertificateModule` imported)
@@ -110,8 +99,6 @@ Now everything will be stored in the offchain database.
 
 If you use `issuer-api` certificates somewhere, you can somehow connect these two results.
 
- 
-
 To synchronize with blockchain:
 
 1. Import `OffchainCertificateModule`
@@ -120,46 +107,28 @@ To synchronize with blockchain:
 
 3. Call `await this.synchronizationService.synchronize()`
 
- 
-
 Example synchronizing code using NestJS scheduler (https://docs.nestjs.com/techniques/task-scheduling):
 
 ```ts
-
 import { Injectable, Logger } from '@nestjs/common';
 
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { BlockchainSynchronizeService } from '@energyweb/origin-247-certificate';
 
- 
-
 @Injectable()
-
 export class SynchronizeBlockchainTask {
+  private logger = new Logger(SynchronizeBlockchainTask.name);
 
-    private logger = new Logger(SynchronizeBlockchainTask.name);
+  constructor(private synchronizationService: BlockchainSynchronizeService) {}
 
- 
+  @Cron(CronExpression.EVERY_2_HOURS)
+  public async synchronizeblockchain() {
+    this.logger.log(`Synchronizing blockchain started`);
 
-    constructor(private synchronizationService: BlockchainSynchronizeService) {}
-
- 
-
-    @Cron(CronExpression.EVERY_2_HOURS)
-
-    public async synchronizeblockchain() {
-
-        this.logger.log(`Synchronizing blockchain started`);
-
- 
-
-        await this.synchronizationService.synchronize();
-
-    }
-
+    await this.synchronizationService.synchronize();
+  }
 }
-
 ```
 
 In this example synchronization with blockchain will happen every 2 hours.
@@ -168,11 +137,7 @@ In this example synchronization with blockchain will happen every 2 hours.
 
 For tests you can use `OffChainCertificateForUnitTestsModule` if you don't want to connect to blockchain.
 
- 
-
-****THERE has been changes in this integration which were updated in code and communicated in slack. So some instructions might be missing please refer to code for updated.
-
- 
+\*\*\*\*THERE has been changes in this integration which were updated in code and communicated in slack. So some instructions might be missing please refer to code for updated.
 
 I found two issues in origin-247-certificate, which is fixed in version 4.1.2. They were affecting your upgrade,
 CERTIFICATE_QUEUE_DELAY can be set to 10000 – currently it is set to 60000 which is very large and makes no sense. In our tests 10000 was almost always enough. If there is nonce conflict blockchain error, it can be increased further to 20000. Lower values make testing easier and synchronization works more seamlessly.
