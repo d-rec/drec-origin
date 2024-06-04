@@ -252,7 +252,7 @@ Use Cases:
 
 ![Expected Flow to Enter Duplicate Records](<./img/image (1).webp>)
 
-##### APIs and Responses
+### APIs and Responses
 
 [Swagger UI](https://stage-api.drecs.org/swagger/#/user/UserController_me)
 
@@ -472,7 +472,7 @@ Energy storage capacity:
 
 - Here, the developer can enter energy storage capacity of the device.
 
-**Note- Mandatory field are marked with (\*)**
+**Note- Mandatory field are marked with (*)**
 
 **After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.**
 
@@ -1034,9 +1034,9 @@ Here, the buyers can filter from drop down menu, SDG benefits.
 
 Buyers can select reservation status of the devices to filter from the list by selecting one of the radio buttons with following options:
 
-1.  All: it will display all the devices
+1. All: it will display all the devices
 
-2.  Active: it will display devices which are under reservation period.
+2. Active: it will display devices which are under reservation period.
 
 - Reservation date
 
@@ -1056,23 +1056,23 @@ The list will contain following fields:
 
 The information that will be included about the reservation:
 
-1.  name .: this is the name given to the reservation by the buyer.
+1. name .: this is the name given to the reservation by the buyer.
 
-2.  start date. Start sate of the reservation
+2. start date. Start sate of the reservation
 
-3.  end date: date at which the reservation end
+3. end date: date at which the reservation end
 
-4.  target capacity: the target capacity which is selected by the buyer.
+4. target capacity: the target capacity which is selected by the buyer.
 
-5.  frequency: frequency of token to be generated (hourly, daily, weekly, monthly).
+5. frequency: frequency of token to be generated (hourly, daily, weekly, monthly).
 
-6.  off takers: which off takers buyers selected when reserving devices.
+6. off takers: which off takers buyers selected when reserving devices.
 
-7.  number of devices: number of devices in the reservation
+7. number of devices: number of devices in the reservation
 
-8.  status: whether the reservation is active or inactive on the current date.
+8. status: whether the reservation is active or inactive on the current date.
 
-9.  SDG benefits :which SDG benefits buyers selected when reserving devices
+9. SDG benefits :which SDG benefits buyers selected when reserving devices
 
 Below this will be the list of devices that were included in the reservation. The information that will be shown about each device:
 
@@ -1204,23 +1204,23 @@ Here all the certificates will be displayed for the reservations which have gene
 
 Each certificate will display following details:
 
-1.  Generation starts date: – this is when the DREC tokens began being minted as part of this reservation
+1. Generation starts date: – this is when the DREC tokens began being minted as part of this reservation
 
     Generation end date- this is when the DREC token creation stopped, and all the devices were released from the reservation
 
     Owned volume- the total amount of certified data
 
-2.  Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
+2. Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
 
-    1.  start date - the start of the verified meter read period
+    1. start date - the start of the verified meter read period
 
-    2.  end date- the end of the verified meter read period
+    2. end date- the end of the verified meter read period
 
-    3.  device name.
+    3. device name.
 
-    4.  read value- the certified volume from that device
+    4. read value- the certified volume from that device
 
-    5.  device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
+    5. device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
 
 Certificates can be filtered based on the filter menu provided in the UI. The fields contain:
 
