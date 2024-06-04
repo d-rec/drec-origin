@@ -55,9 +55,9 @@ But production environment probably will require reusing valua) `this.onChangeCe
 
 1. In `onApplicationBootstrap` hook in AppModule add following code:
 
-```ts
-await this.onChangeCertificateFacade.deploy();
-```
+  ```ts
+  await this.onChangeCertificateFacade.deploy();
+  ```
 
 2. `this.onChangeCertificateFacade` is `@Inject(OnChainCertificateFacade)` (see README, required `OnChainCertificateModule` module)
 
@@ -107,7 +107,7 @@ To synchronize with blockchain:
 
 3. Call `await this.synchronizationService.synchronize()`
 
-Example synchronizing code using NestJS scheduler (https://docs.nestjs.com/techniques/task-scheduling):
+Example synchronizing code using NestJS scheduler [https://docs.nestjs.com/techniques/task-scheduling](https://docs.nestjs.com/techniques/task-scheduling):
 
 ```ts
 import { Injectable, Logger } from '@nestjs/common';
