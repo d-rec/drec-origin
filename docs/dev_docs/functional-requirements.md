@@ -2,88 +2,87 @@
 order: 1
 ---
 
-# Functional Requirements 
-
+# Functional Requirements
 
 - D-REC Platform
 
-    - Introduction
+  - Introduction
 
 - BUSINESS REQUIREMENTS OVERVIEW
 
-    - TECHNICAL SPECIFICATIONS
+  - TECHNICAL SPECIFICATIONS
 
-    - User registration flow
+  - User registration flow
 
-        - For developers
+    1. For developers
 
-        - For buyers
+    2. For buyers
 
-    - User login
+  - User login
 
-    - User pages for Developers:
+  - User pages for Developers:
 
-        1. Organization 
+    1. Organization
 
-        2. Devices
-            
-            My devices:
-            
-            - here, the developers can see the devices that they have added in a tabular format the fields will contain:
-            
-            - The user can also use filter menu to view devices according to their preferences. The filter menu contains following fields according to which devices can be filtered
-        
-            Add devices:
+    2. Devices
 
-            - In this page, developers can add devices by filling the following fields in the form:
+       My devices:
 
-            - Note- Mandatory field are marked with (*).
+       - here, the developers can see the devices that they have added in a tabular format the fields will contain:
 
-            - After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.
+       - The user can also use filter menu to view devices according to their preferences. The filter menu contains following fields according to which devices can be filtered
 
-            - If, mandatory field are not submitted by the developer then the submit button will not be activated.
+       Add devices:
 
-            - While the device external id should be unique for each device, different developers (of different organization) might enter same name in the external id field while filling the form for adding the devices. So, to differentiate the devices in the backend, each device will have unique id as well as unique organization id (unique for each organization).
+       - In this page, developers can add devices by filling the following fields in the form:
 
-            Bulk upload.
-        
-        3. Meter reads
-        
-            - Under this functionality, there are three fields:
-        
-        3.1. All reads:
+       - Note- Mandatory field are marked with (\*).
 
-            - After selecting all the fields, the users will have two buttons in UI.
-        
-        3.2. Add meter Read:
-         
-            - When the developer selects this option, they will be redirected to “Add read” page where they can add the meter reading of their added devices.
+       - After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.
 
-            - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
+       - If, mandatory field are not submitted by the developer then the submit button will not be activated.
 
-            - Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)
-  
-        3.3. Certified meter reads
+       - While the device external id should be unique for each device, different developers (of different organization) might enter same name in the external id field while filling the form for adding the devices. So, to differentiate the devices in the backend, each device will have unique id as well as unique organization id (unique for each organization).
 
-    - User pages for Buyers
+       Bulk upload.
 
-        1. My reservation
+    3. Meter reads
 
-            - After selecting the fields, buyers can select ‘filter’ button to filter the list based on the selected preferences or can click ‘reset’ button to reset the preferences.
+       - Under this functionality, there are three fields:
 
-            - The filter form is not mandatory, buyers can directly see the list of devices from full list.
+    All reads:
 
-        2. Certificate
-        
-        3. Add reservation
+          - After selecting all the fields, the users will have two buttons in UI.
 
-            - Here, the buyer can make reservations of the devices to obtain certificates. Buyers will have to fill following details from the UI form:
+    Add meter Read:
 
-            - After filling the reservation form, buyers will have the option to filter the list of devices by selecting following fields:
+          - When the developer selects this option, they will be redirected to “Add read” page where they can add the meter reading of their added devices.
 
-            - After clicking the ‘filter’ button, the list of devices will be displayed based on filter values. Filtering the devices is not mandatory, buyer can directly view list of unreserved devices from the UI. Buyers can select the devices they want to reserve and click submit button, which will then add the device to buyer’s reservation.
+          - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-            - Important points regarding device registration.
+          - Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)
+
+  Certified meter reads:
+
+  - User pages for Buyers
+
+    1. My reservation
+
+       - After selecting the fields, buyers can select ‘filter’ button to filter the list based on the selected preferences or can click ‘reset’ button to reset the preferences.
+
+       - The filter form is not mandatory, buyers can directly see the list of devices from full list.
+
+    2. Certificate
+
+    3. Add reservation
+
+       - Here, the buyer can make reservations of the devices to obtain certificates. Buyers will have to fill following details from the UI form:
+
+       - After filling the reservation form, buyers will have the option to filter the list of devices by selecting following fields:
+
+       - After clicking the ‘filter’ button, the list of devices will be displayed based on filter values. Filtering the devices is not mandatory, buyer can directly view list of unreserved devices from the UI. Buyers can select the devices they want to reserve and click submit button, which will then add the device to buyer’s reservation.
+
+       - Important points regarding device registration.
 
 ## Introduction
 
@@ -96,7 +95,7 @@ A D-REC is a third party-certified, verifiable, trade able market instrument tha
 The D-REC Platform was designed to facilitate the issuance of International RECs (I-RECs) from D-REC certificates through an automated approach. Current environmental markets require a largely manual exchange of data, such as generation reports, in order to receive renewable energy certificates. D-RECs utilize technology to overcome the challenges prohibiting small devices from accessing environmental markets. The primary value propositions for a technical solution include:
 
 - Improved discoverability: Technology can make it easier for buyers and other stakeholders to discover projects that are closely aligned with their purchase criteria
-through a standardized data model that describes a variety of DRE assets.
+  through a standardized data model that describes a variety of DRE assets.
 
 - Lower transaction costs: Automating validation can shorten the time needed to issue certificates and thereby lower transaction costs.
 
@@ -104,7 +103,7 @@ through a standardized data model that describes a variety of DRE assets.
 
 - Clear traceability and provenance: Buyers can streamline their procurement reporting by utilizing the public ledger to document data origination and verification; the public ledger also reduces the risk of double-counting as all tokens (which represent I-REC issuance requests) are publicly discoverable.
 
-The D-REC Platform supports account and device registration, data verification, token 
+The D-REC Platform supports account and device registration, data verification, token
 minting, and I-REC issuances. The platform has two primary user categories: developers, and buyers.
 
 ### Purpose
@@ -135,7 +134,7 @@ There will be multiple users under all the above mentioned categories for an ins
 
 ## Business Requirements Overview
 
- The requirement or expectations from this development project of the D-REC tool can be described as:
+The requirement or expectations from this development project of the D-REC tool can be described as:
 
 s- User Registration.
 
@@ -157,13 +156,13 @@ The base requirement out of this tool is to allow developers to register their o
 
 ### Technical Specifications
 
-| **Category**   | **Technology** |
-|----------------|----------------|
-| **Development**| .Net/Angular   |
-| **Database**   | PostgreSQL     |
-| **Design**     | Figma          |
-| **Integration**| -              |
-| **Testing**    | Manual         |
+| **Category**    | **Technology** |
+| --------------- | -------------- |
+| **Development** | .Net/Angular   |
+| **Database**    | PostgreSQL     |
+| **Design**      | Figma          |
+| **Integration** | -              |
+| **Testing**     | Manual         |
 
 ## Functional Requirements And U IMser Impacts
 
@@ -173,21 +172,21 @@ The base requirement out of this tool is to allow developers to register their o
 
 - Developer will enter:
 
-    1. first name,
+  1. first name,
 
-    2. last name,
+  2. last name,
 
-    3. email address (should not match any existing email),
+  3. email address (should not match any existing email),
 
-    4. selects organization type as “Developer” from drop down menu,
+  4. selects organization type as “Developer” from drop down menu,
 
-    5. organization name (should not match any existing name),
+  5. organization name (should not match any existing name),
 
-    6. organization address,
+  6. organization address,
 
-    7. new password,
+  7. new password,
 
-    8. confirm password.
+  8. confirm password.
 
 - Once the form is updated and user clicks on submit button, user will be registered on the D-REC platform as a developer
 
@@ -195,21 +194,21 @@ The base requirement out of this tool is to allow developers to register their o
 
 - Buyer will enter.
 
-    1. first name,
+  1. first name,
 
-    2. last name,
+  2. last name,
 
-    3. email address (should not match any existing email),
+  3. email address (should not match any existing email),
 
-    4. selects organization type as “Buyer” from drop down menu,
+  4. selects organization type as “Buyer” from drop down menu,
 
-    5. organization name (should not match any existing name),
+  5. organization name (should not match any existing name),
 
-    6. organization address,
+  6. organization address,
 
-    7. new password,
+  7. new password,
 
-    8. confirm password.
+  8. confirm password.
 
 - Once the form is updated and user clicks on submit button, user will be registered on the D-REC platform as a buyer.
 
@@ -253,7 +252,7 @@ Use Cases:
 
 ![Expected Flow to Enter Duplicate Records](<./img/image (1).webp>)
 
-##### API's and Responses
+##### APIs and Responses
 
 [Swagger UI](https://stage-api.drecs.org/swagger/#/user/UserController_me)
 
@@ -261,13 +260,13 @@ Use Cases:
 
 - Before this use case can be initiated, the user must have registered his email ID.
 
-    1. User must fill in the registered email ID in the “enter email ID section”.
+  1. User must fill in the registered email ID in the “enter email ID section”.
 
-    2. User must fill in the password used during registration and click on Login.
+  2. User must fill in the password used during registration and click on Login.
 
-    3. If the email ID and password are correct, the user will be logged into the portal.
+  3. If the email ID and password are correct, the user will be logged into the portal.
 
-#### User pages for Developers:
+#### User pages for Developers
 
 Organization
 
@@ -331,21 +330,21 @@ Project Name
 
 - Here the developer can enter the name of the project from which the device belongs to.
 
-External I.D (*)
+External I.D (\*)
 
 - It should be unique for each device. This is the ID that the developer uses internally to refer to the device. Does not need to be universally unique, as the platform will generate it's on UUID
 
-Select country code (*)
+Select country code (\*)
 
 - Here the developer can choose the country code of the device from the drop-down menu of the list of countries.
 
-Commissioning date (*)
+Commissioning date (\*)
 
 - Here, the developer must enter the date from which the device is operational.
 
 - commissioning date should be equal to or before onboarding date.
 
-Capacity (*)
+Capacity (\*)
 
 - Here, the developer should enter the capacity of the device in kW.
 
@@ -353,42 +352,43 @@ Off taker
 
 - Here, the developer can choose the off taker of the power produced from the device from the drop-down menu, which will contain following options:
 
-    School
+  School
 
-    Health facility.
+  Health facility.
 
-    Residential.
+  Residential.
 
-    Commercial
+  Commercial
 
-    Industrial
+  Industrial
 
-    Public sector
+  Public sector
 
-    Agriculture.
+  Agriculture.
 
-Fuel code (*)
+Fuel code (\*)
 
 - Here the developer can select fuel code from the following options in the drop-down menu:
-    Solar
 
-    Co-fired with fossil: solar thermal concentrations. (removed)
-    
+  Solar
+
+  Co-fired with fossil: solar thermal concentrations. (removed)
+
 - Only solar is available for now.
 
-Device type code (*)
+Device type code (\*)
 
 - Here, the developer can select the type of device that they are registering from the drop-down menu:
 
-    PV ground mounted.
+  PV ground mounted.
 
-    PV roof mounted (single installation).
+  PV roof mounted (single installation).
 
-    PV floating
+  PV floating
 
-    PV aggregated.
+  PV aggregated.
 
-    Solar thermal concentration.
+  Solar thermal concentration.
 
 Impact story
 
@@ -398,15 +398,15 @@ Device description:
 
 - Here, the device description can be chosen from the drop-down menu, which will contain following types:
 
-    Solar lanterns.
+  Solar lanterns.
 
-    Solar home systems.
+  Solar home systems.
 
-    Mini grid
+  Mini grid
 
-    Rooftop solar.
+  Rooftop solar.
 
-    Ground mount solar.
+  Ground mount solar.
 
 SDG benefits:
 
@@ -462,7 +462,7 @@ Quality labels:
 
 Grid inter connection:
 
-- Here, the developer can choose whether the device is connected to grid or not from Boolean buttons “yes” or “no”.  
+- Here, the developer can choose whether the device is connected to grid or not from Boolean buttons “yes” or “no”.
 
 Energy storage:
 
@@ -472,7 +472,7 @@ Energy storage capacity:
 
 - Here, the developer can enter energy storage capacity of the device.
 
-**Note- Mandatory field are marked with (*)**
+**Note- Mandatory field are marked with (\*)**
 
 **After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.**
 
@@ -484,7 +484,7 @@ Energy storage capacity:
 
 #### Device Registration Version 1
 
- - A site manager/ organisation admin should be able to register devices by hitting device registration end point.
+- A site manager/ organisation admin should be able to register devices by hitting device registration end point.
 
 - Developers who use the programmatic interface can use the ID as External ID that they use for their systems, they don’t need to persist the ID that the DREC platform assigns. However, that means that even though an External ID is unique to a particular developer, it does not have to be unique across developers.
 
@@ -496,7 +496,7 @@ Energy storage capacity:
 
 - External ID validation not to include URL characters like #.
 
-- It could restrict them to the Alphanumeric characters and then allow to use – and _ .
+- It could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 
 - Platform will accept CSV file type, stores the file in S3 and shares the job id in email notification to the user. As it’s synchronous way of processing the data, platform will process the data at designated batch process or immediately (NOTE - this has to go as per design)
 
@@ -522,23 +522,23 @@ Energy storage capacity:
 
 - If the mandatory fields are provided in the schema with proper enum values then the screen will redirected to device bulk registration status log where the user will be provided with table with following fields:
 
-    1. ID
+  1. ID
 
-    2. Externalid: the external id added by the users for the devices.
+  2. Externalid: the external id added by the users for the devices.
 
-    3. Error list: will provide user with the list of errors in statement form and will provide correct enum values that system accepts.
+  3. Error list: will provide user with the list of errors in statement form and will provide correct enum values that system accepts.
 
-    4. Status
+  4. Status
 
-        - Success- in this status all the mandatory fields and enum values are correctly entered by the user
+     - Success- in this status all the mandatory fields and enum values are correctly entered by the user
 
-        - Success with validation errors, please update fields. – in this error the device will be added to the  portal but with error and user can edit the fields that have error by clicking the “edit” button, which will redirect the user to device update form where user can enter and update correct values.
+     - Success with validation errors, please update fields. – in this error the device will be added to the portal but with error and user can edit the fields that have error by clicking the “edit” button, which will redirect the user to device update form where user can enter and update correct values.
 
-        - failed – in this status it means that the mandatory fields are not added and also the enum values are wrong and user will have to correctly enter the csv file schema and reupload.
+     - failed – in this status it means that the mandatory fields are not added and also the enum values are wrong and user will have to correctly enter the csv file schema and reupload.
 
-    5. action
+  5. action
 
-    ![Device Onboarding Type](./img/df596ba8-de35-4aed-8fd7-93d86f6877f3.png)
+  ![Device Onboarding Type](./img/df596ba8-de35-4aed-8fd7-93d86f6877f3.png)
 
 #### Bulk Device Upload Version 1.0
 
@@ -578,15 +578,15 @@ Use Cases:
 
 ![Device Grouping and Ungrouping Flow](<./img/image (3).webp>)
 
-####  I-REC Integration
+#### I-REC Integration
 
- I-REC and D-REC Integration process is divided into three categories:
+I-REC and D-REC Integration process is divided into three categories:
 
- - Platform Registration
+- Platform Registration
 
- - Device Registration
+- Device Registration
 
- - Certificate Issuance
+- Certificate Issuance
 
 - Developers will have access to D-REC platform only and not to the I-REC registry.
 
@@ -607,7 +607,7 @@ Use Cases:
 - In Certificate Meta Data and logs, Transaction certificate id will be added.
 
 The following outlines the proposed step-by-step process:
-    
+
 - During the Buyer Reservation process, the buyer will specify that they want to ensure that any certificates procured via the reservation process will be converted to I-RECs. This will do this when defining the Buyer Reservation with “Standard = IREC”
 
 - The D-REC Platform will gather meter data from devices assigned to a Buyer Reservation as usual via the DRE devices calling the POST/api/meter-reads endpoint.
@@ -616,9 +616,9 @@ The following outlines the proposed step-by-step process:
 
 - At this point, in a normal Buyer Reservation, the certificate would be issued and then transferred to the blockchain wallet associated with the buyer organisation. However, in the situation where the buyer has requested an I-REC conversion, this will not take place.
 
-- Rather, the D-REC Platform will transfer the certificates to a provisional account associated with the Buyer (or other intermediary who owns the Buyer Reservation request). The provisional D-REC also will be written to the chain. At this point, the D-REC Platform will call into the I-REC registry to request I-REC issuance. 
+- Rather, the D-REC Platform will transfer the certificates to a provisional account associated with the Buyer (or other intermediary who owns the Buyer Reservation request). The provisional D-REC also will be written to the chain. At this point, the D-REC Platform will call into the I-REC registry to request I-REC issuance.
 
-- The certificate will remain in the provisional account until the I-REC issuance is completed, and a serial number is assigned for the corresponding D-REC certificates. 
+- The certificate will remain in the provisional account until the I-REC issuance is completed, and a serial number is assigned for the corresponding D-REC certificates.
 
 - At that point, the I-REC serial number will be written into the metadata of the certificate. Both the starting and ending serial number will be noted in the D-REC certificate.
 
@@ -728,11 +728,11 @@ When the developer selects this field, the user will be redirected to the "All R
 
 This is the name of the devices; users can choose from the drop-down menu which device they want to see readings of.
 
-- Start Date (*)
+- Start Date (\*)
 
 Users must select the date from which they want to see the readings.
 
-- End Date (*)
+- End Date (\*)
 
 Users must select the date until which they want to see the readings.
 
@@ -756,7 +756,7 @@ When the users click this button, the system will provide the list of meter read
 
 When the developer selects this option, they will be redirected to the “Add Read” page where they can add the meter reading of their added devices. The fields they need to select in the UI form are:
 
-- External ID (*)
+- External ID (\*)
 
 The user will have to enter the external ID name of the device for which they wish to add a meter reading.
 
@@ -764,76 +764,73 @@ The user will have to enter the external ID name of the device for which they wi
 
 Users can choose the time zone where the device is located. They will be provided with the time zones that were entered at the time of adding the device.
 
-- Read Type (*)
+- Read Type (\*)
 
 1. History
 
-    - History reads are the meter readings between the commissioning date (the date/time when the device started generating electricity) and the onboarding time (the time when the device is registered in the DREC platform).
+   - History reads are the meter readings between the commissioning date (the date/time when the device started generating electricity) and the onboarding time (the time when the device is registered in the DREC platform).
 
-    - History reads start time should always be before the device onboarding time.
+   - History reads start time should always be before the device onboarding time.
 
-    - The system will not accept history reads if the entered time period collides with an existing time period for which reads have been submitted before.
+   - The system will not accept history reads if the entered time period collides with an existing time period for which reads have been submitted before.
 
-    - For history reads, the start and end times are used to calculate the metered period, and the device age is computed based on the difference between the commissioning date and the current date.
+   - For history reads, the start and end times are used to calculate the metered period, and the device age is computed based on the difference between the commissioning date and the current date.
 
-    - History meter data that is valid for certification is 3 years.
+   - History meter data that is valid for certification is 3 years.
 
-    - Historic meter read values should not be negative.
+   - Historic meter read values should not be negative.
 
-    - The DREC system allows users to submit history meter reads for devices they have registered before and forgot to submit meter reads for.
+   - The DREC system allows users to submit history meter reads for devices they have registered before and forgot to submit meter reads for.
 
 2. Aggregate
 
-    - Aggregate readings are the current readings of the meter.
+   - Aggregate readings are the current readings of the meter.
 
-    - Aggregate readings are converted to delta readings in the backend of the system to generate certificates for the buyers.
+   - Aggregate readings are converted to delta readings in the backend of the system to generate certificates for the buyers.
 
-    - Developers can enter data on a daily, weekly, or monthly basis as per their convenience.
+   - Developers can enter data on a daily, weekly, or monthly basis as per their convenience.
 
-    - Aggregate readings end time should not be before the device onboarding date.
+   - Aggregate readings end time should not be before the device onboarding date.
 
-    - Aggregate readings end time should not be greater than the current/system time.
+   - Aggregate readings end time should not be greater than the current/system time.
 
-    - Aggregate readings value should not be less than the previous value.
+   - Aggregate readings value should not be less than the previous value.
 
-    - If the first device reading is aggregate, then it should not be able to change to other types of readings.
+   - If the first device reading is aggregate, then it should not be able to change to other types of readings.
 
-    - The first meter data submitted as an aggregate reading after the device has been onboarded (i.e., the first meter reading with a timestamp greater than the onboarding time) will not be considered by the DREC Platform. This first meter read will establish the “baseline”; it will be used to derive the delta meter read that will be submitted for verification.
+   - The first meter data submitted as an aggregate reading after the device has been onboarded (i.e., the first meter reading with a timestamp greater than the onboarding time) will not be considered by the DREC Platform. This first meter read will establish the “baseline”; it will be used to derive the delta meter read that will be submitted for verification.
 
-    - When the user submits an aggregate meter read, they only submit an end timestamp and a meter value; the DREC Platform will keep track of the starting timestamp. Each timestamp provided will be used as the starting timestamp for the following meter read.
+   - When the user submits an aggregate meter read, they only submit an end timestamp and a meter value; the DREC Platform will keep track of the starting timestamp. Each timestamp provided will be used as the starting timestamp for the following meter read.
 
-    - The DREC platform allows users to provide meter reads late, for which the time cycle has already moved to a different cycle. For this, a cron job will run every 4 hours in the system to include late-submitted meter reads for certificate generation.
+   - The DREC platform allows users to provide meter reads late, for which the time cycle has already moved to a different cycle. For this, a cron job will run every 4 hours in the system to include late-submitted meter reads for certificate generation.
 
 3. Delta
 
-    - Delta readings are the values pre-calculated by the developer, which will be entered in the system and should be considered for certification.
+   - Delta readings are the values pre-calculated by the developer, which will be entered in the system and should be considered for certification.
 
-    - Delta = Current Meter Reads – Previous Meter Reads
+   - Delta = Current Meter Reads – Previous Meter Reads
 
-    - Developers can enter data on a daily, weekly, or monthly basis as per their convenience.
+   - Developers can enter data on a daily, weekly, or monthly basis as per their convenience.
 
-    - Similar to aggregate meter reads, the first meter data submitted as a delta reading after the device has been onboarded (i.e., the first meter reading with a timestamp greater than the onboarding time) will not be considered by the DREC Platform. This first meter read will establish the “baseline”; the meter value will be discarded, and the timestamp will be used as the starting timestamp to certify the next meter read.
+   - Similar to aggregate meter reads, the first meter data submitted as a delta reading after the device has been onboarded (i.e., the first meter reading with a timestamp greater than the onboarding time) will not be considered by the DREC Platform. This first meter read will establish the “baseline”; the meter value will be discarded, and the timestamp will be used as the starting timestamp to certify the next meter read.
 
-    - In the case of the first read entry for the device, the application will wait for the next data entry to calculate Delta.
+   - In the case of the first read entry for the device, the application will wait for the next data entry to calculate Delta.
 
-    - Delta readings end time should not be before the device onboarding date.
+   - Delta readings end time should not be before the device onboarding date.
 
-    - Delta readings end time should not be greater than the current/system time.
+   - Delta readings end time should not be greater than the current/system time.
 
-    - If the first device reading is delta, then it should not be able to change to other types of readings.
+   - If the first device reading is delta, then it should not be able to change to other types of readings.
 
-    - When the user submits a delta meter read, they only submit an end timestamp and a meter value; the DREC Platform will keep track of the starting timestamp, which will be the end timestamp of the last read.
+   - When the user submits a delta meter read, they only submit an end timestamp and a meter value; the DREC Platform will keep track of the starting timestamp, which will be the end timestamp of the last read.
 
-    - The DREC platform allows users to provide meter reads late, for which the time cycle has already moved to a different cycle. For this, a cron job will run every four hours in the system background to include late-submitted meter reads for certificate generation.
+   - The DREC platform allows users to provide meter reads late, for which the time cycle has already moved to a different cycle. For this, a cron job will run every four hours in the system background to include late-submitted meter reads for certificate generation.
 
-    - Important Points Related to Meter Readings:
+   - Important Points Related to Meter Readings:
 
-    - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
+   - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-    ```text
-    Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)
-
-    ```
+   `Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)`
 
 4. Unit
 
@@ -895,13 +892,13 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 
 #### Meter Readings Version 1.0
 
-- Meter Reading process is segregated in three main categories:
-    
-    - Historic Readings
+- Meter Reading process is segregated into three main categories:
 
-    - Delta Readings(Calculated)
+  - Historic Readings
 
-    - Aggregate Readings(Running)
+  - Delta Readings (Calculated)
+
+  - Aggregate Readings (Running)
 
 - There should be a single endpoint which will allow developers to share the Meter Reads of the above mentioned types.
 
@@ -915,13 +912,11 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 
 - At the initial time of registration, the equivalent watt hours of per meter read should be asked from the developer.
 
-- ***Aggregate Readings(Running):*** This type of Meter readings will be entered in the system as the Reading count, the calculation will take place on the basis of Current shared reading and last reading count.
+- **_Aggregate Readings(Running):_** This type of Meter readings will be entered in the system as the Reading count, the calculation will take place on the basis of Current shared reading and last reading count.
 
 - The formula/logic for the same will look like:
 
-```text
-Delta= Current Meter Reads – Previous Meter Reads
-```
+`Delta= Current Meter Reads – Previous Meter Reads`
 
 - In case of first entry for that particular device, application will wait for next data entry to calculate Delta.
 
@@ -985,17 +980,17 @@ Here the buyer can filter from fuel code from the following options in the drop-
 
 Here, the buyer can filter from the off taker of the power produced from the device from the drop-down menu, which will contain following options:
 
-    1. School 
+    1. School
 
-    2. Health facility. 
+    2. Health facility.
 
-    3. Residential. 
+    3. Residential.
 
-    4. Commercial 
+    4. Commercial
 
-    5. Industrial 
+    5. Industrial
 
-    6. Public sector 
+    6. Public sector
 
     7. Agriculture.
 
@@ -1003,35 +998,35 @@ Here, the buyer can filter from the off taker of the power produced from the dev
 
 Here, the buyers can filter from drop down menu, SDG benefits.
 
-        SDG1. No poverty 
+        SDG1. No poverty
 
-        SDG 2. Zero hunger 
+        SDG 2. Zero hunger
 
-        SDG 3. Good health and well-being. 
+        SDG 3. Good health and well-being.
 
-        SDG 4. Gender equality. 
+        SDG 4. Gender equality.
 
-        SDG 5. clean water and sanitation. 
+        SDG 5. clean water and sanitation.
 
-        SDG 6. Affordable and clean energy. 
+        SDG 6. Affordable and clean energy.
 
-        SDG 7. Decent work and economic growth. 
+        SDG 7. Decent work and economic growth.
 
-        SDG 8. Industry, innovation and infrastructure. 
+        SDG 8. Industry, innovation and infrastructure.
 
-        SDG 9. Reduced inequality. 
+        SDG 9. Reduced inequality.
 
-        SDG 10. Sustainable cities and communities. 
+        SDG 10. Sustainable cities and communities.
 
-        SDG 11. Responsible consumption and production. 
+        SDG 11. Responsible consumption and production.
 
-        SDG 12. climate action. 
+        SDG 12. climate action.
 
-        SDG 13. life below water. 
+        SDG 13. life below water.
 
-        SDG 14. life on land. 
+        SDG 14. life on land.
 
-        SDG 15. Peace and justice strong institutions. 
+        SDG 15. Peace and justice strong institutions.
 
         SDG 16. partnership to achieve SDG.
 
@@ -1039,9 +1034,9 @@ Here, the buyers can filter from drop down menu, SDG benefits.
 
 Buyers can select reservation status of the devices to filter from the list by selecting one of the radio buttons with following options:
 
-   1. All: it will display all the devices
+1.  All: it will display all the devices
 
-   2. Active: it will display devices which are under reservation period.
+2.  Active: it will display devices which are under reservation period.
 
 - Reservation date
 
@@ -1061,23 +1056,23 @@ The list will contain following fields:
 
 The information that will be included about the reservation:
 
-   1. name .: this is the name given to the reservation by the buyer.
+1.  name .: this is the name given to the reservation by the buyer.
 
-   2. start date. Start sate of the reservation
+2.  start date. Start sate of the reservation
 
-   3. end date: date at which the reservation end
+3.  end date: date at which the reservation end
 
-   4. target capacity: the target capacity which is selected by the buyer.
+4.  target capacity: the target capacity which is selected by the buyer.
 
-   5. frequency: frequency of token to be generated (hourly, daily, weekly, monthly).
+5.  frequency: frequency of token to be generated (hourly, daily, weekly, monthly).
 
-   6. off takers: which off takers buyers selected when reserving devices.
+6.  off takers: which off takers buyers selected when reserving devices.
 
-   7. number of devices: number of devices in the reservation
+7.  number of devices: number of devices in the reservation
 
-   8. status: whether the reservation is active or inactive on the current date.
+8.  status: whether the reservation is active or inactive on the current date.
 
-   9. SDG benefits :which SDG benefits buyers selected when reserving devices
+9.  SDG benefits :which SDG benefits buyers selected when reserving devices
 
 Below this will be the list of devices that were included in the reservation. The information that will be shown about each device:
 
@@ -1101,7 +1096,7 @@ List:
 
 9. SDG benefits: SDG benefits device is providing
 
-#### Buyer Reservation Version1.0**
+#### Buyer Reservation Version1.0\*\*
 
 - Buyer whoever wants to consume the energy generated will need to make reservations via platform to get the certified energy generated.
 
@@ -1117,37 +1112,37 @@ List:
 
 - Buyer should be able to filter the devices on the below listed parameters while making a reservation:
 
-(1)  Country Code
+(1) Country Code
 
-(2)  Fuel Type (Fuel Code)
+(2) Fuel Type (Fuel Code)
 
-(3)  Off Taker
+(3) Off Taker
 
-(4)  Device Code
+(4) Device Code
 
-(5)  Target Capacity (kW)
+(5) Target Capacity (kW)
 
 - Data Schema
 
-| **Field**                | **Description**                                                                                                                                                                                                    |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Reservation ID**: String | This is autogenerated by the system when a reservation is first setup.                                                                                                                                              |
-| **Standards**: String      | Indicates whether the platform also needs to call into other registries (I-REC, Gold Standard, VERRA) … for now, it can only be one value.                                                                           |
-| **Frequency**: String      | How frequently certificates should be issued, possible values are: hourly, daily, weekly, monthly, quarterly.                                                                                                       |
-| **Start Time**: String     | Time from which issuance will start, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time.                                                  |
-| **End Time**               | Time after which issuance will stop, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time. This time also must be later than the start time. |
-| **Target Volume**          | The total volume, in MWh, that the buyer wants to purchase.                                                                                                                                                         |
+| **Field**                  | **Description**                                                                                                                                                                                                                                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Reservation ID**: String | This is autogenerated by the system when a reservation is first setup.                                                                                                                                                                                                                                   |
+| **Standards**: String      | Indicates whether the platform also needs to call into other registries (I-REC, Gold Standard, VERRA) … for now, it can only be one value.                                                                                                                                                               |
+| **Frequency**: String      | How frequently certificates should be issued, possible values are: hourly, daily, weekly, monthly, quarterly.                                                                                                                                                                                            |
+| **Start Time**: String     | Time from which issuance will start, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time.                                                                                                                                     |
+| **End Time**               | Time after which issuance will stop, this time could be in the past or in the future. If it’s in the past, it must not be more than 12 months from the current time. This time also must be later than the start time.                                                                                   |
+| **Target Volume**          | The total volume, in MWh, that the buyer wants to purchase.                                                                                                                                                                                                                                              |
 | **Authority To Exceed**    | If this is set, then the platform will continue to create D-REC certificates even if the target volume is reached, until the end time is reached. This allows the platform to override the volume quantity. If the buyer or intermediary wants to stop the reservation, they can delete the reservation. |
-| **Target Address**         | This is the public wallet address where the certificates must be assigned.                                                                                                                                          |
-| **Device IDs**             | \[ device IDs - list of individual device IDs \]                                                                                                                                                                    |
+| **Target Address**         | This is the public wallet address where the certificates must be assigned.                                                                                                                                                                                                                               |
+| **Device IDs**             | \[ device IDs - list of individual device IDs \]                                                                                                                                                                                                                                                         |
 
 - Endpoints
 
 |--------------|--------------------------------------------------------------------------------------------------|
-| **Endpoint** | **Description**                                                                                  |
-| **POST**     | Allows the buyer to send in a set of device IDs in batch or individually.                       |
-| **DELETE**   | Allows the buyer to delete or close a reservation.                                              |
-| **PATCH**    | Allows the user to add or remove individual devices within a single reservation.                |
+| **Endpoint** | **Description** |
+| **POST** | Allows the buyer to send in a set of device IDs in batch or individually. |
+| **DELETE** | Allows the buyer to delete or close a reservation. |
+| **PATCH** | Allows the user to add or remove individual devices within a single reservation. |
 
 - Developer should be notified on every reservation of their device.
 
@@ -1159,7 +1154,7 @@ List:
 
 - Once 12 hours are passed from conclusion of reservation, the devices will be relieved for another reservation.
 
-- Certificate Issuance: Reservations contains devices belonging to multiple organisation so first certificate ownership cannot be organisation but rather it will directly be  transferred to buyer.
+- Certificate Issuance: Reservations contains devices belonging to multiple organisation so first certificate ownership cannot be organisation but rather it will directly be transferred to buyer.
 
 - Once certificate issuance frequency is fixed it should be fixed at-least for this Netflix contract. For frequency of certificate generation there will be lot of cases for us to handle if frequency is changing.
 
@@ -1183,7 +1178,7 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 ![Flow of Authority to Exceed](./img/58bb3b9e-65b2-43ca-a21d-dd8ce3a17197.png)
 
-- Target Capacity vs target end date:**
+- Target Capacity vs target end date:\*\*
 
 ![Target Capacity and Target End date](./img/f7266d91-1f6e-4951-b4ed-fbff9f8bdcd6.png)
 
@@ -1209,23 +1204,23 @@ Here all the certificates will be displayed for the reservations which have gene
 
 Each certificate will display following details:
 
- 1. Generation starts date: – this is when the DREC tokens began being minted as part of this reservation
+1.  Generation starts date: – this is when the DREC tokens began being minted as part of this reservation
 
     Generation end date- this is when the DREC token creation stopped, and all the devices were released from the reservation
 
     Owned volume- the total amount of certified data
 
- 2. Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
+2.  Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
 
-       1. start date - the start of the verified meter read period
+    1.  start date - the start of the verified meter read period
 
-       2. end date- the end of the verified meter read period
+    2.  end date- the end of the verified meter read period
 
-       3. device name.
+    3.  device name.
 
-       4. read value-  the certified volume from that device
+    4.  read value- the certified volume from that device
 
-       5. device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
+    5.  device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
 
 Certificates can be filtered based on the filter menu provided in the UI. The fields contain:
 
@@ -1241,7 +1236,7 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 
 Here, the buyer can make reservations of the devices to obtain certificates. Buyers will have to fill following details from the UI form:
 
-- Name (*)
+- Name (\*)
 
 Buyers must enter the name of the reservation.
 
@@ -1249,15 +1244,15 @@ Buyers must enter the name of the reservation.
 
 Buyers can enter the target capacity for the reservation in MWh. This is the amount of certified generation that the buyer wants to purchase from the underlying devices – this will correspond with the total amount of I-REC certificates that will be issued corresponding to the highlighted time period
 
-- Start date (*)
+- Start date (\*)
 
 Buyers have to select start date for the reservation.
 
-- End date (*)
+- End date (\*)
 
 Buyers have to select end date for the reservation.
 
-- frequency (*)
+- frequency (\*)
 
 Buyers must select the frequency at which they want the data from the devices to be certified – this can be hourly, daily, weekly, or quarterly.
 
@@ -1297,12 +1292,12 @@ Important points regarding device registration.
 
 - Certificate Beneficiary will be the Buyer for all the energy units generated during their reservation from all the devices irrespective of the Device Owner.
 
-- Buyer will have two options at the time of reserving the device with respect to the ta| **TERM** | **DEFINITION**                               |
-|----------|-----------------------------------------------|
-| **REC**  | Renewable Energy Certificate                  |
-| **GDPR** | General Data Protection Regulations           |
-| **I-REC**| International Renewable Energy Certificate    |
-rget capacity, i.e., Authority to exceed or Authority not to exceed.
+- | Buyer will have two options at the time of reserving the device with respect to the ta | **TERM**                                   | **DEFINITION** |
+  | -------------------------------------------------------------------------------------- | ------------------------------------------ | -------------- |
+  | **REC**                                                                                | Renewable Energy Certificate               |
+  | **GDPR**                                                                               | General Data Protection Regulations        |
+  | **I-REC**                                                                              | International Renewable Energy Certificate |
+  rget capacity, i.e., Authority to exceed or Authority not to exceed.
 
 ### Architectural Descriptoion Verion 1.0
 
@@ -1318,14 +1313,14 @@ rget capacity, i.e., Authority to exceed or Authority not to exceed.
 
 ### Key Terms V1
 
-| **TERM** | **DEFINITION**                               |
-|----------|-----------------------------------------------|
-| **REC**  | Renewable Energy Certificate                  |
-| **GDPR** | General Data Protection Regulations           |
-| **I-REC**| International Renewable Energy Certificate    |
+| **TERM**  | **DEFINITION**                             |
+| --------- | ------------------------------------------ |
+| **REC**   | Renewable Energy Certificate               |
+| **GDPR**  | General Data Protection Regulations        |
+| **I-REC** | International Renewable Energy Certificate |
 
 ### References
 
-| **DOCUMENT NAME**   | **DESCRIPTION**   | **LOCATION**       |
-|---------------------|-------------------|--------------------|
-| Confluence Pages    |                   |                    |
+| **DOCUMENT NAME** | **DESCRIPTION** | **LOCATION** |
+| ----------------- | --------------- | ------------ |
+| Confluence Pages  |                 |              |
