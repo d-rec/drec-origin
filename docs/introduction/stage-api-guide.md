@@ -82,9 +82,9 @@ End point: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drec
 }
 ```
 
-### Login Response
+### Device Registration Response
 
-![Login Response](./img/image-1.png)
+![Device Registration Response](./img/image-1.png)
 
 ## Device registration2
 

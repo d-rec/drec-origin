@@ -4,7 +4,7 @@ order: 6
 
 # D-Rec STAGE Postman Collection.Json
 
-```json
+```
 
 {
 	"info": {
@@ -545,9 +545,9 @@ order: 6
 									"key": "token",
 									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkyMDAzOTcsImV4cCI6MTY4NDc1MjM5N30.O_sB4TFQUhZ7bGixqDekScEc194J81_bnBnlEj64-38",
 									"type": "string"
-								}
-							]
-						},
+                                }
+                            ]
+                        },
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -557,19 +557,19 @@ order: 6
 								"stage-api",
 								"drecs",
 								"org"
-							],
+                            ],
 							"path": [
 								"api",
 								"device-group",
 								"my"
-							]
-						}
-					},
+                            ]
+                        }
+                    },
 					"response": []
-				}
-			]
-		}
-	]
+                }
+            ]
+        }
+    ]
 }
 
 ```
