@@ -646,7 +646,7 @@ API Input
 }
 ```
 
-**API Response**
+## API Response
 
 Validation:
 
