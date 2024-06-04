@@ -129,7 +129,8 @@ To add meter read, they First need to select organization
 
 After selecting organization, the UI will show all required field for read
 
-![Add Reads Form2](./img/e7467689-f299-4b90-a267-d48ad4b6b1a8.png)
+<!-- FIXME IMAGE IS MISSING -->
+<!-- ![Add Reads Form2](./img/e7467689-f299-4b90-a267-d48ad4b6b1a8.png) -->
 
 Apiuser also gets meter read list of all org devices which belong their platform.
 
