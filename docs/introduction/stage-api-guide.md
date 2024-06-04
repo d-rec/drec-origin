@@ -10,7 +10,7 @@ Endpoint:Post: [https://stage-api.drecs.org/api/user/registerWithOrganization](h
 
 ### Input Payload Register With Organization
 
-```
+```json
 {
 "firstName": "UAT",
 "lastName": "Testing",
@@ -35,14 +35,14 @@ Endpoint: [https://stage-api.drecs.org/api/auth/login](https://stage-api.drecs.o
 
 ### Request payload
 
-```
+```json
 {
  "username": "uattesting1@gmail.com",
  "password": "DEF123"
 }
 ```
 
-### Response
+### Login Response
 
 ![Login Response](./img/image.png)
 
@@ -52,7 +52,7 @@ End point: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drec
 
 ### Input payload Login
 
-```
+```json
 {
  "externalId": "uattesting12",
  "projectName": "uattesting",
@@ -92,7 +92,7 @@ Endpoint: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drecs
 
 ### Request Payload
 
-```
+```json
 {
  "externalId": "uattesting123",
  "projectName": "uattesting",
@@ -130,7 +130,7 @@ Endpoint: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drecs
 
 End point: GET: [https://stage-api.drecs.org/api/device/my](https://stage-api.drecs.org/api/device/my)
 
-### Request payload
+### Registered Devices Request payload
 
 null
 
@@ -146,7 +146,7 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting12](https:/
 
 ### Request payload Meter Reads
 
-```
+```json
 {
  "type": "History",
  "unit": "Wh",
@@ -170,7 +170,7 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https:
 
 ### Request payload Delta
 
-```
+```json
 {
  "type": "Delta",
  "unit": "Wh",
@@ -194,7 +194,7 @@ End point: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https
 
 ### Aggregate Request payload
 
-```
+```json
 {
  "type": "Aggregate",
  "unit": "Wh",

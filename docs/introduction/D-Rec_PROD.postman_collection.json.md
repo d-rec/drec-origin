@@ -4,7 +4,7 @@ order: 6
 
 # D-Rec PROD Postman Collection.Json
 
-```
+```json
 
 {
 	"info": {

@@ -84,8 +84,8 @@ The below collection covers the functionalities of
 
 - Certificates now shows meter reads date and time according to device's time zone.
 
-  1.  time zone of different countries is included.
-  2.  different time zone of each device is displayed when the devices are grouped from same country which have different time zones.
+  1. time zone of different countries is included.
+  2. different time zone of each device is displayed when the devices are grouped from same country which have different time zones.
 
 - Date-time format is now implemented to be like "16 May 2023 03:20" across the application wherever date-time is displayed except for some places where time is not necessary, date is displayed like: “16 May 2023”.
 

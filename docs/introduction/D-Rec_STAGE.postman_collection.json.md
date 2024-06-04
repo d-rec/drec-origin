@@ -4,7 +4,7 @@ order: 6
 
 # D-Rec STAGE Postman Collection.Json
 
-```
+```json
 
 {
 	"info": {
