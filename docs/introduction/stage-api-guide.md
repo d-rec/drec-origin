@@ -12,17 +12,16 @@ Endpoint:Post: [https://stage-api.drecs.org/api/user/registerWithOrganization](h
 
 ```json
 {
-"firstName": "UAT",
-"lastName": "Testing",
-"email": "uattesting1@gmail.com",
-"organizationType": "developer",
-"password": "DEF123",
-"confirmPassword": "DEF123",
-"orgName": "rooftop solar",
-"orgAddress": "Hyderabad",
-"secretKey": "AB0123"
+  "firstName": "UAT",
+  "lastName": "Testing",
+  "email": "uattesting1@gmail.com",
+  "organizationType": "developer",
+  "password": "DEF123",
+  "confirmPassword": "DEF123",
+  "orgName": "rooftop solar",
+  "orgAddress": "Hyderabad",
+  "secretKey": "AB0123"
 }
-
 ```
 
 ### Response
@@ -37,8 +36,8 @@ Endpoint: [https://stage-api.drecs.org/api/auth/login](https://stage-api.drecs.o
 
 ```json
 {
- "username": "uattesting1@gmail.com",
- "password": "DEF123"
+  "username": "uattesting1@gmail.com",
+  "password": "DEF123"
 }
 ```
 
@@ -54,31 +53,29 @@ End point: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drec
 
 ```json
 {
- "externalId": "uattesting12",
- "projectName": "uattesting",
- "address": "nexus",
- "latitude": "19�20'50.97\"S",
- "longitude": "46� 3'3.21\"W",
- "countryCode": "IN",
- "fuelCode": "fuel8",
- "deviceTypeCode": "type3",
- "capacity": 25,
- "commissioningDate": "2022-08-09T19:00:00",
- "gridInterconnection": true,
- "offTaker": "School",
- "yieldValue": 0,
- "labels": "demoo",
- "impactStory": "Demo impact story",
- "data": "",
- "images": [
- "string"
- ],
- "deviceDescription": "Rooftop Solar",
- "energyStorage": true,
- "energyStorageCapacity": 0,
- "qualityLabels": "quality labels",
- "groupId": 0,
- "SDGBenefits": 1
+  "externalId": "uattesting12",
+  "projectName": "uattesting",
+  "address": "nexus",
+  "latitude": "19�20'50.97\"S",
+  "longitude": "46� 3'3.21\"W",
+  "countryCode": "IN",
+  "fuelCode": "fuel8",
+  "deviceTypeCode": "type3",
+  "capacity": 25,
+  "commissioningDate": "2022-08-09T19:00:00",
+  "gridInterconnection": true,
+  "offTaker": "School",
+  "yieldValue": 0,
+  "labels": "demoo",
+  "impactStory": "Demo impact story",
+  "data": "",
+  "images": ["string"],
+  "deviceDescription": "Rooftop Solar",
+  "energyStorage": true,
+  "energyStorageCapacity": 0,
+  "qualityLabels": "quality labels",
+  "groupId": 0,
+  "SDGBenefits": 1
 }
 ```
 
@@ -94,31 +91,29 @@ Endpoint: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drecs
 
 ```json
 {
- "externalId": "uattesting123",
- "projectName": "uattesting",
- "address": "nexus",
- "latitude": "19�20'50.97\"S",
- "longitude": "46� 3'3.21\"W",
- "countryCode": "IN",
- "fuelCode": "fuel8",
- "deviceTypeCode": "type3",
- "capacity": 25,
- "commissioningDate": "2022-08-09T19:00:00",
- "gridInterconnection": true,
- "offTaker": "School",
- "yieldValue": 0,
- "labels": "demoo",
- "impactStory": "Demo impact story",
- "data": "",
- "images": [
- "string"
- ],
- "deviceDescription": "Rooftop Solar",
- "energyStorage": true,
- "energyStorageCapacity": 0,
- "qualityLabels": "quality labels",
- "groupId": 0,
- "SDGBenefits": 1
+  "externalId": "uattesting123",
+  "projectName": "uattesting",
+  "address": "nexus",
+  "latitude": "19�20'50.97\"S",
+  "longitude": "46� 3'3.21\"W",
+  "countryCode": "IN",
+  "fuelCode": "fuel8",
+  "deviceTypeCode": "type3",
+  "capacity": 25,
+  "commissioningDate": "2022-08-09T19:00:00",
+  "gridInterconnection": true,
+  "offTaker": "School",
+  "yieldValue": 0,
+  "labels": "demoo",
+  "impactStory": "Demo impact story",
+  "data": "",
+  "images": ["string"],
+  "deviceDescription": "Rooftop Solar",
+  "energyStorage": true,
+  "energyStorageCapacity": 0,
+  "qualityLabels": "quality labels",
+  "groupId": 0,
+  "SDGBenefits": 1
 }
 ```
 
@@ -148,15 +143,15 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting12](https:/
 
 ```json
 {
- "type": "History",
- "unit": "Wh",
- "reads": [
- {
- "starttimestamp": "2022-09-08T12:50:47.335Z",
- "endtimestamp": "2022-09-08T12:51:47.335Z",
- "value": 5000
- }
- ]
+  "type": "History",
+  "unit": "Wh",
+  "reads": [
+    {
+      "starttimestamp": "2022-09-08T12:50:47.335Z",
+      "endtimestamp": "2022-09-08T12:51:47.335Z",
+      "value": 5000
+    }
+  ]
 }
 ```
 
@@ -172,15 +167,15 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https:
 
 ```json
 {
- "type": "Delta",
- "unit": "Wh",
- "reads": [
- {
- "starttimestamp": "",
- "endtimestamp": "2022-09-08T12:55:47.335Z",
- "value": 50000
- }
- ]
+  "type": "Delta",
+  "unit": "Wh",
+  "reads": [
+    {
+      "starttimestamp": "",
+      "endtimestamp": "2022-09-08T12:55:47.335Z",
+      "value": 50000
+    }
+  ]
 }
 ```
 
@@ -196,15 +191,15 @@ End point: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https
 
 ```json
 {
- "type": "Aggregate",
- "unit": "Wh",
- "reads": [
- {
- "starttimestamp": "",
- "endtimestamp": "2022-09-08T12:55:47.335Z",
- "value": 55000
- }
- ]
+  "type": "Aggregate",
+  "unit": "Wh",
+  "reads": [
+    {
+      "starttimestamp": "",
+      "endtimestamp": "2022-09-08T12:55:47.335Z",
+      "value": 55000
+    }
+  ]
 }
 ```
 
