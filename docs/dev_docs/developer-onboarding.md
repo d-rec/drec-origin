@@ -59,7 +59,7 @@ graph TD
       C --> O[Manage Sites]
       C --> P[Manage Devices]
 
-      D --> Q[View Energy Generations by Device/Device Groups] 
+      D --> Q[View Energy Generations by Device/Device Groups]
       D --> R[Add Energy Generation Transactions]
 
       E --> S[Add Reservation]
@@ -77,7 +77,7 @@ graph TD
     subgraph Power Trust Section
       AA[Power Trust] --> AB[Developer Onboarding]
       AA --> AC[Buyer Management]
-      AA --> AD[Profile]  
+      AA --> AD[Profile]
       AA --> AE[Order Management]
       AA --> AF[Certificates]
 
