@@ -18,9 +18,106 @@ Each site may have combination of different OEMs in multiple devices. E.g. one s
 
 Once the Developer got on-boarded in D-Rec platform, Developer will login to D-Rec platform and starts adding the projects. Then, Developer will add site to his project on the completion of successfully adding project. In each site, Developer will select OEM of devices, add number of devices, type of devices, total capacity of energy generation of the site and so on. High level illustration of Developer, Project and Site is as follows.
 
-![High level illustration of Developer, Project and Site](img/developer-onboarding/c46d4d41-5581-4a64-b68c-2e8783108353.png)
+### Illustration of Developer, Project and Site
 
-![Drec-PT-Arch](img/developer-onboarding/d33333c7-d781-4a7b-a7e0-d06497a2e478.png)
+```mermaid
+graph TD
+    Developer --> ProjectA
+    Developer --> ProjectB
+    Developer --> ProjectC
+    ProjectA --> SiteA
+    ProjectA --> SiteB
+
+    Developer[Developer]
+    ProjectA[Project A]
+    ProjectB[Project B]
+    ProjectC[Project C]
+    SiteA[Site A]
+    SiteB[Site B]
+```
+
+### Drec-PT-Arch
+
+```mermaid
+graph TD
+    subgraph D-REC Section
+      A[D-REC] --> B[Aggregator Management]
+      A --> C[Developer Onboarding]
+      A --> D[Energy Management]
+      A --> E[Buyer Reservation]
+      A --> F[Certificate Management]
+      A --> G[Profile]
+
+      B --> H[Add New Aggregator]
+      B --> I[View Aggregator]
+      H --> J[Enable/Disable API Access]
+      I --> K[View Buy Reservations]
+
+      C --> L[Organization Management]
+      C --> M[Manage Employees]
+      C --> N[Manage Projects]
+      C --> O[Manage Sites]
+      C --> P[Manage Devices]
+
+      D --> Q[View Energy Generations by Device/Device Groups] 
+      D --> R[Add Energy Generation Transactions]
+
+      E --> S[Add Reservation]
+      E --> T[View Reservations]
+
+      F --> U[Certificate Management]
+      F --> V[Gas fee Requests]
+      U --> Y[Generate Certificate]
+      U --> Z[Transfer Certificate]
+
+      G --> W[Wallet Management]
+      G --> X[Employee Management]
+    end
+
+    subgraph Power Trust Section
+      AA[Power Trust] --> AB[Developer Onboarding]
+      AA --> AC[Buyer Management]
+      AA --> AD[Profile]  
+      AA --> AE[Order Management]
+      AA --> AF[Certificates]
+
+      AB --> AG[Organization Management]
+      AB --> AH[Manage Employees]
+      AB --> AI[Manage Projects]
+      AB --> AJ[Manage Sites]
+      AB --> AK[Manage Devices]
+      AK --> AW[Inverter Integration Scripts]
+
+      AC --> AL[Account Management]
+      AC --> AM[Contract Managemnet]
+      AC --> AN[Demand Requests]
+      AC --> AO[Dashboard]
+      AN --> AX[Buyer Reservations]
+
+      AD --> AP[Employee Management]
+      AD --> AQ[Developer OSV]
+      AD --> AR[Wallet]
+
+      AE --> AS[Payables]
+      AE --> AT[Receivables]
+
+      AF --> AU[Gas Fee Payments]
+      AF --> AV[DRECs]
+    end
+
+  AB --> C
+  AX --> S
+  AW --> R
+  H --> AA
+
+  BB[EWF Blockchain] --> AV
+  AU --> BB
+  AR --> BB
+  BB --> W
+  V --> BB
+  Z --> BB
+  Y --> BB
+```
 
 ## User Registration
 
