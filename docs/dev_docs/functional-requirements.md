@@ -472,7 +472,7 @@ Energy storage capacity:
 
 - Here, the developer can enter energy storage capacity of the device.
 
-**Note- Mandatory field are marked with (*)**
+### Note- Mandatory field are marked with(\*)
 
 **After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.**
 
@@ -1206,21 +1206,21 @@ Each certificate will display following details:
 
 1. Generation starts date: – this is when the DREC tokens began being minted as part of this reservation
 
-    Generation end date- this is when the DREC token creation stopped, and all the devices were released from the reservation
+   Generation end date- this is when the DREC token creation stopped, and all the devices were released from the reservation
 
-    Owned volume- the total amount of certified data
+   Owned volume- the total amount of certified data
 
 2. Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
 
-    1. start date - the start of the verified meter read period
+   1. start date - the start of the verified meter read period
 
-    2. end date- the end of the verified meter read period
+   2. end date- the end of the verified meter read period
 
-    3. device name.
+   3. device name.
 
-    4. read value- the certified volume from that device
+   4. read value- the certified volume from that device
 
-    5. device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
+   5. device details icon which can be clicked, and a pop-up window will be presented to the user in which all the details of the device will be displayed.
 
 Certificates can be filtered based on the filter menu provided in the UI. The fields contain:
 
