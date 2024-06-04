@@ -239,7 +239,7 @@ The base requirement out of this tool is to allow developers to register their o
 
 - User will be able to login by changing his/her password after accepting the invitation as no password will be shared with him/her at the time of invitation.
 
-##### Use Cases
+Use Cases:
 
 - Expected flow for invited user registration-
 
@@ -552,7 +552,7 @@ Energy storage capacity:
 
 - API- Increase limit or query multiple times for issuance of meter read data as data is being sent at every 5 minutes.
 
-#### Use Cases
+Use Cases:
 
 ![Device Registeration Flow1](<./img/image (2).webp>)
 
@@ -574,7 +574,7 @@ Energy storage capacity:
 
 - D-REC application will initiate creating certificates once the group is created. While creating certificates, the developer has to pay gas fees to chain for the certification creation.
 
-#### Use Cases
+Use Cases:
 
 ![Device Grouping and Ungrouping Flow](<./img/image (3).webp>)
 
@@ -606,113 +606,113 @@ Energy storage capacity:
 
 - In Certificate Meta Data and logs, Transaction certificate id will be added.
 
- The following outlines the proposed step-by-step process:
+The following outlines the proposed step-by-step process:
     
- - During the Buyer Reservation process, the buyer will specify that they want to ensure that any certificates procured via the reservation process will be converted to I-RECs. This will do this when defining the Buyer Reservation with “Standard = IREC”
+- During the Buyer Reservation process, the buyer will specify that they want to ensure that any certificates procured via the reservation process will be converted to I-RECs. This will do this when defining the Buyer Reservation with “Standard = IREC”
 
- - The D-REC Platform will gather meter data from devices assigned to a Buyer Reservation as usual via the DRE devices calling the POST/api/meter-reads endpoint.
+- The D-REC Platform will gather meter data from devices assigned to a Buyer Reservation as usual via the DRE devices calling the POST/api/meter-reads endpoint.
 
- - As normal, the D-REC issuance window (default is daily) will close, and the platform will execute its automated validation algorithm to validate the data submitted by the devices.
+- As normal, the D-REC issuance window (default is daily) will close, and the platform will execute its automated validation algorithm to validate the data submitted by the devices.
 
- - At this point, in a normal Buyer Reservation, the certificate would be issued and then transferred to the blockchain wallet associated with the buyer organisation. However, in the situation where the buyer has requested an I-REC conversion, this will not take place.
+- At this point, in a normal Buyer Reservation, the certificate would be issued and then transferred to the blockchain wallet associated with the buyer organisation. However, in the situation where the buyer has requested an I-REC conversion, this will not take place.
 
- - Rather, the D-REC Platform will transfer the certificates to a provisional account associated with the Buyer (or other intermediary who owns the Buyer Reservation request). The provisional D-REC also will be written to the chain. At this point, the D-REC Platform will call into the I-REC registry to request I-REC issuance. 
+- Rather, the D-REC Platform will transfer the certificates to a provisional account associated with the Buyer (or other intermediary who owns the Buyer Reservation request). The provisional D-REC also will be written to the chain. At this point, the D-REC Platform will call into the I-REC registry to request I-REC issuance. 
 
- - The certificate will remain in the provisional account until the I-REC issuance is completed, and a serial number is assigned for the corresponding D-REC certificates. 
+- The certificate will remain in the provisional account until the I-REC issuance is completed, and a serial number is assigned for the corresponding D-REC certificates. 
 
- - At that point, the I-REC serial number will be written into the metadata of the certificate. Both the starting and ending serial number will be noted in the D-REC certificate.
+- At that point, the I-REC serial number will be written into the metadata of the certificate. Both the starting and ending serial number will be noted in the D-REC certificate.
 
- - From this point, how either the I-REC or D-REC certificate are handled will depend on how the buyer would like to account for the certificate, and whether it must be redeemed either as a D-REC or an I-REC.
+- From this point, how either the I-REC or D-REC certificate are handled will depend on how the buyer would like to account for the certificate, and whether it must be redeemed either as a D-REC or an I-REC.
 
- Required fields of Certificate structure are:
+Required fields of Certificate structure are:
 
- - version
+- version
 
- - buyer Reservation ID
+- buyer Reservation ID
 
- - beneficiary
+- beneficiary
 
- - is Standard Issuance Requested
+- is Standard Issuance Requested
 
- - is Standard Issued
+- is Standard Issued
 
- - type
+- type
 
- - device IDs
+- device IDs
 
- - device Group :{
+- device Group :{
 
- - created At
+- created At
 
- - updated At
+- updated At
 
- - id
+- id
 
- - device group ID
+- device group ID
 
- - name
+- name
 
- - organisation Id
+- organisation Id
 
- - fuel Code
+- fuel Code
 
- - country Code
+- country Code
 
- - standard Compliance
+- standard Compliance
 
- - device Type Codes
+- device Type Codes
 
- - off Takers
+- off Takers
 
- - installation Configurations
+- installation Configurations
 
- - sectors
+- sectors
 
- - commissioning Date Range
+- commissioning Date Range
 
- - grid Interconnection
+- grid Interconnection
 
- - aggregated Capacity
+- aggregated Capacity
 
- - capacity Range
+- capacity Range
 
- - yield Value
+- yield Value
 
- - labels
+- labels
 
- - buyer ID
+- buyer ID
 
- - buyer Address
+- buyer Address
 
- - leftover Reads
+- leftover Reads
 
- - leftover Reads By Country Code
+- leftover Reads By Country Code
 
- - frequency
+- frequency
 
- - target Volume In Mega Watt Hour
+- target Volume In Mega Watt Hour
 
- - target Volume Certificate Generation Succeeded In Mega Watt Hour
+- target Volume Certificate Generation Succeeded In Mega Watt Hour
 
- - target Volume Certificate Generation Requested In Mega Watt Hour
+- target Volume Certificate Generation Requested In Mega Watt Hour
 
- - target Volume Certificate Generation Failed In Mega Watt Hour
+- target Volume Certificate Generation Failed In Mega Watt Hour
 
- - authority To Exceed
+- authority To Exceed
 
- - reservation Start Date
+- reservation Start Date
 
- - reservation End Date
+- reservation End Date
 
- - organization:{
+- organization:{
 
- - name
+- name
 
- - blockchain Account Address}
+- blockchain Account Address}
 
- - devices},
+- devices},
 
- - group ID
+- group ID
 
 ![IREC Integration Flow](<./img/image (4).webp>)
 
@@ -830,7 +830,7 @@ Users can choose the time zone where the device is located. They will be provide
 
     - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-    ```
+    ```text
     Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)
 
     ```
@@ -896,12 +896,12 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 #### Meter Readings Version 1.0
 
 - Meter Reading process is segregated in three main categories:
+    
+    - Historic Readings
 
- - Historic Readings
+    - Delta Readings(Calculated)
 
- - Delta Readings(Calculated)
-
- - Aggregate Readings(Running)
+    - Aggregate Readings(Running)
 
 - There should be a single endpoint which will allow developers to share the Meter Reads of the above mentioned types.
 
@@ -937,7 +937,7 @@ Delta= Current Meter Reads – Previous Meter Reads
 
 - For Delta type of Meter Read entries, the end time of current entry will be considered as start time of next entry.
 
-#### Use Cases
+Use Cases:
 
 ![Meter Readings Flow1](./img/8f6e07f1-1759-4c5c-9801-2a3664fccb4f.png)
 
@@ -1171,7 +1171,7 @@ List:
 
 In case automatic release of device is unsuccessful, then users shall be able to release the devices manually whereas in case of active reservations, users should not be allowed to update the device groups.
 
-- Use Cases**
+- Use Cases
 
 ![Flow of Meter Reads](./img/f89fc757-d67f-49c4-9bb0-c75029fdc5cb.png)
 
@@ -1204,6 +1204,7 @@ In case automatic release of device is unsuccessful, then users shall be able to
 - Get meter reads and certificate log should return time zone converted times along with UTC.
 
 #### Certificate
+
 Here all the certificates will be displayed for the reservations which have generated certificates.
 
 Each certificate will display following details:
