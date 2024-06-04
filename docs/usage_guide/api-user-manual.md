@@ -175,9 +175,9 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ## DREC API User Manual - API
 
-### 1. User Module
+### User Module
 
-#### 1.1 Register Api
+#### Register Api
 
 **Request Type:** POST
 
@@ -187,7 +187,7 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 **ACL Module Name:** USER_MANAGEMENT_CRUDL
 
-##### 1.1.1 Organization Type - ApiUser
+##### Organization Type - ApiUser
 
 **Permission:** Not Required (It’s true by default).
 
@@ -197,7 +197,7 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ![Register ApiUser Response](./img/apiuser-manual/905cb8de-0715-437a-b040-ece23f1fd279.png)
 
-##### 1.1.2. Organization Type - Developer/Buyer under an ApiUser
+##### Organization Type - Developer/Buyer under an ApiUser
 
 **Permission:** Write permission required. (Need to login (Ref: 2.1) and Request permission for this ACL module Name (Ref: 3.1))
 
@@ -211,7 +211,7 @@ Apiuser can check all certificates by the reservation base and device base by se
 
 ![Register ApiUser Response](./img/apiuser-manual/008dcc14-f44d-4d04-bace-727a7a8d57da.png)
 
-#### 1.2. FORGET-PASSWORD API
+#### FORGET-PASSWORD API
 
 **Request Type:** POST
 
@@ -239,7 +239,7 @@ Developer or Buyer under an apiuser is unauthorized to access this api.
 
 ![Dev or Buyer Forget Password Response](./img/apiuser-manual/7720e0d6-af72-4e76-ae67-27efd09078dd.png)
 
-#### 1.3. ME API
+#### ME API
 
 **Request Type:** GET
 
@@ -261,7 +261,7 @@ Developer or Buyer under an apiuser is unauthorized to access this api.
 
 ![User/me Response Form](./img/apiuser-manual/5217f30f-3adb-4c40-8789-dabadf34c3b5.png)
 
-#### 1.4. RESEND CONFIRM MAIL API
+#### RESEND CONFIRM MAIL API
 
 **Request Type:** PUT
 
@@ -280,7 +280,7 @@ Headers: Not Required
 
 ![Resend Confirm mail Response](./img/apiuser-manual/b17f14fe-f975-4115-a445-dee98356b894.png)
 
-#### 1.5. CONFIRM-EMAIL API
+#### CONFIRM-EMAIL API
 
 **Request Type:** PUT
 
@@ -301,7 +301,7 @@ Headers: Not Required
 
 ![Resend Confirm mail Response](./img/apiuser-manual/c7c97a90-37e3-4c88-b8d1-a998e58c79cd.png)
 
-#### 1.6. RESET PASSWORD API
+#### RESET PASSWORD API
 
 **Request Type:** PUT
 
@@ -324,9 +324,9 @@ Headers: Not Required
 
 ![Reset Password Response](./img/apiuser-manual/32707094-1b66-4881-a16d-7f28f4fd15ee.png)
 
-### 2. Auth Module
+### Auth Module
 
-#### 2.1. LOGIN API
+#### LOGIN API
 
 **Request Type:** POST
 
@@ -352,9 +352,9 @@ Developer and Buyer of an apiuser is unauthorized to aceess this api.
 
 ![Login Api Response for Dev or Buyer](./img/apiuser-manual/b663ca92-c978-4f51-86d6-f1ef61311b47.png)
 
-### 3. Permission Module
+### Permission Module
 
-#### 3.1. REQUEST PERMISSION API
+#### REQUEST PERMISSION API
 
 **Request Type:** POST
 
@@ -376,9 +376,9 @@ Developer and Buyer of an apiuser is unauthorized to aceess this api.
 
 ![Permission Request Response](<./img/apiuser-manual/16dfd755-7467-4acf-bc42-8bad99ac713d (1).png>)
 
-### 4. Device Module
+### Device Module
 
-#### 4.1 REGISTER DEVICE API
+#### REGISTER DEVICE API
 
 **Request Type:** POST
 
@@ -408,7 +408,7 @@ It will throw unauthorized exception when give buyer’s organizationId in paylo
 
 ![Device Register Response for with Buyer's OrgId](./img/apiuser-manual/e2fa432c-2859-4157-aa8e-dfe1547b21d1.png)
 
-#### 4.2 GET DEVICE BY ID API
+#### GET DEVICE BY ID API
 
 **Request Type:** GET
 
@@ -433,7 +433,7 @@ This organization Id and apiUserId in query params should be same as the device�
 
 ![Get Device By Id Response](./img/apiuser-manual/8f6c0fea-bd17-46dd-8eb5-a4a3a773d1ad.png)
 
-#### 4.3 GET MY DEVICES API
+#### GET MY DEVICES API
 
 **Request Type:** GET
 
@@ -472,7 +472,7 @@ Response when buyer’s organizationId given.
 
 ![Get My Device Response for Buyers](./img/apiuser-manual/02695c52-4f8c-48bb-a2b8-c63744976874.png)
 
-#### 4.4 CREATE DEVICES BY BULK UPLOAD API
+#### CREATE DEVICES BY BULK UPLOAD API
 
 **Request Type:** POST
 
@@ -505,7 +505,7 @@ If buyer’s organizationId given
 
 ![Bulk Upload Buyer Response2](./img/apiuser-manual/940f70e3-f0f1-4c82-a018-fc3f360c6669.png)
 
-#### 4.5. GET UNGROUPED DEVICES API
+#### GET UNGROUPED DEVICES API
 
 **Request Type:** GET
 
@@ -533,9 +533,9 @@ Page Number in query param is given to retrieve the page you want to view.
 
 ![Get UnGrouped Devices Response](./img/apiuser-manual/687890a6-abcb-44f5-a280-efe42f534d46.png)
 
-### 5. Reads Module
+### Reads Module
 
-#### 5.1 ADD METER READS API
+#### ADD METER READS API
 
 **Request Type:** POST
 
@@ -564,7 +564,7 @@ The id in URL params is the developer external id of the device for which we wan
 
 If the buyer’s organizationId in body payload is given, the unauthorized exception will be thrown.
 
-#### 5.2 GET METER READS BY EXTERNAL ID API
+#### GET METER READS BY EXTERNAL ID API
 
 **Request Type:** GET
 
@@ -605,9 +605,9 @@ If the developer’s organizationId is given
 
 ![Get Meter Reads Response2.2](./img/apiuser-manual/a24be8f3-96d0-439b-8321-34b3a3c9a085.png)
 
-### 6. INVITATION MODULE
+### INVITATION MODULE
 
-#### 6.1 INVITE API
+#### INVITE API
 
 **Request Type:** POST
 
@@ -637,7 +637,7 @@ If the buyer’s and developer’s organizationId
 
 ![Invite api Response](./img/apiuser-manual/aa379133-e55e-4f88-8930-40a8b42c75d2.png)
 
-#### 6.2 GET INVITATION API
+#### GET INVITATION API
 
 **Request Type:** GET
 
@@ -675,9 +675,9 @@ If the buyer’s organizationId is given
 
 ![Get Invitation Response3](./img/apiuser-manual/3619f406-1575-4c07-8d3d-87e19f3240d2.png)
 
-### 7. BUYER-RESERVATION MODULE
+### BUYER-RESERVATION MODULE
 
-#### 7.1 RESERVATION API
+#### RESERVATION API
 
 **Request Type:** POST
 
@@ -709,7 +709,7 @@ If the buyer’s organizationId is given
 
 ![Create Reservation Response](./img/apiuser-manual/a2cd27ac-5014-4a0a-92d7-fc0aa8e3f27f.png)
 
-#### 7.2 GET RESERVATION API
+#### GET RESERVATION API
 
 **Request Type:** GET
 
@@ -747,7 +747,7 @@ If apiuserId and organizationId given, It also filter the response by organizati
 
 ![Get Reservation Response2](./img/apiuser-manual/ae6a57eb-3372-480e-b53e-c5a2b4ef9cc0.png)
 
-#### 7.3 GET RESERVATION BY ID API
+#### GET RESERVATION BY ID API
 
 **Request Type:** GET
 
@@ -777,7 +777,7 @@ The url param id is the reservationId that you want to retrieve.
 
 ![Get Reservation By Id Response](./img/apiuser-manual/40b56370-e723-4fe3-b316-be4c5fe3ccc6.png)
 
-#### 7.4. BULK UPLOAD JOBS API
+#### BULK UPLOAD JOBS API
 
 **Request Type:** GET
 
@@ -807,7 +807,7 @@ Limit is the number of items to be viewed per page.
 
 ![Get Bulk Upload Response](./img/apiuser-manual/df4a9538-8356-4671-be12-7f3acc6563f3.png)
 
-#### 7.5. GET BULK UPLOAD STATUS API
+#### GET BULK UPLOAD STATUS API
 
 **Request Type:** GET
 
@@ -833,9 +833,9 @@ OrganizationId in query param is given organization of developer.
 
 ![Get Bulk Upload Api](./img/apiuser-manual/bfab2776-30a1-47b6-b6c2-e6939e4e5783.png)
 
-### 8. CERTIFICATE LOG MODULE
+### CERTIFICATE LOG MODULE
 
-#### 8.1. CERTIFICATE LOG API
+#### CERTIFICATE LOG API
 
 **Request Type:** GET
 
@@ -863,7 +863,7 @@ Page number in query param is to request which page we want to view.
 
 ![Get Certificate Log Response1](./img/apiuser-manual/21c1dadd-5f63-46a1-bf57-26a83d900844.png)
 
-#### 8.2. ISSUER CERTIFIED API
+#### ISSUER CERTIFIED API
 
 **Request Type:** GET
 
