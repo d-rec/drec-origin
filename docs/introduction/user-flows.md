@@ -351,13 +351,13 @@ Business Logic:
 
 Use Cases:
 
-   **_No Authority to Exceed_**
+**_No Authority to Exceed_**
 
-   ![No Authority to Exceed](./img/user-flows/eb3314dc-6a12-4869-9e07-ce783ec30e64.png)
+![No Authority to Exceed](./img/user-flows/eb3314dc-6a12-4869-9e07-ce783ec30e64.png)
 
-   **_Authority to Exceed_**
+**_Authority to Exceed_**
 
-   ![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
+![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
 
 Requirements:
 
@@ -628,11 +628,11 @@ API Input
 
 **File Header:**
 
-  `“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
+`“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
 
 **Content:**
 
-  `“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
+`“v2.0”| ”23e3ac67-b3c2390”| ”bd98c08c-547f-486a-b348-17b5bf740b60”| ”86a85a81-1b4b-4261-9874-106d7b2410c3”| ”THAISOLPWR”| ”7aac19cc-40d5-415a-b1fc-eebfdc605efe”| ”SWEYA”| ”DEVELOPER”| ”SCHNDLR”| ”50/565-6 Gp 5 Navamintr Klong Goom Buengkhum”| ””| ””| ””| ””| ”ES100”| ”TC110”1200 | ”2012-07-10”| true| false| 0| ”HealthFacility”| ”Label 1”| 1 | ”120 jobs created”| ”image.png”`
 
 - For Device Group MetaData
 
@@ -648,7 +648,7 @@ API Input
 
 **API Response**
 
-**Validation**
+Validation:
 
 - **Validations on Requirements collected during February Meetings:**
 
@@ -670,23 +670,23 @@ for developer’s dash board.
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
-1. Invite user: here, there should be following text fields to enter by the user:
+Invite user: here, there should be following text fields to enter by the user:
 
-   - First name
+- First name
 
-   - Last name
+- Last name
 
-   - Email address
+- Email address
 
-   - Role (should be drop down) to choose roles from
+- Role (should be drop down) to choose roles from
 
-     - Device owner
+  - Device owner
 
-     - User
+  - User
 
-  After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
+After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
-2. Invitation:
+Invitation:
 
 under this menu we will show the invitation details that have been sent in a tabular format under following fields:
 
@@ -738,23 +738,23 @@ for buyer’s dashboard.
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
-1. Invite user: here, there should be following text fields to enter by the user:
+Invite user: here, there should be following text fields to enter by the user:
 
-   - First name
+- First name
 
-   - Last name
+- Last name
 
-   - Email address
+- Email address
 
-   - Role (should be drop down) to choose roles from
+- Role (should be drop down) to choose roles from
 
-     - sub buyer
+  - sub buyer
 
-     - User
+  - User
 
-  After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
+After entering all the details, the “submit” button should be activated and user can click the button to add the user and send the email invitation to the user.
 
-2. Invitation:
+Invitation:
 
 under this menu we will show the invitation details that have been sent in a tabular format under following fields:
 
