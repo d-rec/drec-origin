@@ -6,25 +6,25 @@ order: 3
 
 ## ACL Module Documentation
 
-### Auth Module:
+### Auth Module
 
 Auth ACL Module Name: **Not Required**
 
-#### Auth API:
+#### Auth API
 
- - Login Api 
+- Login Api
 
-### User Module:
+### User Module
 
 User ACL Module Name: **Not Required**
 
-#### User API: 
+#### User API
 
 1. GET user/me api which will get my own user details.
 
 User's ACL Module Name: **USER_MANAGEMENT_CRUDL**
 
-#### User's API:
+#### User's API
 
 - Get user by id Api
 
@@ -38,26 +38,25 @@ User's ACL Module Name: **USER_MANAGEMENT_CRUDL**
 
 - Resend Confirm-email Api
 
-
 Password ACL Module Name: **PASSWORD_MANAGEMENT_CRUDL**
 
-#### Password API:
+#### Password API
 
 - Reset Password Api
 
 - Forget-password Api
 
-### Admin Module:
+### Admin Module
 
 Admin ApiUser ACL Module Name: **ADMIN_APIUSER_ORGANIZATION_CRUDL**
 
-#### Admin ApiUser API:
+#### Admin ApiUser API
 
 - Get users api
 
 Admin ACL Module Name: **ADMIN_MANAGEMENT_CRUDL**
 
-#### Admin API:
+#### Admin API
 
 - Get all organizations Api
 
@@ -85,11 +84,11 @@ Admin ACL Module Name: **ADMIN_MANAGEMENT_CRUDL**
 
 - Get list of Apiusers Api
 
-### Certificate Log Module:
+### Certificate Log Module
 
 Certificate Log ACL Module Name: **CERTIFICATE_LOG_MANAGEMENT_CRUDL**
 
-#### Certificate Log API:
+#### Certificate Log API
 
 - Get all Api
 
@@ -107,20 +106,19 @@ Certificate Log ACL Module Name: **CERTIFICATE_LOG_MANAGEMENT_CRUDL**
 
 - Get issuer certificate log of devices Api
 
-### Device Module:
+### Device Module
 
 Device ACL Module Name: **DEVICE_MANAGEMENT_CRUDL**
 
-#### Device API:
+#### Device API
 
 - Get all device types Api
 
 - Get all fuel types Api
 
- 
 Device's ACL Module Name: **DEVICE_MANAGEMENT_CRUDL**
 
-#### Device's API:
+#### Device's API
 
 - Get All Api
 
@@ -148,19 +146,17 @@ Device's ACL Module Name: **DEVICE_MANAGEMENT_CRUDL**
 
 - Get certificate log first and last date Api
 
- 
-
 Device Bulk ACL Module Name: **DEVICE_BULK_MANAGEMENT_CRUDL**
 
-#### Device Bulk API:
+#### Device Bulk API
 
 - Add devices by admin, processing CSV file upload Api
 
-### Device Group Module:
+### Device Group Module
 
 Device Group ACL Module Name: **BUYER_RESERVATION_MANAGEMENT_CRUDL**
 
-#### Device Group API:
+#### Device Group API
 
 - Get my reservations Api
 
@@ -180,31 +176,29 @@ Device Group ACL Module Name: **BUYER_RESERVATION_MANAGEMENT_CRUDL**
 
 - Get current information of reservation by group Id Api
 
- 
-
 Device Bulk's ACL Module Name: **DEVICE_BULK_MANAGEMENT_CRUDL**
 
-#### Device Bulk's API:
+#### Device Bulk's API
 
 - Get bulk upload status by Id Api
 
 - Get all csv jobs of organization Api
 
-### File Module:
+### File Module
 
 File ACL Module Name: **FILE_MANAGEMENT_CRUDL**
 
-#### File API:
+#### File API
 
 - Upload files Api
 
 - Get / Download file Api
 
-### Invitation Module:
+### Invitation Module
 
 Invitation ACL Module Name: **INVITATION_MANAGEMENT_CRUDL**
 
-#### Invitation API:
+#### Invitation API
 
 - Get all invitations Api
 
@@ -212,11 +206,11 @@ Invitation ACL Module Name: **INVITATION_MANAGEMENT_CRUDL**
 
 - Invite user Api
 
-### Drec-Issuer Module:
+### Drec-Issuer Module
 
 Drec-Issuer ACL Module Name: **DREC_ISSUER_MANAGEMENT_CRUDL**
 
-#### Drec-Issuer API:
+#### Drec-Issuer API
 
 - Get ongoing Api
 
@@ -226,11 +220,11 @@ Drec-Issuer ACL Module Name: **DREC_ISSUER_MANAGEMENT_CRUDL**
 
 - Get late ongoing Api
 
-### Organization Module:
+### Organization Module
 
 Organization ACL Module Name: **ORGANIZATION_MANAGEMENT_CRUDL**
 
-#### Organization API:
+#### Organization API
 
 - Get my organization Api
 
@@ -248,13 +242,11 @@ Organization ACL Module Name: **ORGANIZATION_MANAGEMENT_CRUDL**
 
 - Set organization blockchain address Apic
 
- 
-
-### Permission Module:
+### Permission Module
 
 Permission ACL Module Name: **PERMISSION_MANAGEMENT_CRUDL**
 
-#### Permission API:
+#### Permission API
 
 - Get all permissions Api
 
@@ -270,13 +262,11 @@ Permission ACL Module Name: **PERMISSION_MANAGEMENT_CRUDL**
 
 - Verify or Approve permission for Api User by Admin Api
 
- 
-
-### Reads Module:
+### Reads Module
 
 Reads ACL Module Name: **READS_MANAGEMENT_CRUDL**
 
-#### Reads API:
+#### Reads API
 
 - Get all valid time-zones Api
 
@@ -290,13 +280,11 @@ Reads ACL Module Name: **READS_MANAGEMENT_CRUDL**
 
 - Get latest read by external Id Api
 
- 
-
-### Yield Module:
+### Yield Module
 
 Yield ACL Module Name: **YIELD_CONFIG_MANAGEMENT_CRUDL**
 
-#### Yield API:
+#### Yield API
 
 - Get all Api
 
