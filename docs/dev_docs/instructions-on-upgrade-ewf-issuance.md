@@ -53,13 +53,13 @@ But production environment probably will require reusing valua) `this.onChangeCe
 
 #### Local environment
 
-1. In `onApplicationBootstrap` hook in AppModule add following code:
+- In `onApplicationBootstrap` hook in AppModule add following code:
 
   ```ts
   await this.onChangeCertificateFacade.deploy();
   ```
 
-2. `this.onChangeCertificateFacade` is `@Inject(OnChainCertificateFacade)` (see README, required `OnChainCertificateModule` module)
+- `this.onChangeCertificateFacade` is `@Inject(OnChainCertificateFacade)` (see README, required `OnChainCertificateModule` module)
 
 #### Production
 
