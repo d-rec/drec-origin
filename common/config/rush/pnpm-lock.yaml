@@ -27,7 +27,7 @@ specifiers:
   '@nestjs/config': 1.0.1
   '@nestjs/core': 8.1.1
   '@nestjs/cqrs': 8.0.0
-  '@nestjs/jwt': 8.0.0
+  '@nestjs/jwt': ~10.2.0
   '@nestjs/passport': 8.0.1
   '@nestjs/platform-express': 8.1.1
   '@nestjs/schedule': 1.0.1
@@ -93,7 +93,7 @@ specifiers:
   nodemailer: 6.9.9
   passport: 0.6.0
   passport-http-bearer: 1.0.1
-  passport-jwt: 4.0.0
+  passport-jwt: ~4.0.1
   passport-local: 1.0.0
   passport-oauth2-client-password: 0.1.2
   passport-strategy: 1.x.x
@@ -150,7 +150,7 @@ dependencies:
   '@nestjs/config': 1.0.1_hezzm24vmguzu6bipglumhd5gm
   '@nestjs/core': 8.1.1_ruwls2dgllffi5iy2crkycoei4
   '@nestjs/cqrs': 8.0.0_3lrx3jf3nx5vv3o6rzbwhmespm
-  '@nestjs/jwt': 8.0.0_@nestjs+common@8.1.1
+  '@nestjs/jwt': 10.2.0_@nestjs+common@8.1.1
   '@nestjs/passport': 8.0.1_x4h4tr6asyntcxtogf2sgis4yu
   '@nestjs/platform-express': 8.1.1_svu4v2sifhq6njkoaosg5fk444
   '@nestjs/schedule': 1.0.1_zkfiyt7mgaagxlked6sbup4bym
@@ -216,7 +216,7 @@ dependencies:
   nodemailer: 6.9.9
   passport: 0.6.0
   passport-http-bearer: 1.0.1
-  passport-jwt: 4.0.0
+  passport-jwt: 4.0.1
   passport-local: 1.0.0
   passport-oauth2-client-password: 0.1.2
   passport-strategy: 1.0.0
@@ -3740,22 +3740,22 @@ packages:
       rxjs: 7.8.1
     dev: false
 
+  /@nestjs/jwt/10.2.0_@nestjs+common@8.1.1:
+    resolution: {integrity: sha512-x8cG90SURkEiLOehNaN2aRlotxT0KZESUliOPKKnjWiyJOcWurkF3w345WOX0P4MgFzUjGoZ1Sy0aZnxeihT0g==}
+    peerDependencies:
+      '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
+    dependencies:
+      '@nestjs/common': 8.1.1_e5apre4gmhzmvzze5jiuwx2yke
+      '@types/jsonwebtoken': 9.0.5
+      jsonwebtoken: 9.0.2
+    dev: false
+
   /@nestjs/jwt/8.0.0_@nestjs+common@7.6.18:
     resolution: {integrity: sha512-fz2LQgYY2zmuD8S+8UE215anwKyXlnB/1FwJQLVR47clNfMeFMK8WCxmn6xdPhF5JKuV1crO6FVabb1qWzDxqQ==}
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@nestjs/common': 7.6.18_7pezqkmxxiste2pslpodjdfzhq
-      '@types/jsonwebtoken': 8.5.4
-      jsonwebtoken: 8.5.1
-    dev: false
-
-  /@nestjs/jwt/8.0.0_@nestjs+common@8.1.1:
-    resolution: {integrity: sha512-fz2LQgYY2zmuD8S+8UE215anwKyXlnB/1FwJQLVR47clNfMeFMK8WCxmn6xdPhF5JKuV1crO6FVabb1qWzDxqQ==}
-    peerDependencies:
-      '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
-    dependencies:
-      '@nestjs/common': 8.1.1_e5apre4gmhzmvzze5jiuwx2yke
       '@types/jsonwebtoken': 8.5.4
       jsonwebtoken: 8.5.1
     dev: false
@@ -4381,6 +4381,12 @@ packages:
 
   /@types/jsonwebtoken/9.0.3:
     resolution: {integrity: sha512-b0jGiOgHtZ2jqdPgPnP6WLCXZk1T8p06A/vPGzUvxpFGgKMbjXJDjC5m52ErqBnIuWZFgGoIJyRdeG5AyreJjA==}
+    dependencies:
+      '@types/node': 14.18.63
+    dev: false
+
+  /@types/jsonwebtoken/9.0.5:
+    resolution: {integrity: sha512-VRLSGzik+Unrup6BsouBeHsf4d1hOEgYWTm/7Nmw1sXoN1+tRly/Gy/po3yeahnP4jfnQWWAhQAqcNfH7ngOkA==}
     dependencies:
       '@types/node': 14.18.63
     dev: false
@@ -11912,6 +11918,13 @@ packages:
       passport-strategy: 1.0.0
     dev: false
 
+  /passport-jwt/4.0.1:
+    resolution: {integrity: sha512-UCKMDYhNuGOBE9/9Ycuoyh7vP6jpeTp/+sfMJl7nLff/t6dps+iaeE0hhNkKN8/HZHcJ7lCdOyDxHdDoxoSvdQ==}
+    dependencies:
+      jsonwebtoken: 9.0.2
+      passport-strategy: 1.0.0
+    dev: false
+
   /passport-local/1.0.0:
     resolution: {integrity: sha512-9wCE6qKznvf9mQYYbgJ3sVOHmCWoUNMVFoZzNoznmISbhnNNPhN9xfY3sLmScHMetEJeoY7CXwfhCe7argfQow==}
     engines: {node: '>= 0.4.0'}
@@ -15204,7 +15217,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-NdQoyXbhhE3zFx7sgQorrOnUgrdjQOl9PD0NV3a01d+ii+p/mQvsZSVxNduWR6191T3O5oYjjdLbOzII9CezZg==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-VyvK1qSNcGMpeXadH5NA0EzPFALR6b425sH8tDuVAdNVFFZMYjcZGpLmeiB2v/Ij+PthhPX+g+oI1A3pQjju8Q==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15228,7 +15241,7 @@ packages:
       '@nestjs/config': 1.0.1_udrm6nnuxlsbfoe4rxfp2vw5he
       '@nestjs/core': 8.1.1_6w7cxc5fp3cqizmcqnxqypd77y
       '@nestjs/cqrs': 8.0.0_vxn6pnbmrlh75jyd2eq6dm6nxu
-      '@nestjs/jwt': 8.0.0_@nestjs+common@8.1.1
+      '@nestjs/jwt': 10.2.0_@nestjs+common@8.1.1
       '@nestjs/passport': 8.0.1_x4h4tr6asyntcxtogf2sgis4yu
       '@nestjs/platform-express': 8.1.1_svu4v2sifhq6njkoaosg5fk444
       '@nestjs/schedule': 1.0.1_zkfiyt7mgaagxlked6sbup4bym
@@ -15300,7 +15313,7 @@ packages:
       nodemailer: 6.9.9
       passport: 0.6.0
       passport-http-bearer: 1.0.1
-      passport-jwt: 4.0.0
+      passport-jwt: 4.0.1
       passport-local: 1.0.0
       passport-oauth2-client-password: 0.1.2
       passport-strategy: 1.0.0
