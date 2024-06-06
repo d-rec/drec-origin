@@ -616,7 +616,7 @@ export class DeviceController {
       deviceToUpdate.organizationId != undefined &&
       deviceToUpdate.organizationId
     ) {
-      let org = await this.organizationService.findOne(
+      const org = await this.organizationService.findOne(
         deviceToUpdate.organizationId,
       );
       if (user.role === Role.ApiUser) {
