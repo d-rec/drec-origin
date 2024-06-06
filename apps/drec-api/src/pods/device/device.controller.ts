@@ -611,22 +611,29 @@ export class DeviceController {
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
 
-    if(deviceToUpdate.organizationId != null && deviceToUpdate.organizationId != undefined && deviceToUpdate.organizationId) {
-      let org = await this.organizationService.findOne(deviceToUpdate.organizationId);
-      if(user.role === Role.ApiUser) {
-        if(user.api_user_id != org.api_user_id || org.organizationType != 'Developer') {
+    if (
+      deviceToUpdate.organizationId != null &&
+      deviceToUpdate.organizationId != undefined &&
+      deviceToUpdate.organizationId
+    ) {
+      let org = await this.organizationService.findOne(
+        deviceToUpdate.organizationId,
+      );
+      if (user.role === Role.ApiUser) {
+        if (
+          user.api_user_id != org.api_user_id ||
+          org.organizationType != 'Developer'
+        ) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
             message: 'Unauthorized',
-          });  
+          });
+        } else {
+          user.organizationId = deviceToUpdate.organizationId;
         }
-        else {
-          user.organizationId = deviceToUpdate.organizationId
-        }
-      }
-      else{
-        if(user.organizationId != org.id) {
+      } else {
+        if (user.organizationId != org.id) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
