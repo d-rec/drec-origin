@@ -182,4 +182,7 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   IREC_ID?: string;
+
+  @IsOptional()
+  organizationId?: number;
 }
