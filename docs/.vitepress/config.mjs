@@ -28,6 +28,7 @@ export default withMermaid(
       publicDir: '.public',
     },
     srcExclude: ['README.md'],
+    ignoreDeadLinks: 'localhostLinks',
 
     themeConfig: {
       // https://vitepress.dev/reference/default-theme-config
