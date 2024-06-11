@@ -26,7 +26,7 @@ Endpoint:Post: [https://stage-api.drecs.org/api/user/registerWithOrganization](h
 
 ### Response
 
-![Register With Org Response](<./img/Screenshot 2024-06-04 113355.png>)
+![Register With Org Response](<./img/stage-api-guide/Screenshot 2024-06-04 113355.png>)
 
 ## Login
 
@@ -43,7 +43,7 @@ Endpoint: [https://stage-api.drecs.org/api/auth/login](https://stage-api.drecs.o
 
 ### Login Response
 
-![Login Response](./img/image.png)
+![Login Response](./img/stage-api-guide/image.png)
 
 ## Device Registration
 
@@ -81,7 +81,7 @@ End point: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drec
 
 ### Device Registration Response
 
-![Device Registration Response](./img/image-1.png)
+![Device Registration Response](./img/stage-api-guide/image-1.png)
 
 ## Device registration2
 
@@ -119,7 +119,7 @@ Endpoint: Post: [https://stage-api.drecs.org/api/device](https://stage-api.drecs
 
 ### Device Registration2 Response
 
-![Device Registration2 Response](<./img/Screenshot 2024-06-04 115321.png>)
+![Device Registration2 Response](<./img/stage-api-guide/Screenshot 2024-06-04 115321.png>)
 
 ## Registered Devices
 
@@ -131,7 +131,7 @@ null
 
 ### Registered Devices Response
 
-![Registered Devices Response](<./img/Screenshot 2024-06-04 120226.png>)
+![Registered Devices Response](<./img/stage-api-guide/Screenshot 2024-06-04 120226.png>)
 
 ## Meter Reads
 
@@ -157,7 +157,7 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting12](https:/
 
 ### Meter Reads Response
 
-![Meter Reads Response](<./img/Screenshot 2024-06-04 121236.png>)
+![Meter Reads Response](<./img/stage-api-guide/Screenshot 2024-06-04 121236.png>)
 
 ### Delta
 
@@ -181,7 +181,7 @@ Endpoint: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https:
 
 ### Delta Response
 
-![Delta Response](<./img/Screenshot 2024-06-04 121723.png>)
+![Delta Response](<./img/stage-api-guide/Screenshot 2024-06-04 121723.png>)
 
 ### Aggregate
 
@@ -205,4 +205,4 @@ End point: [https://stage-api.drecs.org/api/meter-reads/new/uattesting123](https
 
 ### Aggregate Response
 
-![Aggregate Response](<./img/Screenshot 2024-06-04 122031.png>)
+![Aggregate Response](<./img/stage-api-guide/Screenshot 2024-06-04 122031.png>)
