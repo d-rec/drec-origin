@@ -100,7 +100,7 @@ export class OrganizationService {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getAll`);
-    let query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
         query
