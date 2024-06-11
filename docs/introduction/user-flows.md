@@ -395,7 +395,22 @@ Use Case:
 
 - Aggregate Readings: Incorrect Entry (Week days are not correct)
 
-![Aggregate Readings- Incorrect Entry](./img/user-flows/b578c9c2-bd76-405f-aba8-77d356cf1fad.png)
+```mermaid
+flowchart TD
+    Developer[Developer side-user] --> A[User lands on Meter Reads page]
+    A --> B[User enters the meter read:<br>Previous Meter Read Date: May 15, 2020<br>Reads:<value><br>System Date: May 30, 2022]
+    B --> C[As System date is May 30,<br>Meter Read tenure is correct.]
+    C --> D{This is the first read entry for the device}
+    D -->|Yes| E[System will accept the entry,<br>meter reads and end timestamp<br>will be updated in backend and date<br>will be saved for further calculation<br>whereas meter reads will not<br>be valid for certificate issuance.]
+    D -->|No| F[System will accept the entry<br>and reads will be updated<br>in backend as standard practice.]
+
+    subgraph Developer Admin
+        G[Threshold of gap in entries: 1 month<br>Previous meter read kept in system<br>for 1 year]
+    end
+
+    B -.-> G
+    C -.-> G
+```
 
 Requirements:
 
@@ -445,7 +460,16 @@ Validation:
 
 **Switch across the Meter Read types:**
 
-![Meter Read Types](./img/user-flows/89a4ec6f-67a2-4c9b-8657-2282bb303943.png)
+```mermaid
+graph TD
+    A[Historical Meter Read] --> B[Delta Meter Read]
+    B --> C[Aggregate Meter Read]
+    C --> A
+    A --> C
+
+    B -->|will be activated in v2, right now it is not supported| C
+    C -->|will be activated in v2, right now it is not supported| B
+```
 
 In current scenario, Developer can switch from:
 
@@ -465,7 +489,45 @@ Business Logic:
 
 - Once a device is reserved by a buyer, it is no longer available for any other buyer. [As there is no feature of partial reservation in current environment]
 
-![Buyer Reservation Flow](./img/user-flows/3b1ae4be-ee29-42e8-b771-d0803d3b8518.png)
+
+```mermaid
+  graph TD
+    A[Buyer Reservation] --> B1[Single Device reservation]
+    A --> B2[Device reservation in batches]
+
+    B1 --> C1{User want to create/recreate/modify devices for reservation}
+    B2 --> C1
+
+    C1 --> |Create| C2[User will enter the basic details as per proposed data schema]
+    C1 --> |Delete| C3[User will be able to delete the overall reservation of devices]
+    C1 --> |Modify| D1[User will choose the batch or device whose status needs to be modified]
+    C3 --> H1[Once the reservation is deleted, the certificate assignment address will be removed]
+    H1 --> H2[The devices will be available back in the device reservation bucket]
+    C2 --> D2[Once the details are submitted, on the basis of target schema devices will be listed to the Buyer]
+    D1 --> E1{Add/remove device from the bucket}
+    E1 --> |Add| E2[User can go the reservation page to add devices to their bucket]
+    E1 --> |Delete| E3[User can select the devices which needs to be removed]
+    E3 --> T8[Once the deletion process is completed, the device will again be availble in reservation device listing]
+    E2 --> F1{User will filter the devices on the basis of provided params}
+    F1 --> |No| F3[If filter is not applied then whole bulk of devices will be shown on the basis of target volume]
+    F1 --> |Yes| F4[The filtered devices will be listed to the user for making reservation]
+    D2 --> E4{Buyer will be able to apply filter on the basis of all non text fields}
+    E4 --> |Yes| G1[A seggregated and easy to use list of devices will be provided]
+    E4 --> |No| G2[A huge list of devices will be provided]
+    G1 --> G3[User can select the devices as per their requirements]
+    G2 --> G3
+    G3 --> T1{Buyer Selected the option Authority to Exceed}
+    T1 --> |Yes| T2[The reservation will stay intact in place and if any device is creating more energy than the target value then the exceeded amount of energy in Mwh will be included in purchased volume amount]
+    T2 --> T3[Standardised certificate generation will be iniated]
+    T3 --> T4[Generated certificate will be mapped against the monitored wallet address of the Buyer for whole volume of generated energy]
+    T1 --> |No| T5[The reservation will stay itact in place and if any device is creating more energy than the target value then the exceeded amount of energy in Mwh will be discarded]
+    T5 --> T6[Standardised certificate generation will be initiated]
+    T6 --> T7[Generated certificate will be mapped against the mentioned wallet address of the Buyer for whole volume of purchased energy]
+    F1 --> X1{Target date should be valid and not past dated for more than 365 days}
+    X1 --> |No| X2[Ask user to reenter the detailsand make reservation]
+    X2 --> |Yes| X3[Device reservation is completed successfully and certificate generation can be initiated]
+    X3 --> X4[Certificates are generated and updated to the provided wallet address of Buyer]
+```
 
 - Certificate Beneficiary will be the Buyer for all the energy units generated during there reservation from all the devices irrespective of the Device Owner.
 
@@ -475,11 +537,39 @@ Use Cases:
 
 **_No Authority to Exceed_**
 
-![No Authority to Exceed](./img/user-flows/eb3314dc-6a12-4869-9e07-ce783ec30e64.png)
+```mermaid
+  flowchart TD
+   A[Buyer]
+   A ---> A1[Buyer comes to the platform to make reservation]
+   A ---> A2[User doesn't choose the option to Exceed the authority]
+   A1 ---> A3[Buyer will enter the basic details in the form to fetch devices]
+   A3 ---> A4[The list of devices will be displayed to the user, from where user can make the reservation]
+   A3 -.-> |included| B1[Validate if entered time tenure is not back dated for more than 365 days]
+   A2 -.-> |included| B2[Selected devices should conclude the target volume]
+   B[Platform Admins]
+   B ---> B2
+   B ---> B1
+   A2 ---> C[The devices will be reserved, and the exceeding volume of energy generated will be discarded]
+   B2 ---> C
+```
 
 **_Authority to Exceed_**
 
-![Authority to Exceed](./img/user-flows/f90bae51-b0e3-4d36-8b0b-daf3655a3c51.png)
+```mermaid
+  flowchart TD
+   A[Buyer]
+   A ---> A1[Buyer comes to the platform to make reservation]
+   A ---> A2[User doesn't choose the option to Exceed the authority]
+   A1 ---> A3[Buyer will enter the basic details in the form to fetch devices]
+   A3 ---> A4[The list of devices will be displayed to the user, from where user can make the reservation]
+   A3 -.-> |included| B1[Validate if entered time tenure is not back dated for more than 365 days]
+   A2 -.-> |included| B2[Selected devices should conclude the target volume]
+   B[Platform Admins]
+   B ---> B2
+   B ---> B1
+   A2 ---> C[The devices will be reserved, and the exceeding volume of energy generated will also be allotted to the Buyer]
+   B2 ---> C
+```
 
 Requirements:
 
@@ -487,7 +577,24 @@ Requirements:
 
 - Target capacity vs target end date
 
-![Buyer Requirement flow diagram](./img/user-flows/f666b5cb-61b2-4f58-812d-8a9473ec0d09.png)
+```mermaid
+flowchart TD
+    %% Start and initial actions
+    A[Buyer comes to the platform for making reservation] --> B[Buyer will update the basic details in the form to fetch devices and initiate the reservation]
+    
+    %% Decision point and actions
+    B --> C[Target capacity reached]
+    C --> D{Authority to Exceed}
+    D -->|No| E[Send the notification to Buyer and conclude the reservation]
+    D -->|Yes| F[System will wait for target end date to conclude]
+
+    %% Target end date reached
+    B --> G[Target end date reached]
+    G --> E
+    
+    %% Loopback for concluding reservation
+    F --> G
+```
 
 - Buyer should be able to filter the devices on the below listed parameters while making a reservation:
 
@@ -684,13 +791,37 @@ Business Logic
 
 - There are 2 methods of Device onboarding
 
-![Methods of Device Onoarding](./img/user-flows/ff0fb9ad-7875-4650-b566-e71db833cd6f.png)
+```mermaid
+flowchart TD
+    %% Start and initial actions
+    A[Device Onboarding Types] --> B[Individual Device Onboarding]
+    A --> C[Bulk Device Onboarding]
+
+```
 
 - Individual Device onboarding is by using User Interface fields whereas Bulk Device onboarding will be accommodated with csv file upload option provided on User Interface.
 
 Use Cases:
 
-![Use Cases of Device Onboarding](./img/user-flows/62ac0f5a-9a58-45a5-914f-162aabf609ca.png)
+```mermaid
+  flowchart TD
+    A[User goes to projects page and click on Add site button] --> B{User wants to enter single site or list of site}
+
+    B --> |Multiple Sites| B1[Sites will be uploaded in csv file format along the some basic project and site related details]
+    B1 --> B2[A synchronous job will be executed in backend for file upload actively. Corresponding Job ID will be shared with user]
+    B2 --> B3[Once the synchronous job is completed, data will be updated in DB and user get notified via email with error messages and warnings]
+
+    B --> |Single Site| C[User will land on registration page and need to fill them]
+
+    C --> D{User will have 3 options here to Submit, Reset or Back/Discard}
+
+    D --> |Discard/Back| D1[If user clicks on Back button then application will load back the Projects page and user can do the desired activities.]
+
+    D --> |Reset| D2[If user clicks on Reset button, all the fields will be vacated and user will be able to refill the form.]
+
+    D --> |Sublit| D3[If user submits the form, site/device will be registered]
+    D3 --> |On backend| D4[Site details will be updated against the project in backend in JSON formats]
+```
 
 Requirements:
 
