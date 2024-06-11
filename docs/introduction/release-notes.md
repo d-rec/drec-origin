@@ -4,24 +4,6 @@ order: 3
 
 # Release Notes
 
-## Dev URLs
-
-[https://dev-portal.drecs.org](https://dev-portal.drecs.org)
-
-**Swagger UI:**
-
-[https://dev-api.drecs.org/swagger](https://dev-api.drecs.org/swagger)
-
-## Stage URLs
-
-**D-REC Origin:**
-
-[https://stage-portal.drecs.org/](https://stage-portal.drecs.org/)
-
-**Swagger UI:**
-
-[https://stage-api.drecs.org/swagger/](https://stage-api.drecs.org/swagger/)
-
 | Release ID (phaseNo, ReleaseNo) | Feature/Bug                                         | Relevant JIRA Tickets | Impact on other feature | Environment | Release Date  |
 | ------------------------------- | --------------------------------------------------- | --------------------- | ----------------------- | ----------- | ------------- |
 | DR 1.1                          | Developer and Organisation registration             |                       |                         | Stage       | Sept 08, 2022 |
@@ -48,11 +30,11 @@ The below collection covers the functionalities of
 
 6. Buyer reservation
 
-[D-Rec STAGE.postman_collection.json](./D-Rec_STAGE.postman_collection.json.md)
+[D-Rec STAGE.postman_collection.json](../.public/D-Rec%20STAGE.postman_collection.json)
 
-[STAGE API Guide](./stage-api-guide.md)
+[STAGE API Guide](../usage_guide/stage-api-guide.md)
 
-[D-Rec PROD.postman_collection](./D-Rec_PROD.postman_collection.json.md)
+[D-Rec PROD.postman_collection.json](../.public/D-Rec%20PROD.postman_collection.json)
 
 ## Prod release notes 14-jul-23
 
