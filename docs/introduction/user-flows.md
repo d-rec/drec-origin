@@ -349,7 +349,7 @@ this.logger.debug(`Current Date: ${DateTime.now()}`);
 this.logger.debug(`Current read: ${read.timestamp}`);
 this.logger.debug(`Last read: ${final.timestamp}`);
 const meteredTimePeriod = Math.abs(
-  currentRead.diff(lastRead, ['hours']).toObject()?.hours
+  currentRead.diff(lastRead, ['hours']).toObject()?.hours,
 ); //hours
 const margin = 0.2; //Margin for comparing read value
 const maxEnergy = computeMaxEnergy(
@@ -362,7 +362,7 @@ const maxEnergy = computeMaxEnergy(
 ```
 
 ```ts
-return Math.round(read.value + margin * read.value)<maxEnergy;
+return Math.round(read.value + margin * read.value) < maxEnergy;
 ```
 
 - Read value should not be negative.
@@ -580,7 +580,7 @@ Requirements:
 flowchart TD
     %% Start and initial actions
     A[Buyer comes to the platform for making reservation] --> B[Buyer will update the basic details in the form to fetch devices and initiate the reservation]
-    
+
     %% Decision point and actions
     B --> C[Target capacity reached]
     C --> D{Authority to Exceed}
@@ -590,7 +590,7 @@ flowchart TD
     %% Target end date reached
     B --> G[Target end date reached]
     G --> E
-    
+
     %% Loopback for concluding reservation
     F --> G
 ```
