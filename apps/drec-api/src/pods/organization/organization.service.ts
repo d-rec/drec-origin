@@ -524,9 +524,8 @@ export class OrganizationService {
   public async getFilteredQuery(
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
-    this.logger.verbose(`With in getFilteredQuery`, filterDto);
+    this.logger.verbose(`With in getFilteredQuery`);
     const { organizationName, organizationType } = filterDto;
-    console.log(organizationName)
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
