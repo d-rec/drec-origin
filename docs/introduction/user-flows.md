@@ -24,11 +24,13 @@ Fast Validation gas price(take <30 seconds to success), standard validation gas 
 
 Following are the requirements for certificate structure -
 
+```json
+
 "Version": "v1.0" (Version 1.0 needed in certificate structure),
 
 "buyerReservationId":"4c619b19-4e4d-4a81-9c27-d2cf46101333",
 
-“beneficiary“: ““ (Please add this field to certificate structure),
+"beneficiary": "" (Please add this field to certificate structure),
 
 "isStandardIssuanceRequested":"REC" (Please change the value to “I-REC”),
 
@@ -38,9 +40,9 @@ Following are the requirements for certificate structure -
 
 "deviceIds":[135],
 
-"deviceGroup":{"
+"deviceGroup":{
 
-createdAt":"2022-10-05T16:09:03.076Z",
+"createdAt":"2022-10-05T16:09:03.076Z",
 
 "updatedAt":"2022-10-05T16:09:03.076Z",
 
@@ -112,6 +114,8 @@ createdAt":"2022-10-05T16:09:03.076Z",
 
 "groupId":"14" (what does this refer to?),
 
+```
+
 **Requirements gathered in February meetings:**
 
 - Transaction certificate id add in certificate and log too. Add transaction certificate ID.
@@ -134,7 +138,39 @@ Meter Reading process is segregated in three main categories:
 
 - As per I-REC compliance, Data older than 3 year will not be considered for certificate issuance.
 
-![Meter Reads Flow](./img/user-flows/2d53ddf4-c870-4c82-8265-e70f3e83a8e6.png)
+```mermaid
+graph TD
+    A[User lands on the Meter Reading page] --> B{Choose the type of Meter Read that you want to enter?}
+    B -->|Aggregate Readings| C[User will enter the current meter read.]
+    B -->|Historical Readings| D[User will be asked to enter time duration for which readings are supposed to be entered]
+
+    C --> E{System will check if that meter have any previous reads?}
+    E -->|No| F[Reading value will be stored in system as initial read and will be used as previous read value in formula on next instance of meter read entry in system.]
+    F --> G[Meter Reads will be updated in system.]
+    E -->|Yes| H[Formula: Delta=Current Read-Previous Read Delta value is calculated.]
+    H --> I{Meter Read Delta is validated against the device capacity}
+    I -->|No| J[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    I -->|Yes| K[Meter Reads will be updated in system.]
+
+    D --> L{Time duration is in sync with predefined threshold?}
+    L -->|No| M[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    L -->|Yes| N[Meter Reads are validated against the device capacity]
+    N -->|No| O[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    N -->|Yes| P[Meter reads will be updated in system.]
+
+    D --> L
+    L --> N
+    N --> O
+    N --> P
+
+    C --> E
+    E --> F
+    F --> G
+    E --> H
+    H --> I
+    I --> J
+    I --> K
+```
 
 **Historic Readings(Back-dated):**
 
@@ -144,7 +180,22 @@ Use Cases:
 
 - Historical Readings: User with incorrect time duration as per threshold
 
-![Historic Readings](./img/user-flows/a75743fb-2487-43b6-94a7-9b865388eab3.png)
+```mermaid
+  sequenceDiagram
+    participant Developer Side-User
+    participant System
+    participant Developer Admin
+
+    Developer Side-User->>System: User lands on Meter Reads page
+    System->>Developer Admin: Validate if Date Tenure is correct as per calendar
+    System->>System: <<included>>
+    Developer Side-User->>System: User enters the tenure of meter reads
+    Note right of System: Start Date: May 01, 2023<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <Value>
+    System->>Developer Admin: Meter Reads are valid as per the device capacity
+    System->>System: <<included>>
+    System->>Developer Side-User: If validation parameters are correct, the system will allow the user to update details
+    System->>Developer Side-User: As values doesn't match with calendar standards system will reject the entry and user will be asked to make valid entry.
+```
 
 Requirements:
 
@@ -200,11 +251,41 @@ Use Cases:
 
 - Delta Readings: Correct Data
 
-![Delta Readings- Correct Data](./img/user-flows/9a776967-f6e5-4476-8fa6-26e21b67c3d3.png)
+```mermaid
+  flowchart TD
+    Developer[Developer side-user] --> A[User lands on Meter Reads page]
+    A --> B[User enters the meter read:<br>Previous Meter Read Date: May 15, 2020<br>Reads:<value><br>System Date: May 30, 2022]
+    B --> C[As System date is May 30,<br>Meter Read tenure is correct.]
+    C --> D{This is the first read entry for the device}
+    D -->|Yes| E[System will accept the entry,<br>meter reads and end timestamp<br>will be updated in backend and date<br>will be saved for further calculation<br>whereas meter reads will not<br>be valid for certificate issuance.]
+    D -->|No| F[System will accept the entry<br>and reads will be updated<br>in backend as standard practice.]
+
+    subgraph Developer Admin
+        G[Threshold of gap in entries: 1 month<br>Previous meter read kept in system<br>for 1 year]
+    end
+
+    A -.-> G
+    C -.-> G
+```
 
 - Delta Readings: Incorrect Data (Threshold of gap in entries)
 
-![Delta Readings- Incorrect Data](./img/user-flows/764ebdba-2eb5-4b1f-8232-f8ab141c1c56.png)
+```mermaid
+flowchart TD
+    Developer[Developer side-user] --> A[User lands on Meter Reads page]
+    A --> B[User enters the meter read:<br>Previous Meter Read Date: May 15, 2020<br>Reads:<value><br>System Date: May 30, 2022]
+    B --> C[As System date is May 30,<br>Meter Read tenure is correct.]
+    C --> D{This is the first read entry for the device}
+    D -->|Yes| E[System will accept the entry,<br>meter reads and end timestamp<br>will be updated in backend and date<br>will be saved for further calculation<br>whereas meter reads will not<br>be valid for certificate issuance.]
+    D -->|No| F[System will accept the entry<br>and reads will be updated<br>in backend as standard practice.]
+
+    subgraph Developer Admin
+        G[Threshold of gap in entries: 1 month<br>Previous meter read kept in system<br>for 1 year]
+    end
+
+    B -.-> G
+    C -.-> G
+```
 
 Requirements:
 
@@ -255,9 +336,34 @@ Validation:
 
   `const maxEnergy = capacity * meteredTimePeriod * deviceAge * degradation * yieldValue`
 
-![validation Formula of Delta](./img/user-flows/1e50017e-3a32-44ac-b411-3ecd4b8886bd.png)
+```ts
+const degradation = 0.5; //[%year]
+const yieldValue = device.yieldValue || 1500; //[kwh/kw]
+const capacity = device.capacity;
+const commissioningDate = DateTime.fromISO(device.commissioningDate);
+const currentDate = DateTime.now();
+const deviceAge = currentDate.diff(commissioningDate, ['years']).toObject();
+const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+this.logger.debug(`Current Date: ${DateTime.now()}`);
+this.logger.debug(`Current read: ${read.timestamp}`);
+this.logger.debug(`Last read: ${final.timestamp}`);
+const meteredTimePeriod = Math.abs(
+  currentRead.diff(lastRead, ['hours']).toObject()?.hours
+); //hours
+const margin = 0.2; //Margin for comparing read value
+const maxEnergy = computeMaxEnergy(
+  capacity,
+  meteredTimePeriod,
+  deviceAge,
+  degradation,
+  yieldValue,
+);
+```
 
-![Validation Formula of Delta1.1](./img/user-flows/52862a77-d88c-404b-a21e-b2c3d11d529c.png)
+```ts
+return Math.round(read.value + margin * read.value)<maxEnergy;
+```
 
 - Read value should not be negative.
 
@@ -269,7 +375,23 @@ Use Case:
 
 - Aggregate Readings: Correct Entry
 
-![Aggregate Reading- Correct Entry](./img/user-flows/2621ba57-ae9e-4ede-bc73-69f512926e28.png)
+```mermaid
+  flowchart TD
+    Developer[Developer side-user] --> A[User lands on Meter Reads page]
+    A --> B[User enters the meter reads<br>with dates:<br>End Date: May 29, 2022<br>Reads: <Value>]
+    B --> C[As System date is May 30,<br>Meter Read end date is<br>correct as per predefined threshold.<br>System will apply logic]
+    C --> D[System will accept the entry and reads<br>will be updated in backend.]
+
+    subgraph Developer Admin
+        E[Check the gap in last and current entry<br>is not more than 30 days]
+        F[Check start date and end date<br>against system calendar to ensure<br>tenure as Monday to Sunday.]
+        G[Logic: Delta =<br>Current Read - Previous Read]
+    end
+
+    B -.-> E
+    B -.-> F
+    C -.-> G
+```
 
 - Aggregate Readings: Incorrect Entry (Week days are not correct)
 
