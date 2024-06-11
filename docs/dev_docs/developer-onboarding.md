@@ -40,83 +40,86 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph D-REC Section
-      A[D-REC] --> B[Aggregator Management]
-      A --> C[Developer Onboarding]
-      A --> D[Energy Management]
-      A --> E[Buyer Reservation]
-      A --> F[Certificate Management]
-      A --> G[Profile]
+    subgraph DREC_Section [D-REC Section]
+        A[D-REC]
+        A --> B[Aggregator Management]
+        A --> C[Developer Onboarding]
+        A --> D[Energy Management]
+        A --> E[Buyer Reservation]
+        A --> F[Certificate Management]
+        A --> G[Profile]
 
-      B --> H[Add New Aggregator]
-      B --> I[View Aggregator]
-      H --> J[Enable/Disable API Access]
-      I --> K[View Buy Reservations]
+        B --> H[Add New Aggregator]
+        B --> I[View Aggregator]
+        H --> J[Enable/Disable API Access]
+        I --> K[View Buy Reservations]
 
-      C --> L[Organization Management]
-      C --> M[Manage Employees]
-      C --> N[Manage Projects]
-      C --> O[Manage Sites]
-      C --> P[Manage Devices]
+        C --> L[Organization Management]
+        C --> M[Manage Employees]
+        C --> N[Manage Projects]
+        C --> O[Manage Sites]
+        C --> P[Manage Devices]
 
-      D --> Q[View Energy Generations by Device/Device Groups]
-      D --> R[Add Energy Generation Transactions]
+        D --> Q[View Energy Generations by Device/Device Groups]
+        D --> R[Add Energy Generation Transactions]
 
-      E --> S[Add Reservation]
-      E --> T[View Reservations]
+        E --> S[Add Reservation]
+        E --> T[View Reservations]
 
-      F --> U[Certificate Management]
-      F --> V[Gas fee Requests]
-      U --> Y[Generate Certificate]
-      U --> Z[Transfer Certificate]
+        F --> U[Certificate Management]
+        F --> V[Gas Fee Requests]
+        U --> Y[Generate Certificate]
+        U --> Z[Transfer Certificate]
 
-      G --> W[Wallet Management]
-      G --> X[Employee Management]
+        G --> W[Wallet Management]
+        G --> X[Employee Management]
     end
 
-    subgraph Power Trust Section
-      AA[Power Trust] --> AB[Developer Onboarding]
-      AA --> AC[Buyer Management]
-      AA --> AD[Profile]
-      AA --> AE[Order Management]
-      AA --> AF[Certificates]
+    subgraph Power_Trust_Section [Power Trust Section]
+        AA[Power Trust]
+        AA --> AB[Developer Onboarding]
+        AA --> AC[Buyer Management]
+        AA --> AD[Profile]
+        AA --> AE[Order Management]
+        AA --> AF[Certificates]
 
-      AB --> AG[Organization Management]
-      AB --> AH[Manage Employees]
-      AB --> AI[Manage Projects]
-      AB --> AJ[Manage Sites]
-      AB --> AK[Manage Devices]
-      AK --> AW[Inverter Integration Scripts]
+        AB --> AG[Organization Management]
+        AB --> AH[Manage Employees]
+        AB --> AI[Manage Projects]
+        AB --> AJ[Manage Sites]
+        AB --> AK[Manage Devices]
+        AK --> AW[Inverter Integration Scripts]
 
-      AC --> AL[Account Management]
-      AC --> AM[Contract Managemnet]
-      AC --> AN[Demand Requests]
-      AC --> AO[Dashboard]
-      AN --> AX[Buyer Reservations]
+        AC --> AL[Account Management]
+        AC --> AM[Contract Management]
+        AC --> AN[Demand Requests]
+        AC --> AO[Dashboard]
+        AN --> AX[Buyer Reservations]
 
-      AD --> AP[Employee Management]
-      AD --> AQ[Developer OSV]
-      AD --> AR[Wallet]
+        AD --> AP[Employee Management]
+        AD --> AQ[Developer OSV]
+        AD --> AR[Wallet]
 
-      AE --> AS[Payables]
-      AE --> AT[Receivables]
+        AE --> AS[Payables]
+        AE --> AT[Receivables]
 
-      AF --> AU[Gas Fee Payments]
-      AF --> AV[DRECs]
+        AF --> AU[Gas Fee Payments]
+        AF --> AV[DRECs]
     end
 
-  AB --> C
-  AX --> S
-  AW --> R
-  H --> AA
+    BB[EWF Blockchain]
+    AV --> BB
+    AU --> BB
+    AR --> BB
+    W --> BB
+    V --> BB
+    Z --> BB
+    Y --> BB
 
-  BB[EWF Blockchain] --> AV
-  AU --> BB
-  AR --> BB
-  BB --> W
-  V --> BB
-  Z --> BB
-  Y --> BB
+    AB --> C
+    AX --> S
+    AW --> R
+    H --> AA
 ```
 
 ## User Registration
@@ -133,7 +136,31 @@ User clicks on registration button on D-Rec landing page and enters the followin
 - Confirm Password
 - Organisation Type (radio buttons) - Developer, Buyer
 
-![User Registration Flow](img/developer-onboarding/fef5c2ea-9e92-4316-9fe9-e45eff0a327d.png)
+```mermaid
+ sequenceDiagram
+    participant NewUser as New user
+    participant DRECUI as DREC UI
+    participant DRECAP I as DREC API
+
+    rect rgb(255, 255, 204)
+    NewUser->>DRECUI: Click on Register Now
+    DRECUI->>NewUser: Redirect to Register Page
+    end
+
+    note left of NewUser: Login Page
+
+    rect rgb(255, 255, 204)
+    NewUser->>DRECUI: Fill in register form data
+    DRECUI->>DRECAP I: Post to /api/user/register
+    end
+
+    note left of NewUser: Register page
+
+    DRECAP I->>DRECAP I: Validate form data
+    DRECAP I->>DRECAP I: Save user to DB with role as OrganizationAdmin
+    DRECAP I->>DRECUI: Response with new user
+    DRECUI->>NewUser: Redirect to Login Page
+```
 
 ### User Registration Expected Page
 
@@ -148,7 +175,24 @@ Organisation admin user will successfully login to D-Rec platform and see “No 
 > [!NOTE]
 > This message is subjective to change as per future requirements.
 
-![Organization regitration flow](img/developer-onboarding/99fb299e-ab54-4524-a08d-4b9c70e05ca1.png)
+```mermaid
+sequenceDiagram
+    participant User
+    participant DREC UI
+    participant DREC API
+
+    rect rgb(255, 255, 204)
+    User->>DREC UI: Fill in organization form data (Wizzard)
+    end
+    note left of User: Organization register Page
+
+    DREC UI->>DREC API: Post to /api/organization
+    DREC API->>DREC API: Check authentication and if Role is OrganizationAdmin
+    DREC API->>DREC API: Validate form data
+    DREC API->>DREC API: Save organization to DB
+    DREC API->>DREC UI: Response with new organization
+    DREC UI->>User: Redirect to My Organization Page
+```
 
 #### Mandatory fields -
 
@@ -209,7 +253,27 @@ Each row in table should consist of “Details” button and “Add Site” butt
 
 User fills the following details on Site Registration Page. Site Registration is happening against to the project. Hence, Site Registration Page will auto populate Project Name, Off Taker, Sector and Impact Story details.
 
-![Device Onboarding Flow](img/developer-onboarding/6faf99ae-11e2-4b95-89d8-c027cc2542bf.png)
+```mermaid
+sequenceDiagram
+    participant Asset Manager
+    participant DREC API
+
+    rect rgb(255, 255, 204)
+    Asset Manager->>Asset Manager: Collect devices to register
+    end
+    note left of Asset Manager: Authorized System
+
+    Asset Manager->>Asset Manager: Add missing DREC datafields
+
+    Asset Manager->>DREC API: Call batch registration
+    rect rgb(255, 255, 204)
+    note right of DREC API: POST /api/device-group/bulk-devices
+    end
+
+    DREC API->>DREC API: Create devices
+    DREC API->>DREC API: Create device groups
+    DREC API-->>Asset Manager: Confirm registration
+```
 
 Site Registration (radio button) - Single, Multiple
 Country for the Site
