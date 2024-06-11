@@ -4,8 +4,8 @@ import { withMermaid } from 'vitepress-plugin-mermaid';
 
 // https://vitepress-sidebar.jooy2.com/getting-started
 const vitepressSidebarOptions = {
-  excludeFiles: 'README.md',
-  excludeFilesByFrontmatterFieldName: true,
+  excludeFiles: ['README.md'],
+  excludeFilesByFrontmatterFieldName: 'exclude',
   sortMenusByFrontmatterOrder: true,
   useFolderTitleFromIndexFile: true,
   useTitleFromFileHeading: true,
