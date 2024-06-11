@@ -559,7 +559,6 @@ export class DeviceService {
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
     const sdgbbenifitslist = SDGBenefits;
-
     const checkexternalid = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,

@@ -54,7 +54,7 @@ export class OrganizationService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly fileService: FileService,
-  ) {}
+  ) { }
 
   async findOne(
     id: number,
@@ -103,18 +103,15 @@ export class OrganizationService {
     let query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
-        query = query.andWhere((qb) => {
-          qb.where('organization.api_user_id = :apiuserid', {
-            apiuserid: user.api_user_id,
-          }).andWhere(
-            `organization.organizationType NOT IN (:...excludedRoles)`,
-            {
-              excludedRoles: ['ApiUser', 'Admin'],
-            },
-          );
-        });
+        query.andWhere('organization.api_user_id = :apiuserid', {
+          apiuserid: user.api_user_id,
+        }).andWhere(
+          'organization.organizationType NOT IN (:...excludedRoles)',
+          {
+            excludedRoles: ['ApiUser', 'Admin'],
+          }
+        );
       }
-
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -527,8 +524,9 @@ export class OrganizationService {
   public async getFilteredQuery(
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
-    this.logger.verbose(`With in getFilteredQuery`);
+    this.logger.verbose(`With in getFilteredQuery`, filterDto);
     const { organizationName, organizationType } = filterDto;
+    console.log(organizationName)
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
