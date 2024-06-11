@@ -489,7 +489,6 @@ Business Logic:
 
 - Once a device is reserved by a buyer, it is no longer available for any other buyer. [As there is no feature of partial reservation in current environment]
 
-
 ```mermaid
   graph TD
     A[Buyer Reservation] --> B1[Single Device reservation]
