@@ -30,11 +30,11 @@ The below collection covers the functionalities of
 
 6. Buyer reservation
 
-[D-Rec STAGE.postman_collection.json](../.public/D-Rec%20STAGE.postman_collection.json)
+[D-Rec STAGE.postman_collection.json](../D-Rec%20STAGE.postman_collection.json)
 
 [STAGE API Guide](../usage_guide/stage-api-guide.md)
 
-[D-Rec PROD.postman_collection.json](../.public/D-Rec%20PROD.postman_collection.json)
+[D-Rec PROD.postman_collection.json](../D-Rec%20PROD.postman_collection.json)
 
 ## Prod release notes 14-jul-23
 
