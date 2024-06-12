@@ -4,6 +4,24 @@ order: 4
 
 # API User Manual
 
+## Dev URLs
+
+[https://dev-portal.drecs.org](https://dev-portal.drecs.org)
+
+**Swagger UI:**
+
+[https://dev-api.drecs.org/swagger](https://dev-api.drecs.org/swagger)
+
+## Stage URLs
+
+**D-REC Origin:**
+
+[https://stage-portal.drecs.org/](https://stage-portal.drecs.org/)
+
+**Swagger UI:**
+
+[https://stage-api.drecs.org/swagger/](https://stage-api.drecs.org/swagger/)
+
 ## DREC API User Manual - UI
 
 ### Step 1. Admin create
