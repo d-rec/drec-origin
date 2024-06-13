@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/hydrogen
 
       - name: Install tooling
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/hydrogen
 
       - name: Install tooling
         run: |
@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/hydrogen
 
       - name: Install tooling
         run: |
