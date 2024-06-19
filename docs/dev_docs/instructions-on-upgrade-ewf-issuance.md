@@ -173,9 +173,13 @@ In this example synchronization with blockchain will happen every 2 hours.
 
 For tests you can use `OffChainCertificateForUnitTestsModule` if you don't want to connect to blockchain.
 
-\*\*\*\*THERE has been changes in this integration which were updated in code and communicated in slack. So some instructions might be missing please refer to code for updated.
+::: warning ALERT:
+
+THERE has been changes in this integration which were updated in code and communicated in slack. So some instructions might be missing please refer to code for updated.
+
+:::
 
 I found two issues in origin-247-certificate, which is fixed in version 4.1.2. They were affecting your upgrade,
-CERTIFICATE_QUEUE_DELAY can be set to 10000 – currently it is set to 60000 which is very large and makes no sense. In our tests 10000 was almost always enough. If there is nonce conflict blockchain error, it can be increased further to 20000. Lower values make testing easier and synchronization works more seamlessly.
-ISSUE_BATCH_SIZE has to be set to lower value. Default is 10, in your case you can put 5 which is safe enough. It caused error due to a lot of metadata you put into certificate, which increases transaction cost. Lowering the batch makes the transaction smaller.
+`CERTIFICATE_QUEUE_DELAY` can be set to 10000 – currently it is set to 60000 which is very large and makes no sense. In our tests 10000 was almost always enough. If there is nonce conflict blockchain error, it can be increased further to 20000. Lower values make testing easier and synchronization works more seamlessly.
+`ISSUE_BATCH_SIZE` has to be set to lower value. Default is 10, in your case you can put 5 which is safe enough. It caused error due to a lot of metadata you put into certificate, which increases transaction cost. Lowering the batch makes the transaction smaller.
 I ran through tests few times, resulting in 50 certificates published on Volta and properly synchronized without single error. if you are able to achieve something similar, which surely you will taking my findings into consideration, you can try migrating to production EWF chain. From there we'll see what's happening, as all error will be saved (btw I fixed the issue that "undefined" error was saved for IssuePersisted event), and data won't be lost.
