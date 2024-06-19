@@ -15,7 +15,43 @@ We actually implemented this to increase the throughput of transactions, and han
 In the UI user can be presented with the information whether these changes are visible on the blockchain or not (using synchronization state information).We are using this approach on other applications, tested hundreds of thousands of certificates if not more, and didn't see any data corrupted.Because as much as I would like to solve the problem that you encounter on EWF chain, this may be just anything to be honest (including network error etc), and whenever such integration between two systems (app and blockchain in this case) happens
 it's best practice to use Outbox pattern -> and upgraded version of origin-247-certificate works exactly like outbox.Adapting this to your case will make application run flawlessly from the end user perspective, even if there were some problems with the blockchain (like you currently have)
 
-![Upgrade info](./img/28940d51-b238-440a-a937-cca7e8fbf9bb.png)
+```mermaid
+flowchart TB
+    subgraph OLD_VERSION [OLD VERSION]
+        direction TB
+        subgraph IssueCertificateOld [Issue certificate]
+            A1[Application] --> B1[origin-247-certificate]
+            B1 --> C1[issuer-api]
+            C1 --> D1[issuer]
+            D1 --> E1[blockchain]
+        end
+
+        subgraph GetCertificateOld [Get certificate]
+            B2[origin-247-certificate] --> A2[Application]
+            C2[issuer-api] --> B2
+        end
+
+        C1 -- BLOCKCHAIN EVENT --> C2
+    end
+
+    subgraph NEW_VERSION [NEW VERSION]
+        direction TB
+        subgraph IssueCertificateNew [Issue certificate]
+            A3[Application] --> B3[origin-247-certificate]
+            B3 --> C3[offline database]
+            C3 -- Synchronization try --> D3[issuer]
+            D3 --> E3[blockchain]
+        end
+
+        subgraph GetCertificateNew [Get certificate]
+            B4[origin-247-certificate] --> A4[Application]
+            C4[offline database] --> B4
+        end
+
+        C3 -- Offchain representation --> C4
+    end
+
+```
 
 ## Origin 247 Certificate README
 
