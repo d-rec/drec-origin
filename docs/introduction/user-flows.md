@@ -6,7 +6,7 @@ order: 4
 
 ## Certificate Management
 
-- According to energy webs documentation : [https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview](https://energyweb.atlassian.net/wiki/spaces/EWF/pages/719847470/Transaction+Costs+Overview) access setting gas price lower is one of the factors but it shouldn't be too lower else transaction will never be accepted but after exploring to some extent in EWF packages I couldn't find a way to set gas limit for the transaction or a gas price for the transaction(issuance of certificate).
+- According to energy webs documentation : [https://energy-web-foundation.gitbook.io/energy-web/foundational-concepts/ethereum/transaction-costs](https://energy-web-foundation.gitbook.io/energy-web/foundational-concepts/ethereum/transaction-costs) Refer above url to access setting gas price lower is one of the factors but it shouldn't be too lower else transaction will never be accepted but after exploring to some extent in EWF packages I couldn't find a way to set gas limit for the transaction or a gas price for the transaction(issuance of certificate).
 
 - After searching found this link GitHub - [energywebfoundation/gasprice: estimate ethereum gas price](https://github.com/energywebfoundation/gasprice) for getting standard, faster gas prices of energy-web but its in python need a way to be in NodeJS.
 
