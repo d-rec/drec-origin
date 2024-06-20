@@ -212,7 +212,24 @@ The base requirement out of this tool is to allow developers to register their o
 
 - Once the form is updated and user clicks on submit button, user will be registered on the D-REC platform as a buyer.
 
-![User Registration Flow](./img/f5ab3461-072a-4047-a685-c1364eb2119a.png)
+```mermaid
+flowchart TD
+    A[user will be asked to enter basic details and set up a password.]
+    B{Organisation name and email address are unique}
+    C[user setup will show error and user will be asked to login as the organisation or email is already registered]
+    D[An email will be sent to the email address for confirmation]
+    E{User confirms the email}
+    F[User registration is complete and user should be able to login to the platform.]
+    G[User registration is incomplete and user should not be able to login to the platform.]
+
+    A --> B
+    B -- NO --> C
+    B -- YES --> D
+    D --> E
+    E -- NO --> G
+    E -- YES --> F
+
+```
 
 ### User Registration Version 1.0
 
@@ -242,15 +259,52 @@ Use Cases:
 
 - Expected flow for invited user registration-
 
-![Expected flow for invited user registration](./img/684d36f2-efca-429d-ba28-073e9a4262eb.png)
+```mermaid
+flowchart TD
+    A[User got the invite from Admin to register themselves on D-REC platform]
+    B{User role is assigned by Admin}
+    C[User will be able to enter their basic details and READ-ONLY access will be given to the user profile]
+    D[User will be able to enter their basic details and specified role based access will be given to the user profile]
+
+    A --> B
+    B -- No --> C
+    B -- Yes --> D
+
+```
 
 - New user registration-
 
-![New User Registration Flow](./img/image.webp)
+```mermaid
+flowchart TD
+    A[user will be asked to enter basic details and set up a password.]
+    B{Organisation name and email address are unique}
+    C[user setup will show error and user will be asked to login as the organisation or email is already registered]
+    D{An email will be sent to the email address for confirmation}
+    E{User confirms the email}
+    F[User registration is complete and user should be able to login to the platform.]
+    G[User registration is incomplete and user should not be able to login to the platform.]
+
+    A --> B
+    B -- NO --> C
+    B -- YES --> D
+    D --> E
+    E -- no --> G
+    E -- yes --> F
+
+```
 
 - Expected flow to enter Duplicate records-
 
-![Expected Flow to Enter Duplicate Records](<./img/image (1).webp>)
+```mermaid
+graph TD
+    A[Organisation registration by user] --> B{Organisation name is an exact match of any existing entry?}
+    B -- No --> C[User will be asked to enter organisation's basic details and asked to set up a Secret Key]
+    C --> D[Organisation setup is completed and user should be able to login to the platform]
+    B -- Yes --> E{Is user entering the correct secret code for existing record?}
+    E -- No --> F[Organisation registration process should be aborted by the D-REC portal]
+    E -- Yes --> G[User should get an error message to connect with their organisation admin for access as organisation is already registered]
+
+```
 
 ### APIs and Responses
 
@@ -480,7 +534,13 @@ Energy storage capacity:
 
 **While the device external id should be unique for each device, different developers (of different organization) might enter same name in the external id field while filling the form for adding the devices. So, to differentiate the devices in the backend, each device will have unique id as well as unique organization id (unique for each organization).**
 
-![Device Register Flow](./img/d6e94838-533e-4731-ad85-8da18de8c0a9.png)
+```mermaid
+graph TD
+    A[developer registers] --> B[each developer is assigned unique organisation_id in the back end]
+    A --> C[developer logins and add devices]
+    C --> D[each device is assigned unique device_id in the back end]
+
+```
 
 #### Device Registration Version 1
 
@@ -538,7 +598,12 @@ Energy storage capacity:
 
   5. action
 
-  ![Device Onboarding Type](./img/df596ba8-de35-4aed-8fd7-93d86f6877f3.png)
+  ```mermaid
+  graph TD
+    A[Device Onboarding Types] --> B[Individual Device Onboarding]
+    A --> C[Bulk Device Onboarding]
+
+  ```
 
 #### Bulk Device Upload Version 1.0
 
@@ -554,7 +619,20 @@ Energy storage capacity:
 
 Use Cases:
 
-![Device Registeration Flow1](<./img/image (2).webp>)
+```mermaid
+flowchart TD
+    A[User goes to projects page and clicks on Add Site button] --> B{User wants to enter single site or list of sites}
+    B --> |Single site| C[User will land on registration page and need to fill the form.]
+    B --> |Multiple sites| D[Sites will be uploaded in csv file format along with some basic project and site related details.]
+    D --> E[A synchronous job will be executed in backend for file upload activity. Corresponding Job ID will be shared with user]
+    E --> F[Once the synchronous job is completed, data will be updated in DB and user gets notified via email with error messages and warnings.]
+    C --> G{User will have 3 options here to Submit, Reset or Back/Discard}
+    G --> |Discard/Back| H[If user clicks on Back button then application will load back the Projects page and user can do the desired activities.]
+    G --> |Reset| I[If user clicks on Reset button, all the fields will be vacated and user will be able to refill the form.]
+    G --> |Submit| J[If user submits the form, site/device will be registered.]
+    J --> |On Backend| K[On backend, site details will be updated against the project in backend in JSON formats.]
+
+```
 
 #### Device Grouping and Ungrouping Version 1.0
 
@@ -576,7 +654,15 @@ Use Cases:
 
 Use Cases:
 
-![Device Grouping and Ungrouping Flow](<./img/image (3).webp>)
+```mermaid
+flowchart TD
+    A[Buyer comes on application to make device reservation] --> B[On the basis of user entered parameters, application will show the eligible devices by grouping them together.]
+    B --> C{Device Reserved by Buyer?}
+    C --> |No| D[If device is not reserved, it can be re-grouped by developer-side users for other Buyer listing.]
+    C --> |Yes| E[Once device is reserved, no other user can claim reservation on it.]
+    E --> F[Once the group of devices are reserved, D-REC will initiate creation of certificates.]
+
+```
 
 #### I-REC Integration
 
@@ -714,7 +800,21 @@ Required fields of Certificate structure are:
 
 - group ID
 
-![IREC Integration Flow](<./img/image (4).webp>)
+```mermaid
+flowchart TD
+    A[Buyer Device reservation] --> B{Buyer wants to convert D-REC to I-REC}
+    B --> |NO| C[I-REC certificate is requested and once approved certificate will be transferred to D-REC Platform redemption account]
+    C --> D[I-REC serial number will be updated in Meta data and D-REC certificate]
+    D --> E[D-REC provisional certificate will be removed from provisional account and transferred to Buyer's wallet, the new certificate will be updated on chain too]
+    
+    B --> |YES| F[D-REC will gather Meter data from devices reserved by Buyer with the help of Meter Read API endpoints.]
+    F --> G[D-REC will transfer the certificate to provisional account associated with Buyer and D-REC platform will call I-REC registry to request I-REC issuance]
+    G --> H{I-REC approved/rejected?}
+    H --> |Rejected| I[Flow yet to be finalised]
+    H --> |Approved| J[Once the I-REC issued, a serial number is assigned and updated in Meta Data and D-REC certificates]
+    J --> K[It depends on Buyer whether he wants to redeem certificate as I-REC or D-REC]
+
+```
 
 #### Meter Reads
 
@@ -934,19 +1034,86 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 
 Use Cases:
 
-![Meter Readings Flow1](./img/8f6e07f1-1759-4c5c-9801-2a3664fccb4f.png)
+```mermaid
+graph TD
+    A[User lands on the Meter Reading page] --> B{Choose the type of Meter Read that you want to enter?}
+    B --> |Aggregate Readings| B1[User will be able to enter meter reads on daily, weekly or monthly basis as per the developer preference]
+    B1 --> C[User will enter the current meter read.]
+    B --> |Delta Readings| D[User will enter the current meter read.]
+    B --> |Historical Readings| E[User will be asked to enter time duration for which readings are supposed to be entered]
+    
+    E --> F{Time duration is in sync with predefined threshold?}
+    F --> |No| G[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    F --> |Yes| I{Meter Reads are validated against the device capacity}
+    I --> |No| J[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    I --> |Yes| K[Meter reads will be updated in system]
+    
+    C --> L{System will check if that meter have any previous reads?}
+    L --> |Yes| M[Formula: Delta=Current Read-Previous Read Delta value is calculated.]
+    L --> |No| N[Reading value will be stored in system as initial read and will be used as previous read value in formula on next instance of meter read entry in system.]
+    
+    M --> O{Meter Read Delta is validated against the device capacity}
+    O --> |No| P[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    O --> |Yes| Q[Meter Reads will be updated in system]
+    
+    N --> Q
+    
+    D --> R{Meter Roads are validated against the device capacity}
+    R--> |No| T[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
+    R --> |Yes| U[Meter reads will be updated in system]
+
+```
 
 Historical type of data will have configuration value as 12 months, even for this data type system should not discard older data instead it should prompt developer for acceptance.
 
-![Meter Readings Flow2](./img/854421b1-2b89-498b-82e9-a5bdceac630c.png)
+```mermaid
+flowchart TD
+    A([Developer side-user]) --> B([User lands on Meter Reads page])
+    B --> C([User enters the tenure of meter reads<br>Start Date: May 01, 2022<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <value>])
+    C --> D([As System date is June 01 and Meter Read start date tenure is May 01,<br> where difference is exact 30 days.])
+    D --> E([As difference is 30 days,<br> system will accept the entry and reads will be updated in system.])
+    E --> F{If data is back dated more than 12 months}
+    F --> |No| G([System will accept the entry and reads will be updated in backend.])
+    F --> |Yes| H([Prompt for Developer's acceptance as data back dated more than 12 months won't be certified.])
+    H --> G
+    A1([Developer Admin]) --> I([Marked threshold as maximum back date allowed as 1 year])
+    I --> C
+    I --> F
+
+```
 
 Historical Readings: User with incorrect time duration as per threshold.
 
-![Incorrect Data Flow of Meter Reads](./img/f08db0f4-ab15-4763-b10f-2243568d101c.png)
+```mermaid
+flowchart TD
+    A([Developer side-user]) --> B([User lands on Meter Reads page])
+    B --> C([User enters the tenure of meter reads<br>Start Date: May 01, 2023<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <value>])
+    C --> D([If validation parameters are correct, the system will allow the user to update details])
+    D --> E([As values don't match with calendar standards,<br>system will reject the entry and user will be asked to make valid entry])
+    
+    F([Developer Admin]) --> G([Validate if Date Tenure is correct as per calendar])
+    F --> H([Meter Reads are valid as per the device capacity])
+    
+    G --> D
+    H --> D
+
+```
 
 Historical Readings: User with correct time duration as per threshold
 
-![Correct Data Flow of Meter Reads](./img/ff546ac0-4167-443d-8d7c-faa1c19a82b6.png)
+```mermaid
+graph TD
+    A[User lands on Meter Reads page] --> B[User enters the tenure of meter reads<br>Start Date: May 01, 2022<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <Value>]
+    B --> C[As System date is June 01 and Meter Read start date tenure is May 01, where difference is exact 30 days.]
+    C --> D[System will accept the entry and reads will be updated in backend.]
+    
+    D1[Developer side-user] -.-> A
+    D2[Developer Admin] -.-> F[Marked threshold as maximum back date allowed as 1 year]
+    D2 -.-> E[Calculation of dates as per threshold mentioned:<br>System Date - Tenure End Date]
+    F -.-> B
+    E -.-> C
+
+```
 
 #### User pages for Buyers
 
@@ -1168,19 +1335,100 @@ In case automatic release of device is unsuccessful, then users shall be able to
 
 - Use Cases
 
-![Flow of Meter Reads](./img/f89fc757-d67f-49c4-9bb0-c75029fdc5cb.png)
+```mermaid
+graph TD
+    A[Buyer Reservation] --> B[Single device reservation]
+    A --> C[Device reservation in batches]
+
+    B --> D[User will enter the basic details as per proposed data schema]
+    D --> E[Once the details are submitted, on the basis of target schema devices will be listed to the Buyer.]
+    E --> F{Buyer will be able to apply filter on the basis of all non text fields.}
+    F -->|No| G[A huge list of devices will be provided]
+    F -->|Yes| H[A segregated and easy to use list of devices will be provided]
+    G --> I[User can select the devices as per their requirements.]
+    H --> I
+    I --> J{Buyer selected the option Authority to Exceed}
+    J -->|No| K[The reservation will stay intact in place and if any device is creating more energy than the target value then the exceeded amount of energy MWh will be discarded.]
+    K --> L[Standardized certificate generation will be initiated.]
+    J -->|Yes| M[The reservation will stay intact in place and if any device is creating more energy than the target value, then the exceeded amount of energy MWh will be included in purchased annual amount.]
+    M --> L
+    L --> N[Generated certificate will be mapped against the mentioned wallet address of the Buyer for the whole volume of purchased energy.]
+    N --> O[Generated certificate will be mapped against the mentioned wallet address of the Buyer for whole volume of generated energy in future.]
+
+    C --> P[User want to create/delete/modify devices for reservation]
+    P --> Q[Modify]
+    P --> R[Add/remove device from the bucket]
+    P --> S[Delete]
+
+    Q --> T[User will choose the batch or device whose status needs to be modified]
+    R --> U[User can go the reservation page to add devices to their bucket]
+    S --> V[User will be able to delete the overall reservation of devices]
+    V --> W[Once the reservation is deleted, the certificate assignment address will be removed.]
+    W --> X[The devices will be available back in the device reservation bucket.]
+
+    T --> Y[Add]
+    T --> Z[Delete]
+    Y --> AA[User will filter the devices on basis of provided params]
+    Z --> AB[User can select the device which needs to be removed.]
+    AB --> AC[Once the deletion process is completed, the device will again be available in reservation device listing]
+    AA --> AD{If filter is not applied then whole bulk of devices will be shown on the basis of target volume.}
+    AD -->|No| AE[The filtered devices will be listed to the user for making reservation]
+    AD -->|Yes| AF[User will filter the devices on basis of provided params]
+    AE --> AG{Target date should be valid and not past dated for more than 365 days}
+    AF --> AG
+    AG -->|No| AH[Ask user to re-enter the details and make reservation]
+    AG -->|Yes| AI[Device reservation is completed successfully and certificate generation can be initiated.]
+    AI --> AJ[Certificates are generated and updated to the provided wallet address of Buyer.]
+
+```
 
 - No Authority to Exceed
 
-![Flow of No Authority to Exceed](./img/d3b9b4a6-fffe-4c0c-b51f-e10e38b35bd6.png)
+```mermaid
+graph TD
+    A[Buyer comes to the platform to make reservation] --> B[Buyer will enter the basic details in the form to fetch devices]
+    B --> C[Validate if entered time tenure is not back dated for more than 365 days]
+    C --> D[The list of devices will be displayed to the user, from where user can make the reservation]
+    D --> E[User doesn't choose the option to Exceed the authority]
+    E --> F[The devices will be reserved, and the exceeding volume of energy generated will be discarded]
+
+    C -.-> G[Platform Admins]
+    D -.-> H[Selected devices should conclude the target volume]
+    H -.-> G
+
+```
 
 - Authority to Exceed
 
-![Flow of Authority to Exceed](./img/58bb3b9e-65b2-43ca-a21d-dd8ce3a17197.png)
+```mermaid
+graph TB
+    A[Buyer comes to the platform to make reservation] --> B[Buyer will enter the basic details in the form to fetch devices]
+    B --> C[Validate if entered time tenure is not back dated for more than 365 days]
+    C -- includes --> D[The list of devices will be displayed to the user, from where user can make the reservation]
+    D -- includes --> E[Selected devices should conclude the target volume]
+    E --> F[User choose the option to Exceed the authority]
+    F --> G[The devices will be reserved, and the exceeding volume of energy will also be allotted to the Buyer]
+    
+    A --> |includes| H[Platform Admins]
+    C --> |includes| H
+    E --> |includes| H
+
+```
 
 - Target Capacity vs target end date:\*\*
 
-![Target Capacity and Target End date](./img/f7266d91-1f6e-4951-b4ed-fbff9f8bdcd6.png)
+```mermaid
+graph TB
+    A[Buyer comes to the platform for making reservation] --> B[Buyer will update the basic details in the form to fetch devices and initiate the reservation]
+    B --> C[Target capacity reached]
+    B --> E[Target end date reached]
+    C --> D{Authority to Exceed}
+    D -- No --> F[Send the notification to Buyer and conclude the reservation]
+    D -- Yes --> G[System will wait for target end date to conclude]
+    G --> F
+    E --> F
+
+```
 
 #### TimeZone
 
@@ -1301,7 +1549,113 @@ Important points regarding device registration.
 
 ### Architectural Descriptoion Verion 1.0
 
-![Architectural Description](./img/cb8bb9ec-6181-4e0d-a9f2-a33b8ce6712f.png)
+```mermaid
+graph TD
+    A[DERMS] --> B[User Management]
+    A --> C[Event Management]
+    A --> D[Power Forecast]
+    A --> E[Asset Management]
+    A --> F[Market Management]
+    A --> G[Power Flow]
+
+    B --> B1[User Acceptance]
+    B --> B2[Add User]
+    B --> B3[View User]
+    B --> B4[Remove User]
+
+    C --> C1[Manage Employees]
+    C --> C2[Approve Programs]
+    C --> C3[Add Event]
+    C --> C4[Manage Roles]
+    C --> C5[Manage Events]
+    C --> C6[Manage Employees]
+
+    D --> D1[Meter Data]
+    D --> D2[Power Forecast]
+
+    E --> E1[Add & Edit Historical Transactions]
+    E --> E2[View Transactions]
+    E --> E3[View & Edit Historical Transactions]
+
+    F --> F1[Manage Certificates]
+    F --> F2[Issue Certificates]
+    F --> F3[Revoke Certificates]
+
+    G --> G1[Asset Management]
+    G --> G2[Site Management]
+    G --> G3[Grid Events]
+
+    subgraph Event Management
+        C1
+        C2
+        C3
+        C4
+        C5
+        C6
+    end
+
+    subgraph Power Management
+        D1
+        D2
+    end
+
+    subgraph Asset Management
+        E1
+        E2
+        E3
+    end
+
+    subgraph Certificates
+        F1
+        F2
+        F3
+    end
+
+    subgraph DER Management
+        G1
+        G2
+        G3
+    end
+
+    B2 --> |includes| H[Power Tool]
+    B3 --> |includes| I[Power Tool]
+
+    H --> J[Manage Employees]
+    H --> K[Manage Events]
+    H --> L[Manage Sites]
+    H --> M[Manage Roles]
+
+    I --> N[Manage Transactions]
+    I --> O[Power Forecast]
+    I --> P[Family]
+    I --> Q[Site Management]
+    I --> R[Programs]
+    I --> S[Assets]
+    I --> T[Devices]
+    I --> U[Inverters]
+    I --> V[ESS]
+    I --> W[DER Contracts]
+    I --> X[EWF Blockchain]
+
+    X --> Y[Blockchain]
+
+    J --> Z[Grid Events]
+    K --> Z
+    L --> Z
+    M --> Z
+    N --> Z
+    O --> Z
+    P --> Z
+    Q --> Z
+    R --> Z
+    S --> Z
+    T --> Z
+    U --> Z
+    V --> Z
+    W --> Z
+    Y --> Z
+
+```
 
 ### Deployment Description V1
 
