@@ -136,7 +136,7 @@ There will be multiple users under all the above mentioned categories for an ins
 
 The requirement or expectations from this development project of the D-REC tool can be described as:
 
-s- User Registration.
+- User Registration.
 
 - Device Registration.
 
