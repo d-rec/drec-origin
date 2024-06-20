@@ -75,6 +75,8 @@ export class WithoutAuthGuard implements CanActivate {
         role: Role.ApiUser,
         api_user_id: request.params.api_user_id,
       });
+    } else if (request.url.split('/')[3] === 'login') {
+      user = await this.userService.findByEmail(request.body.username);
     }
 
     if (
