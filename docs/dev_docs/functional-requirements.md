@@ -1638,6 +1638,7 @@ Important points regarding device registration.
       W --> Z
       Y --> Z
 ```
+
 ### Deployment Description V1
 
 - The deployment plan for the is prescribed by D-REC team and the tool will be deployed on D-REC cloud environment.
