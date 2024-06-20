@@ -228,7 +228,6 @@ flowchart TD
   D --> E
   E -- NO --> G
   E -- YES --> F
-
 ```
 
 ### User Registration Version 1.0
@@ -269,7 +268,6 @@ flowchart TD
   A --> B
   B -- No --> C
   B -- Yes --> D
-
 ```
 
 - New user registration-
@@ -290,7 +288,6 @@ flowchart TD
   D --> E
   E -- no --> G
   E -- yes --> F
-
 ```
 
 - Expected flow to enter Duplicate records-
@@ -303,7 +300,6 @@ graph TD
   B -- Yes --> E{Is user entering the correct secret code for existing record?}
   E -- No --> F[Organisation registration process should be aborted by the D-REC portal]
   E -- Yes --> G[User should get an error message to connect with their organisation admin for access as organisation is already registered]
-
 ```
 
 ### APIs and Responses
@@ -539,7 +535,6 @@ graph TD
   A[developer registers] --> B[each developer is assigned unique organisation_id in the back end]
   A --> C[developer logins and add devices]
   C --> D[each device is assigned unique device_id in the back end]
-
 ```
 
 #### Device Registration Version 1
@@ -602,7 +597,6 @@ graph TD
   graph TD
     A[Device Onboarding Types] --> B[Individual Device Onboarding]
     A --> C[Bulk Device Onboarding]
-
   ```
 
 #### Bulk Device Upload Version 1.0
@@ -631,7 +625,6 @@ flowchart TD
   G --> |Reset| I[If user clicks on Reset button, all the fields will be vacated and user will be able to refill the form.]
   G --> |Submit| J[If user submits the form, site/device will be registered.]
   J --> |On Backend| K[On backend, site details will be updated against the project in backend in JSON formats.]
-
 ```
 
 #### Device Grouping and Ungrouping Version 1.0
@@ -661,7 +654,6 @@ flowchart TD
   C --> |No| D[If device is not reserved, it can be re-grouped by developer-side users for other Buyer listing.]
   C --> |Yes| E[Once device is reserved, no other user can claim reservation on it.]
   E --> F[Once the group of devices are reserved, D-REC will initiate creation of certificates.]
-
 ```
 
 #### I-REC Integration
@@ -813,7 +805,6 @@ flowchart TD
   H --> |Rejected| I[Flow yet to be finalised]
   H --> |Approved| J[Once the I-REC issued, a serial number is assigned and updated in Meta Data and D-REC certificates]
   J --> K[It depends on Buyer whether he wants to redeem certificate as I-REC or D-REC]
-
 ```
 
 #### Meter Reads
@@ -1061,7 +1052,6 @@ graph TD
   D --> R{Meter Roads are validated against the device capacity}
   R--> |No| T[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
   R --> |Yes| U[Meter reads will be updated in system]
-
 ```
 
 Historical type of data will have configuration value as 12 months, even for this data type system should not discard older data instead it should prompt developer for acceptance.
@@ -1079,7 +1069,6 @@ flowchart TD
   A1([Developer Admin]) --> I([Marked threshold as maximum back date allowed as 1 year])
   I --> C
   I --> F
-
 ```
 
 Historical Readings: User with incorrect time duration as per threshold.
@@ -1096,7 +1085,6 @@ flowchart TD
     
   G --> D
   H --> D
-
 ```
 
 Historical Readings: User with correct time duration as per threshold
@@ -1112,7 +1100,6 @@ graph TD
   D2 -.-> E[Calculation of dates as per threshold mentioned:<br>System Date - Tenure End Date]
   F -.-> B
   E -.-> C
-
 ```
 
 #### User pages for Buyers
@@ -1379,7 +1366,6 @@ graph TD
   AG -->|No| AH[Ask user to re-enter the details and make reservation]
   AG -->|Yes| AI[Device reservation is completed successfully and certificate generation can be initiated.]
   AI --> AJ[Certificates are generated and updated to the provided wallet address of Buyer.]
-
 ```
 
 - No Authority to Exceed
@@ -1395,7 +1381,6 @@ graph TD
   C -.-> G[Platform Admins]
   D -.-> H[Selected devices should conclude the target volume]
   H -.-> G
-
 ```
 
 - Authority to Exceed
@@ -1412,7 +1397,6 @@ graph TB
   A --> |includes| H[Platform Admins]
   C --> |includes| H
   E --> |includes| H
-
 ```
 
 - Target Capacity vs target end date:\*\*
@@ -1427,7 +1411,6 @@ graph TB
   D -- Yes --> G[System will wait for target end date to conclude]
   G --> F
   E --> F
-
 ```
 
 #### TimeZone
@@ -1654,7 +1637,6 @@ graph TD
   V --> Z
   W --> Z
   Y --> Z
-
 ```
 
 ### Deployment Description V1
