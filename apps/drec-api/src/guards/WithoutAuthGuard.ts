@@ -32,7 +32,8 @@ export class WithoutAuthGuard implements CanActivate {
 
     if (request.url.split('/')[3] === 'forget-password') {
       user = await this.userService.findByEmail(request.body.email);
-    } else if (
+    } 
+    else if (
       request.url.split('/')[3] === 'confirm-email' ||
       request.url.split('/')[3] === 'reset'
     ) {
@@ -75,6 +76,8 @@ export class WithoutAuthGuard implements CanActivate {
         role: Role.ApiUser,
         api_user_id: request.params.api_user_id,
       });
+    } else if(request.url.split('/')[3] === 'login'){
+      user = await this.userService.findByEmail(request.body.username);
     }
 
     if (
@@ -95,4 +98,5 @@ export class WithoutAuthGuard implements CanActivate {
     request.user = user;
     return true;
   }
+
 }
