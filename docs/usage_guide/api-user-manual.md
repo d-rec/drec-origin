@@ -4,6 +4,24 @@ order: 4
 
 # API User Manual
 
+## Dev URLs
+
+[https://dev-portal.drecs.org](https://dev-portal.drecs.org)
+
+**Swagger UI:**
+
+[https://dev-api.drecs.org/swagger](https://dev-api.drecs.org/swagger)
+
+## Stage URLs
+
+**D-REC Origin:**
+
+[https://stage-portal.drecs.org/](https://stage-portal.drecs.org/)
+
+**Swagger UI:**
+
+[https://stage-api.drecs.org/swagger/](https://stage-api.drecs.org/swagger/)
+
 ## DREC API User Manual - UI
 
 ### Step 1. Admin create
@@ -129,8 +147,7 @@ To add meter read, they First need to select organization
 
 After selecting organization, the UI will show all required field for read
 
-<!-- FIXME IMAGE IS MISSING -->
-<!-- ![Add Reads Form2](./img/e7467689-f299-4b90-a267-d48ad4b6b1a8.png) -->
+![Add Reads Form2](./img/apiuser-manual/e7467689-f299-4b90-a267-d48ad4b6b1a8.png)
 
 Apiuser also gets meter read list of all org devices which belong their platform.
 

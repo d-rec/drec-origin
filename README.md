@@ -37,7 +37,7 @@ Install `wsl`,`ubuntu-18.04` in command prompt running as administrator:
 
 ```sh
 wsl --install
-wsl --install --distribution Ubuntu-18.04
+wsl --install --distribution Ubuntu-20.04
 ```
 
 Install `Influx-Client`:
@@ -52,7 +52,7 @@ Clone and Install `nvm`:
 
 ```sh
 sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-nvm install 14.19.1
+nvm install 18.20.3
 ```
 
 Install `rush`, `pnpm` if you don't have it:
