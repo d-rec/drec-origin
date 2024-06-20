@@ -798,7 +798,7 @@ flowchart TD
   B --> |NO| C[I-REC certificate is requested and once approved certificate will be transferred to D-REC Platform redemption account]
   C --> D[I-REC serial number will be updated in Meta data and D-REC certificate]
   D --> E[D-REC provisional certificate will be removed from provisional account and transferred to Buyer's wallet, the new certificate will be updated on chain too]
-    
+
   B --> |YES| F[D-REC will gather Meter data from devices reserved by Buyer with the help of Meter Read API endpoints.]
   F --> G[D-REC will transfer the certificate to provisional account associated with Buyer and D-REC platform will call I-REC registry to request I-REC issuance]
   G --> H{I-REC approved/rejected?}
@@ -1032,23 +1032,23 @@ graph TD
   B1 --> C[User will enter the current meter read.]
   B --> |Delta Readings| D[User will enter the current meter read.]
   B --> |Historical Readings| E[User will be asked to enter time duration for which readings are supposed to be entered]
-    
+
   E --> F{Time duration is in sync with predefined threshold?}
   F --> |No| G[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
   F --> |Yes| I{Meter Reads are validated against the device capacity}
   I --> |No| J[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
   I --> |Yes| K[Meter reads will be updated in system]
-    
+
   C --> L{System will check if that meter have any previous reads?}
   L --> |Yes| M[Formula: Delta=Current Read-Previous Read Delta value is calculated.]
   L --> |No| N[Reading value will be stored in system as initial read and will be used as previous read value in formula on next instance of meter read entry in system.]
-    
+
   M --> O{Meter Read Delta is validated against the device capacity}
   O --> |No| P[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
   O --> |Yes| Q[Meter Reads will be updated in system]
-    
+
   N --> Q
-    
+
   D --> R{Meter Roads are validated against the device capacity}
   R--> |No| T[Meter Reading entry rejected and user will be asked to make fresh entry. Logs will be updated in system.]
   R --> |Yes| U[Meter reads will be updated in system]
@@ -1079,10 +1079,10 @@ flowchart TD
   B --> C([User enters the tenure of meter reads<br>Start Date: May 01, 2023<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <value>])
   C --> D([If validation parameters are correct, the system will allow the user to update details])
   D --> E([As values don't match with calendar standards,<br>system will reject the entry and user will be asked to make valid entry])
-    
+
   F([Developer Admin]) --> G([Validate if Date Tenure is correct as per calendar])
   F --> H([Meter Reads are valid as per the device capacity])
-    
+
   G --> D
   H --> D
 ```
@@ -1094,7 +1094,7 @@ graph TD
   A[User lands on Meter Reads page] --> B[User enters the tenure of meter reads<br>Start Date: May 01, 2022<br>End Date: May 31, 2022<br>System Date: June 10, 2022<br>Reads: <Value>]
   B --> C[As System date is June 01 and Meter Read start date tenure is May 01, where difference is exact 30 days.]
   C --> D[System will accept the entry and reads will be updated in backend.]
-    
+
   D1[Developer side-user] -.-> A
   D2[Developer Admin] -.-> F[Marked threshold as maximum back date allowed as 1 year]
   D2 -.-> E[Calculation of dates as per threshold mentioned:<br>System Date - Tenure End Date]
@@ -1393,7 +1393,7 @@ graph TB
   D -- includes --> E[Selected devices should conclude the target volume]
   E --> F[User choose the option to Exceed the authority]
   F --> G[The devices will be reserved, and the exceeding volume of energy will also be allotted to the Buyer]
-    
+
   A --> |includes| H[Platform Admins]
   C --> |includes| H
   E --> |includes| H
