@@ -1532,101 +1532,103 @@ Important points regarding device registration.
 
 ### Architectural Descriptoion Verion 1.0
 
-```mermaid
-graph TD
-    A[DERMS] --> B[User Management]
-    A --> C[Event Management]
-    A --> D[Power Forecast]
-    A --> E[Asset Management]
-    A --> F[Market Management]
-    A --> G[Power Flow]
-    B --> B1[User Acceptance]
-    B --> B2[Add User]
-    B --> B3[View User]
-    B --> B4[Remove User]
-    C --> C1[Manage Employees]
-    C --> C2[Approve Programs]
-    C --> C3[Add Event]
-    C --> C4[Manage Roles]
-    C --> C5[Manage Events]
-    C --> C6[Manage Employees]
-    D --> D1[Meter Data]
-    D --> D2[Power Forecast]
-    E --> E1[Add and Edit Historical Transactions]
-    E --> E2[View Transactions]
-    E --> E3[View and Edit Historical Transactions]
-    F --> F1[Manage Certificates]
-    F --> F2[Issue Certificates]
-    F --> F3[Revoke Certificates]
-    G --> G1[Asset Management]
-    G --> G2[Site Management]
-    G --> G3[Grid Events]
 
-    subgraph Event Management
-      C1
-      C2
-      C3
-      C4
-      C5
-      C6
-    end
+### Converted Indented Code Block
 
-    subgraph Power Management
-      D1
-      D2
-    end
+```markdown
+    graph TD
+        A[DERMS] --> B[User Management]
+        A --> C[Event Management]
+        A --> D[Power Forecast]
+        A --> E[Asset Management]
+        A --> F[Market Management]
+        A --> G[Power Flow]
+        B --> B1[User Acceptance]
+        B --> B2[Add User]
+        B --> B3[View User]
+        B --> B4[Remove User]
+        C --> C1[Manage Employees]
+        C --> C2[Approve Programs]
+        C --> C3[Add Event]
+        C --> C4[Manage Roles]
+        C --> C5[Manage Events]
+        C --> C6[Manage Employees]
+        D --> D1[Meter Data]
+        D --> D2[Power Forecast]
+        E --> E1[Add and Edit Historical Transactions]
+        E --> E2[View Transactions]
+        E --> E3[View and Edit Historical Transactions]
+        F --> F1[Manage Certificates]
+        F --> F2[Issue Certificates]
+        F --> F3[Revoke Certificates]
+        G --> G1[Asset Management]
+        G --> G2[Site Management]
+        G --> G3[Grid Events]
+        B2 --> |includes| H[Power Tool]
+        B3 --> |includes| I[Power Tool]
+        H --> J[Manage Employees]
+        H --> K[Manage Events]
+        H --> L[Manage Sites]
+        H --> M[Manage Roles]
+        I --> N[Manage Transactions]
+        I --> O[Power Forecast]
+        I --> P[Family]
+        I --> Q[Site Management]
+        I --> R[Programs]
+        I --> S[Assets]
+        I --> T[Devices]
+        I --> U[Inverters]
+        I --> V[ESS]
+        I --> W[DER Contracts]
+        I --> X[EWF Blockchain]
+        X --> Y[Blockchain]
+        J --> Z[Grid Events]
+        K --> Z
+        L --> Z
+        M --> Z
+        N --> Z
+        O --> Z
+        P --> Z
+        Q --> Z
+        R --> Z
+        S --> Z
+        T --> Z
+        U --> Z
+        V --> Z
+        W --> Z
+        Y --> Z
 
-    subgraph Asset Management
-      E1
-      E2
-      E3
-    end
+        subgraph Event Management
+          C1
+          C2
+          C3
+          C4
+          C5
+          C6
+        end
 
-    subgraph Certificates
-      F1
-      F2
-      F3
-    end
+        subgraph Power Management
+          D1
+          D2
+        end
 
-    subgraph DER Management
-      G1
-      G2
-      G3
-    end
+        subgraph Asset Management
+          E1
+          E2
+          E3
+        end
 
-    B2 --> |includes| H[Power Tool]
-    B3 --> |includes| I[Power Tool]
-    H --> J[Manage Employees]
-    H --> K[Manage Events]
-    H --> L[Manage Sites]
-    H --> M[Manage Roles]
-    I --> N[Manage Transactions]
-    I --> O[Power Forecast]
-    I --> P[Family]
-    I --> Q[Site Management]
-    I --> R[Programs]
-    I --> S[Assets]
-    I --> T[Devices]
-    I --> U[Inverters]
-    I --> V[ESS]
-    I --> W[DER Contracts]
-    I --> X[EWF Blockchain]
-    X --> Y[Blockchain]
-    J --> Z[Grid Events]
-    K --> Z
-    L --> Z
-    M --> Z
-    N --> Z
-    O --> Z
-    P --> Z
-    Q --> Z
-    R --> Z
-    S --> Z
-    T --> Z
-    U --> Z
-    V --> Z
-    W --> Z
-    Y --> Z
+        subgraph Certificates
+          F1
+          F2
+          F3
+        end
+
+        subgraph DER Management
+          G1
+          G2
+          G3
+        end
 ```
 
 ### Deployment Description V1
