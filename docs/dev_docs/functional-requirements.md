@@ -214,20 +214,20 @@ The base requirement out of this tool is to allow developers to register their o
 
 ```mermaid
 flowchart TD
-  A[user will be asked to enter basic details and set up a password.]
-  B{Organisation name and email address are unique}
-  C[user setup will show error and user will be asked to login as the organisation or email is already registered]
-  D[An email will be sent to the email address for confirmation]
-  E{User confirms the email}
-  F[User registration is complete and user should be able to login to the platform.]
-  G[User registration is incomplete and user should not be able to login to the platform.]
+    A[user will be asked to enter basic details and set up a password.]
+    B{Organisation name and email address are unique}
+    C[user setup will show error and user will be asked to login as the organisation or email is already registered]
+    D[An email will be sent to the email address for confirmation]
+    E{User confirms the email}
+    F[User registration is complete and user should be able to login to the platform.]
+    G[User registration is incomplete and user should not be able to login to the platform.]
 
-  A --> B
-  B -- NO --> C
-  B -- YES --> D
-  D --> E
-  E -- NO --> G
-  E -- YES --> F
+    A --> B
+    B -- NO --> C
+    B -- YES --> D
+    D --> E
+    E -- NO --> G
+    E -- YES --> F
 ```
 
 ### User Registration Version 1.0
@@ -1594,7 +1594,7 @@ Important points regarding device registration.
         V --> Z
         W --> Z
         Y --> Z
-        
+
         subgraph Event Management
           C1
           C2
@@ -1603,24 +1603,24 @@ Important points regarding device registration.
           C5
           C6
         end
-        
+
         subgraph Power Management
           D1
           D2
         end
-        
+
         subgraph Asset Management
           E1
           E2
           E3
         end
-        
+
         subgraph Certificates
           F1
           F2
           F3
         end
-        
+
         subgraph DER Management
           G1
           G2
