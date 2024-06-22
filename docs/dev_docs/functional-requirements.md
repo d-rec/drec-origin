@@ -221,7 +221,7 @@ flowchart TD
     E{User confirms the email}
     F[User registration is complete and user should be able to login to the platform.]
     G[User registration is incomplete and user should not be able to login to the platform.]
-
+    
     A --> B
     B -- NO --> C
     B -- YES --> D
