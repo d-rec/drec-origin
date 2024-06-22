@@ -1594,7 +1594,7 @@ Important points regarding device registration.
         V --> Z
         W --> Z
         Y --> Z
-
+        
         subgraph Event Management
           C1
           C2
@@ -1603,24 +1603,24 @@ Important points regarding device registration.
           C5
           C6
         end
-
+        
         subgraph Power Management
           D1
           D2
         end
-
+        
         subgraph Asset Management
           E1
           E2
           E3
         end
-
+        
         subgraph Certificates
           F1
           F2
           F3
         end
-
+        
         subgraph DER Management
           G1
           G2
