@@ -1532,9 +1532,6 @@ Important points regarding device registration.
 
 ### Architectural Descriptoion Verion 1.0
 
-
-### Converted Indented Code Block
-
 ```markdown
     graph TD
         A[DERMS] --> B[User Management]
