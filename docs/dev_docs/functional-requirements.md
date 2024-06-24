@@ -60,7 +60,18 @@ order: 1
 
     - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-    - Formula = Device capacity [kW] _(Yield [kWh/kW] / 8760)_ metered time period [h] \* (1-degradation [%/year])^(device age [years] - 1)
+    - Formula:
+
+      $$
+      \begin{equation}
+      \begin{aligned}
+      \text{Maximum Energy [kWh]} ={} & \text{Device capacity [kW]} \\
+                                      & \times \left(\frac{\text{Yield [kWh/kW]}}{8760 \text{[h/year]}}\right) \\
+                                      & \times \text{metered time period [h]} \\
+                                      & \times \left(1 - \frac{\text{degradation [\%/year]}}{100}\right)^{(\text{device age [years]} - 1)}
+      \end{aligned}
+      \end{equation}
+      $$
 
   Certified meter reads:
 
@@ -843,7 +854,18 @@ Users can choose the time zone where the device is located. They will be provide
 
    - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-   `Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)`
+   - Formula:
+
+     $$
+     \begin{equation}
+     \begin{aligned}
+     \text{Maximum Energy [kWh]} ={} & \text{Device capacity [kW]} \\
+                                     & \times \left(\frac{\text{Yield [kWh/kW]}}{8760 \text{[h/year]}}\right) \\
+                                     & \times \text{metered time period [h]} \\
+                                     & \times \left(1 - \frac{\text{degradation [\%/year]}}{100}\right)^{(\text{device age [years]} - 1)}
+     \end{aligned}
+     \end{equation}
+     $$
 
 4. Unit
 
@@ -929,7 +951,9 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 
 - The formula/logic for the same will look like:
 
-`Delta= Current Meter Reads – Previous Meter Reads`
+  $$
+  \Delta = \text{Meter Read}_{\text{current}} - \text{Meter Read}_{\text{previous}}
+  $$
 
 - In case of first entry for that particular device, application will wait for next data entry to calculate Delta.
 

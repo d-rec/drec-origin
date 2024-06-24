@@ -334,36 +334,39 @@ Validation:
 
 - Validation formula for DELTA:
 
-  `const maxEnergy = capacity * meteredTimePeriod * deviceAge * degradation * yieldValue`
+  ```ts
+  const maxEnergy =
+    capacity * meteredTimePeriod * deviceAge * degradation * yieldValue;
+  ```
 
-```ts
-const degradation = 0.5; //[%year]
-const yieldValue = device.yieldValue || 1500; //[kwh/kw]
-const capacity = device.capacity;
-const commissioningDate = DateTime.fromISO(device.commissioningDate);
-const currentDate = DateTime.now();
-const deviceAge = currentDate.diff(commissioningDate, ['years']).toObject();
-const currentRead = DateTime.fromISO(read.timestamp.toISOString());
-const lastRead = DateTime.fromISO(final.timestamp.toISOString());
-this.logger.debug(`Current Date: ${DateTime.now()}`);
-this.logger.debug(`Current read: ${read.timestamp}`);
-this.logger.debug(`Last read: ${final.timestamp}`);
-const meteredTimePeriod = Math.abs(
-  currentRead.diff(lastRead, ['hours']).toObject()?.hours,
-); //hours
-const margin = 0.2; //Margin for comparing read value
-const maxEnergy = computeMaxEnergy(
-  capacity,
-  meteredTimePeriod,
-  deviceAge,
-  degradation,
-  yieldValue,
-);
-```
+  ```ts
+  const degradation = 0.5; //[%year]
+  const yieldValue = device.yieldValue || 1500; //[kwh/kw]
+  const capacity = device.capacity;
+  const commissioningDate = DateTime.fromISO(device.commissioningDate);
+  const currentDate = DateTime.now();
+  const deviceAge = currentDate.diff(commissioningDate, ['years']).toObject();
+  const currentRead = DateTime.fromISO(read.timestamp.toISOString());
+  const lastRead = DateTime.fromISO(final.timestamp.toISOString());
+  this.logger.debug(`Current Date: ${DateTime.now()}`);
+  this.logger.debug(`Current read: ${read.timestamp}`);
+  this.logger.debug(`Last read: ${final.timestamp}`);
+  const meteredTimePeriod = Math.abs(
+    currentRead.diff(lastRead, ['hours']).toObject()?.hours,
+  ); //hours
+  const margin = 0.2; //Margin for comparing read value
+  const maxEnergy = computeMaxEnergy(
+    capacity,
+    meteredTimePeriod,
+    deviceAge,
+    degradation,
+    yieldValue,
+  );
+  ```
 
-```ts
-return Math.round(read.value + margin * read.value) < maxEnergy;
-```
+  ```ts
+  return Math.round(read.value + margin * read.value) < maxEnergy;
+  ```
 
 - Read value should not be negative.
 
@@ -416,7 +419,9 @@ Requirements:
 
 - The calculation will take place on the basis of Current shared reading and last reading count. The formula/logic for the same will look like:
 
-  `Delta= Current Meter Reads – Previous Meter Reads`
+  $$
+  \Delta = \text{Meter Read}_{\text{current}} - \text{Meter Read}_{\text{previous}}
+  $$
 
 - In case of first read entry for the device, application will wait for next data entry to calculate Delta.
 

@@ -30,6 +30,10 @@ export default withMermaid(
     srcExclude: ['README.md'],
     ignoreDeadLinks: 'localhostLinks',
 
+    markdown: {
+      math: true,
+    },
+
     themeConfig: {
       // https://vitepress.dev/reference/default-theme-config
       logo: '/D-REC-banner.png',
