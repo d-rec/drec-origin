@@ -52,15 +52,15 @@ order: 1
 
     All reads:
 
-          - After selecting all the fields, the users will have two buttons in UI.
+    - After selecting all the fields, the users will have two buttons in UI.
 
     Add meter Read:
 
-          - When the developer selects this option, they will be redirected to “Add read” page where they can add the meter reading of their added devices.
+    - When the developer selects this option, they will be redirected to “Add read” page where they can add the meter reading of their added devices.
 
-          - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
+    - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
 
-          - Formula = Device capacity [kW] * (Yield [kWh/kW] / 8760) * metered time period [h] * (1-degradation [%/year])^(device age [years] - 1)
+    - Formula = Device capacity [kW] _(Yield [kWh/kW] / 8760)_ metered time period [h] \* (1-degradation [%/year])^(device age [years] - 1)
 
   Certified meter reads:
 
@@ -164,7 +164,7 @@ The base requirement out of this tool is to allow developers to register their o
 | **Integration** | -              |
 | **Testing**     | Manual         |
 
-## Functional Requirements And U IMser Impacts
+## Functional Requirements And User Impacts
 
 ### User registration flow
 
@@ -215,13 +215,13 @@ The base requirement out of this tool is to allow developers to register their o
 ```mermaid
 flowchart TD
     A[user will be asked to enter basic details and set up a password.]
-    B{Organisation name and email address are unique}
-    C[user setup will show error and user will be asked to login as the organisation or email is already registered]
-    D[An email will be sent to the email address for confirmation]
-    E{User confirms the email}
-    F[User registration is complete and user should be able to login to the platform.]
-    G[User registration is incomplete and user should not be able to login to the platform.]
-    
+    B{Organisation name\nand email address are unique}
+    C[user setup will show error\nand user will be asked to login as the organisation\n or email is already registered]
+    D[An email will be sent to the email address\n for confirmation]
+    E{User confirms\n the email}
+    F[User registration is complete\n and user should be able to login to the platform.]
+    G[User registration is incomplete\n and user should not be able to login to the platform.]
+
     A --> B
     B -- NO --> C
     B -- YES --> D
@@ -260,10 +260,10 @@ Use Cases:
 
 ```mermaid
 flowchart TD
-  A[User got the invite from Admin to register themselves on D-REC platform]
-  B{User role is assigned by Admin}
-  C[User will be able to enter their basic details and READ-ONLY access will be given to the user profile]
-  D[User will be able to enter their basic details and specified role based access will be given to the user profile]
+  A[User got the invite from Admin\n to register themselves on D-REC platform]
+  B{User role\n is assigned by Admin}
+  C[User will be able to enter their basic details\n and READ-ONLY access will be given to the user profile]
+  D[User will be able to enter their basic details\n and specified role based access will be given to the user profile]
 
   A --> B
   B -- No --> C
@@ -274,10 +274,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A[user will be asked to enter basic details and set up a password.]
-  B{Organisation name and email address are unique}
-  C[user setup will show error and user will be asked to login as the organisation or email is already registered]
-  D{An email will be sent to the email address for confirmation}
+  A[user will be asked to\n enter basic details and set up a password.]
+  B{Organisation name\n and email address are unique}
+  C[user setup will show error\n and user will be asked to\n login as the organisation or email is already registered]
+  D{An email will\n be sent to the email address for\n confirmation}
   E{User confirms the email}
   F[User registration is complete and user should be able to login to the platform.]
   G[User registration is incomplete and user should not be able to login to the platform.]
@@ -294,12 +294,12 @@ flowchart TD
 
 ```mermaid
 graph TD
-  A[Organisation registration by user] --> B{Organisation name is an exact match of any existing entry?}
-  B -- No --> C[User will be asked to enter organisation's basic details and asked to set up a Secret Key]
-  C --> D[Organisation setup is completed and user should be able to login to the platform]
-  B -- Yes --> E{Is user entering the correct secret code for existing record?}
-  E -- No --> F[Organisation registration process should be aborted by the D-REC portal]
-  E -- Yes --> G[User should get an error message to connect with their organisation admin for access as organisation is already registered]
+  A[Organisation registration by user] --> B{Organisation name is\n an exact match of any existing entry?}
+  B -- No --> C[User will be asked\n to enter organisation's basic details\n and asked to set up a Secret Key]
+  C --> D[Organisation setup is completed\n and user should be able to login to the platform]
+  B -- Yes --> E{Is user entering the\n correct secret code for existing record?}
+  E -- No --> F[Organisation registration process\n should be aborted by the D-REC portal]
+  E -- Yes --> G[User should get an error message\n to connect with their organisation admin for\n access as organisation is already registered]
 ```
 
 ### APIs and Responses
@@ -322,7 +322,8 @@ Organization
 
 - This page will have information about the developer’s organization, which will contain:
 
-          (Not yet implemented)
+  > [!NOTE]
+  > (Not yet implemented)
 
 Devices
 
@@ -330,47 +331,47 @@ My Devices
 
 **here, the developers can see the devices that they have added in a tabular format the fields will contain:**
 
-    On boarding date:
+On boarding date:
 
-        - date in which developer have added the device in the DREC portal.
+- date in which developer have added the device in the DREC portal.
 
-    External id:
+External id:
 
-        - The external id is a friendly reference to the device, to allow the developer to uniquely identify the device. It is important to note that the DREC portal will assign it’s own Universally Unique ID (UUID) to each device registered.
+- The external id is a friendly reference to the device, to allow the developer to uniquely identify the device. It is important to note that the DREC portal will assign it’s own Universally Unique ID (UUID) to each device registered.
 
-    Country:
+Country:
 
-        - The country in which the device is located.
+- The country in which the device is located.
 
-    Commissioning date:
+Commissioning date:
 
-        -  For how long the device has been operational
+- For how long the device has been operational
 
-    Capacity:
+Capacity:
 
-        - This is the capacity of the device to generate power.
+- This is the capacity of the device to generate power.
 
-    Action:
+Action:
 
-        - Action menu will have two icons after each device.
+- Action menu will have two icons after each device.
 
-            - edit icon- when the user clicks this icon, they will be redirected to “device update form” page where they can update the details of the device and update it,
+- edit icon- when the user clicks this icon, they will be redirected to “device update form” page where they can update the details of the device and update it,
 
-            - device details – when the user clicks this icon, a pop-up window will open in which all the details of the device will be displayed.
+- device details – when the user clicks this icon, a pop-up window will open in which all the details of the device will be displayed.
 
-    The user can also use filter menu to view devices according to their preferences. The filter menu contains following fields according to which devices can be filtered
+The user can also use filter menu to view devices according to their preferences. The filter menu contains following fields according to which devices can be filtered
 
-    1. select country code.
+1. select country code.
 
-    2. device type code.
+2. device type code.
 
-    3. off taker
+3. off taker
 
-    4. capacity(kW).
+4. capacity(kW).
 
-    5. SDG benefits.
+5. SDG benefits.
 
-    6. commissioning date.
+6. commissioning date.
 
 Add Devices
 
@@ -462,37 +463,37 @@ SDG benefits:
 
 - Here, the developers can choose from drop down menu, which SDG benefits they are providing through their projects. a developer can select as many additional UN SDGs as can be justified:
 
-         SDG 1- No poverty
+  SDG 1- No poverty
 
-         SDG 2 - Zero hunger.
+  SDG 2 - Zero hunger.
 
-         SDG 3- Good health and well-being.
+  SDG 3- Good health and well-being.
 
-         SDG 4- Gender equality.
+  SDG 4- Gender equality.
 
-         SDG 5- clean water and sanitation.
+  SDG 5- clean water and sanitation.
 
-         SDG 6- Affordable and clean energy.
+  SDG 6- Affordable and clean energy.
 
-         SDG 7- Decent work and economic growth.
+  SDG 7- Decent work and economic growth.
 
-         SDG 8- Industry, innovation, and infrastructure.
+  SDG 8- Industry, innovation, and infrastructure.
 
-         SDG 9- Reduced inequality.
+  SDG 9- Reduced inequality.
 
-         SDG 10- Sustainable cities and communities.
+  SDG 10- Sustainable cities and communities.
 
-         SDG 11- Responsible consumption and production.
+  SDG 11- Responsible consumption and production.
 
-         SDG 12- climate action.
+  SDG 12- climate action.
 
-         SDG 13- life below water.
+  SDG 13- life below water.
 
-         SDG 14- life on land.
+  SDG 14- life on land.
 
-         SDG 15- Peace and justice strong institutions.
+  SDG 15- Peace and justice strong institutions.
 
-         SDG 16- partnership to achieve SDG.
+  SDG 16- partnership to achieve SDG.
 
 Address:
 
@@ -522,7 +523,8 @@ Energy storage capacity:
 
 - Here, the developer can enter energy storage capacity of the device.
 
-### Note- Mandatory field are marked with(\*)
+> [!INFO]
+> Mandatory field are marked with(\*)
 
 **After entering the mandatory fields, the developer can then submit the form by clicking the submit button, which will then submit the data into the DREC portal.**
 
@@ -1124,65 +1126,65 @@ Buyer can select from the drop-down country list.
 
 - Fuel code.
 
-Here the buyer can filter from fuel code from the following options in the drop-down menu:
+  Here the buyer can filter from fuel code from the following options in the drop-down menu:
 
-    - Solar
+  - Solar
 
-    - Co-fired with fossil: solar thermal concentrations.
+  - Co-fired with fossil: solar thermal concentrations.
 
 - Off taker.
 
-Here, the buyer can filter from the off taker of the power produced from the device from the drop-down menu, which will contain following options:
+  Here, the buyer can filter from the off taker of the power produced from the device from the drop-down menu, which will contain following options:
 
-    1. School
+  1. School
 
-    2. Health facility.
+  2. Health facility.
 
-    3. Residential.
+  3. Residential.
 
-    4. Commercial
+  4. Commercial
 
-    5. Industrial
+  5. Industrial
 
-    6. Public sector
+  6. Public sector
 
-    7. Agriculture.
+  7. Agriculture.
 
 - SDG benefits.
 
-Here, the buyers can filter from drop down menu, SDG benefits.
+  Here, the buyers can filter from drop down menu, SDG benefits.
 
-        SDG1. No poverty
+  SDG1. No poverty
 
-        SDG 2. Zero hunger
+  SDG 2. Zero hunger
 
-        SDG 3. Good health and well-being.
+  SDG 3. Good health and well-being.
 
-        SDG 4. Gender equality.
+  SDG 4. Gender equality.
 
-        SDG 5. clean water and sanitation.
+  SDG 5. clean water and sanitation.
 
-        SDG 6. Affordable and clean energy.
+  SDG 6. Affordable and clean energy.
 
-        SDG 7. Decent work and economic growth.
+  SDG 7. Decent work and economic growth.
 
-        SDG 8. Industry, innovation and infrastructure.
+  SDG 8. Industry, innovation and infrastructure.
 
-        SDG 9. Reduced inequality.
+  SDG 9. Reduced inequality.
 
-        SDG 10. Sustainable cities and communities.
+  SDG 10. Sustainable cities and communities.
 
-        SDG 11. Responsible consumption and production.
+  SDG 11. Responsible consumption and production.
 
-        SDG 12. climate action.
+  SDG 12. climate action.
 
-        SDG 13. life below water.
+  SDG 13. life below water.
 
-        SDG 14. life on land.
+  SDG 14. life on land.
 
-        SDG 15. Peace and justice strong institutions.
+  SDG 15. Peace and justice strong institutions.
 
-        SDG 16. partnership to achieve SDG.
+  SDG 16. partnership to achieve SDG.
 
 - reservation status
 
@@ -1292,11 +1294,11 @@ List:
 
 - Endpoints
 
-|--------------|--------------------------------------------------------------------------------------------------|
-| **Endpoint** | **Description** |
-| **POST** | Allows the buyer to send in a set of device IDs in batch or individually. |
-| **DELETE** | Allows the buyer to delete or close a reservation. |
-| **PATCH** | Allows the user to add or remove individual devices within a single reservation. |
+  | **Endpoint** | **Description**                                                                  |
+  | ------------ | -------------------------------------------------------------------------------- |
+  | **POST**     | Allows the buyer to send in a set of device IDs in batch or individually.        |
+  | **DELETE**   | Allows the buyer to delete or close a reservation.                               |
+  | **PATCH**    | Allows the user to add or remove individual devices within a single reservation. |
 
 - Developer should be notified on every reservation of their device.
 
@@ -1523,16 +1525,17 @@ Important points regarding device registration.
 
 - Certificate Beneficiary will be the Buyer for all the energy units generated during their reservation from all the devices irrespective of the Device Owner.
 
-- | Buyer will have two options at the time of reserving the device with respect to the ta | **TERM**                                   | **DEFINITION** |
-  | -------------------------------------------------------------------------------------- | ------------------------------------------ | -------------- |
-  | **REC**                                                                                | Renewable Energy Certificate               |
-  | **GDPR**                                                                               | General Data Protection Regulations        |
-  | **I-REC**                                                                              | International Renewable Energy Certificate |
-  rget capacity, i.e., Authority to exceed or Authority not to exceed.
+- Buyer will have two options at the time of reserving the device with respect to the target capacity, i.e., Authority to exceed or Authority not to exceed.
+
+| **TERM**  | **DEFINITION**                             |
+| --------- | ------------------------------------------ |
+| **REC**   | Renewable Energy Certificate               |
+| **GDPR**  | General Data Protection Regulations        |
+| **I-REC** | International Renewable Energy Certificate |
 
 ### Architectural Descriptoion Verion 1.0
 
-```markdown
+```mermaid
     graph TD
         A[DERMS] --> B[User Management]
         A --> C[Event Management]
