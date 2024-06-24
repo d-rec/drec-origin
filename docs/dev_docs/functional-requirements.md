@@ -66,7 +66,7 @@ order: 1
       \begin{equation}
       \begin{aligned}
       \text{Maximum Energy [kWh]} ={} & \text{Device capacity [kW]} \\
-                                      & \times \left(\frac{\text{Yield [kWh/kW]}}{8760}\right) \\
+                                      & \times \left(\frac{\text{Yield [kWh/kW]}}{8760 \text{[h/year]}}\right) \\
                                       & \times \text{metered time period [h]} \\
                                       & \times \left(1 - \frac{\text{degradation [\%/year]}}{100}\right)^{(\text{device age [years]} - 1)}
       \end{aligned}
@@ -860,7 +860,7 @@ Users can choose the time zone where the device is located. They will be provide
      \begin{equation}
      \begin{aligned}
      \text{Maximum Energy [kWh]} ={} & \text{Device capacity [kW]} \\
-                                     & \times \left(\frac{\text{Yield [kWh/kW]}}{8760}\right) \\
+                                     & \times \left(\frac{\text{Yield [kWh/kW]}}{8760 \text{[h/year]}}\right) \\
                                      & \times \text{metered time period [h]} \\
                                      & \times \left(1 - \frac{\text{degradation [\%/year]}}{100}\right)^{(\text{device age [years]} - 1)}
      \end{aligned}
