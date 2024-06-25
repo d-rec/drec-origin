@@ -54,7 +54,7 @@ export class CertificateLogService {
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
-  ) { }
+  ) {}
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
@@ -883,7 +883,7 @@ export class CertificateLogService {
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
                   // const device = await this.deviceService.findOne(deviceid);
-                
+
                   // const device = await this.deviceService.findOne(deviceid);
                   let device: Device;
                   if (typeof deviceid === 'number') {
@@ -892,7 +892,7 @@ export class CertificateLogService {
                   if (typeof deviceid === 'string') {
                     device = await this.deviceService.findReads(deviceid);
                   }
-                 
+
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
@@ -1041,10 +1041,10 @@ export class CertificateLogService {
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
-          name +
-          ' ' +
-          new Date().toLocaleDateString() +
-          '.csv',
+            name +
+            ' ' +
+            new Date().toLocaleDateString() +
+            '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
         const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;
