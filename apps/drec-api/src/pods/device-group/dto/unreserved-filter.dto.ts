@@ -13,7 +13,6 @@ import {
 import { countryCodesList } from '../../../models/country-code';
 //import {SDGBenefits} from '../../../models/Sdgbenefit'
 export class UnreservedDeviceGroupsFilterDTO {
-
   @IsOptional()
   @ApiPropertyOptional({
     type: String,
