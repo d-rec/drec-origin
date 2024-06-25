@@ -325,7 +325,11 @@ export class DeviceGroupService {
           }),
         );
       }
-
+      if (filterDto.name) {
+        const name = filterDto.name.toString();
+        const baseQuery = 'group.name ILIKE :name';
+        query.andWhere(baseQuery, { name: `%${name}%` });
+      }
       if (filterDto.reservationActive) {
         if (filterDto.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -663,6 +667,11 @@ export class DeviceGroupService {
                   });
                 }),
               );
+            }
+            if (groupfilterDto.name) {
+              const name = groupfilterDto.name.toString();
+              const baseQuery = 'dg.name ILIKE :name';
+              qb.andWhere(baseQuery, { name: `%${name}%` });
             }
             if (groupfilterDto.reservationActive) {
               if (groupfilterDto.reservationActive === 'Active') {
