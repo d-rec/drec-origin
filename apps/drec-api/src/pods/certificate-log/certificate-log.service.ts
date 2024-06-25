@@ -54,7 +54,7 @@ export class CertificateLogService {
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
-  ) {}
+  ) { }
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
@@ -712,8 +712,16 @@ export class CertificateLogService {
               ); //going back 1 second in start and going forward 1 second in end
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
-                  const device = await this.deviceService.findOne(deviceid);
-
+                  console.log(typeof deviceid);
+                  // const device = await this.deviceService.findOne(deviceid);
+                  let device: Device;
+                  if (typeof deviceid === 'number') {
+                    device = await this.deviceService.findOne(deviceid);
+                  }
+                  if (typeof deviceid === 'string') {
+                    device = await this.deviceService.findReads(deviceid);
+                  }
+                  console.log(group);
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
@@ -874,7 +882,17 @@ export class CertificateLogService {
               ); //going back 1 second in start and going forward 1 second in end
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
-                  const device = await this.deviceService.findOne(deviceid);
+                  // const device = await this.deviceService.findOne(deviceid);
+                
+                  // const device = await this.deviceService.findOne(deviceid);
+                  let device: Device;
+                  if (typeof deviceid === 'number') {
+                    device = await this.deviceService.findOne(deviceid);
+                  }
+                  if (typeof deviceid === 'string') {
+                    device = await this.deviceService.findReads(deviceid);
+                  }
+                 
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
@@ -1023,10 +1041,10 @@ export class CertificateLogService {
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
-            name +
-            ' ' +
-            new Date().toLocaleDateString() +
-            '.csv',
+          name +
+          ' ' +
+          new Date().toLocaleDateString() +
+          '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
         const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;
