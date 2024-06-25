@@ -115,7 +115,7 @@ export class DeviceGroupService {
     @InjectRepository(CertificateReadModelEntity)
     private readonly cretificatereadmoduleRepository,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   async getAll(
     user?: ILoggedInUser,
@@ -126,11 +126,11 @@ export class DeviceGroupService {
     filterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
-        devicegroups: DeviceGroupDTO[];
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      devicegroups: DeviceGroupDTO[];
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in dg service ${filterDto}`);
@@ -325,7 +325,13 @@ export class DeviceGroupService {
           }),
         );
       }
-
+      console.log('filterDto.name', filterDto.name);
+      if (filterDto.name) {
+        const name = filterDto.name.toString();
+        const baseQuery = 'group.name ILIKE :name';
+        query.andWhere(baseQuery, { name: `%${name}%` });
+        
+      }
       if (filterDto.reservationActive) {
         if (filterDto.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -337,7 +343,11 @@ export class DeviceGroupService {
         }
       }
     }
-
+    const groupedDatasql = await query
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getSql();
+    this.logger.debug(groupedDatasql);
     const [groups, totalCount] = await query
       .skip((pageNumber - 1) * limit)
       .take(limit)
@@ -772,11 +782,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForOrganization`);
@@ -817,11 +827,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForAdmin`);
@@ -927,9 +937,9 @@ export class DeviceGroupService {
     devices.filter((ele) => {
       if (
         new Date(data.reservationStartDate).getTime() <
-          new Date(ele.createdAt).getTime() &&
+        new Date(ele.createdAt).getTime() &&
         new Date(data.reservationEndDate).getTime() <=
-          new Date(ele.createdAt).getTime()
+        new Date(ele.createdAt).getTime()
       ) {
         return true;
       }
@@ -1048,7 +1058,7 @@ export class DeviceGroupService {
               reservationStartDate: data.reservationStartDate,
               reservationEndDate:
                 new Date(data.reservationEndDate).getTime() <
-                new Date(device.createdAt).getTime()
+                  new Date(device.createdAt).getTime()
                   ? data.reservationEndDate
                   : device.createdAt,
               device_createdAt: device.createdAt,
@@ -1083,8 +1093,8 @@ export class DeviceGroupService {
     devices.forEach((ele) =>
       ele.groupId != null
         ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(
-            ele.id,
-          )
+          ele.id,
+        )
         : '',
     );
     devices = devices.filter((ele) => ele.groupId === null);
@@ -1247,8 +1257,8 @@ export class DeviceGroupService {
       responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation =
         unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
           ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(
-              ' , ',
-            )
+            ' , ',
+          )
           : '';
       delete responseDeviceGroupDTO['deviceIdsInt'];
       return responseDeviceGroupDTO;
@@ -1936,7 +1946,7 @@ export class DeviceGroupService {
             ) {
               if (
                 recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[j].externalId.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
@@ -2466,8 +2476,8 @@ export class DeviceGroupService {
                 SELECT 1
                 FROM jsonb_array_elements_text(CAST(crm.metadata AS jsonb)->'deviceIds') AS ids(deviceId)
                 WHERE
-                  (deviceId ~ '^[0-9]+$' AND CAST(deviceId AS INTEGER) = d.id)
-                  OR (deviceId !~ '^[0-9]+$' AND deviceId = d.id::TEXT)
+                  (ids.deviceId ~* '^[0-9]+$' AND CAST(ids.deviceId AS INTEGER) = d.id) OR
+                  (ids.deviceId !~* '^[0-9]+$' AND CAST(ids.deviceId AS TEXT) = d.externalId)
               )`,
             );
           }),
@@ -2965,11 +2975,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForApiUser`);
