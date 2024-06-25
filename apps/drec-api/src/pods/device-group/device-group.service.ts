@@ -2475,7 +2475,7 @@ export class DeviceGroupService {
                 SELECT 1
                 FROM jsonb_array_elements_text(CAST(crm.metadata AS jsonb)->'deviceIds') AS ids(deviceId)
                 WHERE
-                 (ids.deviceId ~* '^[0-9]+$' AND CAST(ids.deviceId AS INTEGER) = d.id) OR
+                  (ids.deviceId ~* '^[0-9]+$' AND CAST(ids.deviceId AS INTEGER) = d.id) OR
                   (ids.deviceId !~* '^[0-9]+$' AND CAST(ids.deviceId AS TEXT) = d.externalId)
               )`,
             );
