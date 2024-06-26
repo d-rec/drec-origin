@@ -26,7 +26,7 @@ Buyers can streamline their procurement reporting by utilising the public ledger
 
 Critically, the D-REC Platform has been designed to eliminate the burden of issuance requests which today falls upon the renewable energy project developer. In a traditional model, the developer must submit generation data and all associated metadata when they request the issuance of RECs. However, the D-REC Platform essentially takes the onus away from the developer, allowing them to register projects and provide meter data when convenient. If a buyer wishes to purchase a REC one or more of the developer’s projects, the DREC Platform automatically validates the meter data provided by the developer and initiates the issuance process. This process allows for smaller-scale developers to engage with REC markets as it removes the need for them to own the issuance process.
 
-### Initial Vision
+## Initial Vision
 
 Outline of the original tech specs and functionality vision. What was the technology supposed to achieve? What problems was it meant to solve?
 
@@ -90,9 +90,10 @@ $$
 
 - Degradation: assumed to be 0.5% per year to account for performance degradation of the panels
 
-One important thing to note: Because the yield estimate is not precise at the moment, the upper bound is increased by 20% to account for further variation, based on panel tilt, azimuth, and other site-specific conditions
+>[!NOTE]
+>Because the yield estimate is not precise at the moment, the upper bound is increased by 20% to account for further variation, based on panel tilt, azimuth, and other site-specific conditions
 
-The following section outlines the D-REC Platform at the time it was conceptualized:
+**The following section outlines the D-REC Platform at the time it was conceptualized:**
 
 - **Device Registration:**
 Developers would onboard their devices on the D-REC Platform primarily through two means – the first was a “bulk upload” in which they provided devices either in a JavaScript Object Notation (JSON) or Comma-Separated Values (CSV) file through the UI. The second option would be to utilize the D-REC Platform’s API to register devices.
@@ -111,9 +112,9 @@ This design decision was made for the following reasons:
 
 The following screenshots highlights the primary landing page identifying all of the device groups that have been registered on the system, as well as a close-up of a single instance to illustrate the type of information presented:
 
-![Drec-img1](image.png)
+![Drec-img1](./img/dmrv-technology-overview/image.png)
 
-![Drec-img2](<image (1).png>)
+![Drec-img2](./img/dmrv-technology-overview/image%20(1).png)
 
 Each item in the above screenshot lists key information about the device group, such as:
 
@@ -125,7 +126,7 @@ A D-REC buyer could explore individual device groups, understanding the underlyi
 
 This screenshot shows the information for a single device group, a collection of solar home systems in Benin:
 
-![Solar Systems in Benin](<image (2).png>)
+![Solar Systems in Benin](./img/dmrv-technology-overview/image%20(2).png)
 
 Each device is listed as a separate entry, and its location is marked with a pin on the map. Each of the devices registered on the D-REC platform is represented by metadata. 
 
@@ -158,25 +159,25 @@ Once a device has been registered on the D-REC Platform, it can submit meter rea
 
 Once the validation was successful, then a DREC would be issued and assigned to the buyer wallet. The platform UI was designed to list all of the D-REC certificates:
 
-![UI Design](<image (3).png>)
+![UI Design](./img/dmrv-technology-overview/image%20(3).png)
 
 Each line represents a digital certificate representing 1 or more kWh of verified energy generated from a device group; each certificate can only correspond to a single device group. Once the certificate has been issued, it can then either be traded or redeemed (if the organization that owns the certificate is a corporate buyer). If the certificate is to be traded, then the destination wallet is specified (as noted below); only an entity which has a certificate in its wallet can redeem the certificate.
 
-![Blockchain Transfer](<image (5).png>)
+![Blockchain Transfer](./img/dmrv-technology-overview/image%20(5).png)
 
 When a DREC buyer redeems a certificate, they must specify the reporting period for which the certificate is being redeemed as well as the purpose for redemption. For example, if a buyer wishes to redeem a certificate against their electricity emissions for the 2021 year, and that certificate was generated at some point within the year, then for the Start Date they would specify 01/01/2021, and for End Date they would specify 31/12/2021.
 
 The following screenshot shows how a corporate buyer would redeem a certificate in their possession that was generated on December 10th, 2021, for their 2021 reporting period:
 
-![redemption report](<image (6).png>)
+![redemption report](./img/dmrv-technology-overview/image%20(6).png)
 
 When a certificate is redeemed, it generates a redemption report that can be used for reporting purposes. As noted earlier, there were several criteria that potential DREC buyers had outlined as necessary metadata in order to ensure the DREC could be used in reporting. 
 
 The following screenshot shows how those details were displayed:
 
-![Certificate Detailed Report1](<image (7).png>)
+![Certificate Detailed Report1](./img/dmrv-technology-overview/image%20(7).png)
 
-![Certificate Detailed Report2](<image (8).png>)
+![Certificate Detailed Report2](./img/dmrv-technology-overview/image%20(8).png)
 
 - **Convey title of the attribute to the purchaser:** 
 At present this is listed in the "Claim Beneficiaries" section which lists the company, address, etc. that is claiming title to the certificate.
@@ -195,7 +196,7 @@ This is the purpose of the D-REC Platform and the underlying Energy Web Chain; a
 
 How the platform was validated: The DREC Platform’s initial functionality was validated by onboarding several different device types and generating certificates. The developers that were included in the initial pilot release of the platform included: Engie Energy Access, Okra, Distributed Energy, Candi Solar, BBoxx, and New Sun Road. The types of assets involved in the PoC included mini-grids, solar home systems, and C&I rooftop solar. Further, the platform was demoed to potential corporate DREC buyers and other stakeholders including the I-REC Foundation. From these conversations, several changes were instituted to change the design and architecture of the system.
 
-### Current Status
+## Current Status
 
 A snapshot of where D-MRV technology stands today. How has it evolved from the original vision? What functionalities have been realized? Have any changes in goals or scope occurred?
 
@@ -231,10 +232,133 @@ The primary motivation to continue maintaining aggregation functionality would b
 **Meter Reads:**
 In the Alpha release of the platform, a developer could only submit meter data that correspond to time periods after the device was registered on the platform. Using a CRON scheduler implementation, the DREC Platform had a “sliding window” that would intake data that corresponded to the window’s start and end time, and then issue DREC certificates for that time period. This would enable a “go-forward” basis of issuing DRECs.
 
-However, this implementation left out a few different variations which were encountered during the discovery phase, namely that that devices should have the opportunity to certify data prior to onboarding onto the DREC Platform, and that they way in which they report data may vary. This led to the introduction of the following meter read types:
+However, this implementation left out a few different variations which were encountered during the discovery phase, namely that that devices should have the opportunity to certify data prior to onboarding onto the DREC Platform, and that they way in which they report data may vary. 
+
+This led to the introduction of the following meter read types:
 
 - History: this meter read type accounts for electricity that was generated prior to the device being registered on the DREC Platform, but after the commercial online date (COD). When this meter read type is submitted, both the start time and the end time along with the meter data must be submitted.
 
 - Aggregate: this meter read type was introduced for meters that “spin up” and only can provide aggregate generation since the solar system began generating electricity. For this meter read type, the device submits an end time stamp and a meter read value; the DREC platform will keep track of the prior read (both the time stamp and the value) and then subtract the latest read from the prior to derive the specific generation amount between the two time stamps
 
 - Delta: This was the default way in which data would be reported by the device. This type of meter read refers to the specific generation quanta between two time periods
+
+There is one key element to note regarding the aggregate and delta meter reads. The platform was designed to allow for developers to only submit one time stamp along with the meter read value; this was done to reduce burden on developers as they then would no longer need to persist the prior time stamp for when the last meter data was submitted. The DREC Platform in turn then keeps track of the prior time stamp and meter read value.
+
+However, this then requires the developer to “establish a baseline” once the device has been on-boarded onto the DREC Platform. Specifically, the first meter read call to an aggregate or delta meter read is not submitted for verification and eventual certificate issuance. 
+
+Rather, it is used to establish a timestamp and meter value:
+
+- For the first aggregate meter read made after the device onboards, the DREC Platform will keep track of both the time stamp and the meter value; the subsequent call with serve as the end time stamp and end meter value - what is then submitted for certification is the delta between the two meter values
+
+- For the first delta meter read after the device onboards, the DREC Platform will keep track only of the time stamp, and will discard the meter value. The subsequent call to submit a meter read will then use the end time stamp and certify the submitted meter data in the second call
+
+**Buyer Reservations:**
+In the Alpha release of the platform, the buyer reservation would certify data from device groups on a go-forward basis. There was no capability to 1) certify data from individual devices, 2) certify data that corresponded to generation between the device’s COD and the onboarding date on the DREC Platform. As noted earlier, changes to the device grouping along with the introduction of the “history” meter read now has enabled a buyer to generate DRECs from individual devices across a larger timeframe.
+
+In addition, in the Beta release of the platform, buyers also have the ability to specify different issuance frequencies. In the Alpha release, the issuance scheduler would run on a go-forward basis every 24 hours, generating DRECs for data that was received in the last 24 hours. In the Beta release, buyers can choose among hourly, daily, weekly, monthly, and annual issuance. For each case, the DREC Platform will gather data until the “window” closes, and then issue DRECs for the data received.
+
+One critical element to note is that aggregating devices prior to DREC issuance introduces complexity around the time stamps that are assigned to the DREC. This primarily is because devices that are aggregating into a single DREC can report their generation data at different frequencies; the DREC platform will allow for devices to submit data at frequencies that may not align directly with the issuance frequency requested by the buyer.
+
+For example, there are three devices included in a reservation that starts January 1st, 2023 and ends January 31st, 2023. The buyer has set up the reservation such that the requested DREC issuance frequency is hourly. The three devices begin by reporting data hourly, but then the first device no longer reports hourly, but daily. The other two devices will still generate hourly DRECs; when the first device finally reports data, the DREC Platform will issue a DREC that will have an elapsed time which will be longer than the hourly windows that was requested by the buyer. Note that such a case would only occur if that first device reports its data prior to the close of the buyer reservation (i.e. January 31st, 2023).
+
+Therefore, while the DREC Platform will issue DREC tokens with a delta between the start and end time (in other words, the elapsed time for which the generation data is certified) that will match the buyer’s requested issuance frequency, there may be scenarios where the time delta between a DREC token’s start time and end time will be longer than what the buyer requested, as long as the data is received prior to the end of the buyer reservation.
+
+**To Do:**
+
+**Changes to the DREC token structure:**
+
+- Token Payload
+
+### DREC Token Issuance Process (EWF Package Update)
+
+Between the Alpha and Beta releases of the platform, the DREC token workflow underwent substantial revision. This was due in part to a substantial change that was made to the EWF Origin library on which the DREC Platform is built.
+
+In the Alpha release of the platform (and as noted in the “Old Version” of the diagram below), after data verification the DREC token issuance requests were first sent to origin-247-certificate library, after which a call to issue the token would be made (first via issuer-api and then issuer). At this stage, the platform would then “wait” for the DREC token to be minted before returning information for the request to the DREC Platform. The call to mint the token was made to EWF’s public RPC, which also was being used by other parties. If the call failed (say because of excess activity at the node), there was no way for the DREC Platform to be alerted as such. Custom code would need to be written to handle a subsequent issuance request, which could result in the issuance of multiple tokens with the same generation data.
+
+To rectify these issues, EWF released a new origin-247-certificate library which made use of an off-line database. Once the issuance request was made, information was then written into a local database that automatically would handle reissuance requests based on the load at the public RPC node. Information about the issuance request would be viewable prior to the return of blockchain-verified data, such as the transaction hash (which was not possible before).
+
+```mermaid
+graph TB
+  subgraph OLD VERSION
+    direction TB
+    subgraph Issue Certificate
+      A1[Application] --> B1[origin-247-certificate]
+      B1 --> C1[issuer-api]
+      C1 --> D1[issuer]
+      D1 --> E1[blockchain]
+    end
+    
+    subgraph Get Certificate
+      G1[origin-247-certificate] --> F1[Application]
+      H1[issuer-api] --> G1
+      E1 -->|Blockchain Event| H1
+    end
+  end
+
+  subgraph NEW VERSION
+    direction TB
+    subgraph Issue Certificate
+      A2[Application] --> B2[origin-247-certificate]
+      B2 --> C2[offline database]
+      C2 -->|Synchronization try| D2[issuer]
+      D2 --> E2[blockchain]
+    end
+
+    subgraph Get Certificate
+      G2[origin-247-certificate] --> F2[Application] 
+      H2[offline database] --> G2
+      C2 -->|Offchain representation| H2
+    end
+  end
+```
+
+The net result of this change is that DREC token issuance is more reliable.
+
+**Gap Analysis:**
+
+Identify gaps between the original vision, current status and future needs. What functionalities are missing? What challenges have been encountered?
+
+The vision of the DREC Platform was to enable small-scale solar devices to connect with global finance markets. To that end, the platform today has capabilities which enable projects to register, provide generation data, and issue DREC tokens. 
+
+Functionality that was outlined in the beginning of the process, but has not yet been implemented, includes:
+
+- Support for generating carbon credits
+
+- Support for solar home systems and other discrete devices without bi-directional data capability
+
+- Support for other renewable energy (e.g. run-of-river hydro)
+
+With respect to the Buyer Reservation functionality, currently the platform does not support any approval process by the RE developer. Therefore, the platform does not enforce any workflow that would require the buyer to have contracted with the developer prior to the developer agreeing to allow their devices to be included in a reservation. Enabling such a “workflow” approach would ensure that developers are fully engaged and contracted with the market intermediary or buyer.
+
+Furthermore, the DREC Platform today does not allow buyers to only secure a portion of a project’s output. For example, a buyer / market intermediary that wishes to procure RECs from a projet that generates 100MWh per year must off-take the entire generation (or least that portion which is within the reservation window). With partial output support, there may be two or more buyers who can then secure D-RECs from a single project.
+
+Lastly, more input is needed to enhance the digital verification algorithm. Presently the DREC Platform uses a solar production formula to gauge whether the solar device is reporting generation that would be expected given its:
+
+1. size
+2. location
+3. age
+
+Further refinement is needed to create a more robust verification algorithm. In addition, the platform today does not perform any other validation checks on the accuracy or legitimacy of the solar installation; for example, if the developer claimed a certain capacity, does the system design and actual installation support such a declaration? While the traditional IREC process utilizes local issuers who may make such a determination based upon a single-line diagram, the DREC Platform today does not have any built-in logic to validate installation parameters.
+
+**Future Requirements (1 year):**
+
+Outline of what is needed from the D-MRV technology in the next one year. This should align with the moving targets/goals of the D-REC strategy.
+What are the technical requirements needed for scale
+
+The most immediate development requirements for the DREC Platform are:
+
+- Completing the I-REC integration
+
+- Modifying the platform (to the extent possible) to support any additional documentation that may be required by local issuers
+
+- Reviewing and enhancing the production verification algorithm
+
+- Building support for devices that do not have bi-directional capability (i.e. solar home systems or solar lanterns)
+
+**Action Plan:**
+
+A brief action plan to achieve the identified future requirements. What steps are necessary? What resources are required?
+
+## Conclusion
+
+Reiterate the importance of D-MRV technology and the exciting challenges/opportunities that lie ahead, along with a commitment to evolving and improving the technology to meet D-REC's strategic goals.
