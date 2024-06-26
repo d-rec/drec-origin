@@ -1,4 +1,4 @@
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 RUN apk --no-cache add bash
 
@@ -7,7 +7,7 @@ RUN npm cache clean --force
 COPY . .
 
 RUN npm i -g @microsoft/rush
-RUN npm i -g pnpm@7
+RUN npm i -g pnpm@9
 
 WORKDIR /dist/src/app/apps/drec-api
 
