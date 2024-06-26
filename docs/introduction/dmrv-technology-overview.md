@@ -13,16 +13,16 @@ The D-REC Platform was designed to facilitate the issuance of International RECs
 The primary value propositions for a technical solution include:
 
 - **Improved discoverability:**
-Technology can make it easier for buyers and other stakeholders to discover projects that are closely aligned with their purchase criteria through a standardised data model that describes a variety of DRE assets.
+  Technology can make it easier for buyers and other stakeholders to discover projects that are closely aligned with their purchase criteria through a standardised data model that describes a variety of DRE assets.
 
 - **Lower transaction costs:**
-Automating validation can shorten the time needed to issue certificates and thereby lower transaction costs.
+  Automating validation can shorten the time needed to issue certificates and thereby lower transaction costs.
 
 - **Scalability for smaller devices:**
-Aggregation allows developers to achieve scale that is material to buyers, allows for quicker monetization cycles, and ensures issuance frequency through unreliable data connections.
+  Aggregation allows developers to achieve scale that is material to buyers, allows for quicker monetization cycles, and ensures issuance frequency through unreliable data connections.
 
 - **Clear traceability and provenance:**
-Buyers can streamline their procurement reporting by utilising the public ledger to document data origination and verification; the public ledger also reduces the risk of double-counting as all tokens (which represent I-REC issuance requests) are publicly discoverable.
+  Buyers can streamline their procurement reporting by utilising the public ledger to document data origination and verification; the public ledger also reduces the risk of double-counting as all tokens (which represent I-REC issuance requests) are publicly discoverable.
 
 Critically, the D-REC Platform has been designed to eliminate the burden of issuance requests which today falls upon the renewable energy project developer. In a traditional model, the developer must submit generation data and all associated metadata when they request the issuance of RECs. However, the D-REC Platform essentially takes the onus away from the developer, allowing them to register projects and provide meter data when convenient. If a buyer wishes to purchase a REC one or more of the developer’s projects, the DREC Platform automatically validates the meter data provided by the developer and initiates the issuance process. This process allows for smaller-scale developers to engage with REC markets as it removes the need for them to own the issuance process.
 
@@ -90,15 +90,15 @@ $$
 
 - Degradation: assumed to be 0.5% per year to account for performance degradation of the panels
 
->[!NOTE]
->Because the yield estimate is not precise at the moment, the upper bound is increased by 20% to account for further variation, based on panel tilt, azimuth, and other site-specific conditions
+> [!NOTE]
+> Because the yield estimate is not precise at the moment, the upper bound is increased by 20% to account for further variation, based on panel tilt, azimuth, and other site-specific conditions
 
 **The following section outlines the D-REC Platform at the time it was conceptualized:**
 
 - **Device Registration:**
-Developers would onboard their devices on the D-REC Platform primarily through two means – the first was a “bulk upload” in which they provided devices either in a JavaScript Object Notation (JSON) or Comma-Separated Values (CSV) file through the UI. The second option would be to utilize the D-REC Platform’s API to register devices.
+  Developers would onboard their devices on the D-REC Platform primarily through two means – the first was a “bulk upload” in which they provided devices either in a JavaScript Object Notation (JSON) or Comma-Separated Values (CSV) file through the UI. The second option would be to utilize the D-REC Platform’s API to register devices.
 
-Upon logging in to the D-REC Platform, users can view all of the device groups that have been registered on the system. All devices that are registered from a particular DRE developer are grouped into one or more device groups; each device group represents a collection of devices that share similar characteristics. The platform enables either auto-grouping (by default) or enables the developer to create a device group. However, as initially designed, devices could not be standalone - they would need to be part of a device group in order for their generation to be certified and included in subsequently issued D-RECs. 
+Upon logging in to the D-REC Platform, users can view all of the device groups that have been registered on the system. All devices that are registered from a particular DRE developer are grouped into one or more device groups; each device group represents a collection of devices that share similar characteristics. The platform enables either auto-grouping (by default) or enables the developer to create a device group. However, as initially designed, devices could not be standalone - they would need to be part of a device group in order for their generation to be certified and included in subsequently issued D-RECs.
 
 This design decision was made for the following reasons:
 
@@ -114,7 +114,7 @@ The following screenshots highlights the primary landing page identifying all of
 
 ![Drec-img1](./img/dmrv-technology-overview/image.png)
 
-![Drec-img2](./img/dmrv-technology-overview/image%20(1).png)
+![Drec-img2](<./img/dmrv-technology-overview/image%20(1).png>)
 
 Each item in the above screenshot lists key information about the device group, such as:
 
@@ -122,32 +122,32 @@ Each item in the above screenshot lists key information about the device group, 
 - When the devices have been commissioned
 - The electricity offtaker
 
-A D-REC buyer could explore individual device groups, understanding the underlying devices that comprise a device group. Upon selecting an individual device group, the platform provides metadata about each device constituting the group. 
+A D-REC buyer could explore individual device groups, understanding the underlying devices that comprise a device group. Upon selecting an individual device group, the platform provides metadata about each device constituting the group.
 
 This screenshot shows the information for a single device group, a collection of solar home systems in Benin:
 
-![Solar Systems in Benin](./img/dmrv-technology-overview/image%20(2).png)
+![Solar Systems in Benin](<./img/dmrv-technology-overview/image%20(2).png>)
 
-Each device is listed as a separate entry, and its location is marked with a pin on the map. Each of the devices registered on the D-REC platform is represented by metadata. 
+Each device is listed as a separate entry, and its location is marked with a pin on the map. Each of the devices registered on the D-REC platform is represented by metadata.
 
 For example, the first entry in the screenshot above was described as follows during the device registration period:
 
 ```json
 {
-   "external ID": "3703716",   // the ID the developer uses internally to refer to the device
-   "OrganizationID": "2",   // assigned automatically by D-REC platform
-   "projectName": "Baknoura Fenix Radio +3",  // descriptive project name
-   "Address": "Baknoura, 2Ãˆme Arrondissement, Parkou",  
-   "Latitude": "9.304655",
-   "Longitude": "2.707943",
-   "countryCode": "BJ",
-   "fuelCode": "ES100",   // the type of renewable energy
-   "deviceTypeCode": "T02001",   // additional renewable energy classification
-   "installationConfiguration": "StandAlone",  // single installation or microgrid
-   "Capacity": "0.01",   // nameplate capacity in kW
-   "commissioningDate": "15/04/2019",
-   "gridInterconnection": "FALSE",
-   "offTaker": "Residential"
+  "external ID": "3703716", // the ID the developer uses internally to refer to the device
+  "OrganizationID": "2", // assigned automatically by D-REC platform
+  "projectName": "Baknoura Fenix Radio +3", // descriptive project name
+  "Address": "Baknoura, 2Ãˆme Arrondissement, Parkou",
+  "Latitude": "9.304655",
+  "Longitude": "2.707943",
+  "countryCode": "BJ",
+  "fuelCode": "ES100", // the type of renewable energy
+  "deviceTypeCode": "T02001", // additional renewable energy classification
+  "installationConfiguration": "StandAlone", // single installation or microgrid
+  "Capacity": "0.01", // nameplate capacity in kW
+  "commissioningDate": "15/04/2019",
+  "gridInterconnection": "FALSE",
+  "offTaker": "Residential"
 }
 ```
 
@@ -159,40 +159,40 @@ Once a device has been registered on the D-REC Platform, it can submit meter rea
 
 Once the validation was successful, then a DREC would be issued and assigned to the buyer wallet. The platform UI was designed to list all of the D-REC certificates:
 
-![UI Design](./img/dmrv-technology-overview/image%20(3).png)
+![UI Design](<./img/dmrv-technology-overview/image%20(3).png>)
 
 Each line represents a digital certificate representing 1 or more kWh of verified energy generated from a device group; each certificate can only correspond to a single device group. Once the certificate has been issued, it can then either be traded or redeemed (if the organization that owns the certificate is a corporate buyer). If the certificate is to be traded, then the destination wallet is specified (as noted below); only an entity which has a certificate in its wallet can redeem the certificate.
 
-![Blockchain Transfer](./img/dmrv-technology-overview/image%20(5).png)
+![Blockchain Transfer](<./img/dmrv-technology-overview/image%20(5).png>)
 
 When a DREC buyer redeems a certificate, they must specify the reporting period for which the certificate is being redeemed as well as the purpose for redemption. For example, if a buyer wishes to redeem a certificate against their electricity emissions for the 2021 year, and that certificate was generated at some point within the year, then for the Start Date they would specify 01/01/2021, and for End Date they would specify 31/12/2021.
 
 The following screenshot shows how a corporate buyer would redeem a certificate in their possession that was generated on December 10th, 2021, for their 2021 reporting period:
 
-![redemption report](./img/dmrv-technology-overview/image%20(6).png)
+![redemption report](<./img/dmrv-technology-overview/image%20(6).png>)
 
-When a certificate is redeemed, it generates a redemption report that can be used for reporting purposes. As noted earlier, there were several criteria that potential DREC buyers had outlined as necessary metadata in order to ensure the DREC could be used in reporting. 
+When a certificate is redeemed, it generates a redemption report that can be used for reporting purposes. As noted earlier, there were several criteria that potential DREC buyers had outlined as necessary metadata in order to ensure the DREC could be used in reporting.
 
 The following screenshot shows how those details were displayed:
 
-![Certificate Detailed Report1](./img/dmrv-technology-overview/image%20(7).png)
+![Certificate Detailed Report1](<./img/dmrv-technology-overview/image%20(7).png>)
 
-![Certificate Detailed Report2](./img/dmrv-technology-overview/image%20(8).png)
+![Certificate Detailed Report2](<./img/dmrv-technology-overview/image%20(8).png>)
 
-- **Convey title of the attribute to the purchaser:** 
-At present this is listed in the "Claim Beneficiaries" section which lists the company, address, etc. that is claiming title to the certificate.
+- **Convey title of the attribute to the purchaser:**
+  At present this is listed in the "Claim Beneficiaries" section which lists the company, address, etc. that is claiming title to the certificate.
 
 - **Information about the renewable energy attribute, including the date, location, type of renewable energy, etc.:**
-The certificate has three dates – the first is the start of the period in which generation was measured (in this case, December 5), the second is the day on which measuring the generation output stopped (December 6, because we are currently issuing certificates on a daily basis), and the third day is the date on which the certificate was created (the "Creation Date" which in this case is December 6, again because we currently issue on a daily basis). Also note that in the "Claim Beneficiaries" section there is a reporting period noted, in this case December 10, 2021. This is the time window for which the certificate is being redeemed. This can be an annual time span, but in this case is a single day to illustrate how it can be used for daily reconciliation for a 24/7 approach.
+  The certificate has three dates – the first is the start of the period in which generation was measured (in this case, December 5), the second is the day on which measuring the generation output stopped (December 6, because we are currently issuing certificates on a daily basis), and the third day is the date on which the certificate was created (the "Creation Date" which in this case is December 6, again because we currently issue on a daily basis). Also note that in the "Claim Beneficiaries" section there is a reporting period noted, in this case December 10, 2021. This is the time window for which the certificate is being redeemed. This can be an annual time span, but in this case is a single day to illustrate how it can be used for daily reconciliation for a 24/7 approach.
 
 - **The location, type of renewable energy, etc.:**
-The certificate at present does not explicitly list these parameters; rather, it is a combination of the device group owner (the entity that owns the asset which generated the certificate) and the Facility Name ... right now, that is a descriptive name that includes the developer name, country ("IN" for India), technology type ("Solar"), and offtaker type ("Commercial").
+  The certificate at present does not explicitly list these parameters; rather, it is a combination of the device group owner (the entity that owns the asset which generated the certificate) and the Facility Name ... right now, that is a descriptive name that includes the developer name, country ("IN" for India), technology type ("Solar"), and offtaker type ("Commercial").
 
 - **Have a unique identifier for the attribute to prevent double-counting:**
-The Certificate ID is the unique ID for the certificate (27 in this case), and will be unique across the entire D-REC platform. Also, the provenance of the certificate (when it was issued, how it was traded, who redeemed and when) will all be queryable on the public blockchain. The amount of generation being claimed is the "Claimed Energy" piece (which in this case is 551kWh).
+  The Certificate ID is the unique ID for the certificate (27 in this case), and will be unique across the entire D-REC platform. Also, the provenance of the certificate (when it was issued, how it was traded, who redeemed and when) will all be queryable on the public blockchain. The amount of generation being claimed is the "Claimed Energy" piece (which in this case is 551kWh).
 
 - **Have a system to track and retire attributes:**\
-This is the purpose of the D-REC Platform and the underlying Energy Web Chain; all certificate transactions will be written to the chain, providing an immutable record of each certificate’s provenance.
+  This is the purpose of the D-REC Platform and the underlying Energy Web Chain; all certificate transactions will be written to the chain, providing an immutable record of each certificate’s provenance.
 
 How the platform was validated: The DREC Platform’s initial functionality was validated by onboarding several different device types and generating certificates. The developers that were included in the initial pilot release of the platform included: Engie Energy Access, Okra, Distributed Energy, Candi Solar, BBoxx, and New Sun Road. The types of assets involved in the PoC included mini-grids, solar home systems, and C&I rooftop solar. Further, the platform was demoed to potential corporate DREC buyers and other stakeholders including the I-REC Foundation. From these conversations, several changes were instituted to change the design and architecture of the system.
 
@@ -211,8 +211,8 @@ These can be categorized into the following:
 - Certificate Structure
 - Trading and Redemption
 
-**Changes to User Roles:** 
-In the alpha release of the platform, there was no distinction between different users within a single organization and what access they may have to make modifications on the platform. 
+**Changes to User Roles:**
+In the alpha release of the platform, there was no distinction between different users within a single organization and what access they may have to make modifications on the platform.
 
 As a result, for the beta release of the platform, there were three user roles that were created:
 
@@ -223,7 +223,7 @@ As a result, for the beta release of the platform, there were three user roles t
 - User: In the beta of the platform, a user has full permissions other than being able to add or remove users from a particular organisation.
 
 **Device Groups:**
-As noted earlier, in the Alpha release of the platform, devices were grouped automatically based on certain variables. In that design, a DREC was not issued against generation of a specific device, but rather the aggregate generation provided by the group. However, based on design conversations with the I-REC Standard, this design was altered. Specifically, the grouping of devices upon registration was removed in the Beta release. This primarily was because the I-REC Standard was seeking to ensure that individual devices would be registered on the tracking system. 
+As noted earlier, in the Alpha release of the platform, devices were grouped automatically based on certain variables. In that design, a DREC was not issued against generation of a specific device, but rather the aggregate generation provided by the group. However, based on design conversations with the I-REC Standard, this design was altered. Specifically, the grouping of devices upon registration was removed in the Beta release. This primarily was because the I-REC Standard was seeking to ensure that individual devices would be registered on the tracking system.
 
 The implications of this change, with respect to certification, meant that individual devices would need to be validated prior to DREC issuance, whereas before there could be instances where a specific device would not report data but a DREC certificate would be issued against the aggregated reported generation of the device group. However, the actual DREC issuance would still support aggregation, but rather than being a developer-defined aggregation, it would correspond to a buyer-defined aggregation (i.e. the Buyer Reservation).
 
@@ -232,7 +232,7 @@ The primary motivation to continue maintaining aggregation functionality would b
 **Meter Reads:**
 In the Alpha release of the platform, a developer could only submit meter data that correspond to time periods after the device was registered on the platform. Using a CRON scheduler implementation, the DREC Platform had a “sliding window” that would intake data that corresponded to the window’s start and end time, and then issue DREC certificates for that time period. This would enable a “go-forward” basis of issuing DRECs.
 
-However, this implementation left out a few different variations which were encountered during the discovery phase, namely that that devices should have the opportunity to certify data prior to onboarding onto the DREC Platform, and that they way in which they report data may vary. 
+However, this implementation left out a few different variations which were encountered during the discovery phase, namely that that devices should have the opportunity to certify data prior to onboarding onto the DREC Platform, and that they way in which they report data may vary.
 
 This led to the introduction of the following meter read types:
 
@@ -244,7 +244,7 @@ This led to the introduction of the following meter read types:
 
 There is one key element to note regarding the aggregate and delta meter reads. The platform was designed to allow for developers to only submit one time stamp along with the meter read value; this was done to reduce burden on developers as they then would no longer need to persist the prior time stamp for when the last meter data was submitted. The DREC Platform in turn then keeps track of the prior time stamp and meter read value.
 
-However, this then requires the developer to “establish a baseline” once the device has been on-boarded onto the DREC Platform. Specifically, the first meter read call to an aggregate or delta meter read is not submitted for verification and eventual certificate issuance. 
+However, this then requires the developer to “establish a baseline” once the device has been on-boarded onto the DREC Platform. Specifically, the first meter read call to an aggregate or delta meter read is not submitted for verification and eventual certificate issuance.
 
 Rather, it is used to establish a timestamp and meter value:
 
@@ -287,7 +287,7 @@ graph TB
       C1 --> D1[issuer]
       D1 --> E1[blockchain]
     end
-    
+
     subgraph Get Certificate
       G1[origin-247-certificate] --> F1[Application]
       H1[issuer-api] --> G1
@@ -305,7 +305,7 @@ graph TB
     end
 
     subgraph Get Certificate
-      G2[origin-247-certificate] --> F2[Application] 
+      G2[origin-247-certificate] --> F2[Application]
       H2[offline database] --> G2
       C2 -->|Offchain representation| H2
     end
@@ -318,7 +318,7 @@ The net result of this change is that DREC token issuance is more reliable.
 
 Identify gaps between the original vision, current status and future needs. What functionalities are missing? What challenges have been encountered?
 
-The vision of the DREC Platform was to enable small-scale solar devices to connect with global finance markets. To that end, the platform today has capabilities which enable projects to register, provide generation data, and issue DREC tokens. 
+The vision of the DREC Platform was to enable small-scale solar devices to connect with global finance markets. To that end, the platform today has capabilities which enable projects to register, provide generation data, and issue DREC tokens.
 
 Functionality that was outlined in the beginning of the process, but has not yet been implemented, includes:
 
