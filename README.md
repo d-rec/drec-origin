@@ -33,7 +33,7 @@ Repository for Origin DREC project
 
 ## Local environment setup of Ubuntu
 
-Install `wsl`,`ubuntu-18.04` in command prompt running as administrator:
+Install `wsl`,`ubuntu-20.04` in command prompt running as administrator:
 
 ```sh
 wsl --install
@@ -52,7 +52,7 @@ Clone and Install `nvm`:
 
 ```sh
 sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-nvm install 18.20.3
+nvm install 20.14.0
 ```
 
 Install `rush`, `pnpm` if you don't have it:
