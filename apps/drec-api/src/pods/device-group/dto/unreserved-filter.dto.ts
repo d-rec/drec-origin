@@ -16,6 +16,13 @@ export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
   @ApiPropertyOptional({
     type: String,
+    description: 'string',
+  })
+  name: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
     description: 'Filter with multiple Country Code :"IND,CAN"',
   })
   country: string;
