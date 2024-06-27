@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Run Prettier on Docs
         working-directory: docs
@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install tooling
         working-directory: docs

@@ -18,12 +18,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@7
+          npm i -g pnpm@9
 
       - name: Install drec-origin
         run: |
@@ -42,12 +42,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@7
+          npm i -g pnpm@9
 
       - name: Install drec-origin
         run: |
@@ -71,12 +71,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install tooling
         run: |
           npm i -g @microsoft/rush
-          npm i -g pnpm@7
+          npm i -g pnpm@9
 
       - name: Install drec-origin
         run: |

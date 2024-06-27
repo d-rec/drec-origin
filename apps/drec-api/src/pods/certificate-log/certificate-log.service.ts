@@ -712,8 +712,16 @@ export class CertificateLogService {
               ); //going back 1 second in start and going forward 1 second in end
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
-                  const device = await this.deviceService.findOne(deviceid);
-
+                  console.log(typeof deviceid);
+                  // const device = await this.deviceService.findOne(deviceid);
+                  let device: Device;
+                  if (typeof deviceid === 'number') {
+                    device = await this.deviceService.findOne(deviceid);
+                  }
+                  if (typeof deviceid === 'string') {
+                    device = await this.deviceService.findReads(deviceid);
+                  }
+                  console.log(group);
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
@@ -874,7 +882,17 @@ export class CertificateLogService {
               ); //going back 1 second in start and going forward 1 second in end
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
-                  const device = await this.deviceService.findOne(deviceid);
+                  // const device = await this.deviceService.findOne(deviceid);
+
+                  // const device = await this.deviceService.findOne(deviceid);
+                  let device: Device;
+                  if (typeof deviceid === 'number') {
+                    device = await this.deviceService.findOne(deviceid);
+                  }
+                  if (typeof deviceid === 'string') {
+                    device = await this.deviceService.findReads(deviceid);
+                  }
+
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
