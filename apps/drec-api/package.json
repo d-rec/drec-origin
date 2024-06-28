@@ -62,7 +62,7 @@
     "@nestjs/bull": "0.4.2",
     "@nestjs/common": "8.1.1",
     "@nestjs/config": "1.0.1",
-    "@nestjs/core": "9.0.5",
+    "@nestjs/core": "8.1.1",
     "@nestjs/cqrs": "8.0.0",
     "@nestjs/jwt": "~10.2.0",
     "@nestjs/passport": "8.0.1",
