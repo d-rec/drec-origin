@@ -747,8 +747,7 @@ export class BuyerReservationController {
             success: false,
             message: `The organizationId in query params should be same as user's organizationId`,
           });
-        }
-        else if (role === Role.Admin) {
+        } else if (role === Role.Admin) {
           orgId = null;
         }
       }
