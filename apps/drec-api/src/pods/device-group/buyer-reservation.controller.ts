@@ -739,7 +739,7 @@ export class BuyerReservationController {
           });
         }
       } else {
-        if (orgId != organizationId) {
+        if (orgId != organizationId && role != Role.Admin) {
           this.logger.error(
             `The organizationId in query params should be same as user's organizationId`,
           );
@@ -748,8 +748,7 @@ export class BuyerReservationController {
             message: `The organizationId in query params should be same as user's organizationId`,
           });
         }
-
-        if (role === Role.Admin) {
+        else if (role === Role.Admin) {
           orgId = null;
         }
       }
