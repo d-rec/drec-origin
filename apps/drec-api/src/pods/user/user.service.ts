@@ -508,6 +508,12 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
+    data = new User({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      status: data.status
+    });
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
