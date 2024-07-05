@@ -406,7 +406,7 @@ export class DeviceController {
     let devicedata: Device;
 
     if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
-      if(loginUser.role === Role.Admin) {
+      if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
 
@@ -644,8 +644,7 @@ export class DeviceController {
             success: false,
             message: 'Unauthorized',
           });
-        }
-        else if(user.role === Role.Admin) {
+        } else if (user.role === Role.Admin) {
           user.organizationId = deviceToUpdate.organizationId;
         }
       }
