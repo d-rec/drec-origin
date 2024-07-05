@@ -512,7 +512,7 @@ export class UserService {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      status: data.status
+      status: data.status,
     });
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
