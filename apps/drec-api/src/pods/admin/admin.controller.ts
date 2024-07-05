@@ -161,8 +161,9 @@ export class AdminController {
     type: CreateUserORGDTO,
     description: 'Returns a new created user',
   })
-  public async createUser(@Body() newUser: CreateUserORGDTO,
-  @UserDecorator() { api_user_id }: LoggedInUser,
+  public async createUser(
+    @Body() newUser: CreateUserORGDTO,
+    @UserDecorator() { api_user_id }: LoggedInUser,
   ): Promise<UserDTO> {
     newUser.api_user_id = api_user_id;
     return await this.userService.adminnewcreate(newUser);

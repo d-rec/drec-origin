@@ -166,10 +166,9 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    const admin =
-      await this.oauthClientCredentialsService.findOneByApiUserId(
-        data.api_user_id,
-      );
+    const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
+      data.api_user_id,
+    );
     let org_id;
     if (!inviteuser) {
       const orgdata = {
