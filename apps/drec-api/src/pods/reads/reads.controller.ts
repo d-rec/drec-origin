@@ -1326,7 +1326,7 @@ export class ReadsController extends BaseReadsController {
           datesContainingNullOrEmptyValues = true;
         }
         const enddateformate = isValidUTCDateFormat(
-          ele.endtimestamp.toISOString(),
+          new Date(ele.endtimestamp).toISOString(),
         );
 
         if (!enddateformate) {
