@@ -226,9 +226,9 @@ export class AdminController {
 
   @Put('/users/:id')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Write')
-  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
     status: HttpStatus.OK,
