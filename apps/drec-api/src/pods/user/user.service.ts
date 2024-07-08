@@ -166,6 +166,9 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
+    const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
+      data.api_user_id,
+    );
     let org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -175,7 +178,7 @@ export class UserService {
         orgEmail: data.email,
         address: data.orgAddress,
       };
-
+      orgdata['api_user_id'] = admin.api_user_id;
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -212,6 +215,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
+      api_user_id: admin ? admin.api_user_id : null,
     });
     const { password, ...userData } = user;
     this.logger.debug(
