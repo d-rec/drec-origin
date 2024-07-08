@@ -404,7 +404,12 @@ export class DeviceController {
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
     let devicedata: Device;
-    if (loginUser.role === Role.ApiUser) {
+
+    if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
+      if (loginUser.role === Role.Admin) {
+        loginUser.api_user_id = null;
+      }
+
       devicedata =
         await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
           id,
@@ -633,12 +638,14 @@ export class DeviceController {
           user.organizationId = deviceToUpdate.organizationId;
         }
       } else {
-        if (user.organizationId != org.id) {
+        if (user.role != Role.Admin && user.organizationId != org.id) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
             message: 'Unauthorized',
           });
+        } else if (user.role === Role.Admin) {
+          user.organizationId = deviceToUpdate.organizationId;
         }
       }
     }
