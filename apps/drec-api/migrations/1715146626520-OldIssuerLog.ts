@@ -21,7 +21,7 @@ export class OldIssuerLog1715146626520 implements MigrationInterface {
             "latestCommitment" text,
             "issuedPrivately" boolean NOT NULL,
             "blockchainNetId" integer,
-            "metadata" character varying NOT NULL,
+            "metadata" character varying NOT NULL
         )`);
   }
 
