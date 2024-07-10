@@ -3,13 +3,13 @@ lockfileVersion: 5.4
 specifiers:
   '@compodoc/compodoc': ^1.1.22
   '@energyweb/energy-api-influxdb': 0.8.3
-  '@energyweb/issuer': 7.0.1
+  '@energyweb/issuer': 6.0.2-alpha.1646058469.0
   '@energyweb/issuer-api': 0.7.1
   '@energyweb/origin-247-certificate': 4.1.5
   '@energyweb/origin-backend': 11.2.3
   '@energyweb/origin-backend-core': 8.2.3
-  '@energyweb/origin-backend-utils': 1.8.3
-  '@energyweb/utils-general': 11.2.3
+  '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0
+  '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -126,13 +126,13 @@ specifiers:
 dependencies:
   '@compodoc/compodoc': 1.1.25_typescript@4.1.3
   '@energyweb/energy-api-influxdb': 0.8.3_5s24yubn6oroycelimerxxvadu
-  '@energyweb/issuer': 7.0.1
+  '@energyweb/issuer': 6.0.2-alpha.1646058469.0
   '@energyweb/issuer-api': 0.7.1_xopg3sgvptdwdhuxuxidphnbby
-  '@energyweb/origin-247-certificate': 4.1.5_iuomyxlapwi7cjnl43p76ucjsa
+  '@energyweb/origin-247-certificate': 4.1.5_qasctm6eojpfmqas2yzny6nlp4
   '@energyweb/origin-backend': 11.2.3_qcfya5smcgw3snj2p4r43qelz4
   '@energyweb/origin-backend-core': 8.2.3
-  '@energyweb/origin-backend-utils': 1.8.3_azlrti6fdagkyqdo7z3ubbyaye
-  '@energyweb/utils-general': 11.2.3
+  '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye
+  '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
   '@ethersproject/abstract-signer': 5.3.0
@@ -1892,6 +1892,26 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@energyweb/issuer/6.0.2-alpha.1646058469.0:
+    resolution: {integrity: sha512-+mvdkUNkakoNobyc5HwlugV/FQvTMPcgEUw5c9FFlPYD1/Hyd71hEe4ZJJ5bokGKrnMtiN5DEsiyHVZnoa3YgQ==}
+    dependencies:
+      '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
+      '@ethersproject/abi': 5.3.1
+      '@ethersproject/abstract-signer': 5.3.0
+      '@ethersproject/contracts': 5.3.0
+      '@ethersproject/providers': 5.3.1
+      '@ethersproject/wallet': 5.3.0
+      dotenv: 10.0.0
+      ethers: 5.3.1
+      ew-precise-proofs-js: 1.1.0
+      ganache-cli: 6.12.2
+      moment: 2.29.1
+      winston: 3.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /@energyweb/issuer/7.0.1:
     resolution: {integrity: sha512-GFMZR5K6fyAi9VVgeAobsDng+kVK24LCGguc79Mu7QpK+x+rDyS3yrOJbQeZ52fl3KgMZvRAEXfPYWI8+T2i6Q==}
     dependencies:
@@ -1912,7 +1932,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-247-certificate/4.1.5_iuomyxlapwi7cjnl43p76ucjsa:
+  /@energyweb/origin-247-certificate/4.1.5_qasctm6eojpfmqas2yzny6nlp4:
     resolution: {integrity: sha512-wTba6HlfulZi1KCazNjgTrGUy1CPZmFco4lXMYS1ZiPono8ddN0VlMoIFY8Efmo1/JYqrHYspt/di5dMP84VqA==}
     peerDependencies:
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
@@ -1922,7 +1942,7 @@ packages:
       '@nestjs/cqrs': 8.0.0
       '@nestjs/typeorm': 8.0.2
     dependencies:
-      '@energyweb/issuer': 7.0.1
+      '@energyweb/issuer': 6.0.2-alpha.1646058469.0
       '@nestjs/bull': 0.4.2_svu4v2sifhq6njkoaosg5fk444
       '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
       '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
@@ -1958,6 +1978,17 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@energyweb/origin-backend-core/8.2.2-alpha.1646058469.0:
+    resolution: {integrity: sha512-xnEnCQS/rGIU+YUrM82rpgYj0ERwuuGj7R+h3XMCobsawLL+SFS/PRU3HxMlygWCO1MD6rah8GD3ApBpsTQKCA==}
+    dependencies:
+      class-transformer: 0.3.1
+      class-validator: 0.13.2
+      ethers: 5.3.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /@energyweb/origin-backend-core/8.2.3:
     resolution: {integrity: sha512-12brWQtS+VQtXFlHAepnzUTirdQ902WLYEJhgo1LMDDmqCowlUqNkNV/N7MkWq6iJaSHTimRaodJbyBYidWmjQ==}
     dependencies:
@@ -1966,6 +1997,47 @@ packages:
       ethers: 5.3.1
     transitivePeerDependencies:
       - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /@energyweb/origin-backend-utils/1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye:
+    resolution: {integrity: sha512-c+v8qOOYlwUlispAiRLhOZGF70XGlVW7sqInWB1Tf9/arQl3hm606vWKAnAM31a41m2Yh+4aCLAYFAwNzJAyaA==}
+    peerDependencies:
+      '@nestjs/common': 8.1.1
+      '@nestjs/core': 8.1.1
+    dependencies:
+      '@energyweb/origin-backend-core': 8.2.2-alpha.1646058469.0
+      '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
+      '@nestjs/config': 1.0.2_ebwtjqk3qdsa6zp65pjedcqvta
+      '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
+      '@nestjs/swagger': 5.1.4_cut6ze4zeaaqujyv64opr4jmpy
+      bn.js: 5.2.0
+      class-validator: 0.13.2
+      pg: 8.7.1
+      polly-js: 1.8.3
+      rxjs: 7.4.0
+      typeorm: 0.2.41_pg@8.7.1
+    transitivePeerDependencies:
+      - '@sap/hana-client'
+      - better-sqlite3
+      - bufferutil
+      - class-transformer
+      - fastify-swagger
+      - hdb-pool
+      - ioredis
+      - mongodb
+      - mssql
+      - mysql2
+      - oracledb
+      - pg-native
+      - pg-query-stream
+      - redis
+      - reflect-metadata
+      - sql.js
+      - sqlite3
+      - supports-color
+      - swagger-ui-express
+      - typeorm-aurora-data-api-driver
       - utf-8-validate
     dev: false
 
@@ -2021,47 +2093,6 @@ packages:
       '@nestjs/config': 1.0.2_cow7jscv5lay2xwofv5rai7wpa
       '@nestjs/core': 8.1.1_7uvda5e5idlzxfvrevfd5fxvgm
       '@nestjs/swagger': 5.1.4_vd6hains74r7c5yhanoeqsl5u4
-      bn.js: 5.2.0
-      class-validator: 0.13.2
-      pg: 8.7.1
-      polly-js: 1.8.3
-      rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
-    transitivePeerDependencies:
-      - '@sap/hana-client'
-      - better-sqlite3
-      - bufferutil
-      - class-transformer
-      - fastify-swagger
-      - hdb-pool
-      - ioredis
-      - mongodb
-      - mssql
-      - mysql2
-      - oracledb
-      - pg-native
-      - pg-query-stream
-      - redis
-      - reflect-metadata
-      - sql.js
-      - sqlite3
-      - supports-color
-      - swagger-ui-express
-      - typeorm-aurora-data-api-driver
-      - utf-8-validate
-    dev: false
-
-  /@energyweb/origin-backend-utils/1.8.3_azlrti6fdagkyqdo7z3ubbyaye:
-    resolution: {integrity: sha512-+/8T+jNf0/u2QuKdKplCgUEGf0vWw66n44nyHzOeDznm3wsZ0VIm8+1Cy4mEc+biFfNM8cMh47bYHVdRgqdtoQ==}
-    peerDependencies:
-      '@nestjs/common': 8.1.1
-      '@nestjs/core': 8.1.1
-    dependencies:
-      '@energyweb/origin-backend-core': 8.2.3
-      '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
-      '@nestjs/config': 1.0.2_ebwtjqk3qdsa6zp65pjedcqvta
-      '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
-      '@nestjs/swagger': 5.1.4_cut6ze4zeaaqujyv64opr4jmpy
       bn.js: 5.2.0
       class-validator: 0.13.2
       pg: 8.7.1
@@ -2149,6 +2180,20 @@ packages:
       - supports-color
       - swagger-ui-express
       - typeorm-aurora-data-api-driver
+      - utf-8-validate
+    dev: false
+
+  /@energyweb/utils-general/11.2.2-alpha.1646058469.0:
+    resolution: {integrity: sha512-vcWwrd5+Mm9IxeAj8XaHIsQ8JNtdWv2n//yP+B3mlQMhokKz36csvXcDjrum++g/2mlxAI6RPq6o8d/DZc+hQg==}
+    dependencies:
+      chai: 4.3.4
+      eth-sig-util: 2.5.4
+      ethers: 5.3.1
+      jsonschema: 1.4.0
+      moment: 2.29.1
+      winston: 3.3.3
+    transitivePeerDependencies:
+      - bufferutil
       - utf-8-validate
     dev: false
 
@@ -14493,19 +14538,19 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-payJCJh0GG/398YCwJOe5UGfGKUFlbMHu0i10PsPGwqIXMdfIPsERr9LqEd7edb0dqliLAraGI9ggVCEQ2h2FA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-n2MK2teWWta4cFONWhnsCOec+YjOuZIMlAdVt2tuy1BxLq72I4icqIfOmh7uQto93ldoTZfW+v1fMHCETmfW/Q==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
       '@compodoc/compodoc': 1.1.25_typescript@4.1.3
       '@energyweb/energy-api-influxdb': 0.8.3_5s24yubn6oroycelimerxxvadu
-      '@energyweb/issuer': 7.0.1
+      '@energyweb/issuer': 6.0.2-alpha.1646058469.0
       '@energyweb/issuer-api': 0.7.1_xopg3sgvptdwdhuxuxidphnbby
-      '@energyweb/origin-247-certificate': 4.1.5_iuomyxlapwi7cjnl43p76ucjsa
+      '@energyweb/origin-247-certificate': 4.1.5_qasctm6eojpfmqas2yzny6nlp4
       '@energyweb/origin-backend': 11.2.3_qcfya5smcgw3snj2p4r43qelz4
       '@energyweb/origin-backend-core': 8.2.3
-      '@energyweb/origin-backend-utils': 1.8.3_azlrti6fdagkyqdo7z3ubbyaye
-      '@energyweb/utils-general': 11.2.3
+      '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye
+      '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
       '@ethersproject/bignumber': 5.3.0
       '@influxdata/influxdb-client': 1.9.0
       '@mapbox/timespace': 2.0.4
