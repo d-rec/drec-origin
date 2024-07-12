@@ -1,4 +1,4 @@
-FROM node:16-alpine AS build
+FROM node:20-alpine AS build
 
 RUN apk --no-cache add bash
 
@@ -7,7 +7,7 @@ RUN npm cache clean --force
 COPY . .
 
 RUN npm i -g @microsoft/rush
-RUN npm i -g pnpm
+RUN npm i -g pnpm@9
 
 WORKDIR /dist/src/app/apps/drec-api
 
@@ -16,7 +16,7 @@ RUN npm run build
 RUN rm -rf ./deployment
 RUN mkdir ./deployment
 RUN rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
-RUN yarn add swagger-ui-express
+RUN npm i swagger-ui-express
 
 # RUN mkdir /var/deployment
 # COPY ./ /var/deployment

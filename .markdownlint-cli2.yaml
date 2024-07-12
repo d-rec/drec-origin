@@ -1,0 +1,14 @@
+# Disable some built-in rules
+config:
+  line-length: false
+  no-inline-html: false
+  first-line-h1: false
+  code-fence-style:
+    style: backtick
+
+# Define glob expressions to use (only valid at root)
+globs:
+  - "**/*.md"
+
+# Ignore files that are not part of version control
+gitignore: true

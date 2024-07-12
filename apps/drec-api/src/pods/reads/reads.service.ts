@@ -25,7 +25,7 @@ import {
   MeasurementDTO,
   ReadDTO,
   FilterDTO,
-  ReadsService as BaseReadService,
+  ReadsService as BaseReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -51,7 +51,6 @@ import {
   IAggregateintermediate,
 } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetMarketplaceOrganizationHandler } from '@energyweb/origin-backend/dist/js/src/pods/organization/handlers/get-marketplace-organization.handler';
 import { ReadStatus } from '../../utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
@@ -77,8 +76,6 @@ export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 @Injectable()
 export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
-  // private influx: InfluxDB;
-  //  private queryApi: QueryApi;
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
   constructor(
@@ -89,17 +86,14 @@ export class ReadsService {
     @InjectRepository(DeltaFirstRead)
     private readonly deltarepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadService,
+    private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
-    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
     this.influxDB = new InfluxDB({ url, token });
@@ -152,21 +146,17 @@ export class ReadsService {
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    //console.log(measurements);
     const device = await this.deviceService.findReads(id);
 
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
     }
-
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    //console.log(roundedMeasurements);
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
-    //console.log(filteredMeasurements);
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
@@ -178,7 +168,6 @@ export class ReadsService {
     const organization = await this.organizationService.findOne(
       device.organizationId,
     );
-    //console.log('109')
     if (!organization) {
       throw new NotFoundException(
         `No organization found with device organization code ${device.organizationId}`,
@@ -206,7 +195,7 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    //console.log("137")
+    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -324,15 +313,12 @@ export class ReadsService {
     });
   }
 
-  // new meter read process
   public async newstoreRead(
     id: string,
     measurements: NewIntmediateMeterReadDTO,
   ): Promise<void> {
     this.logger.debug('DREC is storing smart meter reads:');
     this.logger.debug(JSON.stringify(measurements));
-    //console.log(measurements);
-    //change function for find device info by developer externalid
     const device = await this.deviceService.findReads(id);
     if (!device) {
       throw new NotFoundException(`No device found with external id ${id}`);
@@ -395,7 +381,6 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    // @ts-ignore
     const final = await this.NewfindLatestRead(deviceId, device.createdAt);
     this.logger.verbose(`final: ${final}`);
     const reads: any = [];
@@ -419,8 +404,6 @@ export class ReadsService {
             element.starttimestamp,
             element.endtimestamp,
           );
-          // console.log(checkhistroyreading)
-          // @ts-ignore
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           this.logger.verbose('historyAge');
@@ -434,35 +417,23 @@ export class ReadsService {
             );
           }
 
-          // @ts-ignore
           if (
             requeststartdate <=
               DateTime.fromISO(new Date(historyAge).toISOString()) ||
-            // @ts-ignore
             requeststartdate >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString()) ||
             requestcurrentend <=
               DateTime.fromISO(new Date(historyAge).toISOString()) ||
-            // @ts-ignore
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
             return reject(
               new ConflictException({
                 success: false,
-                // @ts-ignore
                 message: `For History Type Reads of devices start time and/or end time should be within 3 year of device onboarding, ex: device onboarded date: ${device?.createdAt}maximum date allowed for start and end date should be within 3 year in past from onboarded date, ${device?.createdAt}`,
               }),
             );
           }
-
-          // reads.push({
-          //   timestamp: new Date(element.endtimestamp),
-          //   value: element.value,
-          //   timeperiod: meteredTimePeriod,
-          //   startdate: requeststartdate,
-          //   enddate: requestcurrentend
-          // });
           const read: ReadDTO = {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
@@ -504,7 +475,6 @@ export class ReadsService {
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
             if (final && final['timestamp']) {
-              // @ts-ignore
               if (
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
@@ -512,9 +482,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message:
-                      // @ts-ignore
-                      `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
+                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
                   }),
                 );
               }
@@ -523,7 +491,6 @@ export class ReadsService {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
-            // if (deltafirstvalidation) {
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -534,8 +501,6 @@ export class ReadsService {
               unit: measurement.unit,
               readsEndDate: element.endtimestamp.toString(),
             });
-            // }
-
             if (measurmentreadindex == measurement.reads.length - 1) {
               resolve(true);
             }
@@ -564,7 +529,6 @@ export class ReadsService {
               timestamp: ${final.timestamp.toISOString()}
               ${typeof final.timestamp.toISOString()}`);
               if (final && final['timestamp']) {
-                // @ts-ignore
                 if (
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
@@ -572,17 +536,12 @@ export class ReadsService {
                   return reject(
                     new ConflictException({
                       success: false,
-                      message:
-                        // @ts-ignore
-                        `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
+                      message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
                     }),
                   );
                 }
               }
-              // reads.push({
-              //   timestamp: new Date(element.endtimestamp),
-              //   value: element.value
-              // })
+
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
@@ -724,7 +683,6 @@ export class ReadsService {
                 );
               }
 
-              // @ts-ignore
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta,
@@ -769,7 +727,6 @@ export class ReadsService {
     meterId: string,
     deviceregisterdate: Date,
   ): Promise<ReadDTO | void> {
-    // @ts-ignore
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
     |> range(start: ${deviceregisterdate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
@@ -784,9 +741,11 @@ export class ReadsService {
     enddate: Date,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${startdate.getTime()}, stop: ${enddate.getTime()})
-      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-      |> last()`;
+    |> range(start: ${new Date(startdate).toISOString()}, stop: ${new Date(enddate).toISOString()})
+    |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+    |> last()
+    `;
+
     return await this.execute(fluxQuery);
   }
 
@@ -798,14 +757,10 @@ export class ReadsService {
     }));
   }
   get dbReader() {
-    // @ts-ignore
     const url = process.env.INFLUXDB_URL;
-    // @ts-ignore
     const token = process.env.INFLUXDB_TOKEN;
-    // @ts-ignore
     const org = process.env.INFLUXDB_ORG;
 
-    // @ts-ignore
     return new InfluxDB({ url, token }).getQueryApi(org);
   }
 
@@ -819,15 +774,12 @@ export class ReadsService {
       startDate,
       endDate,
     );
-    //console.log("historyexistdevicequery");
     try {
       const device = await query.getRawMany();
 
       return device.length > 0;
     } catch (error) {
-      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
   private getexisthistorydevcielogFilteredQuery(
@@ -838,7 +790,6 @@ export class ReadsService {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
-    //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
@@ -862,8 +813,6 @@ export class ReadsService {
             );
         }),
       );
-
-    //console.log(query.getQuery())
     return query;
   }
   private firstvalidateEnergy(
@@ -903,17 +852,12 @@ export class ReadsService {
       deviceAge = 1;
     }
     const currentRead = DateTime.fromISO(read.timestamp.toISOString());
-
-    //console.log(read.timestamp.toISOString());
-    // @ts-ignore
     const lastRead = DateTime.fromISO(new Date(device.createdAt).toISOString());
-    // @ts-ignore
-    //console.log(new Date(device.createdAt).toISOString());
+
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -983,8 +927,6 @@ export class ReadsService {
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
-
-    // const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -999,7 +941,6 @@ export class ReadsService {
     this.logger.debug(
       `${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
     );
-    //console.log(Math.round(read.value + margin * read.value) < maxEnergy)
     if (read.value < finalmax) {
       return {
         success: true,
@@ -1011,8 +952,6 @@ export class ReadsService {
         message: `Failed, MaxEnergy: ${finalmax}`,
       };
     }
-
-    // return Math.round(read.value + margin * read.value) < maxEnergy;
   }
 
   async NewhistoryvalidateEnergy(
@@ -1057,8 +996,6 @@ export class ReadsService {
       deviceAge = 1;
     }
     const meteredTimePeriod = requestmeteredTimePeriod;
-
-    //const margin = 0.2; // Margin for comparing read value with computed max energy
     const maxEnergy = computeMaxEnergy(
       capacity,
       meteredTimePeriod,
@@ -1094,12 +1031,10 @@ export class ReadsService {
         if (historynextissue != undefined) {
           const stdate = new Date(startdate).getTime();
           const eddate = new Date(enddate).getTime();
-          // @ts-ignore
           const reservSdate = new Date(
             historynextissue.reservationStartDate,
           ).getTime();
           this.logger.verbose(reservSdate);
-          // @ts-ignore
           const reservEdate = new Date(
             historynextissue.reservationEndDate,
           ).getTime();
@@ -1112,7 +1047,6 @@ export class ReadsService {
             eddate <= reservEdate &&
             eddate > reservSdate
           ) {
-            // @ts-ignore
             this.deviceGroupService.HistoryUpdatecertificateissuedate(
               historynextissue.id,
               HistoryNextInssuanceStatus.Pending,
@@ -1123,10 +1057,6 @@ export class ReadsService {
       return read.value < finalmax;
     } else {
       return false;
-      // throw new ConflictException({
-      //   success: false,
-      //   message: `${read.value + margin * read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
-      // });
     }
   }
 
@@ -1144,8 +1074,6 @@ export class ReadsService {
         `No organization found with device organization code ${device.organizationId}`,
       );
     }
-
-    //console.log("new store")
     await this.store(id, measurements);
 
     for (const measurement of measurements.reads) {
@@ -1184,10 +1112,9 @@ export class ReadsService {
       startDate,
       endDate,
     );
-    //console.log("devicequery");
+
     try {
       const device = await query.getRawMany();
-      // console.log(device);
       const devices = device.map((s: any) => {
         const item: any = {
           id: s.devicehistory_id,
@@ -1201,9 +1128,7 @@ export class ReadsService {
 
       return devices;
     } catch (error) {
-      //console.log(error)
       this.logger.error(`Failed to retrieve device`, error.stack);
-      //  throw new InternalServerErrorException('Failed to retrieve users');
     }
   }
 
@@ -1212,7 +1137,6 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-    //  const { organizationName, status } = filterDto;
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
@@ -1251,7 +1175,6 @@ export class ReadsService {
         }),
       )
       .andWhere('devicehistory.certificate_issued != true');
-    // //console.log(query.getQuery())
     return query;
   }
 
@@ -1265,7 +1188,6 @@ export class ReadsService {
     startdate: Date,
     enddate: Date,
   ): Promise<HistoryIntermediate_MeterRead> {
-    // await this.checkNameConflict(data.name);
     const historydevice = await this.getDeviceHistoryCertificateIssueDate({
       id: id,
     });
@@ -1333,7 +1255,6 @@ export class ReadsService {
     if (numberOfHistReads > 0) {
       numberOfPages = Math.ceil(numberOfHistReads / sizeOfPage);
     }
-    // @ts-ignore
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       filter.offset = sizeOfPage * (pageNumber - 1);
@@ -1350,7 +1271,6 @@ export class ReadsService {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
     }
     numberOfReads = numberOfHistReads + numberOfOngReads;
-    // numberOfPages=Math.ceil(numberOfReads/sizeOfPage)
     if (numberOfHistReads == 0 && numberOfOngReads == 0) {
       return {
         historyread,
@@ -1374,8 +1294,6 @@ export class ReadsService {
       };
     }
 
-    //if ((new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime() && new Date(filter.end).getTime() <= new Date(deviceOnboarded).getTime()) || (filter.start <= device_onboarded && filter.end > device_onboarded)) {
-
     if (
       new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()
     ) {
@@ -1394,7 +1312,7 @@ export class ReadsService {
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
-        //console.log("histroread", histroread);
+
         await histroread.forEach((element) => {
           historyread.push({
             startdate: element.devicehistory_readsStartDate,
@@ -1406,9 +1324,7 @@ export class ReadsService {
         this.logger.error(`Failed to retrieve device`, error.stack);
       }
     }
-    // console.log("1513")
-    //console.log(deviceOnboarded);
-    // console.log(filter.end);
+
     if (new Date(deviceOnboarded).getTime() < new Date(filter.end).getTime()) {
       this.logger.verbose(
         'offset::::::::::::' +
@@ -1444,9 +1360,6 @@ export class ReadsService {
           end: filter.end.toString(),
         };
       }
-
-      //  console.log("device onboarded:::::::::" + deviceOnboarded + "\nend:::::::::::::::::" + filter.end);
-
       if (
         new Date(filter.start).getTime() <
           new Date(deviceOnboarded).getTime() ||
@@ -1457,20 +1370,7 @@ export class ReadsService {
           readsFilter,
           pageNumber,
         );
-        //console.log("final ongoing:::::::", finalongoing);
 
-        // const nextPage = pageNumber + 1;
-
-        // const nextPageData = await this.getPaginatedData(externalId, readsFilter, nextPage);
-
-        // let nextReadTime;
-
-        // if (nextPageData.length > 0) {
-        //   // @ts-ignore
-        //   nextReadTime = nextPageData[0].timestamp;
-        // } else {
-        //   nextReadTime = null;
-        // }
         let previousReadTime;
         if (pageNumber > 1) {
           const previousPage = pageNumber - 1;
@@ -1480,11 +1380,10 @@ export class ReadsService {
             previousPage,
           );
           if (previousPageData.length > 0) {
-            // @ts-ignore ts(2339)
-            previousReadTime = previousPageData[0].timestamp;
+            previousReadTime = (previousPageData[0] as any).timestamp;
             this.logger.verbose(
-              // @ts-ignore ts(2339)
-              'previous page read data[0]::::' + previousPageData[0].timestamp,
+              'previous page read data[0]::::' +
+                (previousPageData[0] as any).timestamp,
             );
           } else {
             previousReadTime = null;
@@ -1502,33 +1401,29 @@ export class ReadsService {
               ),
             );
           } else if (i == 0 && pageNumber != 1) {
-            // @ts-ignore
             startdate = previousReadTime;
           } else {
             startdate = transformedFinalOngoing[i - 1].enddate;
           }
-          // @ts-ignore
-          const enddate = finalongoing[i].timestamp;
+          const enddate = (finalongoing[i] as any).timestamp;
           if (i > 1) {
             transformedFinalOngoing.push({
               startdate: transformedFinalOngoing[i - 1].enddate,
               enddate: enddate,
-              // @ts-ignore
-              value: currentRead.value,
+              value: (currentRead as any).value,
             });
           } else {
             transformedFinalOngoing.push({
               startdate: startdate,
               enddate: enddate,
-              // @ts-ignore
-              value: currentRead.value,
+              value: (currentRead as any).value,
             });
           }
         }
         ongoing = transformedFinalOngoing;
       }
     }
-    //  console.log(ongoing);
+
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
         (await this.getnumberOfOngReads(
@@ -1651,7 +1546,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.verbose('startDate::::::::::::' + startDate);
     this.logger.verbose('End DAte:::::::::::::' + endDate);
 
-    meter = meter;
     let tempResults = [];
     const finalResults: { timestamp?: string; value?: any }[] = [];
     let response;
@@ -1845,23 +1739,15 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       developerExternalId,
       organizationId,
     );
-    // console.log("DEVICE:::::::::::" + device);
+
     if (device.latitude && device.longitude) {
-      // console.log("THIS IS THE LAT " + device.latitude + "AND LONG" + device.longitude);
-      // console.log("calling the localtimezone function");
       localTime = getLocalTime(startDate, device);
     }
 
     const localTimeZone = getLocalTimeZoneFromDevice(localTime, device);
-    // console.log("localTimeZone:::::" + localTimeZone);
-    // console.log("calling the offset function");
     const localTimeZoneName = localTimeZone;
-    // console.log("TIME ZONE BEING SENT::::" + localTimeZoneName);
     const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
     const offset = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-    // console.log("FINAL OFFSET HOURS::::::" + typeof (offset.hours));
-    // console.log("FINAL OFFSET MINUTES::::::" + typeof (offset.minutes));
-
     const offSetHoursString = offset.hours.toString();
     const offSetMinutesString = offset.minutes.toString();
 
@@ -1885,14 +1771,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const org = process.env.INFLUXDB_ORG;
     const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
     this.logger.verbose('filter.start:::::::' + filter);
-    // console.log('filter.end:::::::::' + filter.end);
-    // console.log('filter.limit:::::::' + filter.limit);
-    // console.log('filter.offset:::::' + filter.offset);
-    // console.log('meter:::::::::::::' + meter);
-
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}") |> range(start:${filter.start} , stop:${filter.end} ) |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read") |> limit(n:${filter.limit} , offset:${filter.offset})`;
-
-    // const result = await queryApi.queryRaw(fluxQuery);
     const result = await queryApi.collectRows(fluxQuery);
     this.logger.verbose(result);
     this.logger.verbose('\ncollect-rows query SUCCESS');

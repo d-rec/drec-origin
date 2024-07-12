@@ -89,7 +89,11 @@ export class YieldConfigService {
   }
 
   async findByCountryCode(countryCode: string) {
-    return await this.repository.findOne({ countryCode });
+    return await this.repository.findOne({
+      where: {
+        countryCode: countryCode,
+      },
+    });
   }
 
   async update(

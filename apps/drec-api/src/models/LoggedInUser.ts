@@ -23,7 +23,6 @@ export class LoggedInUser implements ILoggedInUser {
     this.blockchainAccountAddress = user.organization?.blockchainAccountAddress;
     this.role = user.role;
     this.permissions = user.permissions;
-    // @ts-ignore
     this.api_user_id = user.api_user_id;
   }
 
@@ -41,15 +40,9 @@ export class LoggedInUser implements ILoggedInUser {
   permissions: any;
 
   hasRole(...role: Role[]): boolean {
-    //console.log("39");
     return isRole(this.role, ...role);
   }
   hasPermission(...permissions: PermissionString[]): boolean {
-    //console.log("42");
-    //console.log(this.permissions);
-    //console.log(...permissions);
-    //console.log(isPermission(this.permissions, ...permissions));
-
     return isPermission(this.permissions, ...permissions);
   }
 

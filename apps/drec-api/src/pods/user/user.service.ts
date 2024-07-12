@@ -86,37 +86,21 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    // @ts-ignore
     const api_user =
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
-    /*
-    if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
-      console.log("came here iasjdajsdojsdojasd");
-      api_user = await this.oauthClientCredentialsService.createAPIUser();
-      console.log("api_user", api_user);
-    } */
+
     let org_id;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
-        // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress,
       };
 
       orgdata['api_user_id'] = api_user.api_user_id;
-
-      /*
-        if (data.organizationType.toLowerCase() == 'ApiUser'.toLowerCase()) {
-          orgdata['api_user_id'] = api_user.api_user_id;
-        }
-        else if (data['client']) {
-          orgdata['api_user_id'] = data['client'].api_user_id;
-        }
-      */
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -130,9 +114,7 @@ export class UserService {
         );
       }
     }
-    // @ts-ignore
     if (data.orgid) {
-      // @ts-ignore
       org_id = data.orgid;
     }
     let role;
@@ -167,7 +149,6 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      //api_user_id: api_user ? api_user.api_user_id : data['client'] ? data['client'].api_user_id : null
       api_user_id: api_user ? api_user.api_user_id : null,
     });
     const { password, ...userData } = user;
@@ -176,7 +157,6 @@ export class UserService {
     );
 
     await this.emailConfirmationService.create(user);
-    //return new User(user);
     return user;
   }
 
@@ -186,6 +166,9 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
+    const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
+      data.api_user_id,
+    );
     let org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -195,7 +178,7 @@ export class UserService {
         orgEmail: data.email,
         address: data.orgAddress,
       };
-
+      orgdata['api_user_id'] = admin.api_user_id;
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -222,10 +205,6 @@ export class UserService {
       role = Role.OrganizationAdmin;
       roleId = 2;
     }
-
-    // const getrole = await this.rolerepository.findOne({ name: role })
-    // console.log(getrole);
-
     const user = await this.repository.save({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -236,16 +215,13 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
+      api_user_id: admin ? admin.api_user_id : null,
     });
     const { password, ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-    // if (inviteuser) {
-    //   await this.emailConfirmationService.create(user, data.orgName, true);
-    // } else {
     await this.emailConfirmationService.admincreate(user, data.password);
-    // }
 
     return new User(user);
   }
@@ -276,7 +252,6 @@ export class UserService {
 
     if (user.role === Role.ApiUser) {
       const api_user = await this.get_apiuser_permission_status(
-        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -297,12 +272,12 @@ export class UserService {
   async getUserAndPasswordByEmail(
     email: string,
   ): Promise<(Pick<UserDTO, 'id' | 'email'> & { password: string }) | null> {
-    const user = await this.repository.findOne(
-      { email },
-      {
-        select: ['id', 'email', 'password'],
+    const user = await this.repository.findOne({
+      where: {
+        email,
       },
-    );
+      select: ['id', 'email', 'password'],
+    });
 
     return user ?? null;
   }
@@ -352,12 +327,14 @@ export class UserService {
 
   public getatleastoneotheruserinOrg(
     organizationId: number,
-    userId,
+    userId: number,
   ): Promise<User[]> {
     return this.repository.find({
       where: {
         id: Not(userId),
-        organization: organizationId,
+        organization: {
+          id: organizationId,
+        },
       },
       order: {
         id: 'DESC',
@@ -396,9 +373,7 @@ export class UserService {
       });
     }
     const updateuser = await this.findById(id);
-    // @ts-ignore
     if (!(updateuser.email === email.toLowerCase())) {
-      // @ts-ignore
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -442,10 +417,6 @@ export class UserService {
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
-    // const emailConfirmation = await this.emailConfirmationService.findOne({ token });
-
-    //const _user = await this.findById(emailConfirmation.id);
-
     if (emailConfirmation) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
@@ -477,16 +448,11 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({ name: role });
-    // var roleId;
-    // if (role === Role.DeviceOwner) {
-    //   roleId = 3
-    // }if else (role === Role.OrganizationAdmin) {
-    //   roleId = 3
-    // }
-    //  else {
-    //   roleId = 5
-    // }
+    const getrole = await this.rolerepository.findOne({
+      where: {
+        name: role,
+      },
+    });
     await this.repository.update(userId, { role, roleId: getrole.id });
     return this.findOne({ id: userId });
   }
@@ -546,6 +512,12 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
+    data = new User({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      status: data.status,
+    });
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
@@ -557,9 +529,7 @@ export class UserService {
     }
 
     const updateuser = await this.findById(id);
-    // @ts-ignore
     if (!(updateuser.email === data.email)) {
-      // @ts-ignore
       await this.checkForExistingUser(data.email);
     }
 
@@ -595,7 +565,6 @@ export class UserService {
     }
     if (user.role === Role.ApiUser) {
       const api_user = await this.get_apiuser_permission_status(
-        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -661,7 +630,11 @@ export class UserService {
   /** ApiUser Fuction*/
 
   async getApiuser(api_id: string): Promise<ApiUserEntity | undefined> {
-    return await this.apiUserEntityRepository.findOne(api_id);
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      },
+    });
   }
   /**
    * This Function added for request of permission to apiuser in apiuser table
@@ -678,12 +651,14 @@ export class UserService {
     api_id: string,
     status: UserPermissionStatus,
   ) {
-    // const approve_apiuser_permissiom = await this.apiUserEntityRepository.findOne(api_id )
-
     await this.apiUserEntityRepository.update(api_id, {
       permission_status: status,
     });
-    return await this.apiUserEntityRepository.findOne(api_id);
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      },
+    });
   }
   /**
    * This service method use for get info of permission request status(Request,Active and Deactive)
@@ -692,7 +667,11 @@ export class UserService {
    */
   async get_apiuser_permission_status(api_id: string) {
     const status_apiuser_permissiom =
-      await this.apiUserEntityRepository.findOne(api_id);
+      await this.apiUserEntityRepository.findOne({
+        where: {
+          api_user_id: api_id,
+        },
+      });
 
     return status_apiuser_permissiom;
   }
@@ -756,18 +735,12 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number) {
-    return await this.userloginSessionRepository.delete({ userId: userId });
+  async removeUsersession(userId: number, token: string) {
+    return await this.userloginSessionRepository.delete({
+      userId: userId,
+      accesstoken_hash: token.trim(),
+    });
   }
-
-  // async getToken(token, userid):Promise<Boolean> {
-  //   await this.userloginSessionRepository.findOne({
-  //     where: {
-  //       token: token,
-  //       UserId: userid
-  //     }
-  //   })
-  // }
 
   async hasgetUserTokenvalid(
     conditions: FindConditions<UserLoginSessionEntity>,

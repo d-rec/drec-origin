@@ -14,19 +14,19 @@ spec:
         app.kubernetes.io/name: drec-api
     spec:
       containers:
-      - image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-api:{{BUILD_NUMBER}}
-        imagePullPolicy: Always
-        name: drec-api
-        envFrom:
-        - secretRef:
-            name: drec-prod-env
-        ports:
-        - containerPort: 3040
-        resources:
-          limits:
-            cpu: 100m
-          requests:
-            cpu: 50m
+        - image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-api:{{BUILD_NUMBER}}
+          imagePullPolicy: Always
+          name: drec-api
+          envFrom:
+            - secretRef:
+                name: drec-prod-env
+          ports:
+            - containerPort: 3040
+          resources:
+            limits:
+              cpu: 100m
+            requests:
+              cpu: 50m
 ---
 apiVersion: v1
 kind: Service

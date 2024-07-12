@@ -203,7 +203,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
@@ -232,7 +232,12 @@ describe('InvitationService', () => {
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
       await expect(inviteefindOneSpy).toHaveBeenCalledWith({
-        where: { email: email, organization: orgId },
+        where: {
+          email: email,
+          organization: {
+            id: orgId,
+          },
+        },
         relations: ['organization'],
       });
       await expect(ensureIsNotMemberSpy).toHaveBeenCalledWith(
@@ -250,6 +255,7 @@ describe('InvitationService', () => {
       });
       await expect(newcreatespy).toHaveBeenCalledWith(
         {
+          api_user_id: inviteeOrganization.api_user_id,
           firstName: firstName,
           lastName: lastName,
           email: email,
@@ -257,7 +263,6 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          api_user_id: inviteeOrganization.api_user_id,
         } as CreateUserORGDTO,
         UserStatus.Pending,
         true,
@@ -417,7 +422,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
@@ -446,7 +451,12 @@ describe('InvitationService', () => {
       await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
       await expect(inviteefindOneSpy).toHaveBeenCalledWith({
-        where: { email: email, organization: orgId },
+        where: {
+          email: email,
+          organization: {
+            id: orgId,
+          },
+        },
         relations: ['organization'],
       });
       await expect(ensureIsNotMemberSpy).toHaveBeenCalledWith(

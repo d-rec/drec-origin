@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceService } from './device.service';
-import { Repository, FindManyOptions } from 'typeorm';
+import {
+  Repository,
+  FindManyOptions,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  In,
+} from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import {
-  HttpService,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { OrganizationService } from '../organization/organization.service';
@@ -25,6 +27,7 @@ import {
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -104,8 +107,6 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        // @ts-ignore
-        countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
@@ -113,7 +114,6 @@ describe('DeviceService', () => {
         gridInterconnection: true,
         offTaker: OffTaker.School, //'School',
         impactStory: null,
-        data: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
@@ -187,8 +187,6 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        // @ts-ignore
-        countryCodename: 'India',
         fuelCode: FuelCode.ES100, //'ES100',
         deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
@@ -196,7 +194,6 @@ describe('DeviceService', () => {
         gridInterconnection: true,
         offTaker: OffTaker.School, //'School',
         impactStory: null,
-        data: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
         energyStorage: true,
@@ -269,9 +266,7 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      // @ts-ignore
       organizationType: Role.OrganizationAdmin,
-      // @ts-ignore
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -574,36 +569,13 @@ describe('DeviceService', () => {
       const orgId = 4;
       const expectedQuery: FindManyOptions<Device> = {
         where: {
-          capacity: {
-            _type: 'lessThanOrEqual',
-            _value: '200',
-            _useParameter: true,
-          },
+          capacity: LessThanOrEqual(200),
           countryCode: 'IND',
-          organizationId: '4',
-          commissioningDate: {
-            _type: 'moreThanOrEqual',
-            _value: '2024-02-18T18:30:00.000Z',
-            _useParameter: true,
-          },
-          SDGBenefits: {
-            _type: 'raw',
-            _value: [],
-            _useParameter: true,
-            _multipleParameters: true,
-          },
-          deviceTypeCode: {
-            _type: 'raw',
-            _value: [],
-            _useParameter: true,
-            _multipleParameters: true,
-          },
-          offTaker: {
-            _type: 'raw',
-            _value: [],
-            _useParameter: true,
-            _multipleParameters: true,
-          },
+          organizationId: 4, // Assuming organizationId is a number
+          commissioningDate: MoreThanOrEqual('2024-02-18T18:30:00.000Z'), // Assuming commissioningDate is a Date
+          SDGBenefits: In([]), // Assuming SDGBenefits is an array
+          deviceTypeCode: In([]), // Assuming deviceTypeCode is an array
+          offTaker: In([]), // Assuming offTaker is an array
         },
         order: { organizationId: 'DESC' },
       };
@@ -631,9 +603,7 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        // @ts-ignore
         organizationType: Role.OrganizationAdmin,
-        // @ts-ignore
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
@@ -972,7 +942,6 @@ describe('DeviceService', () => {
         skip: (pageNumber - 1) * limit,
         take: limit,
       };
-
       const getFilteredQueryMock = jest
         .fn()
         .mockReturnValue(expectedQuery as FindManyOptions<Device>);

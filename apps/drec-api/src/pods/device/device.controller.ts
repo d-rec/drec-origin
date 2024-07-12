@@ -63,6 +63,7 @@ import {
 import { Device } from './device.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { FindOneOptions } from 'typeorm';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -114,8 +115,6 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
-  // @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard)
-  //@Roles(Role.Admin)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: FilterDTO,
@@ -123,10 +122,8 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    // @ts-ignore ts(2339)
     if (filterDto.organizationId) {
       const organization = await this.organizationService.findOne(
-        // @ts-ignore ts(2339)
         filterDto.organizationId,
       );
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -245,7 +242,6 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -299,11 +295,9 @@ export class DeviceController {
         });
       }
     }
-    // @ts-ignore
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
-          // @ts-ignore ts(2339)
           filterDto.organizationId,
         );
         const orguser = await this.userService.findByEmail(
@@ -327,7 +321,6 @@ export class DeviceController {
           }
         }
       } else {
-        // @ts-ignore
         if (filterDto.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
@@ -339,7 +332,6 @@ export class DeviceController {
         }
       }
 
-      // @ts-ignore
       organizationId = filterDto.organizationId;
     }
 
@@ -366,8 +358,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin)
-  @ApiQuery({ name: 'apiUserId', type: Number, required: false })
+  @ApiQuery({ name: 'apiUserId', type: String, required: false })
   @ApiQuery({ name: 'organizationId', type: Number, required: false })
   @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
   @ApiNotFoundResponse({
@@ -382,11 +373,9 @@ export class DeviceController {
     let devicedata: Device;
     if (api_user_id && organizationId) {
       devicedata = await this.deviceService.findOne(id, {
-        where: {
-          api_user_id: api_user_id,
-          organizationId: organizationId,
-        },
-      });
+        api_user_id: api_user_id,
+        organizationId: organizationId,
+      } as FindOneOptions<Device>);
     } else {
       devicedata = await this.deviceService.findOne(id);
     }
@@ -411,13 +400,27 @@ export class DeviceController {
   })
   async getByExternalId(
     @Param('id') id: string,
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
-      id,
-      organizationId,
-    );
+    let devicedata: Device;
+
+    if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
+      if (loginUser.role === Role.Admin) {
+        loginUser.api_user_id = null;
+      }
+
+      devicedata =
+        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
+          id,
+          loginUser.api_user_id,
+        );
+    } else {
+      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+        id,
+        loginUser.organizationId,
+      );
+    }
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata['developerExternalId'];
     return devicedata;
@@ -433,7 +436,6 @@ export class DeviceController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewDeviceDTO,
@@ -565,10 +567,8 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     if (role === Role.Admin || role === Role.ApiUser) {
-      // @ts-ignore
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
-        // @ts-ignore
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
@@ -615,6 +615,40 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
+
+    if (
+      deviceToUpdate.organizationId != null &&
+      deviceToUpdate.organizationId != undefined &&
+      deviceToUpdate.organizationId
+    ) {
+      const org = await this.organizationService.findOne(
+        deviceToUpdate.organizationId,
+      );
+      if (user.role === Role.ApiUser) {
+        if (
+          user.api_user_id != org.api_user_id ||
+          org.organizationType != 'Developer'
+        ) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        } else {
+          user.organizationId = deviceToUpdate.organizationId;
+        }
+      } else {
+        if (user.role != Role.Admin && user.organizationId != org.id) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        } else if (user.role === Role.Admin) {
+          user.organizationId = deviceToUpdate.organizationId;
+        }
+      }
+    }
 
     if (deviceToUpdate.externalId) {
       deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
@@ -704,8 +738,6 @@ export class DeviceController {
         );
       });
     }
-    // var commissioningDate = moment(deviceToUpdate.commissioningDate);
-
     if (
       !isValidUTCDateFormat(deviceToUpdate.commissioningDate) &&
       deviceToUpdate.commissioningDate !== undefined
@@ -838,7 +870,6 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceDTO],
@@ -903,31 +934,6 @@ export class DeviceController {
     );
   }
 
-  /* */
-
-  //////////////////////////////////////////////////
-
-  // @Get('/autocomplete')
-  //   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
-  //   @Permission('Read')
-  //   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
-  //   @ApiResponse({
-  //     status: HttpStatus.OK,
-  //     type: [DeviceDTO],
-  //     description: 'Returns auto corrected externalIDs and other data',
-  //   })
-
-  //   // @ApiQuery({ name: 'externalId', description: 'externalId',type:Number })
-
-  //   async autocomplete(
-  //     @UserDecorator() { organizationId }: ILoggedInUser,
-  //     // @Query('externalId') externalId :Number,
-
-  //   ){
-  //     return await this.deviceService.atto(organizationId);
-  //   }
-
   /**
    * It is GET api to list all devices with auto complete
    * @param param0 is getting organizationId from user request
@@ -938,7 +944,6 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns Auto-Complete',
@@ -975,8 +980,6 @@ export class DeviceController {
     @Query('pagenumber') pagenumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
-    // console.log(externalId);
-    // console.log(groupuId)
     this.logger.verbose(`With in certifiedlogdaterang`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
@@ -995,11 +998,9 @@ export class DeviceController {
       });
     }
 
-    let group: DeviceGroup | null;
-    group = await this.deviceGroupService.findOne({
+    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
-    // console.log(group);
     if (group === null || group.buyerId != user.id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -1014,10 +1015,8 @@ export class DeviceController {
       });
     }
     if (externalId != null || externalId != undefined) {
-      let device: DeviceDTO | null;
-
-      device = await this.deviceService.findOne(externalId);
-      /// console.log(device);
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {
@@ -1040,17 +1039,7 @@ export class DeviceController {
       );
     }
   }
-  // @Get('/certified/date-range-log')
-  // @UseGuards(AuthGuard('jwt'))
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'Returns Auto-Complete',
-  // })
-  // async devicecertifiedlogdaterange() {
 
-  //   return "await this.deviceService.atto(organizationId, externalId)";
-  // }
-  /////////////////////////////////////////////////
   /**
    * It is POST api to create array of devices by uploading csv files with device data
    * @param user is loggedIn user from request
@@ -1060,10 +1049,8 @@ export class DeviceController {
    */
   @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin, Role.DeviceOwner,Role.OrganizationAdmin)
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceCsvFileProcessingJobsEntity],
@@ -1086,7 +1073,6 @@ export class DeviceController {
 
     if (fileToProcess.fileName == undefined) {
       this.logger.error(`File Not Found`);
-      //throw new Error("file not found");
       throw new ConflictException({
         success: false,
         message: 'File Not Found',
@@ -1094,7 +1080,6 @@ export class DeviceController {
     }
     if (!fileToProcess.fileName.endsWith('.csv')) {
       this.logger.error(`Invalid file`);
-      //throw new Error("file not found");
       throw new ConflictException({
         success: false,
         message: 'Invalid file',
@@ -1139,9 +1124,6 @@ export class DeviceController {
         fileToProcess.fileName,
       );
     }
-
-    //let jobCreated = await this.deviceGroupService.createCSVJobForFile(user.id, organizationId, StatusCSV.Added,  response.filename);
-
     return jobCreated;
   }
 }

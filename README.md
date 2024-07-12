@@ -28,78 +28,100 @@
 </p>
 
 ---
+
 Repository for Origin DREC project
 
 ## Local environment setup of Ubuntu
 
-Install `wsl`,`ubuntu-18.04` in command prompt running as administrator:
-```
+Install `wsl`,`ubuntu-20.04` in command prompt running as administrator:
+
+```sh
 wsl --install
-wsl --install --distribution Ubuntu-18.04
+wsl --install --distribution Ubuntu-20.04
 ```
 
-Install `Influx-Client`: 
-```
+Install `Influx-Client`:
+
+```sh
 sudo apt install influx client
 sudo apt update
 ```
 
 Restart the Ubuntu terminal once, after installation done.
 Clone and Install `nvm`:
-```
+
+```sh
 sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-nvm install 14.19.1
+nvm install 20.14.0
 ```
 
 Install `rush`, `pnpm` if you don't have it:
-```
+
+```sh
 npm i -g @microsoft/rush
 npm i -g pnpm
 ```
 
 Create and change directory:
-```
+
+```sh
 mkdir drec
 cd drec
 ```
 
 Clone repository:
 It should be cloned in both local and Ubuntu environment.
-```
+
+```sh
 git clone https://github.com/drec/drec-origin.git
 chmod -R 777 drec-origin/
 ```
 
 Copy `.env.example` to `.env` and adjust `.env` with your environment specific parameters.
-```
+
+```sh
 cp .env.example .env
 ```
 
 Start Postgres, Redis, InfluxDB instance
 
 Please create and start your Postgres, Redis and InfluxDB by running below command in our root directory, after that anytime you can manage this images through your docker desktop installed on your system.
-```
+
+```sh
 docker-compose up --build
 ```
 
 Create Postgres DB table
-```
+
+```sh
 psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 ```
 
-Install dependencies, Run db migrations:
+Create Default Admin:
+
+Please update below environment variables under defauld admin credential with the values that you wanted to create as default admin user.
+
+```sh
+ADMIN_EMAIL
+ADMIN_PASSWORD
 ```
+
+Install dependencies, Run db migrations:
+
+```sh
 rush install
 rush build
 ```
 
 Run API project
-```
+
+```sh
 rush start:dev
 ```
 
 You may also want to drop local databases with
-```
+
+```sh
 rush drop
 ```
 
@@ -107,24 +129,24 @@ rush drop
 
 Go inside integrators-scripts folder
 Create a .env, copy everything from .env.example and change the necessary variables depending on the environment
-```
+
+```sh
 npm i
 npm run start
 ```
 
-## Metamask Setup:
+## Metamask Setup
 
-1. The metamask extension required to add in default browser before generating certificate. Create login 
-2. When selecting netweok option choose the add manual network, use below values to create network manually 
-  a. Network Name - It's depend on user (ex., Volta, Voltatest)
-  b. New RPC URL - https://volta-rpc.energyweb.org
-  c. ChainID - 73799
-  d. Symbol - VT
-  e. Block Explorer URL - https://volta-rpc.energyweb.org
+1. The metamask extension required to add in default browser before generating certificate. Create login
+2. When selecting netweok option choose the add manual network, use below values to create network manually
+   a. Network Name - It's depend on user (ex., Volta, Voltatest)
+   b. New RPC URL - <https://volta-rpc.energyweb.org>
+   c. ChainID - 73799
+   d. Symbol - VT
+   e. Block Explorer URL - <https://volta-rpc.energyweb.org>
 3. Update your blockchain address and mnemonic as the variables `DREC_BLOCKCHAIN_ADDRESS` and `MNEMONIC` in our .env file
-4. Add balance to your wallet using this link https://voltafaucet.energyweb.org/ by providing your blockchain address of your metamask
+4. Add balance to your wallet using this link <https://voltafaucet.energyweb.org/> by providing your blockchain address of your metamask
 5. To get the issuer private key, go to Account details, click on the show private key button, there you will find the your Issuer private key. Add this key in your environment file as `ISSUER_PRIVATE_KEY`
-
 
 Before running the script, make sure:
 

@@ -19,5 +19,17 @@ export class DeviceGroupNewFieldsForBuyerReservation1661776597766
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE "device_group" 
+      DROP COLUMN IF EXISTS "frequency",
+      DROP COLUMN IF EXISTS "reservationStartDate",
+      DROP COLUMN IF EXISTS "reservationEndDate",
+      DROP COLUMN IF EXISTS "targetVolumeInMegaWattHour",
+      DROP COLUMN IF EXISTS "targetVolumeCertificateGenerationRequestedInMegaWattHour",
+      DROP COLUMN IF EXISTS "targetVolumeCertificateGenerationSucceededInMegaWattHour",
+      DROP COLUMN IF EXISTS "targetVolumeCertificateGenerationFailedInMegaWattHour",
+      DROP COLUMN IF EXISTS "authorityToExceed",
+      DROP COLUMN IF EXISTS "leftoverReadsByCountryCode"
+    `);
+  }
 }

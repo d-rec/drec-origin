@@ -26,10 +26,10 @@ export class ClientJwtStrategy extends PassportStrategy(
   }
 
   async validate(request: Request, payload: IJWTPayload) {
-    // @ts-ignore
-    const token = request.headers.authorization?.split(' ')[1];
+    const token = (
+      request.headers as { authorization?: string }
+    ).authorization?.split(' ')[1];
     const user = await this.userService.findByEmail(payload.email);
-    // @ts-ignore
     const publicKey = this.oauthClientService.get(user.api_user_id);
     const verifiedData = await this.jwtService.verify(token, {
       publicKey: (await publicKey).client_id,

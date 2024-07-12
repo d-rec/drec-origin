@@ -8,12 +8,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FindOneOptions,
-  Repository,
-  FindConditions,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
 import {
   getProviderWithFallback,
   recoverTypedSignatureAddress,
@@ -66,8 +61,11 @@ export class OrganizationService {
     options: FindOneOptions<Organization> = {},
   ): Promise<Organization> {
     this.logger.verbose(`With in findOne`);
-    const organization = await this.repository.findOne(id, {
-      ...options,
+    const organization = await this.repository.findOne({
+      where: {
+        id: id,
+        ...options,
+      },
     });
     if (!organization) {
       this.logger.error(`No organization found with id ${id}`);
@@ -79,7 +77,9 @@ export class OrganizationService {
   public async findByBlockchainAddress(address: string): Promise<Organization> {
     this.logger.verbose(`With in findByBlockchainAddress`);
     return await this.repository.findOneOrFail({
-      blockchainAccountAddress: address,
+      where: {
+        blockchainAccountAddress: address,
+      },
     });
   }
 
@@ -100,16 +100,20 @@ export class OrganizationService {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getAll`);
-    let query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
-        query = query.andWhere(`organization.api_user_id = :apiuserid`, {
-          apiuserid: user.api_user_id,
-        });
+        query
+          .andWhere('organization.api_user_id = :apiuserid', {
+            apiuserid: user.api_user_id,
+          })
+          .andWhere(
+            'organization.organizationType NOT IN (:...excludedRoles)',
+            {
+              excludedRoles: ['ApiUser', 'Admin'],
+            },
+          );
       }
-      query.andWhere(`organization.organizationType != :organizationType`, {
-        organizationType: Role.ApiUser,
-      });
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -444,7 +448,9 @@ export class OrganizationService {
     const organization = await this.findOne(orgId);
 
     const alreadyExistingOrganizationWithAddress = await this.repository.count({
-      blockchainAccountAddress: address,
+      where: {
+        blockchainAccountAddress: address,
+      },
     });
 
     if (alreadyExistingOrganizationWithAddress > 0) {
@@ -521,7 +527,7 @@ export class OrganizationService {
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName } = filterDto;
+    const { organizationName, organizationType } = filterDto;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')
@@ -529,6 +535,11 @@ export class OrganizationService {
     if (organizationName) {
       const baseQuery = 'organization.name ILIKE :organizationName';
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
+    }
+    if (organizationType) {
+      query.andWhere(`organization.organizationType != :organizationType`, {
+        organizationType: `%${organizationType}%`,
+      });
     }
     return query;
   }

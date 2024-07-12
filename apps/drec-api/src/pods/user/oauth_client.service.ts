@@ -23,7 +23,6 @@ export class OauthClientCredentialsService {
   ) {}
 
   async createAPIUser(): Promise<ApiUserEntity> {
-    // @ts-ignore
     return await this.apiUserEntityRepository.save({ api_user_id: uuid() });
   }
 
@@ -39,7 +38,9 @@ export class OauthClientCredentialsService {
 
   async get(api_user_id: string) {
     return await this.clientCredentialsRepository.findOne({
-      api_user_id: api_user_id,
+      where: {
+        api_user_id: api_user_id,
+      },
     });
   }
 
@@ -48,8 +49,12 @@ export class OauthClientCredentialsService {
     client_id: string,
     userid: number,
   ): Promise<OauthClientCredentials> {
-    const clientCredentials =
-      await this.clientCredentialsRepository.findOne(id);
+    const clientCredentials = await this.clientCredentialsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+
     if (!clientCredentials) {
       // Handle error, throw exception, etc.
     }
@@ -60,8 +65,9 @@ export class OauthClientCredentialsService {
   }
 
   async edit(id: number, client_id: string): Promise<OauthClientCredentials> {
-    const clientCredentials =
-      await this.clientCredentialsRepository.findOne(id);
+    const clientCredentials = await this.clientCredentialsRepository.findOne({
+      id: id,
+    });
     if (!clientCredentials) {
       // Handle error, throw exception, etc.
     }
@@ -83,10 +89,13 @@ export class OauthClientCredentialsService {
 
   async findOneByclient_idAndUserId(
     client_id: string,
-    api_user_id: number,
+    api_user_id: string,
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({
-      where: { client_id, api_user_id },
+      where: {
+        client_id: client_id,
+        api_user_id: api_user_id,
+      },
     });
   }
   async findOneByuserid(
@@ -116,16 +125,15 @@ export class OauthClientCredentialsService {
 
   async createKeyFile(api_user_id: string, res: Response) {
     try {
-      const privateKey = await this.generateKeys(api_user_id); // Generate the private key using your service
-      fs.writeFileSync('private_key.pem', privateKey); // Write the private key to a file
-      const file = fs.readFileSync('private_key.pem'); // Read the file as a buffer
       res.setHeader(
         'Content-Disposition',
         'attachment; filename=private_key.pem',
       );
       res.setHeader('Content-Type', 'application/octet-stream');
-      //res.send(file);
-      res.write(file, 'utf-8', () => {
+      const privateKey = await this.generateKeys(api_user_id); // Generate the private key using your service
+      fs.writeFileSync('private_key.pem', privateKey); // Write the private key to a file
+      const file = fs.readFileSync('private_key.pem'); // Read the file as a buffer
+      return res.write(file, 'utf-8', () => {
         this.logger.verbose('The CSV file streamed successfully!');
         res.end();
       });

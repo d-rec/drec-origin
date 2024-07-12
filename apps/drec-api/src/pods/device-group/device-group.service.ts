@@ -19,6 +19,7 @@ import {
   Between,
   Brackets,
   SelectQueryBuilder,
+  UpdateResult,
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -32,7 +33,6 @@ import {
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
 } from './dto';
-//import { jsonbBuildObject, jsonbBuildArray, jsonbPath, jsonbArrayElements } from 'typeorm-plus';
 import { defaults, cloneDeep } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
@@ -40,6 +40,8 @@ import {
   DeviceDescription,
   IDevice,
   BuyerReservationCertificateGenerationFrequency,
+  IFullOrganization,
+  IUser,
 } from '../../models';
 import { DeviceDTO, NewDeviceDTO, FilterDTO } from '../device/dto';
 import {
@@ -50,6 +52,8 @@ import {
   FuelCode,
   DevicetypeCode,
   Role,
+  OrganizationStatus,
+  UserStatus,
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -321,7 +325,11 @@ export class DeviceGroupService {
           }),
         );
       }
-
+      if (filterDto.name) {
+        const name = filterDto.name.toString();
+        const baseQuery = 'group.name ILIKE :name';
+        query.andWhere(baseQuery, { name: `%${name}%` });
+      }
       if (filterDto.reservationActive) {
         if (filterDto.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -362,7 +370,9 @@ export class DeviceGroupService {
   async findById(id: number, user?: ILoggedInUser): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findById`);
     const deviceGroup = await this.repository.findOne({
-      id,
+      where: {
+        id: id,
+      },
     });
     if (!deviceGroup) {
       this.logger.error(`No device group found with id ${id}`);
@@ -594,13 +604,7 @@ export class DeviceGroupService {
                 }),
               );
             }
-            // if (groupfilterDto.start_date) {
 
-            //   qb.orWhere("dg.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1", { reservationStartDate1: groupfilterDto.start_date, reservationEndDate1: groupfilterDto.end_date })
-            // }
-            // if (groupfilterDto.end_date) {
-            //   qb.orWhere("dg.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2", { reservationStartDate2: groupfilterDto.start_date, reservationEndDate2: groupfilterDto.end_date })
-            // }
             if (groupfilterDto.start_date && groupfilterDto.end_date) {
               qb.orWhere(
                 new Brackets((db) => {
@@ -664,6 +668,11 @@ export class DeviceGroupService {
                 }),
               );
             }
+            if (groupfilterDto.name) {
+              const name = groupfilterDto.name.toString();
+              const baseQuery = 'dg.name ILIKE :name';
+              qb.andWhere(baseQuery, { name: `%${name}%` });
+            }
             if (groupfilterDto.reservationActive) {
               if (groupfilterDto.reservationActive === 'Active') {
                 qb.orWhere('dg.reservationActive = :active', { active: true });
@@ -684,7 +693,6 @@ export class DeviceGroupService {
       .limit(pageSize)
       .getRawMany();
     this.logger.debug(queryBuilder.getSql());
-    // console.log(groupedData);
     const totalCountQuery = await queryBuilder.getCount();
 
     const totalPages = Math.ceil(totalCountQuery / pageSize);
@@ -798,7 +806,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -850,7 +857,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };
@@ -889,8 +895,10 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
     if (organizationId) {
       const csvjob = await this.repositoyCSVJobProcessing.findOne({
-        jobId: jobId,
-        organizationId: organizationId,
+        where: {
+          jobId: jobId,
+          organizationId: organizationId,
+        },
       });
 
       if (!csvjob) {
@@ -903,7 +911,9 @@ export class DeviceGroupService {
     }
 
     return await this.repositoryJobFailedRows.findOne({
-      jobId: jobId,
+      where: {
+        jobId: jobId,
+      },
     });
   }
 
@@ -936,8 +946,6 @@ export class DeviceGroupService {
       ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
       : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-      //find minimum reservation start date for next issuance but also exclude in cron whose devices onbaorded date are greater than reservation start date
-      //there will be single device which will have next issuance
       let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
       let minimumDeviceCreatedAtIndex = 0;
       devices.forEach((ele, index) => {
@@ -947,7 +955,7 @@ export class DeviceGroupService {
           minimumDeviceCreatedAtIndex = index;
         }
       });
-      ////console.log(minimumDeviceCreatedAtDate)
+
       //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
       //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
       let startDate = '';
@@ -959,7 +967,7 @@ export class DeviceGroupService {
       } else {
         startDate = minimumDeviceCreatedAtDate.toISOString();
       }
-      ////console.log(minimumDeviceCreatedAtDate)
+
       let hours = 1;
 
       const frequency = group.frequency.toLowerCase();
@@ -991,7 +999,6 @@ export class DeviceGroupService {
       } else {
         newEndDate = data.reservationEndDate.toISOString();
       }
-      ////console.log("newEndDate",newEndDate)
       //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
       //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
       let nextMinimumCreatedWhichIsLessThanEndDate = false;
@@ -1003,7 +1010,6 @@ export class DeviceGroupService {
           ) {
             nextMinimumCreatedWhichIsLessThanEndDate = true;
             if (nextMinimumCreatedAtString === '') {
-              //newEndDate
               nextMinimumCreatedAtString = new Date(
                 ele.createdAt,
               ).toISOString();
@@ -1021,14 +1027,13 @@ export class DeviceGroupService {
           }
         }
       });
-      ////console.log("nextMinimumCreatedAtString",nextMinimumCreatedAtString)
       if (nextMinimumCreatedWhichIsLessThanEndDate) {
         if (
-          new Date(startDate).getTime() >
-          new Date(nextMinimumCreatedAtString).getTime()
+          !(
+            new Date(startDate).getTime() >
+            new Date(nextMinimumCreatedAtString).getTime()
+          )
         ) {
-          newEndDate = newEndDate;
-        } else {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
@@ -1181,7 +1186,7 @@ export class DeviceGroupService {
       const meteredTimePeriodInHours = Math.abs(
         reservationEndDate.diff(reservationStartDate, ['hours']).toObject()
           ?.hours || 0,
-      ); // hours
+      );
       const targetCapacityInKiloWattHour =
         group.targetCapacityInMegaWattHour * 1000;
       if (
@@ -1291,18 +1296,13 @@ export class DeviceGroupService {
       `With in updateTotalReadingRequestedForCertificateIssuance`,
     );
     const deviceGroup = await this.findDeviceGroupById(groupId, organizationId);
-    //console.log(deviceGroup);
-    // @ts-ignore
-    //console.log("updatetargetmwh")
-    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
-    //console.log(targetVolumeCertificateGenerationRequestedInMegaWattHour);
+
     deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour =
       deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour +
       targetVolumeCertificateGenerationRequestedInMegaWattHour;
-    //console.log("afterupdatetargetmwh")
-    //console.log(deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour);
+
     const updatedGroup = await this.repository.save(deviceGroup);
-    //console.log(updatedGroup);
+
     return updatedGroup;
   }
 
@@ -1375,9 +1375,8 @@ export class DeviceGroupService {
         allExternalIds,
         organizationId,
       );
-    //////console.log("existingDevices",existingDevices);
+
     if (existingDevices && existingDevices.length > 0) {
-      // @ts-ignore
       existingDevices.forEach((ele) =>
         existingDeviceIds.push(ele?.developerExternalId),
       );
@@ -1410,7 +1409,6 @@ export class DeviceGroupService {
             );
           }
         } catch (e) {
-          //console.log(e);
           this.logger.error(e);
           return { isError: true, device: device, errorDetail: e };
         }
@@ -1451,8 +1449,10 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in findDeviceGroupById`);
     const deviceGroup = await this.repository.findOne({
-      id,
-      organizationId,
+      where: {
+        id,
+        organizationId,
+      },
     });
     if (!deviceGroup) {
       this.logger.error(
@@ -1549,21 +1549,14 @@ export class DeviceGroupService {
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
       deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: fuelCode, //[devices.map((device: DeviceDTO) => device.fuelCode ? device.fuelCode : '').join(' , ')],
-      countryCode: countryCode, // [devices.map((device: DeviceDTO) => device.countryCode ? device.countryCode : '').join(' , ')],
-      //standardCompliance: devices[0].standardCompliance,
+      fuelCode: fuelCode,
+      countryCode: countryCode,
       deviceTypeCodes: deviceTypeCodes,
-      // @ts-ignore
-      offTakers: offTakers, //[devices.map((device: DeviceDTO) => device.offTaker ? device.offTaker : '').join(' , ')],
-      //installationConfigurations: [devices[0].installationConfiguration],
-      //sectors,
+      offTakers: offTakers,
       gridInterconnection,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
-      //yieldValue: averageYieldValue,
-      // labels: labels ?? [],
-      //devicesIds: devicesIds
     };
 
     return deviceGroup;
@@ -1575,9 +1568,6 @@ export class DeviceGroupService {
   ): FindManyOptions<DeviceGroup> {
     this.logger.verbose(`With in getreservationFilteredQuery`);
     const where: FindConditions<DeviceGroup> = cleanDeep({
-      // countryCode: filter.country && getCodeFromCountry(filter.country),
-      // gridInterconnection: filter.gridInterconnection,
-      // fuelCode: filter.fuelCode,
       reservationStartDate:
         filter.start_date &&
         filter.end_date &&
@@ -1587,21 +1577,9 @@ export class DeviceGroupService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-
-    // if (filter.country) {
-    //   where.countryCode = this.getRawFilter(filter.country);
-    // }
-    // if (filter.fuelCode) {
-    //   where.fuelCode = this.getRawFilter(filter.fuelCode);
-    // }
     if (filter.offTaker) {
       where.offTakers = this.getRawFilter(filter.offTaker);
     }
-    // if (filter.commissioningDateRange) {
-    //   where.commissioningDateRange = this.getRawFilter(
-    //     filter.commissioningDateRange,
-    //   );
-    // }
     const query: FindManyOptions<DeviceGroup> = {
       where: {
         buyerId: buyerId || null,
@@ -1635,7 +1613,9 @@ export class DeviceGroupService {
   > {
     this.logger.verbose(`With in hasSingleAddedJobForCSVProcessing`);
     return await this.repositoyCSVJobProcessing.findOne({
-      status: StatusCSV.Added,
+      where: {
+        status: StatusCSV.Added,
+      },
     });
   }
 
@@ -1644,10 +1624,22 @@ export class DeviceGroupService {
     status: StatusCSV,
   ): Promise<DeviceCsvFileProcessingJobsEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    // @ts-ignore
-    return await this.repositoyCSVJobProcessing.update(jobId, {
-      status: status,
-    });
+    const updateResult: UpdateResult =
+      await this.repositoyCSVJobProcessing.update(
+        { jobId: jobId },
+        { status: status },
+      );
+
+    if (updateResult.affected === 0) {
+      throw new Error(`No job found with ID ${jobId}`);
+    }
+
+    const updatedJob: DeviceCsvFileProcessingJobsEntity =
+      await this.repositoyCSVJobProcessing.findOne({
+        where: { jobId: jobId },
+      });
+
+    return updatedJob;
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -1656,30 +1648,27 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
-    if (filesAddedForProcessing === undefined) {
+    if (
+      filesAddedForProcessing === undefined ||
+      filesAddedForProcessing === null
+    ) {
       return;
     }
 
-    const data = new LoggedInUser({
-      id: filesAddedForProcessing.userId,
-      // @ts-ignore
-      organization: { id: filesAddedForProcessing.organizationId },
-    });
+    const user = await this.userService.findById(
+      filesAddedForProcessing.userId,
+    );
+
+    const data = new LoggedInUser(user);
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
     const response = await this.fileService.GetuploadS3(
       filesAddedForProcessing.fileId,
     );
-
-    // const response = await this.fileService.get(
-    //   filesAddedForProcessing.fileId,
-    //   data,
-    // );
     this.logger.debug(response);
     if (response == undefined) {
       return;
     } else {
-      ////console.log("started job processing",filesAddedForProcessing.jobId);
       this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
       this.processCsvFileAnotherLibrary(
         response,
@@ -1688,196 +1677,6 @@ export class DeviceGroupService {
       );
     }
   }
-
-  /* Readable Stream didnt work for second file sent only when first file sent was working
-  async processCsvFileAnotherLibrary(
-    file: File,
-    organizationId: number,
-    filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
-  ) {
-    //////console.log("into method");
-    const records: Array<NewDeviceDTO> = [];
-    const recordsErrors: Array<{ rowNumber:number;isError: boolean; errorsList: Array<any> }> =
-      [];
-      let rowsConvertedToCsvCount=0;
-    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
-    const readableStream = new Readable();
-    readableStream._read = () => {}; // _read is required but you can noop it
-    readableStream
-      .pipe(this.csvParser)
-      .on('data', async (data) => {
-        rowsConvertedToCsvCount++;
-        data.images = [];
-        data.groupId = null;
-        const dataToStore = new NewDeviceDTO();
-
-        const dataKeyForValidation: NewDeviceDTO = {
-          externalId: '',
-          projectName: '',
-          address: '',
-          latitude: '',
-          longitude: '',
-          countryCode: '',
-          fuelCode: '',
-          deviceTypeCode: '',
-          capacity: 0,
-          commissioningDate: '',
-          gridInterconnection: false,
-          offTaker: OffTaker.Commercial,
-          yieldValue: 0,
-          labels: '',
-          impactStory: '',
-          data: '',
-          images: [],
-          deviceDescription: DeviceDescription.GroundmountSolar,
-          energyStorage: true,
-          energyStorageCapacity: 0,
-          qualityLabels: '',
-          SDGBenefits:0,
-          //groupId: 0,
-        };
-        for (const key in dataKeyForValidation) {
-          // @ts-ignore
-          if (typeof dataKeyForValidation[key] === 'string') {
-            // @ts-ignore
-            dataToStore[key] = data[key];
-          }
-          // @ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'boolean') {
-            // @ts-ignore
-            dataToStore[key] =
-              data[key].toLowerCase() === 'true' ? true : false;
-          }
-          // @ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'number') {
-            // @ts-ignore
-            dataToStore[key] =
-              parseFloat(data[key]) === NaN ? parseFloat(data[key]) : 0;
-              // @ts-ignore
-           if(key == 'yieldValue' && dataToStore[key]===0)
-           {
-            dataToStore[key]=1500;
-           }
-          }
-          if(key == 'yieldValue' && data.countryCode)
-          {
-            let yieldByCountryCode=await this.yieldConfigService.findByCountryCode(data.countryCode);
-            if(yieldByCountryCode)
-            {
-              // @ts-ignore
-              dataToStore.yieldValue=yieldByCountryCode.yieldValue;
-            }
-          }
-          // // @ts-ignore
-          // else if (key === 'generatorsIds') {
-          //   if (data[key] === '') {
-          //     // @ts-ignore
-          //     dataToStore[key] = [];
-          //   } else {
-          //     // @ts-ignore
-          //     dataToStore[key] = data[key].split('|').map(
-          //       // @ts-ignore
-          //       (ele) => (parseFloat(ele) === NaN ? 0 : parseFloat(ele)),
-          //     );
-          //     // @ts-ignore
-          //     dataToStore[key] = dataToStore[key].filter((ele) => ele !== 0);
-          //   }
-          // }
-        }
-        for(let key in dataToStore)
-        {
-          // @ts-ignore
-          dataToStore[key] === ''?dataToStore[key]=null:'';
-        }
-
-        //////console.log("records",JSON.stringify(records));
-
-        records.push(dataToStore);
-        recordsErrors.push({ rowNumber:rowsConvertedToCsvCount,isError: false, errorsList: [] });
-      })
-      .on('end', async () => {
-        //////console.log("data end transmissiodsdddddddddddn",records);
-        for(let index=0;index<records.length;index++)
-        {
-          let singleRecord = records[index];
-          //////console.log("waiting");
-          const errors = await validate(singleRecord);
-          //////console.log("validation errors",errors);
-          // errors is an array of validation errors
-          if (errors.length > 0) {
-            recordsErrors[index] = { rowNumber: index, isError: true, errorsList: errors };
-          } else {
-            recordsErrors[index] = { rowNumber: index, isError: false, errorsList: errors };
-          }
-        }
-
-        const noErrorRecords = records.filter(
-          (record, index) => recordsErrors[index].isError === false,
-        );
-        const listofExistingDevices = await this.checkIfDeviceExisting(records);
-        if (listofExistingDevices.length > 0) {
-          records.forEach((singleRecord, index) => {
-            listofExistingDevices.find(
-              (ele) => ele === singleRecord.externalId,
-            );
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              error: 'Smae ExternalId already exist, cant add entry with same external id ',
-            });
-          });
-        }
-        //////console.log("listofExistingDevices",listofExistingDevices);
-        let successfullyAddedRowsAndExternalIds:Array<{rowNumber:number,externalId:string}>=[];
-        //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
-        const devicesRegistered = await this.registerCSVBulkDevices(
-          organizationId,
-          records,
-        );
-        //////console.log("devicesRegistered",devicesRegistered);
-        // @ts-ignore
-        devicesRegistered.filter(ele=>ele.isError === undefined).forEach(ele=>{
-          if(ele instanceof DeviceDTO)
-          {
-            successfullyAddedRowsAndExternalIds.push({externalId: ele.externalId,rowNumber: records.findIndex(recEle=>recEle.externalId=== ele.externalId) +1});
-          }
-        })
-        //////console.log("recordsErrors.find((ele) => ele.isError === true)",recordsErrors)
-
-        if (recordsErrors.find((ele) => ele.isError === true)) {
-          //////console.log("insie if ");
-          this.createFailedRowDetailsForCSVJob(
-            filesAddedForProcessing.jobId,
-            recordsErrors,
-            successfullyAddedRowsAndExternalIds
-          );
-        }
-
-        //////console.log("osdksnd if ");
-
-        this.updateJobStatus(
-          filesAddedForProcessing.jobId,
-          StatusCSV.Completed,
-        );
-
-      });
-    //////console.log("file?.data.toString()",file?.data.toString());
-    this.csvStringToJSON(file?.data.toString());
-
-    csvtojsonV2().fromString(file?.data.toString()).subscribe((csvLine)=>{
-      //////console.log("csvLine",csvLine);
-    // csvLine =>  "1,2,3" and "4,5,6"
-    })
-
-    readableStream.emit('data', file?.data.toString());
-    setTimeout(()=>{
-      //////console.log("data ending emission");
-      readableStream.emit('end');
-    },60000);
-
-
-    // },1);
-  }
-  */
 
   async processCsvFileAnotherLibrary(
     file: any,
@@ -1894,13 +1693,6 @@ export class DeviceGroupService {
       errorsList: Array<any>;
     }> = [];
     let rowsConvertedToCsvCount = 0;
-    //https://stackoverflow.com/questions/13230487/converting-a-buffer-into-a-readablestream-in-node-js/44091532#44091532
-    const readableStream = new Readable();
-    readableStream._read = () => {}; // _read is required but you can noop it
-    readableStream
-      .pipe(this.csvParser)
-      .on('data', async (data) => {})
-      .on('end', async () => {});
     this.logger.debug('file?.data.toString()', file?.data.toString());
     const filedata = file.data.Body.toString('utf-8');
     this.csvStringToJSON(filedata);
@@ -1908,7 +1700,6 @@ export class DeviceGroupService {
     csvtojsonV2()
       .fromString(filedata)
       .subscribe(async (data: any, lineNumber: any) => {
-        ////console.log("csvLine",data,"sdsds",lineNumber);
         rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
@@ -1929,10 +1720,7 @@ export class DeviceGroupService {
           commissioningDate: '',
           gridInterconnection: false,
           offTaker: OffTaker.Commercial,
-          //yieldValue: 0,
-          //labels: '',
           impactStory: '',
-          // data: '',
           images: [],
           deviceDescription: DeviceDescription.GroundmountSolar,
           energyStorage: true,
@@ -1940,56 +1728,35 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
-          //groupId: 0,
         };
         for (const key in dataKeyForValidation) {
           if (key === 'SDGBenefits' || key === 'version') {
             continue;
           }
-          // @ts-ignore
           if (typeof dataKeyForValidation[key] === 'string') {
-            // @ts-ignore
             dataToStore[key] = data[key];
-          }
-          // @ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'boolean') {
-            // @ts-ignore
+          } else if (typeof dataKeyForValidation[key] === 'boolean') {
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
-          }
-          // @ts-ignore
-          else if (typeof dataKeyForValidation[key] === 'number') {
-            // @ts-ignore
+          } else if (typeof dataKeyForValidation[key] === 'number') {
             dataToStore[key] = Number.isNaN(data[key])
               ? 0
               : parseFloat(data[key]);
-            // @ts-ignore
             if (key == 'yieldValue' && dataToStore[key] === 0) {
-              // dataToStore[key] = 1500;
               dataToStore[key] = 2000;
-            }
-
-            if (key === 'SdgBenefits') {
-              ////console.log("data[key]",data[key]);
-              ////console.log("dataToStore[key]",dataToStore[key]);
             }
           }
           if (key == 'yieldValue' && data.countryCode) {
             const yieldByCountryCode =
               await this.yieldConfigService.findByCountryCode(data.countryCode);
             if (yieldByCountryCode) {
-              // @ts-ignore
               dataToStore.yieldValue = yieldByCountryCode.yieldValue;
             }
           }
         }
         for (const key in dataToStore) {
-          // @ts-ignore
           dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
-
-        // console.log("records", JSON.stringify(records));
-
         records.push(dataToStore);
         recordsErrors.push({
           externalId: '',
@@ -1997,8 +1764,6 @@ export class DeviceGroupService {
           isError: false,
           errorsList: [],
         });
-
-        // csvLine =>  "1,2,3" and "4,5,6"
       })
       .on('done', async (error: any) => {
         for (let index = 0; index < records.length; index++) {
@@ -2026,16 +1791,6 @@ export class DeviceGroupService {
               errorsList: errors,
             };
           }
-          // if (singleRecord.externalId != undefined || singleRecord.externalId != null) {
-          //   const Regex = /^[a-zA-Z\d\-_\s]+$/;
-
-          //   if(!Regex.test(singleRecord.externalId)){
-          //     recordsErrors[index].isError = true;
-          //     recordsErrors[index].errorsList.push({ value: singleRecord.externalId, property: "externalId", constraints: { invalidExternalId: "external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between" } })
-
-          //   }
-
-          // }
           if (singleRecord.countryCode != undefined) {
             singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
             if (
@@ -2223,7 +1978,6 @@ export class DeviceGroupService {
           rowNumber: number;
           externalId: string;
         }> = [];
-        //noErrorRecords= records.filter((record,index)=> recordsErrors[index].isError === false);
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
@@ -2250,15 +2004,13 @@ export class DeviceGroupService {
         );
 
         devicesRegistered
-          // @ts-ignore ts(2339)
-          .filter((ele) => ele.isError === undefined)
+          .filter((ele) => (ele as any).isError === undefined)
           .forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
-              // @ts-ignore ts(2339)
-              externalId: ele.externalId,
+              externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
-                // @ts-ignore ts(2339)
-                (recEle) => recEle.developerExternalId === ele.externalId,
+                (recEle) =>
+                  recEle.developerExternalId === (ele as any).externalId,
               ),
             });
           });
@@ -2280,7 +2032,6 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
-        //console.log(recordsErrors);
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.jobId,
           recordsErrors,
@@ -2295,8 +2046,7 @@ export class DeviceGroupService {
 
   csvStringToJSON(csvFileContentInString: string) {
     this.logger.verbose(`With in csvStringToJSON`);
-    // Convert the data to String and
-    // split it in an array
+
     const array = csvFileContentInString.split('\r');
 
     // All the rows of the CSV will be
@@ -2351,33 +2101,17 @@ export class DeviceGroupService {
       // directly the value is stored
       for (const j in headers) {
         if (properties[j].includes(', ')) {
-          // @ts-ignore
           obj[headers[j]] = properties[j]
             .split(', ')
             .map((item) => item.trim());
         } else {
-          // @ts-ignore
           obj[headers[j]] = properties[j];
         }
       }
 
-      // Add the generated object to our
-      // result array
       result.push(obj);
     }
-
-    //////console.log(result);
   }
-
-  // async getGroupiCertificateIssueDate(
-  //   organizationId: number,
-  // ): Promise<DeviceGroupIssueCertificate{}> {
-  //   ////console.log(organizationId);
-  //   return await this.repositoryDeviceGroupcertificate.findByIds({
-  //     organizationId
-  //     //status:StatusCSV.Completed
-  //   });
-  // }
 
   async checkIfOrganizationHasBlockhainAddressAdded(
     organizationId: number,
@@ -2405,9 +2139,8 @@ export class DeviceGroupService {
   > {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
     const groupId = await this.repositorynextDeviceGroupcertificate.find({
-      where: { end_date: LessThan(new Date()) },
+      where: { end_date: LessThan(new Date().toISOString()) },
     });
-    ////console.log(groupId)
     return groupId;
   }
 
@@ -2417,7 +2150,6 @@ export class DeviceGroupService {
     enddate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in updatecertificateissuenextdate`);
-    // await this.checkNameConflict(data.name);
     const deviceGroupdate = await this.getGroupiCertificateIssueDate({
       id: id,
     });
@@ -2440,22 +2172,21 @@ export class DeviceGroupService {
   ): Promise<void> {
     this.logger.verbose(`With in EndReservationGroup`);
     if (!group) group = await this.findDeviceGroupById(groupId, organizationId);
-    // @ts-ignore
-    ////console.log("new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime()", "group?.reservationEndDate", group?.reservationEndDate, "reservationend", reservationend, "new Date(group?.reservationEndDate).getTime()", new Date(group?.reservationEndDate).getTime(), "new Date(reservationend).getTime()", new Date(reservationend).getTime(), new Date(group?.reservationEndDate).getTime() === new Date(reservationend).getTime());
-    // @ts-ignore
+
     if (
       new Date(group?.reservationEndDate).getTime() ===
       new Date(reservationend.endresavationdate).getTime()
     ) {
-      ////console.log("came inside ending reservation");
-
       if (!deviceGroupIssueNextDateDTO)
         deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({
           groupId: groupId,
         });
-      // @ts-ignore
 
-      this.endReservation(groupId, group, deviceGroupIssueNextDateDTO);
+      this.endReservation(
+        groupId,
+        group as DeviceGroup,
+        deviceGroupIssueNextDateDTO,
+      );
       return;
     }
   }
@@ -2491,7 +2222,6 @@ export class DeviceGroupService {
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
     this.logger.verbose(`With in deactiveReaservation`);
-    //console.log(group);
     let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
@@ -2506,7 +2236,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getDeviceGrouplog`);
     return this.checkdevciegrouplogcertificaterepository.find({
       where: {
-        groupid,
+        groupid: groupid.toString(),
       },
     });
   }
@@ -2535,7 +2265,6 @@ export class DeviceGroupService {
     groupId: number,
   ): Promise<number> {
     this.logger.verbose(`With in countgroupIdHistoryissuanceDevicelog`);
-    //const repository = getRepository(HistoryDeviceGroupNextIssueCertificate);
     const count = await this.historynextissuancedaterepository.count({
       where: {
         groupId: groupId,
@@ -2554,9 +2283,11 @@ export class DeviceGroupService {
       `With in getNextHistoryissuanceDevicelogafterreservation`,
     );
     const result = await this.historynextissuancedaterepository.findOne({
-      device_externalid: developerExternalId,
-      groupId: groupId,
-      status: 'Completed',
+      where: {
+        device_externalid: developerExternalId,
+        groupId: groupId,
+        status: 'Completed',
+      },
     });
 
     return result;
@@ -2575,8 +2306,6 @@ export class DeviceGroupService {
     Status: HistoryNextInssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in HistoryUpdatecertificateissuedate`);
-    ////console.log("HistoryUpdatecertificateissuedate")
-    // await this.checkNameConflict(data.name);
     const historynextdate = await this.getHistoryCertificateIssueDate({
       id: id,
     });
@@ -2609,7 +2338,6 @@ export class DeviceGroupService {
       devicegroup_uid: groupuid,
       reservationActive: true,
     });
-    // console.log(group)
     if (group === null) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
@@ -2625,9 +2353,6 @@ export class DeviceGroupService {
     }
     const devices = await this.deviceService.findByIds(group.deviceIdsInt);
     const device_historynextissuance = [];
-    // await Promise.all(
-    //   devices.map(async (device) => {
-    // console.log(device);
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
@@ -2643,14 +2368,6 @@ export class DeviceGroupService {
       .where('hni.groupId = :groupId', { groupId: group.id })
       .offset(skip)
       .limit(pageSize);
-    //await this.historynextissuancedaterepository.find(
-    //   {
-    //     where: {
-    //       groupId: group.id,
-    //       device_externalid: device.externalId
-    //     },
-    //   }
-    // );
 
     const count = await queryBuilder.getCount();
 
@@ -2667,15 +2384,14 @@ export class DeviceGroupService {
     device_historynextissuance.push({
       historynext_issuancer,
     });
-    // }),
-    // );
+
     const AllDeviceshistnextissuansinfo: any = [];
     device_historynextissuance.forEach((ele) =>
       ele.historynext_issuancer.forEach((he) =>
         AllDeviceshistnextissuansinfo.push(he),
       ),
     );
-    //console.log(group.id)
+
     const totalPages = Math.ceil(count / pageSize);
     let nextissuance = {};
     nextissuance =
@@ -2684,7 +2400,6 @@ export class DeviceGroupService {
           groupId: group.id,
         },
       })) ?? null;
-    //console.log(nextissuance)
 
     return {
       historynextissuansinfo: {
@@ -2712,8 +2427,7 @@ export class DeviceGroupService {
     }
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
@@ -2755,7 +2469,17 @@ export class DeviceGroupService {
 
       where_orgnaizationId
         .andWhere(
-          "EXISTS(SELECT 1 FROM jsonb_array_elements_text(CAST(crm.metadata  AS jsonb)->'deviceIds') AS ids(deviceId) WHERE CAST(ids.deviceId AS INTEGER) = d.id)",
+          new Brackets((qb) => {
+            qb.where(
+              `EXISTS(
+                SELECT 1
+                FROM jsonb_array_elements_text(CAST(crm.metadata AS jsonb)->'deviceIds') AS ids(deviceId)
+                WHERE
+                  (ids.deviceId ~* '^[0-9]+$' AND CAST(ids.deviceId AS INTEGER) = d.id) OR
+                  (ids.deviceId !~* '^[0-9]+$' AND CAST(ids.deviceId AS TEXT) = d.externalId)
+              )`,
+            );
+          }),
         )
         .andWhere(
           new Brackets((qb) => {
@@ -2797,8 +2521,6 @@ export class DeviceGroupService {
                     });
                   }),
                 );
-
-                // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
               }
             }
             if (filterDto.fuelCode) {
@@ -2819,10 +2541,8 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
             }
             if (filterDto.offTaker) {
-              // console.log(typeof filterDto.offTaker);
               const newoffTaker = filterDto.offTaker.toString();
               const offTakerArray = newoffTaker.split(',');
               qb.orWhere(
@@ -2840,7 +2560,6 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
             }
             const startTimestamp =
               new Date(filterDto.start_date).getTime() / 1000;
@@ -2946,7 +2665,6 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            // deviceIdsInt: curr.deviceIdsInt,
             developerdeviceIds: [curr.id],
             internalCertificateId: [curr.internalCertificateId],
           });
@@ -2997,8 +2715,7 @@ export class DeviceGroupService {
 
     const skip = (pageNumber - 1) * pageSize;
 
-    let queryBuilder: any;
-    queryBuilder = this.repository
+    const queryBuilder: any = this.repository
       .createQueryBuilder('dg')
       .innerJoin(Device, 'd', 'd.id = ANY(dg.deviceIdsInt)')
       .innerJoin(
@@ -3077,8 +2794,6 @@ export class DeviceGroupService {
                     });
                   }),
                 );
-
-                // qb.orWhere('d.countryCode LIKE = :countrycode', { countrycode: `%${filterDto.country}%` });
               }
             }
             if (filterDto.fuelCode) {
@@ -3099,10 +2814,8 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              //  qb.orWhere(`d.fuelCode LIKE = :fuelcode`,  `%${filterDto.fuelCode}%`);
             }
             if (filterDto.offTaker) {
-              // console.log(typeof filterDto.offTaker);
               const newoffTaker = filterDto.offTaker.toString();
               const offTakerArray = newoffTaker.split(',');
               qb.orWhere(
@@ -3120,7 +2833,6 @@ export class DeviceGroupService {
                   });
                 }),
               );
-              // qb.orWhere('d.offTakers LIKE = :offTaker',  `%${filterDto.offTaker}%`);
             }
             const startTimestamp =
               new Date(filterDto.start_date).getTime() / 1000;
@@ -3209,10 +2921,6 @@ export class DeviceGroupService {
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // if (pageNumber > totalPages) {
-    //   throw new HttpException('Page number out of range', HttpStatus.NOT_FOUND);
-    // }
-
     const deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find((item) => item.dg_id === curr.dg_id);
       if (existing) {
@@ -3222,21 +2930,19 @@ export class DeviceGroupService {
           existing.developerdeviceIds.push(curr.id);
         }
         existing.internalCertificateId.push(curr.id);
-        // existing.certificatelog.push(newobj);
       } else {
         acc.push({
           dg_id: curr.devicegroupid,
           name: curr.name,
           deviceIdsInt: curr.deviceIdsInt,
-          // deviceIdsInt: curr.deviceIdsInt,
+
           developerdeviceIds: [curr.id],
           internalCertificateId: [curr.id],
         });
-        // console.log(acc);
       }
       return acc;
     }, []);
-    // const totalPages = 10;
+
     const response = {
       deviceGroups,
       pageNumber,
@@ -3301,7 +3007,6 @@ export class DeviceGroupService {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
         );
-        // @ts-ignore
         csvjob.organization = {
           name: organization.name,
         };

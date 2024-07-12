@@ -120,7 +120,7 @@ export class InvitationController {
     description: 'Updates an invitation',
   })
   async updateInvitation(
-    @Param('id') invitationId: string,
+    @Param('id') invitationId: number,
     //  @Param('status') status: IOrganizationInvitation['status'],
     @Body() useracceptinvitation: updateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,

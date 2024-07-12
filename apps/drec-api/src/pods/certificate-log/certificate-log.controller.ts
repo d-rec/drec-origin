@@ -120,7 +120,7 @@ export class CertificateLogController {
     @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    if (parseInt(filterDto.groupId) === NaN) {
+    if (isNaN(parseInt(filterDto.groupId))) {
       this.logger.error(`Group Id is a number, invalid value was sent`);
       return new Promise((resolve, reject) => {
         reject(
@@ -154,7 +154,6 @@ export class CertificateLogController {
     this.logger.verbose(`With in getissueCertificate`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    //console.log(regexExp.test(groupuId));
     if (groupuId === null || !regexExp.test(groupuId)) {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
@@ -342,12 +341,6 @@ export class CertificateLogController {
     );
   }
 
-  /*
-   * It is GET api to fetch certificate log of reserved device.
-   * @retrurn {CertificatelogResponse} return an certificate log an reservred device.
-   */
-  /* for developre*/
-
   @Get('/issuer/certifiedlogOfdevices')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
@@ -468,8 +461,4 @@ export class CertificateLogController {
       devicegroup.name,
     );
   }
-  // @Get('export-csv')
-  // async exportCsv(@Res()res: Response, ) {
-  //     return await this.certificateLogService.createCSV(res);
-  // }
 }

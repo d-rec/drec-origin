@@ -40,7 +40,7 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { ResponseSuccess } from '../../models';
+import { LoggedInUser, ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
@@ -50,6 +50,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
+import { UserDecorator } from '../user/decorators/user.decorator';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -100,8 +101,14 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    @UserDecorator() user: LoggedInUser,
   ) /*: Promise<OrganizationDTO[]>*/ {
-    return await this.organizationService.getAll(filterDto, pageNumber, limit);
+    return await this.organizationService.getAll(
+      filterDto,
+      pageNumber,
+      limit,
+      user,
+    );
   }
   @Get('/organizations/user/:organizationId')
   @Permission('Read')
@@ -154,7 +161,11 @@ export class AdminController {
     type: CreateUserORGDTO,
     description: 'Returns a new created user',
   })
-  public async createUser(@Body() newUser: CreateUserORGDTO): Promise<UserDTO> {
+  public async createUser(
+    @Body() newUser: CreateUserORGDTO,
+    @UserDecorator() { api_user_id }: LoggedInUser,
+  ): Promise<UserDTO> {
+    newUser.api_user_id = api_user_id;
     return await this.userService.adminnewcreate(newUser);
   }
 
@@ -215,9 +226,9 @@ export class AdminController {
 
   @Put('/users/:id')
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Write')
-  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiResponse({
     status: HttpStatus.OK,

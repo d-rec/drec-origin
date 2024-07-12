@@ -82,18 +82,24 @@ export class FileService {
     );
     if (user) {
       if (user.role === Role.Admin) {
-        return this.repository.findOne(id);
+        return this.repository.findOne({
+          where: {
+            id: id,
+          },
+        });
       }
 
-      return this.repository.findOne(id, {
+      return this.repository.findOne({
         where: {
+          id: id,
           userId: user.id.toString(),
           organizationId: user.organizationId?.toString(),
         },
       });
     }
-    return this.repository.findOne(id, {
+    return this.repository.findOne({
       where: {
+        id: id,
         isPublic: true,
       },
     });

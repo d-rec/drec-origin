@@ -37,7 +37,6 @@ export class EmailConfirmationService {
 
   public async create(user: User): Promise<EmailConfirmation | null> {
     this.logger.verbose(`With in create`);
-    // @ts-ignore
     if (
       (await this.userService.findOne({
         role: Role.Admin,
@@ -148,7 +147,11 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
-    const emailConfirmation = await this.repository.findOne({ token });
+    const emailConfirmation = await this.repository.findOne({
+      where: {
+        token,
+      },
+    });
 
     if (!emailConfirmation) {
       this.logger.error(`Email confirmation doesn't exist`);

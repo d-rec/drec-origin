@@ -323,7 +323,12 @@ describe('OrganizationService', () => {
       const result = await service.findOne(id, options);
 
       expect(result).toEqual(organization);
-      expect(repository.findOne).toHaveBeenCalledWith(id, options);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: {
+          id: id,
+          ...options,
+        },
+      });
     });
 
     it('should throw NotFoundException when organization is not found', async () => {
@@ -340,7 +345,7 @@ describe('OrganizationService', () => {
     const limit = 20;
     const role = undefined;
 
-    let users = [
+    const users = [
       {
         updatedAt: new Date('2024-03-04T07:03:46.336Z'),
         id: 21,
