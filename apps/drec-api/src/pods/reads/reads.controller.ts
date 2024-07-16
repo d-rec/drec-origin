@@ -1029,73 +1029,72 @@ export class ReadsController extends BaseReadsController {
         for (const key in ele) {
           if (key === 'starttimestamp' || key === 'endtimestamp') {
             if (ele[key]) {
-              let dateString = ele[key].toString();
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              if (dateString.includes('.')) {
+              if (ele[key].toString().includes('.')) {
                 if (
                   Number.isNaN(
                     parseFloat(
-                      dateString.substring(
-                        dateString.indexOf('.'),
-                        dateString.length,
+                      ele[key].toString().substring(
+                        ele[key].toString().indexOf('.'),
+                        ele[key].toString().length,
                       ),
                     ),
                   )
                 ) {
                   this.logger.error(
-                    `Invalid date sent  ${dateString}` +
+                    `Invalid date sent  ${ele[key]}` +
                       ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
                     message:
-                      `Invalid date sent  ${dateString}` +
+                      `Invalid date sent  ${ele[key]}` +
                       ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   });
                 }
               }
 
-              if (!dateTimeRegex.test(dateString)) {
+              if (!dateTimeRegex.test(ele[key].toString())) {
                 dateInvalid = true;
                 this.logger.error(
-                  `Invalid date sent  ${dateString}` +
+                  `Invalid date sent  ${ele[key]}` +
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
                   message:
-                    `Invalid date sent  ${dateString}` +
+                    `Invalid date sent  ${ele[key]}` +
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 });
               } else {
                 const dateTime = momentTimeZone.tz(
-                  dateString,
+                  ele[key],
                   measurements.timezone,
                 );
                 if (!dateTime.isValid()) {
-                  this.logger.error(`Invalid date sent  ${dateString}`);
+                  this.logger.error(`Invalid date sent  ${ele[key]}`);
                   dateInvalid = true;
                   throw new ConflictException({
                     success: false,
-                    message: `Invalid date sent  ${dateString}`,
+                    message: `Invalid date sent  ${ele[key]}`,
                   });
                 } else {
                   let milliSeondsToAddSentInRequest = '';
                   if (
-                    dateString.includes('.') &&
+                    ele[key].toString().includes('.') &&
                     !isNaN(
                       parseInt(
-                        dateString.substring(
-                          dateString.indexOf('.'),
-                          dateString.length,
+                        ele[key].toString().substring(
+                          ele[key].toString().indexOf('.'),
+                          ele[key].toString().length,
                         ),
                       ),
                     )
                   ) {
-                    milliSeondsToAddSentInRequest = dateString.substring(
-                      dateString.indexOf('.'),
-                      dateString.length,
+                    milliSeondsToAddSentInRequest = ele[key].toString().substring(
+                      ele[key].toString().indexOf('.'),
+                      ele[key].toString().length,
                     );
                   }
                   let utcString: string = dateTime.clone().utc().format();
@@ -1109,7 +1108,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  dateString = utcString;
+                  ele[key] = new Date(utcString);
                 }
               }
             }
