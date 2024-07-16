@@ -1035,10 +1035,12 @@ export class ReadsController extends BaseReadsController {
                 if (
                   Number.isNaN(
                     parseFloat(
-                      ele[key].toString().substring(
-                        ele[key].toString().indexOf('.'),
-                        ele[key].toString().length,
-                      ),
+                      ele[key]
+                        .toString()
+                        .substring(
+                          ele[key].toString().indexOf('.'),
+                          ele[key].toString().length,
+                        ),
                     ),
                   )
                 ) {
@@ -1085,17 +1087,21 @@ export class ReadsController extends BaseReadsController {
                     ele[key].toString().includes('.') &&
                     !isNaN(
                       parseInt(
-                        ele[key].toString().substring(
-                          ele[key].toString().indexOf('.'),
-                          ele[key].toString().length,
-                        ),
+                        ele[key]
+                          .toString()
+                          .substring(
+                            ele[key].toString().indexOf('.'),
+                            ele[key].toString().length,
+                          ),
                       ),
                     )
                   ) {
-                    milliSeondsToAddSentInRequest = ele[key].toString().substring(
-                      ele[key].toString().indexOf('.'),
-                      ele[key].toString().length,
-                    );
+                    milliSeondsToAddSentInRequest = ele[key]
+                      .toString()
+                      .substring(
+                        ele[key].toString().indexOf('.'),
+                        ele[key].toString().length,
+                      );
                   }
                   let utcString: string = dateTime.clone().utc().format();
 
