@@ -15,7 +15,7 @@ export class updateColumnvaluinNew1682659987637 implements MigrationInterface {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     // Since updating column values in a down migration can lead to data loss or inconsistency,
     // and reverting the update operation is complex and risky, leaving the down method empty.
