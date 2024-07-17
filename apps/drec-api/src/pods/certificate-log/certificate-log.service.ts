@@ -72,7 +72,9 @@ export class CertificateLogService {
     });
   }
 
-  async Findcertificatelog(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+  async Findcertificatelog(): Promise<
+    CheckCertificateIssueDateLogForDeviceEntity[]
+  > {
     this.logger.verbose(`With in Findcertificatelog`);
     const totalNumbers: any = getManager()
       .createQueryBuilder()
@@ -111,7 +113,7 @@ export class CertificateLogService {
         take: itemsPerPage,
       });
     const totalPages = Math.ceil(total / itemsPerPage);
-    
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const request: IGetAllCertificatesOptions = {
       deviceId: `${parseInt(groupid)}`,
