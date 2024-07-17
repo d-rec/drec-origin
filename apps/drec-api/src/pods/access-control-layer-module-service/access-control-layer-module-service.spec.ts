@@ -8,7 +8,6 @@ import { DecimalPermissionValue } from './common/permissionBitposition';
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
   let repository: Repository<AClModules>;
-  let Permissionvalue: DecimalPermissionValue;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
