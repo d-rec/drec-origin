@@ -124,7 +124,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ):  Promise<UserDTO[]> {
+  ): Promise<UserDTO[]> {
     return this.organizationService.findOrganizationUsers(
       organizationId,
       pageNumber,
