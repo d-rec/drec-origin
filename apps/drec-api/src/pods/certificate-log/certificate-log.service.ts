@@ -7,7 +7,6 @@ import {
   Not,
   Brackets,
   SelectQueryBuilder,
-  EntityManager,
 } from 'typeorm';
 import { FilterDTO } from './dto/filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,7 +31,6 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
-import * as fs from 'fs';
 import { Response } from 'express';
 
 export interface newCertificate extends Certificate {
@@ -50,7 +48,7 @@ export class CertificateLogService {
     private readonly certificaterrepository: Repository<Certificate>,
 
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository,
+    private readonly cretificatereadmoduleRepository: Repository<CertificateReadModelEntity>,
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
@@ -74,9 +72,7 @@ export class CertificateLogService {
     });
   }
 
-  async Findcertificatelog(
-    filterDto: FilterDTO,
-  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+  async Findcertificatelog(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in Findcertificatelog`);
     const totalNumbers: any = getManager()
       .createQueryBuilder()
@@ -115,7 +111,8 @@ export class CertificateLogService {
         take: itemsPerPage,
       });
     const totalPages = Math.ceil(total / itemsPerPage);
-
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const request: IGetAllCertificatesOptions = {
       deviceId: `${parseInt(groupid)}`,
     };
@@ -237,7 +234,7 @@ export class CertificateLogService {
   }
 
   async getCertificatesUsingGroupIDVersionUpdateOrigin247(
-    certifiedreservation,
+    certifiedreservation: any,
     groupid: string,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(
@@ -268,6 +265,7 @@ export class CertificateLogService {
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const data = JSON.parse(certifiedlist.metadata);
             }
           } catch (e) {
