@@ -32,7 +32,6 @@ import {
 } from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
-import { Observable } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
@@ -51,6 +50,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
+import { Device } from '../device';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -81,7 +81,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) /*: Promise<UserDTO[]>*/ {
+  ): Promise<UserDTO[]> {
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
@@ -102,7 +102,7 @@ export class AdminController {
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
     @UserDecorator() user: LoggedInUser,
-  ) /*: Promise<OrganizationDTO[]>*/ {
+  ): Promise<OrganizationDTO[]> {
     return await this.organizationService.getAll(
       filterDto,
       pageNumber,
@@ -124,7 +124,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) /*:  Promise<UserDTO[]>*/ {
+  ):  Promise<UserDTO[]> {
     return this.organizationService.findOrganizationUsers(
       organizationId,
       pageNumber,
@@ -379,7 +379,7 @@ export class AdminController {
     // @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,
-  ) {
+  ): Promise<any[]> {
     return await this.deviceService.atto(organizationId, externalId);
   }
 
@@ -405,7 +405,7 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) {
+  ): Promise<UserDTO[]> {
     // this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName, pageNumber, limit);
   }
