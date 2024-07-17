@@ -327,7 +327,7 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
 
-  computePermissions(addedPermissionList: any) {
+  computePermissions(addedPermissionList: any): number {
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       binaryFormPermission =
