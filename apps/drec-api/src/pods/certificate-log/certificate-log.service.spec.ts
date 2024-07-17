@@ -73,12 +73,15 @@ describe('CertificateLogService', () => {
     }).compile();
 
     service = module.get<CertificateLogService>(CertificateLogService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repository = module.get<
       Repository<CheckCertificateIssueDateLogForDeviceEntity>
     >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     certificaterrepository = module.get<Repository<Certificate>>(
       getRepositoryToken(Certificate),
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     certificateReadModelEntity = module.get<
       Repository<CertificateReadModelEntity<any>>
     >(getRepositoryToken(CertificateReadModelEntity));
