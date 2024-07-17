@@ -27,6 +27,7 @@ describe('AccessControlLayerModuleServiceService', () => {
     service = module.get<AccessControlLayerModuleServiceService>(
       AccessControlLayerModuleServiceService,
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repository = module.get<Repository<AClModules>>(
       getRepositoryToken(AClModules),
     );
