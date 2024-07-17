@@ -85,6 +85,7 @@ describe('CertificateLogService', () => {
     certificateReadModelEntity = module.get<
       Repository<CertificateReadModelEntity<any>>
     >(getRepositoryToken(CertificateReadModelEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deviceService = module.get<DeviceService>(DeviceService);
     devicegroupService = module.get<DeviceGroupService>(DeviceGroupService);
 
@@ -278,12 +279,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
@@ -375,7 +378,7 @@ describe('CertificateLogService', () => {
         totalCount: 1,
       };
 
-      const getDeveloperfindreservationcertifiedSpy = jest
+      jest
         .spyOn(service, 'getDeveloperfindreservationcertified')
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificatelogResponse,
@@ -410,12 +413,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
@@ -531,12 +536,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
