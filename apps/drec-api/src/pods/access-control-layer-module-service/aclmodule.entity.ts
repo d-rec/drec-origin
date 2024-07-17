@@ -1,9 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
 import { RoleStatus } from '../../utils/enums';
