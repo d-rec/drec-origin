@@ -26,8 +26,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
- * @returns {Promise<LoginReturnDataDTO>}
- */
+   * @returns {Promise<LoginReturnDataDTO>}
+   */
   @UseGuards(AuthGuard('local'), WithoutAuthGuard)
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
