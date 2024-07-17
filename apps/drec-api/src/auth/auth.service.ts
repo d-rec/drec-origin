@@ -70,7 +70,10 @@ export class AuthService {
     return tokeninvalidate;
   }
 
-  async generateToken(user: Omit<IUser, 'password'>, fileData: string): Promise<LoginReturnDataDTO> {
+  async generateToken(
+    user: Omit<IUser, 'password'>,
+    fileData: string,
+  ): Promise<LoginReturnDataDTO> {
     //: Promise<UserLoginReturnData> {
     this.logger.verbose('With in generateToken');
     const payload: IJWTPayload = {
