@@ -39,7 +39,7 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { LoggedInUser, ResponseSuccess } from '../../models';
+import { IUser, LoggedInUser, ResponseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
@@ -51,6 +51,7 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Device } from '../device';
+import { Organization } from '../organization/organization.entity';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -81,7 +82,12 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<UserDTO[]> {
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
   }
 
@@ -102,7 +108,12 @@ export class AdminController {
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
     @UserDecorator() user: LoggedInUser,
-  ): Promise<OrganizationDTO[]> {
+  ): Promise<{
+    organizations: Organization[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     return await this.organizationService.getAll(
       filterDto,
       pageNumber,
@@ -124,7 +135,12 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<UserDTO[]> {
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     return this.organizationService.findOrganizationUsers(
       organizationId,
       pageNumber,
@@ -405,7 +421,12 @@ export class AdminController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<UserDTO[]> {
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     // this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName, pageNumber, limit);
   }
