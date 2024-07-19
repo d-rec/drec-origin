@@ -107,7 +107,9 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<CertificateReadModelEntity<ICertificateMetadata>>,
+    private readonly cretificatereadmoduleRepository: Repository<
+      CertificateReadModelEntity<ICertificateMetadata>
+    >,
     private readonly userService: UserService,
   ) {}
 
@@ -640,9 +642,7 @@ export class DeviceGroupService {
 
               const sdgBenefitsArray = newsdg.split(',');
 
-              sdgBenefitsArray
-                .map((benefit) => benefit)
-                .join(',');
+              sdgBenefitsArray.map((benefit) => benefit).join(',');
 
               qb.orWhere(
                 new Brackets((qb) => {
