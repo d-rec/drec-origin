@@ -457,14 +457,14 @@ export class CertificateLogService {
     const devicegroups =
       await this.devicegroupService.getBuyerDeviceGroups(buyerId);
     const myredme = [];
-    const res = await Promise.all(
+    await Promise.all(
       devicegroups.map(async (devicegroup: DeviceGroupDTO) => {
         const cert = await this.getCertificaterForRedemptionRepot(
           devicegroup.id.toString(),
         );
-        const res1 = await Promise.all(
+        await Promise.all(
           cert.map(async (claimcertificate: Certificate) => {
-            const res2 = await Promise.all(
+            await Promise.all(
               claimcertificate.claims.map(async (claims: any) => {
                 myredme.push({
                   compliance: 'I-REC',
@@ -514,7 +514,12 @@ export class CertificateLogService {
     generationStartTime?: string,
     generationEndTime?: string,
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
-  ) {
+  ): Promise<{
+    result: any[],
+    pageNumber: number,
+    totalPages: number,
+    totalCount: number,
+  }> {
     this.logger.verbose(`With in getsCertificateReadModule`);
     const pageSize = 3;
 
@@ -616,7 +621,13 @@ export class CertificateLogService {
     user: ILoggedInUser,
     filterDto: FilterDTO,
     pageNumber,
-  ) {
+  ): Promise<{
+    certificatelog: | CertificateNewWithPerDeviceLog[]
+    | CertificateWithPerdevicelog[],
+    currentpage?: number,
+    totalPages: number,
+    totalCount: number,
+  }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const getnewreservationinfo =
       await this.devicegroupService.getReservationInforDeveloperBsise(
