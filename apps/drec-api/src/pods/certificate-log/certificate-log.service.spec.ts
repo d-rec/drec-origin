@@ -239,8 +239,8 @@ describe('CertificateLogService', () => {
     });
 
     it('should handle error for invalid group id', async () => {
-      const groupId = 'invalidGroupId';
-      const organizationId = 'validOrganizationId';
+      const groupId = 1.3;
+      const organizationId = 4;
       jest
         .spyOn(service, 'Findperdevicecertificatelog')
         .mockRejectedValueOnce(new Error('Invalid group id'));
@@ -255,8 +255,8 @@ describe('CertificateLogService', () => {
     });
 
     it('should handle error for invalid organization id', async () => {
-      const groupId = 'validGroupId';
-      const organizationId = 'invalidOrganizationId';
+      const groupId = 1;
+      const organizationId = 4.5;
       jest
         .spyOn(service, 'Findperdevicecertificatelog')
         .mockRejectedValueOnce(new Error('Invalid organization id'));
