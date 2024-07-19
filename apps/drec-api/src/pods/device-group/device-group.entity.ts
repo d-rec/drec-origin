@@ -4,8 +4,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import {
   IsString,
@@ -20,11 +18,7 @@ import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
-  FuelCode,
 } from '../../utils/enums';
 //import { Device } from '../device';
 import { Exclude } from 'class-transformer';
