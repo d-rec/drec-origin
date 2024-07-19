@@ -48,7 +48,9 @@ export class CertificateLogService {
     private readonly certificaterrepository: Repository<Certificate>,
 
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<CertificateReadModelEntity<ICertificateMetadata>>,
+    private readonly cretificatereadmoduleRepository: Repository<
+      CertificateReadModelEntity<ICertificateMetadata>
+    >,
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
@@ -515,10 +517,10 @@ export class CertificateLogService {
     generationEndTime?: string,
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
   ): Promise<{
-    result: any[],
-    pageNumber: number,
-    totalPages: number,
-    totalCount: number,
+    result: any[];
+    pageNumber: number;
+    totalPages: number;
+    totalCount: number;
   }> {
     this.logger.verbose(`With in getsCertificateReadModule`);
     const pageSize = 3;
@@ -622,11 +624,12 @@ export class CertificateLogService {
     filterDto: FilterDTO,
     pageNumber,
   ): Promise<{
-    certificatelog: | CertificateNewWithPerDeviceLog[]
-    | CertificateWithPerdevicelog[],
-    currentpage?: number,
-    totalPages: number,
-    totalCount: number,
+    certificatelog:
+      | CertificateNewWithPerDeviceLog[]
+      | CertificateWithPerdevicelog[];
+    currentpage?: number;
+    totalPages: number;
+    totalCount: number;
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const getnewreservationinfo =
