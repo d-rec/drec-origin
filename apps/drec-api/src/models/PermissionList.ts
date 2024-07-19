@@ -1,6 +1,6 @@
 export interface PermissionList {
-    Read: boolean;
-    Write: boolean;
-    Delete: boolean;
-    Update: boolean;
+  Read: boolean;
+  Write: boolean;
+  Delete: boolean;
+  Update: boolean;
 }
