@@ -93,18 +93,32 @@ describe('DeviceGroupService', () => {
     }).compile();
 
     service = module.get<DeviceGroupService>(DeviceGroupService);
-    repository = module.get<Repository<DeviceGroup>>(getRepositoryToken(DeviceGroup));
-    repositoryJobFailedRows = module.get<Repository<DeviceCsvProcessingFailedRowsEntity>>(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-    repositoyCSVJobProcessing = module.get<Repository<DeviceCsvFileProcessingJobsEntity>>(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-    repositorynextDeviceGroupcertificate = module.get<Repository<DeviceGroupNextIssueCertificate>>(getRepositoryToken(DeviceGroupNextIssueCertificate));
+    repository = module.get<Repository<DeviceGroup>>(
+      getRepositoryToken(DeviceGroup),
+    );
+    repositoryJobFailedRows = module.get<
+      Repository<DeviceCsvProcessingFailedRowsEntity>
+    >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+    repositoyCSVJobProcessing = module.get<
+      Repository<DeviceCsvFileProcessingJobsEntity>
+    >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+    repositorynextDeviceGroupcertificate = module.get<
+      Repository<DeviceGroupNextIssueCertificate>
+    >(getRepositoryToken(DeviceGroupNextIssueCertificate));
     organizationService = module.get<OrganizationService>(OrganizationService);
     deviceService = module.get<DeviceService>(DeviceService);
     fileService = module.get<FileService>(FileService);
     yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
     userService = module.get<UserService>(UserService);
-    checkdevciegrouplogcertificaterepository = module.get<Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>>(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-    historynextissuancedaterepository = module.get<Repository<HistoryDeviceGroupNextIssueCertificate>>(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-    certificateReadModelEntity = module.get<Repository<CertificateReadModelEntity<any>>>(getRepositoryToken(CertificateReadModelEntity<any>));
+    checkdevciegrouplogcertificaterepository = module.get<
+      Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
+    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+    historynextissuancedaterepository = module.get<
+      Repository<HistoryDeviceGroupNextIssueCertificate>
+    >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
+    certificateReadModelEntity = module.get<
+      Repository<CertificateReadModelEntity<any>>
+    >(getRepositoryToken(CertificateReadModelEntity<any>));
   });
 
   it('should be defined', () => {
