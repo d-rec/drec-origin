@@ -865,7 +865,7 @@ export class CertificateLogService {
                 [];
               try {
                 if (typeof certifiedlist.metadata === 'string') {
-                  const data = JSON.parse(certifiedlist.metadata);
+                  JSON.parse(certifiedlist.metadata);
                 }
               } catch (e) {
                 this.logger.error(
@@ -995,8 +995,8 @@ export class CertificateLogService {
   }
   /**Create new function to get the certifcate log of perdevice */
   async Findperdevicecertificatelog(
-    groupId,
-    organizationId,
+    groupId: number,
+    organizationId: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in Findcertificatelog`);
     const totalNumbers: any = getManager()
