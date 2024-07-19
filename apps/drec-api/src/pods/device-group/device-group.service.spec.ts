@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -95,31 +94,44 @@ describe('DeviceGroupService', () => {
         },
       ],
     }).compile();
-
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     service = module.get<DeviceGroupService>(DeviceGroupService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repositoryJobFailedRows = module.get<
       Repository<DeviceCsvProcessingFailedRowsEntity>
     >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repositoyCSVJobProcessing = module.get<
       Repository<DeviceCsvFileProcessingJobsEntity>
     >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repositorynextDeviceGroupcertificate = module.get<
       Repository<DeviceGroupNextIssueCertificate>
     >(getRepositoryToken(DeviceGroupNextIssueCertificate));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     organizationService = module.get<OrganizationService>(OrganizationService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deviceService = module.get<DeviceService>(DeviceService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     fileService = module.get<FileService>(FileService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     userService = module.get<UserService>(UserService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     checkdevciegrouplogcertificaterepository = module.get<
       Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
     >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-var
     historynextissuancedaterepository = module.get<
       Repository<HistoryDeviceGroupNextIssueCertificate>
     >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     certificateReadModelEntity = module.get<
       Repository<CertificateReadModelEntity<ICertificateMetadata>>
     >(getRepositoryToken(CertificateReadModelEntity));
