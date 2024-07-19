@@ -33,6 +33,7 @@ import RoleJSON from './user_role.json';
 import AdminJSON from './admin.json';
 import ACLModuleJSON from './acl_modules.json';
 import { PermissionString } from 'src/utils/enums';
+import { PermissionList } from 'src/models/PermissionList';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
@@ -281,7 +282,7 @@ export class Seed9999999999999 implements MigrationInterface {
       await Promise.all(
         (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
           async (aclModule) => {
-            const addedPermissionList: any = {
+            const addedPermissionList: PermissionList = {
               Read: false,
               Write: false,
               Delete: false,
@@ -327,7 +328,7 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
 
-  computePermissions(addedPermissionList: any): number {
+  computePermissions(addedPermissionList: PermissionList): number {
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       binaryFormPermission =

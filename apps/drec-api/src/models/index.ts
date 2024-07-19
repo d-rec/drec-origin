@@ -16,3 +16,4 @@ export * from './AggregateMetervalue';
 export * from './DeviceGroupIssueCertificateRequest';
 export * from './Sdgbenefit';
 export * from './Delta_firstread';
+export * from './PermissionList';
