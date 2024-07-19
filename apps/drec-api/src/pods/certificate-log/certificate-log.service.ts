@@ -48,7 +48,7 @@ export class CertificateLogService {
     private readonly certificaterrepository: Repository<Certificate>,
 
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository,
+    private readonly cretificatereadmoduleRepository: Repository<CertificateReadModelEntity<ICertificateMetadata>>,
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
