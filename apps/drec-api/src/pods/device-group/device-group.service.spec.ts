@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
