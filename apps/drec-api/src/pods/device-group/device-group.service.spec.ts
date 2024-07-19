@@ -90,7 +90,7 @@ describe('DeviceGroupService', () => {
         },
         {
           provide: getRepositoryToken(
-            CertificateReadModelEntity<ICertificateMetadata>,
+            CertificateReadModelEntity,
           ),
           useClass: Repository,
         },
@@ -123,7 +123,7 @@ describe('DeviceGroupService', () => {
     >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
     certificateReadModelEntity = module.get<
       Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    >(getRepositoryToken(CertificateReadModelEntity<ICertificateMetadata>));
+    >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {
