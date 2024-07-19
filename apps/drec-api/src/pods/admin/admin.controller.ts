@@ -50,7 +50,6 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { Device } from '../device';
 import { Organization } from '../organization/organization.entity';
 @ApiTags('admin')
 @ApiBearerAuth('access-token')
