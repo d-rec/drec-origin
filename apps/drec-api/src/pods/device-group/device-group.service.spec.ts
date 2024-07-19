@@ -89,9 +89,7 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(
-            CertificateReadModelEntity,
-          ),
+          provide: getRepositoryToken(CertificateReadModelEntity),
           useClass: Repository,
         },
       ],
