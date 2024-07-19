@@ -127,7 +127,7 @@ describe('DeviceGroupService', () => {
     checkdevciegrouplogcertificaterepository = module.get<
       Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
     >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-var
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     historynextissuancedaterepository = module.get<
       Repository<HistoryDeviceGroupNextIssueCertificate>
     >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
