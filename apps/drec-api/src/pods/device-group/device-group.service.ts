@@ -39,7 +39,7 @@ import {
   IDevice,
   BuyerReservationCertificateGenerationFrequency,
 } from '../../models';
-import { DeviceDTO, NewDeviceDTO, } from '../device/dto';
+import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
