@@ -130,16 +130,16 @@ export class BuyerReservationController {
       }),
     )
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ) : Promise<
-  | {
-      devicegroups: DeviceGroupDTO[];
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-    }
-  | any
-  | DeviceGroupDTO[]> 
-  {
+  ): Promise<
+    | {
+        devicegroups: DeviceGroupDTO[];
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+    | DeviceGroupDTO[]
+  > {
     // return new Promise((resolve,reject)=>{
     //   resolve([]);
     // });
@@ -226,15 +226,15 @@ export class BuyerReservationController {
 
     @Query('pagenumber') pagenumber: number | null,
   ): Promise<
-  | {
-      devicegroups: DeviceGroupDTO[];
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-    }
-  | any
-  | DeviceGroupDTO[]> 
-  {
+    | {
+        devicegroups: DeviceGroupDTO[];
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+    | DeviceGroupDTO[]
+  > {
     this.logger.verbose(`With in getMyDevices`);
     switch (role) {
       case Role.DeviceOwner:
@@ -816,14 +816,14 @@ export class BuyerReservationController {
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
-  | {
-      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-    }
-  | any>
-  {
+    | {
+        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
     if (user.organizationId === null || user.organizationId === undefined) {
       this.logger.error(`User needs to have organization added`);
