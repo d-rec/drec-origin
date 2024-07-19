@@ -822,15 +822,15 @@ export class CertificateLogService {
   }
 
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-    getreservationinfo,
-    role,
+    getreservationinfo: any,
+    role: Role,
   ): Promise<CertificatelogResponse> {
     this.logger.verbose(
       `With in getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
     const finalcertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
-      getreservationinfo.deviceGroups.map(async (group: any, index: number) => {
+      getreservationinfo.deviceGroups.map(async (group: any) => {
         const newq = await this.cretificatereadmoduleRepository
           .createQueryBuilder('crm')
           .where(
