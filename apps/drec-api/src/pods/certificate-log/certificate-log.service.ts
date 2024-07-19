@@ -656,14 +656,12 @@ export class CertificateLogService {
       'getoldreservationinfo',
       getoldreservationinfo.deviceGroups.length,
     );
-    let oldcertificates;
     if (getoldreservationinfo.deviceGroups.length > 0) {
       return this.getDeveloperfindreservationcertified(
         getoldreservationinfo,
         user.role,
       );
     }
-    let newcertificates;
     if (getnewreservationinfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 580');
       return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
