@@ -82,6 +82,7 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
+import { ICertificateMetadata } from '../../utils/types';
 
 @Injectable()
 export class DeviceGroupService {
@@ -106,7 +107,7 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository,
+    private readonly cretificatereadmoduleRepository: Repository<CertificateReadModelEntity<ICertificateMetadata>>,
     private readonly userService: UserService,
   ) {}
 
@@ -471,7 +472,6 @@ export class DeviceGroupService {
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<any> {
     this.logger.verbose(`With in getBuyerDeviceGroups`);
-    let deviceGroups: any;
     let queryBuilder: any;
     const pageSize = 10;
 
@@ -488,7 +488,6 @@ export class DeviceGroupService {
         });
       });
     } else {
-      const skip = (pageNumber - 1) * pageSize;
       if (
         groupfilterDto.start_date != undefined &&
         groupfilterDto.end_date != undefined
@@ -641,7 +640,7 @@ export class DeviceGroupService {
 
               const sdgBenefitsArray = newsdg.split(',');
 
-              const sdgBenefitString = sdgBenefitsArray
+              sdgBenefitsArray
                 .map((benefit) => benefit)
                 .join(',');
 
