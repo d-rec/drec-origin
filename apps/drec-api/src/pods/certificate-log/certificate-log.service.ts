@@ -685,7 +685,7 @@ export class CertificateLogService {
     this.logger.verbose(`With in getDeveloperfindreservationcertified`);
     await Promise.all(
       certifiedreservation.deviceGroups.map(
-        async (group: any, index: number) => {
+        async (group: any) => {
           const newq = await this.certificaterrepository
             .createQueryBuilder('issuar')
             .where(
@@ -759,7 +759,6 @@ export class CertificateLogService {
                       });
                     } else {
                       this.logger.log("oldlog doesn't exist in developer");
-                      let totalvalue;
                       const devicelog =
                         await this.getCheckCertificateIssueDateLogForDevice(
                           parseInt(group.dg_id),
