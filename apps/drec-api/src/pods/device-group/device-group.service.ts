@@ -676,7 +676,7 @@ export class DeviceGroupService {
           }),
         );
       });
-      const groupedDatasql = await queryBuilder.getSql();
+    await queryBuilder.getSql();
     }
     const skip = (pageNumber - 1) * pageSize;
 
@@ -923,6 +923,7 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const reservationIsStartingInHistoryForAtleastOneDevice = false;
     let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
     devices.filter((ele) => {
@@ -1029,6 +1030,7 @@ export class DeviceGroupService {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const nextgroupcrtifecateissue =
         this.repositorynextDeviceGroupcertificate.save({
           start_date: startDate,
@@ -1042,6 +1044,7 @@ export class DeviceGroupService {
           new Date(data.reservationStartDate).getTime() <
           new Date(device.createdAt).getTime()
         ) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const nexthistorydevicecrtifecateissue =
             await this.historynextissuancedaterepository.save({
               groupId: group.id,
