@@ -117,8 +117,8 @@ describe('DeviceGroupService', () => {
       Repository<HistoryDeviceGroupNextIssueCertificate>
     >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
     certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity<any>>
-    >(getRepositoryToken(CertificateReadModelEntity<any>));
+      Repository<CertificateReadModelEntity>
+    >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {
