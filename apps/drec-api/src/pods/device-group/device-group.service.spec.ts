@@ -94,7 +94,7 @@ describe('DeviceGroupService', () => {
         },
       ],
     }).compile();
-    
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     service = module.get<DeviceGroupService>(DeviceGroupService);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
