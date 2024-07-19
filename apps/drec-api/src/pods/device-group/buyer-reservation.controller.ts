@@ -953,7 +953,6 @@ export class BuyerReservationController {
   public async getReservationcurrentinformation(
     @Param('groupUid') groupuId: string,
     @Query('pagenumber') pagenumber: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getReservationcurrentinformation`);
     const regexExp =
