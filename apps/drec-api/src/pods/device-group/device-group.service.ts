@@ -15,7 +15,6 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In,
   Between,
   Brackets,
   SelectQueryBuilder,
@@ -25,7 +24,6 @@ import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
-  DeviceIdsDTO,
   JobFailedRowsDTO,
   NewDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
@@ -40,10 +38,8 @@ import {
   DeviceDescription,
   IDevice,
   BuyerReservationCertificateGenerationFrequency,
-  IFullOrganization,
-  IUser,
 } from '../../models';
-import { DeviceDTO, NewDeviceDTO, FilterDTO } from '../device/dto';
+import { DeviceDTO, NewDeviceDTO, } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
@@ -52,8 +48,6 @@ import {
   FuelCode,
   DevicetypeCode,
   Role,
-  OrganizationStatus,
-  UserStatus,
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -71,7 +65,6 @@ import {
   StatusCSV,
 } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
-import { Readable } from 'stream';
 import csv from 'csv-parser';
 
 import csvtojsonV2 from 'csvtojson';
