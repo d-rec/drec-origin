@@ -32,7 +32,6 @@ import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
 import { Response } from 'express';
-import { CertificateMetadata } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateMetadata';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
@@ -49,9 +48,7 @@ export class CertificateLogService {
     private readonly certificaterrepository: Repository<Certificate>,
 
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<
-      CertificateReadModelEntity<CertificateMetadata>
-    >,
+    private readonly cretificatereadmoduleRepository,
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
