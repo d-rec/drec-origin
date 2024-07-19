@@ -15,6 +15,7 @@ import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
 import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
+import { ICertificateMetadata } from '../../utils/types';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -29,7 +30,9 @@ describe('DeviceGroupService', () => {
   let userService: UserService;
   let checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>;
   let historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>;
-  let certificateReadModelEntity: Repository<CertificateReadModelEntity<any>>;
+  let certificateReadModelEntity: Repository<
+    CertificateReadModelEntity<ICertificateMetadata>
+  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,7 +89,9 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(CertificateReadModelEntity),
+          provide: getRepositoryToken(
+            CertificateReadModelEntity<ICertificateMetadata>,
+          ),
           useClass: Repository,
         },
       ],
@@ -117,8 +122,8 @@ describe('DeviceGroupService', () => {
       Repository<HistoryDeviceGroupNextIssueCertificate>
     >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
     certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity>
-    >(getRepositoryToken(CertificateReadModelEntity));
+      Repository<CertificateReadModelEntity<ICertificateMetadata>>
+    >(getRepositoryToken(CertificateReadModelEntity<ICertificateMetadata>));
   });
 
   it('should be defined', () => {
