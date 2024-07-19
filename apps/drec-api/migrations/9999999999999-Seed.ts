@@ -281,12 +281,13 @@ export class Seed9999999999999 implements MigrationInterface {
       await Promise.all(
         (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
           async (aclModule) => {
-            const addedPermissionList: { [key in PermissionString]: boolean } = {
-              Read: false,
-              Write: false,
-              Delete: false,
-              Update: false,
-            };
+            const addedPermissionList: { [key in PermissionString]: boolean } =
+              {
+                Read: false,
+                Write: false,
+                Delete: false,
+                Update: false,
+              };
             for (const key in addedPermissionList) {
               aclModule.permissions.map((myArr, index) => {
                 if (myArr === key) {
@@ -327,7 +328,9 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
 
-  computePermissions(addedPermissionList: { [key in PermissionString]: boolean }): number {
+  computePermissions(addedPermissionList: {
+    [key in PermissionString]: boolean;
+  }): number {
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       binaryFormPermission =

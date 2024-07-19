@@ -74,7 +74,9 @@ export class DecimalPermissionValue {
   binaryFormPermission = '0000';
   decimalFormPermission = 0;
 
-  computePermissions(addedPermissionList: { [key in PermissionString]: boolean }): number {
+  computePermissions(addedPermissionList: {
+    [key in PermissionString]: boolean;
+  }): number {
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       binaryFormPermission =
