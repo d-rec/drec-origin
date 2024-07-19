@@ -676,7 +676,7 @@ export class DeviceGroupService {
           }),
         );
       });
-    await queryBuilder.getSql();
+      await queryBuilder.getSql();
     }
     const skip = (pageNumber - 1) * pageSize;
 
