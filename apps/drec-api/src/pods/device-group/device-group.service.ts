@@ -1678,7 +1678,7 @@ export class DeviceGroupService {
     file: any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
-  ): Promise <void | any> {
+  ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
