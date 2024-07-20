@@ -1673,8 +1673,8 @@ export class DeviceGroupService {
     }
   }
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   async processCsvFileAnotherLibrary(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     file: any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
