@@ -1286,7 +1286,7 @@ export class DeviceGroupService {
     groupId: number,
     organizationId: number,
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
-  ) {
+  ): Promise<DeviceGroup> {
     this.logger.verbose(
       `With in updateTotalReadingRequestedForCertificateIssuance`,
     );
@@ -1502,7 +1502,8 @@ export class DeviceGroupService {
         0,
       ),
     );
-    const averageYieldValue = Math.floor(
+    // averageYieldValue
+    Math.floor(
       devices.reduce(
         (accumulator, currentValue: DeviceDTO) =>
           accumulator + currentValue.yieldValue,
@@ -1537,7 +1538,8 @@ export class DeviceGroupService {
     const offTakers = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.offTaker)),
     );
-    const deviceIdsInt = Array.from(
+    //deviceIdsInt
+    Array.from(
       new Set(devices.map((device: DeviceDTO) => device.id)),
     );
 
@@ -1639,7 +1641,7 @@ export class DeviceGroupService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing() {
+  async getAddedCSVProcessingJobsAndStartProcessing():Promise<void | any> {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
