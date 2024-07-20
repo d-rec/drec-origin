@@ -1674,10 +1674,11 @@ export class DeviceGroupService {
   }
 
   async processCsvFileAnotherLibrary(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     file: any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
-  ) {
+  ): Promise <void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
@@ -1694,7 +1695,7 @@ export class DeviceGroupService {
 
     csvtojsonV2()
       .fromString(filedata)
-      .subscribe(async (data: any, lineNumber: any) => {
+      .subscribe(async (data: any) => {
         rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
@@ -1760,7 +1761,7 @@ export class DeviceGroupService {
           errorsList: [],
         });
       })
-      .on('done', async (error: any) => {
+      .on('done', async () => {
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
           if (records[index].externalId) {
