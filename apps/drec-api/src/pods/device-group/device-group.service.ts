@@ -1539,9 +1539,7 @@ export class DeviceGroupService {
       new Set(devices.map((device: DeviceDTO) => device.offTaker)),
     );
     //deviceIdsInt
-    Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.id)),
-    );
+    Array.from(new Set(devices.map((device: DeviceDTO) => device.id)));
 
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
@@ -1641,7 +1639,7 @@ export class DeviceGroupService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing():Promise<void | any> {
+  async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
