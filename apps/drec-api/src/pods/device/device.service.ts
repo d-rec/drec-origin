@@ -1264,10 +1264,10 @@ export class DeviceService {
     return count;
   }
 
-  async getNumberOfOngReads(externalId, onboardedDate): Promise<number> {
+  async getNumberOfOngReads(externalId: string, onboardedDate: Date): Promise<number> {
     this.logger.verbose(`With in getNumberOfOngReads`);
     let fluxQuery = ``;
-    const end = new Date();
+    const end = new Date(); // eslint-disable-line @typescript-eslint/no-unused-vars
     fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
       |> range(start: ${onboardedDate})
       |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
@@ -1277,7 +1277,7 @@ export class DeviceService {
     return noOfReads;
   }
 
-  async ongExecute(query: any) {
+  async ongExecute(query: any): Promise<Number> {
     this.logger.verbose(`With in ongExecute`);
     const data: any = await this.dbReader.collectRows(query);
 
