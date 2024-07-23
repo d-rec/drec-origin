@@ -1,12 +1,7 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import {
-  IsEnum,
-  IsString,
-  IsNumber,
-  IsOptional,
-} from 'class-validator';
+import { IsEnum, IsString, IsNumber, IsOptional } from 'class-validator';
 
 export enum StatusCSV {
   Added = 'Added',
