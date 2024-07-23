@@ -52,7 +52,6 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { CountrycodeService } from '../countrycode/countrycode.service';
 import { countryCodesList } from '../../models/country-code';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -97,7 +96,7 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
-  ) /*: Promise<DeviceDTO[]>*/ {
+  ) : Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
     return this.deviceService.find(filterDto, pagenumber, OrgId);
   }
@@ -252,7 +251,7 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pagenumber: number | null,
-  ) /*: Promise<DeviceDTO[]>*/ {
+  ): Promise<any> {
     this.logger.verbose(`With in getMyDevices`);
     if (filterDto.country) {
       filterDto.country = filterDto.country.toUpperCase();
@@ -907,7 +906,7 @@ export class DeviceController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('deviceId') deviceId,
     @Query('givenDate') givenDate,
-  ) {
+  ): Promise<string> {
     this.logger.verbose(`With in changeOnBoardingDate`);
     if (process.env.MODE != 'dev') {
       this.logger.error(`Currently not in dev environment`);
@@ -952,7 +951,7 @@ export class DeviceController {
   async autocomplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
-  ) {
+  ): Promise<any> {
     this.logger.verbose(`With in autocomplete`);
     return await this.deviceService.atto(organizationId, externalId);
   }
