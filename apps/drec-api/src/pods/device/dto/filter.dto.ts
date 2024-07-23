@@ -1,10 +1,7 @@
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
   FuelCode,
   DevicetypeCode,
   SDGBenefitsList,

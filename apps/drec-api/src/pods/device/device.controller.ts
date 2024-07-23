@@ -904,8 +904,8 @@ export class DeviceController {
   })
   async changeOnBoardingDate(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('deviceId') deviceId,
-    @Query('givenDate') givenDate,
+    @Query('deviceId') deviceId: string,
+    @Query('givenDate') givenDate: string,
   ): Promise<string> {
     this.logger.verbose(`With in changeOnBoardingDate`);
     if (process.env.MODE != 'dev') {

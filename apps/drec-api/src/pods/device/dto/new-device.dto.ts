@@ -10,10 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
   FuelCode,
   DevicetypeCode,
 } from '../../../utils/enums';

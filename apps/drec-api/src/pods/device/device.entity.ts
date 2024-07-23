@@ -3,17 +3,11 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  BeforeUpdate,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import {
-  DeviceStatus,
-  Installation,
-  Integrator,
   OffTaker,
-  Sector,
-  StandardCompliance,
   FuelCode,
   DevicetypeCode,
 } from '../../utils/enums';
@@ -21,7 +15,6 @@ import {
   IsEnum,
   IsBoolean,
   IsString,
-  IsNotEmpty,
   IsNumber,
   IsArray,
 } from 'class-validator';
