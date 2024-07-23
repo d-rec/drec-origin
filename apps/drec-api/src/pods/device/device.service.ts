@@ -1323,7 +1323,7 @@ export class DeviceService {
     return `Changed createdAt date from ${onboardedDate} to ${givenDate}`;
   }
 
-  public async atto(organizationId, externalId) {
+  public async atto(organizationId: number, externalId: string): Promise<any[]> {
     this.logger.verbose(`With in atto`);
     const queryBuilder = this.repository.createQueryBuilder('Device');
     const rows = await queryBuilder
@@ -1363,7 +1363,7 @@ export class DeviceService {
       },
     });
   }
-  async getcertifieddevicedaterange(groupId, device?): Promise<any> {
+  async getcertifieddevicedaterange(groupId: number, device?: DeviceDTO): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterange`);
 
     const queryBuilder = this.checkdevcielogcertificaterepository
