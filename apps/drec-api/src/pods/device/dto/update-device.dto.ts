@@ -8,11 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  OffTaker,
-  FuelCode,
-  DevicetypeCode,
-} from '../../../utils/enums';
+import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 import { Exclude } from 'class-transformer';
 export class UpdateDeviceDTO

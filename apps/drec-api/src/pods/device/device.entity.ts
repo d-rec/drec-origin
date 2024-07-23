@@ -6,11 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import {
-  OffTaker,
-  FuelCode,
-  DevicetypeCode,
-} from '../../utils/enums';
+import { OffTaker, FuelCode, DevicetypeCode } from '../../utils/enums';
 import {
   IsEnum,
   IsBoolean,
