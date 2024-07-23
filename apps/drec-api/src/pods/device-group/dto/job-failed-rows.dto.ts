@@ -1,13 +1,7 @@
 import {
-  IsString,
   IsNumber,
-  IsEnum,
-  IsArray,
-  IsNotEmpty,
-  IsBoolean,
-  IsOptional,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, } from '@nestjs/swagger';
 
 export class JobFailedRowsDTO {
   @ApiProperty()

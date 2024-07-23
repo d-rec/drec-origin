@@ -2,12 +2,10 @@ import {
   IsNotEmpty,
   IsString,
   IsDate,
-  IsEnum,
   IsOptional,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 export class UpdateDeviceGroupDTO {
   @ApiProperty()
   @IsString()

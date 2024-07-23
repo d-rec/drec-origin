@@ -1,17 +1,11 @@
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  CapacityRange,
-  CommissioningDateRange,
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
   FuelCode,
   SDGBenefitsList,
 } from '../../../utils/enums';
-import { countryCodesList } from '../../../models/country-code';
-//import {SDGBenefits} from '../../../models/Sdgbenefit'
+
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
   @ApiPropertyOptional({

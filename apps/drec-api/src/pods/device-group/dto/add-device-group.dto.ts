@@ -4,7 +4,6 @@ import {
   IsString,
   IsOptional,
   Min,
-  IsBoolean,
   IsEnum,
 } from 'class-validator';
 import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
