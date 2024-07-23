@@ -193,7 +193,7 @@ export class DeviceService {
         totalCount,
       };
     }
-    const [devices, totalCount] = await this.repository.findAndCount({
+    const [devices] = await this.repository.findAndCount({
       where: { organizationId },
       order: {
         createdAt: 'DESC',
@@ -227,7 +227,7 @@ export class DeviceService {
   }
 
   //@Cron('*/30 * * * * *')
-  async I_recPostData(deviceId): Promise<any> {
+  async I_recPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'NotRegistered' },
@@ -300,7 +300,7 @@ export class DeviceService {
     }
   }
 
-  async I_RECDeviceDetailsPostData(deviceId): Promise<Observable<any>> {
+  async I_RECDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
     this.logger.verbose(`With in I_RECDeviceDetailsPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },
@@ -341,7 +341,7 @@ export class DeviceService {
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
 
       let data: any;
-      const response = this.httpService
+      const response = this.httpService // eslint-disable-line @typescript-eslint/no-unused-vars
         .post(url, requestBody, config)
         .subscribe(
           (response) => {
