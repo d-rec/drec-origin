@@ -2479,7 +2479,7 @@ export class DeviceGroupService {
           new Brackets((qb) => {
             if (filterDto.country) {
               const string = filterDto.country;
-              const values = string.split(',');
+              string.split(',');
               let CountryInvalid = false;
               filterDto.country = filterDto.country.toUpperCase();
               if (
@@ -2580,7 +2580,8 @@ export class DeviceGroupService {
             if (filterDto.SDGBenefits) {
               const newsdg = filterDto.SDGBenefits.toString();
               const sdgBenefitsArray = newsdg.split(',');
-              const sdgBenefitString = sdgBenefitsArray
+              // sdgBenefitString
+              sdgBenefitsArray
                 .map((benefit) => benefit)
                 .join(',');
               qb.orWhere(
@@ -2647,8 +2648,6 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          const newobj = {};
-
           const existing1 = acc.find((item) => item.id === curr.id);
           if (existing1) {
             existing.developerdeviceIds.push(curr.id);
@@ -2693,11 +2692,11 @@ export class DeviceGroupService {
     return response;
   }
   async getoldReservationInforDeveloperBsise(
-    orgId,
-    role,
-    filterDto,
-    pageNumber,
-    apiuser_id?,
+    orgId: number,
+    role: Role,
+    filterDto: FilterDTO,
+    pageNumber: number,
+    apiuser_id?: string,
   ): Promise<any> {
     this.logger.verbose(`With in getoldReservationInforDeveloperBsise`);
     const pageSize = 10;
