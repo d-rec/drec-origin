@@ -1028,8 +1028,8 @@ export class DeviceController {
         });
       }
       return await this.deviceService.getcertifieddevicedaterange(
-        device,
         group.id,
+        device,
       );
     } else {
       return await this.deviceService.getcertifieddevicedaterangeBygroupid(
