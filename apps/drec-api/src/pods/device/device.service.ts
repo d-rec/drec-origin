@@ -13,10 +13,7 @@ import {
   FindOneOptions,
   Repository,
   In,
-  IsNull,
-  Not,
   FindOperator,
-  LessThan,
   Raw,
   Brackets,
   SelectQueryBuilder,
@@ -25,7 +22,6 @@ import {
   Between,
   LessThanOrEqual,
   MoreThanOrEqual,
-  ILike,
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -39,7 +35,6 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
-  Integrator,
   ReadType,
   Role,
   IRECDeviceStatus,
