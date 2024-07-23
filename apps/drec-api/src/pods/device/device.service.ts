@@ -1280,7 +1280,7 @@ export class DeviceService {
     return noOfReads;
   }
 
-  async ongExecute(query: any): Promise<number> {
+  async ongExecute(query: string | any): Promise<number> {
     this.logger.verbose(`With in ongExecute`);
     const data: any = await this.dbReader.collectRows(query);
 
@@ -1290,7 +1290,7 @@ export class DeviceService {
     return Number(data[0]._value);
   }
 
-  async changecreatedAtDate(onboardedDate, givenDate, externalId) {
+  async changecreatedAtDate(onboardedDate: Date, givenDate: string, externalId: string): Promise<string> {
     this.logger.verbose(`With in changecreatedAtDate`);
     this.logger.debug('THE EXTERNALID IS::::::::::::::::::::::::' + externalId);
     const sixMonthsAgo = new Date(onboardedDate);
