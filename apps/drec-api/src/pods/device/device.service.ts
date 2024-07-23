@@ -640,7 +640,7 @@ export class DeviceService {
     updateDeviceDTO: UpdateDeviceDTO,
   ): Promise<Device> {
     this.logger.verbose(`With in update`);
-    const rule =
+    const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
       role === Role.DeviceOwner
         ? {
             where: {
@@ -704,7 +704,6 @@ export class DeviceService {
   }
   async findUngroupedById(
     id: number,
-    organizationId?: number,
   ): Promise<boolean> {
     this.logger.verbose(`With in findUngroupedById`);
     const devices = await this.repository.find({
@@ -809,7 +808,6 @@ export class DeviceService {
     orgId?: number,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const limit = 20;
     const where: FindConditions<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
@@ -1073,8 +1071,8 @@ export class DeviceService {
     });
   }
   public async findAllLateCycle(
-    groupid,
-    externalid,
+    groupid: number,
+    externalid: string,
     reservation_endDate: Date,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     const reservation_end_UtcDate = new Date(reservation_endDate);
