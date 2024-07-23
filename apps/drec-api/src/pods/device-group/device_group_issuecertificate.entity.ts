@@ -1,11 +1,7 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import {
-  IsDate,
-} from 'class-validator';
-import {
-  IDeviceGroupNextIssueCertificate,
-} from '../../models';
+import { IsDate } from 'class-validator';
+import { IDeviceGroupNextIssueCertificate } from '../../models';
 
 @Entity('next_issuance_date_log_for_device_group')
 export class DeviceGroupNextIssueCertificate
