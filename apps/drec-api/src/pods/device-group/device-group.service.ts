@@ -83,6 +83,7 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
+import { FilterDTO } from '../certificate-log/dto';
 
 @Injectable()
 export class DeviceGroupService {
@@ -2344,7 +2345,7 @@ export class DeviceGroupService {
         );
       });
     }
-    const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+    await this.deviceService.findByIds(group.deviceIdsInt);
     const device_historynextissuance = [];
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
@@ -2406,11 +2407,11 @@ export class DeviceGroupService {
   }
 
   async getReservationInforDeveloperBsise(
-    orgId,
-    role,
-    filterDto,
-    pageNumber,
-    apiuser_id?,
+    orgId: number,
+    role: Role,
+    filterDto: FilterDTO,
+    pageNumber: number,
+    apiuser_id?: string,
   ): Promise<any> {
     this.logger.verbose(`With in getReservationInforDeveloperBsise`);
     const pageSize = 10;
