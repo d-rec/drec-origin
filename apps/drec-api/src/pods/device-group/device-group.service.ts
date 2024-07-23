@@ -1899,8 +1899,8 @@ export class DeviceGroupService {
             singleRecord[error.property] = null; //making null field if it has any validation issue
           });
         });
-
-        const noErrorRecords = records.filter(
+        // noErrorRecords
+        records.filter(
           (record, index) => recordsErrors[index].isError === false,
         );
         const listofExistingDevices = await this.checkIfDeviceExisting(
@@ -2039,7 +2039,7 @@ export class DeviceGroupService {
       });
   }
 
-  csvStringToJSON(csvFileContentInString: string) {
+  csvStringToJSON(csvFileContentInString: string): void {
     this.logger.verbose(`With in csvStringToJSON`);
 
     const array = csvFileContentInString.split('\r');
@@ -2192,10 +2192,9 @@ export class DeviceGroupService {
     deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     this.logger.verbose(`With in endReservation`);
-    let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
-      updatedissuedatestatus = await this.repository.save(group);
+      await this.repository.save(group);
     }
 
     await this.repositorynextDeviceGroupcertificate.delete(
@@ -2217,10 +2216,9 @@ export class DeviceGroupService {
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
     this.logger.verbose(`With in deactiveReaservation`);
-    let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
-      updatedissuedatestatus = await this.repository.save(group);
+      await this.repository.save(group);
       return;
     }
   }
