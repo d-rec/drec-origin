@@ -1393,7 +1393,7 @@ export class DeviceService {
     return finalresult;
   }
   async getcertifieddevicedaterangeBygroupid(
-    groupId,
+    groupId: number,
     pageNumber?: number,
   ): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterangeBygroupid`);
@@ -1427,7 +1427,7 @@ export class DeviceService {
     };
   }
 
-  async remove(id: number, filterop): Promise<any> {
+  async remove(id: number, filterop: {groupId: number, organizationId?: number}): Promise<any> {
     this.logger.verbose(`With in remove`);
     const checkdeviceunreserve = await this.findOne(id, filterop);
     if (!checkdeviceunreserve) {
