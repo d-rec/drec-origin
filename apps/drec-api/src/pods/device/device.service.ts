@@ -702,9 +702,7 @@ export class DeviceService {
     delete devices['organization'];
     return this.groupDevices(orderFilterDto, devices);
   }
-  async findUngroupedById(
-    id: number,
-  ): Promise<boolean> {
+  async findUngroupedById(id: number): Promise<boolean> {
     this.logger.verbose(`With in findUngroupedById`);
     const devices = await this.repository.find({
       where: { groupId: null, id },
