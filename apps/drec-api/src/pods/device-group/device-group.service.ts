@@ -2269,8 +2269,8 @@ export class DeviceGroupService {
   }
 
   public async getNextHistoryissuanceDevicelogafterreservation(
-    developerExternalId: any,
-    groupId: any,
+    developerExternalId: string,
+    groupId: number,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     this.logger.verbose(
       `With in getNextHistoryissuanceDevicelogafterreservation`,
@@ -2323,8 +2323,8 @@ export class DeviceGroupService {
   }
 
   async getcurrentInformationofDevicesInReservation(
-    groupuid,
-    pageNumber?,
+    groupuid: string,
+    pageNumber?: number,
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationofDevicesInReservation`);
     const group = await this.findOne({
