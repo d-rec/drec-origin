@@ -1181,7 +1181,7 @@ export class DeviceService {
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`;
     return await this.execute(fluxQuery);
   }
-  async execute(query: any) {
+  async execute(query: string | any): Promise<any> {
     this.logger.verbose(`With in execute`);
     const data = await this.dbReader.collectRows(query);
     return data.map((record: any) => ({
@@ -1189,7 +1189,7 @@ export class DeviceService {
       value: Number(record._value),
     }));
   }
-  get dbReader() {
+  get dbReader(): Promise<any> {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
@@ -1229,7 +1229,7 @@ export class DeviceService {
     return totalamountofreads;
   }
 
-  public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate) {
+  public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate): Promise<string> {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistReads: number =
       await this.getNumberOfHistReads(externalId);
