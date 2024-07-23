@@ -2581,9 +2581,7 @@ export class DeviceGroupService {
               const newsdg = filterDto.SDGBenefits.toString();
               const sdgBenefitsArray = newsdg.split(',');
               // sdgBenefitString
-              sdgBenefitsArray
-                .map((benefit) => benefit)
-                .join(',');
+              sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray.forEach((benefit, index) => {
