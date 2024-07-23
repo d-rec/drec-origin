@@ -1230,9 +1230,9 @@ export class DeviceService {
   }
 
   public async changeDeviceCreatedAt(
-    externalId,
-    onboardedDate,
-    givenDate,
+    externalId: string,
+    onboardedDate: Date,
+    givenDate: string,
   ): Promise<string> {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistReads: number =
@@ -1255,7 +1255,7 @@ export class DeviceService {
     }
   }
 
-  async getNumberOfHistReads(deviceId): Promise<number> {
+  async getNumberOfHistReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
