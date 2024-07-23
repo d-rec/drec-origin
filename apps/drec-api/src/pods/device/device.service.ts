@@ -69,6 +69,7 @@ import { UserService } from '../user/user.service';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
+import { DateTime } from 'luxon';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -1087,10 +1088,10 @@ export class DeviceService {
     });
   }
   public async finddeviceLateCycleOfdaterange(
-    groupid,
-    externalid,
-    latestartDate,
-    lateendDate,
+    groupid: number,
+    externalid: string,
+    latestartDate: DateTime,
+    lateendDate: DateTime,
   ): Promise<boolean> {
     const isalreadyadded = await this.latedevciecertificaterepository.findOne({
       where: {
