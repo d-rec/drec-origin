@@ -1674,7 +1674,7 @@ export class DeviceGroupService {
   }
 
   async processCsvFileAnotherLibrary(
-    file: object | any,
+    file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
   ): Promise<void | any> {
