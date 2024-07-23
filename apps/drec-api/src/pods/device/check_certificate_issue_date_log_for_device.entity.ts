@@ -2,11 +2,7 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsString,
-  IsNotEmpty,
-  IsEnum,
-  IsBoolean,
   IsNumber,
-  IsOptional,
   IsDate,
 } from 'class-validator';
 
