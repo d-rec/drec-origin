@@ -2749,7 +2749,7 @@ export class DeviceGroupService {
           new Brackets((qb) => {
             if (filterDto.country) {
               const string = filterDto.country;
-              const values = string.split(',');
+              string.split(',');
               let CountryInvalid = false;
               filterDto.country = filterDto.country.toUpperCase();
               if (
@@ -2851,7 +2851,8 @@ export class DeviceGroupService {
             if (filterDto.SDGBenefits) {
               const newsdg = filterDto.SDGBenefits.toString();
               const sdgBenefitsArray = newsdg.split(',');
-              const sdgBenefitString = sdgBenefitsArray
+              //sdgBenefitString
+              sdgBenefitsArray
                 .map((benefit) => benefit)
                 .join(',');
               qb.orWhere(
@@ -2915,7 +2916,6 @@ export class DeviceGroupService {
     const deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find((item) => item.dg_id === curr.dg_id);
       if (existing) {
-        const newobj = {};
         const existing1 = acc.find((item) => item.id === curr.id);
         if (existing1) {
           existing.developerdeviceIds.push(curr.id);

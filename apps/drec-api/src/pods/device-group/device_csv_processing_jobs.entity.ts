@@ -3,11 +3,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import {
   IsEnum,
-  IsBoolean,
   IsString,
-  IsNotEmpty,
   IsNumber,
-  IsArray,
   IsOptional,
 } from 'class-validator';
 
