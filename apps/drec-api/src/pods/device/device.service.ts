@@ -1280,7 +1280,7 @@ export class DeviceService {
     return noOfReads;
   }
 
-  async ongExecute(query: any): Promise<Number> {
+  async ongExecute(query: any): Promise<number> {
     this.logger.verbose(`With in ongExecute`);
     const data: any = await this.dbReader.collectRows(query);
 
