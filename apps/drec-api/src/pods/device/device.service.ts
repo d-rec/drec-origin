@@ -1290,7 +1290,11 @@ export class DeviceService {
     return Number(data[0]._value);
   }
 
-  async changecreatedAtDate(onboardedDate: Date, givenDate: string, externalId: string): Promise<string> {
+  async changecreatedAtDate(
+    onboardedDate: Date,
+    givenDate: string,
+    externalId: string,
+  ): Promise<string> {
     this.logger.verbose(`With in changecreatedAtDate`);
     this.logger.debug('THE EXTERNALID IS::::::::::::::::::::::::' + externalId);
     const sixMonthsAgo = new Date(onboardedDate);
