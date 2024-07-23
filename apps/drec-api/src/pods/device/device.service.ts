@@ -1264,7 +1264,10 @@ export class DeviceService {
     return count;
   }
 
-  async getNumberOfOngReads(externalId: string, onboardedDate: Date): Promise<number> {
+  async getNumberOfOngReads(
+    externalId: string,
+    onboardedDate: Date,
+  ): Promise<number> {
     this.logger.verbose(`With in getNumberOfOngReads`);
     let fluxQuery = ``;
     const end = new Date(); // eslint-disable-line @typescript-eslint/no-unused-vars
