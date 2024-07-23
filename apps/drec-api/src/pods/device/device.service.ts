@@ -1229,7 +1229,11 @@ export class DeviceService {
     return totalamountofreads;
   }
 
-  public async changeDeviceCreatedAt(externalId, onboardedDate, givenDate): Promise<string> {
+  public async changeDeviceCreatedAt(
+    externalId,
+    onboardedDate,
+    givenDate,
+  ): Promise<string> {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistReads: number =
       await this.getNumberOfHistReads(externalId);
