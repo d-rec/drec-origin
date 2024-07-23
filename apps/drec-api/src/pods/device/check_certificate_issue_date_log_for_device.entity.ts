@@ -1,10 +1,6 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import {
-  IsString,
-  IsNumber,
-  IsDate,
-} from 'class-validator';
+import { IsString, IsNumber, IsDate } from 'class-validator';
 
 @Entity('check_certificate_issue_date_log_for_device')
 export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {

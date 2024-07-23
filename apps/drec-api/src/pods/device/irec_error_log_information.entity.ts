@@ -1,8 +1,6 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import {
-  IsString,
-} from 'class-validator';
+import { IsString } from 'class-validator';
 
 @Entity('irec_error_log_information')
 export class IrecErrorLogInformationEntity extends ExtendedBaseEntity {

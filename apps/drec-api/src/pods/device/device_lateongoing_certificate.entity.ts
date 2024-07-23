@@ -1,12 +1,7 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import {
-  IsString,
-  IsDate,
-} from 'class-validator';
-import {
-  IDeviceLateOngoingIssueCertificate,
-} from '../../models';
+import { IsString, IsDate } from 'class-validator';
+import { IDeviceLateOngoingIssueCertificate } from '../../models';
 
 @Entity('device_lateongoing_certificate_cycle')
 export class DeviceLateongoingIssueCertificateEntity
