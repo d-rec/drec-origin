@@ -42,17 +42,16 @@ export class WithoutAuthGuard implements CanActivate {
         })
       ).user;
     } else if (request.url.split('/')[3] === 'register') {
+      const userData = await this.userService.findOne({ role: Role.Admin });
       if (
-        !request.body.api_user_id &&
+        request.body.api_user_id == undefined &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
       ) {
-        user = await this.userService.findOne({ role: Role.Admin });
+        user = userData;
       } else if (
-        request.body.api_user_id &&
-        request.body.api_user_id !=
-          // @ts-ignore ts(2339)
-          (await this.userService.findOne({ role: Role.Admin }).api_user_id) &&
+        request.body.api_user_id != undefined &&
+        request.body.api_user_id != userData.api_user_id &&
         (request.body.organizationType === 'Developer' ||
           request.body.organizationType === Role.Buyer)
       ) {
@@ -76,17 +75,17 @@ export class WithoutAuthGuard implements CanActivate {
         role: Role.ApiUser,
         api_user_id: request.params.api_user_id,
       });
+    } else if (request.url.split('/')[3] === 'login') {
+      user = await this.userService.findByEmail(request.body.username);
     }
 
     if (
       request.body.organizationType === undefined &&
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
-      // @ts-ignore ts(2339)
       user.api_user_id !=
-        // prettier-ignore
-        // @ts-ignore ts(2339)
-        ((await this.userService.findOne({ role: Role.Admin })) as IUser).api_user_id
+        ((await this.userService.findOne({ role: Role.Admin })) as IUser)
+          .api_user_id
     ) {
       throw new UnauthorizedException({
         statusCode: 401,

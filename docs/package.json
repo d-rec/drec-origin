@@ -1,0 +1,22 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "Documentation for the D-REC (Distributed Renewable Energy Certificates) platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "prettier:fix": "prettier --write './{dev_docs,usage_guide,introduction}/**/*.md'"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "markdown-it-mathjax3": "^4.3.2",
+    "mermaid": "^10.9.1",
+    "vitepress": "^1.1.4",
+    "vitepress-plugin-mermaid": "^2.0.16",
+    "vitepress-sidebar": "^1.22.0"
+  }
+}

@@ -27,5 +27,28 @@ export class updateAndcopyColumn1684472228595 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE device_group DROP COLUMN "countryCode_new" text[]`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE device_group ADD COLUMN "countryCode"`,
+    );
+    await queryRunner.query(
+      `UPDATE device_group SET "countryCode" = ARRAY["countryCode_new"] WHERE "countryCode_new" IS NOT NULL`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE device_group RENAME COLUMN "countryCode" TO "countryCode_new"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE device_group DROP COLUMN "fuelCode_new" text[]`,
+    );
+    await queryRunner.query(`ALTER TABLE device_group ADD COLUMN "fuelCode"`);
+    await queryRunner.query(
+      `UPDATE device_group SET "fuelCode" = ARRAY["fuelCode_new"] WHERE "fuelCode_new" IS NOT NULL`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE device_group RENAME COLUMN "fuelCode" TO "fuelCode_new"`,
+    );
+  }
 }

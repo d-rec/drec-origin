@@ -18,5 +18,7 @@ export class deltaFirstread1669270905713 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS public.delta_firstread`);
+  }
 }

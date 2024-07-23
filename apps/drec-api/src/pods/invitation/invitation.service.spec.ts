@@ -203,7 +203,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
@@ -255,6 +255,7 @@ describe('InvitationService', () => {
       });
       await expect(newcreatespy).toHaveBeenCalledWith(
         {
+          api_user_id: inviteeOrganization.api_user_id,
           firstName: firstName,
           lastName: lastName,
           email: email,
@@ -262,9 +263,6 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          client: {
-            api_user_id: inviteeOrganization.api_user_id,
-          },
         } as CreateUserORGDTO,
         UserStatus.Pending,
         true,
@@ -278,9 +276,7 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          client: {
-            api_user_id: inviteeOrganization.api_user_id,
-          },
+          api_user_id: inviteeOrganization.api_user_id,
         } as CreateUserORGDTO,
         email,
         mockinvitedUser.id,
@@ -426,7 +422,7 @@ describe('InvitationService', () => {
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
         .spyOn(service, 'ensureIsNotMember')
-        .mockImplementation(() => {});
+        .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
@@ -485,9 +481,7 @@ describe('InvitationService', () => {
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
-          client: {
-            api_user_id: inviteeOrganization.api_user_id,
-          },
+          api_user_id: inviteeOrganization.api_user_id,
         } as CreateUserORGDTO,
         UserStatus.Pending,
         true,

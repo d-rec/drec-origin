@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
+import { WithoutAuthGuard } from '../guards';
 @ApiTags('auth')
 @ApiBearerAuth('access-token')
 @Controller()
@@ -24,7 +25,7 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(AuthGuard('local'), WithoutAuthGuard)
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })
@@ -43,7 +44,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req: ExpressRequest) {
     this.logger.verbose('Within login');
-    await this.authService.logout(req.user as Omit<IUser, 'password'>);
+    const token: string = req.headers.authorization?.split(' ')[1];
+    await this.authService.logout(req.user as Omit<IUser, 'password'>, token);
     return { message: 'Logout successful' };
   }
 

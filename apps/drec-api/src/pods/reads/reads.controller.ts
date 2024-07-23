@@ -228,13 +228,10 @@ export class ReadsController extends BaseReadsController {
         });
       }
       device = await this.deviceService.findOne(parseInt(meterId));
-      // @ts-ignore
       if (
         orguser != undefined &&
-        // @ts-ignore ts(2339)
         device.api_user_id === null &&
-        // @ts-ignore ts(2304)
-        orguser.role === enums_1.Role.Buyer
+        orguser.role === Role.Buyer
       ) {
         this.logger.error(
           `An buyer of apiuser can't view the reads of direct organization`,
@@ -245,7 +242,6 @@ export class ReadsController extends BaseReadsController {
         });
       }
       if (user.role === Role.Buyer) {
-        // @ts-ignore
         if (device.api_user_id != null) {
           this.logger.error(
             `An buyer can't view the reads of apiuser's organization`,
@@ -395,7 +391,6 @@ export class ReadsController extends BaseReadsController {
             );
           });
         } else {
-          // @ts-ignore
           user.organizationId = measurements.organizationId;
         }
       }
@@ -466,18 +461,16 @@ export class ReadsController extends BaseReadsController {
             if (ele[key]) {
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              // @ts-ignore ts(2339)
-              if (ele[key].includes('.')) {
+              if (ele[key].toString().includes('.')) {
                 if (
                   Number.isNaN(
                     parseFloat(
-                      // @ts-ignore ts(2339)
-                      ele[key].substring(
-                        // @ts-ignore ts(2339)
-                        ele[key].indexOf('.'),
-                        // @ts-ignore ts(2339)
-                        ele[key].length,
-                      ),
+                      ele[key]
+                        .toString()
+                        .substring(
+                          ele[key].toString().indexOf('.'),
+                          ele[key].toString().length,
+                        ),
                     ),
                   )
                 ) {
@@ -494,8 +487,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              // @ts-ignore
-              if (!dateTimeRegex.test(ele[key])) {
+              if (!dateTimeRegex.test(ele[key].toString())) {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
@@ -508,8 +500,10 @@ export class ReadsController extends BaseReadsController {
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 });
               } else {
-                let dateTime;
-                dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
+                const dateTime = momentTimeZone.tz(
+                  ele[key],
+                  measurements.timezone,
+                );
                 if (!dateTime.isValid()) {
                   dateInvalid = true;
                   this.logger.error(`Invalid date sent  ${ele[key]}`);
@@ -520,25 +514,24 @@ export class ReadsController extends BaseReadsController {
                 } else {
                   let milliSeondsToAddSentInRequest = '';
                   if (
-                    // @ts-ignore ts(2339)
-                    ele[key].includes('.') &&
-                    parseInt(
-                      // @ts-ignore ts(2339)
-                      ele[key].substring(
-                        // @ts-ignore ts(2339)
-                        ele[key].indexOf('.'),
-                        // @ts-ignore ts(2339)
-                        ele[key].length,
+                    ele[key].toString().includes('.') &&
+                    !isNaN(
+                      parseInt(
+                        ele[key]
+                          .toString()
+                          .substring(
+                            ele[key].toString().indexOf('.'),
+                            ele[key].toString().length,
+                          ),
                       ),
-                    ) != NaN
+                    )
                   ) {
-                    // @ts-ignore
-                    milliSeondsToAddSentInRequest = ele[key].substring(
-                      // @ts-ignore ts(2339)
-                      ele[key].indexOf('.'),
-                      // @ts-ignore ts(2339)
-                      ele[key].length,
-                    );
+                    milliSeondsToAddSentInRequest = ele[key]
+                      .toString()
+                      .substring(
+                        ele[key].toString().indexOf('.'),
+                        ele[key].toString().length,
+                      );
                   }
                   let utcString: string = dateTime.clone().utc().format();
 
@@ -551,8 +544,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  // @ts-ignore
-                  ele[key] = utcString;
+                  ele[key] = new Date(utcString);
                 }
               }
             }
@@ -590,24 +582,25 @@ export class ReadsController extends BaseReadsController {
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
-        // @ts-ignore
         if (
-          ele.starttimestamp === null ||
-          ele.starttimestamp === undefined ||
-          // @ts-ignore ts(2367)
-          ele.starttimestamp === '' ||
-          ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          // @ts-ignore ts(2367)
-          ele.endtimestamp === ''
+          (ele.starttimestamp instanceof Date &&
+            (ele.starttimestamp === null ||
+              ele.starttimestamp === undefined ||
+              isNaN(ele.starttimestamp.getTime()))) ||
+          (ele.endtimestamp instanceof Date &&
+            (ele.endtimestamp === null ||
+              ele.endtimestamp === undefined ||
+              isNaN(ele.endtimestamp.getTime())))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        // @ts-ignore
-        const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
+        const startdateformate = isValidUTCDateFormat(
+          new Date(ele.starttimestamp).toISOString(),
+        );
         //dateFormateToCheck.test(ele.starttimestamp);
-        // @ts-ignore
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -762,15 +755,16 @@ export class ReadsController extends BaseReadsController {
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
         if (
-          ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          // @ts-ignore ts(2339)
-          ele.endtimestamp === ''
+          ele.endtimestamp instanceof Date &&
+          (ele.endtimestamp === null ||
+            ele.endtimestamp === undefined ||
+            isNaN(ele.endtimestamp.getTime()))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        // @ts-ignore
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
 
         if (!enddateformate) {
           datevalid1 = false;
@@ -1042,18 +1036,16 @@ export class ReadsController extends BaseReadsController {
             if (ele[key]) {
               const dateTimeRegex =
                 /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              // @ts-ignore ts(2339)
-              if (ele[key].includes('.')) {
+              if (ele[key].toString().includes('.')) {
                 if (
                   Number.isNaN(
                     parseFloat(
-                      // @ts-ignore ts(2339)
-                      ele[key].substring(
-                        // @ts-ignore ts(2339)
-                        ele[key].indexOf('.'),
-                        // @ts-ignore ts(2339)
-                        ele[key].length,
-                      ),
+                      ele[key]
+                        .toString()
+                        .substring(
+                          ele[key].toString().indexOf('.'),
+                          ele[key].toString().length,
+                        ),
                     ),
                   )
                 ) {
@@ -1070,8 +1062,7 @@ export class ReadsController extends BaseReadsController {
                 }
               }
 
-              // @ts-ignore
-              if (!dateTimeRegex.test(ele[key])) {
+              if (!dateTimeRegex.test(ele[key].toString())) {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
@@ -1084,8 +1075,10 @@ export class ReadsController extends BaseReadsController {
                     ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 });
               } else {
-                let dateTime;
-                dateTime = momentTimeZone.tz(ele[key], measurements.timezone);
+                const dateTime = momentTimeZone.tz(
+                  ele[key],
+                  measurements.timezone,
+                );
                 if (!dateTime.isValid()) {
                   this.logger.error(`Invalid date sent  ${ele[key]}`);
                   dateInvalid = true;
@@ -1096,25 +1089,24 @@ export class ReadsController extends BaseReadsController {
                 } else {
                   let milliSeondsToAddSentInRequest = '';
                   if (
-                    // @ts-ignore ts(2339)
-                    ele[key].includes('.') &&
-                    parseInt(
-                      // @ts-ignore ts(2339)
-                      ele[key].substring(
-                        // @ts-ignore ts(2339)
-                        ele[key].indexOf('.'),
-                        // @ts-ignore ts(2339)
-                        ele[key].length,
+                    ele[key].toString().includes('.') &&
+                    !isNaN(
+                      parseInt(
+                        ele[key]
+                          .toString()
+                          .substring(
+                            ele[key].toString().indexOf('.'),
+                            ele[key].toString().length,
+                          ),
                       ),
-                    ) != NaN
+                    )
                   ) {
-                    // @ts-ignore
-                    milliSeondsToAddSentInRequest = ele[key].substring(
-                      // @ts-ignore
-                      ele[key].indexOf('.'),
-                      // @ts-ignore
-                      ele[key].length,
-                    );
+                    milliSeondsToAddSentInRequest = ele[key]
+                      .toString()
+                      .substring(
+                        ele[key].toString().indexOf('.'),
+                        ele[key].toString().length,
+                      );
                   }
                   let utcString: string = dateTime.clone().utc().format();
 
@@ -1127,8 +1119,7 @@ export class ReadsController extends BaseReadsController {
                     utcString =
                       utcString.substring(0, utcString.length - 1) + '.000Z';
                   }
-                  // @ts-ignore
-                  ele[key] = utcString;
+                  ele[key] = new Date(utcString);
                 }
               }
             }
@@ -1167,22 +1158,24 @@ export class ReadsController extends BaseReadsController {
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
         if (
-          ele.starttimestamp === null ||
-          ele.starttimestamp === undefined ||
-          // @ts-ignore ts(2367)
-          ele.starttimestamp === '' ||
-          ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          // @ts-ignore ts(2367)
-          ele.endtimestamp === ''
+          (ele.starttimestamp instanceof Date &&
+            (ele.starttimestamp === null ||
+              ele.starttimestamp === undefined ||
+              isNaN(ele.starttimestamp.getTime()))) ||
+          (ele.endtimestamp instanceof Date &&
+            (ele.endtimestamp === null ||
+              ele.endtimestamp === undefined ||
+              isNaN(ele.endtimestamp.getTime())))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        // @ts-ignore
-        const startdateformate = isValidUTCDateFormat(ele.starttimestamp);
+        const startdateformate = isValidUTCDateFormat(
+          new Date(ele.starttimestamp).toISOString(),
+        );
 
-        // @ts-ignore
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
 
         if (!startdateformate || !enddateformate) {
           datevalid = false;
@@ -1335,15 +1328,16 @@ export class ReadsController extends BaseReadsController {
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
         if (
-          ele.endtimestamp === null ||
-          ele.endtimestamp === undefined ||
-          // @ts-ignore ts(2367)
-          ele.endtimestamp === ''
+          ele.endtimestamp instanceof Date &&
+          (ele.endtimestamp === null ||
+            ele.endtimestamp === undefined ||
+            isNaN(ele.endtimestamp.getTime()))
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        // @ts-ignore
-        const enddateformate = isValidUTCDateFormat(ele.endtimestamp);
+        const enddateformate = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
 
         if (!enddateformate) {
           datevalid1 = false;
@@ -1552,11 +1546,10 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    let deviceExternalId;
     let latestReadObject;
     let latestRead;
 
-    deviceExternalId = device.externalId;
+    const deviceExternalId = device.externalId;
 
     if (!device.meterReadtype) {
       this.logger.error(`Read not found`);

@@ -86,7 +86,6 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    // @ts-ignore
     const api_user =
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
@@ -115,9 +114,7 @@ export class UserService {
         );
       }
     }
-    // @ts-ignore
     if (data.orgid) {
-      // @ts-ignore
       org_id = data.orgid;
     }
     let role;
@@ -169,6 +166,9 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
+    const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
+      data.api_user_id,
+    );
     let org_id;
     if (!inviteuser) {
       const orgdata = {
@@ -178,7 +178,7 @@ export class UserService {
         orgEmail: data.email,
         address: data.orgAddress,
       };
-
+      orgdata['api_user_id'] = admin.api_user_id;
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -215,6 +215,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
+      api_user_id: admin ? admin.api_user_id : null,
     });
     const { password, ...userData } = user;
     this.logger.debug(
@@ -251,7 +252,6 @@ export class UserService {
 
     if (user.role === Role.ApiUser) {
       const api_user = await this.get_apiuser_permission_status(
-        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -373,9 +373,7 @@ export class UserService {
       });
     }
     const updateuser = await this.findById(id);
-    // @ts-ignore
     if (!(updateuser.email === email.toLowerCase())) {
-      // @ts-ignore
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -514,6 +512,12 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
+    data = new User({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      status: data.status,
+    });
     const validationErrors = await validate(data, {
       skipUndefinedProperties: true,
     });
@@ -525,9 +529,7 @@ export class UserService {
     }
 
     const updateuser = await this.findById(id);
-    // @ts-ignore
     if (!(updateuser.email === data.email)) {
-      // @ts-ignore
       await this.checkForExistingUser(data.email);
     }
 
@@ -563,7 +565,6 @@ export class UserService {
     }
     if (user.role === Role.ApiUser) {
       const api_user = await this.get_apiuser_permission_status(
-        // @ts-ignore ts(2339)
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -734,8 +735,11 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number) {
-    return await this.userloginSessionRepository.delete({ userId: userId });
+  async removeUsersession(userId: number, token: string) {
+    return await this.userloginSessionRepository.delete({
+      userId: userId,
+      accesstoken_hash: token.trim(),
+    });
   }
 
   async hasgetUserTokenvalid(

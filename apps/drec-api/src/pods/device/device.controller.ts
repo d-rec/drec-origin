@@ -122,10 +122,8 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    // @ts-ignore ts(2339)
     if (filterDto.organizationId) {
       const organization = await this.organizationService.findOne(
-        // @ts-ignore ts(2339)
         filterDto.organizationId,
       );
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -297,11 +295,9 @@ export class DeviceController {
         });
       }
     }
-    // @ts-ignore
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
-          // @ts-ignore ts(2339)
           filterDto.organizationId,
         );
         const orguser = await this.userService.findByEmail(
@@ -325,7 +321,6 @@ export class DeviceController {
           }
         }
       } else {
-        // @ts-ignore
         if (filterDto.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
@@ -337,7 +332,6 @@ export class DeviceController {
         }
       }
 
-      // @ts-ignore
       organizationId = filterDto.organizationId;
     }
 
@@ -406,13 +400,27 @@ export class DeviceController {
   })
   async getByExternalId(
     @Param('id') id: string,
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    const devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
-      id,
-      organizationId,
-    );
+    let devicedata: Device;
+
+    if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
+      if (loginUser.role === Role.Admin) {
+        loginUser.api_user_id = null;
+      }
+
+      devicedata =
+        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
+          id,
+          loginUser.api_user_id,
+        );
+    } else {
+      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+        id,
+        loginUser.organizationId,
+      );
+    }
     devicedata.externalId = devicedata.developerExternalId;
     delete devicedata['developerExternalId'];
     return devicedata;
@@ -559,10 +567,8 @@ export class DeviceController {
       deviceToRegister.version = '1.0';
     }
     if (role === Role.Admin || role === Role.ApiUser) {
-      // @ts-ignore
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
-        // @ts-ignore
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
@@ -609,6 +615,40 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
+
+    if (
+      deviceToUpdate.organizationId != null &&
+      deviceToUpdate.organizationId != undefined &&
+      deviceToUpdate.organizationId
+    ) {
+      const org = await this.organizationService.findOne(
+        deviceToUpdate.organizationId,
+      );
+      if (user.role === Role.ApiUser) {
+        if (
+          user.api_user_id != org.api_user_id ||
+          org.organizationType != 'Developer'
+        ) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        } else {
+          user.organizationId = deviceToUpdate.organizationId;
+        }
+      } else {
+        if (user.role != Role.Admin && user.organizationId != org.id) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        } else if (user.role === Role.Admin) {
+          user.organizationId = deviceToUpdate.organizationId;
+        }
+      }
+    }
 
     if (deviceToUpdate.externalId) {
       deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
@@ -958,8 +998,7 @@ export class DeviceController {
       });
     }
 
-    let group: DeviceGroup | null;
-    group = await this.deviceGroupService.findOne({
+    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
     if (group === null || group.buyerId != user.id) {
@@ -976,9 +1015,8 @@ export class DeviceController {
       });
     }
     if (externalId != null || externalId != undefined) {
-      let device: DeviceDTO | null;
-
-      device = await this.deviceService.findOne(externalId);
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
         return new Promise((resolve, reject) => {

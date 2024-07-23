@@ -36,7 +36,7 @@ export class AccessControlLayerModuleServiceService {
       Delete: false,
       Update: false,
     };
-    for (var key in addedPermissionList) {
+    for (const key in addedPermissionList) {
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
@@ -110,7 +110,7 @@ export class AccessControlLayerModuleServiceService {
       Delete: false,
       Update: false,
     };
-    for (var key in addedPermissionList) {
+    for (const key in addedPermissionList) {
       data.permissions.map((myArr, index) => {
         if (myArr === key) {
           addedPermissionList[key] = true;

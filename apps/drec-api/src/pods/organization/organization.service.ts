@@ -100,14 +100,20 @@ export class OrganizationService {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getAll`);
-    let query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDto);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
-        query = query.andWhere(`organization.api_user_id = :apiuserid`, {
-          apiuserid: user.api_user_id,
-        });
+        query
+          .andWhere('organization.api_user_id = :apiuserid', {
+            apiuserid: user.api_user_id,
+          })
+          .andWhere(
+            'organization.organizationType NOT IN (:...excludedRoles)',
+            {
+              excludedRoles: ['ApiUser', 'Admin'],
+            },
+          );
       }
-
       const [organizations, count] = await query
         .skip((pageNumber - 1) * limit)
         .take(limit)
