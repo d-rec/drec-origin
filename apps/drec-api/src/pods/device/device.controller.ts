@@ -96,7 +96,7 @@ export class DeviceController {
     @Query(ValidationPipe) filterDto: FilterDTO,
     @Query('pagenumber') pagenumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
-  ) : Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
+  ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
     return this.deviceService.find(filterDto, pagenumber, OrgId);
   }
