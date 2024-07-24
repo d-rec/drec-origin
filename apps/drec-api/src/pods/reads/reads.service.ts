@@ -471,7 +471,7 @@ export class ReadsService {
             const read: ReadDTO = {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
-            }; 
+            };
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
