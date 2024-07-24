@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-} from 'class-validator';
+import { IsString } from 'class-validator';
 
 // {"deviceId":"10","energyValue":"2463000","fromTime":"2022-07-31T18:30:01.000Z","toTime":"2022-08-31T18:29:59.000Z",
 // "toAddress":"0x320Bbee0D0CE23302eDDb2707B2DdED3e49E4437",
