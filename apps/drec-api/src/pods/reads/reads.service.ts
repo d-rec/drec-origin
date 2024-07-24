@@ -469,10 +469,9 @@ export class ReadsService {
               }
             }
             const read: ReadDTO = {
-              // eslint-disable-line @typescript-eslint/no-unused-vars
               timestamp: new Date(element.endtimestamp),
               value: element.value,
-            };
+            }; // eslint-disable-line @typescript-eslint/no-unused-vars
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -1452,9 +1451,9 @@ export class ReadsService {
   async getnumberOfOngReads(
     start: Date,
     end: Date,
-    externalId,
+    externalId: string,
     onboarded: Date,
-  ) {
+  ): Promise<number> {
     this.logger.verbose(externalId);
     if (new Date(onboarded).getTime() > new Date(end).getTime()) {
       this.logger.verbose('The given dates are not for on-going reads');
@@ -1477,7 +1476,7 @@ export class ReadsService {
     return noOfReads;
   }
 
-  async ongExecute(query: any) {
+  async ongExecute(query: any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
     if (typeof data[0] === 'undefined' || data.length == 0) {
       this.logger.verbose('type of data is undefined');
