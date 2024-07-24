@@ -589,10 +589,7 @@ export class UserService {
     const { id, confirmed } = getcurrenttoken;
     const { token, expiryTimestamp } =
       await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(
-      inviteuser,
-      email,
-    );
+    await this.emailConfirmationService.sendInvitation(inviteuser, email);
   }
 
   public async findUserByOrganization(
