@@ -117,7 +117,7 @@ export class PermissionService {
   async findById(
     roleId: number,
     userId: number,
-    modulename: string,
+    modulename: string[],
   ): Promise<IModulePermissionsConfig[]> {
     this.logger.verbose(`With in findById`);
     const moduleId = await this.ACLpermissionService.findOne({
