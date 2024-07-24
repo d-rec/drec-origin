@@ -1,8 +1,4 @@
-import {
-  IsString,
-  IsArray,
-  IsOptional,
-} from 'class-validator';
+import { IsString, IsArray, IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
 import { Expose } from 'class-transformer';
