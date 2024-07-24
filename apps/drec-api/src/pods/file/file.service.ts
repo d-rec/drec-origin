@@ -193,7 +193,7 @@ export class FileService {
   //   });
   // }
 
-  async upload(file) {
+  async upload(file): Promise<any> {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
