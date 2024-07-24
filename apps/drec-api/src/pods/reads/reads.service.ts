@@ -37,13 +37,9 @@ import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { flattenDeep, values, groupBy, mean, sum, } from 'lodash';
-import {
-  NewIntmediateMeterReadDTO,
-} from './dto/intermediate_meter_read.dto';
-import {
-  IAggregateintermediate,
-} from '../../models';
+import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
+import { IAggregateintermediate } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';

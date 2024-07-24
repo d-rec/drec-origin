@@ -1,9 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, } from 'typeorm';
-import {
-  IsEnum,
-  IsNumber,
-  IsDate,
-} from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { IsEnum, IsNumber, IsDate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';

@@ -11,7 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
 import { Iintermediate, NewReadDTO } from '../../../models';
 
-import { PrimaryGeneratedColumn, Column, } from 'typeorm';
+import { PrimaryGeneratedColumn, Column } from 'typeorm';
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
