@@ -1628,7 +1628,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     };
   }
 
-  readFilterNullUndefined(arr:[any]): any {
+  readFilterNullUndefined(arr: [any]): any {
     for (let i = 0; i < arr.length; i++) {
       for (let j = 0; j < 2; j++) {
         if (j % 2 != 0) {
