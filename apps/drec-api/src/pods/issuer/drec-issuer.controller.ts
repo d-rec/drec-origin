@@ -76,7 +76,9 @@ export class DrecIssuerController {
     description: 'Re ISSUE certificates for failed data',
   })
   @ApiBody({ type: ReIssueCertificateDTO })
-  async reIssueCertificates(@Body() certificateData: ReIssueCertificateDTO): Promise<any> {
+  async reIssueCertificates(
+    @Body() certificateData: ReIssueCertificateDTO,
+  ): Promise<any> {
     this.logger.verbose(`With in reIssueCertificates`);
 
     return new Promise((resolve) => {
@@ -117,7 +119,7 @@ export class DrecIssuerController {
     });
   }
 
-  async invokeIssuerCronlateOngoing():Promise<void> {
+  async invokeIssuerCronlateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
     try {
       await this.issuerService.handleCronForOngoingLateIssuance();
