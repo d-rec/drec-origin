@@ -25,20 +25,20 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForOngoing() {
+  async simpleGetCallForOngoing(): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForOngoing`,
       `got hit from cloudwatch ongoing`,
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.invokeIssuerCronOngoing();
       this.logger.log(`successfully Hitddd the ongoing API`);
       resolve('successfully Hitddd the ongoing API');
     });
   }
 
-  async invokeIssuerCronOngoing() {
+  async invokeIssuerCronOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronOngoing`);
     try {
       await this.issuerService.handleCron();
@@ -54,7 +54,7 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForHistory() {
+  async simpleGetCallForHistory(): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForHistory`,
       `got hit from cloudwatch history`,
