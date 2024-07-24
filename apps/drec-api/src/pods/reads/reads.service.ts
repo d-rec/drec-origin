@@ -471,7 +471,7 @@ export class ReadsService {
             const read: ReadDTO = {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
-            }; // eslint-disable-line @typescript-eslint/no-unused-vars
+            }; 
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -1476,7 +1476,7 @@ export class ReadsService {
     return noOfReads;
   }
 
-  async ongExecute(query: any): Promise<number> {
+  async ongExecute(query: string | any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
     if (typeof data[0] === 'undefined' || data.length == 0) {
       this.logger.verbose('type of data is undefined');
@@ -1485,7 +1485,7 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
-  async latestread(meterId, deviceOnboarded) {
+  async latestread(meterId: string, deviceOnboarded: Date): Promise<any> {
     const query = `
 from(bucket: "${process.env.INFLUXDB_BUCKET}")
 |> range(start: ${deviceOnboarded}, stop: now())
