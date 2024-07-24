@@ -4,11 +4,7 @@ import {
   IaddModulePermission,
 } from '../../../models';
 import { EntityType, UserPermissionStatus } from '../../../utils/enums';
-import {
-  IsEnum,
-  IsArray,
-  IsOptional,
-} from 'class-validator';
+import { IsEnum, IsArray, IsOptional } from 'class-validator';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
   @ApiProperty({ type: Number })
