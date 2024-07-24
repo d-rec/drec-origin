@@ -45,6 +45,7 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
+import { Invitation } from './invitation.entity';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
