@@ -250,7 +250,10 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(currentToken: EmailConfirmation, id: number): Promise<any> {
+  public async generatetoken(
+    currentToken: EmailConfirmation,
+    id: number,
+  ): Promise<any> {
     this.logger.verbose(`With in generatetoken`);
     let { token, expiryTimestamp } = currentToken;
 
