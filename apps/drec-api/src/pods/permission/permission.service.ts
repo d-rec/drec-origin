@@ -211,7 +211,7 @@ export class PermissionService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr,) => {
+      data.permissions.map((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
@@ -273,7 +273,10 @@ export class PermissionService {
     return this.findOne({ id: id });
   }
 
-  async permisssion_request(data: [NewApiUserPermissionDTO], loginuser: ILoggedInUser): Promise<any> {
+  async permisssion_request(
+    data: [NewApiUserPermissionDTO],
+    loginuser: ILoggedInUser,
+  ): Promise<any> {
     this.logger.verbose(`With in permisssion_request`);
     if (!data.length) {
       this.logger.error(`No module permission available in requeste`);
@@ -332,7 +335,10 @@ export class PermissionService {
       });
     }
   }
-  async permission_veify(api_user_id: string, data: ApiUserPermissionUpdateDTO): Promise<any> {
+  async permission_veify(
+    api_user_id: string,
+    data: ApiUserPermissionUpdateDTO,
+  ): Promise<any> {
     this.logger.verbose(`With in permission_veify`);
     const verify_apiuser =
       await this.userService.apiuser_permission_accepted_byadmin(
