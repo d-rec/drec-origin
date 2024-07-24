@@ -1219,7 +1219,7 @@ export class ReadsService {
     }
     const historyread = [];
     let ongoing = [];
-    const finalongoing = [];
+    const finalongoing = []; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
@@ -1433,7 +1433,7 @@ export class ReadsService {
     }
   }
 
-  async getnumberOfHistReads(deviceId, startDate, endDate) {
+  async getnumberOfHistReads(deviceId: string, startDate: Date, endDate: Date): Promise<any> {
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId })
