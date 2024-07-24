@@ -32,7 +32,7 @@ export class PermissionGuard implements CanActivate {
       'permission',
       context.getHandler(),
     );
-    const module: string = this.reflector.get<string[]>(
+    const module: string[] = this.reflector.get<string[]>(
       'acl_module',
       context.getHandler(),
     );
