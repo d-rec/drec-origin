@@ -40,7 +40,7 @@ describe('EmailConfirmationService', () => {
     repository = module.get<Repository<EmailConfirmation>>( // eslint-disable-line @typescript-eslint/no-unused-vars
       getRepositoryToken(EmailConfirmation),
     );
-    userService = module.get<UserService>(UserService);
+    userService = module.get<UserService>(UserService); // eslint-disable-line @typescript-eslint/no-unused-vars
   });
 
   it('should be defined', () => {

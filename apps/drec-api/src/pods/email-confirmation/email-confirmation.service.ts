@@ -13,7 +13,6 @@ import { Repository, FindConditions } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
-import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
@@ -212,7 +211,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token, expiryTimestamp } = await this.generatetoken(
+    const { token } = await this.generatetoken(
       currentToken,
       id,
     );
@@ -236,8 +235,8 @@ export class EmailConfirmationService {
         success: false,
       };
     }
-    const { id, confirmed } = currentToken;
-    const { token, expiryTimestamp } = await this.generatetoken(
+    const { id } = currentToken;
+    const { token } = await this.generatetoken(
       currentToken,
       id,
     );
