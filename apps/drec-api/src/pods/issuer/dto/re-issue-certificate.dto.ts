@@ -19,11 +19,11 @@ export class ReIssueCertificateDTO {
 
   @ApiProperty()
   @IsString()
-  fromTime: string;
+  fromTime: Date;
 
   @ApiProperty()
   @IsString()
-  toTime: string;
+  toTime: Date;
 
   @ApiProperty()
   @IsString()
@@ -31,4 +31,7 @@ export class ReIssueCertificateDTO {
 
   @ApiProperty()
   metadata: any;
+
+  @ApiProperty()
+  userId: string;
 }
