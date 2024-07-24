@@ -211,10 +211,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token } = await this.generatetoken(
-      currentToken,
-      id,
-    );
+    const { token } = await this.generatetoken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -236,10 +233,7 @@ export class EmailConfirmationService {
       };
     }
     const { id } = currentToken;
-    const { token } = await this.generatetoken(
-      currentToken,
-      id,
-    );
+    const { token } = await this.generatetoken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),
