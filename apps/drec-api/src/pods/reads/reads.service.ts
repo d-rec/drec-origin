@@ -52,7 +52,7 @@ import {
 } from '../../utils/localTimeDetailsForDevice';
 import {
   filterNoOffLimit,
-  accumulationType,
+  accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
@@ -471,6 +471,7 @@ export class ReadsService {
                 );
               }
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const read: ReadDTO = {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -1627,7 +1628,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     };
   }
 
-  readFilterNullUndefined(arr) {
+  readFilterNullUndefined(arr:[any]): any {
     for (let i = 0; i < arr.length; i++) {
       for (let j = 0; j < 2; j++) {
         if (j % 2 != 0) {
