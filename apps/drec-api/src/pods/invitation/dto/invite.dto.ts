@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Column,
-} from 'typeorm';
+import { Column } from 'typeorm';
 import {
   IsNotEmpty,
   IsEnum,
