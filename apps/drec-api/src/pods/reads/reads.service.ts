@@ -1338,7 +1338,7 @@ export class ReadsService {
         readsFilter = {
           offset: filter.offset,
           limit: filter.limit,
-          start: deviceOnboarded,
+          start: deviceOnboarded.toString(),
           end: filter.end.toString(),
         };
       }
