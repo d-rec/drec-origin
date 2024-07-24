@@ -5,7 +5,6 @@ import { ReadsService } from './reads.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { ReadsService as BaseReadService } from '@energyweb/energy-api-influxdb';
 import { DeviceService } from '../device';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';

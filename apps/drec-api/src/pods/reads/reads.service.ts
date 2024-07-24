@@ -8,13 +8,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import {
-  FindOneOptions,
   Repository,
   Brackets,
   SelectQueryBuilder,
-  In,
   FindConditions,
-  Any,
 } from 'typeorm';
 
 import axios from 'axios';
@@ -40,36 +37,23 @@ import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { flattenDeep, values, groupBy, mean, sum, head } from 'lodash';
+import { flattenDeep, values, groupBy, mean, sum, } from 'lodash';
 import {
   NewIntmediateMeterReadDTO,
-  IntmediateMeterReadDTO,
 } from './dto/intermediate_meter_read.dto';
 import {
-  Iintermediate,
-  NewReadDTO,
   IAggregateintermediate,
 } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReadStatus } from '../../utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { ReadFilterDTO } from './dto/filter.dto';
-import * as mapBoxTimeSpace from '@mapbox/timespace';
-import * as momentTimeZone from 'moment-timezone';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { response } from 'express';
-import { EndReservationdateDTO } from '../device-group/dto';
-import { timestamp } from 'rxjs/operators';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
-import { log } from 'console';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 

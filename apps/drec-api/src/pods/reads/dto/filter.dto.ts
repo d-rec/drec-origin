@@ -1,5 +1,4 @@
-import { Unit } from '@energyweb/energy-api-influxdb';
-import { IsDate, IsOptional, IsPositive } from 'class-validator';
+import { IsOptional, } from 'class-validator';
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ApiProperty } from '@nestjs/swagger';

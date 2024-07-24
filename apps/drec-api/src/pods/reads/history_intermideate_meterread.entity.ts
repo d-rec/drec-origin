@@ -1,18 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, } from 'typeorm';
 import {
-  IsEmail,
   IsEnum,
   IsNumber,
-  IsString,
   IsDate,
-  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ReadType } from '../../utils/enums';
 import { Iintermediate } from '../../models';
-import { Organization } from '../organization/organization.entity';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'history_intermediate_meteread' })
 export class HistoryIntermediate_MeterRead
