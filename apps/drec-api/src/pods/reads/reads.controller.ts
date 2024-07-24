@@ -153,7 +153,7 @@ export class ReadsController extends BaseReadsController {
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
-  ) /*: Promise<ReadDTO[]>*/ {
+  ) : Promise<any> {
     this.logger.verbose(`With in newgetReads`);
     //finding the device details throught the device service
     let orguser: IUser | null;
@@ -1518,7 +1518,7 @@ export class ReadsController extends BaseReadsController {
     @Param('externalId') externalId: string,
 
     @UserDecorator() user: ILoggedInUser,
-  ) {
+  ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);
     let device: DeviceDTO | null;
     if (
@@ -1547,7 +1547,6 @@ export class ReadsController extends BaseReadsController {
     }
 
     let latestReadObject;
-    let latestRead;
 
     const deviceExternalId = device.externalId;
 
