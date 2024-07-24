@@ -20,7 +20,7 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { PermissionService } from './permission.service';
+import { PermissionService } from './permission.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import {
   NewPermissionDTO,
   PermissionDTO,

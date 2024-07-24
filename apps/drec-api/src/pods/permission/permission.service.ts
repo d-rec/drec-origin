@@ -54,7 +54,7 @@ export class PermissionService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr, index) => {
+      data.permissions.map((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
@@ -115,9 +115,9 @@ export class PermissionService {
     return false;
   }
   async findById(
-    roleId: any,
-    userId: any,
-    modulename: any,
+    roleId: number,
+    userId: number,
+    modulename: string,
   ): Promise<IModulePermissionsConfig[]> {
     this.logger.verbose(`With in findById`);
     const moduleId = await this.ACLpermissionService.findOne({
