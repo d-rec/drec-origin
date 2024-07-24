@@ -226,21 +226,20 @@ export class FileService {
     });
   }
 
-  getS3() {
+  getS3(): any {
     return new S3({
       accessKeyId: process.env.accessKeyId,
       secretAccessKey: process.env.secretAccessKey,
     });
   }
 
-  public async GetuploadS3(key: string) {
+  public async GetuploadS3(key: string): Promise<any> {
     this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
 
     // const fileInfo = await this.privateFilesRepository.findOne({ id: fileId }, { relations: ['owner'] });
     if (key) {
       this.logger.debug(key);
-      let response: any;
       return new Promise((resolve, reject) => {
         s3.getObject(
           { Bucket: process.env.bucketname, Key: key },
