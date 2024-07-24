@@ -592,7 +592,6 @@ export class UserService {
     await this.emailConfirmationService.sendInvitation(
       inviteuser,
       email,
-      invitationId,
     );
   }
 
