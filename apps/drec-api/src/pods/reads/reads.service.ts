@@ -467,7 +467,7 @@ export class ReadsService {
                 );
               }
             }
-            const read: ReadDTO = {
+            const read: ReadDTO = { // eslint-disable-line @typescript-eslint/no-unused-vars
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
@@ -729,14 +729,14 @@ export class ReadsService {
     return await this.execute(fluxQuery);
   }
 
-  async execute(query: any) {
+  async execute(query: string | any): Promise<any> {
     const data = await this.dbReader.collectRows(query);
     return data.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
     }));
   }
-  get dbReader() {
+  get dbReader(): any {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
