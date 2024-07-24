@@ -57,7 +57,7 @@ export class IssuerService {
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
   ) {}
 
-  hitTheCronFromIssuerAPIOngoing() {
+  hitTheCronFromIssuerAPIOngoing(): void {
     this.logger.verbose(`With in hitTheCronFromIssuerAPIOngoing`);
 
     this.httpService
@@ -65,7 +65,7 @@ export class IssuerService {
       .subscribe();
   }
 
-  hitTheCronFromIssuerAPIHistory() {
+  hitTheCronFromIssuerAPIHistory(): void {
     this.logger.verbose(`With in hitTheCronFromIssuerAPIHistory`);
 
     this.httpService
@@ -461,7 +461,6 @@ export class IssuerService {
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    dateindex?: number,
   ): Promise<void> {
     console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
@@ -718,7 +717,7 @@ export class IssuerService {
     );
     //find the minimum of all previous reading dates of devices  and use it as start date
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
+    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     if (allPreviousReadingsOfDevices.length == 1) {
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
@@ -729,7 +728,7 @@ export class IssuerService {
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
+    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     if (allDevicesCompleteReadsBetweenTimeRange.length == 1) {
       maximumEndDate =
@@ -1151,7 +1150,6 @@ export class IssuerService {
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    dateindex?: number,
   ): Promise<void> {
     console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
