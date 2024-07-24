@@ -156,11 +156,7 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-    await this.userService.newcreate(
-      inviteuser,
-      UserStatus.Pending,
-      true,
-    );
+    await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     if (sender.role !== Role.ApiUser) {
       await this.userService.sentinvitiontoUser(
