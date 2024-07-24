@@ -256,7 +256,7 @@ export class InvitationController {
   })
   async getInvitationsByemail(
     @UserDecorator() loggedUser: ILoggedInUser,
-  ) :Promise<any> {
+  ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getinvite_info_byEmail(
