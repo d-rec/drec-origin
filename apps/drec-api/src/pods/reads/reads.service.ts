@@ -468,7 +468,8 @@ export class ReadsService {
                 );
               }
             }
-            const read: ReadDTO = { // eslint-disable-line @typescript-eslint/no-unused-vars
+            const read: ReadDTO = {
+              // eslint-disable-line @typescript-eslint/no-unused-vars
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
@@ -1433,7 +1434,11 @@ export class ReadsService {
     }
   }
 
-  async getnumberOfHistReads(deviceId: string, startDate: Date, endDate: Date): Promise<any> {
+  async getnumberOfHistReads(
+    deviceId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<any> {
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId })
