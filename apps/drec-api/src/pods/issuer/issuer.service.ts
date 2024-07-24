@@ -25,7 +25,6 @@ import {
 } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
 import {
   CertificateType,
