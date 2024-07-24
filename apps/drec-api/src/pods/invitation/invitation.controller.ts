@@ -86,7 +86,12 @@ export class InvitationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber?: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
-  ) /*: Promise<InvitationDTO[]>*/ {
+  ): Promise<{
+    invitations: Invitation[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getUsersInvitation(
@@ -251,7 +256,7 @@ export class InvitationController {
   })
   async getInvitationsByemail(
     @UserDecorator() loggedUser: ILoggedInUser,
-  ) /*: Promise<InvitationDTO[]>*/ {
+  ) :Promise<any> {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
       await this.organizationInvitationService.getinvite_info_byEmail(

@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { InvitationService } from './invitation.service';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail/mail.service';
 import { OrganizationService } from '../organization/organization.service';
-import { Repository, DeepPartial } from 'typeorm';
+import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Invitation } from './invitation.entity';
 import { ILoggedInUser, IUser, OrganizationRole } from '../../models';
