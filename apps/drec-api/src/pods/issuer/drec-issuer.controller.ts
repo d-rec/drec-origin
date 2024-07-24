@@ -60,7 +60,7 @@ export class DrecIssuerController {
       `got hit from cloudwatch history`,
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.invokeIssuerCronForHistory();
       this.logger.log(`successfully Hitthe history API`);
       resolve('successfully Hitthe history API');
@@ -76,17 +76,17 @@ export class DrecIssuerController {
     description: 'Re ISSUE certificates for failed data',
   })
   @ApiBody({ type: ReIssueCertificateDTO })
-  async reIssueCertificates(@Body() certificateData) {
+  async reIssueCertificates(@Body() certificateData: ReIssueCertificateDTO): Promise<any> {
     this.logger.verbose(`With in reIssueCertificates`);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.issuerService.issueCertificateFromAPI(certificateData);
       this.logger.log(`hit the issueance data`);
       resolve('hit the issueance data');
     });
   }
 
-  async invokeIssuerCronForHistory() {
+  async invokeIssuerCronForHistory(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronForHistory`);
     try {
       await this.issuerService.handleCronForHistoricalIssuance();
@@ -104,20 +104,20 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForlateOngoing() {
+  async simpleGetCallForlateOngoing(): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForlateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.invokeIssuerCronlateOngoing();
       this.logger.log(`successfully Hitddd the late ongoing API`);
       resolve('successfully Hitddd the late ongoing API');
     });
   }
 
-  async invokeIssuerCronlateOngoing() {
+  async invokeIssuerCronlateOngoing():Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
     try {
       await this.issuerService.handleCronForOngoingLateIssuance();
