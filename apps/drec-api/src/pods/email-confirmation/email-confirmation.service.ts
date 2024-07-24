@@ -250,7 +250,7 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(currentToken, id) {
+  public async generatetoken(currentToken: EmailConfirmation, id: number): Promise<any> {
     this.logger.verbose(`With in generatetoken`);
     let { token, expiryTimestamp } = currentToken;
 
@@ -260,7 +260,7 @@ export class EmailConfirmationService {
 
       return ({ token, expiryTimestamp } = newToken);
     } else {
-      return ({ token, expiryTimestamp } = currentToken);
+      return ({ token, expiryTimestamp } = currentToken); // eslint-disable-line @typescript-eslint/no-unused-vars
     }
   }
   generateEmailToken(): IEmailConfirmationToken {
