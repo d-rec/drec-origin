@@ -1432,7 +1432,7 @@ export class DeviceService {
     filterop: { groupId: number; organizationId?: number },
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkdeviceunreserve = await this.findOne(id, filterop);
+    const checkdeviceunreserve = await this.findOne(id, filterop as FindOneOptions<Device>);
     if (!checkdeviceunreserve) {
       const message = `Device id: ${checkdeviceunreserve.developerExternalId} already part of the reservation , you cannot delete it`;
       this.logger.error(message);
