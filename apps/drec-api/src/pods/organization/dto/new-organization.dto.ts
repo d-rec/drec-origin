@@ -4,14 +4,11 @@ import {
   IsEmail,
   IsOptional,
   IsArray,
-  Matches,
-  MaxLength,
   IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IFullOrganization,
-  IPublicOrganization,
   IPublicAddOrganization,
 } from '../../../models';
 
