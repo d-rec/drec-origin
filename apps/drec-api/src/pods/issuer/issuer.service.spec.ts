@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationService } from '../organization/organization.service';
 import { IssuerService } from './issuer.service';
