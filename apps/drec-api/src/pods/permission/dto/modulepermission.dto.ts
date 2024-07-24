@@ -1,24 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IModulePermissionsConfig,
-  IACLModuleConfig,
   IaddModulePermission,
 } from '../../../models';
-import { Role, EntityType, UserPermissionStatus } from '../../../utils/enums';
-import { Expose } from 'class-transformer';
+import { EntityType, UserPermissionStatus } from '../../../utils/enums';
 import {
-  IsBoolean,
-  IsEmail,
   IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
   IsArray,
   IsOptional,
-  ValidateNested,
 } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ACLModuleDTO } from '../../access-control-layer-module-service/dto/aclmodule.dto';
+import { PrimaryGeneratedColumn, Column } from 'typeorm';
 export class PermissionDTO implements Omit<IModulePermissionsConfig, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()

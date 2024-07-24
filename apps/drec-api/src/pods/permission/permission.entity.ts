@@ -1,11 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, EntityType } from '../../utils/enums';
-import { IsEnum, IsString, IsArray } from 'class-validator';
-import { IModulePermissionsConfig, IaddModulePermission } from '../../models';
-import { User } from '../user/user.entity';
+import { EntityType } from '../../utils/enums';
+import { IsEnum, IsArray } from 'class-validator';
+import { IaddModulePermission } from '../../models';
 import { AClModules } from '../access-control-layer-module-service/aclmodule.entity';
 @Entity({ name: 'aclmodulepermissions' })
 export class ACLModulePermissions
