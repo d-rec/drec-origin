@@ -37,7 +37,7 @@ describe('EmailConfirmationService', () => {
     }).compile();
 
     service = module.get<EmailConfirmationService>(EmailConfirmationService);
-    repository = module.get<Repository<EmailConfirmation>>(  // eslint-disable-line @typescript-eslint/no-unused-vars
+    repository = module.get<Repository<EmailConfirmation>>( // eslint-disable-line @typescript-eslint/no-unused-vars
       getRepositoryToken(EmailConfirmation),
     );
     userService = module.get<UserService>(UserService);
