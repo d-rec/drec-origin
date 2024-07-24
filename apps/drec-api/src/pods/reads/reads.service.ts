@@ -50,7 +50,7 @@ import {
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
-import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+import { filterNoOffLimit, accumulationType } from './dto/filter-no-off-limit.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -1499,12 +1499,19 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async getAccumulatedReads(
     meter: string,
-    organizationId,
-    developerExternalId,
-    accumulationType,
+    organizationId: number,
+    developerExternalId: string,
+    accumulationType: accumulationType,
     month: number,
     year: number,
-  ) {
+  ) : Promise<{
+    aggregateType: any;
+    accumulatedReads: {
+        timestamp?: string;
+        value?: any;
+    }[];
+    timezone: any;
+  }> {
     let startDate;
     let numberOfDays;
     let endDate;
