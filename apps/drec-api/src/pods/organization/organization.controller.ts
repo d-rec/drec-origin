@@ -114,12 +114,12 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) : Promise<{
+  ): Promise<{
     organizations: Organization[];
     currentPage: number;
     totalPages: number;
     totalCount: number;
-}> {
+  }> {
     this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(
       filterDto,
@@ -155,12 +155,12 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) : Promise<{
+  ): Promise<{
     users: IUser[];
     currentPage: number;
     totalPages: number;
     totalCount: number;
-}> {
+  }> {
     this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.ApiUser) {
       return this.organizationService.findApiuserOrganizationUsers(

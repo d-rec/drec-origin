@@ -7,10 +7,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IFullOrganization,
-  IPublicAddOrganization,
-} from '../../../models';
+import { IFullOrganization, IPublicAddOrganization } from '../../../models';
 
 export class NewOrganizationDTO
   implements
