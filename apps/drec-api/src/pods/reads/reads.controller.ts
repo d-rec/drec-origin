@@ -153,7 +153,7 @@ export class ReadsController extends BaseReadsController {
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
-  ) : Promise<any> {
+  ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
     //finding the device details throught the device service
     let orguser: IUser | null;
