@@ -6,7 +6,6 @@ import {
   IsISO31661Alpha2,
   IsString,
   Min,
-  IsNotEmpty,
   IsOptional,
 } from 'class-validator';
 import { IPublicOrganization } from '../../../models';
