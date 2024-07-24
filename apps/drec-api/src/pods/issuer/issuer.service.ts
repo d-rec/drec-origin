@@ -1017,7 +1017,7 @@ export class IssuerService {
 
   //actual definition is up removing async
 
-  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>) {
+  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>): void {
     this.logger.verbose(`With in issueCertificateFromAPI`);
     reading.fromTime = new Date(reading.fromTime);
     reading.toTime = new Date(reading.toTime);
@@ -1029,7 +1029,7 @@ export class IssuerService {
     this.offChainCertificateService.issue(reading);
   }
 
-  getCertificateData(deviceId?: string) {
+  getCertificateData(): void {
     const request: IGetAllCertificatesOptions = {
       // generationEndFrom: new Date(1677671426*1000),
       // generationEndTo: new Date(1677671426*1000),
@@ -1040,7 +1040,7 @@ export class IssuerService {
       deviceId: '51',
     };
 
-    this.offChainCertificateService.getAll(request).then((result) => {
+    this.offChainCertificateService.getAll(request).then(() => {
       this.logger.debug('certificates');
     });
   }
