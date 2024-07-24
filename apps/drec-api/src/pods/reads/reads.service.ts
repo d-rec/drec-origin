@@ -1437,7 +1437,7 @@ export class ReadsService {
   async getnumberOfHistReads(
     deviceId: string,
     startDate: Date,
-    endDate: Date,
+    endDate: Date | string,
   ): Promise<any> {
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
