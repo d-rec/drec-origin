@@ -1017,7 +1017,9 @@ export class IssuerService {
 
   //actual definition is up removing async
 
-  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>): void {
+  issueCertificateFromAPI(
+    reading: IIssueCommandParams<ICertificateMetadata>,
+  ): void {
     this.logger.verbose(`With in issueCertificateFromAPI`);
     reading.fromTime = new Date(reading.fromTime);
     reading.toTime = new Date(reading.toTime);
