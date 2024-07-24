@@ -17,6 +17,7 @@ import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
+import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -341,10 +342,8 @@ export class EmailConfirmationService {
   }
 
   public async sendInvitation(
-    inviteuser: any,
+    inviteuser: any | CreateUserORGDTO,
     email: string,
-
-    invitationId: number,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/login`;
