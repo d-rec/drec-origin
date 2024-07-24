@@ -50,6 +50,7 @@ import {
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
+import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -467,8 +468,7 @@ export class ReadsService {
                 );
               }
             }
-            const read: ReadDTO = {
-              // eslint-disable-line @typescript-eslint/no-unused-vars
+            const read: ReadDTO = { // eslint-disable-line @typescript-eslint/no-unused-vars
               timestamp: new Date(element.endtimestamp),
               value: element.value,
             };
@@ -1206,9 +1206,9 @@ export class ReadsService {
 
   timeOffset: any;
   async getAllRead(
-    externalId,
-    filter,
-    deviceOnboarded,
+    externalId: string,
+    filter: filterNoOffLimit,
+    deviceOnboarded: Date,
     pageNumber: number,
   ): Promise<any> {
     if (new Date(filter.start).getTime() == new Date(filter.end).getTime()) {
