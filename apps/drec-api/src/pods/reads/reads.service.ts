@@ -1764,7 +1764,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     };
   }
 
-  async getOngoingReads(meter, filter): Promise<any> {
+  async getOngoingReads(meter: string, filter: FilterDTO | any): Promise<any> {
     this.logger.verbose('IN THE FUNCTION TO GET ONGOING READS');
 
     const url = process.env.INFLUXDB_URL;
