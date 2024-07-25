@@ -571,7 +571,9 @@ export class UserService {
     }
     return user;
   }
-  public async geytokenforResetPassword(email: string): Promise<ISuccessResponse> {
+  public async geytokenforResetPassword(
+    email: string,
+  ): Promise<ISuccessResponse> {
     return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
       email,
     );
