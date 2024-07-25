@@ -13,7 +13,7 @@ import { IYieldConfig, ILoggedInUser } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
 import { YieldConfigDTO, UpdateYieldValueDTO } from './dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { FindConditions,} from 'typeorm';
+import { FindConditions } from 'typeorm';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
 import { YieldConfig } from './yieldconfig.entity';

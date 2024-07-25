@@ -1,12 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IYieldConfig } from '../../../models';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { YieldStatus } from '../../../utils/enums';
 export class YieldConfigDTO implements IYieldConfig {
   @ApiProperty({ type: Number })

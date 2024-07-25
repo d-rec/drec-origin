@@ -728,7 +728,10 @@ export class UserService {
    * @returns
    */
 
-  async createUserSession(user: Omit<IUser, "password">, token: string): Promise<void> {
+  async createUserSession(
+    user: Omit<IUser, 'password'>,
+    token: string,
+  ): Promise<void> {
     await this.userloginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
