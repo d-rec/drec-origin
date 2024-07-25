@@ -1668,7 +1668,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async getPaginatedData(
     meter: string,
-    filter: FilterDTO,
+    filter: FilterDTO | any,
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
@@ -1686,7 +1686,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async retrieveDataWithLastValue(
     meter: string,
-    filter: FilterDTO,
+    filter: FilterDTO | any,
     skipCount: number,
     pageSize: number,
   ): Promise<unknown[]> {
