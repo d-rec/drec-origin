@@ -159,10 +159,7 @@ export class InvitationService {
     await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     if (sender.role !== Role.ApiUser) {
-      await this.userService.sentinvitiontoUser(
-        inviteuser,
-        lowerCaseEmail,
-      );
+      await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail);
     }
   }
 

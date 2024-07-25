@@ -579,11 +579,13 @@ export class UserService {
     );
   }
 
-  public async sentinvitiontoUser(inviteuser: CreateUserORGDTO, email: string): Promise<{
+  public async sentinvitiontoUser(
+    inviteuser: CreateUserORGDTO,
+    email: string,
+  ): Promise<{
     message: string;
     success: boolean;
-}> 
-{
+  }> {
     const getcurrenttoken =
       await this.emailConfirmationService.getByEmail(email);
     if (!getcurrenttoken) {
