@@ -22,7 +22,7 @@ export class PowerFormatter {
       .toString();
   }
 
-  static getBaseValueFromValueInDisplayUnitInEthers(amount): string {
+  static getBaseValueFromValueInDisplayUnitInEthers(amount: string): string {
     return BigNumberEthers.from(
       PowerFormatter.getBaseValueFromValueInDisplayUnit(Number(amount)),
     ).toString();
