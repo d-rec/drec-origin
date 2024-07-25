@@ -643,7 +643,7 @@ export class UserService {
    * @param api_id
    * @param permissionIds
    */
-  async apiuser_permission_request(api_id, permissionIds) {
+  async apiuser_permission_request(api_id: string, permissionIds: number[] | any): Promise<void> {
     await this.apiUserEntityRepository.update(api_id, {
       permissionIds: permissionIds,
       permission_status: UserPermissionStatus.Request,
@@ -652,7 +652,7 @@ export class UserService {
   async apiuser_permission_accepted_byadmin(
     api_id: string,
     status: UserPermissionStatus,
-  ) {
+  ): Promise<any> {
     await this.apiUserEntityRepository.update(api_id, {
       permission_status: status,
     });
