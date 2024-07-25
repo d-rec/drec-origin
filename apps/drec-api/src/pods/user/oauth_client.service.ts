@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
-import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { randomBytes, } from 'crypto';
 import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
 import crypto from 'crypto';

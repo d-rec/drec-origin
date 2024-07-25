@@ -1,13 +1,11 @@
 import { NullOrUndefinedResultInterceptor } from '@energyweb/origin-backend-utils';
 import {
   ClassSerializerInterceptor,
-  BadRequestException,
   Controller,
   Get,
   Req,
   Post,
   Body,
-  Query,
   Put,
   Param,
   ParseIntPipe,
@@ -15,8 +13,6 @@ import {
   UseGuards,
   UseInterceptors,
   ConflictException,
-  UnauthorizedException,
-  ValidationPipe,
   Res,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,9 +28,7 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserORGDTO } from './dto/create-user.dto';
-import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
-import { UpdateOwnUserSettingsDTO } from './dto/update-own-user-settings.dto';
 import {
   ActiveUserGuard,
   PermissionGuard,
@@ -49,13 +43,9 @@ import {
 } from './dto/update-password.dto';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
-import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { User } from './user.entity';
-import { Roles } from './decorators/roles.decorator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
