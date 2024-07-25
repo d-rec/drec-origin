@@ -13,7 +13,9 @@ export async function login(httpService: HttpService | any): Promise<string> {
   return jwtToken;
 }
 
-export async function regenerateToken(httpService: HttpService | any): Promise<string> {
+export async function regenerateToken(
+  httpService: HttpService | any,
+): Promise<string> {
   if (!jwtToken) {
     return login(httpService);
   }
