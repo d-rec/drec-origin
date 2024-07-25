@@ -670,7 +670,7 @@ export class UserService {
    * @param api_id
    * @returns
    */
-  async get_apiuser_permission_status(api_id: string) {
+  async get_apiuser_permission_status(api_id: string): Promise<any> {
     const status_apiuser_permissiom =
       await this.apiUserEntityRepository.findOne({
         where: {
@@ -728,7 +728,7 @@ export class UserService {
    * @returns
    */
 
-  async createUserSession(user: any, token: string) {
+  async createUserSession(user: any, token: string): Promise<void> {
     await this.userloginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
@@ -740,7 +740,7 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number, token: string) {
+  async removeUsersession(userId: number, token: string): Promise<any> {
     return await this.userloginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
@@ -749,7 +749,7 @@ export class UserService {
 
   async hasgetUserTokenvalid(
     conditions: FindConditions<UserLoginSessionEntity>,
-  ) {
+  ): Promise<boolean> {
     return Boolean(await this.userloginSessionRepository.findOne(conditions));
   }
 }
