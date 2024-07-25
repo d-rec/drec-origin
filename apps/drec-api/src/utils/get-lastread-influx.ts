@@ -54,7 +54,7 @@ export const NewfindLatestRead = async (
   return result;
 };
 
-export const execute = (query: Record<string, any>) => {
+export const execute = (query: Record<string, any>): any => {
   const logger = new Logger('execute');
   logger.debug(`Executing query: ${query}`);
   const data = dbReader.collectRows();
