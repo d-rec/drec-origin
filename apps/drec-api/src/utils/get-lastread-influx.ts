@@ -1,9 +1,6 @@
 //import { Countries } from '@energyweb/utils-general';
 import { ReadDTO } from '@energyweb/energy-api-influxdb';
-import {
-  InfluxDB,
-  FluxTableMetaData,
-} from '@influxdata/influxdb-client';
+import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { Logger } from '@nestjs/common';
 
 export const NewfindLatestRead = async (
