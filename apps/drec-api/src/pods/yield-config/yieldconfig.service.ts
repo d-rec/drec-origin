@@ -32,7 +32,7 @@ export class YieldConfigService {
 
   public async create(
     data: NewYieldConfigDTO,
-    loggedUser: any,
+    loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
     await this.checkForExistingyieldvalue(data.countryCode, data.countryName);
     if (data.yieldValue === 0) {
@@ -86,7 +86,7 @@ export class YieldConfigService {
     return yieldvaluebyId;
   }
 
-  async findByCountryCode(countryCode: string) {
+  async findByCountryCode(countryCode: string): Promise<any> {
     return await this.repository.findOne({
       where: {
         countryCode: countryCode,
