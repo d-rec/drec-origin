@@ -1,10 +1,7 @@
-import { Entity, } from 'typeorm';
+import { Entity } from 'typeorm';
 import { Expose } from 'class-transformer';
 
-import {
-  IsString,
-  IsNumber,
-} from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ISdgBenefit } from '../../../models';
 
