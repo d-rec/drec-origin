@@ -1641,7 +1641,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return arr;
   }
 
-  convertToISODate(month, year) {
+  convertToISODate(month: number, year: number): any {
     const isoDate = DateTime.fromObject({
       year: year,
       month: month,
@@ -1653,10 +1653,10 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }).toISO({ suppressMilliseconds: true });
 
     return isoDate;
-  }
+  } 
 
-  getNumberOfDaysInMonth(month, year) {
-    return DateTime.fromObject({
+  getNumberOfDaysInMonth(month: number, year: number): any {
+    return DateTime.fromObject({ 
       year: year,
       month: month,
       day: 1,
