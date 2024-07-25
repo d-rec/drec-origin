@@ -36,7 +36,7 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
-import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
+import { ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 import { ApiUserEntity } from './api-user.entity';
@@ -151,7 +151,7 @@ export class UserService {
       organization: org_id ? { id: org_id } : {},
       api_user_id: api_user ? api_user.api_user_id : null,
     });
-    const { password, ...userData } = user;
+    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -217,7 +217,7 @@ export class UserService {
       organization: org_id ? { id: org_id } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
-    const { password, ...userData } = user;
+    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -571,7 +571,7 @@ export class UserService {
     }
     return user;
   }
-  public async geytokenforResetPassword(email): Promise<ISuccessResponse> {
+  public async geytokenforResetPassword(email: string): Promise<ISuccessResponse> {
     return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
       email,
     );
