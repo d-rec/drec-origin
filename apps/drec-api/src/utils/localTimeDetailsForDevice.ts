@@ -4,8 +4,12 @@ import { countryCodesList } from '../models/country-code';
 import { CountryCodeNameDTO } from '../pods/countrycode/dto';
 import { Logger } from '@nestjs/common';
 import { Device } from '../pods/device/device.entity';
+import { DeviceDTO } from '../pods/device/dto';
 
-export const getLocalTime = (startDate: string | any | Date, device: Device): any => {
+export const getLocalTime = (
+  startDate: string | any | Date,
+  device: Device,
+): any => {
   const logger = new Logger('getLocalTime');
   const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
   logger.log(`latitude is:::: + ${device.latitude}`);
@@ -19,7 +23,10 @@ export const getLocalTime = (startDate: string | any | Date, device: Device): an
   return localTime;
 };
 
-export const getLocalTimeZoneFromDevice = (localTime: Date, device: Device): any => {
+export const getLocalTimeZoneFromDevice = (
+  localTime: Date,
+  device: DeviceDTO,
+): any => {
   const logger = new Logger('getLocalTimeZoneFromDevice');
   if (device.timezone) {
     logger.log('timezone is there');
@@ -83,7 +90,9 @@ export const getOffsetFromTimeZoneName = (givenTimeZone: string | any): any => {
   return offset;
 };
 
-export const getFormattedOffSetFromOffsetAsJson = (givenOffSet: number | any):{
+export const getFormattedOffSetFromOffsetAsJson = (
+  givenOffSet: number | any,
+): {
   hours: number;
   minutes: number;
 } => {
