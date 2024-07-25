@@ -46,6 +46,11 @@ import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { User } from './user.entity';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { Roles } from './decorators/roles.decorator';
+import { Role, } from '../../utils/enums';
+
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
