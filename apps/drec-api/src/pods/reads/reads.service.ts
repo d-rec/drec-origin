@@ -1653,10 +1653,10 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }).toISO({ suppressMilliseconds: true });
 
     return isoDate;
-  } 
+  }
 
   getNumberOfDaysInMonth(month: number, year: number): any {
-    return DateTime.fromObject({ 
+    return DateTime.fromObject({
       year: year,
       month: month,
       day: 1,
