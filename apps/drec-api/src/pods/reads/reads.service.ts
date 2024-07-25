@@ -1668,7 +1668,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async getPaginatedData(
     meter: string,
-    filter: any,
+    filter: FilterDTO,
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
@@ -1686,7 +1686,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async retrieveDataWithLastValue(
     meter: string,
-    filter: any,
+    filter: FilterDTO,
     skipCount: number,
     pageSize: number,
   ): Promise<unknown[]> {
@@ -1714,7 +1714,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const token = process.env.INFLUXDB_TOKEN;
 
     const influxDB = new InfluxDB({ url, token });
-    const queryApi = influxDB.getQueryApi(org);
+    const queryApi = influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
 
     return result.map((record: any) => ({
@@ -1725,10 +1725,15 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   //
   async getOffSetForInfluxQuery(
-    developerExternalId,
-    organizationId,
-    startDate,
-  ) {
+    developerExternalId: string,
+    organizationId: number,
+    startDate: string | any,
+  ): Promise<{
+    formattedOffset: any;
+    offSetHours: number;
+    offSetMinutes: number;
+    localTimeZone: any;
+  }> {
     let localTime = null;
     let formattedOffset = null;
     const device = await this.deviceService.findDeviceByDeveloperExternalId(
