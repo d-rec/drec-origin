@@ -120,7 +120,7 @@ export class OauthClientCredentialsService {
     return privateKey;
   }
 
-  async createKeyFile(api_user_id: string, res: Response) {
+  async createKeyFile(api_user_id: string, res: Response): Promise<any> {
     try {
       res.setHeader(
         'Content-Disposition',

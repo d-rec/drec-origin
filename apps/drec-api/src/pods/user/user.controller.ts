@@ -41,11 +41,10 @@ import {
   UpdateChangePasswordDTO,
   ForgetPasswordDTO,
 } from './dto/update-password.dto';
-import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
+import { EmailConfirmationService, SuccessResponse } from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
-import { User } from './user.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Roles } from './decorators/roles.decorator';
@@ -283,7 +282,7 @@ export class UserController {
   @ApiParam({ name: 'token', type: String })
   public async confirmToken(
     @Param('token') token: IEmailConfirmationToken['token'],
-  ) {
+  ): Promise<SuccessResponse> {
     return this.emailConfirmationService.confirmEmail(token);
   }
 
@@ -336,7 +335,7 @@ export class UserController {
   public async AccessKeyFile(
     @Param('api_user_id') api_user_id: string,
     @Res() res: Response,
-  ) {
+  ): Promise<any> {
     return await this.oauthClientService.createKeyFile(api_user_id, res);
   }
 }
