@@ -162,7 +162,6 @@ export class InvitationService {
       await this.userService.sentinvitiontoUser(
         inviteuser,
         lowerCaseEmail,
-        saveinviteuser.id,
       );
     }
   }

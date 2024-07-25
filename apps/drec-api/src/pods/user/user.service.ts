@@ -579,7 +579,11 @@ export class UserService {
     );
   }
 
-  public async sentinvitiontoUser(inviteuser, email, invitationId) {
+  public async sentinvitiontoUser(inviteuser: CreateUserORGDTO, email: string): Promise<{
+    message: string;
+    success: boolean;
+}> 
+{
     const getcurrenttoken =
       await this.emailConfirmationService.getByEmail(email);
     if (!getcurrenttoken) {
@@ -588,9 +592,8 @@ export class UserService {
         success: false,
       };
     }
-    const { id, confirmed } = getcurrenttoken;
-    const { token, expiryTimestamp } =
-      await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    const { id, confirmed } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
+    await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
     await this.emailConfirmationService.sendInvitation(inviteuser, email);
   }
 
