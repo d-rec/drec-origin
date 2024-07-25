@@ -41,7 +41,10 @@ import {
   UpdateChangePasswordDTO,
   ForgetPasswordDTO,
 } from './dto/update-password.dto';
-import { EmailConfirmationService, SuccessResponse } from '../email-confirmation/email-confirmation.service';
+import {
+  EmailConfirmationService,
+  SuccessResponse,
+} from '../email-confirmation/email-confirmation.service';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
