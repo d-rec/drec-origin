@@ -128,9 +128,8 @@ export class InvitationService {
       );
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
-    let saveinviteuser: any = {};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
-      saveinviteuser = await this.invitationRepository.save({
+      await this.invitationRepository.save({
         email: lowerCaseEmail,
         organization,
         role,

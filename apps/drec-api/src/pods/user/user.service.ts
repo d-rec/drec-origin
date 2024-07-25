@@ -603,7 +603,7 @@ export class UserService {
     organizationId: number,
     pageNumber: number,
     limit: number,
-  ) {
+  ): Promise<any> {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -618,8 +618,7 @@ export class UserService {
     api_user_id: string,
     pageNumber: number,
     limit: number,
-    org_id?,
-  ) {
+  ): Promise<any> {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
