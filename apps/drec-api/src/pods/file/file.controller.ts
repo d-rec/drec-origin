@@ -88,13 +88,11 @@ export class FileController {
     description: 'Upload a file',
   })
   async upload(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
     @UploadedFiles()
     uploadedFiles: {
       files: Express.Multer.File[];
     },
-  ) {
+  ): Promise<string[]> {
     this.logger.verbose(`With in upload`);
 
     return await Promise.all(

@@ -13,11 +13,11 @@ import { Repository, FindConditions } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
-import { OrganizationDTO } from '../organization/dto';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
+import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -212,10 +212,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token, expiryTimestamp } = await this.generatetoken(
-      currentToken,
-      id,
-    );
+    const { token } = await this.generatetoken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -236,11 +233,8 @@ export class EmailConfirmationService {
         success: false,
       };
     }
-    const { id, confirmed } = currentToken;
-    const { token, expiryTimestamp } = await this.generatetoken(
-      currentToken,
-      id,
-    );
+    const { id } = currentToken;
+    const { token } = await this.generatetoken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),
@@ -257,7 +251,10 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(currentToken, id) {
+  public async generatetoken(
+    currentToken: EmailConfirmation,
+    id: number,
+  ): Promise<any> {
     this.logger.verbose(`With in generatetoken`);
     let { token, expiryTimestamp } = currentToken;
 
@@ -267,7 +264,7 @@ export class EmailConfirmationService {
 
       return ({ token, expiryTimestamp } = newToken);
     } else {
-      return ({ token, expiryTimestamp } = currentToken);
+      return ({ token, expiryTimestamp } = currentToken); // eslint-disable-line @typescript-eslint/no-unused-vars
     }
   }
   generateEmailToken(): IEmailConfirmationToken {
@@ -345,10 +342,8 @@ export class EmailConfirmationService {
   }
 
   public async sendInvitation(
-    inviteuser: any,
+    inviteuser: any | CreateUserORGDTO,
     email: string,
-
-    invitationId: number,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
     const url = `${process.env.UI_BASE_URL}/login`;

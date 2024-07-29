@@ -13,8 +13,9 @@ import {
   ApiSecurity,
 } from '@nestjs/swagger';
 import { SdgBenefitDTO, SDGBCodeNameDTO } from './dto/add_sdgbenefit.dto';
-import { SdgbenefitService } from './sdgbenefit.service';
+import { SdgbenefitService } from './sdgbenefit.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { plainToClass } from 'class-transformer';
+import { SdgBenefit } from './sdgbenefit.entity';
 @ApiTags('SdgBenefit')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -30,7 +31,7 @@ export class SdgbenefitController {
    * @returns
    */
   @Post()
-  create(@Body() createsdgbenefitDto: SdgBenefitDTO) {
+  create(@Body() createsdgbenefitDto: SdgBenefitDTO): Promise<SdgBenefit> {
     this.logger.verbose(`With in create`);
     return this.SdgbenefitService.create(createsdgbenefitDto);
   }
@@ -45,7 +46,7 @@ export class SdgbenefitController {
     type: [SDGBCodeNameDTO],
     description: 'Returns all SDGBenefites',
   })
-  findAll() {
+  findAll(): Promise<SdgBenefit[]> {
     this.logger.verbose(`With in findAll`);
     return this.SdgbenefitService.findAll();
   }

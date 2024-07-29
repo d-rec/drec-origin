@@ -15,7 +15,6 @@ import {
   FindOperator,
   Raw,
   LessThan,
-  In,
   Between,
   Brackets,
   SelectQueryBuilder,
@@ -25,7 +24,6 @@ import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
-  DeviceIdsDTO,
   JobFailedRowsDTO,
   NewDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
@@ -40,10 +38,8 @@ import {
   DeviceDescription,
   IDevice,
   BuyerReservationCertificateGenerationFrequency,
-  IFullOrganization,
-  IUser,
 } from '../../models';
-import { DeviceDTO, NewDeviceDTO, FilterDTO } from '../device/dto';
+import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
   Installation,
@@ -52,8 +48,6 @@ import {
   FuelCode,
   DevicetypeCode,
   Role,
-  OrganizationStatus,
-  UserStatus,
 } from '../../utils/enums';
 
 import moment from 'moment';
@@ -71,7 +65,6 @@ import {
   StatusCSV,
 } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
-import { Readable } from 'stream';
 import csv from 'csv-parser';
 
 import csvtojsonV2 from 'csvtojson';
@@ -89,6 +82,8 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
+import { ICertificateMetadata } from '../../utils/types';
+import { FilterDTO } from '../certificate-log/dto';
 
 @Injectable()
 export class DeviceGroupService {
@@ -113,7 +108,9 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository,
+    private readonly cretificatereadmoduleRepository: Repository<
+      CertificateReadModelEntity<ICertificateMetadata>
+    >,
     private readonly userService: UserService,
   ) {}
 
@@ -478,7 +475,6 @@ export class DeviceGroupService {
     groupfilterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<any> {
     this.logger.verbose(`With in getBuyerDeviceGroups`);
-    let deviceGroups: any;
     let queryBuilder: any;
     const pageSize = 10;
 
@@ -495,7 +491,6 @@ export class DeviceGroupService {
         });
       });
     } else {
-      const skip = (pageNumber - 1) * pageSize;
       if (
         groupfilterDto.start_date != undefined &&
         groupfilterDto.end_date != undefined
@@ -648,9 +643,7 @@ export class DeviceGroupService {
 
               const sdgBenefitsArray = newsdg.split(',');
 
-              const sdgBenefitString = sdgBenefitsArray
-                .map((benefit) => benefit)
-                .join(',');
+              sdgBenefitsArray.map((benefit) => benefit).join(',');
 
               qb.orWhere(
                 new Brackets((qb) => {
@@ -684,7 +677,7 @@ export class DeviceGroupService {
           }),
         );
       });
-      const groupedDatasql = await queryBuilder.getSql();
+      await queryBuilder.getSql();
     }
     const skip = (pageNumber - 1) * pageSize;
 
@@ -931,6 +924,7 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const reservationIsStartingInHistoryForAtleastOneDevice = false;
     let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
     devices.filter((ele) => {
@@ -1037,6 +1031,7 @@ export class DeviceGroupService {
           newEndDate = nextMinimumCreatedAtString;
         }
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const nextgroupcrtifecateissue =
         this.repositorynextDeviceGroupcertificate.save({
           start_date: startDate,
@@ -1050,6 +1045,7 @@ export class DeviceGroupService {
           new Date(data.reservationStartDate).getTime() <
           new Date(device.createdAt).getTime()
         ) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const nexthistorydevicecrtifecateissue =
             await this.historynextissuancedaterepository.save({
               groupId: group.id,
@@ -1291,7 +1287,7 @@ export class DeviceGroupService {
     groupId: number,
     organizationId: number,
     targetVolumeCertificateGenerationRequestedInMegaWattHour: number,
-  ) {
+  ): Promise<DeviceGroup> {
     this.logger.verbose(
       `With in updateTotalReadingRequestedForCertificateIssuance`,
     );
@@ -1507,7 +1503,8 @@ export class DeviceGroupService {
         0,
       ),
     );
-    const averageYieldValue = Math.floor(
+    // averageYieldValue
+    Math.floor(
       devices.reduce(
         (accumulator, currentValue: DeviceDTO) =>
           accumulator + currentValue.yieldValue,
@@ -1542,9 +1539,8 @@ export class DeviceGroupService {
     const offTakers = Array.from(
       new Set(devices.map((device: DeviceDTO) => device.offTaker)),
     );
-    const deviceIdsInt = Array.from(
-      new Set(devices.map((device: DeviceDTO) => device.id)),
-    );
+    //deviceIdsInt
+    Array.from(new Set(devices.map((device: DeviceDTO) => device.id)));
 
     const deviceGroup: NewDeviceGroupDTO = {
       name: groupName,
@@ -1644,7 +1640,7 @@ export class DeviceGroupService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing() {
+  async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();
@@ -1679,10 +1675,10 @@ export class DeviceGroupService {
   }
 
   async processCsvFileAnotherLibrary(
-    file: any,
+    file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
-  ) {
+  ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
@@ -1699,7 +1695,7 @@ export class DeviceGroupService {
 
     csvtojsonV2()
       .fromString(filedata)
-      .subscribe(async (data: any, lineNumber: any) => {
+      .subscribe(async (data: any) => {
         rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
@@ -1765,7 +1761,7 @@ export class DeviceGroupService {
           errorsList: [],
         });
       })
-      .on('done', async (error: any) => {
+      .on('done', async () => {
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
           if (records[index].externalId) {
@@ -1904,8 +1900,8 @@ export class DeviceGroupService {
             singleRecord[error.property] = null; //making null field if it has any validation issue
           });
         });
-
-        const noErrorRecords = records.filter(
+        // noErrorRecords
+        records.filter(
           (record, index) => recordsErrors[index].isError === false,
         );
         const listofExistingDevices = await this.checkIfDeviceExisting(
@@ -2044,7 +2040,7 @@ export class DeviceGroupService {
       });
   }
 
-  csvStringToJSON(csvFileContentInString: string) {
+  csvStringToJSON(csvFileContentInString: string): void {
     this.logger.verbose(`With in csvStringToJSON`);
 
     const array = csvFileContentInString.split('\r');
@@ -2197,10 +2193,9 @@ export class DeviceGroupService {
     deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     this.logger.verbose(`With in endReservation`);
-    let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
-      updatedissuedatestatus = await this.repository.save(group);
+      await this.repository.save(group);
     }
 
     await this.repositorynextDeviceGroupcertificate.delete(
@@ -2222,10 +2217,9 @@ export class DeviceGroupService {
 
   async deactiveReaservation(group: DeviceGroup): Promise<void> {
     this.logger.verbose(`With in deactiveReaservation`);
-    let updatedissuedatestatus = new DeviceGroup();
     if (group) {
       group.reservationActive = false;
-      updatedissuedatestatus = await this.repository.save(group);
+      await this.repository.save(group);
       return;
     }
   }
@@ -2276,8 +2270,8 @@ export class DeviceGroupService {
   }
 
   public async getNextHistoryissuanceDevicelogafterreservation(
-    developerExternalId: any,
-    groupId: any,
+    developerExternalId: string,
+    groupId: number,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     this.logger.verbose(
       `With in getNextHistoryissuanceDevicelogafterreservation`,
@@ -2330,8 +2324,8 @@ export class DeviceGroupService {
   }
 
   async getcurrentInformationofDevicesInReservation(
-    groupuid,
-    pageNumber?,
+    groupuid: string,
+    pageNumber?: number,
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationofDevicesInReservation`);
     const group = await this.findOne({
@@ -2351,7 +2345,7 @@ export class DeviceGroupService {
         );
       });
     }
-    const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+    await this.deviceService.findByIds(group.deviceIdsInt);
     const device_historynextissuance = [];
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
@@ -2413,11 +2407,11 @@ export class DeviceGroupService {
   }
 
   async getReservationInforDeveloperBsise(
-    orgId,
-    role,
-    filterDto,
-    pageNumber,
-    apiuser_id?,
+    orgId: number,
+    role: Role,
+    filterDto: FilterDTO,
+    pageNumber: number,
+    apiuser_id?: string,
   ): Promise<any> {
     this.logger.verbose(`With in getReservationInforDeveloperBsise`);
     const pageSize = 10;
@@ -2485,7 +2479,7 @@ export class DeviceGroupService {
           new Brackets((qb) => {
             if (filterDto.country) {
               const string = filterDto.country;
-              const values = string.split(',');
+              string.split(',');
               let CountryInvalid = false;
               filterDto.country = filterDto.country.toUpperCase();
               if (
@@ -2586,9 +2580,8 @@ export class DeviceGroupService {
             if (filterDto.SDGBenefits) {
               const newsdg = filterDto.SDGBenefits.toString();
               const sdgBenefitsArray = newsdg.split(',');
-              const sdgBenefitString = sdgBenefitsArray
-                .map((benefit) => benefit)
-                .join(',');
+              // sdgBenefitString
+              sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray.forEach((benefit, index) => {
@@ -2653,8 +2646,6 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          const newobj = {};
-
           const existing1 = acc.find((item) => item.id === curr.id);
           if (existing1) {
             existing.developerdeviceIds.push(curr.id);
@@ -2699,11 +2690,11 @@ export class DeviceGroupService {
     return response;
   }
   async getoldReservationInforDeveloperBsise(
-    orgId,
-    role,
-    filterDto,
-    pageNumber,
-    apiuser_id?,
+    orgId: number,
+    role: Role,
+    filterDto: FilterDTO,
+    pageNumber: number,
+    apiuser_id?: string,
   ): Promise<any> {
     this.logger.verbose(`With in getoldReservationInforDeveloperBsise`);
     const pageSize = 10;
@@ -2758,7 +2749,7 @@ export class DeviceGroupService {
           new Brackets((qb) => {
             if (filterDto.country) {
               const string = filterDto.country;
-              const values = string.split(',');
+              string.split(',');
               let CountryInvalid = false;
               filterDto.country = filterDto.country.toUpperCase();
               if (
@@ -2860,9 +2851,8 @@ export class DeviceGroupService {
             if (filterDto.SDGBenefits) {
               const newsdg = filterDto.SDGBenefits.toString();
               const sdgBenefitsArray = newsdg.split(',');
-              const sdgBenefitString = sdgBenefitsArray
-                .map((benefit) => benefit)
-                .join(',');
+              //sdgBenefitString
+              sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray.forEach((benefit, index) => {
@@ -2924,7 +2914,6 @@ export class DeviceGroupService {
     const deviceGroups = groupedData.reduce((acc, curr) => {
       const existing = acc.find((item) => item.dg_id === curr.dg_id);
       if (existing) {
-        const newobj = {};
         const existing1 = acc.find((item) => item.id === curr.id);
         if (existing1) {
           existing.developerdeviceIds.push(curr.id);

@@ -6,7 +6,7 @@ export class SynchronizeBlockchainTaskService {
   private logger = new Logger(SynchronizeBlockchainTaskService.name);
   constructor(private synchronizationService: BlockchainSynchronizeService) {}
   @Cron(CronExpression.EVERY_MINUTE)
-  public async synchronizeblockchain() {
+  public async synchronizeblockchain(): Promise<void> {
     this.logger.log(`Synchronizing blockchain started`);
     await this.synchronizationService.synchronize();
     this.logger.log(`Synchronizing blockchain Ended`);

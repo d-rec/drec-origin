@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { IJWTPayload } from './auth.service';
 import { UserService } from '../pods/user/user.service';
-import { Role } from '../utils/enums';
+import { IUser } from 'src/models';
 
 @Injectable()
 export class ClientJwtStrategy extends PassportStrategy(
@@ -25,13 +25,13 @@ export class ClientJwtStrategy extends PassportStrategy(
     });
   }
 
-  async validate(request: Request, payload: IJWTPayload) {
+  async validate(request: Request, payload: IJWTPayload): Promise<IUser> {
     const token = (
       request.headers as { authorization?: string }
     ).authorization?.split(' ')[1];
     const user = await this.userService.findByEmail(payload.email);
     const publicKey = this.oauthClientService.get(user.api_user_id);
-    const verifiedData = await this.jwtService.verify(token, {
+    await this.jwtService.verify(token, {
       publicKey: (await publicKey).client_id,
       secret: 'my-secret',
     });

@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { IFullOrganization, IUser } from '.././models';
+
 export class UserRegistrationData {
   @IsOptional()
   @IsString()

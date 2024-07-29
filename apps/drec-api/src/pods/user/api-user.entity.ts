@@ -1,19 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  BeforeUpdate,
-} from 'typeorm';
-import { Exclude } from 'class-transformer';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserStatus, UserPermissionStatus } from '../../utils/enums';
-import { IsEnum, IsString, IsArray } from 'class-validator';
-import { IUser } from '../../models';
-import { Organization } from '../organization/organization.entity';
-import { ACLModulePermissions } from '../permission/permission.entity';
+import { UserPermissionStatus } from '../../utils/enums';
+import { IsEnum, IsArray } from 'class-validator';
 @Entity({ name: 'api_user' })
 export class ApiUserEntity {
   @PrimaryGeneratedColumn('uuid')

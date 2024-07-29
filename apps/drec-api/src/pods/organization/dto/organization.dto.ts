@@ -1,12 +1,5 @@
-import {
-  IsISO31661Alpha2,
-  IsString,
-  IsEmail,
-  IsArray,
-  IsOptional,
-  IsNotEmpty,
-} from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsArray, IsOptional } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
 import { Expose } from 'class-transformer';
 import { PublicOrganizationInfoDTO } from './public-organization-info.dto';

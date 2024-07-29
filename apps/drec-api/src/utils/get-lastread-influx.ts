@@ -1,11 +1,6 @@
 //import { Countries } from '@energyweb/utils-general';
-import { countryCodesList } from '../models/country-code';
 import { ReadDTO } from '@energyweb/energy-api-influxdb';
-import {
-  InfluxDB,
-  QueryApi,
-  FluxTableMetaData,
-} from '@influxdata/influxdb-client';
+import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { Logger } from '@nestjs/common';
 
 export const NewfindLatestRead = async (
@@ -59,7 +54,7 @@ export const NewfindLatestRead = async (
   return result;
 };
 
-export const execute = (query: any) => {
+export const execute = (query: Record<string, any>): any => {
   const logger = new Logger('execute');
   logger.debug(`Executing query: ${query}`);
   const data = dbReader.collectRows();

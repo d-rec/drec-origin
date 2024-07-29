@@ -6,7 +6,6 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { IOrganizationInvitation, OrganizationRole } from '../../models';
 import { Organization } from '../organization/organization.entity';
-import { BigNumber } from 'ethers';
 
 @Entity({ name: 'organization_invitation' })
 export class Invitation

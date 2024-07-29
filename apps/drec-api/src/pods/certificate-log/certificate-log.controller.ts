@@ -85,7 +85,7 @@ export class CertificateLogController {
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   async getClaimAmountInEthersJSON(
     @Query() amountFormatData: AmountFormattingDTO,
-  ) {
+  ): Promise<string> {
     if (Number.isNaN(parseInt(amountFormatData.amount))) {
       this.logger.error(`amount invalid value was sent`);
       return new Promise((resolve, reject) => {
@@ -329,7 +329,12 @@ export class CertificateLogController {
     @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour')
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
     @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
-  ) {
+  ): Promise<{
+    result: any[];
+    pageNumber: number;
+    totalPages: number;
+    totalCount: any;
+  }> {
     this.logger.verbose(`With in GetCertificateReadModule`);
     return await this.certificateLogService.getsCertificateReadModule(
       organizationId.toString(),
@@ -422,7 +427,7 @@ export class CertificateLogController {
     @UserDecorator() user: ILoggedInUser,
     @Param('groupUid') groupuId: string,
     @Res() res: Response,
-  ) {
+  ): Promise<void> {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
     const regexExp =

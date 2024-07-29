@@ -36,7 +36,7 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
-import { IEmailConfirmationToken, ISuccessResponse } from '../../models';
+import { ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 import { ApiUserEntity } from './api-user.entity';
@@ -151,7 +151,7 @@ export class UserService {
       organization: org_id ? { id: org_id } : {},
       api_user_id: api_user ? api_user.api_user_id : null,
     });
-    const { password, ...userData } = user;
+    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -217,7 +217,7 @@ export class UserService {
       organization: org_id ? { id: org_id } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
-    const { password, ...userData } = user;
+    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -571,13 +571,21 @@ export class UserService {
     }
     return user;
   }
-  public async geytokenforResetPassword(email): Promise<ISuccessResponse> {
+  public async geytokenforResetPassword(
+    email: string,
+  ): Promise<ISuccessResponse> {
     return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
       email,
     );
   }
 
-  public async sentinvitiontoUser(inviteuser, email, invitationId) {
+  public async sentinvitiontoUser(
+    inviteuser: CreateUserORGDTO,
+    email: string,
+  ): Promise<{
+    message: string;
+    success: boolean;
+  }> {
     const getcurrenttoken =
       await this.emailConfirmationService.getByEmail(email);
     if (!getcurrenttoken) {
@@ -586,21 +594,16 @@ export class UserService {
         success: false,
       };
     }
-    const { id, confirmed } = getcurrenttoken;
-    const { token, expiryTimestamp } =
-      await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(
-      inviteuser,
-      email,
-      invitationId,
-    );
+    const { id, confirmed } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
+    await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    await this.emailConfirmationService.sendInvitation(inviteuser, email);
   }
 
   public async findUserByOrganization(
     organizationId: number,
     pageNumber: number,
     limit: number,
-  ) {
+  ): Promise<any> {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -615,8 +618,7 @@ export class UserService {
     api_user_id: string,
     pageNumber: number,
     limit: number,
-    org_id?,
-  ) {
+  ): Promise<any> {
     return await this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -641,7 +643,10 @@ export class UserService {
    * @param api_id
    * @param permissionIds
    */
-  async apiuser_permission_request(api_id, permissionIds) {
+  async apiuser_permission_request(
+    api_id: string,
+    permissionIds: number[] | any,
+  ): Promise<void> {
     await this.apiUserEntityRepository.update(api_id, {
       permissionIds: permissionIds,
       permission_status: UserPermissionStatus.Request,
@@ -650,7 +655,7 @@ export class UserService {
   async apiuser_permission_accepted_byadmin(
     api_id: string,
     status: UserPermissionStatus,
-  ) {
+  ): Promise<any> {
     await this.apiUserEntityRepository.update(api_id, {
       permission_status: status,
     });
@@ -665,7 +670,7 @@ export class UserService {
    * @param api_id
    * @returns
    */
-  async get_apiuser_permission_status(api_id: string) {
+  async get_apiuser_permission_status(api_id: string): Promise<any> {
     const status_apiuser_permissiom =
       await this.apiUserEntityRepository.findOne({
         where: {
@@ -723,7 +728,10 @@ export class UserService {
    * @returns
    */
 
-  async createUserSession(user: any, token: string) {
+  async createUserSession(
+    user: Omit<IUser, 'password'>,
+    token: string,
+  ): Promise<void> {
     await this.userloginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
@@ -735,7 +743,7 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number, token: string) {
+  async removeUsersession(userId: number, token: string): Promise<any> {
     return await this.userloginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
@@ -744,7 +752,7 @@ export class UserService {
 
   async hasgetUserTokenvalid(
     conditions: FindConditions<UserLoginSessionEntity>,
-  ) {
+  ): Promise<boolean> {
     return Boolean(await this.userloginSessionRepository.findOne(conditions));
   }
 }

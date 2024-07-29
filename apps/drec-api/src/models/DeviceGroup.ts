@@ -1,10 +1,7 @@
 import {
   CapacityRange,
   CommissioningDateRange,
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
 } from '../utils/enums';
 import { DeviceDTO } from '../pods/device/dto';
 import { OrganizationDTO } from '../pods/organization/dto';

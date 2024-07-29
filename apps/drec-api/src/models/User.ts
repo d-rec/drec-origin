@@ -5,7 +5,6 @@ import {
   PermissionString,
   UserPermissionStatus,
 } from '../utils/enums';
-import { IModulePermissionsConfig } from './ACLModulesPermission';
 export interface IUserProperties {
   id: number;
   title?: string;

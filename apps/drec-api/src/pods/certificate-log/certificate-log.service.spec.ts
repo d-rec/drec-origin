@@ -73,15 +73,19 @@ describe('CertificateLogService', () => {
     }).compile();
 
     service = module.get<CertificateLogService>(CertificateLogService);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     repository = module.get<
       Repository<CheckCertificateIssueDateLogForDeviceEntity>
     >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     certificaterrepository = module.get<Repository<Certificate>>(
       getRepositoryToken(Certificate),
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     certificateReadModelEntity = module.get<
       Repository<CertificateReadModelEntity<any>>
     >(getRepositoryToken(CertificateReadModelEntity));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deviceService = module.get<DeviceService>(DeviceService);
     devicegroupService = module.get<DeviceGroupService>(DeviceGroupService);
 
@@ -235,8 +239,8 @@ describe('CertificateLogService', () => {
     });
 
     it('should handle error for invalid group id', async () => {
-      const groupId = 'invalidGroupId';
-      const organizationId = 'validOrganizationId';
+      const groupId = 1.3;
+      const organizationId = 4;
       jest
         .spyOn(service, 'Findperdevicecertificatelog')
         .mockRejectedValueOnce(new Error('Invalid group id'));
@@ -251,8 +255,8 @@ describe('CertificateLogService', () => {
     });
 
     it('should handle error for invalid organization id', async () => {
-      const groupId = 'validGroupId';
-      const organizationId = 'invalidOrganizationId';
+      const groupId = 1;
+      const organizationId = 4.5;
       jest
         .spyOn(service, 'Findperdevicecertificatelog')
         .mockRejectedValueOnce(new Error('Invalid organization id'));
@@ -275,12 +279,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
@@ -372,7 +378,7 @@ describe('CertificateLogService', () => {
         totalCount: 1,
       };
 
-      const getDeveloperfindreservationcertifiedSpy = jest
+      jest
         .spyOn(service, 'getDeveloperfindreservationcertified')
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificatelogResponse,
@@ -407,12 +413,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
@@ -528,12 +536,14 @@ describe('CertificateLogService', () => {
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
         role: Role.OrganizationAdmin,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
         },
         ownerId: '',
         hasOrganization: false,
         permissions: PermissionString.Write,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },

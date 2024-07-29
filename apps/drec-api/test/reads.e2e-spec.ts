@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection } from 'typeorm';
 import { FileService } from './file.service';

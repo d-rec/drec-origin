@@ -8,13 +8,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import {
-  FindOneOptions,
   Repository,
   Brackets,
   SelectQueryBuilder,
-  In,
   FindConditions,
-  Any,
 } from 'typeorm';
 
 import axios from 'axios';
@@ -40,36 +37,23 @@ import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { flattenDeep, values, groupBy, mean, sum, head } from 'lodash';
-import {
-  NewIntmediateMeterReadDTO,
-  IntmediateMeterReadDTO,
-} from './dto/intermediate_meter_read.dto';
-import {
-  Iintermediate,
-  NewReadDTO,
-  IAggregateintermediate,
-} from '../../models';
+import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
+import { IAggregateintermediate } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReadStatus } from '../../utils/enums';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { ReadFilterDTO } from './dto/filter.dto';
-import * as mapBoxTimeSpace from '@mapbox/timespace';
-import * as momentTimeZone from 'moment-timezone';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { response } from 'express';
-import { EndReservationdateDTO } from '../device-group/dto';
-import { timestamp } from 'rxjs/operators';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
-import { log } from 'console';
+import {
+  filterNoOffLimit,
+  accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
+} from './dto/filter-no-off-limit.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -487,6 +471,7 @@ export class ReadsService {
                 );
               }
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const read: ReadDTO = {
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -749,14 +734,14 @@ export class ReadsService {
     return await this.execute(fluxQuery);
   }
 
-  async execute(query: any) {
+  async execute(query: string | any): Promise<any> {
     const data = await this.dbReader.collectRows(query);
     return data.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
     }));
   }
-  get dbReader() {
+  get dbReader(): any {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
@@ -1225,9 +1210,9 @@ export class ReadsService {
 
   timeOffset: any;
   async getAllRead(
-    externalId,
-    filter,
-    deviceOnboarded,
+    externalId: string,
+    filter: filterNoOffLimit,
+    deviceOnboarded: Date,
     pageNumber: number,
   ): Promise<any> {
     if (new Date(filter.start).getTime() == new Date(filter.end).getTime()) {
@@ -1238,7 +1223,7 @@ export class ReadsService {
     }
     const historyread = [];
     let ongoing = [];
-    const finalongoing = [];
+    const finalongoing = []; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
@@ -1356,7 +1341,7 @@ export class ReadsService {
         readsFilter = {
           offset: filter.offset,
           limit: filter.limit,
-          start: deviceOnboarded,
+          start: deviceOnboarded.toString(),
           end: filter.end.toString(),
         };
       }
@@ -1452,7 +1437,11 @@ export class ReadsService {
     }
   }
 
-  async getnumberOfHistReads(deviceId, startDate, endDate) {
+  async getnumberOfHistReads(
+    deviceId: string,
+    startDate: Date | string,
+    endDate: Date | string,
+  ): Promise<any> {
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId })
@@ -1466,9 +1455,9 @@ export class ReadsService {
   async getnumberOfOngReads(
     start: Date,
     end: Date,
-    externalId,
+    externalId: string,
     onboarded: Date,
-  ) {
+  ): Promise<number> {
     this.logger.verbose(externalId);
     if (new Date(onboarded).getTime() > new Date(end).getTime()) {
       this.logger.verbose('The given dates are not for on-going reads');
@@ -1491,7 +1480,7 @@ export class ReadsService {
     return noOfReads;
   }
 
-  async ongExecute(query: any) {
+  async ongExecute(query: string | any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
     if (typeof data[0] === 'undefined' || data.length == 0) {
       this.logger.verbose('type of data is undefined');
@@ -1500,7 +1489,7 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
-  async latestread(meterId, deviceOnboarded) {
+  async latestread(meterId: string, deviceOnboarded: Date): Promise<any> {
     const query = `
 from(bucket: "${process.env.INFLUXDB_BUCKET}")
 |> range(start: ${deviceOnboarded}, stop: now())
@@ -1514,12 +1503,19 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async getAccumulatedReads(
     meter: string,
-    organizationId,
-    developerExternalId,
-    accumulationType,
+    organizationId: number,
+    developerExternalId: string,
+    accumulationType: accumulationType,
     month: number,
     year: number,
-  ) {
+  ): Promise<{
+    aggregateType: any;
+    accumulatedReads: {
+      timestamp?: string;
+      value?: any;
+    }[];
+    timezone: any;
+  }> {
     let startDate;
     let numberOfDays;
     let endDate;
@@ -1632,7 +1628,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     };
   }
 
-  readFilterNullUndefined(arr) {
+  readFilterNullUndefined(arr: [any]): any {
     for (let i = 0; i < arr.length; i++) {
       for (let j = 0; j < 2; j++) {
         if (j % 2 != 0) {
@@ -1645,7 +1641,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return arr;
   }
 
-  convertToISODate(month, year) {
+  convertToISODate(month: number, year: number): any {
     const isoDate = DateTime.fromObject({
       year: year,
       month: month,
@@ -1659,7 +1655,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return isoDate;
   }
 
-  getNumberOfDaysInMonth(month, year) {
+  getNumberOfDaysInMonth(month: number, year: number): any {
     return DateTime.fromObject({
       year: year,
       month: month,
@@ -1672,7 +1668,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async getPaginatedData(
     meter: string,
-    filter: any,
+    filter: FilterDTO | any,
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
@@ -1690,7 +1686,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   async retrieveDataWithLastValue(
     meter: string,
-    filter: any,
+    filter: FilterDTO | any,
     skipCount: number,
     pageSize: number,
   ): Promise<unknown[]> {
@@ -1718,7 +1714,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const token = process.env.INFLUXDB_TOKEN;
 
     const influxDB = new InfluxDB({ url, token });
-    const queryApi = influxDB.getQueryApi(org);
+    const queryApi = influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
 
     return result.map((record: any) => ({
@@ -1729,10 +1725,15 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
   //
   async getOffSetForInfluxQuery(
-    developerExternalId,
-    organizationId,
-    startDate,
-  ) {
+    developerExternalId: string,
+    organizationId: number,
+    startDate: string | any,
+  ): Promise<{
+    formattedOffset: any;
+    offSetHours: number;
+    offSetMinutes: number;
+    localTimeZone: any;
+  }> {
     let localTime = null;
     let formattedOffset = null;
     const device = await this.deviceService.findDeviceByDeveloperExternalId(
@@ -1763,7 +1764,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     };
   }
 
-  async getOngoingReads(meter, filter): Promise<any> {
+  async getOngoingReads(meter: string, filter: FilterDTO | any): Promise<any> {
     this.logger.verbose('IN THE FUNCTION TO GET ONGOING READS');
 
     const url = process.env.INFLUXDB_URL;

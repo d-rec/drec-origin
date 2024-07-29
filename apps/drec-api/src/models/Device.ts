@@ -1,11 +1,6 @@
 import {
   DeviceOrderBy,
-  DeviceStatus,
-  Installation,
-  Integrator,
   OffTaker,
-  Sector,
-  StandardCompliance,
   FuelCode,
   DevicetypeCode,
 } from '../utils/enums';

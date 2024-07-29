@@ -1,14 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, RoleStatus } from '../../utils/enums';
+import { RoleStatus } from '../../utils/enums';
 import { IsEnum, IsString, IsArray } from 'class-validator';
 import { IACLModuleConfig } from '../../models';
 import { ACLModulePermissions } from '../permission/permission.entity';

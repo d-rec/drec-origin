@@ -6,7 +6,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { IModulePermissionsConfig, IUserSeed } from '../../../models';
+import { IUserSeed } from '../../../models';
 import { UserDTO } from '../../user/dto/user.dto';
 import { OrganizationDTO } from '../../organization/dto/organization.dto';
 

@@ -1,10 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import {
-  IFullOrganization,
-  IUser,
-  IModulePermissionsConfig,
-} from '../../../models';
+import { IFullOrganization, IUser } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
 
 import {
