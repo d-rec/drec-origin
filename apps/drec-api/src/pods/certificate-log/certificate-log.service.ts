@@ -255,7 +255,7 @@ export class CertificateLogService {
       }),
     );
 
-    await Promise.all(  
+    await Promise.all(
       certifiedreservation.map(
         async (
           certifiedlist: ICertificateReadModel<ICertificateMetadata>,
@@ -678,12 +678,14 @@ export class CertificateLogService {
   }
 
   async getDeveloperfindreservationcertified(
-    certifiedreservation: {
-      deviceGroups: any;
-      pageNumber: number;
-      totalPages: number;
-      totalCount: any;
-    } | any,
+    certifiedreservation:
+      | {
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
+      | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
     const finalcertificatesInReservationWithLog: Array<any> = [];
@@ -827,12 +829,14 @@ export class CertificateLogService {
   }
 
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-    getreservationinfo: {
-      deviceGroups: any;
-      pageNumber: number;
-      totalPages: number;
-      totalCount: any;
-    } | any,
+    getreservationinfo:
+      | {
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
+      | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
     this.logger.verbose(
