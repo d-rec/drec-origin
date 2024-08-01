@@ -238,7 +238,7 @@ export class CertificateLogService {
   }
 
   async getCertificatesUsingGroupIDVersionUpdateOrigin247(
-    certifiedreservation: any,
+    certifiedreservation: ICertificateReadModel<ICertificateMetadata>[] | any,
     groupid: string,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(
@@ -255,7 +255,7 @@ export class CertificateLogService {
       }),
     );
 
-    await Promise.all(
+    await Promise.all(  
       certifiedreservation.map(
         async (
           certifiedlist: ICertificateReadModel<ICertificateMetadata>,
@@ -622,7 +622,7 @@ export class CertificateLogService {
   async getCertifiedlogofDevices(
     user: ILoggedInUser,
     filterDto: FilterDTO,
-    pageNumber,
+    pageNumber: number,
   ): Promise<{
     certificatelog:
       | CertificateNewWithPerDeviceLog[]
@@ -678,8 +678,13 @@ export class CertificateLogService {
   }
 
   async getDeveloperfindreservationcertified(
-    certifiedreservation,
-    role,
+    certifiedreservation: {
+      deviceGroups: any;
+      pageNumber: number;
+      totalPages: number;
+      totalCount: any;
+    } | any,
+    role: Role,
   ): Promise<CertificatelogResponse> {
     const finalcertificatesInReservationWithLog: Array<any> = [];
     this.logger.verbose(`With in getDeveloperfindreservationcertified`);
@@ -822,7 +827,12 @@ export class CertificateLogService {
   }
 
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-    getreservationinfo: any,
+    getreservationinfo: {
+      deviceGroups: any;
+      pageNumber: number;
+      totalPages: number;
+      totalCount: any;
+    } | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
     this.logger.verbose(
@@ -1037,7 +1047,7 @@ export class CertificateLogService {
     groupId: number,
     organizationId: number,
     name: string,
-  ) {
+  ): Promise<void> {
     try {
       const data = await this.Findperdevicecertificatelog(
         groupId,
