@@ -137,7 +137,10 @@ export class DeviceService {
     pagenumber: number,
   ): Promise<any> {
     this.logger.verbose(`With in getOrganizationDevices`);
-    if (Object.keys(filterDto).length != 0 && (pagenumber != null || pagenumber != undefined)) {
+    if (
+      Object.keys(filterDto).length != 0 &&
+      (pagenumber != null || pagenumber != undefined)
+    ) {
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
