@@ -60,7 +60,6 @@ jobs:
       - name: Run ESLint (all)
         working-directory: apps/drec-api
         run: pnpm run lint
-        continue-on-error: true
 
   check-build:
     runs-on: ubuntu-latest
