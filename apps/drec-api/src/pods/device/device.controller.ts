@@ -378,8 +378,6 @@ export class DeviceController {
     } else {
       devicedata = await this.deviceService.findOne(id);
     }
-    devicedata.externalId = devicedata.developerExternalId;
-    delete devicedata['developerExternalId'];
     return devicedata;
   }
 
