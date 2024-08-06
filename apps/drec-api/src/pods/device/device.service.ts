@@ -163,19 +163,8 @@ export class DeviceService {
           createdAt: 'DESC',
         },
       });
-      if (totalCount == 0) {
-        this.logger.error(`Page number out of range`);
-        throw new HttpException('No device available', HttpStatus.NOT_FOUND);
-      }
 
       const totalPages = Math.ceil(totalCount / limit);
-      if (pagenumber > totalPages) {
-        this.logger.error(`Page number out of range`);
-        throw new HttpException(
-          'Page number out of range',
-          HttpStatus.NOT_FOUND,
-        );
-      }
       const currentPage = pagenumber;
       const newDevices = [];
       await devices.map((device: Device) => {
