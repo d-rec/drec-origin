@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationService } from '../organization/organization.service';
 import { IssuerService } from './issuer.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ReadsService } from '../reads/reads.service';
 import { DeviceService } from '../device';
-import { ReadsService as BaseReadsService } from '@energyweb/energy-api-influxdb';
 import { HttpService } from '@nestjs/axios';
 import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
 import { BASE_READ_SERVICE } from '../reads/const';

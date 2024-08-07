@@ -1,6 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import {
-  IsEmail,
   IsEnum,
   IsNumber,
   IsString,
@@ -10,9 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { ReadType } from '../../utils/enums';
 import { IAggregateintermediate } from '../../models';
-import { Organization } from '../organization/organization.entity';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'aggregate_meterread' })
 export class AggregateMeterRead

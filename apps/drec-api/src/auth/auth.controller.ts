@@ -25,6 +25,9 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * @returns {Promise<LoginReturnDataDTO>}
+   */
   @UseGuards(AuthGuard('local'), WithoutAuthGuard)
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
@@ -42,7 +45,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Post('auth/logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Request() req: ExpressRequest) {
+  async logout(@Request() req: ExpressRequest): Promise<{ message: string }> {
     this.logger.verbose('Within login');
     const token: string = req.headers.authorization?.split(' ')[1];
     await this.authService.logout(req.user as Omit<IUser, 'password'>, token);
@@ -55,8 +58,7 @@ export class AuthController {
   async generateToken(
     @Request() req: ExpressRequest,
     @Query('privateKey') privateKey: string,
-  ) {
-    //: Promise<LoginReturnDataDTO> {
+  ): Promise<LoginReturnDataDTO> {
     this.logger.verbose('With in generateToken');
     return await this.authService.generateToken(
       req.user as Omit<IUser, 'password'>,

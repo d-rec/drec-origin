@@ -11,7 +11,6 @@ import {
   UserPermissionStatus,
   UserStatus,
 } from '../../utils/enums';
-import * as crypto from 'crypto';
 
 describe('OauthClientCredentialsService', () => {
   let service: OauthClientCredentialsService;

@@ -2,14 +2,12 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
-import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { randomBytes } from 'crypto';
 import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
 import crypto from 'crypto';
 import fs from 'fs';
 import { Response } from 'express';
-
-const algorithm = 'aes-256-cbc';
 
 @Injectable()
 export class OauthClientCredentialsService {
@@ -36,7 +34,7 @@ export class OauthClientCredentialsService {
     return await this.clientCredentialsRepository.save(clientCredentials);
   }
 
-  async get(api_user_id: string) {
+  async get(api_user_id: string): Promise<any> {
     return await this.clientCredentialsRepository.findOne({
       where: {
         api_user_id: api_user_id,
@@ -47,7 +45,6 @@ export class OauthClientCredentialsService {
   async replace(
     id: number,
     client_id: string,
-    userid: number,
   ): Promise<OauthClientCredentials> {
     const clientCredentials = await this.clientCredentialsRepository.findOne({
       where: {
@@ -112,7 +109,7 @@ export class OauthClientCredentialsService {
     });
   }
 
-  async generateKeys(api_user_id?: string) {
+  async generateKeys(api_user_id?: string): Promise<any> {
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
       modulusLength: 2048,
       publicKeyEncoding: { type: 'spki', format: 'pem' },
@@ -123,7 +120,7 @@ export class OauthClientCredentialsService {
     return privateKey;
   }
 
-  async createKeyFile(api_user_id: string, res: Response) {
+  async createKeyFile(api_user_id: string, res: Response): Promise<any> {
     try {
       res.setHeader(
         'Content-Disposition',

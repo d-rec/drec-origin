@@ -3,8 +3,13 @@ import * as momentTimeZone from 'moment-timezone';
 import { countryCodesList } from '../models/country-code';
 import { CountryCodeNameDTO } from '../pods/countrycode/dto';
 import { Logger } from '@nestjs/common';
+import { Device } from '../pods/device/device.entity';
+import { DeviceDTO } from '../pods/device/dto';
 
-export const getLocalTime = (startDate, device) => {
+export const getLocalTime = (
+  startDate: string | any | Date,
+  device: Device,
+): any => {
   const logger = new Logger('getLocalTime');
   const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
   logger.log(`latitude is:::: + ${device.latitude}`);
@@ -18,7 +23,10 @@ export const getLocalTime = (startDate, device) => {
   return localTime;
 };
 
-export const getLocalTimeZoneFromDevice = (localTime, device) => {
+export const getLocalTimeZoneFromDevice = (
+  localTime: Date,
+  device: DeviceDTO,
+): any => {
   const logger = new Logger('getLocalTimeZoneFromDevice');
   if (device.timezone) {
     logger.log('timezone is there');
@@ -55,7 +63,7 @@ export const getLocalTimeZoneFromDevice = (localTime, device) => {
   }
 };
 
-export const getOffsetFromTimeZoneName = (givenTimeZone) => {
+export const getOffsetFromTimeZoneName = (givenTimeZone: string | any): any => {
   const logger = new Logger('getOffsetFromTimeZoneName');
   logger.log(`given timezone::::::::;; + ${givenTimeZone}`);
   let matchingTimezone;
@@ -82,7 +90,12 @@ export const getOffsetFromTimeZoneName = (givenTimeZone) => {
   return offset;
 };
 
-export const getFormattedOffSetFromOffsetAsJson = (givenOffSet) => {
+export const getFormattedOffSetFromOffsetAsJson = (
+  givenOffSet: number | any,
+): {
+  hours: number;
+  minutes: number;
+} => {
   const logger = new Logger('getFormattedOffSetFromOffsetAsJson');
   logger.log(`given offset::: + ${givenOffSet}`);
 

@@ -11,7 +11,6 @@ import { Reflector } from '@nestjs/core';
 // import { AccessControl } from 'role-acl';
 
 import { PermissionService } from '../pods/permission/permission.service';
-import { OauthClientCredentials } from '../pods/user/oauth_client_credentials.entity';
 import { UserService } from '../pods/user/user.service';
 import { Role } from '../utils/enums';
 @Injectable()
@@ -33,7 +32,7 @@ export class PermissionGuard implements CanActivate {
       'permission',
       context.getHandler(),
     );
-    const module = this.reflector.get<string[]>(
+    const module: string[] = this.reflector.get<string[]>(
       'acl_module',
       context.getHandler(),
     );

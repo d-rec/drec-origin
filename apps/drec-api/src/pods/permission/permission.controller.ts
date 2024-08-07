@@ -20,7 +20,7 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { PermissionService } from './permission.service';
+import { PermissionService } from './permission.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import {
   NewPermissionDTO,
   PermissionDTO,
@@ -35,7 +35,7 @@ import { ILoggedInUser } from '../../models';
 import { ACLModulePermissions } from './permission.entity';
 import { Permission } from './decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { PermissionGuard } from '../../guards';
+import { PermissionGuard } from '../../guards'; // eslint-disable-line @typescript-eslint/no-unused-vars
 @ApiTags('permission')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -196,7 +196,6 @@ export class PermissionController {
   public async apiuser_moduleapprove(
     @Param('apiuserId') api_user_id: string,
     @Body() moduleData: ApiUserPermissionUpdateDTO,
-    @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<{ statsu: string; message: string }> {
     this.logger.verbose(`With in apiuser_moduleapprove`);
     return this.PermissionService.permission_veify(api_user_id, moduleData);

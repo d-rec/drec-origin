@@ -12,10 +12,7 @@ import { IDeviceGroup } from '../../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
-  Installation,
   OffTaker,
-  Sector,
-  StandardCompliance,
 } from '../../../utils/enums';
 import { DeviceDTO } from '../../device/dto';
 import { OrganizationDTO } from '../../organization/dto';

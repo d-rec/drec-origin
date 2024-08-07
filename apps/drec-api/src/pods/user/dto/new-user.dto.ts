@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IModulePermissionsConfig, IUserProperties } from '../../../models';
+import { IUserProperties } from '../../../models';
 import { Role, UserStatus } from '../../../utils/enums';
 import { IsEnum } from 'class-validator';
 

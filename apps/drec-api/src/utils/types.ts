@@ -1,5 +1,4 @@
 import { ICertificate as IOriginalCertificate } from '@energyweb/origin-247-certificate';
-import { DeviceGroupDTO } from '../pods/device-group/dto';
 import { StandardCompliance, CertificateType } from './enums';
 
 export interface ICertificateMetadata {

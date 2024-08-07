@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  BeforeUpdate,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,7 +11,6 @@ import {
 import { IsEnum, IsString } from 'class-validator';
 import { IUser } from '../../models';
 import { Organization } from '../organization/organization.entity';
-import { ACLModulePermissions } from '../permission/permission.entity';
 @Entity()
 export class User extends ExtendedBaseEntity implements IUser {
   constructor(user: Partial<User>) {

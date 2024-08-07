@@ -1,7 +1,8 @@
 import * as jwt from 'jsonwebtoken';
+import { HttpService } from '@nestjs/axios';
 let jwtToken;
 
-export async function login(httpService: any): Promise<string> {
+export async function login(httpService: HttpService | any): Promise<string> {
   const url = `${process.env.IREC_EVIDENT_API_URL}/auth/token`;
   const payload = {
     email: process.env.IREC_EVIDENT_REGISTRANT_EMAIL,
@@ -12,7 +13,9 @@ export async function login(httpService: any): Promise<string> {
   return jwtToken;
 }
 
-export async function regenerateToken(httpService: any): Promise<string> {
+export async function regenerateToken(
+  httpService: HttpService | any,
+): Promise<string> {
   if (!jwtToken) {
     return login(httpService);
   }

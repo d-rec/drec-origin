@@ -1,6 +1,5 @@
 import { isRole, IUser, isPermission } from '.';
 import { Role, PermissionString } from '../utils/enums';
-import { IModulePermissionsConfig } from './ACLModulesPermission';
 export interface ILoggedInUser {
   id: number;
   organizationId: number;

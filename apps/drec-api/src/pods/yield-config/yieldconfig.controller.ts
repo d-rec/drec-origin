@@ -2,21 +2,16 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Patch,
   HttpStatus,
   Param,
   Body,
   UseGuards,
-  ValidationPipe,
-  Query,
   ParseIntPipe,
   ConflictException,
-  HttpException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiNotFoundResponse,
   ApiResponse,
   ApiOkResponse,
   ApiSecurity,
@@ -24,8 +19,6 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { plainToClass } from 'class-transformer';
-
 import { YieldConfigService } from './yieldconfig.service';
 import { YieldConfigDTO, NewYieldConfigDTO, UpdateYieldValueDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';

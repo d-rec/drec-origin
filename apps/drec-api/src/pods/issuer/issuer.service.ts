@@ -25,7 +25,6 @@ import {
 } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { AnyARecord } from 'dns';
 import { EndReservationdateDTO } from '../device-group/dto';
 import {
   CertificateType,
@@ -58,7 +57,7 @@ export class IssuerService {
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
   ) {}
 
-  hitTheCronFromIssuerAPIOngoing() {
+  hitTheCronFromIssuerAPIOngoing(): void {
     this.logger.verbose(`With in hitTheCronFromIssuerAPIOngoing`);
 
     this.httpService
@@ -66,7 +65,7 @@ export class IssuerService {
       .subscribe();
   }
 
-  hitTheCronFromIssuerAPIHistory() {
+  hitTheCronFromIssuerAPIHistory(): void {
     this.logger.verbose(`With in hitTheCronFromIssuerAPIHistory`);
 
     this.httpService
@@ -462,7 +461,6 @@ export class IssuerService {
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    dateindex?: number,
   ): Promise<void> {
     console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
@@ -719,7 +717,7 @@ export class IssuerService {
     );
     //find the minimum of all previous reading dates of devices  and use it as start date
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
+    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     if (allPreviousReadingsOfDevices.length == 1) {
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
@@ -730,7 +728,7 @@ export class IssuerService {
       minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
     }
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
+    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     if (allDevicesCompleteReadsBetweenTimeRange.length == 1) {
       maximumEndDate =
@@ -1019,7 +1017,9 @@ export class IssuerService {
 
   //actual definition is up removing async
 
-  issueCertificateFromAPI(reading: IIssueCommandParams<ICertificateMetadata>) {
+  issueCertificateFromAPI(
+    reading: IIssueCommandParams<ICertificateMetadata>,
+  ): void {
     this.logger.verbose(`With in issueCertificateFromAPI`);
     reading.fromTime = new Date(reading.fromTime);
     reading.toTime = new Date(reading.toTime);
@@ -1031,7 +1031,7 @@ export class IssuerService {
     this.offChainCertificateService.issue(reading);
   }
 
-  getCertificateData(deviceId?: string) {
+  getCertificateData(): void {
     const request: IGetAllCertificatesOptions = {
       // generationEndFrom: new Date(1677671426*1000),
       // generationEndTo: new Date(1677671426*1000),
@@ -1042,7 +1042,7 @@ export class IssuerService {
       deviceId: '51',
     };
 
-    this.offChainCertificateService.getAll(request).then((result) => {
+    this.offChainCertificateService.getAll(request).then(() => {
       this.logger.debug('certificates');
     });
   }
@@ -1152,7 +1152,6 @@ export class IssuerService {
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    dateindex?: number,
   ): Promise<void> {
     console.log('newissueCertificateForGroup');
     this.logger.verbose(`With in newissueCertificateForGroup`);
@@ -1325,13 +1324,13 @@ export class IssuerService {
     );
 
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
+    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     minimumStartDate =
       previousReading.length > 0
         ? previousReading[0].timestamp
         : new Date(startDate.toString());
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
+    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     maximumEndDate =
       allReadsForDeviceBetweenTimeRange[
         allReadsForDeviceBetweenTimeRange.length - 1

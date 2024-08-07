@@ -1,19 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IACLModuleConfig } from '../../../models';
-import { Role, RoleStatus } from '../../../utils/enums';
-import { Expose } from 'class-transformer';
-import {
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsArray,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { RoleStatus } from '../../../utils/enums';
+import { IsEnum, IsString, IsArray, IsOptional } from 'class-validator';
+import { PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export class ACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
   @ApiProperty({ type: Number })

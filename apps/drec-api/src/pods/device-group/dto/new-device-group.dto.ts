@@ -12,10 +12,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IDeviceGroup } from '../../../models';
 import {
-  StandardCompliance,
   OffTaker,
-  Installation,
-  Sector,
   CapacityRange,
   CommissioningDateRange,
 } from '../../../utils/enums';

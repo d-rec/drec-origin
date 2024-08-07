@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsEnum,
-  IsBoolean,
-  IsArray,
-  IsNumber,
-  IsOptional,
-} from 'class-validator';
+import { IsString, IsEnum, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IYieldConfig } from '../../../models';

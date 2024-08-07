@@ -24,7 +24,7 @@ export class WithoutAuthGuard implements CanActivate {
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) {}
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.verbose(`With in canActivate`);
 
     const request = context.switchToHttp().getRequest();
