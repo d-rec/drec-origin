@@ -17,7 +17,6 @@ import {
 } from '../../models';
 import { UserService } from '../user/user.service';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
-import { AlreadyPartOfOrganizationError } from './errors';
 import { Invitation } from './invitation.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
@@ -25,7 +24,6 @@ import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
 import { updateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
-import { PermissionService } from '../permission/permission.service';
 import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
@@ -39,7 +37,6 @@ export class InvitationService {
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly mailService: MailService,
-    private readonly PermissionService: PermissionService,
   ) {}
 
   public async invite(
@@ -131,9 +128,8 @@ export class InvitationService {
       );
     }
     this.ensureIsNotMember(lowerCaseEmail, organization);
-    let saveinviteuser: any = {};
     if (!organization.invitations.find((u) => u.email === lowerCaseEmail)) {
-      saveinviteuser = await this.invitationRepository.save({
+      await this.invitationRepository.save({
         email: lowerCaseEmail,
         organization,
         role,
@@ -159,18 +155,10 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-    const userid: any = await this.userService.newcreate(
-      inviteuser,
-      UserStatus.Pending,
-      true,
-    );
+    await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
 
     if (sender.role !== Role.ApiUser) {
-      await this.userService.sentinvitiontoUser(
-        inviteuser,
-        lowerCaseEmail,
-        saveinviteuser.id,
-      );
+      await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail);
     }
   }
 
@@ -292,7 +280,7 @@ export class InvitationService {
     };
   }
 
-  public ensureIsNotMember(email: string, organization: Organization) {
+  public ensureIsNotMember(email: string, organization: Organization): void {
     this.logger.verbose(`With in ensureIsNotMember`);
     const lowerCaseEmail = email.toLowerCase();
 
@@ -324,7 +312,7 @@ export class InvitationService {
     }
   }
 
-  async remove(email, orgId): Promise<void> {
+  async remove(email: string, orgId: number): Promise<void> {
     const lowerCaseEmail = email.toLowerCase();
     const orginvitee = await this.invitationRepository.findOne({
       where: {
@@ -338,7 +326,7 @@ export class InvitationService {
       await this.invitationRepository.delete(orginvitee.id);
     }
   }
-  async getinvite_info_byEmail(user: LoggedInUser) {
+  async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
     const orginvitee = await this.invitationRepository.findOne({
       where: {

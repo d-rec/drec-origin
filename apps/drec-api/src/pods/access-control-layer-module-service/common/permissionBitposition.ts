@@ -74,7 +74,9 @@ export class DecimalPermissionValue {
   binaryFormPermission = '0000';
   decimalFormPermission = 0;
 
-  computePermissions(addedPermissionList: any) {
+  computePermissions(addedPermissionList: {
+    [key in PermissionString]: boolean;
+  }): number {
     let binaryFormPermission = '';
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       binaryFormPermission =
@@ -97,7 +99,7 @@ export class DecimalPermissionValue {
   checkModulePermissionAgainstUserPermission(
     modulePermission: number,
     userPermission: number,
-  ) {
+  ): any {
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
         (ele.andOperationNumber & modulePermission) ===

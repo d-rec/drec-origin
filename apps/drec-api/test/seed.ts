@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { UserService } from '../src/pods/user/user.service';
 import { CreateUserORGDTO } from '../src/pods/user/dto/create-user.dto';

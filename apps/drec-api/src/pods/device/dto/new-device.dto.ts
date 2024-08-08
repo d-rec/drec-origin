@@ -9,14 +9,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Installation,
-  OffTaker,
-  Sector,
-  StandardCompliance,
-  FuelCode,
-  DevicetypeCode,
-} from '../../../utils/enums';
+import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude } from 'class-transformer';
 

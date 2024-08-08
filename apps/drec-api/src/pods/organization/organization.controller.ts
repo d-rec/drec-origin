@@ -46,6 +46,7 @@ import {
   ensureOrganizationRole,
   ILoggedInUser,
   isRole,
+  IUser,
   ResponseSuccess,
 } from '../../models';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
@@ -55,6 +56,7 @@ import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
+import { Organization } from './organization.entity';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -112,7 +114,12 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) /*: Promise<OrganizationDTO[]>*/ {
+  ): Promise<{
+    organizations: Organization[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(
       filterDto,
@@ -148,7 +155,12 @@ export class OrganizationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) /*: Promise<UserDTO[]>*/ {
+  ): Promise<{
+    users: IUser[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
     this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.ApiUser) {
       return this.organizationService.findApiuserOrganizationUsers(

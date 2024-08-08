@@ -11,7 +11,7 @@ describe('EmailConfirmationService', () => {
   let service: EmailConfirmationService;
   let repository: Repository<EmailConfirmation>;
   let userService: UserService;
-  let mailService: MailService;
+  let mailService: MailService; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,10 +37,10 @@ describe('EmailConfirmationService', () => {
     }).compile();
 
     service = module.get<EmailConfirmationService>(EmailConfirmationService);
-    repository = module.get<Repository<EmailConfirmation>>(
+    repository = module.get<Repository<EmailConfirmation>>( // eslint-disable-line @typescript-eslint/no-unused-vars
       getRepositoryToken(EmailConfirmation),
     );
-    userService = module.get<UserService>(UserService);
+    userService = module.get<UserService>(UserService); // eslint-disable-line @typescript-eslint/no-unused-vars
   });
 
   it('should be defined', () => {

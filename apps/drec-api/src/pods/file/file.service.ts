@@ -14,6 +14,7 @@ import { S3 } from 'aws-sdk';
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
 import { File } from './file.entity';
+import { Buffer } from 'buffer';
 
 export type FileUpload = {
   originalname: string;
@@ -193,7 +194,7 @@ export class FileService {
   //   });
   // }
 
-  async upload(file) {
+  async upload(file: Express.Multer.File): Promise<any> {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
@@ -202,7 +203,7 @@ export class FileService {
     return result;
   }
 
-  async uploadS3(file, bucket, name) {
+  async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
@@ -225,21 +226,20 @@ export class FileService {
     });
   }
 
-  getS3() {
+  getS3(): any {
     return new S3({
       accessKeyId: process.env.accessKeyId,
       secretAccessKey: process.env.secretAccessKey,
     });
   }
 
-  public async GetuploadS3(key: string) {
+  public async GetuploadS3(key: string): Promise<any> {
     this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
 
     // const fileInfo = await this.privateFilesRepository.findOne({ id: fileId }, { relations: ['owner'] });
     if (key) {
       this.logger.debug(key);
-      let response: any;
       return new Promise((resolve, reject) => {
         s3.getObject(
           { Bucket: process.env.bucketname, Key: key },

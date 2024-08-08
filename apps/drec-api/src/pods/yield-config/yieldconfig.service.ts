@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  NotAcceptableException,
   Logger,
   ConflictException,
   UnprocessableEntityException,
@@ -9,14 +8,13 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IYieldConfig, ILoggedInUser } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
-import { defaults } from 'lodash';
 import { YieldConfigDTO, UpdateYieldValueDTO } from './dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { FindConditions, FindManyOptions, Between } from 'typeorm';
-import cleanDeep from 'clean-deep';
+import { FindConditions } from 'typeorm';
+
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
 import { YieldConfig } from './yieldconfig.entity';
 @Injectable()
@@ -34,7 +32,7 @@ export class YieldConfigService {
 
   public async create(
     data: NewYieldConfigDTO,
-    loggedUser: any,
+    loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
     await this.checkForExistingyieldvalue(data.countryCode, data.countryName);
     if (data.yieldValue === 0) {
@@ -88,7 +86,7 @@ export class YieldConfigService {
     return yieldvaluebyId;
   }
 
-  async findByCountryCode(countryCode: string) {
+  async findByCountryCode(countryCode: string): Promise<any> {
     return await this.repository.findOne({
       where: {
         countryCode: countryCode,

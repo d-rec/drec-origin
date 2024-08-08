@@ -1,18 +1,7 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IYieldConfig } from '../../../models';
-import { Role, UserStatus } from '../../../utils/enums';
-import {
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator';
-import { OrganizationDTO } from '../../organization/dto';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { YieldStatus } from '../../../utils/enums';
 export class YieldConfigDTO implements IYieldConfig {
   @ApiProperty({ type: Number })

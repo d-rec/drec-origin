@@ -1,5 +1,4 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import {
   MeasurementDTO,
@@ -10,13 +9,10 @@ import {
 import { BASE_READ_SERVICE } from '../reads/const';
 import { DeviceService } from '../device/device.service';
 import { HttpService } from '@nestjs/axios';
-import { Integrator } from '../../utils/enums';
 import { ConfigService } from '@nestjs/config';
 import FormData from 'form-data';
 import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { AxiosRequestConfig } from 'axios';
-import { DeviceDTO } from '../device/dto';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { EventBus } from '@nestjs/cqrs';
 import { BigNumber } from 'ethers';

@@ -1,7 +1,6 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
-import { UserService } from '../pods/user/user.service';
 import { AuthService } from './auth.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
 

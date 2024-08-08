@@ -1,12 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsInt,
-  IsString,
-  IsOptional,
-  Min,
-  IsBoolean,
-  IsEnum,
-} from 'class-validator';
+import { IsInt, IsString, IsOptional, Min, IsEnum } from 'class-validator';
 import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
 
 export class AddGroupDTO {

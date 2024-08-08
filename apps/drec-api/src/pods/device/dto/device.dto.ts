@@ -8,16 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Installation,
-  Integrator,
-  OffTaker,
-  Sector,
-  StandardCompliance,
-  FuelCode,
-  DevicetypeCode,
-} from '../../../utils/enums';
-import { DeviceStatus } from '@energyweb/origin-backend-core';
+import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude } from 'class-transformer';
 export class DeviceDTO implements IDevice {

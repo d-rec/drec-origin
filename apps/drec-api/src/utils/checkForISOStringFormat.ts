@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export const isValidUTCDateFormat = (dateInput: string) => {
+export const isValidUTCDateFormat = (dateInput: string): any => {
   const dateFormateToCheck = new RegExp(
     /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z/,
   );

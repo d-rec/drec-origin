@@ -130,7 +130,16 @@ export class BuyerReservationController {
       }),
     )
     filterDto: UnreservedDeviceGroupsFilterDTO,
-  ) /*: Promise<DeviceGroupDTO[]>*/ {
+  ): Promise<
+    | {
+        devicegroups: DeviceGroupDTO[];
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+    | DeviceGroupDTO[]
+  > {
     // return new Promise((resolve,reject)=>{
     //   resolve([]);
     // });
@@ -216,7 +225,16 @@ export class BuyerReservationController {
     filterDto: UnreservedDeviceGroupsFilterDTO,
 
     @Query('pagenumber') pagenumber: number | null,
-  ) /*: Promise<DeviceGroupDTO[]> */ {
+  ): Promise<
+    | {
+        devicegroups: DeviceGroupDTO[];
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+    | DeviceGroupDTO[]
+  > {
     this.logger.verbose(`With in getMyDevices`);
     switch (role) {
       case Role.DeviceOwner:
@@ -797,7 +815,15 @@ export class BuyerReservationController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ) /*: Promise<Array<DeviceCsvFileProcessingJobsEntity>>*/ {
+  ): Promise<
+    | {
+        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
     this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
     if (user.organizationId === null || user.organizationId === undefined) {
       this.logger.error(`User needs to have organization added`);
@@ -927,7 +953,6 @@ export class BuyerReservationController {
   public async getReservationcurrentinformation(
     @Param('groupUid') groupuId: string,
     @Query('pagenumber') pagenumber: number,
-    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getReservationcurrentinformation`);
     const regexExp =

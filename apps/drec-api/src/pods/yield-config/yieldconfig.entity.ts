@@ -1,11 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { IsEmail, IsEnum, IsNumber, IsString } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { YieldStatus } from '../../utils/enums';
 import { IYieldConfig } from '../../models';
-import { Organization } from '../organization/organization.entity';
 
 @Entity({ name: 'yieldconfig' })
 export class YieldConfig extends ExtendedBaseEntity implements IYieldConfig {

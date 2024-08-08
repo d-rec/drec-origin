@@ -5,12 +5,11 @@ import {
   IsNotEmpty,
   IsString,
   Matches,
-  MinLength,
   MaxLength,
   IsOptional,
   IsUUID,
 } from 'class-validator';
-import { UserRegistrationData, UserORGRegistrationData } from '../../../models';
+import { UserORGRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [

@@ -8,7 +8,8 @@ import { UserService } from '../pods/user/user.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
 import { Role } from '../utils/enums/role.enum';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
-import fs from 'fs';
+import { DeleteResult } from 'typeorm';
+import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 
 export interface IJWTPayload {
   id: number;
@@ -53,7 +54,7 @@ export class AuthService {
       accessToken: token,
     };
   }
-  async logout(payload: IJWTPayload, token: string) {
+  async logout(payload: IJWTPayload, token: string): Promise<DeleteResult> {
     return await this.userService.removeUsersession(payload.id, token);
   }
 
@@ -69,7 +70,10 @@ export class AuthService {
     return tokeninvalidate;
   }
 
-  async generateToken(user: Omit<IUser, 'password'>, fileData: string) {
+  async generateToken(
+    user: Omit<IUser, 'password'>,
+    fileData: string,
+  ): Promise<LoginReturnDataDTO> {
     //: Promise<UserLoginReturnData> {
     this.logger.verbose('With in generateToken');
     const payload: IJWTPayload = {
