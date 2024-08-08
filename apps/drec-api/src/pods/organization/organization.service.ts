@@ -537,9 +537,12 @@ export class OrganizationService {
       query.andWhere(baseQuery, { organizationName: `%${organizationName}%` });
     }
     if (organizationType) {
-      query.andWhere(`organization.organizationType != :organizationType`, {
-        organizationType: `%${organizationType}%`,
-      });
+      query.andWhere(
+        `organization.organizationType NOT LIKE :organizationType`,
+        {
+          organizationType: `%${organizationType}%`,
+        },
+      );
     }
     return query;
   }
