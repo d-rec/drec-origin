@@ -1479,7 +1479,7 @@ export class IssuerService {
     this.issueCertificate(issuance);
     return;
   }
-  @Cron('0 05 * * * ')
+  @Cron('0 10 * * * ')
   async getmissingcyclebeforelateongoing(): Promise<void> {
     this.logger.debug(
       'Called every 4pm to check for isssuance of certificates',
