@@ -1512,7 +1512,7 @@ export class IssuerService {
               );
               return;
             }
-            let end = new Date(lateongoing[0].late_start_date);
+            const end = new Date(lateongoing[0].late_start_date);
 
             // Check if lateongoing is valid and contains the necessary data
             const start = new Date(element.createdAt);
