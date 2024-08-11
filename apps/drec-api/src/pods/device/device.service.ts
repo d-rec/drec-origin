@@ -89,7 +89,7 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateongoingIssueCertificateEntity)
     private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
-  ) {}
+  ) { }
 
   public async find(
     filterDto: FilterDTO,
@@ -633,10 +633,10 @@ export class DeviceService {
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
       role === Role.DeviceOwner
         ? {
-            where: {
-              organizationId,
-            },
-          }
+          where: {
+            organizationId,
+          },
+        }
         : undefined;
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
@@ -1069,10 +1069,11 @@ export class DeviceService {
       where: {
         groupId: groupid,
         device_externalid: externalid,
+        certificate_issued:false
         //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
-        id: 'ASC',
+        late_end_date: 'ASC',
       },
     });
   }
@@ -1095,7 +1096,23 @@ export class DeviceService {
       return true;
     }
   }
+  public async findoneLateCycle(
+    groupid: number,
+    externalid: string,
 
+  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+    return await this.latedevciecertificaterepository.find({
+      where: {
+        groupId: groupid,
+        device_externalid: externalid,
+        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
+      },
+      order: {
+        id: 'ASC',
+      },
+      take: 1,
+    });
+  }
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1453,4 +1470,17 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
+  async updatelateongoing(
+    externalId: string,
+    id: number,
+    lateend_date?: string,
+  ): Promise<any> {
+    this.logger.verbose(`With in updatelateongoing`);
+    this.logger.verbose(`With in updatelateongoing`,id);
+    return await this.latedevciecertificaterepository.update(
+      { id: id, device_externalid: externalId },
+      { late_end_date: lateend_date, certificate_issued: true }
+    );
+  }
+
 }
