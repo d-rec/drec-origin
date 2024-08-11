@@ -1542,7 +1542,7 @@ export class IssuerService {
               const startdate = DateTime.fromISO(
                 currentDate.toISOString(),
               ).toUTC();
-              const enddate = nextDate < end ? nextDate : end;
+              const enddate = (nextDate < end ? nextDate : end).toISOString();
               const enddate1 = DateTime.fromISO(enddate).toUTC();
               const Islateongoingcycle =
                 await this.deviceService.finddeviceLateCycleOfdaterange(
