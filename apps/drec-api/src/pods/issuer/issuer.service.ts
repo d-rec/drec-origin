@@ -1500,7 +1500,7 @@ export class IssuerService {
               await this.groupService.getNextrequestCertificateBYgroupId(
                 group.id,
               );
-            
+
             const lateongoing = await this.deviceService.findoneLateCycle(
               group.id,
               element.externalId,
