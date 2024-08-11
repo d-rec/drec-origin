@@ -1500,7 +1500,7 @@ export class IssuerService {
               await this.groupService.getNextrequestCertificateBYgroupId(
                 group.id,
               );
-            let end;
+            
             const lateongoing = await this.deviceService.findoneLateCycle(
               group.id,
               element.externalId,
@@ -1512,13 +1512,13 @@ export class IssuerService {
               );
               return;
             }
-            end = new Date(lateongoing[0].late_start_date);
+            let end = new Date(lateongoing[0].late_start_date);
 
             // Check if lateongoing is valid and contains the necessary data
             const start = new Date(element.createdAt);
             let currentDate = new Date(start);
             while (currentDate < end) {
-              let nextDate = new Date(currentDate);
+              const nextDate = new Date(currentDate);
               switch (group.frequency) {
                 case 'hourly':
                   nextDate.setHours(nextDate.getHours() + 1);
