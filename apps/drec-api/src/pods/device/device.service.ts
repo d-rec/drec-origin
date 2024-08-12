@@ -1062,15 +1062,15 @@ export class DeviceService {
     reservation_endDate: Date,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     const reservation_end_UtcDate = new Date(reservation_endDate);
-    console.log(reservation_end_UtcDate);
     return await this.latedevciecertificaterepository.find({
       where: {
         groupId: groupid,
         device_externalid: externalid,
+        certificate_issued: false,
         //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
-        id: 'ASC',
+        late_end_date: 'ASC',
       },
     });
   }
@@ -1093,7 +1093,22 @@ export class DeviceService {
       return true;
     }
   }
-
+  public async findoneLateCycle(
+    groupid: number,
+    externalid: string,
+  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+    return await this.latedevciecertificaterepository.find({
+      where: {
+        groupId: groupid,
+        device_externalid: externalid,
+        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
+      },
+      order: {
+        id: 'ASC',
+      },
+      take: 1,
+    });
+  }
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1450,5 +1465,17 @@ export class DeviceService {
       success: true,
       message: 'device deleted Successfully',
     };
+  }
+  async updatelateongoing(
+    externalId: string,
+    id: number,
+    lateend_date?: string,
+  ): Promise<any> {
+    this.logger.verbose(`With in updatelateongoing`);
+    this.logger.verbose(`With in updatelateongoing`, id);
+    return await this.latedevciecertificaterepository.update(
+      { id: id, device_externalid: externalId },
+      { late_end_date: lateend_date, certificate_issued: true },
+    );
   }
 }
