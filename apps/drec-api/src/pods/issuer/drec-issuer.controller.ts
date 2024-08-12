@@ -127,4 +127,34 @@ export class DrecIssuerController {
       this.logger.error('caught exception in cron ongoing', e);
     }
   }
+   /**
+   *
+   * @returns
+   */
+
+   @Post('/missinglateongoing/onetimerun')
+   @ApiOkResponse({
+     description: 'Simple add For missing lateongoing',
+   })
+   async simpleGetCallForMissinglateOngoing(): Promise<any> {
+     this.logger.verbose(
+       `With in simpleGetCallForlateOngoing`,
+       `got hit from cloudwatch ongoing`,
+     );
+ 
+     return new Promise((resolve) => {
+       this.invokeIssuerCronmissinglateOngoing();
+       this.logger.log(`successfully Hitddd the late ongoing API`);
+       resolve('successfully Hitddd  and added the missed late ongoing cycle');
+     });
+   }
+ 
+   async invokeIssuerCronmissinglateOngoing(): Promise<void> {
+     this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
+     try {
+       await this.issuerService.getmissingcyclebeforelateongoing();
+     } catch (e) {
+       this.logger.error('caught exception in cron ongoing', e);
+     }
+   }
 }

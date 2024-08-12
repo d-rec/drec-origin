@@ -608,7 +608,7 @@ export class IssuerService {
                 await this.addlateongoing_devicecertificatecycle(
                   group.id,
                   device.externalId,
-                  newsatrtdate,
+                  new Date(newsatrtdate).toISOString(),
                   endDate,
                 );
               }
@@ -1073,10 +1073,10 @@ export class IssuerService {
     });
   }
 
-  @Cron('*/1 * * * *')
+  @Cron('0 */2 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
-    this.logger.debug('Called every 4hr to check for issuance of certificates');
+    this.logger.debug('Called every 2hr to check for issuance of certificates');
 
     const devicegroups = await this.groupService.getallReservationactive();
 
@@ -1140,6 +1140,7 @@ export class IssuerService {
                   const startDate = DateTime.fromISO(
                     element1.late_start_date,
                   ).toUTC();
+                  console.log(startDate,element.externalId);
                   const endDate = DateTime.fromISO(
                     element1.late_end_date,
                   ).toUTC();
@@ -1155,11 +1156,12 @@ export class IssuerService {
                     nextissuance.end_date = new Date(
                       lastread[0].timestamp,
                     ).toISOString();
+                    console.log("getCheckCertificateIssueDateLogForDevice");
                     const certifieddevices =
                       await this.deviceService.getCheckCertificateIssueDateLogForDevice(
                         element1.device_externalid,
                         new Date(startDate.toString()),
-                        new Date(lastread[0].timestamp),
+                        new Date(lastread[0].timestamp.toString()),
                       );
                     const newsatrtdate = new Date(lastread[0].timestamp);
                     newsatrtdate.setTime(newsatrtdate.getTime() + 1); // Add one millisecond
@@ -1173,9 +1175,6 @@ export class IssuerService {
                         element1.id,
                         nextissuance.end_date,
                       );
-
-                      const newsatrtdate = new Date(lastread[0].timestamp);
-                      newsatrtdate.setTime(newsatrtdate.getTime() + 1); // Add one millisecond
                       const Islateongoingcycle =
                         await this.deviceService.finddeviceLateCycleOfdaterange(
                           group.id,
@@ -1479,7 +1478,7 @@ export class IssuerService {
     this.issueCertificate(issuance);
     return;
   }
-  @Cron('0 10 * * * ')
+ // @Cron('*/2 * * * * ')
   async getmissingcyclebeforelateongoing(): Promise<void> {
     this.logger.debug(
       'Called every 4pm to check for isssuance of certificates',

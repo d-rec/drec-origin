@@ -1064,7 +1064,6 @@ export class DeviceService {
     reservation_endDate: Date,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     const reservation_end_UtcDate = new Date(reservation_endDate);
-    console.log(reservation_end_UtcDate);
     return await this.latedevciecertificaterepository.find({
       where: {
         groupId: groupid,
