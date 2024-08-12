@@ -1140,7 +1140,7 @@ export class IssuerService {
                   const startDate = DateTime.fromISO(
                     element1.late_start_date,
                   ).toUTC();
-                  console.log(startDate,element.externalId);
+                  console.log(startDate, element.externalId);
                   const endDate = DateTime.fromISO(
                     element1.late_end_date,
                   ).toUTC();
@@ -1156,7 +1156,7 @@ export class IssuerService {
                     nextissuance.end_date = new Date(
                       lastread[0].timestamp,
                     ).toISOString();
-                    console.log("getCheckCertificateIssueDateLogForDevice");
+                    console.log('getCheckCertificateIssueDateLogForDevice');
                     const certifieddevices =
                       await this.deviceService.getCheckCertificateIssueDateLogForDevice(
                         element1.device_externalid,
@@ -1478,7 +1478,7 @@ export class IssuerService {
     this.issueCertificate(issuance);
     return;
   }
- // @Cron('*/2 * * * * ')
+  // @Cron('*/2 * * * * ')
   async getmissingcyclebeforelateongoing(): Promise<void> {
     this.logger.debug(
       'Called every 4pm to check for isssuance of certificates',
