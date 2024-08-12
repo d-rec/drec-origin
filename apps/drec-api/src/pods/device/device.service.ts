@@ -1028,8 +1028,6 @@ export class DeviceService {
     const currentPage = pagenumber;
 
     const newUnreservedDevices = devices.map((device: Device) => {
-      device.externalId = device.developerExternalId;
-      delete device['developerExternalId'];
       delete device['organization'];
       return device;
     });
