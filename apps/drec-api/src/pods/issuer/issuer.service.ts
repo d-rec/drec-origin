@@ -1123,7 +1123,6 @@ export class IssuerService {
               const lateongoing = await this.deviceService.findAllLateCycle(
                 group.id,
                 element.externalId,
-                group.reservationEndDate,
               );
 
               if (lateongoing) {
@@ -1493,10 +1492,9 @@ export class IssuerService {
         const Devicegroup = await this.deviceService.findForGroup(group.id);
         await Promise.all(
           Devicegroup.map(async (element) => {
-            const nextissuance =
-              await this.groupService.getNextrequestCertificateBYgroupId(
-                group.id,
-              );
+            await this.groupService.getNextrequestCertificateBYgroupId(
+              group.id,
+            );
 
             const lateongoing = await this.deviceService.findoneLateCycle(
               group.id,

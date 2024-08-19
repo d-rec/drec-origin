@@ -5,7 +5,6 @@ import {
   Logger,
   ConflictException,
   HttpException,
-  HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -1059,15 +1058,12 @@ export class DeviceService {
   public async findAllLateCycle(
     groupid: number,
     externalid: string,
-    reservation_endDate: Date,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
-    const reservation_end_UtcDate = new Date(reservation_endDate);
     return await this.latedevciecertificaterepository.find({
       where: {
         groupId: groupid,
         device_externalid: externalid,
         certificate_issued: false,
-        //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
         late_end_date: 'ASC',

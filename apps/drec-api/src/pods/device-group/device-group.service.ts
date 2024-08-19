@@ -2140,7 +2140,7 @@ export class DeviceGroupService {
     return groupId;
   }
   async getNextrequestCertificateBYgroupId(
-    groupId,
+    groupId: number,
   ): Promise<DeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
     const nextissuance =
