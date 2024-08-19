@@ -1495,7 +1495,6 @@ export class IssuerService {
         const Devicegroup = await this.deviceService.findForGroup(group.id);
         await Promise.all(
           Devicegroup.map(async (element) => {
-            const nextissuance =
               await this.groupService.getNextrequestCertificateBYgroupId(
                 group.id,
               );

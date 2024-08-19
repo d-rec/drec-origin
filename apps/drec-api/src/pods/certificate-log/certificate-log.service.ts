@@ -116,7 +116,7 @@ export class CertificateLogService {
       });
     const totalPages = Math.ceil(total / itemsPerPage);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no--vars
     const request: IGetAllCertificatesOptions = {
       deviceId: `${parseInt(groupid)}`,
     };
@@ -269,7 +269,7 @@ export class CertificateLogService {
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              // eslint-disable-next-line @typescript-eslint/no--vars
               const data = JSON.parse(certifiedlist.metadata);
             }
           } catch (e) {
