@@ -1140,7 +1140,6 @@ export class IssuerService {
                   const startDate = DateTime.fromISO(
                     element1.late_start_date,
                   ).toUTC();
-                  console.log(startDate, element.externalId);
                   const endDate = DateTime.fromISO(
                     element1.late_end_date,
                   ).toUTC();
@@ -1156,7 +1155,6 @@ export class IssuerService {
                     nextissuance.end_date = new Date(
                       lastread[0].timestamp,
                     ).toISOString();
-                    console.log('getCheckCertificateIssueDateLogForDevice');
                     const certifieddevices =
                       await this.deviceService.getCheckCertificateIssueDateLogForDevice(
                         element1.device_externalid,
