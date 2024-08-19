@@ -269,7 +269,7 @@ export class CertificateLogService {
           certificatesInReservationWithLog[index].perDeviceCertificateLog = [];
           try {
             if (typeof certifiedlist.metadata === 'string') {
-              // eslint-disable-next-line @typescript-eslint/no--vars
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const data = JSON.parse(certifiedlist.metadata);
             }
           } catch (e) {
