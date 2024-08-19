@@ -1495,9 +1495,9 @@ export class IssuerService {
         const Devicegroup = await this.deviceService.findForGroup(group.id);
         await Promise.all(
           Devicegroup.map(async (element) => {
-              await this.groupService.getNextrequestCertificateBYgroupId(
-                group.id,
-              );
+            await this.groupService.getNextrequestCertificateBYgroupId(
+              group.id,
+            );
 
             const lateongoing = await this.deviceService.findoneLateCycle(
               group.id,
