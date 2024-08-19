@@ -1058,7 +1058,6 @@ export class DeviceService {
   public async findAllLateCycle(
     groupid: number,
     externalid: string,
-    reservation_endDate: Date,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     return await this.latedevciecertificaterepository.find({
       where: {

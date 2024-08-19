@@ -1123,7 +1123,6 @@ export class IssuerService {
               const lateongoing = await this.deviceService.findAllLateCycle(
                 group.id,
                 element.externalId,
-                group.reservationEndDate,
               );
 
               if (lateongoing) {
