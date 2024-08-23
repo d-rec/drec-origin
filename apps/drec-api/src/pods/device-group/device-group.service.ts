@@ -2139,7 +2139,16 @@ export class DeviceGroupService {
     });
     return groupId;
   }
-
+  async getNextrequestCertificateBYgroupId(
+    groupId: number,
+  ): Promise<DeviceGroupNextIssueCertificate> {
+    this.logger.verbose(`With in getAllNextrequestCertificate`);
+    const nextissuance =
+      await this.repositorynextDeviceGroupcertificate.findOne({
+        where: { groupId: groupId },
+      });
+    return nextissuance;
+  }
   async updatecertificateissuedate(
     id: number,
     startdate: string,
