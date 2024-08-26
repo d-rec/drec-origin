@@ -1217,7 +1217,7 @@ export class IssuerService {
                         start: startDate.toString(),
                         end: endDate.toString(),
                       };
-                      let allReadsForDeviceBetweenTimeRange: Array<{
+                      const allReadsForDeviceBetweenTimeRange: Array<{
                         timestamp: Date;
                         value: number;
                       }> =
