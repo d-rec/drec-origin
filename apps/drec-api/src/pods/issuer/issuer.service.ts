@@ -55,7 +55,7 @@ export class IssuerService {
     private baseReadsService: BaseReadsService,
     private httpService: HttpService,
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
-  ) { }
+  ) {}
 
   hitTheCronFromIssuerAPIOngoing(): void {
     this.logger.verbose(`With in hitTheCronFromIssuerAPIOngoing`);
@@ -189,9 +189,9 @@ export class IssuerService {
                   //returns first find which is minimum and between next frequency
                   if (
                     new Date(ele.createdAt).getTime() >
-                    new Date(start_date).getTime() &&
+                      new Date(start_date).getTime() &&
                     new Date(ele.createdAt).getTime() <
-                    new Date(newEndDate).getTime()
+                      new Date(newEndDate).getTime()
                   ) {
                     return true;
                   }
@@ -224,7 +224,7 @@ export class IssuerService {
               if (
                 device.meterReadtype === null &&
                 new Date(device.createdAt).getTime() <=
-                new Date(grouprequest.start_date).getTime()
+                  new Date(grouprequest.start_date).getTime()
               ) {
                 await this.addlateongoing_devicecertificatecycle(
                   group.id,
@@ -375,7 +375,7 @@ export class IssuerService {
             if (group.reservationExpiryDate !== null) {
               if (
                 group.reservationExpiryDate.getTime() <=
-                group.reservationEndDate.getTime() ||
+                  group.reservationEndDate.getTime() ||
                 group.reservationExpiryDate.getTime() <= new Date().getTime()
               ) {
                 await this.deviceService.removeFromGroup(device.id, group.id);
@@ -396,7 +396,7 @@ export class IssuerService {
           if (group.reservationExpiryDate !== null) {
             if (
               group.reservationExpiryDate.getTime() <=
-              group.reservationEndDate.getTime() ||
+                group.reservationEndDate.getTime() ||
               group.reservationExpiryDate.getTime() <= new Date().getTime()
             ) {
               await this.deviceService.removeFromGroup(device.id, group.id);
@@ -423,7 +423,7 @@ export class IssuerService {
             if (group.reservationExpiryDate !== null) {
               if (
                 group.reservationExpiryDate.getTime() <=
-                group.reservationEndDate.getTime() ||
+                  group.reservationEndDate.getTime() ||
                 group.reservationExpiryDate.getTime() <= new Date().getTime()
               ) {
                 await this.groupService.deactiveReaservation(group);
@@ -542,13 +542,13 @@ export class IssuerService {
                 certifieddevices.forEach((certifieddevicesEle) => {
                   if (
                     ele.timestamp.getTime() >=
-                    new Date(
-                      certifieddevicesEle.certificate_issuance_startdate,
-                    ).getTime() &&
+                      new Date(
+                        certifieddevicesEle.certificate_issuance_startdate,
+                      ).getTime() &&
                     ele.timestamp.getTime() <=
-                    new Date(
-                      certifieddevicesEle.certificate_issuance_enddate,
-                    ).getTime()
+                      new Date(
+                        certifieddevicesEle.certificate_issuance_enddate,
+                      ).getTime()
                   ) {
                     readingInBetween = true;
                   }
@@ -586,7 +586,6 @@ export class IssuerService {
             }
           }
           if (devciereadvalue !== 0 && devciereadvalue < 1000) {
-
             const lastread = await this.readservice.latestread(
               device.externalId,
               device.createdAt,
@@ -661,8 +660,7 @@ export class IssuerService {
     const certificateTransactionUID = uuid();
     await Promise.all(
       group.devices.map(async (device: IDevice, index) => {
-        console.log(
-          'came inside previous readings check');
+        console.log('came inside previous readings check');
         let previousReading: Array<{ timestamp: Date; value: number }> = [];
         if (allDevicesCompleteReadsBetweenTimeRange[index].length > 0) {
           const endTimestampToCheck = new Date(
@@ -723,7 +721,9 @@ export class IssuerService {
         (devicecertificatelogDto.externalId = device.externalId),
           (devicecertificatelogDto.certificate_issuance_startdate =
             previousReading.length > 0
-              ? new Date(new Date(previousReading[0].timestamp).getTime() + 1000)
+              ? new Date(
+                  new Date(previousReading[0].timestamp).getTime() + 1000,
+                )
               : new Date(startDate.toString())),
           (devicecertificatelogDto.certificate_issuance_enddate =
             allDevicesCompleteReadsBetweenTimeRange[index][
@@ -746,13 +746,17 @@ export class IssuerService {
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
     const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     if (allPreviousReadingsOfDevices.length == 1) {
-      minimumStartDate = new Date(new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000)
+      minimumStartDate = new Date(
+        new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000,
+      );
     }
     if (allPreviousReadingsOfDevices.length > 1) {
       allPreviousReadingsOfDevices.sort(function (a, b) {
         return Number(a.timestamp) - Number(b.timestamp);
       });
-      minimumStartDate = new Date(new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000)
+      minimumStartDate = new Date(
+        new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000,
+      );
     }
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
     const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -805,8 +809,8 @@ export class IssuerService {
     if (
       group.authorityToExceed === false &&
       group.targetVolumeCertificateGenerationRequestedInMegaWattHour +
-      totalReadValueMegaWattHour >=
-      group.targetVolumeInMegaWattHour
+        totalReadValueMegaWattHour >=
+        group.targetVolumeInMegaWattHour
     ) {
       this.groupService.endReservation(group.id, group, grouprequest);
     }
@@ -929,7 +933,7 @@ export class IssuerService {
     this.logger.verbose(`With in handleLeftoverReadsByCountryCode`);
     const totalReadValueKw = group.leftoverReadsByCountryCode[countryCodeKey]
       ? totalReadValueW / 10 ** 3 +
-      group.leftoverReadsByCountryCode[countryCodeKey]
+        group.leftoverReadsByCountryCode[countryCodeKey]
       : totalReadValueW / 10 ** 3;
     const { integralVal, decimalVal } =
       this.separateIntegerAndDecimalByCountryCode(totalReadValueKw);
@@ -1164,7 +1168,7 @@ export class IssuerService {
                     if (
                       certifieddevices.length === 0 &&
                       new Date(newsatrtdate).getTime() !==
-                      new Date(element1.late_start_date).getTime()
+                        new Date(element1.late_start_date).getTime()
                     ) {
                       await this.deviceService.updatelateongoing(
                         element.externalId,
@@ -1216,10 +1220,11 @@ export class IssuerService {
                       let allReadsForDeviceBetweenTimeRange: Array<{
                         timestamp: Date;
                         value: number;
-                      }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(
-                        newGroupwithsingledevice.devices[0].externalId,
-                        readsFilter,
-                      );
+                      }> =
+                        await this.getDeviceFullReadsWithTimestampAndValueAsArray(
+                          newGroupwithsingledevice.devices[0].externalId,
+                          readsFilter,
+                        );
                       if (allReadsForDeviceBetweenTimeRange.length > 0) {
                         await this.deviceService.updatelateongoing(
                           element.externalId,
@@ -1318,13 +1323,13 @@ export class IssuerService {
             certifieddevices.forEach((certifieddevicesEle) => {
               if (
                 ele.timestamp.getTime() >=
-                new Date(
-                  certifieddevicesEle.certificate_issuance_startdate,
-                ).getTime() &&
+                  new Date(
+                    certifieddevicesEle.certificate_issuance_startdate,
+                  ).getTime() &&
                 ele.timestamp.getTime() <=
-                new Date(
-                  certifieddevicesEle.certificate_issuance_enddate,
-                ).getTime()
+                  new Date(
+                    certifieddevicesEle.certificate_issuance_enddate,
+                  ).getTime()
               ) {
                 readingInBetween = true;
               }
@@ -1462,8 +1467,8 @@ export class IssuerService {
     if (
       group.authorityToExceed === false &&
       group.targetVolumeCertificateGenerationRequestedInMegaWattHour +
-      totalReadValueMegaWattHour >=
-      group.targetVolumeInMegaWattHour
+        totalReadValueMegaWattHour >=
+        group.targetVolumeInMegaWattHour
     ) {
       this.groupService.endReservation(group.id, group, grouprequest);
     }
