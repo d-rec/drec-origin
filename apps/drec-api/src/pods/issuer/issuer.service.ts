@@ -585,7 +585,7 @@ export class IssuerService {
               );
             }
           }
-          if (devciereadvalue !== 0 && devciereadvalue < 1000) {
+          if (devciereadvalue !== 0) {
             const lastread = await this.readservice.latestread(
               device.externalId,
               device.createdAt,
