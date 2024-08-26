@@ -1076,7 +1076,7 @@ export class IssuerService {
     });
   }
 
-  @Cron('*/1 * * * *')
+  @Cron('* */2 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 2hr to check for issuance of certificates');
