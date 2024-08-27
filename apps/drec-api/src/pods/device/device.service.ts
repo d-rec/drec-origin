@@ -388,7 +388,6 @@ export class DeviceService {
     );
 
     const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
-    //console.log(deviceGroupedByCountry);
     return deviceGroupedByCountry ?? null;
   }
 

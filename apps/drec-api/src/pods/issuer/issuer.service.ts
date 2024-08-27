@@ -660,10 +660,7 @@ export class IssuerService {
     const certificateTransactionUID = uuid();
     await Promise.all(
       group.devices.map(async (device: IDevice, index) => {
-        console.log(
-          'came inside previous readings check',
-          allDevicesCompleteReadsBetweenTimeRange[index],
-        );
+        console.log('came inside previous readings check');
         let previousReading: Array<{ timestamp: Date; value: number }> = [];
         if (allDevicesCompleteReadsBetweenTimeRange[index].length > 0) {
           const endTimestampToCheck = new Date(
@@ -724,7 +721,9 @@ export class IssuerService {
         (devicecertificatelogDto.externalId = device.externalId),
           (devicecertificatelogDto.certificate_issuance_startdate =
             previousReading.length > 0
-              ? previousReading[0].timestamp
+              ? new Date(
+                  new Date(previousReading[0].timestamp).getTime() + 1000,
+                )
               : new Date(startDate.toString())),
           (devicecertificatelogDto.certificate_issuance_enddate =
             allDevicesCompleteReadsBetweenTimeRange[index][
@@ -747,13 +746,17 @@ export class IssuerService {
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
     const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     if (allPreviousReadingsOfDevices.length == 1) {
-      minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
+      minimumStartDate = new Date(
+        new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000,
+      );
     }
     if (allPreviousReadingsOfDevices.length > 1) {
       allPreviousReadingsOfDevices.sort(function (a, b) {
         return Number(a.timestamp) - Number(b.timestamp);
       });
-      minimumStartDate = allPreviousReadingsOfDevices[0].timestamp;
+      minimumStartDate = new Date(
+        new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000,
+      );
     }
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
     const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -1073,7 +1076,7 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 */2 * * *')
+  @Cron('* */2 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 2hr to check for issuance of certificates');
@@ -1208,12 +1211,27 @@ export class IssuerService {
                       );
 
                     if (certifieddevices.length === 0) {
-                      await this.deviceService.updatelateongoing(
-                        element.externalId,
-                        element1.id,
-                        element1.late_end_date,
-                      );
-
+                      const readsFilter: FilterDTO = {
+                        offset: 0,
+                        limit: 5000,
+                        start: startDate.toString(),
+                        end: endDate.toString(),
+                      };
+                      const allReadsForDeviceBetweenTimeRange: Array<{
+                        timestamp: Date;
+                        value: number;
+                      }> =
+                        await this.getDeviceFullReadsWithTimestampAndValueAsArray(
+                          newGroupwithsingledevice.devices[0].externalId,
+                          readsFilter,
+                        );
+                      if (allReadsForDeviceBetweenTimeRange.length > 0) {
+                        await this.deviceService.updatelateongoing(
+                          element.externalId,
+                          element1.id,
+                          element1.late_end_date,
+                        );
+                      }
                       await this.LateOngoingissueCertificateForGroup(
                         newGroupwithsingledevice,
                         nextissuance,
@@ -1393,7 +1411,7 @@ export class IssuerService {
     (devicecertificatelogDto.externalId = group.devices[0].externalId),
       (devicecertificatelogDto.certificate_issuance_startdate =
         previousReading.length > 0
-          ? previousReading[0].timestamp
+          ? new Date(new Date(previousReading[0].timestamp).getTime() + 1000)
           : new Date(startDate.toString())),
       (devicecertificatelogDto.certificate_issuance_enddate =
         allReadsForDeviceBetweenTimeRange[
@@ -1409,12 +1427,11 @@ export class IssuerService {
     await this.deviceService.AddCertificateIssueDateLogForDevice(
       devicecertificatelogDto,
     );
-
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
     const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     minimumStartDate =
       previousReading.length > 0
-        ? previousReading[0].timestamp
+        ? new Date(previousReading[0].timestamp.getTime() + 1000)
         : new Date(startDate.toString());
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
     const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
