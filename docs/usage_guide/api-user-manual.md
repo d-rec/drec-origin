@@ -105,7 +105,7 @@ from ui apiuser can create organization for developer and buyer from add organiz
 
 and submit form and redirect to list view.
 
-After adding user apiuser will get all user of own org and can view in “all users” page.
+After adding user apiuser will get all user of own organization and can view in “all users” page.
 
 ![All Users Form](./img/apiuser-manual/eb1e687d-176f-4c2d-80df-a1fac6d944fc.png)
 
@@ -113,23 +113,23 @@ Api users can see all added organization list from “All organization” menu i
 
 ![All Organization](./img/apiuser-manual/a4cd388b-b86b-42fe-93da-4ba933603b32.png)
 
-They can also see org by using filter by organization name.
+They can also see organization by using filter by organization name.
 
 #### Device
 
 ##### Device working process
 
-Apiuser can devices, they first need to select organization name, then after fill all required device related information.
+Apiuser can create the devices. There is an organization name dropdown to filter the devices in which will get the listings of developer's organization name who is registered under the logged in apiuser. They first need to select the organization name, then after fill all required device related information.
 
 ![Add Device Form](./img/apiuser-manual/88774ce7-a63e-4413-a445-15442470ea56.png)
 
 after submitting device form, they will be redirect Device list view.
 
-To see all Device of all org which belongs to apiuser.
+To see all Device of all organization which belongs to apiuser. When we want to filter devices we will have the organization name dropdown to filter the devices in which will get the listings of developer's organization name who is registered under the logged in apiuser.
 
 ![Device Listing](./img/apiuser-manual/6eedb79d-11ab-416f-9719-084c8f946f6d.png)
 
-Apiuser can also add devices in bulk form using bulk upload.
+Apiuser can also add devices in bulk form using bulk upload. Apiuser can create the devices. There is an organization name dropdown to filter the devices in which will get the listings of developer's organization name who is registered under the logged in apiuser. They first need to select the organization name of an developer who is registered under this apiuser then we can upload the file.
 
 ![Device Bulk Upload Form](./img/apiuser-manual/4f2f8862-e2ec-41c9-bd5f-002ce57ebfed.png)
 
@@ -141,7 +141,7 @@ And see the job of bulk upload process
 
 ##### Apiuser Meter read working process
 
-To add meter read, they First need to select organization
+To add meter read, they First need to select organization of developer for whose devices we need to add reads.
 
 ![Add Reads Form1](./img/apiuser-manual/e7195c7d-b401-47af-a240-0a9e610b0c13.png)
 
@@ -149,7 +149,7 @@ After selecting organization, the UI will show all required field for read
 
 ![Add Reads Form2](./img/apiuser-manual/e7467689-f299-4b90-a267-d48ad4b6b1a8.png)
 
-Apiuser also gets meter read list of all org devices which belong their platform.
+Apiuser also gets meter read list of all organization devices which belong their platform. When we want to filter meter reads we will have the organization name dropdown which will get the listings of developer's organization name who is registered under the logged in apiuser.
 
 ![Listing of Meter Read](./img/apiuser-manual/d3e18c24-c673-498c-8182-815db95d12bd.png)
 
@@ -169,7 +169,7 @@ but status will be ’inactive” which can be made active by super admin.
 
 Apiuser can make reservation from “add reservation” menu,
 
-To make a reservation apiuser needs to first select an organization and then after he fills in all required fields in the form and can select devices from ungrouped devices list which are not a part of any other reservation.
+To make a reservation apiuser needs to first select an organization name of buyer's which is registered under the same logged in apiuser and then after he fills in all required fields in the form and can select devices from ungrouped devices list which are not a part of any other reservation.
 
 ![Add Reservation Form](./img/apiuser-manual/ba1b13d7-5fc0-4a1e-a254-3a62a89b5c1f.png)
 
@@ -177,7 +177,7 @@ After clicking submit button, an popup will appear to choose “yes” or “no�
 
 ![Confirm form at Add reservation](./img/apiuser-manual/a7a17b21-130f-47c6-8c65-6edee3f1988a.png)
 
-then after they will be redirected to “ my reservation list”.
+then after they will be redirected to “ my reservation list”. When we want to filter devices we will have the organization name dropdown to filter the devices in which will get the listings of buyer's organization name who is registered under the logged in apiuser.
 
 ![My Reservation listing](./img/apiuser-manual/b00cfa11-16a9-4bbe-b640-b60696e4d9be.png)
 
