@@ -54,7 +54,7 @@ export class CertificateLogService {
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
-  ) { }
+  ) {}
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
@@ -625,8 +625,8 @@ export class CertificateLogService {
     pageNumber: number,
   ): Promise<{
     certificatelog:
-    | CertificateNewWithPerDeviceLog[]
-    | CertificateWithPerdevicelog[];
+      | CertificateNewWithPerDeviceLog[]
+      | CertificateWithPerdevicelog[];
     currentpage?: number;
     totalPages: number;
     totalCount: number;
@@ -669,7 +669,7 @@ export class CertificateLogService {
         user.role,
       );
     }
-    
+
     return {
       certificatelog: [],
       currentpage: 0,
@@ -681,11 +681,11 @@ export class CertificateLogService {
   async getDeveloperfindreservationcertified(
     certifiedreservation:
       | {
-        deviceGroups: any;
-        pageNumber: number;
-        totalPages: number;
-        totalCount: any;
-      }
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -830,11 +830,11 @@ export class CertificateLogService {
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
     getreservationinfo:
       | {
-        deviceGroups: any;
-        pageNumber: number;
-        totalPages: number;
-        totalCount: any;
-      }
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -1062,10 +1062,10 @@ export class CertificateLogService {
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
-          name +
-          ' ' +
-          new Date().toLocaleDateString() +
-          '.csv',
+            name +
+            ' ' +
+            new Date().toLocaleDateString() +
+            '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
         const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;
