@@ -2585,6 +2585,13 @@ export class DeviceGroupService {
                   certificateEndDate1: endTimestamp,
                 },
               );
+              qb.orWhere(
+                'crm.generationEndTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
+                {
+                  certificateStartDate1: startTimestamp,
+                  certificateEndDate1: endTimestamp,
+                },
+              );
             }
             if (filterDto.SDGBenefits) {
               const newsdg = filterDto.SDGBenefits.toString();
@@ -2636,11 +2643,6 @@ export class DeviceGroupService {
         );
     });
     const totalCountQuery = await queryBuilder.getRawMany();
-    const groupedDatasql = await queryBuilder
-      .offset(skip)
-      .limit(pageSize)
-      .getSql();
-    this.logger.debug(groupedDatasql);
     const groupedData = await queryBuilder
       .offset(skip)
       .limit(pageSize)
@@ -2655,8 +2657,10 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          const existing1 = acc.find((item) => item.id === curr.id);
-          if (existing1) {
+          const existingDevice = existing.developerdeviceIds.find(
+            (item) => item === curr.id,
+          );
+          if (!existingDevice) {
             existing.developerdeviceIds.push(curr.id);
           }
           existing.internalCertificateId.push(curr.internalCertificateId);
@@ -2729,7 +2733,7 @@ export class DeviceGroupService {
         'CAST(issuer.deviceId AS INTEGER) = dg.id',
       )
       .select(
-        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id',
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
       )
       .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
@@ -2920,27 +2924,48 @@ export class DeviceGroupService {
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    const deviceGroups = groupedData.reduce((acc, curr) => {
-      const existing = acc.find((item) => item.dg_id === curr.dg_id);
-      if (existing) {
-        const existing1 = acc.find((item) => item.id === curr.id);
-        if (existing1) {
-          existing.developerdeviceIds.push(curr.id);
+    let deviceGroups: any;
+    if (role === 'OrganizationAdmin') {
+      deviceGroups = groupedData.reduce((acc, curr) => {
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
+
+        if (existing) {
+          const existingDevice = existing.developerdeviceIds.find(
+            (item) => item === curr.id,
+          );
+          if (!existingDevice) {
+            existing.developerdeviceIds.push(curr.id);
+          }
+          existing.internalCertificateId.push(curr.issuerid);
+        } else {
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            developerdeviceIds: [curr.id],
+            internalCertificateId: [curr.issuerid],
+          });
         }
-        existing.internalCertificateId.push(curr.id);
-      } else {
-        acc.push({
-          dg_id: curr.devicegroupid,
-          name: curr.name,
-          deviceIdsInt: curr.deviceIdsInt,
+        return acc;
+      }, []);
+    }
+    if (role === 'Buyer' || role === Role.ApiUser) {
+      deviceGroups = groupedData.reduce((acc, curr) => {
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
-          developerdeviceIds: [curr.id],
-          internalCertificateId: [curr.id],
-        });
-      }
-      return acc;
-    }, []);
-
+        if (existing) {
+          existing.internalCertificateId.push(curr.issuerid);
+        } else {
+          acc.push({
+            dg_id: curr.devicegroupid,
+            name: curr.name,
+            deviceIdsInt: curr.deviceIdsInt,
+            internalCertificateId: [curr.issuerid],
+          });
+        }
+        return acc;
+      }, []);
+    }
     const response = {
       deviceGroups,
       pageNumber,
