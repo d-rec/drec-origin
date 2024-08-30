@@ -694,7 +694,7 @@ export class CertificateLogService {
       oldcertificatelog: false,
     };
   }
-  isTrue(value: any): boolean {
+  isTrue(value: string | boolean): boolean {
     return value === 'true' || value === true;
   }
 
