@@ -2586,10 +2586,10 @@ export class DeviceGroupService {
                 },
               );
               qb.orWhere(
-                'crm.generationEndTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
+                'crm.generationEndTime BETWEEN :certificateStartDate2  AND :certificateEndDate2',
                 {
-                  certificateStartDate1: startTimestamp,
-                  certificateEndDate1: endTimestamp,
+                  certificateStartDate2: startTimestamp,
+                  certificateEndDate2: endTimestamp,
                 },
               );
             }
@@ -2858,6 +2858,13 @@ export class DeviceGroupService {
                 {
                   certificateStartDate1: startTimestamp,
                   certificateEndDate1: endTimestamp,
+                },
+              );
+              qb.orWhere(
+                'issuer.generationEndTime BETWEEN :certificateStartDate2  AND :certificateEndDate2',
+                {
+                  certificateStartDate2: startTimestamp,
+                  certificateEndDate2: endTimestamp,
                 },
               );
             }
