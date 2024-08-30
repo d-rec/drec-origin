@@ -630,6 +630,7 @@ export class CertificateLogService {
     currentpage?: number;
     totalPages: number;
     totalCount: number;
+    oldcertificatelog: boolean;
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const getnewreservationinfo =
@@ -656,18 +657,33 @@ export class CertificateLogService {
       'getoldreservationinfo',
       getoldreservationinfo.deviceGroups.length,
     );
-    if (getnewreservationinfo.deviceGroups.length > 0) {
+    const oldcertificatelog = this.isTrue(filterDto.oldcertificatelog);
+    if (!oldcertificatelog && getnewreservationinfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 580');
-      return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-        getnewreservationinfo,
-        user.role,
-      );
+      const newlog =
+        await this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
+          getnewreservationinfo,
+          user.role,
+        );
+
+      return {
+        ...newlog,
+        oldcertificatelog:
+          getoldreservationinfo.deviceGroups.length > 0 ? true : false,
+      };
     }
-    if (getoldreservationinfo.deviceGroups.length > 0) {
-      return this.getDeveloperfindreservationcertified(
+
+    if (oldcertificatelog && getoldreservationinfo.deviceGroups.length > 0) {
+      this.logger.debug('Line No: 581');
+      const oldlog = await this.getDeveloperfindreservationcertified(
         getoldreservationinfo,
         user.role,
       );
+      return {
+        ...oldlog,
+        oldcertificatelog:
+          getoldreservationinfo.deviceGroups.length > 0 ? true : false,
+      };
     }
 
     return {
@@ -675,7 +691,11 @@ export class CertificateLogService {
       currentpage: 0,
       totalPages: 0,
       totalCount: 0,
+      oldcertificatelog: false,
     };
+  }
+  isTrue(value: string | boolean): boolean {
+    return value === 'true' || value === true;
   }
 
   async getDeveloperfindreservationcertified(
