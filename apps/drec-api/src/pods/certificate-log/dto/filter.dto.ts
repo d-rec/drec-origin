@@ -54,6 +54,7 @@ export class FilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ description: 'Certificate End date filter' })
   end_date: string;
+
   @IsOptional()
   @ApiPropertyOptional({ type: String, description: 'Country' })
   country: string;
@@ -65,6 +66,12 @@ export class FilterDTO {
     isArray: true,
   })
   SDGBenefits?: string[] | undefined;
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: Boolean,
+    description: 'old certificate',
+  })
+  oldcertificatelog?: boolean;
 }
 
 export class GroupIDBasedFilteringDTO {

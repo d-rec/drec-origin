@@ -630,6 +630,7 @@ export class CertificateLogService {
     currentpage?: number;
     totalPages: number;
     totalCount: number;
+    oldcertificatelog: boolean;
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const getnewreservationinfo =
@@ -656,25 +657,45 @@ export class CertificateLogService {
       'getoldreservationinfo',
       getoldreservationinfo.deviceGroups.length,
     );
-    if (getoldreservationinfo.deviceGroups.length > 0) {
-      return this.getDeveloperfindreservationcertified(
+    const oldcertificatelog = this.isTrue(filterDto.oldcertificatelog);
+    if (!oldcertificatelog && getnewreservationinfo.deviceGroups.length > 0) {
+      this.logger.debug('Line No: 580');
+      const newlog =
+        await this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
+          getnewreservationinfo,
+          user.role,
+        );
+
+      return {
+        ...newlog,
+        oldcertificatelog:
+          getoldreservationinfo.deviceGroups.length > 0 ? true : false,
+      };
+    }
+
+    if (oldcertificatelog && getoldreservationinfo.deviceGroups.length > 0) {
+      this.logger.debug('Line No: 581');
+      const oldlog = await this.getDeveloperfindreservationcertified(
         getoldreservationinfo,
         user.role,
       );
+      return {
+        ...oldlog,
+        oldcertificatelog:
+          getoldreservationinfo.deviceGroups.length > 0 ? true : false,
+      };
     }
-    if (getnewreservationinfo.deviceGroups.length > 0) {
-      this.logger.debug('Line No: 580');
-      return this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-        getnewreservationinfo,
-        user.role,
-      );
-    }
+
     return {
       certificatelog: [],
       currentpage: 0,
       totalPages: 0,
       totalCount: 0,
+      oldcertificatelog: false,
     };
+  }
+  isTrue(value: string | boolean): boolean {
+    return value === 'true' || value === true;
   }
 
   async getDeveloperfindreservationcertified(
@@ -695,7 +716,7 @@ export class CertificateLogService {
         const newq = await this.certificaterrepository
           .createQueryBuilder('issuar')
           .where(
-            `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[[]]/g, '')})`,
+            `issuar.id IN (${JSON.stringify(group.internalCertificateId).replace(/[[\]]/g, '')})`,
           );
 
         const groupedDatasql = await newq.getQuery();
@@ -787,7 +808,7 @@ export class CertificateLogService {
                     }
                   }
                 }
-                if (role === 'Buyer') {
+                if (role === 'Buyer' || role === Role.ApiUser) {
                   devicelog =
                     await this.getCheckCertificateIssueDateLogForDevice(
                       parseInt(group.dg_id),
