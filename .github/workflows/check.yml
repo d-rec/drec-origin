@@ -83,3 +83,32 @@ jobs:
 
       - name: Build drec-origin
         run: rush build --verbose
+  
+  unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/iron
+
+      - name: Run Unit test suit
+       - name: Install tooling
+        run: |
+          npm i -g @microsoft/rush
+          npm i -g pnpm@9
+
+      - name: Install drec-origin
+        run: |
+          rush install
+
+      - name: Run Unit Test (all)
+        working-directory: apps/drec-api
+        run: pnpm run test:jest -- --maxWorkers=4
+
+      - name: Run Code Coverage (all)
+        working-directory: apps/drec-api
+        run: pnpm run coverage:jest -- --maxWorkers=4
