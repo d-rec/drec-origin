@@ -15,7 +15,6 @@ RUN npm install --legacy-peer-deps
 RUN npm run build
 RUN rm -rf ./deployment
 RUN mkdir ./deployment
-RUN rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
 RUN npm i swagger-ui-express
 
 # RUN mkdir /var/deployment
