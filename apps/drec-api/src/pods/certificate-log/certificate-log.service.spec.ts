@@ -302,6 +302,7 @@ describe('CertificateLogService', () => {
         end_date: '2024-02-14 12:51:000Z',
         country: 'India',
         SDGBenefits: undefined,
+        oldcertificatelog: false,
       };
       const pageNumber = 1;
 
@@ -559,6 +560,7 @@ describe('CertificateLogService', () => {
         end_date: '2024-02-14 12:51:000Z',
         country: 'India',
         SDGBenefits: undefined,
+        oldcertificatelog: false,
       };
       const pageNumber = 1;
 
