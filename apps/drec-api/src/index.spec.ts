@@ -4,8 +4,8 @@ import { LoggerService, ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import { DrecModule } from './drec.module';
 import * as PortUtils from './port';
-import { startAPI } from '.'; // Adjust the import path as needed
-import { SwaggerModule, } from '@nestjs/swagger';
+import { startAPI } from './index'; // Adjust the import path as needed
+import { SwaggerModule } from '@nestjs/swagger';
 import fs from 'fs';
 
 jest.mock('@nestjs/core');
@@ -18,10 +18,19 @@ jest.mock('@nestjs/swagger', () => ({
     addBearerAuth: jest.fn().mockReturnThis(),
     build: jest.fn(),
   })),
+  ApiProperty: jest.fn(),
   SwaggerModule: {
     createDocument: jest.fn(),
     setup: jest.fn(),
   },
+}));
+jest.mock('class-validator', () => ({
+  IsISO31661Alpha2: jest.fn(),
+  IsString: jest.fn(),
+  IsEmail: jest.fn(),
+  IsOptional: jest.fn(),
+  IsArray: jest.fn(),
+  IsNotEmpty: jest.fn(),
 }));
 
 describe('startAPI', () => {

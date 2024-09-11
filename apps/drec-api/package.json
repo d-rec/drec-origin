@@ -36,7 +36,7 @@
     "typeorm:drop:certificate": "node_modules/typeorm/cli.js schema:drop --config node_modules/@energyweb/origin-247-certificate/dist/js/ormconfig.js",
     "typeorm:dropAndMigrate": "pnpm typeorm:drop && pnpm typeorm:run",
     "test:jest": "jest",
-    "test:e2e:jest": "mocha -r ts-node/register test/*.e2e-spec.ts --timeout 60000 --exit",
+    "test:e2e:jest": "jest \"test/**/*.e2e-spec.ts\"",
     "test:e2e": "pnpm typeorm:drop && pnpm migrate && pnpm test:e2e:jest",
     "test:e2e:single": "sh ./scripts/test-e2e-single.sh",
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
