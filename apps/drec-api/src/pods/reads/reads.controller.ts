@@ -1566,7 +1566,7 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(`Read Not found`);
         throw new HttpException('Read Not found', 400);
       }
-      if (user.role === 'Buyer'|| user.role === 'ApiUser') {
+      if (user.role === 'Buyer' || user.role === 'ApiUser') {
         return {
           externalId: device.developerExternalId,
           timestamp: latestReadObject[0].timestamp,

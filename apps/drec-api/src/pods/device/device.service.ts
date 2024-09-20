@@ -1054,8 +1054,9 @@ export class DeviceService {
       ...params,
     });
   }
-  public async findAllLateCycle(
-  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+  public async findAllLateCycle(): Promise<
+    DeviceLateongoingIssueCertificateEntity[]
+  > {
     this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
     return await this.latedevciecertificaterepository.find({
       where: {
@@ -1471,12 +1472,15 @@ export class DeviceService {
     );
   }
   async updatelateongoingIfReservationInactive(
-    externalId: string
+    externalId: string,
   ): Promise<any> {
     this.logger.verbose(`With in updatelateongoingIfReservationInactive`);
-    this.logger.verbose(`With in updatelateongoingIfReservationInactive`, externalId);
+    this.logger.verbose(
+      `With in updatelateongoingIfReservationInactive`,
+      externalId,
+    );
     return await this.latedevciecertificaterepository.update(
-      {device_externalid: externalId },
+      { device_externalid: externalId },
       { certificate_issued: true },
     );
   }
