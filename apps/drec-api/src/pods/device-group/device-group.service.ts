@@ -84,7 +84,7 @@ import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
 import { FilterDTO } from '../certificate-log/dto';
-
+import { CertificateSettingEntity } from './certificate_setting.entity';
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -112,6 +112,8 @@ export class DeviceGroupService {
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,
+    @InjectRepository(CertificateSettingEntity)
+    private readonly certificate_settingrepository: Repository<CertificateSettingEntity>,
   ) {}
 
   async getAll(
@@ -1242,8 +1244,16 @@ export class DeviceGroupService {
       if (group.api_user_id) {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
-      if (group.reservationExpiryDate) {
+      const configurationseting =
+        await this.certificate_settingrepository.find();
+      const lastCertifiableDate = new Date(group.reservationEndDate);
+      lastCertifiableDate.setDate(
+        lastCertifiableDate.getDate() + configurationseting[0].no_of_days,
+      );
+      if (group.reservationExpiryDate === null) {
         deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
+      } else {
+        deviceGroup['reservationExpiryDate'] = lastCertifiableDate;
       }
       const responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
@@ -2342,14 +2352,12 @@ export class DeviceGroupService {
       reservationActive: true,
     });
     if (group === null) {
-      this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
-      );
+      this.logger.error(`Reservation expired`);
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
+            message: 'Reservation expired',
           }),
         );
       });
@@ -2650,7 +2658,6 @@ export class DeviceGroupService {
     const totalCount = totalCountQuery.length;
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
-
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
