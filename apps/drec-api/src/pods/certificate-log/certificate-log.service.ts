@@ -54,7 +54,7 @@ export class CertificateLogService {
 
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
-  ) {}
+  ) { }
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
@@ -625,8 +625,8 @@ export class CertificateLogService {
     pageNumber: number,
   ): Promise<{
     certificatelog:
-      | CertificateNewWithPerDeviceLog[]
-      | CertificateWithPerdevicelog[];
+    | CertificateNewWithPerDeviceLog[]
+    | CertificateWithPerdevicelog[];
     currentpage?: number;
     totalPages: number;
     totalCount: number;
@@ -701,11 +701,11 @@ export class CertificateLogService {
   async getDeveloperfindreservationcertified(
     certifiedreservation:
       | {
-          deviceGroups: any;
-          pageNumber: number;
-          totalPages: number;
-          totalCount: any;
-        }
+        deviceGroups: any;
+        pageNumber: number;
+        totalPages: number;
+        totalCount: any;
+      }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -850,11 +850,11 @@ export class CertificateLogService {
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
     getreservationinfo:
       | {
-          deviceGroups: any;
-          pageNumber: number;
-          totalPages: number;
-          totalCount: any;
-        }
+        deviceGroups: any;
+        pageNumber: number;
+        totalPages: number;
+        totalCount: any;
+      }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -888,6 +888,7 @@ export class CertificateLogService {
               certifiedlist: ICertificateReadModel<ICertificateMetadata>,
               index: number,
             ) => {
+
               certificatesInReservationWithLog[index].certificateStartDate =
                 new Date(
                   certifiedlist.generationStartTime * 1000,
@@ -923,9 +924,6 @@ export class CertificateLogService {
               ); //going back 1 second in start and going forward 1 second in end
               await Promise.all(
                 obj.deviceIds.map(async (deviceid: number) => {
-                  // const device = await this.deviceService.findOne(deviceid);
-
-                  // const device = await this.deviceService.findOne(deviceid);
                   let device: Device;
                   if (typeof deviceid === 'number') {
                     device = await this.deviceService.findOne(deviceid);
@@ -933,11 +931,10 @@ export class CertificateLogService {
                   if (typeof deviceid === 'string') {
                     device = await this.deviceService.findReads(deviceid);
                   }
-
                   let devicelog;
                   if (role === 'OrganizationAdmin') {
                     if (
-                      group.developerdeviceIds.find((ele) => ele === deviceid)
+                      group.developerdeviceIds.find((ele) => ele === device.id)
                     ) {
                       devicelog =
                         await this.getCheckCertificateIssueDateLogForDevice(
@@ -1082,10 +1079,10 @@ export class CertificateLogService {
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
-            name +
-            ' ' +
-            new Date().toLocaleDateString() +
-            '.csv',
+          name +
+          ' ' +
+          new Date().toLocaleDateString() +
+          '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
         const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;

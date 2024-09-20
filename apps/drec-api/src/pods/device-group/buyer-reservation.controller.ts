@@ -81,7 +81,7 @@ export class BuyerReservationController {
     private readonly fileService: FileService,
     private organizationService: OrganizationService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   /**
    * It is GET api to list all device group in reservation data
@@ -132,11 +132,11 @@ export class BuyerReservationController {
     filterDto: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
-        devicegroups: DeviceGroupDTO[];
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      devicegroups: DeviceGroupDTO[];
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
     | DeviceGroupDTO[]
   > {
@@ -227,11 +227,11 @@ export class BuyerReservationController {
     @Query('pagenumber') pagenumber: number | null,
   ): Promise<
     | {
-        devicegroups: DeviceGroupDTO[];
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      devicegroups: DeviceGroupDTO[];
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
     | DeviceGroupDTO[]
   > {
@@ -349,6 +349,7 @@ export class BuyerReservationController {
     @Query('orgId') orgId: number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
+    deviceGroupToRegister.api_user_id = user.api_user_id;
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -360,12 +361,10 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-
         if (orguser.role === Role.Buyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-
         if (orguser.role != Role.Buyer) {
           this.logger.error(`Unauthorized for ${orguser.role}`);
           throw new UnauthorizedException({
@@ -502,7 +501,7 @@ export class BuyerReservationController {
       deviceGroupToRegister.reservationStartDate &&
       deviceGroupToRegister.reservationEndDate &&
       deviceGroupToRegister.reservationStartDate.getTime() >=
-        deviceGroupToRegister.reservationEndDate.getTime()
+      deviceGroupToRegister.reservationEndDate.getTime()
     ) {
       this.logger.error(`start date cannot be less than or same as end date`);
       throw new ConflictException({
@@ -517,7 +516,7 @@ export class BuyerReservationController {
       (deviceGroupToRegister.reservationExpiryDate.getTime() <=
         deviceGroupToRegister.reservationStartDate.getTime() ||
         deviceGroupToRegister.reservationExpiryDate.getTime() <
-          deviceGroupToRegister.reservationEndDate.getTime())
+        deviceGroupToRegister.reservationEndDate.getTime())
     ) {
       this.logger.error(
         `Expiry date cannot be less than from start and end date`,
@@ -533,9 +532,9 @@ export class BuyerReservationController {
     );
     if (
       deviceGroupToRegister.reservationStartDate.getTime() <=
-        maximumBackDateForReservation.getTime() ||
+      maximumBackDateForReservation.getTime() ||
       deviceGroupToRegister.reservationEndDate.getTime() <=
-        maximumBackDateForReservation.getTime()
+      maximumBackDateForReservation.getTime()
     ) {
       this.logger.error(
         `start date or end date cannot be less than 3 year from current date`,
@@ -817,11 +816,11 @@ export class BuyerReservationController {
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);

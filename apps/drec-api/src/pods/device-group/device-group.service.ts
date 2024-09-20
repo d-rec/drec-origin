@@ -84,7 +84,7 @@ import { Certificate } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
 import { FilterDTO } from '../certificate-log/dto';
-
+import { CertificateSettingEntity } from './certificate_setting.entity';
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -112,7 +112,9 @@ export class DeviceGroupService {
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,
-  ) {}
+    @InjectRepository(CertificateSettingEntity)
+    private readonly certificate_settingrepository: Repository<CertificateSettingEntity>
+  ) { }
 
   async getAll(
     user?: ILoggedInUser,
@@ -123,11 +125,11 @@ export class DeviceGroupService {
     filterDto?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
-        devicegroups: DeviceGroupDTO[];
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      devicegroups: DeviceGroupDTO[];
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in dg service ${filterDto}`);
@@ -774,11 +776,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForOrganization`);
@@ -819,11 +821,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForAdmin`);
@@ -930,9 +932,9 @@ export class DeviceGroupService {
     devices.filter((ele) => {
       if (
         new Date(data.reservationStartDate).getTime() <
-          new Date(ele.createdAt).getTime() &&
+        new Date(ele.createdAt).getTime() &&
         new Date(data.reservationEndDate).getTime() <=
-          new Date(ele.createdAt).getTime()
+        new Date(ele.createdAt).getTime()
       ) {
         return true;
       }
@@ -1053,7 +1055,7 @@ export class DeviceGroupService {
               reservationStartDate: data.reservationStartDate,
               reservationEndDate:
                 new Date(data.reservationEndDate).getTime() <
-                new Date(device.createdAt).getTime()
+                  new Date(device.createdAt).getTime()
                   ? data.reservationEndDate
                   : device.createdAt,
               device_createdAt: device.createdAt,
@@ -1088,8 +1090,8 @@ export class DeviceGroupService {
     devices.forEach((ele) =>
       ele.groupId != null
         ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(
-            ele.id,
-          )
+          ele.id,
+        )
         : '',
     );
     devices = devices.filter((ele) => ele.groupId === null);
@@ -1242,8 +1244,13 @@ export class DeviceGroupService {
       if (group.api_user_id) {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
-      if (group.reservationExpiryDate) {
+      const configurationseting = await this.certificate_settingrepository.find();
+      let lastCertifiableDate = new Date(group.reservationEndDate);
+      lastCertifiableDate.setDate(lastCertifiableDate.getDate() + configurationseting[0].no_of_days);
+      if (group.reservationExpiryDate === null) {
         deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
+      } else {
+        deviceGroup['reservationExpiryDate'] = lastCertifiableDate;
       }
       const responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
@@ -1252,8 +1259,8 @@ export class DeviceGroupService {
       responseDeviceGroupDTO.unavailableDeviceIDsDueToAreIncludedInBuyerReservation =
         unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
           ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(
-              ' , ',
-            )
+            ' , ',
+          )
           : '';
       delete responseDeviceGroupDTO['deviceIdsInt'];
       return responseDeviceGroupDTO;
@@ -1941,7 +1948,7 @@ export class DeviceGroupService {
             ) {
               if (
                 recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[j].externalId.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
@@ -2343,13 +2350,13 @@ export class DeviceGroupService {
     });
     if (group === null) {
       this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
+        `Reservation expired`,
       );
       return new Promise((resolve, reject) => {
         reject(
           new ConflictException({
             success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
+            message: 'Reservation expired',
           }),
         );
       });
@@ -2650,7 +2657,6 @@ export class DeviceGroupService {
     const totalCount = totalCountQuery.length;
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
-
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
@@ -3004,11 +3010,11 @@ export class DeviceGroupService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
+      csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+    }
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForApiUser`);
@@ -3051,4 +3057,5 @@ export class DeviceGroupService {
       totalCount,
     };
   }
+ 
 }

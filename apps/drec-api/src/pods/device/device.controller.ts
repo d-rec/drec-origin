@@ -998,7 +998,7 @@ export class DeviceController {
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupuId,
     });
-    if (group === null || group.buyerId != user.id) {
+    if (group === null || group.buyerId != user.id && user.role!= 'ApiUser'|| group.api_user_id != user.api_user_id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );

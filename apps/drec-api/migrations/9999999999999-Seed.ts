@@ -52,6 +52,7 @@ export class Seed9999999999999 implements MigrationInterface {
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
     await this.seedACLModules(queryRunner);
+    await this.seedCertificateSetting(queryRunner);//set default no_of_days for generate certificate last day
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -72,7 +73,7 @@ export class Seed9999999999999 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<any> {}
+  public async down(queryRunner: QueryRunner): Promise<any> { }
 
   private async seedBlockchain(
     queryRunner: QueryRunner,
@@ -83,10 +84,8 @@ export class Seed9999999999999 implements MigrationInterface {
 
     if (provider && contractsLookup) {
       await queryRunner.query(
-        `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback") VALUES (${
-          provider.network.chainId
-        }, '${contractsLookup.registry}', '${
-          contractsLookup.issuer
+        `INSERT INTO public.issuer_blockchain_properties ("netId", "registry", "issuer", "rpcNode", "rpcNodeFallback") VALUES (${provider.network.chainId
+        }, '${contractsLookup.registry}', '${contractsLookup.issuer
         }', '${primaryRpc}', '${fallbackRpc ?? ''}'
         )`,
       );
@@ -126,6 +125,7 @@ export class Seed9999999999999 implements MigrationInterface {
       }),
     );
   }
+
   private async deployContracts(
     deployer: Wallet,
     provider: providers.FallbackProvider,
@@ -241,27 +241,27 @@ export class Seed9999999999999 implements MigrationInterface {
     bitPosition: number;
     andOperationNumber: number;
   }> = [
-    {
-      permissionString: PermissionString.Read,
-      bitPosition: 1,
-      andOperationNumber: 1,
-    },
-    {
-      permissionString: PermissionString.Write,
-      bitPosition: 2,
-      andOperationNumber: 2,
-    },
-    {
-      permissionString: PermissionString.Update,
-      bitPosition: 3,
-      andOperationNumber: 4,
-    },
-    {
-      permissionString: PermissionString.Delete,
-      bitPosition: 4,
-      andOperationNumber: 8,
-    },
-  ];
+      {
+        permissionString: PermissionString.Read,
+        bitPosition: 1,
+        andOperationNumber: 1,
+      },
+      {
+        permissionString: PermissionString.Write,
+        bitPosition: 2,
+        andOperationNumber: 2,
+      },
+      {
+        permissionString: PermissionString.Update,
+        bitPosition: 3,
+        andOperationNumber: 4,
+      },
+      {
+        permissionString: PermissionString.Delete,
+        bitPosition: 4,
+        andOperationNumber: 8,
+      },
+    ];
   binaryFormPermission = '0000';
   decimalFormPermission = 0;
 
@@ -282,12 +282,12 @@ export class Seed9999999999999 implements MigrationInterface {
         (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
           async (aclModule) => {
             const addedPermissionList: { [key in PermissionString]: boolean } =
-              {
-                Read: false,
-                Write: false,
-                Delete: false,
-                Update: false,
-              };
+            {
+              Read: false,
+              Write: false,
+              Delete: false,
+              Update: false,
+            };
             for (const key in addedPermissionList) {
               aclModule.permissions.map((myArr, index) => {
                 if (myArr === key) {
@@ -344,9 +344,21 @@ export class Seed9999999999999 implements MigrationInterface {
       decimalFormPermission =
         decimalFormPermission +
         Math.pow(2, ele.bitPosition - 1) *
-          (addedPermissionList[ele.permissionString] === true ? 1 : 0);
+        (addedPermissionList[ele.permissionString] === true ? 1 : 0);
     });
     this.decimalFormPermission = decimalFormPermission;
     return this.decimalFormPermission;
+  }
+  private async seedCertificateSetting(queryRunner: QueryRunner) {
+    const certificate_settingTable = await queryRunner.getTable('public.certificate_setting');
+
+    if (!certificate_settingTable) {
+      this.logger.verbose('certificate_setting table does not exist.');
+      return;
+    }
+    queryRunner.query(
+      `INSERT INTO public.certificate_setting ("id","no_of_days") VALUES (
+             1,60)`,
+    );
   }
 }
