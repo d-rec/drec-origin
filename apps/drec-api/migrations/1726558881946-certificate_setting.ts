@@ -11,5 +11,7 @@ export class certificateSetting1726558881946 implements MigrationInterface {
                )`);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE IF EXISTS certificate_setting`);
+  }
 }

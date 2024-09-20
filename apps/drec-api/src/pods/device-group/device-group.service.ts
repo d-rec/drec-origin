@@ -1246,7 +1246,7 @@ export class DeviceGroupService {
       }
       const configurationseting =
         await this.certificate_settingrepository.find();
-      let lastCertifiableDate = new Date(group.reservationEndDate);
+      const lastCertifiableDate = new Date(group.reservationEndDate);
       lastCertifiableDate.setDate(
         lastCertifiableDate.getDate() + configurationseting[0].no_of_days,
       );
