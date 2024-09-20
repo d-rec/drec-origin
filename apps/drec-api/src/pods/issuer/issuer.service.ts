@@ -1194,12 +1194,6 @@ export class IssuerService {
             new Date(endDate.toString()),
           );
           this.logger.verbose('else Lastread greater then from late_end_date');
-          const certifieddevices =
-            await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-              element.device_externalid,
-              new Date(startDate.toString()),
-              new Date(endDate.toString()),
-            );
           const readsFilter: FilterDTO = {
             offset: 0,
             limit: 5000,

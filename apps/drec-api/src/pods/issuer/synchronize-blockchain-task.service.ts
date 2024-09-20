@@ -5,7 +5,7 @@ import { BlockchainSynchronizeService } from '@energyweb/origin-247-certificate'
 export class SynchronizeBlockchainTaskService {
   private logger = new Logger(SynchronizeBlockchainTaskService.name);
   constructor(private synchronizationService: BlockchainSynchronizeService) {}
-  //@Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE)
   public async synchronizeblockchain(): Promise<void> {
     this.logger.log(`Synchronizing blockchain started`);
     await this.synchronizationService.synchronize();
