@@ -1250,7 +1250,7 @@ export class DeviceGroupService {
       lastCertifiableDate.setDate(
         lastCertifiableDate.getDate() + configurationseting[0].no_of_days,
       );
-      if (group.reservationExpiryDate === null) {
+      if (group.reservationExpiryDate != null) {
         deviceGroup['reservationExpiryDate'] = group.reservationExpiryDate;
       } else {
         deviceGroup['reservationExpiryDate'] = lastCertifiableDate;
