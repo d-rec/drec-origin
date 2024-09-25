@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NestFactory } from '@nestjs/core';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
@@ -19,18 +20,20 @@ jest.mock('@nestjs/swagger', () => ({
     build: jest.fn(),
   })),
   ApiProperty: jest.fn(),
+  ApiPropertyOptional: jest.fn(),
   SwaggerModule: {
     createDocument: jest.fn(),
     setup: jest.fn(),
   },
 }));
+
 jest.mock('class-validator', () => ({
-  IsISO31661Alpha2: jest.fn(),
-  IsString: jest.fn(),
-  IsEmail: jest.fn(),
-  IsOptional: jest.fn(),
-  IsArray: jest.fn(),
-  IsNotEmpty: jest.fn(),
+  IsISO31661Alpha2: jest.fn(() => (target: any, propertyKey: string) => {}),
+  IsString: jest.fn(() => (target: any, propertyKey: string) => {}),
+  IsEmail: jest.fn(() => (target: any, propertyKey: string) => {}),
+  IsOptional: jest.fn(() => (target: any, propertyKey: string) => {}),
+  IsArray: jest.fn(() => (target: any, propertyKey: string) => {}),
+  IsNotEmpty: jest.fn(() => (target: any, propertyKey: string) => {}),
 }));
 
 describe('startAPI', () => {

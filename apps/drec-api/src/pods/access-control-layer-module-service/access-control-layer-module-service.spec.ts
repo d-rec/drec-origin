@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository } from 'typeorm';
+import { Repository, DeepPartial } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service';
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
-import { ACLModuleDTO, NewACLModuleDTO } from './dto/aclmodule.dto';
+import { ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto';
 import { RoleStatus } from 'src/utils/enums';
+import { ConflictException, NotFoundException, } from '@nestjs/common';
 
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
@@ -19,10 +20,18 @@ describe('AccessControlLayerModuleServiceService', () => {
         {
           provide: getRepositoryToken(AClModules),
           useClass: Repository,
+          useValue: {
+            save: jest.fn(), // Mock repository methods
+            findOne: jest.fn(),
+            update: jest.fn(),
+            find: jest.fn(),
+          } as any,
         },
         {
           provide: DecimalPermissionValue,
-          useValue: {} as any,
+          useValue: {
+            computePermissions: jest.fn(),
+          } as any,
         },
       ],
     }).compile();
@@ -42,7 +51,7 @@ describe('AccessControlLayerModuleServiceService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-/*
+
   describe('create', () => {
     it('should create a new ACL module', async () => {
       const newModule: NewACLModuleDTO = {
@@ -53,22 +62,19 @@ describe('AccessControlLayerModuleServiceService', () => {
         permissionsValue: 1,
       };
 
-      const savedModule: ACLModuleDTO = {
+      const savedModule = {
         id: 1,
         ...newModule,
-        permissionsValue: 3,
-      };
+      } as AClModules;
 
-      jest.spyOn(repository, 'save')
-
-      repository.save.mockResolvedValue(savedModule);
-      repository.findOne.mockResolvedValue(null);
-      Permissionvalue.computePermissions.mockResolvedValue(3);
+      const saveSpy = jest.spyOn(repository, 'save').mockResolvedValue(savedModule);
+      const findOneSpy = jest.spyOn(repository,'findOne').mockResolvedValue(null);
+      const computePermissionsSpy = jest.spyOn(Permissionvalue, 'computePermissions').mockReturnValue(3);
 
       const result = await service.create(newModule);
 
       expect(result).toEqual(savedModule);
-      expect(repository.save).toHaveBeenCalledWith({
+      expect(saveSpy).toHaveBeenCalledWith({
         ...newModule,
         permissionsValue: 3,
       });
@@ -77,10 +83,18 @@ describe('AccessControlLayerModuleServiceService', () => {
     it('should throw a conflict exception if module already exists', async () => {
       const newModule: NewACLModuleDTO = {
         name: 'Test Module',
+        status: RoleStatus.Enable,
+        description: 'description of test module',
         permissions: ['Read', 'Write'],
+        permissionsValue: 1,
       };
 
-      repository.findOne.mockResolvedValue(newModule);
+      const savedModule = {
+        id: 1,
+        ...newModule,
+      } as AClModules;
+
+      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
 
       await expect(service.create(newModule)).rejects.toThrow(ConflictException);
     });
@@ -88,30 +102,49 @@ describe('AccessControlLayerModuleServiceService', () => {
 
   describe('findById', () => {
     it('should return the module if found', async () => {
-      const module = { id: 1, name: 'Test Module', permissions: ['Read'] };
+      const newModule: NewACLModuleDTO = {
+        name: 'Test Module',
+        status: RoleStatus.Enable,
+        description: 'description of test module',
+        permissions: ['Read', 'Write'],
+        permissionsValue: 1,
+      };
 
-      repository.findOne.mockResolvedValue(module);
+      const savedModule = {
+        id: 1,
+        ...newModule,
+      } as AClModules;
+
+      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
 
       const result = await service.findById(1);
 
-      expect(result).toEqual(module);
-    });
-
-    it('should throw a not found exception if module not found', async () => {
-      repository.findOne.mockResolvedValue(null);
-
-      await expect(service.findById(1)).rejects.toThrow(NotFoundException);
+      expect(result).toEqual(savedModule);
     });
   });
 
   describe('getAll', () => {
     it('should return all modules', async () => {
       const modules = [
-        { id: 1, name: 'Test Module 1', permissions: ['Read'] },
-        { id: 2, name: 'Test Module 2', permissions: ['Write'] },
-      ];
+        { 
+          id: 1, 
+          name: 'Test Module 1', 
+          permissions: ['Read'],
+          status: RoleStatus.Enable,
+          description: 'description of test module 1',
+          permissionsValue: 1,
+        },
+        { 
+          id: 2, 
+          name: 'Test Module 2', 
+          permissions: ['Write'],
+          status: RoleStatus.Enable,
+          description: 'description of test module 2',
+          permissionsValue: 1,
+        },
+      ] as AClModules[];
 
-      repository.find.mockResolvedValue(modules);
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(modules);
 
       const result = await service.getAll();
 
@@ -122,39 +155,37 @@ describe('AccessControlLayerModuleServiceService', () => {
   describe('update', () => {
     it('should update an existing module', async () => {
       const updateData: UpdateACLModuleDTO = {
-        permissions: ['Read', 'Update'],
+        name: 'Test Module',
+        status: RoleStatus.Enable,
+        description: 'description of test module',
+        permissions: ['Read', 'Write'],
+        permissionsValue: 1,
       };
 
       const existingModule = {
         id: 1,
-        name: 'Test Module',
-        permissions: ['Read', 'Write'],
-      };
-
-      repository.findOne.mockResolvedValue(existingModule);
-      permissionValue.computePermissions.mockResolvedValue(5);
-
-      const updatedModule = {
-        ...existingModule,
         ...updateData,
-        permissionsValue: 5,
+      } as AClModules;
+
+      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(existingModule);
+      const computePermissionsSpy = jest.spyOn(Permissionvalue, 'computePermissions').mockReturnValue(5);
+
+      const updateResult = {
+        generatedMaps: [],
+        raw: [],
+        affected: 1,  // number of affected rows
       };
 
-      repository.update.mockResolvedValue(updatedModule);
+      const updateSpy = jest.spyOn(repository, 'update').mockResolvedValue(updateResult);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(existingModule);
 
       const result = await service.update(1, updateData);
 
-      expect(result).toEqual(updatedModule);
-      expect(repository.update).toHaveBeenCalledWith(1, {
+      expect(result).toEqual(existingModule);
+      expect(updateSpy).toHaveBeenCalledWith(1, {
         permissions: updateData.permissions,
         permissionsValue: 5,
       });
     });
-
-    it('should throw a not found exception if module not found', async () => {
-      repository.findOne.mockResolvedValue(null);
-
-      await expect(service.update(1, { permissions: ['Read'] })).rejects.toThrow(NotFoundException);
-    });
-  }); */
+  });
 });
