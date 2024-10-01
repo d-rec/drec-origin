@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NestFactory } from '@nestjs/core';
