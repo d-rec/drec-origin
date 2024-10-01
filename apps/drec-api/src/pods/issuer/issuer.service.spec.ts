@@ -1189,12 +1189,10 @@ describe('IssuerService', () => {
       jest
         .spyOn(groupService, 'getallReservationactive')
         .mockResolvedValue([mockGroup]);
-      jest
-        .spyOn(organizationService, 'findOne')
-        .mockResolvedValue({
-          name: 'OrgName',
-          blockchainAccountAddress: 'Address',
-        } as unknown as Organization);
+      jest.spyOn(organizationService, 'findOne').mockResolvedValue({
+        name: 'OrgName',
+        blockchainAccountAddress: 'Address',
+      } as unknown as Organization);
       jest.spyOn(deviceService, 'NewfindForGroup').mockResolvedValue({});
       jest
         .spyOn(groupService, 'getGroupiCertificateIssueDate')

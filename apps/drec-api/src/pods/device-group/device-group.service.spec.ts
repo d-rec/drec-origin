@@ -337,12 +337,10 @@ describe('DeviceGroupService', () => {
       } as DeviceGroup;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest
-        .spyOn(organizationService, 'findOne')
-        .mockResolvedValue({
-          name: 'Test Org',
-          blockchainAccountAddress: '0x123',
-        } as any);
+      jest.spyOn(organizationService, 'findOne').mockResolvedValue({
+        name: 'Test Org',
+        blockchainAccountAddress: '0x123',
+      } as any);
       jest
         .spyOn(deviceService, 'findForGroup')
         .mockResolvedValue([{ id: 1 }, { id: 2 }] as any);

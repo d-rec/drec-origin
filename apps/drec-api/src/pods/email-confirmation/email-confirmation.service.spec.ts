@@ -66,12 +66,10 @@ describe('EmailConfirmationService', () => {
         email: 'test@example.com',
       } as unknown as User;
 
-      jest
-        .spyOn(userService, 'findOne')
-        .mockResolvedValue({
-          role: 'Admin',
-          api_user_id: 123,
-        } as unknown as User);
+      jest.spyOn(userService, 'findOne').mockResolvedValue({
+        role: 'Admin',
+        api_user_id: 123,
+      } as unknown as User);
       jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue({ user } as EmailConfirmation);
