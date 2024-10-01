@@ -349,6 +349,7 @@ export class BuyerReservationController {
     @Query('orgId') orgId: number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
+    deviceGroupToRegister.api_user_id = user.api_user_id;
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       const orguser = await this.userService.findByEmail(organization.orgEmail);
@@ -360,12 +361,10 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-
         if (orguser.role === Role.Buyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-
         if (orguser.role != Role.Buyer) {
           this.logger.error(`Unauthorized for ${orguser.role}`);
           throw new UnauthorizedException({
