@@ -45,14 +45,10 @@ import { UserModule } from './pods/user/user.module';
 import { OrganizationModule } from './pods/organization/organization.module';
 import { MailModule } from './mail';
 import { AuthModule } from './auth/auth.module';
-import {
-    OnChainCertificateModule,
-  } from '@energyweb/origin-247-certificate';
-  import {
-    BlockchainPropertiesModule,
-  } from '@energyweb/issuer-api';
-  import { getConnection } from 'typeorm';
-  
+import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
+import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
+import { getConnection } from 'typeorm';
+
 describe('DrecModule', () => {
   let module: TestingModule;
 
@@ -79,112 +75,156 @@ describe('DrecModule', () => {
   });
 
   it('should provide User repository', () => {
-    const userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    const userRepository = module.get<Repository<User>>(
+      getRepositoryToken(User),
+    );
     expect(userRepository).toBeDefined();
   });
 
   it('should provide Device repository', () => {
-    const deviceRepository = module.get<Repository<Device>>(getRepositoryToken(Device));
+    const deviceRepository = module.get<Repository<Device>>(
+      getRepositoryToken(Device),
+    );
     expect(deviceRepository).toBeDefined();
   });
 
   it('should provide Organization repository', () => {
-    const organizationRepository = module.get<Repository<Organization>>(getRepositoryToken(Organization));
+    const organizationRepository = module.get<Repository<Organization>>(
+      getRepositoryToken(Organization),
+    );
     expect(organizationRepository).toBeDefined();
   });
 
   it('should provide UserRole repository', () => {
-    const userRoleRepository = module.get<Repository<UserRole>>(getRepositoryToken(UserRole));
+    const userRoleRepository = module.get<Repository<UserRole>>(
+      getRepositoryToken(UserRole),
+    );
     expect(userRoleRepository).toBeDefined();
   });
 
   it('should provide Invitation repository', () => {
-    const invitationRepository = module.get<Repository<Invitation>>(getRepositoryToken(Invitation));
+    const invitationRepository = module.get<Repository<Invitation>>(
+      getRepositoryToken(Invitation),
+    );
     expect(invitationRepository).toBeDefined();
   });
 
   it('should provide EmailConfirmation repository', () => {
-    const emailConfirmationRepository = module.get<Repository<EmailConfirmation>>(getRepositoryToken(EmailConfirmation));
+    const emailConfirmationRepository = module.get<
+      Repository<EmailConfirmation>
+    >(getRepositoryToken(EmailConfirmation));
     expect(emailConfirmationRepository).toBeDefined();
   });
 
   it('should provide YieldConfig repository', () => {
-    const yieldConfigRepository = module.get<Repository<YieldConfig>>(getRepositoryToken(YieldConfig));
+    const yieldConfigRepository = module.get<Repository<YieldConfig>>(
+      getRepositoryToken(YieldConfig),
+    );
     expect(yieldConfigRepository).toBeDefined();
   });
 
   it('should provide AClModules repository', () => {
-    const aclModulesRepository = module.get<Repository<AClModules>>(getRepositoryToken(AClModules));
+    const aclModulesRepository = module.get<Repository<AClModules>>(
+      getRepositoryToken(AClModules),
+    );
     expect(aclModulesRepository).toBeDefined();
   });
 
   it('should provide ACLModulePermissions repository', () => {
-    const aclModulePermissionsRepository = module.get<Repository<ACLModulePermissions>>(getRepositoryToken(ACLModulePermissions));
+    const aclModulePermissionsRepository = module.get<
+      Repository<ACLModulePermissions>
+    >(getRepositoryToken(ACLModulePermissions));
     expect(aclModulePermissionsRepository).toBeDefined();
   });
 
   it('should provide DeviceCsvFileProcessingJobsEntity repository', () => {
-    const deviceCsvFileProcessingJobsRepository = module.get<Repository<DeviceCsvFileProcessingJobsEntity>>(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+    const deviceCsvFileProcessingJobsRepository = module.get<
+      Repository<DeviceCsvFileProcessingJobsEntity>
+    >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
     expect(deviceCsvFileProcessingJobsRepository).toBeDefined();
   });
 
   it('should provide DeviceCsvProcessingFailedRowsEntity repository', () => {
-    const deviceCsvProcessingFailedRowsRepository = module.get<Repository<DeviceCsvProcessingFailedRowsEntity>>(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+    const deviceCsvProcessingFailedRowsRepository = module.get<
+      Repository<DeviceCsvProcessingFailedRowsEntity>
+    >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
     expect(deviceCsvProcessingFailedRowsRepository).toBeDefined();
   });
 
   it('should provide DeviceGroupNextIssueCertificate repository', () => {
-    const deviceGroupNextIssueCertificateRepository = module.get<Repository<DeviceGroupNextIssueCertificate>>(getRepositoryToken(DeviceGroupNextIssueCertificate));
+    const deviceGroupNextIssueCertificateRepository = module.get<
+      Repository<DeviceGroupNextIssueCertificate>
+    >(getRepositoryToken(DeviceGroupNextIssueCertificate));
     expect(deviceGroupNextIssueCertificateRepository).toBeDefined();
   });
 
   it('should provide AggregateMeterRead repository', () => {
-    const aggregateMeterReadRepository = module.get<Repository<AggregateMeterRead>>(getRepositoryToken(AggregateMeterRead));
+    const aggregateMeterReadRepository = module.get<
+      Repository<AggregateMeterRead>
+    >(getRepositoryToken(AggregateMeterRead));
     expect(aggregateMeterReadRepository).toBeDefined();
   });
 
   it('should provide HistoryIntermediate_MeterRead repository', () => {
-    const historyIntermediateMeterReadRepository = module.get<Repository<HistoryIntermediate_MeterRead>>(getRepositoryToken(HistoryIntermediate_MeterRead));
+    const historyIntermediateMeterReadRepository = module.get<
+      Repository<HistoryIntermediate_MeterRead>
+    >(getRepositoryToken(HistoryIntermediate_MeterRead));
     expect(historyIntermediateMeterReadRepository).toBeDefined();
   });
 
   it('should provide CheckCertificateIssueDateLogForDeviceEntity repository', () => {
-    const checkCertificateIssueDateLogForDeviceRepository = module.get<Repository<CheckCertificateIssueDateLogForDeviceEntity>>(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
+    const checkCertificateIssueDateLogForDeviceRepository = module.get<
+      Repository<CheckCertificateIssueDateLogForDeviceEntity>
+    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
     expect(checkCertificateIssueDateLogForDeviceRepository).toBeDefined();
   });
 
   it('should provide CheckCertificateIssueDateLogForDeviceGroupEntity repository', () => {
-    const checkCertificateIssueDateLogForDeviceGroupRepository = module.get<Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>>(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+    const checkCertificateIssueDateLogForDeviceGroupRepository = module.get<
+      Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
+    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
     expect(checkCertificateIssueDateLogForDeviceGroupRepository).toBeDefined();
   });
 
   it('should provide SdgBenefit repository', () => {
-    const sdgBenefitRepository = module.get<Repository<SdgBenefit>>(getRepositoryToken(SdgBenefit));
+    const sdgBenefitRepository = module.get<Repository<SdgBenefit>>(
+      getRepositoryToken(SdgBenefit),
+    );
     expect(sdgBenefitRepository).toBeDefined();
   });
 
   it('should provide DeltaFirstRead repository', () => {
-    const deltaFirstReadRepository = module.get<Repository<DeltaFirstRead>>(getRepositoryToken(DeltaFirstRead));
+    const deltaFirstReadRepository = module.get<Repository<DeltaFirstRead>>(
+      getRepositoryToken(DeltaFirstRead),
+    );
     expect(deltaFirstReadRepository).toBeDefined();
   });
 
   it('should provide IrecDevicesInformationEntity repository', () => {
-    const irecDevicesInformationRepository = module.get<Repository<IrecDevicesInformationEntity>>(getRepositoryToken(IrecDevicesInformationEntity));
+    const irecDevicesInformationRepository = module.get<
+      Repository<IrecDevicesInformationEntity>
+    >(getRepositoryToken(IrecDevicesInformationEntity));
     expect(irecDevicesInformationRepository).toBeDefined();
   });
 
   it('should provide IrecErrorLogInformationEntity repository', () => {
-    const irecErrorLogInformationRepository = module.get<Repository<IrecErrorLogInformationEntity>>(getRepositoryToken(IrecErrorLogInformationEntity));
+    const irecErrorLogInformationRepository = module.get<
+      Repository<IrecErrorLogInformationEntity>
+    >(getRepositoryToken(IrecErrorLogInformationEntity));
     expect(irecErrorLogInformationRepository).toBeDefined();
   });
 
   it('should provide UserLoginSessionEntity repository', () => {
-    const userLoginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(getRepositoryToken(UserLoginSessionEntity));
+    const userLoginSessionRepository = module.get<
+      Repository<UserLoginSessionEntity>
+    >(getRepositoryToken(UserLoginSessionEntity));
     expect(userLoginSessionRepository).toBeDefined();
   });
 
   it('should provide DeviceLateongoingIssueCertificateEntity repository', () => {
-    const deviceLateongoingIssueCertificateRepository = module.get<Repository<DeviceLateongoingIssueCertificateEntity>>(getRepositoryToken(DeviceLateongoingIssueCertificateEntity));
+    const deviceLateongoingIssueCertificateRepository = module.get<
+      Repository<DeviceLateongoingIssueCertificateEntity>
+    >(getRepositoryToken(DeviceLateongoingIssueCertificateEntity));
     expect(deviceLateongoingIssueCertificateRepository).toBeDefined();
   });
 
@@ -265,7 +305,9 @@ describe('DrecModule', () => {
   });
 
   it('should import AccessControlLayerModuleServiceModule', () => {
-    const accessControlLayerModuleServiceModule = module.get(AccessControlLayerModuleServiceModule);
+    const accessControlLayerModuleServiceModule = module.get(
+      AccessControlLayerModuleServiceModule,
+    );
     expect(accessControlLayerModuleServiceModule).toBeDefined();
   });
 

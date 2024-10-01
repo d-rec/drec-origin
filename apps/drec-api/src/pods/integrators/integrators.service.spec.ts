@@ -87,7 +87,7 @@ describe('IntegratorsService', () => {
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
       const result = await service.loginBBOX(server, loginForm);
-      
+
       expect(httpService.post).toHaveBeenCalledWith(
         `${server}/v1/auth/login`,
         loginForm,
@@ -108,7 +108,13 @@ describe('IntegratorsService', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
 
-      const result = await service.getBBOXproductReadData(server, token, productId, startDate, endDate);
+      const result = await service.getBBOXproductReadData(
+        server,
+        token,
+        productId,
+        startDate,
+        endDate,
+      );
 
       expect(httpService.get).toHaveBeenCalledWith(
         `${server}/v1/products/${productId}/data`,
@@ -120,7 +126,7 @@ describe('IntegratorsService', () => {
             measurement: 'analysis',
             fields: 'energy_out',
           },
-        }
+        },
       );
       expect(result).toEqual(5000);
     });
@@ -133,10 +139,19 @@ describe('IntegratorsService', () => {
       const endDate = '2023-01-31';
       const errorMessage = 'Network Error';
 
-      jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => new Error(errorMessage)));
+      jest
+        .spyOn(httpService, 'get')
+        .mockReturnValue(throwError(() => new Error(errorMessage)));
 
-      await expect(service.getBBOXproductReadData(server, token, productId, startDate, endDate))
-        .rejects.toThrow(errorMessage);
+      await expect(
+        service.getBBOXproductReadData(
+          server,
+          token,
+          productId,
+          startDate,
+          endDate,
+        ),
+      ).rejects.toThrow(errorMessage);
 
       expect(httpService.get).toHaveBeenCalledWith(
         `${server}/v1/products/${productId}/data`,
@@ -148,7 +163,7 @@ describe('IntegratorsService', () => {
             measurement: 'analysis',
             fields: 'energy_out',
           },
-        }
+        },
       );
     });
   });
@@ -162,12 +177,27 @@ describe('IntegratorsService', () => {
       const endDate = '2023-01-31';
       const organizationId = 1;
 
-      const getBBOXproductReadDataSpy = jest.spyOn(service, 'getBBOXproductReadData').mockResolvedValue([]);
+      const getBBOXproductReadDataSpy = jest
+        .spyOn(service, 'getBBOXproductReadData')
+        .mockResolvedValue([]);
       const storeEnergySpy = jest.spyOn(service, 'storeEnergy');
 
-      await service.storeBBOXenergyReads(server, authToken, externalId, startDate, endDate, organizationId);
+      await service.storeBBOXenergyReads(
+        server,
+        authToken,
+        externalId,
+        startDate,
+        endDate,
+        organizationId,
+      );
 
-      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(server, authToken, externalId, startDate, endDate);
+      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(
+        server,
+        authToken,
+        externalId,
+        startDate,
+        endDate,
+      );
       expect(storeEnergySpy).not.toHaveBeenCalled();
     });
 
@@ -180,12 +210,29 @@ describe('IntegratorsService', () => {
       const organizationId = 1;
       const mockEnergyData = [['100', '2023-01-01T00:00:00Z']];
 
-      const getBBOXproductReadDataSpy = jest.spyOn(service, 'getBBOXproductReadData').mockResolvedValue(mockEnergyData);
-      const storeEnergySpy = jest.spyOn(service, 'storeEnergy').mockResolvedValue();
+      const getBBOXproductReadDataSpy = jest
+        .spyOn(service, 'getBBOXproductReadData')
+        .mockResolvedValue(mockEnergyData);
+      const storeEnergySpy = jest
+        .spyOn(service, 'storeEnergy')
+        .mockResolvedValue();
 
-      await service.storeBBOXenergyReads(server, authToken, externalId, startDate, endDate, organizationId);
+      await service.storeBBOXenergyReads(
+        server,
+        authToken,
+        externalId,
+        startDate,
+        endDate,
+        organizationId,
+      );
 
-      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(server, authToken, externalId, startDate, endDate);
+      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(
+        server,
+        authToken,
+        externalId,
+        startDate,
+        endDate,
+      );
       expect(storeEnergySpy).toHaveBeenCalledWith(
         externalId,
         [
@@ -195,11 +242,11 @@ describe('IntegratorsService', () => {
           },
         ],
         Unit.kWh,
-        organizationId
+        organizationId,
       );
     });
   });
-  
+
   describe('storeEnergy', () => {
     it('should log measurements and call baseReadsService.store', async () => {
       const externalId = 'device123';
@@ -215,7 +262,10 @@ describe('IntegratorsService', () => {
       measurements.reads = reads;
       measurements.unit = unit;
 
-      expect(baseReadsService.store).toHaveBeenCalledWith(externalId, measurements);
+      expect(baseReadsService.store).toHaveBeenCalledWith(
+        externalId,
+        measurements,
+      );
     });
 
     it('should publish GenerationReadingStoredEvent for each read', async () => {
@@ -244,7 +294,7 @@ describe('IntegratorsService', () => {
             fromTime: startTime,
             toTime: endTime,
             organizationId: organizationId.toString(),
-          })
+          }),
         );
       }
     });

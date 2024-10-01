@@ -83,7 +83,7 @@ jobs:
 
       - name: Build drec-origin
         run: rush build --verbose
-  
+
   unit-test:
     runs-on: ubuntu-latest
 
@@ -95,8 +95,7 @@ jobs:
         with:
           node-version: lts/iron
 
-      - name: Run Unit test suit
-       - name: Install tooling
+      - name: Install tooling
         run: |
           npm i -g @microsoft/rush
           npm i -g pnpm@9

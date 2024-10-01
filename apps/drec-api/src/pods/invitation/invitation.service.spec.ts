@@ -37,8 +37,8 @@ describe('InvitationService', () => {
           provide: getRepositoryToken(Invitation),
           useClass: Repository,
           useValue: {
-            findOne: jest.fn(),  // Mock function
-            delete: jest.fn(),   // Mock function
+            findOne: jest.fn(), // Mock function
+            delete: jest.fn(), // Mock function
           },
         },
         {
@@ -81,7 +81,8 @@ describe('InvitationService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('invite', () => {/*
+  describe('invite', () => {
+    /*
     it('should invite a user By admin', async () => {
       const user = {
         id: 1,
@@ -514,8 +515,15 @@ describe('InvitationService', () => {
     it('should throw BadRequestException if invitation does not exist', async () => {
       jest.spyOn(invitationRepository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.update({ email: 'test@example.com', status: OrganizationInvitationStatus.Accepted }, 1))
-        .rejects.toThrow(BadRequestException);
+      await expect(
+        service.update(
+          {
+            email: 'test@example.com',
+            status: OrganizationInvitationStatus.Accepted,
+          },
+          1,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should update invitation status if valid', async () => {
@@ -526,7 +534,7 @@ describe('InvitationService', () => {
         organization: { id: 1 },
         role: Role.User,
       } as Invitation;
-    
+
       const mockUser: IUser = {
         id: 1,
         firstName: 'admin',
@@ -551,24 +559,39 @@ describe('InvitationService', () => {
         } as Organization,
         emailConfirmed: false,
       };
-    
-      jest.spyOn(invitationRepository, 'findOne').mockResolvedValue(mockInvitation);
+
+      jest
+        .spyOn(invitationRepository, 'findOne')
+        .mockResolvedValue(mockInvitation);
       jest.spyOn(userService, 'findByEmail').mockResolvedValue(mockUser);
       jest.spyOn(userService, 'addToOrganization').mockResolvedValue(undefined);
       jest.spyOn(userService, 'changeRole').mockResolvedValue(undefined);
-      const saveSpy = jest.spyOn(invitationRepository, 'save').mockResolvedValue(mockInvitation);
-    
+      const saveSpy = jest
+        .spyOn(invitationRepository, 'save')
+        .mockResolvedValue(mockInvitation);
+
       await service.update(
-        { email: 'test@example.com', status: OrganizationInvitationStatus.Accepted },
+        {
+          email: 'test@example.com',
+          status: OrganizationInvitationStatus.Accepted,
+        },
         1,
       );
-    
-      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({
-        status: OrganizationInvitationStatus.Accepted,
-      }));
-      expect(userService.addToOrganization).toHaveBeenCalledWith(mockUser.id, mockInvitation.organization.id);
-      expect(userService.changeRole).toHaveBeenCalledWith(mockUser.id, mockInvitation.role);
-    });    
+
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: OrganizationInvitationStatus.Accepted,
+        }),
+      );
+      expect(userService.addToOrganization).toHaveBeenCalledWith(
+        mockUser.id,
+        mockInvitation.organization.id,
+      );
+      expect(userService.changeRole).toHaveBeenCalledWith(
+        mockUser.id,
+        mockInvitation.role,
+      );
+    });
   });
   describe('getUsersInvitation', () => {
     it('should return all invitations for an admin user', async () => {
@@ -580,20 +603,24 @@ describe('InvitationService', () => {
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([mockInvitations, mockInvitations.length]),
+        getManyAndCount: jest
+          .fn()
+          .mockResolvedValue([mockInvitations, mockInvitations.length]),
       };
-  
-      jest.spyOn(invitationRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-  
+
+      jest
+        .spyOn(invitationRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
       const result = await service.getUsersInvitation({
         id: 1,
         role: Role.Admin,
-        api_user_id: "ygjkgthhfrhjfjh",
+        api_user_id: 'ygjkgthhfrhjfjh',
         organizationId: 1,
         email: 'admin@example.com',
         blockchainAccountAddress: '0x123',
       } as ILoggedInUser);
-  
+
       expect(result.invitations).toEqual(mockInvitations);
       expect(result.totalCount).toBe(mockInvitations.length);
     });
@@ -614,10 +641,12 @@ describe('InvitationService', () => {
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh',
       } as Organization;
-    
+
       // Mock the organizationService to return a specific organization
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue(mockOrganization);
-    
+      jest
+        .spyOn(organizationService, 'findOne')
+        .mockResolvedValue(mockOrganization);
+
       // Mock createQueryBuilder and its chained methods
       const mockQueryBuilder = {
         leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -628,25 +657,27 @@ describe('InvitationService', () => {
         orderBy: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       };
-      
-      jest.spyOn(invitationRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-    
+
+      jest
+        .spyOn(invitationRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
       // Act & Assert
       await expect(
         service.getUsersInvitation(
           {
             id: 1,
-            role: Role.User,  // Non-admin role
-            api_user_id: 'different_api_user_id',  // Different from the organization's api_user_id
-            organizationId: 2,  // Different organizationId
+            role: Role.User, // Non-admin role
+            api_user_id: 'different_api_user_id', // Different from the organization's api_user_id
+            organizationId: 2, // Different organizationId
             email: 'user@example.com',
             blockchainAccountAddress: '0x123',
           } as ILoggedInUser,
-          1  // Passing the organizationId as parameter
-        )
+          1, // Passing the organizationId as parameter
+        ),
       ).rejects.toThrow(BadRequestException);
-    });    
-    
+    });
+
     it('should return invitations for a specific organization if user has access', async () => {
       // Arrange: Prepare a mock list of invitations
       const mockInvitations = [{ id: 1 }];
@@ -657,11 +688,15 @@ describe('InvitationService', () => {
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([mockInvitations, mockInvitations.length]),
+        getManyAndCount: jest
+          .fn()
+          .mockResolvedValue([mockInvitations, mockInvitations.length]),
       };
-    
-      jest.spyOn(invitationRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-    
+
+      jest
+        .spyOn(invitationRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
       jest.spyOn(organizationService, 'findOne').mockResolvedValue({
         id: 1,
         name: 'Admin_DREC',
@@ -674,22 +709,22 @@ describe('InvitationService', () => {
         organizationType: 'ApiUser',
         status: OrganizationStatus.Active,
         documentIds: null,
-        api_user_id: 'ygjkgthhfrhjfjh',  // Mocking this to match the user's api_user_id
+        api_user_id: 'ygjkgthhfrhjfjh', // Mocking this to match the user's api_user_id
       } as Organization);
-    
+
       // Act: Call the service method with a user that has access to the organization
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser,  // Change to Role.ApiUser to match the organization’s api_user_id
-          api_user_id: 'ygjkgthhfrhjfjh',  // Match the organization’s api_user_id
-          organizationId: 1,  // Same organizationId as being fetched
+          role: Role.ApiUser, // Change to Role.ApiUser to match the organization’s api_user_id
+          api_user_id: 'ygjkgthhfrhjfjh', // Match the organization’s api_user_id
+          organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
           blockchainAccountAddress: '0x123',
         } as ILoggedInUser,
-        1  // Organization ID being fetched
+        1, // Organization ID being fetched
       );
-    
+
       // Assert: Check if the service returns the correct invitations list and pagination info
       expect(result.invitations).toEqual(mockInvitations);
       expect(result.totalCount).toBe(mockInvitations.length);
@@ -707,9 +742,11 @@ describe('InvitationService', () => {
         orderBy: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([mockInvitations, 10]), // Total count of 10 for pagination
       };
-    
-      jest.spyOn(invitationRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-    
+
+      jest
+        .spyOn(invitationRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
       // Mocking organizationService.findOne to return a valid Organization object
       jest.spyOn(organizationService, 'findOne').mockResolvedValue({
         id: 1,
@@ -723,32 +760,32 @@ describe('InvitationService', () => {
         organizationType: 'ApiUser',
         status: OrganizationStatus.Active,
         documentIds: null,
-        api_user_id: 'ygjkgthhfrhjfjh',  // Matching the user's api_user_id
+        api_user_id: 'ygjkgthhfrhjfjh', // Matching the user's api_user_id
       } as Organization);
-    
+
       // Act: Call the service method with pagination parameters
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser,  // Role matching organization’s api_user_id
-          api_user_id: 'ygjkgthhfrhjfjh',  // Matching organization’s api_user_id
-          organizationId: 1,  // Same organizationId as being fetched
+          role: Role.ApiUser, // Role matching organization’s api_user_id
+          api_user_id: 'ygjkgthhfrhjfjh', // Matching organization’s api_user_id
+          organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
           blockchainAccountAddress: '0x123',
         } as ILoggedInUser,
-        1,  // Organization ID
-        1,  // Page number
-        5   // Limit per page
+        1, // Organization ID
+        1, // Page number
+        5, // Limit per page
       );
-    
+
       // Assert: Check if the service returns the correct invitations list and pagination info
       expect(result.invitations).toEqual(mockInvitations);
-      expect(result.currentPage).toBe(1);  // Expect page number to be 1
-      expect(result.totalPages).toBe(2);  // Total count is 10 and limit is 5, so totalPages should be 2
-      expect(result.totalCount).toBe(10);  // Expect total count to be 10
-    });    
+      expect(result.currentPage).toBe(1); // Expect page number to be 1
+      expect(result.totalPages).toBe(2); // Total count is 10 and limit is 5, so totalPages should be 2
+      expect(result.totalCount).toBe(10); // Expect total count to be 10
+    });
   });
-  
+
   describe('ensureIsNotMember', () => {
     it('should not throw an error if the user is not a member of the organization', () => {
       // Arrange: Prepare a mock organization without the user as a member
@@ -756,26 +793,28 @@ describe('InvitationService', () => {
         users: [{ email: 'user1@example.com' }, { email: 'user2@example.com' }],
         // Add other necessary properties of Organization if required
       } as any;
-  
+
       const emailToCheck = 'notamember@example.com';
-  
+
       // Act & Assert: Expect no exception to be thrown
       expect(() => {
         service.ensureIsNotMember(emailToCheck, organization);
       }).not.toThrow();
-    });  
+    });
   });
 
   describe('remove', () => {
     it('should convert the email to lowercase', async () => {
       const email = 'TEST@EXAMPLE.COM';
       const orgId = 1;
-  
+
       // Mock findOne to return null
-      const findOneSpy = jest.spyOn(invitationRepository,'findOne').mockResolvedValue(null);
-  
+      const findOneSpy = jest
+        .spyOn(invitationRepository, 'findOne')
+        .mockResolvedValue(null);
+
       await service.remove(email, orgId);
-  
+
       await expect(findOneSpy).toHaveBeenCalledWith({
         where: { email: email.toLowerCase(), organization: orgId },
         relations: ['organization'],
@@ -786,19 +825,23 @@ describe('InvitationService', () => {
       const email = 'test@example.com';
       const orgId = 1;
       const mockInvitee = { id: 1, email: 'test@example.com' };
-  
-      const findOneSpy = jest.spyOn(invitationRepository, 'findOne').mockResolvedValue({
-        id: 1,
-        email: 'test@example.com',
-        status: OrganizationInvitationStatus.Pending,
-        organization: { id: 1 },
-        role: Role.User,
-      } as Invitation);
 
-      const deleteSpy = jest.spyOn(invitationRepository,'delete').mockResolvedValue({ raw: [], affected: 1 })
-  
+      const findOneSpy = jest
+        .spyOn(invitationRepository, 'findOne')
+        .mockResolvedValue({
+          id: 1,
+          email: 'test@example.com',
+          status: OrganizationInvitationStatus.Pending,
+          organization: { id: 1 },
+          role: Role.User,
+        } as Invitation);
+
+      const deleteSpy = jest
+        .spyOn(invitationRepository, 'delete')
+        .mockResolvedValue({ raw: [], affected: 1 });
+
       await service.remove(email, orgId);
-  
+
       await expect(findOneSpy).toHaveBeenCalledWith({
         where: { email: email.toLowerCase(), organization: orgId },
         relations: ['organization'],
@@ -811,39 +854,47 @@ describe('InvitationService', () => {
       const email = 'test@example.com';
       const orgId = 1;
       const mockInvitee = { id: 1, email: 'test@example.com' };
-  
-      const findOneSpy = jest.spyOn(invitationRepository,'findOne').mockResolvedValue({
-        id: 1,
-        email: 'test@example.com',
-        status: OrganizationInvitationStatus.Pending,
-        organization: { id: 1 },
-        role: Role.User,
-      } as Invitation);
 
-      const deleteSpy = jest.spyOn(invitationRepository,'delete').mockResolvedValue({ raw: [], affected: 1 });
-  
+      const findOneSpy = jest
+        .spyOn(invitationRepository, 'findOne')
+        .mockResolvedValue({
+          id: 1,
+          email: 'test@example.com',
+          status: OrganizationInvitationStatus.Pending,
+          organization: { id: 1 },
+          role: Role.User,
+        } as Invitation);
+
+      const deleteSpy = jest
+        .spyOn(invitationRepository, 'delete')
+        .mockResolvedValue({ raw: [], affected: 1 });
+
       await service.remove(email, orgId);
 
       await expect(deleteSpy).toHaveBeenCalledWith(orgId);
     });
-  
+
     it('should delete the invitee if found', async () => {
       const email = 'test@example.com';
       const orgId = 1;
       const mockInvitee = { id: 1, email: 'test@example.com' };
-  
-      const findOneSpy = jest.spyOn(invitationRepository,'findOne').mockResolvedValue({
-        id: 1,
-        email: 'test@example.com',
-        status: OrganizationInvitationStatus.Pending,
-        organization: { id: 1 },
-        role: Role.User,
-      } as Invitation);
 
-      const deleteSpy = jest.spyOn(invitationRepository,'delete').mockResolvedValue({ raw: [], affected: 1 });
-  
+      const findOneSpy = jest
+        .spyOn(invitationRepository, 'findOne')
+        .mockResolvedValue({
+          id: 1,
+          email: 'test@example.com',
+          status: OrganizationInvitationStatus.Pending,
+          organization: { id: 1 },
+          role: Role.User,
+        } as Invitation);
+
+      const deleteSpy = jest
+        .spyOn(invitationRepository, 'delete')
+        .mockResolvedValue({ raw: [], affected: 1 });
+
       await service.remove(email, orgId);
-  
+
       await expect(findOneSpy).toHaveBeenCalledWith({
         where: { email: email.toLowerCase(), organization: orgId },
         relations: ['organization'],
@@ -854,15 +905,15 @@ describe('InvitationService', () => {
     it('should not delete anything if the invitee is not found', async () => {
       const email = 'test@example.com';
       const orgId = 1;
-  
+
       // Mock findOne to return null, simulating invitee not found
       jest.spyOn(invitationRepository, 'findOne').mockResolvedValue(null);
       const deleteSpy = jest.spyOn(invitationRepository, 'delete');
-  
+
       // No need to explicitly mock 'delete' again if it's already defined in beforeEach
-  
+
       await service.remove(email, orgId);
-  
+
       // Ensure 'delete' was not called since the invitee was not found
       expect(deleteSpy).not.toHaveBeenCalled();
     });

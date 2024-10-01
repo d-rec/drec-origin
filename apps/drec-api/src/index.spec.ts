@@ -74,9 +74,7 @@ describe('startAPI', () => {
     await startAPI();
 
     expect(NestFactory.create).toHaveBeenCalledWith(DrecModule);
-    expect(app.useGlobalPipes).toHaveBeenCalledWith(
-      expect.any(ValidationPipe),
-    );
+    expect(app.useGlobalPipes).toHaveBeenCalledWith(expect.any(ValidationPipe));
     expect(app.enableShutdownHooks).toHaveBeenCalled();
     expect(app.enableCors).toHaveBeenCalled();
     expect(app.setGlobalPrefix).toHaveBeenCalledWith('api');
@@ -105,7 +103,11 @@ describe('startAPI', () => {
       app,
       expect.any(Object),
     );
-    expect(SwaggerModule.setup).toHaveBeenCalledWith('swagger', app, expect.any(Object));
+    expect(SwaggerModule.setup).toHaveBeenCalledWith(
+      'swagger',
+      app,
+      expect.any(Object),
+    );
   });
 
   it('should return the application instance', async () => {

@@ -47,7 +47,9 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
     jwtService = module.get<JwtService>(JwtService);
-    oauthClientService = module.get<OauthClientCredentialsService>(OauthClientCredentialsService);
+    oauthClientService = module.get<OauthClientCredentialsService>(
+      OauthClientCredentialsService,
+    );
   });
 
   it('should be defined', () => {
@@ -67,14 +69,21 @@ describe('AuthService', () => {
         password: user.password, // Include password here
       };
 
-      jest.spyOn(userService, 'getUserAndPasswordByEmail').mockResolvedValue(userWithPassword);
+      jest
+        .spyOn(userService, 'getUserAndPasswordByEmail')
+        .mockResolvedValue(userWithPassword);
 
-      const result = await service.validateUser('aishuutech@gmail.com', 'Drec@1234');
+      const result = await service.validateUser(
+        'aishuutech@gmail.com',
+        'Drec@1234',
+      );
       expect(result).toBeDefined();
     });
 
     it('should return null when invalid credentials are provided', async () => {
-      jest.spyOn(userService, 'getUserAndPasswordByEmail').mockResolvedValue(null);
+      jest
+        .spyOn(userService, 'getUserAndPasswordByEmail')
+        .mockResolvedValue(null);
 
       const result = await service.validateUser('test@example.com', 'password');
       expect(result).toBeNull();
@@ -105,52 +114,70 @@ describe('AuthService', () => {
       //const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-  
+
       const response = await service.login(userDto);
-  
+
       expect(response).toBeDefined();
     });
-  
+
     it('should return an access token', async () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-  
+
       const result = await service.login(userDto);
-  
+
       expect(result).toEqual({ accessToken: token });
     });
-  
+
     it('should create a user session', async () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-  
+
       await service.login(userDto);
-  
-      expect(userService.createUserSession).toHaveBeenCalledWith(userDto, token);
+
+      expect(userService.createUserSession).toHaveBeenCalledWith(
+        userDto,
+        token,
+      );
     });
   });
 
   describe('logout', () => {
     it('should call removeUsersession with correct parameters', async () => {
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.OrganizationAdmin };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.OrganizationAdmin,
+      };
       const token = 'fake-jwt-token';
 
       const deleteResult = { affected: 1, raw: [] };
-      jest.spyOn(userService, 'removeUsersession').mockResolvedValue(deleteResult);
+      jest
+        .spyOn(userService, 'removeUsersession')
+        .mockResolvedValue(deleteResult);
 
       await service.logout(payload, token);
 
-      expect(userService.removeUsersession).toHaveBeenCalledWith(payload.id, token);
+      expect(userService.removeUsersession).toHaveBeenCalledWith(
+        payload.id,
+        token,
+      );
     });
 
     it('should return DeleteResult on successful logout', async () => {
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.ApiUser };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.ApiUser,
+      };
       const token = 'fake-jwt-token';
 
       const deleteResult = { affected: 1, raw: [] };
-      jest.spyOn(userService, 'removeUsersession').mockResolvedValue(deleteResult);
+      jest
+        .spyOn(userService, 'removeUsersession')
+        .mockResolvedValue(deleteResult);
 
       const result = await service.logout(payload, token);
 
@@ -158,21 +185,33 @@ describe('AuthService', () => {
     });
 
     it('should handle errors thrown by removeUsersession', async () => {
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.Buyer };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.Buyer,
+      };
       const token = 'fake-jwt-token';
 
       const error = new Error('Unable to remove user session');
       jest.spyOn(userService, 'removeUsersession').mockRejectedValue(error);
 
-      await expect(service.logout(payload, token)).rejects.toThrow('Unable to remove user session');
+      await expect(service.logout(payload, token)).rejects.toThrow(
+        'Unable to remove user session',
+      );
     });
 
     it('should handle case where no session is found', async () => {
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.SubBuyer };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.SubBuyer,
+      };
       const token = 'fake-jwt-token';
 
       const deleteResult = { affected: 0, raw: [] };
-      jest.spyOn(userService, 'removeUsersession').mockResolvedValue(deleteResult);
+      jest
+        .spyOn(userService, 'removeUsersession')
+        .mockResolvedValue(deleteResult);
 
       const result = await service.logout(payload, token);
 
@@ -184,10 +223,16 @@ describe('AuthService', () => {
   describe('isTokenBlacklisted', () => {
     it('should call hasgetUserTokenvalid with correct parameters', async () => {
       const token = 'fake-jwt-token';
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.ApiUser };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.ApiUser,
+      };
 
       const tokeninvalidate = true;
-      jest.spyOn(userService, 'hasgetUserTokenvalid').mockResolvedValue(tokeninvalidate);
+      jest
+        .spyOn(userService, 'hasgetUserTokenvalid')
+        .mockResolvedValue(tokeninvalidate);
 
       await service.isTokenBlacklisted(token, payload);
 
@@ -199,7 +244,11 @@ describe('AuthService', () => {
 
     it('should return true if token is blacklisted', async () => {
       const token = 'fake-jwt-token';
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.Buyer };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.Buyer,
+      };
 
       jest.spyOn(userService, 'hasgetUserTokenvalid').mockResolvedValue(true);
 
@@ -210,7 +259,11 @@ describe('AuthService', () => {
 
     it('should return false if token is not blacklisted', async () => {
       const token = 'fake-jwt-token';
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.OrganizationAdmin };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.OrganizationAdmin,
+      };
 
       jest.spyOn(userService, 'hasgetUserTokenvalid').mockResolvedValue(false);
 
@@ -221,12 +274,18 @@ describe('AuthService', () => {
 
     it('should handle errors thrown by hasgetUserTokenvalid', async () => {
       const token = 'fake-jwt-token';
-      const payload: IJWTPayload = { id: 1, email: 'test@example.com', role: Role.SubBuyer };
+      const payload: IJWTPayload = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.SubBuyer,
+      };
 
       const error = new Error('Error checking token validity');
       jest.spyOn(userService, 'hasgetUserTokenvalid').mockRejectedValue(error);
 
-      await expect(service.isTokenBlacklisted(token, payload)).rejects.toThrow('Error checking token validity');
+      await expect(service.isTokenBlacklisted(token, payload)).rejects.toThrow(
+        'Error checking token validity',
+      );
     });
   });
 
@@ -240,16 +299,16 @@ describe('AuthService', () => {
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
-        organization: { 
-            id: 1,
-            name: 'org1',
-            address: 'sAddress',
-            zipCode: '623754',
-            city: 'Chennai',
-            country: 'India',
-            organizationType: 'Developer',
-            status: OrganizationStatus.Active,
-         },
+        organization: {
+          id: 1,
+          name: 'org1',
+          address: 'sAddress',
+          zipCode: '623754',
+          city: 'Chennai',
+          country: 'India',
+          organizationType: 'Developer',
+          status: OrganizationStatus.Active,
+        },
       };
       const fileData = 'file-data';
 
@@ -279,23 +338,26 @@ describe('AuthService', () => {
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
-        organization: { 
-            id: 1,
-            name: 'org1',
-            address: 'sAddress',
-            zipCode: '623754',
-            city: 'Chennai',
-            country: 'India',
-            organizationType: 'Developer',
-            status: OrganizationStatus.Active,
-         },
+        organization: {
+          id: 1,
+          name: 'org1',
+          address: 'sAddress',
+          zipCode: '623754',
+          city: 'Chennai',
+          country: 'India',
+          organizationType: 'Developer',
+          status: OrganizationStatus.Active,
+        },
       };
       const fileData = 'file-data';
 
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const result: LoginReturnDataDTO = await service.generateToken(user, fileData);
+      const result: LoginReturnDataDTO = await service.generateToken(
+        user,
+        fileData,
+      );
 
       expect(result).toEqual({
         accessToken: token,
@@ -311,16 +373,16 @@ describe('AuthService', () => {
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
-        organization: { 
-            id: 1,
-            name: 'org1',
-            address: 'sAddress',
-            zipCode: '623754',
-            city: 'Chennai',
-            country: 'India',
-            organizationType: 'Developer',
-            status: OrganizationStatus.Active,
-         },
+        organization: {
+          id: 1,
+          name: 'org1',
+          address: 'sAddress',
+          zipCode: '623754',
+          city: 'Chennai',
+          country: 'India',
+          organizationType: 'Developer',
+          status: OrganizationStatus.Active,
+        },
       };
       const fileData = 'file-data';
 
@@ -329,7 +391,9 @@ describe('AuthService', () => {
         throw error;
       });
 
-      await expect(service.generateToken(user, fileData)).rejects.toThrow('Error signing token');
+      await expect(service.generateToken(user, fileData)).rejects.toThrow(
+        'Error signing token',
+      );
     });
   });
 });

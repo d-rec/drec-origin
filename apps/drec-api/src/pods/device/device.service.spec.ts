@@ -20,7 +20,13 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Role } from '../../utils/enums/role.enum';
-import { DeviceDTO, DeviceGroupByDTO, FilterDTO, NewDeviceDTO, UpdateDeviceDTO } from './dto';
+import {
+  DeviceDTO,
+  DeviceGroupByDTO,
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
 import {
   DeviceOrderBy,
   DevicetypeCode,
@@ -969,7 +975,8 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('getOrganizationDevices', () => {/*
+  describe('getOrganizationDevices', () => {
+    /*
     it('should return devices with filters and pagination', async () => {
       const organizationId = 1;
       const api_user_id = 'api-user-123';
@@ -1012,24 +1019,40 @@ describe('DeviceService', () => {
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
       const pagenumber = null;
-      const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
+      const mockDevices = [
+        {
+          id: 1,
+          externalId: 'EXT123',
+          developerExternalId: 'DEV123',
+        } as Device,
+      ];
 
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockDevices.length]);
+      jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([mockDevices, mockDevices.length]);
 
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+      const result = await service.getOrganizationDevices(
+        organizationId,
+        api_user_id,
+        role,
+        filterDto,
+        pagenumber,
+      );
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        where: { organizationId },
-      }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { organizationId },
+        }),
+      );
       expect(result).toEqual([
         {
           id: 1,
           internalexternalId: 'EXT123',
           externalId: 'DEV123',
-        }
+        },
       ]);
     });
-/*
+    /*
     it('should handle role specific queries', async () => {
       const organizationId = 1;
       const api_user_id = 'api-user-123';
@@ -1081,7 +1104,8 @@ describe('DeviceService', () => {
     }); */
   });
 
-  describe('findOne', () => { /*
+  describe('findOne', () => {
+    /*
     it('should return the device with updated timezone', async () => {
       const deviceEntity = {
       createdAt: '2024-07-16T09:46:59.846Z',
@@ -1256,14 +1280,16 @@ const device = {
     }); */
 
     it('should return null if device is not found', async () => {
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(null);
-  
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
+
       const result = await service.findOne(1);
-  
+
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { id: 1 },
       });
-  
+
       expect(result).toBeNull();
     });
   });
@@ -1304,7 +1330,7 @@ const device = {
         IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
-        organization:  {
+        organization: {
           createdAt: '2024-07-15T14:35:30.123Z',
           updatedAt: '2024-07-15T14:35:30.123Z',
           id: 94,
@@ -1320,8 +1346,8 @@ const device = {
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-          users: [ [User] ],
-          invitations: []
+          users: [[User]],
+          invitations: [],
         },
         hasId: jest.fn(),
         save: jest.fn(),
@@ -1366,21 +1392,28 @@ const device = {
         id: 44,
         yieldValue: 2000,
       };
-  
+
       // Mock repository and timezone function
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(deviceEntity as unknown as Device);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(deviceEntity as unknown as Device);
       const getLocalTimeZoneFromDeviceSpy = jest
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue('Antarctica/Mawson');
-  
+
       // Execute function
       const result = await service.findReads('some-meter-id');
-  
+
       // Assert
       expect(result?.timezone).toEqual('Antarctica/Mawson');
       expect(result?.organization).toBeUndefined();
-      expect(findOneSpy).toHaveBeenCalledWith({ where: { externalId: 'some-meter-id' } });
-      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(deviceEntity.createdAt, deviceEntity);
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { externalId: 'some-meter-id' },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        deviceEntity.createdAt,
+        deviceEntity,
+      );
     });
   });
 
@@ -1395,42 +1428,58 @@ const device = {
         timezone: null,
         // other properties...
       } as Device;
-  
+
       // Mock the repository to return a device
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(mockDevice);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(mockDevice);
       const getLocalTimeZoneFromDeviceSpy = jest
-      .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
-      .mockResolvedValue('America/New_York');
-  
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue('America/New_York');
+
       // Mock the getLocalTimeZoneFromDevice function
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
-  
+
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId('some-meter-id', 1);
-  
+      const result = await service.findDeviceByDeveloperExternalId(
+        'some-meter-id',
+        1,
+      );
+
       // Assert
       expect(result).toEqual(mockDevice);
       expect(result?.timezone).toBe('America/New_York');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { developerExternalId: 'some-meter-id', organizationId: 1 },
       });
-      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(mockDevice.createdAt, mockDevice);
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        mockDevice.createdAt,
+        mockDevice,
+      );
     });
-  
+
     it('should return null when no device is found', async () => {
       // Mock repository to return null
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
       const getLocalTimeZoneFromDeviceSpy = jest
-      .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
-      .mockResolvedValue(null);
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue(null);
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId('non-existent-meter-id', 1);
-  
+      const result = await service.findDeviceByDeveloperExternalId(
+        'non-existent-meter-id',
+        1,
+      );
+
       // Assert
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { developerExternalId: 'non-existent-meter-id', organizationId: 1 },
+        where: {
+          developerExternalId: 'non-existent-meter-id',
+          organizationId: 1,
+        },
       });
       expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalled();
     });
@@ -1439,13 +1488,18 @@ const device = {
   describe('findDeviceByDeveloperExternalIByApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
       const getLocalTimeZoneFromDeviceSpy = jest
-      .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
-      .mockResolvedValue(null);
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser('non-existent-meter-id', 'user-id');
-  
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+        'non-existent-meter-id',
+        'user-id',
+      );
+
       // Assert
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
@@ -1456,23 +1510,28 @@ const device = {
       });
       expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalled();
     });
-  
+
     it('should return a device when one is found and update its timezone', async () => {
       const deviceMock = {
         createdAt: new Date('2024-02-27T07:00:32.963Z'),
         timezone: 'America/New_York',
         // other properties as needed
       } as Device;
-  
+
       // Mock repository to return a device
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(deviceMock);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(deviceMock);
       const getLocalTimeZoneFromDeviceSpy = jest
-      .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
-      .mockResolvedValue('Asia/Kolkata');
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser('existing-meter-id', 'user-id');
-  
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+        'existing-meter-id',
+        'user-id',
+      );
+
       // Assert
       expect(result).toEqual(deviceMock);
       expect(result?.timezone).toBe('Asia/Kolkata');
@@ -1482,7 +1541,10 @@ const device = {
           api_user_id: 'user-id',
         },
       });
-      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(deviceMock.createdAt, deviceMock);
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        deviceMock.createdAt,
+        deviceMock,
+      );
     });
   });
 
@@ -1490,10 +1552,13 @@ const device = {
     it('should return an empty array when no devices are found', async () => {
       // Mock repository to return an empty array
       const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
-  
+
       // Execute the function
-      const result = await service.findMultipleDevicesBasedExternalId(['non-existent-meter-id'], 1);
-  
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['non-existent-meter-id'],
+        1,
+      );
+
       // Assert
       expect(result).toEqual([]);
       expect(findSpy).toHaveBeenCalledWith({
@@ -1538,7 +1603,7 @@ const device = {
         IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
-        organization:  {
+        organization: {
           createdAt: '2024-07-15T14:35:30.123Z',
           updatedAt: '2024-07-15T14:35:30.123Z',
           id: 94,
@@ -1554,8 +1619,8 @@ const device = {
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-          users: [ [User] ],
-          invitations: []
+          users: [[User]],
+          invitations: [],
         },
         hasId: jest.fn(),
         save: jest.fn(),
@@ -1564,7 +1629,7 @@ const device = {
         recover: jest.fn(),
         reload: jest.fn(),
       } as unknown as Device;
-  
+
       const deviceEntity2 = {
         createdAt: '2024-07-16T09:46:59.846Z',
         updatedAt: '2024-07-16T09:46:59.846Z',
@@ -1598,7 +1663,7 @@ const device = {
         IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: null,
-        organization:  {
+        organization: {
           createdAt: '2024-07-15T14:35:30.123Z',
           updatedAt: '2024-07-15T14:35:30.123Z',
           id: 94,
@@ -1614,8 +1679,8 @@ const device = {
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-          users: [ [User] ],
-          invitations: []
+          users: [[User]],
+          invitations: [],
         },
         hasId: jest.fn(),
         save: jest.fn(),
@@ -1624,13 +1689,18 @@ const device = {
         recover: jest.fn(),
         reload: jest.fn(),
       } as unknown as Device;
-  
+
       // Mock repository to return an array of devices
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([deviceEntity1, deviceEntity2]);
-  
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue([deviceEntity1, deviceEntity2]);
+
       // Execute the function
-      const result = await service.findMultipleDevicesBasedExternalId(['externalId1', 'externalId2'], 1);
-  
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['externalId1', 'externalId2'],
+        1,
+      );
+
       // Assert
       expect(result).toEqual([deviceEntity1, deviceEntity2]);
       expect(findSpy).toHaveBeenCalledWith({
@@ -1644,10 +1714,13 @@ const device = {
     it('should return null when the repository returns null', async () => {
       // Mock repository to return null
       const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(null);
-  
+
       // Execute the function
-      const result = await service.findMultipleDevicesBasedExternalId(['meter-id-1'], 1);
-  
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['meter-id-1'],
+        1,
+      );
+
       // Assert
       expect(result).toBeNull();
       expect(findSpy).toHaveBeenCalledWith({
@@ -1657,16 +1730,18 @@ const device = {
         },
       });
     });
-  
+
     it('should handle exceptions thrown by the repository', async () => {
       // Mock repository to throw an error
-      const findSpy = jest.spyOn(repository, 'find').mockRejectedValue(new Error('Database error'));
-  
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockRejectedValue(new Error('Database error'));
+
       // Assert that an error is thrown
-      await expect(service.findMultipleDevicesBasedExternalId(['meter-id-1'], 1)).rejects.toThrow(
-        'Database error',
-      );
-  
+      await expect(
+        service.findMultipleDevicesBasedExternalId(['meter-id-1'], 1),
+      ).rejects.toThrow('Database error');
+
       expect(findSpy).toHaveBeenCalledWith({
         where: {
           developerExternalId: In(['meter-id-1']),
@@ -1687,12 +1762,12 @@ const device = {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        fuelCode: FuelCode.ES100,//'ES100',
-        deviceTypeCode: DevicetypeCode.TC110,//'TC110',
+        fuelCode: FuelCode.ES100, //'ES100',
+        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: OffTaker.School,//'School',
+        offTaker: OffTaker.School, //'School',
         impactStory: null,
         data: null,
         images: null,
@@ -1705,7 +1780,7 @@ const device = {
         yieldValue: 1500,
         labels: 'labels',
       };
-  
+
       const currentDevice = {
         id: 1,
         externalId: 'external-id-1',
@@ -1713,7 +1788,7 @@ const device = {
         organizationId: 1,
         SDGBenefits: ['1', '4'],
       } as Device;
-  
+
       const savedDevice = {
         ...currentDevice,
         ...updateDeviceDTO,
@@ -1721,71 +1796,99 @@ const device = {
         developerExternalId: 'external-id-1', // As per your method logic
         organization: undefined,
       };
-  
-      const findDeviceByDeveloperExternalIdSpy = jest.spyOn(service, 'findDeviceByDeveloperExternalId').mockResolvedValue(currentDevice);
-      const saveSpy = jest.spyOn(repository,'save').mockResolvedValue(savedDevice as unknown as Device);
-  
-      const result = await service.update(organizationId, role, externalId, updateDeviceDTO);
-  
-      expect(findDeviceByDeveloperExternalIdSpy).toHaveBeenCalledWith(externalId.trim(), organizationId);
-      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(updateDeviceDTO));
-      expect(result).toEqual(expect.objectContaining({
-        id: 1,
-        externalId: 'external-id-1',
-        internalexternalId: 'old-developer-external-id',
-        //developerExternalId: undefined, // Because it's deleted
-        projectName: 'sampleProject',
-        address: 'Bangalore',
-        latitude: '23.65362',
-        longitude: '25.43647',
-        fuelCode: FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
-        capacity: 2500,
-        commissioningDate: '2024-02-01T06:59:11.000Z',
-        gridInterconnection: true,
-        offTaker: OffTaker.School,
-        impactStory: null,
-        data: null,
-        images: null,
-        SDGBenefits: ['invalid'], // Assuming "No Poverty" was not found and set to 'invalid'
-        countryCode: 'IND',
-        organizationId: 3,
-        meterReadtype: null,
-        IREC_Status: null,
-        IREC_ID: null,
-        yieldValue: 1500,
-        labels: 'labels',
-      }));
+
+      const findDeviceByDeveloperExternalIdSpy = jest
+        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .mockResolvedValue(currentDevice);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(savedDevice as unknown as Device);
+
+      const result = await service.update(
+        organizationId,
+        role,
+        externalId,
+        updateDeviceDTO,
+      );
+
+      expect(findDeviceByDeveloperExternalIdSpy).toHaveBeenCalledWith(
+        externalId.trim(),
+        organizationId,
+      );
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining(updateDeviceDTO),
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 1,
+          externalId: 'external-id-1',
+          internalexternalId: 'old-developer-external-id',
+          //developerExternalId: undefined, // Because it's deleted
+          projectName: 'sampleProject',
+          address: 'Bangalore',
+          latitude: '23.65362',
+          longitude: '25.43647',
+          fuelCode: FuelCode.ES100,
+          deviceTypeCode: DevicetypeCode.TC110,
+          capacity: 2500,
+          commissioningDate: '2024-02-01T06:59:11.000Z',
+          gridInterconnection: true,
+          offTaker: OffTaker.School,
+          impactStory: null,
+          data: null,
+          images: null,
+          SDGBenefits: ['invalid'], // Assuming "No Poverty" was not found and set to 'invalid'
+          countryCode: 'IND',
+          organizationId: 3,
+          meterReadtype: null,
+          IREC_Status: null,
+          IREC_ID: null,
+          yieldValue: 1500,
+          labels: 'labels',
+        }),
+      );
     });
   });
 
   describe('findUngrouped', () => {
     it('should return grouped devices when ungrouped devices are found', async () => {
       const organizationId = 1;
-      const orderFilterDto: DeviceGroupByDTO = {orderBy: [DeviceOrderBy.CommissioningDate]}; // Provide necessary DTO properties
+      const orderFilterDto: DeviceGroupByDTO = {
+        orderBy: [DeviceOrderBy.CommissioningDate],
+      }; // Provide necessary DTO properties
       const mockDevices = [
         { id: 1, groupId: null, organizationId: 1 },
         { id: 2, groupId: null, organizationId: 1 },
       ] as Device[];
 
-      const findSpy = jest.spyOn(repository,'find').mockResolvedValue(mockDevices);
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue(mockDevices);
 
-      const result = await service.findUngrouped(organizationId, orderFilterDto);
+      const result = await service.findUngrouped(
+        organizationId,
+        orderFilterDto,
+      );
 
       expect(findSpy).toHaveBeenCalledWith({
         where: { groupId: null, organizationId },
       });
       // Assuming groupDevices returns a transformed array based on your logic
       // Replace with actual expected result from `groupDevices` method
-      expect(result).toEqual(expect.any(Array)); 
+      expect(result).toEqual(expect.any(Array));
     });
 
     it('should return an empty array when no ungrouped devices are found', async () => {
       const organizationId = 1;
-      const orderFilterDto: DeviceGroupByDTO = {orderBy:[DeviceOrderBy.CommissioningDate]};
-      const findSpy = jest.spyOn(repository,'find').mockResolvedValue([]);
+      const orderFilterDto: DeviceGroupByDTO = {
+        orderBy: [DeviceOrderBy.CommissioningDate],
+      };
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
 
-      const result = await service.findUngrouped(organizationId, orderFilterDto);
+      const result = await service.findUngrouped(
+        organizationId,
+        orderFilterDto,
+      );
 
       expect(findSpy).toHaveBeenCalledWith({
         where: { groupId: null, organizationId },
@@ -1799,7 +1902,9 @@ const device = {
       const id = 1;
       const mockDevice = [{ id: 1, groupId: null }] as Device[];
 
-      const findSpy = jest.spyOn(repository,'find').mockResolvedValue(mockDevice);
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue(mockDevice);
 
       const result = await service.findUngroupedById(id);
 
@@ -1812,9 +1917,9 @@ const device = {
     it('should return false when no ungrouped device is found by id', async () => {
       const id = 1;
       const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
-    
+
       const result = await service.findUngroupedById(id);
-    
+
       expect(findSpy).toHaveBeenCalledWith({
         where: { groupId: null, id },
       });

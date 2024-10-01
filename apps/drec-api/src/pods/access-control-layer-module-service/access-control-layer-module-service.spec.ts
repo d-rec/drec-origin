@@ -4,9 +4,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service';
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
-import { ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto';
+import {
+  ACLModuleDTO,
+  NewACLModuleDTO,
+  UpdateACLModuleDTO,
+} from './dto/aclmodule.dto';
 import { RoleStatus } from 'src/utils/enums';
-import { ConflictException, NotFoundException, } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
@@ -67,9 +71,15 @@ describe('AccessControlLayerModuleServiceService', () => {
         ...newModule,
       } as AClModules;
 
-      const saveSpy = jest.spyOn(repository, 'save').mockResolvedValue(savedModule);
-      const findOneSpy = jest.spyOn(repository,'findOne').mockResolvedValue(null);
-      const computePermissionsSpy = jest.spyOn(Permissionvalue, 'computePermissions').mockReturnValue(3);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(savedModule);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
+      const computePermissionsSpy = jest
+        .spyOn(Permissionvalue, 'computePermissions')
+        .mockReturnValue(3);
 
       const result = await service.create(newModule);
 
@@ -94,9 +104,13 @@ describe('AccessControlLayerModuleServiceService', () => {
         ...newModule,
       } as AClModules;
 
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(savedModule);
 
-      await expect(service.create(newModule)).rejects.toThrow(ConflictException);
+      await expect(service.create(newModule)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -115,7 +129,9 @@ describe('AccessControlLayerModuleServiceService', () => {
         ...newModule,
       } as AClModules;
 
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(savedModule);
 
       const result = await service.findById(1);
 
@@ -126,17 +142,17 @@ describe('AccessControlLayerModuleServiceService', () => {
   describe('getAll', () => {
     it('should return all modules', async () => {
       const modules = [
-        { 
-          id: 1, 
-          name: 'Test Module 1', 
+        {
+          id: 1,
+          name: 'Test Module 1',
           permissions: ['Read'],
           status: RoleStatus.Enable,
           description: 'description of test module 1',
           permissionsValue: 1,
         },
-        { 
-          id: 2, 
-          name: 'Test Module 2', 
+        {
+          id: 2,
+          name: 'Test Module 2',
           permissions: ['Write'],
           status: RoleStatus.Enable,
           description: 'description of test module 2',
@@ -167,16 +183,22 @@ describe('AccessControlLayerModuleServiceService', () => {
         ...updateData,
       } as AClModules;
 
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(existingModule);
-      const computePermissionsSpy = jest.spyOn(Permissionvalue, 'computePermissions').mockReturnValue(5);
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(existingModule);
+      const computePermissionsSpy = jest
+        .spyOn(Permissionvalue, 'computePermissions')
+        .mockReturnValue(5);
 
       const updateResult = {
         generatedMaps: [],
         raw: [],
-        affected: 1,  // number of affected rows
+        affected: 1, // number of affected rows
       };
 
-      const updateSpy = jest.spyOn(repository, 'update').mockResolvedValue(updateResult);
+      const updateSpy = jest
+        .spyOn(repository, 'update')
+        .mockResolvedValue(updateResult);
       jest.spyOn(repository, 'findOne').mockResolvedValue(existingModule);
 
       const result = await service.update(1, updateData);

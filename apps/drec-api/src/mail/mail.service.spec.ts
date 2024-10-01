@@ -40,45 +40,51 @@ describe('MailService', () => {
   });
 
   describe('send', () => {
-      it('should return false when email sending fails', async () => {
-        jest.spyOn(mailerService, 'sendMail').mockResolvedValue({
-          response: [{ status: 'failed' }],
-          messageId: '123',
-        });
-    
-        const result = await service.send({
-          to: 'test@example.com',
-          subject: 'Test',
-          text: 'Test',
-        });
-    
-        expect(result).toBe(false);
+    it('should return false when email sending fails', async () => {
+      jest.spyOn(mailerService, 'sendMail').mockResolvedValue({
+        response: [{ status: 'failed' }],
+        messageId: '123',
       });
-    
-      it('should return false when an exception is thrown', async () => {
-        jest.spyOn(mailerService, 'sendMail').mockRejectedValue(new Error('Test Error'));
-    
-        const result = await service.send({
-          to: 'test@example.com',
-          subject: 'Test',
-          text: 'Test',
-        });
-    
-        expect(result).toBe(false);
+
+      const result = await service.send({
+        to: 'test@example.com',
+        subject: 'Test',
+        text: 'Test',
       });
-    
-      it('should log errors appropriately', async () => {
-        const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-        jest.spyOn(mailerService, 'sendMail').mockRejectedValue(new Error('Test Error'));
-    
-        await service.send({
-          to: 'test@example.com',
-          subject: 'Test',
-          text: 'Test',
-        });
-    
-        expect(loggerSpy).toHaveBeenCalledWith('Error when sending email.');
-        expect(loggerSpy).toHaveBeenCalledWith(JSON.stringify(new Error('Test Error')));
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when an exception is thrown', async () => {
+      jest
+        .spyOn(mailerService, 'sendMail')
+        .mockRejectedValue(new Error('Test Error'));
+
+      const result = await service.send({
+        to: 'test@example.com',
+        subject: 'Test',
+        text: 'Test',
       });
+
+      expect(result).toBe(false);
+    });
+
+    it('should log errors appropriately', async () => {
+      const loggerSpy = jest.spyOn(Logger.prototype, 'error');
+      jest
+        .spyOn(mailerService, 'sendMail')
+        .mockRejectedValue(new Error('Test Error'));
+
+      await service.send({
+        to: 'test@example.com',
+        subject: 'Test',
+        text: 'Test',
+      });
+
+      expect(loggerSpy).toHaveBeenCalledWith('Error when sending email.');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        JSON.stringify(new Error('Test Error')),
+      );
+    });
   });
 });

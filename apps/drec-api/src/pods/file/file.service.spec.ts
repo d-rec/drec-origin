@@ -34,7 +34,8 @@ describe('FileService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('store', () => { /*
+  describe('store', () => {
+    /*
     it('should throw NotAcceptableException if no files are provided', async () => {
       await expect(service.store({ id: '123', organizationId: '456' } as ILoggedInUser, [], false))
         .rejects.toThrow(NotAcceptableException);

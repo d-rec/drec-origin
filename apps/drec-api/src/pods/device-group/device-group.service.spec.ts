@@ -16,8 +16,18 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { DeviceService } from '../device/device.service';
 import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
 import { ICertificateMetadata } from '../../utils/types';
-import { ConflictException, UnauthorizedException, NotFoundException, HttpException, } from '@nestjs/common';
-import { CapacityRange, CommissioningDateRange, OffTaker, Role } from 'src/utils/enums';
+import {
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
+  HttpException,
+} from '@nestjs/common';
+import {
+  CapacityRange,
+  CommissioningDateRange,
+  OffTaker,
+  Role,
+} from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { DeviceGroupDTO, UnreservedDeviceGroupsFilterDTO } from './dto';
 
@@ -65,13 +75,17 @@ describe('DeviceGroupService', () => {
         {
           provide: OrganizationService,
           useValue: {
-            findOne: jest.fn().mockResolvedValue({ id: 1, name: 'Organization Name' }),
+            findOne: jest
+              .fn()
+              .mockResolvedValue({ id: 1, name: 'Organization Name' }),
           } as any,
         },
         {
           provide: UserService,
           useValue: {
-            findByEmail: jest.fn().mockResolvedValue({ role: Role.OrganizationAdmin }),
+            findByEmail: jest
+              .fn()
+              .mockResolvedValue({ role: Role.OrganizationAdmin }),
           } as any,
         },
         {
@@ -163,7 +177,7 @@ describe('DeviceGroupService', () => {
           createdAt: new Date(),
         },
       ];
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
         return {
           innerJoin: jest.fn().mockReturnThis(),
@@ -175,7 +189,7 @@ describe('DeviceGroupService', () => {
           getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
         } as any;
       });
-  
+
       const result = await service.getAll();
       expect(result).toEqual({
         groupedData: deviceGroups,
@@ -188,9 +202,9 @@ describe('DeviceGroupService', () => {
     it('should filter device groups by apiuserId when user is admin', async () => {
       const user = {
         id: 1,
-        role: Role.User,  // Non-admin role
-        api_user_id: 'different_api_user_id',  // Different from the organization's api_user_id
-        organizationId: 2,  // Different organizationId
+        role: Role.User, // Non-admin role
+        api_user_id: 'different_api_user_id', // Different from the organization's api_user_id
+        organizationId: 2, // Different organizationId
         email: 'user@example.com',
         blockchainAccountAddress: '0x123',
       } as ILoggedInUser;
@@ -206,7 +220,7 @@ describe('DeviceGroupService', () => {
           createdAt: new Date(),
         },
       ];
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
         return {
           innerJoin: jest.fn().mockReturnThis(),
@@ -219,7 +233,7 @@ describe('DeviceGroupService', () => {
           getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
         } as any;
       });
-  
+
       const result = await service.getAll(user, undefined, apiuserId);
       expect(result).toEqual({
         groupedData: deviceGroups,
@@ -228,7 +242,7 @@ describe('DeviceGroupService', () => {
         totalCount: 1,
       });
     });
-/*  
+    /*  
     it('should throw a ConflictException when start date is provided without end date', async () => {
       const filterDto = {
         start_date: new Date('2023-01-01'),
@@ -321,28 +335,37 @@ describe('DeviceGroupService', () => {
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
-  
+
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue({ name: 'Test Org', blockchainAccountAddress: '0x123' } as any);
-      jest.spyOn(deviceService, 'findForGroup').mockResolvedValue([{ id: 1 }, { id: 2 }] as any);
-  
+      jest
+        .spyOn(organizationService, 'findOne')
+        .mockResolvedValue({
+          name: 'Test Org',
+          blockchainAccountAddress: '0x123',
+        } as any);
+      jest
+        .spyOn(deviceService, 'findForGroup')
+        .mockResolvedValue([{ id: 1 }, { id: 2 }] as any);
+
       const result = await service.findById(deviceGroupId);
-  
+
       expect(result).toEqual({
         ...mockDeviceGroup,
         devices: [{ id: 1 }, { id: 2 }],
         organization: { name: 'Test Org', blockchainAccountAddress: '0x123' },
       });
     });
-  
+
     it('should throw NotFoundException if no device group is found', async () => {
       const deviceGroupId = 1;
-  
+
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
-  
-      await expect(service.findById(deviceGroupId)).rejects.toThrow(NotFoundException);
+
+      await expect(service.findById(deviceGroupId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
-  
+
     it('should throw UnauthorizedException if an API user tries to access a device group not belonging to their organization', async () => {
       const deviceGroupId = 1;
       const mockDeviceGroup = {
@@ -354,15 +377,23 @@ describe('DeviceGroupService', () => {
         role: Role.ApiUser,
         organizationId: 1,
       } as ILoggedInUser;
-  
+
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue({ orgEmail: 'org@example.com' } as any);
-      jest.spyOn(userService, 'findByEmail').mockResolvedValue({ role: Role.OrganizationAdmin } as any);
-      jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(false);
-  
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(UnauthorizedException);
+      jest
+        .spyOn(organizationService, 'findOne')
+        .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
+      jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
+      jest
+        .spyOn(service, 'checkdeveloperorganization')
+        .mockResolvedValue(false);
+
+      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
-  
+
     it('should allow access if an API user is part of the organization', async () => {
       const deviceGroupId = 1;
       const mockDeviceGroup = {
@@ -374,17 +405,21 @@ describe('DeviceGroupService', () => {
         role: Role.ApiUser,
         organizationId: 1,
       } as ILoggedInUser;
-  
+
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue({ orgEmail: 'org@example.com' } as any);
-      jest.spyOn(userService, 'findByEmail').mockResolvedValue({ role: Role.OrganizationAdmin } as any);
+      jest
+        .spyOn(organizationService, 'findOne')
+        .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
+      jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
-  
+
       const result = await service.findById(deviceGroupId, mockUser);
-  
+
       expect(result).toEqual(mockDeviceGroup);
     });
-  
+
     it('should throw UnauthorizedException if a buyer tries to access a device group from another organization', async () => {
       const deviceGroupId = 1;
       const mockDeviceGroup = {
@@ -396,11 +431,13 @@ describe('DeviceGroupService', () => {
         role: Role.Buyer,
         organizationId: 1,
       } as ILoggedInUser;
-  
+
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
       jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
-  
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(UnauthorizedException);
+
+      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -455,39 +492,41 @@ describe('DeviceGroupService', () => {
           reservationExpiryDate: new Date('2024-08-31'),
         } as unknown as DeviceGroup,
       ];
-  
+
       jest.spyOn(repository, 'find').mockResolvedValue(mockDeviceGroups);
-  
+
       const result = await service.getOrganizationDeviceGroups(organizationId);
-  
+
       expect(result).toEqual(mockDeviceGroups);
       expect(repository.find).toHaveBeenCalledWith({
         where: { organizationId },
         order: { createdAt: 'DESC' },
       });
     });
-  
+
     it('should return an empty array if no device groups are found', async () => {
       const organizationId = 1;
-  
+
       jest.spyOn(repository, 'find').mockResolvedValue([]);
-  
+
       const result = await service.getOrganizationDeviceGroups(organizationId);
-  
+
       expect(result).toEqual([]);
       expect(repository.find).toHaveBeenCalledWith({
         where: { organizationId },
         order: { createdAt: 'DESC' },
       });
     });
-  
+
     it('should handle errors from the repository', async () => {
       const organizationId = 1;
       const error = new Error('Repository error');
-      
+
       jest.spyOn(repository, 'find').mockRejectedValue(error);
-  
-      await expect(service.getOrganizationDeviceGroups(organizationId)).rejects.toThrow(error);
+
+      await expect(
+        service.getOrganizationDeviceGroups(organizationId),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -517,16 +556,16 @@ describe('DeviceGroupService', () => {
           dg_targetVolumeCertificateGenerationSucceededInMegaWattHour: 70,
           dg_targetVolumeCertificateGenerationFailedInMegaWattHour: 10,
           dg_authorityToExceed: false,
-          dg_leftoverReadsByCountryCode: { 'IND': 30 },
+          dg_leftoverReadsByCountryCode: { IND: 30 },
           dg_devicegroup_uid: 'UID-123',
           dg_type: 'typeA',
           dg_deviceIdsInt: [1, 2],
           sdgBenefits: ['Benefit1', 'Benefit2'],
-        }
+        },
       ];
-    
+
       const mockCount = 1;
-    
+
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -541,10 +580,10 @@ describe('DeviceGroupService', () => {
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
-    
+
       // Calling the service function with necessary parameters
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
-    
+
       expect(result.groupedData).toEqual([
         {
           id: 1,
@@ -568,25 +607,25 @@ describe('DeviceGroupService', () => {
           targetVolumeCertificateGenerationSucceededInMegaWattHour: 70,
           targetVolumeCertificateGenerationFailedInMegaWattHour: 10,
           authorityToExceed: false,
-          leftoverReadsByCountryCode: { 'IND': 30 },
+          leftoverReadsByCountryCode: { IND: 30 },
           devicegroup_uid: 'UID-123',
           type: 'typeA',
           deviceIds: [1, 2],
           SDGBenefits: ['Benefit1', 'Benefit2'],
-        }
+        },
       ]);
-    
+
       expect(result.pageNumber).toEqual(1);
       expect(result.totalPages).toEqual(1);
       expect(result.totalCount).toEqual(mockCount);
     });
     it('should throw ConflictException when end date is before start date', async () => {
       const buyerId = 1;
-    
+
       // Add all required properties to groupfilterDto
       const groupfilterDto = {
-        name: null,          // Adjust based on the actual type, use '' or null if appropriate
-        country: null,       // Same here, adjust accordingly
+        name: null, // Adjust based on the actual type, use '' or null if appropriate
+        country: null, // Same here, adjust accordingly
         fuelCode: null,
         offTaker: null,
         type: null,
@@ -594,7 +633,7 @@ describe('DeviceGroupService', () => {
         start_date: '2024-08-01',
         end_date: '2024-07-01',
       };
-    
+
       // Mocking createQueryBuilder and its chained methods if needed
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         where: jest.fn().mockReturnThis(),
@@ -602,17 +641,21 @@ describe('DeviceGroupService', () => {
         orWhere: jest.fn().mockReturnThis(),
         getRawMany: jest.fn(),
       } as any);
-    
+
       await expect(
-        service.getBuyerDeviceGroups(buyerId, 1, groupfilterDto as unknown as UnreservedDeviceGroupsFilterDTO)
+        service.getBuyerDeviceGroups(
+          buyerId,
+          1,
+          groupfilterDto as unknown as UnreservedDeviceGroupsFilterDTO,
+        ),
       ).rejects.toThrow(ConflictException);
-    });    
+    });
 
     it('should throw HttpException if page number is out of range', async () => {
       const buyerId = 1;
       const mockDeviceGroups: any = [];
       const mockCount = 10;
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -627,8 +670,10 @@ describe('DeviceGroupService', () => {
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
-  
-      await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(HttpException);
+
+      await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
@@ -653,9 +698,13 @@ describe('DeviceGroupService', () => {
     });
 
     it('should handle errors when findOne throws an error', async () => {
-      jest.spyOn(repository, 'findOne').mockRejectedValue(new Error('Database error'));
+      jest
+        .spyOn(repository, 'findOne')
+        .mockRejectedValue(new Error('Database error'));
 
-      await expect(service.findOne({ id: 1 })).rejects.toThrow('Database error');
+      await expect(service.findOne({ id: 1 })).rejects.toThrow(
+        'Database error',
+      );
 
       expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
     });
