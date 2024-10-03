@@ -1076,17 +1076,19 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 0 */2 * * *')
+  @Cron('* */2 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 2hr to check for issuance of certificates');
-    const lateongoing = await this.deviceService.findAllLateCycle();
-    if (lateongoing) {
-      for (const element of lateongoing) {
-        const group = await this.groupService.findOne({ id: element.groupId });
+
+    const devicegroups = await this.groupService.getallReservationactive();
+
+    await Promise.all(
+      devicegroups.map(async (grouprequest: DeviceGroup) => {
+        const group = grouprequest;
         if (!group) {
-          this.logger.error('LateOngoing group is missing');
-          continue; // Skip to the next element if the group is missing
+          this.logger.error('late ongoing group is missing');
+          return;
         }
         if (
           group.leftoverReadsByCountryCode === null ||
@@ -1100,146 +1102,166 @@ export class IssuerService {
             group.leftoverReadsByCountryCode,
           );
         }
-        if (
-          group.reservationExpiryDate != null &&
-          group.reservationExpiryDate.getTime() <= new Date().getTime()
-        ) {
-          this.logger.error('ReservationExpiryDate has passed');
-          continue; // Skip to the next element if the reservation expiry date has passed
-        }
-        const device = await this.deviceService.findReads(
-          element.device_externalid,
+        const countryDevicegroup = await this.deviceService.NewfindForGroup(
+          group.id,
         );
-        const newGroupwithsingledevice: DeviceGroup = group;
-        newGroupwithsingledevice.devices = [device];
-        const startDate = DateTime.fromISO(element.late_start_date).toUTC();
-        const endDate = DateTime.fromISO(element.late_end_date).toUTC();
+        const organization = await this.organizationService.findOne(
+          group.organizationId,
+        );
+        group.organization = {
+          name: organization.name,
+          blockchainAccountAddress: organization.blockchainAccountAddress,
+        };
         const nextissuance =
           await this.groupService.getGroupiCertificateIssueDate({
             groupId: group.id,
           });
 
-        if (nextissuance) {
-          nextissuance.start_date = element.late_start_date;
-          nextissuance.end_date = element.late_end_date;
-        }
-        const lastread = await this.readservice.latestread(
-          device.externalId,
-          device.createdAt,
-        );
-        if (lastread.length === 0) {
-          this.logger.error('No last read found');
-          continue; // Skip to the next element if no last read is found
-        }
-        if (
-          new Date(lastread[0].timestamp).getTime() <=
-            new Date(element.late_end_date).getTime() &&
-          new Date(lastread[0].timestamp).getTime() >=
-            new Date(element.late_start_date).getTime()
-        ) {
-          this.logger.verbose(
-            'If Lastread less from lateend_date and greater then from latestart_date',
-          );
-          const endDate1 = new Date(lastread[0].timestamp).toISOString();
-          const certifieddevices =
-            await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-              element.device_externalid,
-              new Date(startDate.toString()),
-              new Date(lastread[0].timestamp.toString()),
-            );
-          const newsatrtdate = new Date(lastread[0].timestamp);
-          newsatrtdate.setTime(newsatrtdate.getTime() + 1); // Add one millisecond
-          if (
-            certifieddevices.length === 0 &&
-            new Date(newsatrtdate).getTime() !==
-              new Date(element.late_start_date).getTime()
-          ) {
-            await this.deviceService.updatelateongoing(
-              device.externalId,
-              element.id,
-              new Date(lastread[0].timestamp).toISOString(),
-            );
+        for (const key in countryDevicegroup) {
+          const newGroup: DeviceGroup = JSON.parse(JSON.stringify(group));
+          newGroup.devices = countryDevicegroup[key];
 
-            const Islateongoingcycle =
-              await this.deviceService.finddeviceLateCycleOfdaterange(
+          await Promise.all(
+            newGroup.devices.map(async (element) => {
+              const lateongoing = await this.deviceService.findAllLateCycle(
                 group.id,
-                device.externalId,
-                DateTime.fromISO(
-                  new Date(lastread[0].timestamp).toISOString(),
-                ).toUTC(),
-                DateTime.fromISO(element.late_end_date).toUTC(),
+                element.externalId,
               );
 
-            if (!Islateongoingcycle) {
-              await this.addlateongoing_devicecertificatecycle(
-                group.id,
-                device.externalId,
-                new Date(newsatrtdate).toISOString(),
-                new Date(element.late_end_date).toISOString(),
-              );
-            }
+              if (lateongoing) {
+                const newGroupwithsingledevice: DeviceGroup = JSON.parse(
+                  JSON.stringify(newGroup),
+                );
+                newGroupwithsingledevice.devices = [element];
 
-            await this.LateOngoingissueCertificateForGroup(
-              newGroupwithsingledevice,
-              startDate,
-              DateTime.fromISO(endDate1).toUTC(),
-              device.countryCode,
-              nextissuance,
-            );
-          }
-        } else {
-          this.logger.verbose(
-            'certifieddevices_else',
-            new Date(startDate.toString()),
-            new Date(endDate.toString()),
+                for (const element1 of lateongoing) {
+                  const lastread = await this.readservice.latestread(
+                    element.externalId,
+                    element.createdAt,
+                  );
+                  const startDate = DateTime.fromISO(
+                    element1.late_start_date,
+                  ).toUTC();
+                  const endDate = DateTime.fromISO(
+                    element1.late_end_date,
+                  ).toUTC();
+                  nextissuance.start_date = element1.late_start_date;
+                  nextissuance.end_date = element1.late_end_date;
+                  if (
+                    new Date(lastread[0].timestamp).getTime() <
+                    new Date(element1.late_end_date).getTime()
+                  ) {
+                    const endDate1 = new Date(
+                      lastread[0].timestamp,
+                    ).toISOString();
+                    nextissuance.end_date = new Date(
+                      lastread[0].timestamp,
+                    ).toISOString();
+                    const certifieddevices =
+                      await this.deviceService.getCheckCertificateIssueDateLogForDevice(
+                        element1.device_externalid,
+                        new Date(startDate.toString()),
+                        new Date(lastread[0].timestamp.toString()),
+                      );
+                    const newsatrtdate = new Date(lastread[0].timestamp);
+                    newsatrtdate.setTime(newsatrtdate.getTime() + 1); // Add one millisecond
+                    if (
+                      certifieddevices.length === 0 &&
+                      new Date(newsatrtdate).getTime() !==
+                        new Date(element1.late_start_date).getTime()
+                    ) {
+                      await this.deviceService.updatelateongoing(
+                        element.externalId,
+                        element1.id,
+                        nextissuance.end_date,
+                      );
+                      const Islateongoingcycle =
+                        await this.deviceService.finddeviceLateCycleOfdaterange(
+                          group.id,
+                          element.externalId,
+                          DateTime.fromISO(nextissuance.end_date).toUTC(),
+                          DateTime.fromISO(element1.late_end_date).toUTC(),
+                        );
+
+                      if (!Islateongoingcycle) {
+                        await this.addlateongoing_devicecertificatecycle(
+                          group.id,
+                          element.externalId,
+                          new Date(newsatrtdate).toISOString(),
+                          new Date(element1.late_end_date).toISOString(),
+                        );
+                      }
+                      await this.LateOngoingissueCertificateForGroup(
+                        newGroupwithsingledevice,
+                        nextissuance,
+                        startDate,
+                        DateTime.fromISO(endDate1).toUTC(),
+                        key,
+                      );
+                    }
+
+                    this.logger.error('late ongoing read is missing');
+                    return; // Break out of the loop when the condition is met
+                  } else {
+                    const certifieddevices =
+                      await this.deviceService.getCheckCertificateIssueDateLogForDevice(
+                        element1.device_externalid,
+                        new Date(startDate.toString()),
+                        new Date(endDate.toString()),
+                      );
+
+                    if (certifieddevices.length === 0) {
+                      const readsFilter: FilterDTO = {
+                        offset: 0,
+                        limit: 5000,
+                        start: startDate.toString(),
+                        end: endDate.toString(),
+                      };
+                      const allReadsForDeviceBetweenTimeRange: Array<{
+                        timestamp: Date;
+                        value: number;
+                      }> =
+                        await this.getDeviceFullReadsWithTimestampAndValueAsArray(
+                          newGroupwithsingledevice.devices[0].externalId,
+                          readsFilter,
+                        );
+                      if (allReadsForDeviceBetweenTimeRange.length > 0) {
+                        await this.deviceService.updatelateongoing(
+                          element.externalId,
+                          element1.id,
+                          element1.late_end_date,
+                        );
+                      }
+                      await this.LateOngoingissueCertificateForGroup(
+                        newGroupwithsingledevice,
+                        nextissuance,
+                        startDate,
+                        endDate,
+                        key,
+                      );
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 5000));
+                  }
+                }
+              } else {
+                this.logger.error('late ongoing read is missing');
+                return;
+              }
+            }),
           );
-          this.logger.verbose('else Lastread greater then from late_end_date');
-          const readsFilter: FilterDTO = {
-            offset: 0,
-            limit: 5000,
-            start: startDate.toString(),
-            end: endDate.toString(),
-          };
-          const allReadsForDeviceBetweenTimeRange =
-            await this.getDeviceFullReadsWithTimestampAndValueAsArray(
-              newGroupwithsingledevice.devices[0].externalId,
-              readsFilter,
-            );
-          if (allReadsForDeviceBetweenTimeRange.length > 0) {
-            this.logger.verbose('if read are available in date range');
-            await this.deviceService.updatelateongoing(
-              device.externalId,
-              element.id,
-              element.late_end_date,
-            );
-
-            await this.LateOngoingissueCertificateForGroup(
-              newGroupwithsingledevice,
-              startDate,
-              endDate,
-              device.countryCode,
-              nextissuance,
-            );
-          }
-          // }
         }
-
-        // Add delay before moving to the next element
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      }
-    } else {
-      this.logger.error('No late ongoing read found');
-    }
+      }),
+    );
   }
 
   private async LateOngoingissueCertificateForGroup(
     group: DeviceGroup,
+    grouprequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    grouprequest?: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
-    this.logger.verbose(`With in newissueCertificateForGrouplate`);
+    this.logger.verbose(`With in newissueCertificateForGroup`);
     if (!group?.devices?.length) {
       this.logger.debug('Line No: 463');
       return;
@@ -1443,7 +1465,6 @@ export class IssuerService {
       totalReadValueMegaWattHour,
     );
     if (
-      group.reservationActive &&
       group.authorityToExceed === false &&
       group.targetVolumeCertificateGenerationRequestedInMegaWattHour +
         totalReadValueMegaWattHour >=

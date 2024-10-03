@@ -16,7 +16,6 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
-import { CertificateSettingEntity } from './certificate_setting.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -29,7 +28,6 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
       CertificateReadModelEntity,
       CheckCertificateIssueDateLogForDeviceEntity,
       Certificate,
-      CertificateSettingEntity,
     ]),
     forwardRef(() => DeviceModule),
 

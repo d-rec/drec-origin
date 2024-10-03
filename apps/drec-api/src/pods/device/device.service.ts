@@ -1054,12 +1054,14 @@ export class DeviceService {
       ...params,
     });
   }
-  public async findAllLateCycle(): Promise<
-    DeviceLateongoingIssueCertificateEntity[]
-  > {
-    this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
+  public async findAllLateCycle(
+    groupid: number,
+    externalid: string,
+  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
     return await this.latedevciecertificaterepository.find({
       where: {
+        groupId: groupid,
+        device_externalid: externalid,
         certificate_issued: false,
       },
       order: {
@@ -1469,19 +1471,6 @@ export class DeviceService {
     return await this.latedevciecertificaterepository.update(
       { id: id, device_externalid: externalId },
       { late_end_date: lateend_date, certificate_issued: true },
-    );
-  }
-  async updatelateongoingIfReservationInactive(
-    externalId: string,
-  ): Promise<any> {
-    this.logger.verbose(`With in updatelateongoingIfReservationInactive`);
-    this.logger.verbose(
-      `With in updatelateongoingIfReservationInactive`,
-      externalId,
-    );
-    return await this.latedevciecertificaterepository.update(
-      { device_externalid: externalId },
-      { certificate_issued: true },
     );
   }
 }

@@ -52,7 +52,6 @@ export class Seed9999999999999 implements MigrationInterface {
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
     await this.seedACLModules(queryRunner);
-    await this.seedCertificateSetting(queryRunner); //set default no_of_days for generate certificate last day
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -127,7 +126,6 @@ export class Seed9999999999999 implements MigrationInterface {
       }),
     );
   }
-
   private async deployContracts(
     deployer: Wallet,
     provider: providers.FallbackProvider,
@@ -350,19 +348,5 @@ export class Seed9999999999999 implements MigrationInterface {
     });
     this.decimalFormPermission = decimalFormPermission;
     return this.decimalFormPermission;
-  }
-  private async seedCertificateSetting(queryRunner: QueryRunner) {
-    const certificate_settingTable = await queryRunner.getTable(
-      'public.certificate_setting',
-    );
-
-    if (!certificate_settingTable) {
-      this.logger.verbose('certificate_setting table does not exist.');
-      return;
-    }
-    queryRunner.query(
-      `INSERT INTO public.certificate_setting ("id","no_of_days") VALUES (
-             1,60)`,
-    );
   }
 }
