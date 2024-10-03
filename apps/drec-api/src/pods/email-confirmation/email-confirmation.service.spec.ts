@@ -7,9 +7,8 @@ import { EmailConfirmationService } from './email-confirmation.service';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { User } from '../user/user.entity';
-import { EmailConfirmationResponse, Role, UserStatus } from 'src/utils/enums';
+import { EmailConfirmationResponse, } from 'src/utils/enums';
 import { ConflictException, BadRequestException } from '@nestjs/common';
-import { IEmailConfirmation, IEmailConfirmationToken, IUser } from 'src/models';
 import { DateTime } from 'luxon';
 
 describe('EmailConfirmationService', () => {

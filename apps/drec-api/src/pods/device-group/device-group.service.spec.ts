@@ -23,13 +23,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import {
-  CapacityRange,
-  CommissioningDateRange,
-  OffTaker,
   Role,
 } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
-import { DeviceGroupDTO, UnreservedDeviceGroupsFilterDTO } from './dto';
+import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 
 describe('DeviceGroupService', () => {
