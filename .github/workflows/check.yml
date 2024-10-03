@@ -105,7 +105,7 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: test-db
+          POSTGRES_DB: origin
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
       redis:
