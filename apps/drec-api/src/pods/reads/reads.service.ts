@@ -76,7 +76,7 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
-    const url = process.env.INFLUXDB_URL;
+    const url = "http://localhost:8086";
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
