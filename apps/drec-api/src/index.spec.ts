@@ -31,19 +31,19 @@ jest.mock('@nestjs/swagger', () => ({
 jest.mock('class-validator', () => ({
   // eslint-disable-next-line no-empty-function
   IsISO31661Alpha2: jest.fn(() => (target: any, propertyKey: string) => {}),
-  
+
   // eslint-disable-next-line no-empty-function
   IsString: jest.fn(() => (target: any, propertyKey: string) => {}),
-  
+
   // eslint-disable-next-line no-empty-function
   IsEmail: jest.fn(() => (target: any, propertyKey: string) => {}),
-  
+
   // eslint-disable-next-line no-empty-function
   IsOptional: jest.fn(() => (target: any, propertyKey: string) => {}),
-  
+
   // eslint-disable-next-line no-empty-function
   IsArray: jest.fn(() => (target: any, propertyKey: string) => {}),
-  
+
   // eslint-disable-next-line no-empty-function
   IsNotEmpty: jest.fn(() => (target: any, propertyKey: string) => {}),
 }));

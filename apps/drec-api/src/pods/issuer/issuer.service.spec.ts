@@ -1201,7 +1201,9 @@ describe('IssuerService', () => {
 
       await service.handleCronForOngoingLateIssuance();
 
-      const parsedLeftoverReads = JSON.parse(mockGroup.leftoverReadsByCountryCode);
+      const parsedLeftoverReads = JSON.parse(
+        mockGroup.leftoverReadsByCountryCode,
+      );
 
       expect(parsedLeftoverReads).toEqual({ key: 'value' });
     });

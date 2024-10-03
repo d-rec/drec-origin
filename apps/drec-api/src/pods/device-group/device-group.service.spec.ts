@@ -120,7 +120,7 @@ describe('DeviceGroupService', () => {
         {
           provide: getRepositoryToken(CertificateSettingEntity),
           useClass: Repository,
-        }
+        },
       ],
     }).compile();
 
