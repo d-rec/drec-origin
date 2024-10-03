@@ -1,16 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository, DeepPartial } from 'typeorm';
+import { Repository, } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service';
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 import {
-  ACLModuleDTO,
   NewACLModuleDTO,
   UpdateACLModuleDTO,
 } from './dto/aclmodule.dto';
 import { RoleStatus } from 'src/utils/enums';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, } from '@nestjs/common';
 
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
@@ -74,9 +73,11 @@ describe('AccessControlLayerModuleServiceService', () => {
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedModule);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(null);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const computePermissionsSpy = jest
         .spyOn(Permissionvalue, 'computePermissions')
         .mockReturnValue(3);
@@ -103,7 +104,7 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(savedModule);
@@ -128,7 +129,7 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(savedModule);
@@ -159,7 +160,7 @@ describe('AccessControlLayerModuleServiceService', () => {
           permissionsValue: 1,
         },
       ] as AClModules[];
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(modules);
 
       const result = await service.getAll();
@@ -182,10 +183,11 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...updateData,
       } as AClModules;
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(existingModule);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const computePermissionsSpy = jest
         .spyOn(Permissionvalue, 'computePermissions')
         .mockReturnValue(5);

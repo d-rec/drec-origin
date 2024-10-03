@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import 'reflect-metadata';
-import { Test, TestingModule } from '@nestjs/testing';
 import { NestFactory } from '@nestjs/core';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
@@ -29,22 +27,22 @@ jest.mock('@nestjs/swagger', () => ({
 }));
 
 jest.mock('class-validator', () => ({
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars 
   IsISO31661Alpha2: jest.fn(() => (target: any, propertyKey: string) => {}),
 
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars
   IsString: jest.fn(() => (target: any, propertyKey: string) => {}),
 
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars
   IsEmail: jest.fn(() => (target: any, propertyKey: string) => {}),
 
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars
   IsOptional: jest.fn(() => (target: any, propertyKey: string) => {}),
 
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars
   IsArray: jest.fn(() => (target: any, propertyKey: string) => {}),
 
-  // eslint-disable-next-line no-empty-function
+  // eslint-disable-next-line no-empty-function, @typescript-eslint/no-unused-vars
   IsNotEmpty: jest.fn(() => (target: any, propertyKey: string) => {}),
 }));
 
