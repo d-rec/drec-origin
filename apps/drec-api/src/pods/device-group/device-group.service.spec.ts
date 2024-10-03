@@ -30,6 +30,7 @@ import {
 } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { DeviceGroupDTO, UnreservedDeviceGroupsFilterDTO } from './dto';
+import { CertificateSettingEntity } from './certificate_setting.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -116,6 +117,10 @@ describe('DeviceGroupService', () => {
           provide: getRepositoryToken(CertificateReadModelEntity),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(CertificateSettingEntity),
+          useClass: Repository,
+        }
       ],
     }).compile();
 

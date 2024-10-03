@@ -83,6 +83,7 @@ describe('IssuerService', () => {
             AddLateCertificateIssueDateLogForDevice: jest.fn(),
             finddeviceLateCycleOfdaterange: jest.fn(),
             getCheckCertificateIssueDateLogForDevice: jest.fn(),
+            findAllLateCycle: jest.fn(),
           } as any,
         },
         {
@@ -1200,7 +1201,9 @@ describe('IssuerService', () => {
 
       await service.handleCronForOngoingLateIssuance();
 
-      expect(mockGroup.leftoverReadsByCountryCode).toEqual({ key: 'value' });
+      const parsedLeftoverReads = JSON.parse(mockGroup.leftoverReadsByCountryCode);
+
+      expect(parsedLeftoverReads).toEqual({ key: 'value' });
     });
   });
 
@@ -1221,10 +1224,10 @@ describe('IssuerService', () => {
       try {
         await service.LateOngoingissueCertificateForGroup(
           group,
-          grouprequest,
           startDate,
           endDate,
           countryCodeKey,
+          grouprequest,
         );
       } catch (error) {
         console.log('Caught error:', error);
@@ -1245,10 +1248,10 @@ describe('IssuerService', () => {
 
       await service.LateOngoingissueCertificateForGroup(
         group,
-        grouprequest,
         startDate,
         endDate,
         countryCodeKey,
+        grouprequest,
       );
 
       // Verify that no further methods are called

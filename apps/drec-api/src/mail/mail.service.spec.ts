@@ -7,7 +7,7 @@ import { MailService } from './mail.service';
 import { Logger } from '@nestjs/common';
 
 describe('MailService', () => {
-  let logger = new Logger(MailService.name);
+  const logger = new Logger(MailService.name);
   let service: MailService;
   let mailerService: MailerService;
   let configService: ConfigService;
