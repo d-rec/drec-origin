@@ -22,9 +22,7 @@ import {
   NotFoundException,
   HttpException,
 } from '@nestjs/common';
-import {
-  Role,
-} from 'src/utils/enums';
+import { Role } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
