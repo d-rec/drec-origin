@@ -63,6 +63,19 @@ jobs:
 
   check-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: test-db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout
@@ -86,6 +99,19 @@ jobs:
 
   unit-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: test-db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout
@@ -104,10 +130,10 @@ jobs:
         run: |
           rush install
 
-      - name: Run Unit Test (all)
+      - name: Run Unit Tests (Jest)
         working-directory: apps/drec-api
         run: pnpm run test:jest --passWithNoTests
 
-      - name: Run Code Coverage (all)
+      - name: Run Code Coverage (Jest)
         working-directory: apps/drec-api
         run: pnpm run coverage:jest --passWithNoTests
