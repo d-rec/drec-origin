@@ -63,7 +63,7 @@ describe('DrecModule', () => {
     module = await Test.createTestingModule({
       imports: [DrecModule],
     }).compile();
-  }); 
+  });
 
   it('should be defined', () => {
     expect(module).toBeDefined();
