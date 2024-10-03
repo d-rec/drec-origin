@@ -1055,7 +1055,9 @@ export class IssuerService {
     this.issueCertificate(reading);
   }
 
-  public issueCertificate(reading: IIssueCommandParams<ICertificateMetadata>):void {
+  public issueCertificate(
+    reading: IIssueCommandParams<ICertificateMetadata>,
+  ): void {
     this.logger.log(`Issuing a certificate for reading`);
     this.offChainCertificateService.issue(reading);
   }
