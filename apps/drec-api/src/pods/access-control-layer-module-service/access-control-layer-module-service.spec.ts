@@ -1,15 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository, } from 'typeorm';
+import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service';
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
-import {
-  NewACLModuleDTO,
-  UpdateACLModuleDTO,
-} from './dto/aclmodule.dto';
+import { NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto';
 import { RoleStatus } from 'src/utils/enums';
-import { ConflictException, } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;

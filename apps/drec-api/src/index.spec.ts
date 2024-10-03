@@ -27,7 +27,7 @@ jest.mock('@nestjs/swagger', () => ({
 }));
 
 jest.mock('class-validator', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   IsISO31661Alpha2: jest.fn(() => (target: any, propertyKey: string) => {}),
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
