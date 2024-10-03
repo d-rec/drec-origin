@@ -106,8 +106,8 @@ jobs:
 
       - name: Run Unit Test (all)
         working-directory: apps/drec-api
-        run: pnpm run test:jest -- --maxWorkers=4
+        run: pnpm run test:jest
 
       - name: Run Code Coverage (all)
         working-directory: apps/drec-api
-        run: pnpm run coverage:jest -- --maxWorkers=4
+        run: pnpm run coverage:jest
