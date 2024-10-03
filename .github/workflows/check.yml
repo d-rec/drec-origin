@@ -126,11 +126,15 @@ jobs:
         ports:
           - 8086:8086
         env:
-          INFLUXDB_DB: testdb
-          INFLUXDB_ADMIN_USER: admin
-          INFLUXDB_ADMIN_PASSWORD: password
+          INFLUXDB_DB: energy
+          INFLUXDB_ADMIN_USER: test
+          INFLUXDB_ADMIN_PASSWORD: test
+          INFLUXDB_USER: api
+          INFLUXDB_USER_PASSWORD: secret
           INFLUXDB_HTTP_AUTH_ENABLED: "true"
           INFLUXDB_URL: http://localhost:8086
+          INFLUXDB_TOKEN: admin:admin
+          INFLUXDB_BUCKET: energy/autogen
     steps:
       - name: Checkout
         uses: actions/checkout@v3
