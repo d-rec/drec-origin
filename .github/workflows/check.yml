@@ -63,6 +63,28 @@ jobs:
 
   check-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: test-db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+      influxdb:
+        image: influxdb:2.0
+        ports:
+          - 8086:8086
+        env:
+          INFLUXDB_DB: testdb
+          INFLUXDB_ADMIN_USER: admin
+          INFLUXDB_ADMIN_PASSWORD: password
+          INFLUXDB_HTTP_AUTH_ENABLED: "true"
 
     steps:
       - name: Checkout
@@ -83,3 +105,58 @@ jobs:
 
       - name: Build drec-origin
         run: rush build --verbose
+
+  unit-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: origin
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+      influxdb:
+        image: influxdb:2.0
+        ports:
+          - 8086:8086
+        env:
+          INFLUXDB_DB: energy
+          INFLUXDB_ADMIN_USER: test
+          INFLUXDB_ADMIN_PASSWORD: test
+          INFLUXDB_USER: api
+          INFLUXDB_USER_PASSWORD: secret
+          INFLUXDB_HTTP_AUTH_ENABLED: "true"
+          INFLUXDB_URL: http://localhost:8086
+          INFLUXDB_TOKEN: admin:admin
+          INFLUXDB_BUCKET: energy/autogen
+          INFLUXDB_ORG: drec
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/iron
+
+      - name: Install tooling
+        run: |
+          npm i -g @microsoft/rush
+          npm i -g pnpm@9
+
+      - name: Install drec-origin
+        run: |
+          rush install
+
+      - name: Run Unit Tests (Jest)
+        working-directory: apps/drec-api
+        run: pnpm run test:jest --passWithNoTests
+
+      - name: Run Code Coverage (Jest)
+        working-directory: apps/drec-api
+        run: pnpm run coverage:jest --passWithNoTests

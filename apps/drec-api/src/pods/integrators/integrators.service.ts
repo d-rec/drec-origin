@@ -30,7 +30,7 @@ export class IntegratorsService {
     private readonly eventBus: EventBus,
   ) {}
 
-  private loginBBOX(server: string, loginForm: FormData): Promise<string> {
+  public loginBBOX(server: string, loginForm: FormData): Promise<string> {
     this.logger.verbose(`With in loginBBOX`);
     return this.httpService
       .post(`${server}/v1/auth/login`, loginForm, {
@@ -46,7 +46,7 @@ export class IntegratorsService {
       .toPromise();
   }
 
-  private getBBOXproductReadData(
+  public getBBOXproductReadData(
     server: string,
     token: string,
     productId: string,
@@ -74,7 +74,7 @@ export class IntegratorsService {
       .toPromise();
   }
 
-  private async storeBBOXenergyReads(
+  public async storeBBOXenergyReads(
     server: string,
     authToken: string,
     externalId: string,
@@ -109,7 +109,7 @@ export class IntegratorsService {
     await this.storeEnergy(externalId, reads, unit, organizationId);
   }
 
-  private async storeEnergy(
+  public async storeEnergy(
     externalId: string,
     reads: ReadDTO[],
     unit: Unit,

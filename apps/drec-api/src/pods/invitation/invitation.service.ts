@@ -155,9 +155,15 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteuser.api_user_id = organization.api_user_id;
-    await this.userService.newcreate(inviteuser, UserStatus.Pending, true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const newUser = await this.userService.newcreate(
+      inviteuser,
+      UserStatus.Pending,
+      true,
+    );
 
     if (sender.role !== Role.ApiUser) {
+      console.log('inviteuser:', inviteuser, 'lowerCaseEmail:', lowerCaseEmail);
       await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail);
     }
   }
@@ -177,6 +183,7 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
+    console.log('invitation:', invitation);
     if (!invitation) {
       this.logger.error(`Requested invitation does not exist`);
       throw new BadRequestException('Requested invitation does not exist');
@@ -230,11 +237,11 @@ export class InvitationService {
         apiUserId: user.api_user_id,
       });
     }
-
+    console.log('query:', query);
     if (organizationId) {
       const organization =
         await this.organizationService.findOne(organizationId);
-
+      console.log('organization:', organization);
       if (user.role != Role.Admin && user.role != Role.ApiUser) {
         if (user.organizationId != organizationId) {
           this.logger.error(
@@ -264,6 +271,8 @@ export class InvitationService {
       });
     }
 
+    console.log('query2:', query);
+
     const [invitations, totalCount] = await query
       .select('invitation')
       .skip((pageNumber - 1) * limit)
@@ -271,7 +280,7 @@ export class InvitationService {
       .orderBy('invitation.createdAt', 'DESC')
       .getManyAndCount();
     const totalPages = Math.ceil(totalCount / limit);
-
+    console.log('invitations:', invitations);
     return {
       invitations: invitations,
       currentPage: pageNumber,

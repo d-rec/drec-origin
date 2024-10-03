@@ -8,6 +8,7 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   In,
+  FindOneOptions,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
@@ -19,8 +20,15 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Role } from '../../utils/enums/role.enum';
-import { FilterDTO, NewDeviceDTO } from './dto';
 import {
+  DeviceDTO,
+  DeviceGroupByDTO,
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import {
+  DeviceOrderBy,
   DevicetypeCode,
   FuelCode,
   OffTaker,
@@ -30,6 +38,9 @@ import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
+import { User } from '../user/user.entity';
+import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
+import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -961,6 +972,957 @@ describe('DeviceService', () => {
 
       await expect(result).toBeDefined();
       await expect(result.devices).toHaveLength(result.devices.length);
+    });
+  });
+
+  describe('getOrganizationDevices', () => {
+    /*
+    it('should return devices with filters and pagination', async () => {
+      const organizationId = 1;
+      const api_user_id = 'api-user-123';
+      const role = Role.ApiUser;
+      const filterDto = { organizationId: 1 } as FilterDTO;
+      const pagenumber = 1;
+      const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
+      const mockTotalCount = 1;
+
+      // Correct the mock return type to match the expected type of getFilteredQuery
+      const mockQueryResult:FindManyOptions<Device> = { where: {} };  // Replace `any` with the appropriate type if known
+      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(mockQueryResult as FindManyOptions<Device>);
+
+      jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
+
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+
+      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
+      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
+        skip: 0,
+        take: 20,
+      }));
+      expect(result).toEqual({
+        devices: [
+          { 
+            id: 1, 
+            internalexternalId: 'EXT123', 
+            externalId: 'DEV123' 
+          }
+        ],
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 1,
+      });
+    }); */
+
+    it('should return all devices without filters or pagination', async () => {
+      const organizationId = 1;
+      const api_user_id = 'api-user-123';
+      const role = Role.User; // Assume Role.User is another role
+      const filterDto = {} as FilterDTO;
+      const pagenumber = null;
+      const mockDevices = [
+        {
+          id: 1,
+          externalId: 'EXT123',
+          developerExternalId: 'DEV123',
+        } as Device,
+      ];
+
+      jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([mockDevices, mockDevices.length]);
+
+      const result = await service.getOrganizationDevices(
+        organizationId,
+        api_user_id,
+        role,
+        filterDto,
+        pagenumber,
+      );
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { organizationId },
+        }),
+      );
+      expect(result).toEqual([
+        {
+          id: 1,
+          internalexternalId: 'EXT123',
+          externalId: 'DEV123',
+        },
+      ]);
+    });
+    /*
+    it('should handle role specific queries', async () => {
+      const organizationId = 1;
+      const api_user_id = 'api-user-123';
+      const role = Role.ApiUser;
+      const filterDto = {} as FilterDTO;
+      const pagenumber = 1;
+      const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
+      const mockTotalCount = 1;
+
+      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
+      jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
+
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+
+      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
+      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
+        skip: 0,
+        take: 20,
+        where: { api_user_id },
+      }));
+      expect(result).toEqual({
+        devices: [
+          { 
+            id: 1, 
+            internalexternalId: 'EXT123', 
+            externalId: 'DEV123' 
+          }
+        ],
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 1,
+      });
+    });
+
+    it('should handle errors when findAndCount throws an error', async () => {
+      const organizationId = 1;
+      const api_user_id = 'api-user-123';
+      const role = Role.ApiUser;
+      const filterDto = { organizationId: 1 } as FilterDTO;
+      const pagenumber = 1;
+
+      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
+      jest.spyOn(repository, 'findAndCount').mockRejectedValue(new Error('Database error'));
+
+      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber)).rejects.toThrow('Database error');
+
+      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
+      expect(repository.findAndCount).toHaveBeenCalled();
+    }); */
+  });
+
+  describe('findOne', () => {
+    /*
+    it('should return the device with updated timezone', async () => {
+      const deviceEntity = {
+      createdAt: '2024-07-16T09:46:59.846Z',
+      updatedAt: '2024-07-16T09:46:59.846Z',
+      id: 54,
+      externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
+      developerExternalId: 'EXCESS',
+      organizationId: 94,
+      projectName: null,
+      address: 'MAA',
+      latitude: '72.34',
+      longitude: '75.89',
+      countryCode: 'AFG',
+      fuelCode: 'ES100',
+      deviceTypeCode: 'TC110',
+      capacity: 1200,
+      SDGBenefits: [],
+      commissioningDate: '2024-06-30T18:30:55.000Z',
+      gridInterconnection: true,
+      offTaker: null,
+      yieldValue: 2000,
+      impactStory: null,
+      images: null,
+      groupId: 32,
+      deviceDescription: null,
+      energyStorage: true,
+      energyStorageCapacity: null,
+      qualityLabels: null,
+      meterReadtype: 'Delta',
+      timezone: null,
+      version: '1.0',
+      IREC_Status: 'NotRegistered',
+      IREC_ID: null,
+      api_user_id: null,
+      organization:  {
+        createdAt: '2024-07-15T14:35:30.123Z',
+        updatedAt: '2024-07-15T14:35:30.123Z',
+        id: 94,
+        name: 'MAAs',
+        address: null,
+        zipCode: null,
+        city: null,
+        country: null,
+        blockchainAccountAddress: null,
+        blockchainAccountSignedMessage: null,
+        organizationType: 'Developer',
+        orgEmail: 'developer1@gmail.com',
+        status: 'Active',
+        documentIds: null,
+        api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+        users: [ [User] ],
+        invitations: []
+      },
+      hasId: jest.fn(),
+      save: jest.fn(),
+      remove: jest.fn(),
+      softRemove: jest.fn(),
+      recover: jest.fn(),
+      reload: jest.fn(),
+    };
+
+    const timezone = 'Antarctica/Mawson';
+
+    const deviceTZ = {
+  createdAt: '2024-07-16T09:46:59.846Z',
+  updatedAt: '2024-07-16T09:46:59.846Z',
+  id: 54,
+  externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
+  developerExternalId: 'EXCESS',
+  organizationId: 94,
+  projectName: null,
+  address: 'MAA',
+  latitude: '72.34',
+  longitude: '75.89',
+  countryCode: 'AFG',
+  fuelCode: 'ES100',
+  deviceTypeCode: 'TC110',
+  capacity: 1200,
+  SDGBenefits: [],
+  commissioningDate: '2024-06-30T18:30:55.000Z',
+  gridInterconnection: true,
+  offTaker: null,
+  yieldValue: 2000,
+  impactStory: null,
+  images: null,
+  groupId: 32,
+  deviceDescription: null,
+  energyStorage: true,
+  energyStorageCapacity: null,
+  qualityLabels: null,
+  meterReadtype: 'Delta',
+  timezone: 'Antarctica/Mawson',
+  version: '1.0',
+  IREC_Status: 'NotRegistered',
+  IREC_ID: null,
+  api_user_id: null,
+  organization:  {
+    createdAt: '2024-07-15T14:35:30.123Z',
+    updatedAt: '2024-07-15T14:35:30.123Z',
+    id: 94,
+    name: 'MAAs',
+    address: null,
+    zipCode: null,
+    city: null,
+    country: null,
+    blockchainAccountAddress: null,
+    blockchainAccountSignedMessage: null,
+    organizationType: 'Developer',
+    orgEmail: 'developer1@gmail.com',
+    status: 'Active',
+    documentIds: null,
+    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    users: [ [] ],
+    invitations: []
+  }
+};
+
+const device = {
+  createdAt: '2024-07-16T09:46:59.846Z',
+  updatedAt: '2024-07-16T09:46:59.846Z',
+  id: 54,
+  externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
+  developerExternalId: 'EXCESS',
+  organizationId: 94,
+  projectName: null,
+  address: 'MAA',
+  latitude: '72.34',
+  longitude: '75.89',
+  countryCode: 'AFG',
+  fuelCode: 'ES100',
+  deviceTypeCode: 'TC110',
+  capacity: 1200,
+  SDGBenefits: [],
+  commissioningDate: '2024-06-30T18:30:55.000Z',
+  gridInterconnection: true,
+  offTaker: null,
+  yieldValue: 2000,
+  impactStory: null,
+  images: null,
+  groupId: 32,
+  deviceDescription: null,
+  energyStorage: true,
+  energyStorageCapacity: null,
+  qualityLabels: null,
+  meterReadtype: 'Delta',
+  timezone: 'Antarctica/Mawson',
+  version: '1.0',
+  IREC_Status: 'NotRegistered',
+  IREC_ID: null,
+  api_user_id: null
+};
+  
+      const options: FindOneOptions<Device> = {};
+  
+      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(deviceEntity);
+      const getLocalTimeZoneFromDeviceSpy = jest.spyOn(service as any, 'getLocalTimeZoneFromDevice').mockResolvedValue(timezone);
+  
+      const result = await service.findOne(1, options);
+  
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { id: 1, ...options },
+      });
+  
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        deviceEntity.createdAt,
+        deviceEntity,
+      );
+  
+      expect(result).toEqual(device);
+  
+      expect(result?.organization).toBeUndefined();
+    }); */
+
+    it('should return null if device is not found', async () => {
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
+
+      const result = await service.findOne(1);
+
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('findReads', () => {
+    it('should return the device with updated timezone and no organization', async () => {
+      // Mock device entity
+      const mockDevice = {
+        createdAt: '2024-07-16T09:46:59.846Z',
+        updatedAt: '2024-07-16T09:46:59.846Z',
+        id: 54,
+        externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
+        developerExternalId: 'EXCESS',
+        organizationId: 94,
+        projectName: null,
+        address: 'MAA',
+        latitude: '72.34',
+        longitude: '75.89',
+        countryCode: 'AFG',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
+        capacity: 1200,
+        SDGBenefits: [],
+        commissioningDate: '2024-06-30T18:30:55.000Z',
+        gridInterconnection: true,
+        offTaker: null,
+        yieldValue: 2000,
+        impactStory: null,
+        images: null,
+        groupId: 32,
+        deviceDescription: null,
+        energyStorage: true,
+        energyStorageCapacity: null,
+        qualityLabels: null,
+        meterReadtype: 'Delta',
+        timezone: null,
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
+        IREC_ID: null,
+        api_user_id: null,
+        organization: {
+          createdAt: '2024-07-15T14:35:30.123Z',
+          updatedAt: '2024-07-15T14:35:30.123Z',
+          id: 94,
+          name: 'MAAs',
+          address: null,
+          zipCode: null,
+          city: null,
+          country: null,
+          blockchainAccountAddress: null,
+          blockchainAccountSignedMessage: null,
+          organizationType: 'Developer',
+          orgEmail: 'developer1@gmail.com',
+          status: 'Active',
+          documentIds: null,
+          api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+          users: [[User]],
+          invitations: [],
+        },
+        hasId: jest.fn(),
+        save: jest.fn(),
+        remove: jest.fn(),
+        softRemove: jest.fn(),
+        recover: jest.fn(),
+        reload: jest.fn(),
+      };
+
+      const deviceEntity = {
+        externalId: 'ExternalId1',
+        projectName: 'sampleProject',
+        address: 'Bangalore',
+        latitude: '23.65362',
+        longitude: '25.43647',
+        countryCodename: 'India',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
+        capacity: 2500,
+        commissioningDate: '2024-02-01T06:59:11.000Z',
+        gridInterconnection: true,
+        offTaker: 'School',
+        impactStory: null,
+        data: null,
+        images: null,
+        deviceDescription: 'Solar Lantern',
+        energyStorage: true,
+        energyStorageCapacity: 900,
+        qualityLabels: null,
+        SDGBenefits: ['No Poverty'],
+        version: '1.0',
+        countryCode: 'IND',
+        organizationId: 3,
+        groupId: null,
+        meterReadtype: null,
+        timezone: null,
+        IREC_Status: null,
+        IREC_ID: null,
+        api_user_id: null,
+        createdAt: '2024-02-27T07:00:32.963Z',
+        updatedAt: '2024-02-27T07:00:32.963Z',
+        id: 44,
+        yieldValue: 2000,
+      };
+
+      // Mock repository and timezone function
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(deviceEntity as unknown as Device);
+      const getLocalTimeZoneFromDeviceSpy = jest
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue('Antarctica/Mawson');
+
+      // Execute function
+      const result = await service.findReads('some-meter-id');
+
+      // Assert
+      expect(result?.timezone).toEqual('Antarctica/Mawson');
+      expect(result?.organization).toBeUndefined();
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { externalId: 'some-meter-id' },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        deviceEntity.createdAt,
+        deviceEntity,
+      );
+    });
+  });
+
+  describe('findDeviceByDeveloperExternalId', () => {
+    it('should return the device with updated timezone when found', async () => {
+      // Mock device object
+      const mockDevice: Device = {
+        id: 1,
+        developerExternalId: 'some-meter-id',
+        organizationId: 1,
+        createdAt: new Date('2024-02-27T07:00:32.963Z'),
+        timezone: null,
+        // other properties...
+      } as Device;
+
+      // Mock the repository to return a device
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(mockDevice);
+      const getLocalTimeZoneFromDeviceSpy = jest
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue('America/New_York');
+
+      // Mock the getLocalTimeZoneFromDevice function
+      //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
+
+      // Execute the function
+      const result = await service.findDeviceByDeveloperExternalId(
+        'some-meter-id',
+        1,
+      );
+
+      // Assert
+      expect(result).toEqual(mockDevice);
+      expect(result?.timezone).toBe('America/New_York');
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { developerExternalId: 'some-meter-id', organizationId: 1 },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        mockDevice.createdAt,
+        mockDevice,
+      );
+    });
+
+    it('should return null when no device is found', async () => {
+      // Mock repository to return null
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
+      const getLocalTimeZoneFromDeviceSpy = jest
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue(null);
+
+      // Execute the function
+      const result = await service.findDeviceByDeveloperExternalId(
+        'non-existent-meter-id',
+        1,
+      );
+
+      // Assert
+      expect(result).toBeNull();
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: 'non-existent-meter-id',
+          organizationId: 1,
+        },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('findDeviceByDeveloperExternalIByApiUser', () => {
+    it('should return null when no device is found', async () => {
+      // Mock repository to return null
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null);
+      const getLocalTimeZoneFromDeviceSpy = jest
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue(null);
+      // Execute the function
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+        'non-existent-meter-id',
+        'user-id',
+      );
+
+      // Assert
+      expect(result).toBeNull();
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: 'non-existent-meter-id',
+          api_user_id: 'user-id',
+        },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalled();
+    });
+
+    it('should return a device when one is found and update its timezone', async () => {
+      const deviceMock = {
+        createdAt: new Date('2024-02-27T07:00:32.963Z'),
+        timezone: 'America/New_York',
+        // other properties as needed
+      } as Device;
+
+      // Mock repository to return a device
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(deviceMock);
+      const getLocalTimeZoneFromDeviceSpy = jest
+        .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
+        .mockResolvedValue('Asia/Kolkata');
+
+      // Execute the function
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+        'existing-meter-id',
+        'user-id',
+      );
+
+      // Assert
+      expect(result).toEqual(deviceMock);
+      expect(result?.timezone).toBe('Asia/Kolkata');
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: 'existing-meter-id',
+          api_user_id: 'user-id',
+        },
+      });
+      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
+        deviceMock.createdAt,
+        deviceMock,
+      );
+    });
+  });
+
+  describe('findMultipleDevicesBasedExternalId', () => {
+    it('should return an empty array when no devices are found', async () => {
+      // Mock repository to return an empty array
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+
+      // Execute the function
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['non-existent-meter-id'],
+        1,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+      expect(findSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: In(['non-existent-meter-id']),
+          organizationId: 1,
+        },
+      });
+    });
+
+    it('should return an array of devices when devices are found', async () => {
+      const deviceEntity1 = {
+        createdAt: '2024-07-16T09:46:59.846Z',
+        updatedAt: '2024-07-16T09:46:59.846Z',
+        id: 54,
+        externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
+        developerExternalId: 'EXCESS',
+        organizationId: 94,
+        projectName: null,
+        address: 'MAA',
+        latitude: '72.34',
+        longitude: '75.89',
+        countryCode: 'AFG',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
+        capacity: 1200,
+        SDGBenefits: [],
+        commissioningDate: '2024-06-30T18:30:55.000Z',
+        gridInterconnection: true,
+        offTaker: null,
+        yieldValue: 2000,
+        impactStory: null,
+        images: null,
+        groupId: 32,
+        deviceDescription: null,
+        energyStorage: true,
+        energyStorageCapacity: null,
+        qualityLabels: null,
+        meterReadtype: 'Delta',
+        timezone: null,
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
+        IREC_ID: null,
+        api_user_id: null,
+        organization: {
+          createdAt: '2024-07-15T14:35:30.123Z',
+          updatedAt: '2024-07-15T14:35:30.123Z',
+          id: 94,
+          name: 'MAAs',
+          address: null,
+          zipCode: null,
+          city: null,
+          country: null,
+          blockchainAccountAddress: null,
+          blockchainAccountSignedMessage: null,
+          organizationType: 'Developer',
+          orgEmail: 'developer1@gmail.com',
+          status: 'Active',
+          documentIds: null,
+          api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+          users: [[User]],
+          invitations: [],
+        },
+        hasId: jest.fn(),
+        save: jest.fn(),
+        remove: jest.fn(),
+        softRemove: jest.fn(),
+        recover: jest.fn(),
+        reload: jest.fn(),
+      } as unknown as Device;
+
+      const deviceEntity2 = {
+        createdAt: '2024-07-16T09:46:59.846Z',
+        updatedAt: '2024-07-16T09:46:59.846Z',
+        id: 54,
+        externalId: 'fca54a71-9cd5-41e4-92f6-c407da1bd064',
+        developerExternalId: 'EXCESS',
+        organizationId: 94,
+        projectName: null,
+        address: 'MAA',
+        latitude: '72.34',
+        longitude: '75.89',
+        countryCode: 'AFG',
+        fuelCode: 'ES100',
+        deviceTypeCode: 'TC110',
+        capacity: 1200,
+        SDGBenefits: [],
+        commissioningDate: '2024-06-30T18:30:55.000Z',
+        gridInterconnection: true,
+        offTaker: null,
+        yieldValue: 2000,
+        impactStory: null,
+        images: null,
+        groupId: 32,
+        deviceDescription: null,
+        energyStorage: true,
+        energyStorageCapacity: null,
+        qualityLabels: null,
+        meterReadtype: 'Delta',
+        timezone: null,
+        version: '1.0',
+        IREC_Status: 'NotRegistered',
+        IREC_ID: null,
+        api_user_id: null,
+        organization: {
+          createdAt: '2024-07-15T14:35:30.123Z',
+          updatedAt: '2024-07-15T14:35:30.123Z',
+          id: 94,
+          name: 'MAAs',
+          address: null,
+          zipCode: null,
+          city: null,
+          country: null,
+          blockchainAccountAddress: null,
+          blockchainAccountSignedMessage: null,
+          organizationType: 'Developer',
+          orgEmail: 'developer1@gmail.com',
+          status: 'Active',
+          documentIds: null,
+          api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+          users: [[User]],
+          invitations: [],
+        },
+        hasId: jest.fn(),
+        save: jest.fn(),
+        remove: jest.fn(),
+        softRemove: jest.fn(),
+        recover: jest.fn(),
+        reload: jest.fn(),
+      } as unknown as Device;
+
+      // Mock repository to return an array of devices
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue([deviceEntity1, deviceEntity2]);
+
+      // Execute the function
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['externalId1', 'externalId2'],
+        1,
+      );
+
+      // Assert
+      expect(result).toEqual([deviceEntity1, deviceEntity2]);
+      expect(findSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: In(['externalId1', 'externalId2']),
+          organizationId: 1,
+        },
+      });
+    });
+
+    it('should return null when the repository returns null', async () => {
+      // Mock repository to return null
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(null);
+
+      // Execute the function
+      const result = await service.findMultipleDevicesBasedExternalId(
+        ['meter-id-1'],
+        1,
+      );
+
+      // Assert
+      expect(result).toBeNull();
+      expect(findSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: In(['meter-id-1']),
+          organizationId: 1,
+        },
+      });
+    });
+
+    it('should handle exceptions thrown by the repository', async () => {
+      // Mock repository to throw an error
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockRejectedValue(new Error('Database error'));
+
+      // Assert that an error is thrown
+      await expect(
+        service.findMultipleDevicesBasedExternalId(['meter-id-1'], 1),
+      ).rejects.toThrow('Database error');
+
+      expect(findSpy).toHaveBeenCalledWith({
+        where: {
+          developerExternalId: In(['meter-id-1']),
+          organizationId: 1,
+        },
+      });
+    });
+  });
+
+  describe('update', () => {
+    it('should successfully update a device', async () => {
+      const organizationId = 1;
+      const role = Role.DeviceOwner;
+      const externalId = 'external-id-1';
+      const updateDeviceDTO: UpdateDeviceDTO = {
+        externalId: 'ExternalId1',
+        projectName: 'sampleProject',
+        address: 'Bangalore',
+        latitude: '23.65362',
+        longitude: '25.43647',
+        fuelCode: FuelCode.ES100, //'ES100',
+        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        capacity: 2500,
+        commissioningDate: '2024-02-01T06:59:11.000Z',
+        gridInterconnection: true,
+        offTaker: OffTaker.School, //'School',
+        impactStory: null,
+        data: null,
+        images: null,
+        SDGBenefits: ['No Poverty'],
+        countryCode: 'IND',
+        organizationId: 3,
+        meterReadtype: null,
+        IREC_Status: null,
+        IREC_ID: null,
+        yieldValue: 1500,
+        labels: 'labels',
+      };
+
+      const currentDevice = {
+        id: 1,
+        externalId: 'external-id-1',
+        developerExternalId: 'old-developer-external-id',
+        organizationId: 1,
+        SDGBenefits: ['1', '4'],
+      } as Device;
+
+      const savedDevice = {
+        ...currentDevice,
+        ...updateDeviceDTO,
+        externalId: 'old-developer-external-id', // Will be swapped back
+        developerExternalId: 'external-id-1', // As per your method logic
+        organization: undefined,
+      };
+
+      const findDeviceByDeveloperExternalIdSpy = jest
+        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .mockResolvedValue(currentDevice);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(savedDevice as unknown as Device);
+
+      const result = await service.update(
+        organizationId,
+        role,
+        externalId,
+        updateDeviceDTO,
+      );
+
+      expect(findDeviceByDeveloperExternalIdSpy).toHaveBeenCalledWith(
+        externalId.trim(),
+        organizationId,
+      );
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining(updateDeviceDTO),
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 1,
+          externalId: 'external-id-1',
+          internalexternalId: 'old-developer-external-id',
+          //developerExternalId: undefined, // Because it's deleted
+          projectName: 'sampleProject',
+          address: 'Bangalore',
+          latitude: '23.65362',
+          longitude: '25.43647',
+          fuelCode: FuelCode.ES100,
+          deviceTypeCode: DevicetypeCode.TC110,
+          capacity: 2500,
+          commissioningDate: '2024-02-01T06:59:11.000Z',
+          gridInterconnection: true,
+          offTaker: OffTaker.School,
+          impactStory: null,
+          data: null,
+          images: null,
+          SDGBenefits: ['invalid'], // Assuming "No Poverty" was not found and set to 'invalid'
+          countryCode: 'IND',
+          organizationId: 3,
+          meterReadtype: null,
+          IREC_Status: null,
+          IREC_ID: null,
+          yieldValue: 1500,
+          labels: 'labels',
+        }),
+      );
+    });
+  });
+
+  describe('findUngrouped', () => {
+    it('should return grouped devices when ungrouped devices are found', async () => {
+      const organizationId = 1;
+      const orderFilterDto: DeviceGroupByDTO = {
+        orderBy: [DeviceOrderBy.CommissioningDate],
+      }; // Provide necessary DTO properties
+      const mockDevices = [
+        { id: 1, groupId: null, organizationId: 1 },
+        { id: 2, groupId: null, organizationId: 1 },
+      ] as Device[];
+
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue(mockDevices);
+
+      const result = await service.findUngrouped(
+        organizationId,
+        orderFilterDto,
+      );
+
+      expect(findSpy).toHaveBeenCalledWith({
+        where: { groupId: null, organizationId },
+      });
+      // Assuming groupDevices returns a transformed array based on your logic
+      // Replace with actual expected result from `groupDevices` method
+      expect(result).toEqual(expect.any(Array));
+    });
+
+    it('should return an empty array when no ungrouped devices are found', async () => {
+      const organizationId = 1;
+      const orderFilterDto: DeviceGroupByDTO = {
+        orderBy: [DeviceOrderBy.CommissioningDate],
+      };
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+
+      const result = await service.findUngrouped(
+        organizationId,
+        orderFilterDto,
+      );
+
+      expect(findSpy).toHaveBeenCalledWith({
+        where: { groupId: null, organizationId },
+      });
+      expect(result).toEqual([]); // Assuming `groupDevices` returns an empty array
+    });
+  });
+
+  describe('findUngroupedById', () => {
+    it('should return true when ungrouped device is found by id', async () => {
+      const id = 1;
+      const mockDevice = [{ id: 1, groupId: null }] as Device[];
+
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue(mockDevice);
+
+      const result = await service.findUngroupedById(id);
+
+      expect(findSpy).toHaveBeenCalledWith({
+        where: { groupId: null, id },
+      });
+      expect(result).toBe(true);
+    });
+
+    it('should return false when no ungrouped device is found by id', async () => {
+      const id = 1;
+      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+
+      const result = await service.findUngroupedById(id);
+
+      expect(findSpy).toHaveBeenCalledWith({
+        where: { groupId: null, id },
+      });
     });
   });
 });
