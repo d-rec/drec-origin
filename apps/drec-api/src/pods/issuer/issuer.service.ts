@@ -440,9 +440,9 @@ export class IssuerService {
   public async addlateongoing_devicecertificatecycle(
     groupId: number,
     device_externalid: string,
-    late_start_date,
-    late_end_date,
-  ) {
+    late_start_date: Date | string,
+    late_end_date: Date | string,
+  ): Promise<DeviceLateongoingIssueCertificateEntity> {
     const latedevicecertificatelogDto =
       new DeviceLateongoingIssueCertificateEntity();
     (latedevicecertificatelogDto.device_externalid = device_externalid),
