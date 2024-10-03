@@ -135,6 +135,7 @@ jobs:
           INFLUXDB_URL: http://localhost:8086
           INFLUXDB_TOKEN: admin:admin
           INFLUXDB_BUCKET: energy/autogen
+          INFLUXDB_ORG: drec
     steps:
       - name: Checkout
         uses: actions/checkout@v3
