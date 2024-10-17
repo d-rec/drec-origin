@@ -54,6 +54,7 @@ import {
   filterNoOffLimit,
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
+import { InfluxDbService } from './influx-dbservice.service';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -75,6 +76,7 @@ export class ReadsService {
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
+    private InfluxDBService: InfluxDbService,
   ) {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
@@ -122,6 +124,10 @@ export class ReadsService {
     );
 
     return aggregatedReads;
+  }
+
+   async handleFailedRead(meter: string, read: string) {
+    await this.InfluxDBService.writeFailedRead(meter,read);
   }
 
   public async storeRead(
@@ -393,6 +399,7 @@ export class ReadsService {
           this.logger.verbose('historyAge');
 
           if (checkhistroyreading) {
+            await this.handleFailedRead(device.externalId, element.value.toString());
             return reject(
               new ConflictException({
                 success: false,
@@ -411,6 +418,7 @@ export class ReadsService {
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
+            await this.handleFailedRead(device.externalId, element.value.toString());
             return reject(
               new ConflictException({
                 success: false,
@@ -438,6 +446,7 @@ export class ReadsService {
             });
           } else {
             this.logger.verbose('436');
+            await this.handleFailedRead(device.externalId, element.value.toString());
             return reject(
               new ConflictException({
                 success: false,
@@ -463,6 +472,7 @@ export class ReadsService {
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
               ) {
+                await this.handleFailedRead(device.externalId, element.value.toString());
                 return reject(
                   new ConflictException({
                     success: false,
@@ -518,6 +528,7 @@ export class ReadsService {
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
                 ) {
+                  this.handleFailedRead(device.externalId, element.value.toString());
                   return reject(
                     new ConflictException({
                       success: false,
@@ -574,6 +585,7 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
+                await this.handleFailedRead(device.externalId, element.value.toString());
                 return reject(
                   new ConflictException({
                     success: false,
