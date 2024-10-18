@@ -126,8 +126,15 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-   async handleFailedRead(meter: string, read: string) {
-    await this.InfluxDBService.writeFailedRead(meter,read);
+  async handleFailedRead(meter: string, read: string) {
+    try {
+      await this.InfluxDBService.writeFailedRead(meter, read);
+      this.logger.log(`Failed read handled successfully for meter: ${meter}`);
+      return;
+    } catch (error) {
+      this.logger.error(`Error handling failed read for meter ${meter}: ${error.message}`);
+      return;
+    }
   }
 
   public async storeRead(

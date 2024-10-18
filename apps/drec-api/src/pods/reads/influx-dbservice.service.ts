@@ -1,10 +1,11 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InfluxDB, Point } from '@influxdata/influxdb-client';
 
 @Injectable()
 export class InfluxDbService {
   private client: InfluxDB;
+  private readonly logger = new Logger(InfluxDbService.name);
 
   constructor() {
     this.client = new InfluxDB({
@@ -13,24 +14,24 @@ export class InfluxDbService {
     });
   }
 
-  async writeFailedRead(meter: string, read: string) {
+  async writeFailedRead(meter: string, read: string){
     const writeApi = this.client.getWriteApi(
-      process.env.INFLUXDB_ORG,
-      process.env.INFLUXDB_BUCKET
+    process.env.INFLUXDB_ORG,
+    process.env.INFLUXDB_BUCKET
     );
 
     const point = new Point('failed_reads')
       .tag('meter', meter)
       .stringField('read', read);
-    try{
-        await writeApi.writePoint(point);
-        await writeApi.close();
-        console.log("successful")
-        console.log(meter)
-        console.log(read)
-    }
-    catch (error) {
-      console.error("Error writing to InfluxDB:", error);
+    
+    try {
+      await writeApi.writePoint(point);
+      await writeApi.close();
+      this.logger.log(`Successfully logged failed read for meter: ${meter}`);
+      return;
+    } catch (error) {
+      this.logger.error(`Error writing to InfluxDB: ${error.message}`, error.stack);
+      throw new Error(`Failed to log meter read: ${error.message}`);
     }
   }
 }
