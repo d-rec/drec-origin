@@ -8,11 +8,9 @@ RUN npm cache clean --force
 
 COPY . .
 
-RUN npm i -g pnpm@9
-
 WORKDIR /dist/src/app/apps/drec-api
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 RUN npm run build
 
