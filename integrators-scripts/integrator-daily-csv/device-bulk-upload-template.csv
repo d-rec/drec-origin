@@ -1,3 +1,3 @@
 organizationId,externalId,projectName,address,latitude,longitude,countryCode,fuelCode,deviceTypeCode,capacity,commissioningDate,gridInterconnection,offTaker,impactStory,qualityLabels,deviceDescription,energyStorage,energyStorageCapacity,SDGBenefits
-,Device001,Project Alpha,123 Main St,34.0522,-118.2437,USA,ES100,TC110,10,2023-01-01T00:00:00.000Z,,,,,,,
-,Device002,Project Beta,456 Elm St,40.7128,-74.0060,CAN,ES100,TC120,15,2023-02-01T00:00:00.000Z,,,,,,,
+1,Device001,Project A,123 Main St,34.0522,-118.2437,USA,ES100,TC110,10,2023-01-01T00:00:00.000Z,,,,,,,,
+2,Device002,Project B,456 Elm St,40.7128,-74.006,CAN,ES100,TC120,15,2023-02-01T00:00:00.000Z,,,,,,,,
