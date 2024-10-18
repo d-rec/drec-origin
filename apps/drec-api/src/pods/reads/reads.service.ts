@@ -126,13 +126,15 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async handleFailedRead(meter: string, read: string) {
+  async handleFailedRead(meter: string, read: string): Promise<void> {
     try {
       await this.InfluxDBService.writeFailedRead(meter, read);
       this.logger.log(`Failed read handled successfully for meter: ${meter}`);
       return;
     } catch (error) {
-      this.logger.error(`Error handling failed read for meter ${meter}: ${error.message}`);
+      this.logger.error(
+        `Error handling failed read for meter ${meter}: ${error.message}`,
+      );
       return;
     }
   }
@@ -406,7 +408,10 @@ export class ReadsService {
           this.logger.verbose('historyAge');
 
           if (checkhistroyreading) {
-            await this.handleFailedRead(device.externalId, element.value.toString());
+            await this.handleFailedRead(
+              device.externalId,
+              element.value.toString(),
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -425,7 +430,10 @@ export class ReadsService {
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
-            await this.handleFailedRead(device.externalId, element.value.toString());
+            await this.handleFailedRead(
+              device.externalId,
+              element.value.toString(),
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -453,7 +461,10 @@ export class ReadsService {
             });
           } else {
             this.logger.verbose('436');
-            await this.handleFailedRead(device.externalId, element.value.toString());
+            await this.handleFailedRead(
+              device.externalId,
+              element.value.toString(),
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -479,7 +490,10 @@ export class ReadsService {
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
               ) {
-                await this.handleFailedRead(device.externalId, element.value.toString());
+                await this.handleFailedRead(
+                  device.externalId,
+                  element.value.toString(),
+                );
                 return reject(
                   new ConflictException({
                     success: false,
@@ -535,7 +549,10 @@ export class ReadsService {
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
                 ) {
-                  this.handleFailedRead(device.externalId, element.value.toString());
+                  this.handleFailedRead(
+                    device.externalId,
+                    element.value.toString(),
+                  );
                   return reject(
                     new ConflictException({
                       success: false,
@@ -592,7 +609,10 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
-                await this.handleFailedRead(device.externalId, element.value.toString());
+                await this.handleFailedRead(
+                  device.externalId,
+                  element.value.toString(),
+                );
                 return reject(
                   new ConflictException({
                     success: false,
