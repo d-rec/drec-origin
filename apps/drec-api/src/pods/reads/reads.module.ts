@@ -15,7 +15,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { InfluxDbService } from './influx-dbservice.service';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -43,7 +42,7 @@ const baseReadServiceProvider = {
     OrganizationModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, InfluxDbService],
+  providers: [baseReadServiceProvider, ReadsService],
   exports: [baseReadServiceProvider, ReadsService],
 })
 export class ReadsModule {}
