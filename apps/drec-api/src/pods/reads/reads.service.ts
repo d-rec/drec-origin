@@ -44,8 +44,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-import {writePoints} from '../../lib/influx-db'
-import {Point} from '@influxdata/influxdb-client';
+import { writePoints } from '../../lib/influx-db';
+import { Point } from '@influxdata/influxdb-client';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -64,7 +64,7 @@ export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
-    constructor(
+  constructor(
     @InjectRepository(AggregateMeterRead)
     private readonly repository: Repository<AggregateMeterRead>,
     @InjectRepository(HistoryIntermediate_MeterRead)
@@ -126,11 +126,9 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async storeFailedReads(id: string, read: number): Promise<void>{
-    const points : Point[] =[
-      new Point('failed_reads')
-        .tag('meter', id)
-        .intField('read', read),
+  async storeFailedReads(id: string, read: number): Promise<void> {
+    const points: Point[] = [
+      new Point('failed_reads').tag('meter', id).intField('read', read),
     ];
 
     await writePoints(points);
