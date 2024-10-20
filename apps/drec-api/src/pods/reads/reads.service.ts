@@ -44,6 +44,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
+import { writePoints } from '../../lib/influx-db';
+import { Point } from '@influxdata/influxdb-client';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -122,6 +124,14 @@ export class ReadsService {
     );
 
     return aggregatedReads;
+  }
+
+  async storeFailedReads(id: string, read: number): Promise<void> {
+    const points: Point[] = [
+      new Point('failed_reads').tag('meter', id).intField('read', read),
+    ];
+
+    await writePoints(points);
   }
 
   public async storeRead(
@@ -393,6 +403,7 @@ export class ReadsService {
           this.logger.verbose('historyAge');
 
           if (checkhistroyreading) {
+            this.storeFailedReads(device.externalId, element.value);
             return reject(
               new ConflictException({
                 success: false,
@@ -411,6 +422,7 @@ export class ReadsService {
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
+            this.storeFailedReads(device.externalId, element.value);
             return reject(
               new ConflictException({
                 success: false,
@@ -438,6 +450,7 @@ export class ReadsService {
             });
           } else {
             this.logger.verbose('436');
+            this.storeFailedReads(device.externalId, element.value);
             return reject(
               new ConflictException({
                 success: false,
@@ -463,6 +476,7 @@ export class ReadsService {
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
               ) {
+                this.storeFailedReads(device.externalId, element.value);
                 return reject(
                   new ConflictException({
                     success: false,
@@ -518,6 +532,7 @@ export class ReadsService {
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
                 ) {
+                  this.storeFailedReads(device.externalId, element.value);
                   return reject(
                     new ConflictException({
                       success: false,
@@ -574,6 +589,7 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
+                this.storeFailedReads(device.externalId, element.value);
                 return reject(
                   new ConflictException({
                     success: false,
