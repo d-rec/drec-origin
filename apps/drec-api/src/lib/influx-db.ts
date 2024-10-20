@@ -1,4 +1,9 @@
-import { InfluxDB, Point, QueryApi, WriteApi } from '@influxdata/influxdb-client';
+import {
+  InfluxDB,
+  Point,
+  QueryApi,
+  WriteApi,
+} from '@influxdata/influxdb-client';
 
 const dbConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
