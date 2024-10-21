@@ -14,11 +14,6 @@ RUN npm install
 
 RUN npm run build
 
-RUN rm -rf ./deployment  
-RUN mkdir ./deployment
-
-# RUN rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
-
 RUN npm i swagger-ui-express
 
-CMD ["/bin/bash", "-c", "/dist/src/app/apps/drec-api/deployment/apps/drec-api/bin/drec-api"]
+CMD ["/bin/bash", "-c", "/dist/src/app/apps/drec-api"]
