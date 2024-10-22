@@ -126,9 +126,16 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async storeFailedReads(id: string, read: number): Promise<void> {
+  async storeFailedReads(
+    meterId: string,
+    read: number,
+    timeStamp: Date,
+  ): Promise<void> {
     const points: Point[] = [
-      new Point('failed_reads').tag('meter', id).intField('read', read),
+      new Point('failed_reads')
+        .tag('meter', meterId)
+        .intField('read', read)
+        .timestamp(new Date(timeStamp)),
     ];
 
     await writePoints(points);
@@ -403,7 +410,11 @@ export class ReadsService {
           this.logger.verbose('historyAge');
 
           if (checkhistroyreading) {
-            this.storeFailedReads(device.externalId, element.value);
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -422,7 +433,11 @@ export class ReadsService {
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
-            this.storeFailedReads(device.externalId, element.value);
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -450,7 +465,11 @@ export class ReadsService {
             });
           } else {
             this.logger.verbose('436');
-            this.storeFailedReads(device.externalId, element.value);
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -476,7 +495,11 @@ export class ReadsService {
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
               ) {
-                this.storeFailedReads(device.externalId, element.value);
+                this.storeFailedReads(
+                  device.externalId,
+                  element.value,
+                  element.endtimestamp,
+                );
                 return reject(
                   new ConflictException({
                     success: false,
@@ -532,7 +555,11 @@ export class ReadsService {
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
                 ) {
-                  this.storeFailedReads(device.externalId, element.value);
+                  this.storeFailedReads(
+                    device.externalId,
+                    element.value,
+                    element.endtimestamp,
+                  );
                   return reject(
                     new ConflictException({
                       success: false,
@@ -589,7 +616,11 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
-                this.storeFailedReads(device.externalId, element.value);
+                this.storeFailedReads(
+                  device.externalId,
+                  element.value,
+                  element.endtimestamp,
+                );
                 return reject(
                   new ConflictException({
                     success: false,
