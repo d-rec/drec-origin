@@ -35,7 +35,7 @@ export function IsValidTimezone(validationOptions?: ValidationOptions) {
       options: {
         ...validationOptions,
         message: (args: ValidationArguments) => {
-          const value = args.value; 
+          const value = args.value;
           return `Invalid timezone: ${value}. Please provide a valid timezone if you include it.`;
         },
       },
