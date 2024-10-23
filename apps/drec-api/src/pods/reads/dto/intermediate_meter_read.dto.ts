@@ -42,12 +42,11 @@ export class NewIntmediateMeterReadDTO
   implements
     Omit<Iintermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
 {
+  [key: string]: any;
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @IsValidTimezone({
-    message:
-      'Invalid timezone. Please provide a valid timezone string if you include it.'})
+  @IsValidTimezone()
   timezone?: string;
 
   @ApiProperty({ enum: ReadType, enumName: 'type' })

@@ -2,28 +2,43 @@ import {
   registerDecorator,
   ValidationOptions,
   ValidatorConstraint,
-  ValidatorConstraintInterface
+  ValidatorConstraintInterface,
+  ValidationArguments,
 } from 'class-validator';
 import * as momentTimezone from 'moment-timezone';
 
 @ValidatorConstraint({ async: false })
 export class IsValidTimezoneConstraint implements ValidatorConstraintInterface {
-  validate(timezone: any) {
-    const allTimezoneNames = momentTimezone.tz.names().map(tz => tz.toLowerCase());
-    return typeof timezone === 'string' && allTimezoneNames.includes(timezone.toLowerCase());
+  validate(timezone: string): boolean {
+    const allTimezoneNames = momentTimezone.tz
+      .names()
+      .map((tz) => tz.toLowerCase());
+    return (
+      typeof timezone === 'string' &&
+      allTimezoneNames.includes(timezone.toLowerCase())
+    );
   }
 
-  defaultMessage() {
+  defaultMessage(): string {
     return `Timezone ($value) is not valid.`;
   }
 }
 
 export function IsValidTimezone(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (
+    object: Record<string, unknown>,
+    propertyName: string,
+  ): void {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
-      options: validationOptions,
+      options: {
+        ...validationOptions,
+        message: (args: ValidationArguments) => {
+          const value = args.value; // Get the value being validated
+          return `Invalid timezone: ${value}. Please provide a valid timezone if you include it.`;
+        },
+      },
       constraints: [],
       validator: IsValidTimezoneConstraint,
     });
