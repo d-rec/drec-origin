@@ -431,29 +431,7 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-      const allTimezoneNamesLowerCase: Array<string> = [];
-      momentTimeZone.tz
-        .names()
-        .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
-      if (
-        !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
-      ) {
-        this.logger.error(`Invalid time zone: ${measurements.timezone}`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `Invalid time zone: ${measurements.timezone}`,
-            }),
-          );
-        });
-      }
-      measurements.timezone =
-        momentTimeZone.tz.names()[
-          allTimezoneNamesLowerCase.findIndex(
-            (ele) => ele === measurements.timezone.toLowerCase(),
-          )
-        ];
+
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {
@@ -1005,30 +983,7 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-      const allTimezoneNamesLowerCase: Array<string> = [];
-      momentTimeZone.tz
-        .names()
-        .forEach((ele) => allTimezoneNamesLowerCase.push(ele.toLowerCase()));
 
-      if (
-        !allTimezoneNamesLowerCase.includes(measurements.timezone.toLowerCase())
-      ) {
-        this.logger.error(`Invalid time zone: ${measurements.timezone}`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `Invalid time zone: ${measurements.timezone}`,
-            }),
-          );
-        });
-      }
-      measurements.timezone =
-        momentTimeZone.tz.names()[
-          allTimezoneNamesLowerCase.findIndex(
-            (ele) => ele === measurements.timezone.toLowerCase(),
-          )
-        ];
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {

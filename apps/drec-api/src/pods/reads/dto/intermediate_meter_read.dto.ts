@@ -10,8 +10,9 @@ import { Unit } from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
 import { Iintermediate, NewReadDTO } from '../../../models';
-
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
+import { IsValidTimezone } from '../../../validations/time-zone-validator';
+
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
@@ -41,9 +42,11 @@ export class NewIntmediateMeterReadDTO
   implements
     Omit<Iintermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
 {
+  [key: string]: any;
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsValidTimezone()
   timezone?: string;
 
   @ApiProperty({ enum: ReadType, enumName: 'type' })
