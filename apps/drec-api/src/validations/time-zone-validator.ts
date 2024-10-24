@@ -18,10 +18,6 @@ export class IsValidTimezoneConstraint implements ValidatorConstraintInterface {
       allTimezoneNames.includes(timezone.toLowerCase())
     );
   }
-
-  defaultMessage(): string {
-    return `Timezone ($value) is not valid.`;
-  }
 }
 
 export function IsValidTimezone(validationOptions?: ValidationOptions) {
