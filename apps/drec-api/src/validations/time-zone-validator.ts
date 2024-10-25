@@ -32,7 +32,7 @@ export function IsValidTimezone(validationOptions?: ValidationOptions) {
         ...validationOptions,
         message: (args: ValidationArguments) => {
           const value = args.value;
-          return `Invalid timezone: ${value}. Please provide a valid timezone if you include it.`;
+          return `Invalid timezone: ${value}. Timezone must follow the format {Continent}/{City}. Examples: America/New_York, Europe/London, Asia/Tokyo`;
         },
       },
       constraints: [],
