@@ -135,10 +135,8 @@ export class ReadsService {
   ): Promise<any> {
     this.logger.verbose('Handling file upload and job scheduling');
 
-    // Step 1: Upload the file to S3
     const result = await this.fileService.upload(file);
 
-    // Step 2: Schedule the job to process the meter reads
     const job = await this.readsQueue.add('process-meter-reads', {
       filename: result.Key,
       userData: user,

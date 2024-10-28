@@ -130,7 +130,6 @@ export class ReadsController extends BaseReadsController {
   ): Promise<any> {
     this.logger.verbose('Handling meter read file upload');
 
-    // Use MeterReadService to upload file and schedule job
     return await this.internalReadsService.uploadAndScheduleJob(file, user);
   }
 
