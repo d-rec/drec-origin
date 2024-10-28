@@ -29,8 +29,8 @@ export class FileService {
     @InjectRepository(File) private readonly repository: Repository<File>,
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
-    @InjectConnection() 
-    private readonly connection: Connection
+    @InjectConnection()
+    private readonly connection: Connection,
   ) {}
 
   public async store(

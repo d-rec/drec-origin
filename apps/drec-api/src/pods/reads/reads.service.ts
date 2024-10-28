@@ -55,8 +55,8 @@ import {
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
 import { FileService } from '../file';
-import { InjectQueue} from '@nestjs/bull';
-import {Queue} from 'bull'
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -129,7 +129,8 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async uploadAndScheduleJob(file: Express.Multer.File,
+  async uploadAndScheduleJob(
+    file: Express.Multer.File,
     user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose('Handling file upload and job scheduling');

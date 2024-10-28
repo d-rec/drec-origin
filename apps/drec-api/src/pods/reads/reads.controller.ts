@@ -21,9 +21,15 @@ import {
   UnauthorizedException,
   UseInterceptors,
   UploadedFile,
-  NotFoundException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -47,7 +53,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
-import { FileService, FileUploadDto } from '../file';
+import { FileService} from '../file';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -96,7 +102,8 @@ export class ReadsController extends BaseReadsController {
 
   @Post('upload')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ schema: {
+  @ApiBody({
+    schema: {
       type: 'object',
       properties: {
         file: {
@@ -104,7 +111,8 @@ export class ReadsController extends BaseReadsController {
           format: 'binary',
         },
       },
-    }, })
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: multer.memoryStorage(),
