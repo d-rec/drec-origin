@@ -3,7 +3,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -29,7 +29,8 @@ export class FileService {
     @InjectRepository(File) private readonly repository: Repository<File>,
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
-    private readonly connection: Connection,
+    @InjectConnection() 
+    private readonly connection: Connection
   ) {}
 
   public async store(

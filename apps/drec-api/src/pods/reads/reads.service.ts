@@ -39,7 +39,7 @@ import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { IAggregateintermediate } from '../../models';
+import { IAggregateintermediate, ILoggedInUser } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
@@ -54,6 +54,9 @@ import {
   filterNoOffLimit,
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
+import { FileService } from '../file';
+import { InjectQueue} from '@nestjs/bull';
+import {Queue} from 'bull'
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -75,6 +78,8 @@ export class ReadsService {
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
+    private readonly fileService: FileService,
+    @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
@@ -122,6 +127,26 @@ export class ReadsService {
     );
 
     return aggregatedReads;
+  }
+
+  async uploadAndScheduleJob(file: Express.Multer.File,
+    user: ILoggedInUser,
+  ): Promise<any> {
+    this.logger.verbose('Handling file upload and job scheduling');
+
+    // Step 1: Upload the file to S3
+    const result = await this.fileService.upload(file);
+
+    // Step 2: Schedule the job to process the meter reads
+    const job = await this.readsQueue.add('process-meter-reads', {
+      filename: result.Key,
+      userData: user,
+    });
+
+    return {
+      message: 'Job scheduled successfully',
+      jobId: job.id,
+    };
   }
 
   public async storeRead(

@@ -19,8 +19,11 @@ import {
   BadRequestException,
   Logger,
   UnauthorizedException,
+  UseInterceptors,
+  UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -42,6 +45,9 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
+import { FileService, FileUploadDto } from '../file';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -56,6 +62,7 @@ export class ReadsController extends BaseReadsController {
     baseReadsService: BaseReadsService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly fileService: FileService,
   ) {
     super(baseReadsService);
   }
@@ -85,6 +92,38 @@ export class ReadsController extends BaseReadsController {
     } else {
       return momentTimeZone.tz.names();
     }
+  }
+
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    }, })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.memoryStorage(),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.includes('csv')) {
+          return callback(new Error('Only CSV files are allowed'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  async uploadMeterReadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() user: ILoggedInUser,
+  ): Promise<any> {
+    this.logger.verbose('Handling meter read file upload');
+
+    // Use MeterReadService to upload file and schedule job
+    return await this.internalReadsService.uploadAndScheduleJob(file, user);
   }
 
   /**
