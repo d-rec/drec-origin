@@ -53,7 +53,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
-import { FileService} from '../file';
+import { FileService } from '../file';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
