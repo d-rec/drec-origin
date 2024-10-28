@@ -148,27 +148,6 @@ export class ReadsService {
       jobId: job.id,
     };
   }
-
-  public async storeRead(
-    id: string,
-    measurements: MeasurementDTO,
-  ): Promise<void> {
-    this.logger.debug('DREC is storing smart meter reads:');
-    this.logger.debug(JSON.stringify(measurements));
-    const device = await this.deviceService.findReads(id);
-
-    if (!device) {
-      throw new NotFoundException(`No device found with external id ${id}`);
-    }
-    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    const filteredMeasurements = await this.filterMeasurements(
-      id,
-      roundedMeasurements,
-      device,
-    );
-    await this.storeGenerationReading(id, filteredMeasurements, device);
-  }
-
   private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,
