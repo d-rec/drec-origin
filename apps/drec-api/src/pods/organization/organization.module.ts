@@ -9,6 +9,8 @@ import { UserModule } from '../user/user.module';
 import { MailModule } from '../../mail';
 import { FileModule } from '../file';
 import { InvitationModule } from '../invitation/invitation.module';
+import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
+
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { InvitationModule } from '../invitation/invitation.module';
     FileModule,
     forwardRef(() => InvitationModule),
   ],
-  providers: [OrganizationService],
+  providers: [OrganizationService, OrganizationAccessValidator],
   controllers: [OrganizationController],
   exports: [OrganizationService],
 })

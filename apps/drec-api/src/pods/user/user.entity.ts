@@ -99,3 +99,5 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsEnum(UserPermissionStatus)
   permission_status?: UserPermissionStatus;
 }
+export { Role };
+
