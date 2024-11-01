@@ -12,6 +12,7 @@ import { ReadType } from '../../../utils/enums';
 import { Iintermediate, NewReadDTO } from '../../../models';
 
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
+import { HasOrganizationAccess } from '../../../validations/organization-access.decorator';
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
@@ -61,5 +62,6 @@ export class NewIntmediateMeterReadDTO
 
   @ApiProperty({ type: () => Number })
   @IsOptional()
+  @HasOrganizationAccess()
   organizationId?: number;
 }

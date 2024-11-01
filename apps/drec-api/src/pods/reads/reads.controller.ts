@@ -18,7 +18,6 @@ import {
   HttpException,
   BadRequestException,
   Logger,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -42,8 +41,6 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { HasOrganizationAccess } from '../../validations/organization-access.decorator';
-
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -340,7 +337,6 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  @HasOrganizationAccess()
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,

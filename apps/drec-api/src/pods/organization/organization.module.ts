@@ -11,7 +11,6 @@ import { FileModule } from '../file';
 import { InvitationModule } from '../invitation/invitation.module';
 import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Organization]),

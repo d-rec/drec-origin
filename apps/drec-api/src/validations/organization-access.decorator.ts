@@ -1,9 +1,8 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { OrganizationAccessValidator } from './organization-access.validation';
 
-
 export function HasOrganizationAccess(validationOptions?: ValidationOptions) {
-  return function (object: any, propertyName: string) {
+  return function (object: unknown, propertyName: string): void {
     registerDecorator({
       name: 'hasOrganizationAccess',
       target: object.constructor,
@@ -13,7 +12,7 @@ export function HasOrganizationAccess(validationOptions?: ValidationOptions) {
         async validate(value: number, args: any) {
           const validator = new OrganizationAccessValidator(
             args.object.organizationService,
-            args.object.userService
+            args.object.userService,
           );
           return validator.validate(value, args.object.user);
         },

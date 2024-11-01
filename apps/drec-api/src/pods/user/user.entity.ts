@@ -100,4 +100,3 @@ export class User extends ExtendedBaseEntity implements IUser {
   permission_status?: UserPermissionStatus;
 }
 export { Role };
-

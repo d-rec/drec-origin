@@ -1,17 +1,25 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { OrganizationService } from '../pods/organization/organization.service';
 import { UserService } from '../pods/user/user.service';
 import { Role } from '../pods/user/user.entity';
+import { ILoggedInUser } from 'src/models';
 
 @Injectable()
 export class OrganizationAccessValidator {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {}
 
-  async validate(organizationId: number, user: any): Promise<boolean> {
-    console.log(organizationId)
+  async validate(
+    organizationId: number,
+    user: ILoggedInUser,
+  ): Promise<boolean> {
+    console.log(organizationId);
     const senderorg = await this.organizationService.findOne(organizationId);
     const orguser = await this.userService.findByEmail(senderorg.orgEmail);
 
@@ -29,14 +37,14 @@ export class OrganizationAccessValidator {
           message: `Organization ${senderorg.name} in measurement is not part of your organization`,
         });
       }
-      
+
       if (orguser.role !== Role.OrganizationAdmin) {
         throw new UnauthorizedException({
           success: false,
           message: 'Unauthorized',
         });
       }
-      
+
       user.organizationId = organizationId;
       return true;
     }
