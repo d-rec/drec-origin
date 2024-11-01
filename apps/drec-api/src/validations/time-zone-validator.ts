@@ -6,29 +6,18 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import * as momentTimezone from 'moment-timezone';
-
 @ValidatorConstraint({ async: false })
 export class IsValidTimezoneConstraint implements ValidatorConstraintInterface {
-  validate(timezone: string, args: ValidationArguments): boolean {
-    const allTimezoneNames = momentTimezone.tz.names();
-    const allTimezoneNamesLowerCase = allTimezoneNames.map((tz) =>
-      tz.toLowerCase(),
-    );
-    const isValid =
+  validate(timezone: string): boolean {
+    const allTimezoneNames = momentTimezone.tz
+      .names()
+      .map((tz) => tz.toLowerCase());
+    return (
       typeof timezone === 'string' &&
-      allTimezoneNamesLowerCase.includes(timezone.toLowerCase());
-
-    if (isValid) {
-      const correctIndex = allTimezoneNamesLowerCase.findIndex(
-        (tz) => tz === timezone.toLowerCase(),
-      );
-      (args.object as any)[args.property] = allTimezoneNames[correctIndex];
-    }
-
-    return isValid;
+      allTimezoneNames.includes(timezone.toLowerCase())
+    );
   }
 }
-
 export function IsValidTimezone(validationOptions?: ValidationOptions) {
   return function (
     object: Record<string, unknown>,

@@ -12,6 +12,8 @@ import { ReadType } from '../../../utils/enums';
 import { Iintermediate, NewReadDTO } from '../../../models';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IsValidTimezone } from '../../../validations/time-zone-validator';
+import { Transform } from 'class-transformer';
+import * as momentTimezone from 'moment-timezone';
 
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
@@ -47,6 +49,14 @@ export class NewIntmediateMeterReadDTO
   @IsString()
   @IsOptional()
   @IsValidTimezone()
+  @Transform((value) => {
+    if (!value) return value;
+    const allTimezones = momentTimezone.tz.names();
+    const index = allTimezones.findIndex(
+      (tz) => tz.toLowerCase() === value.toLowerCase(),
+    );
+    return index >= 0 ? allTimezones[index] : value;
+  })
   timezone?: string;
 
   @ApiProperty({ enum: ReadType, enumName: 'type' })
