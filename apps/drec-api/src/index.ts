@@ -36,7 +36,6 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   app.enableShutdownHooks();
   app.enableCors();
   app.setGlobalPrefix('api');
-  
 
   useContainer(app.select(DrecModule), { fallbackOnErrors: true });
 
