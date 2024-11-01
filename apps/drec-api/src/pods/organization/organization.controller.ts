@@ -57,7 +57,6 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { Organization } from './organization.entity';
-import { HasOrganizationAccess } from '../../validations/organization-access.decorator';
 
 @ApiTags('organization')
 @ApiBearerAuth('access-token')
@@ -103,7 +102,6 @@ export class OrganizationController {
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
-  @HasOrganizationAccess()
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
