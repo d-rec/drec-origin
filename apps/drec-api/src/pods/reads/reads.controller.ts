@@ -48,6 +48,7 @@ import { UserService } from '../user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
 import { FileService, FileUploadDto } from '../file';
+import { HasOrganizationAccess } from '../../validations/organization-access.decorator';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -378,62 +379,63 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
+  @HasOrganizationAccess()
   public async newstoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in newstoreRead`);
-    if (measurements.organizationId) {
-      const senderorg = await this.organizationService.findOne(
-        measurements.organizationId,
-      );
-      const orguser = await this.userService.findByEmail(senderorg.orgEmail);
-      if (
-        user.organizationId !== measurements.organizationId &&
-        user.role !== Role.ApiUser
-      ) {
-        this.logger.error(
-          `Organization in measurement is not same as user's organization`,
-        );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: `Organization in measurement is not same as user's organization`,
-            }),
-          );
-        });
-      }
+    // if (measurements.organizationId) {
+    //   const senderorg = await this.organizationService.findOne(
+    //     measurements.organizationId,
+    //   );
+    //   const orguser = await this.userService.findByEmail(senderorg.orgEmail);
+    //   if (
+    //     user.organizationId !== measurements.organizationId &&
+    //     user.role !== Role.ApiUser
+    //   ) {
+    //     this.logger.error(
+    //       `Organization in measurement is not same as user's organization`,
+    //     );
+    //     return new Promise((resolve, reject) => {
+    //       reject(
+    //         new ConflictException({
+    //           success: false,
+    //           message: `Organization in measurement is not same as user's organization`,
+    //         }),
+    //       );
+    //     });
+    //   }
 
-      if (user.role === Role.ApiUser) {
-        if (senderorg.api_user_id !== user.api_user_id) {
-          this.logger.error(
-            `Organization ${senderorg.name} in measurement is not part of your organization`,
-          );
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `Organization ${senderorg.name} in measurement is not part of your organization`,
-              }),
-            );
-          });
-        } else if (orguser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new UnauthorizedException({
-                success: false,
-                message: `Unauthorized`,
-              }),
-            );
-          });
-        } else {
-          user.organizationId = measurements.organizationId;
-        }
-      }
-    }
+    //   if (user.role === Role.ApiUser) {
+    //     if (senderorg.api_user_id !== user.api_user_id) {
+    //       this.logger.error(
+    //         `Organization ${senderorg.name} in measurement is not part of your organization`,
+    //       );
+    //       return new Promise((resolve, reject) => {
+    //         reject(
+    //           new ConflictException({
+    //             success: false,
+    //             message: `Organization ${senderorg.name} in measurement is not part of your organization`,
+    //           }),
+    //         );
+    //       });
+    //     } else if (orguser.role != Role.OrganizationAdmin) {
+    //       this.logger.error(`Unauthorized`);
+    //       return new Promise((resolve, reject) => {
+    //         reject(
+    //           new UnauthorizedException({
+    //             success: false,
+    //             message: `Unauthorized`,
+    //           }),
+    //         );
+    //       });
+    //     } else {
+    //       user.organizationId = measurements.organizationId;
+    //     }
+    //   }
+    // }
 
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);

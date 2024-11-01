@@ -17,6 +17,9 @@ import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
+import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
+
+
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -48,7 +51,7 @@ const baseReadServiceProvider = {
     OrganizationModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService],
+  providers: [baseReadServiceProvider, ReadsService, OrganizationAccessValidator],
   exports: [baseReadServiceProvider, ReadsService],
 })
 export class ReadsModule {}
