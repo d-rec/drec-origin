@@ -13,7 +13,7 @@ import { Iintermediate, NewReadDTO } from '../../../models';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IsValidTimezone } from '../../../validations/timezone';
 import { Transform } from 'class-transformer';
-import { transformTimezone } from 'src/transformers/timezone';
+import { transformTimezone } from '../../..//transformers/timezone';
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
