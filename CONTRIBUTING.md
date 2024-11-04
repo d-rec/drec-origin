@@ -53,7 +53,7 @@ Used for release tasks and long-term maintenance versions. These branches are cr
     git commit -m "fix: resolve issue with..."
     ```
 
-- **Create Logically Consistent Commits:** Try to make mid-sized commits every few minutes or hours. However, the key is to ensure that each commit represents a logically consistent contribution. If you have many changes, split them into multiple commits, ensuring each commit has an independent and clear purpose that is well described in the commit message.
+- **Create Logically Consistent Pull Requests:** Each pull request should represent a logically consistent contribution. If you have many unrelated changes, split them into multiple pull requests, ensuring each has an independent and clear purpose that is well described in its description. You can include multiple small commits in a single pull request. Pull requests should be merged using the “Squash and Merge” option to maintain a clean project history.
 
 - **Break Down Changes:** Make sure each change is logical and standalone. Avoid combining unrelated changes in a single commit.
   - Example of good practice:
@@ -90,7 +90,6 @@ Used for release tasks and long-term maintenance versions. These branches are cr
 ## Things to avoid
 
 - Avoid using the squash commits feature, it tends to bring conflicts especially when people are using other base branches
-- Do not use git force push
 - Do not merge your PRs unless your code has been reviewed by a code reviewer and the code reviewer has either approved your changes or accepted all the adjustments you have made upon their review.
 - Avoid merging other dependencies PRs into the ones you are working on to avoid having duplicate changes into two PRs in case a change is needed to be used in another.
 - Avoid committing the `node_modules` folder (or including it in the version history).
@@ -99,8 +98,8 @@ Used for release tasks and long-term maintenance versions. These branches are cr
 
 ## Naming Convention
 
-1. File names: **`kebab_case`**
-    - All file names should be written in **`kebab_case`**
+1. File names: **`kebab-case`**
+    - All file names should be written in **`kebab-case`**
     - Use lowercase letters and separate words with a hyphen
     - Example: **`measurements-type.handle.ts`**
 2. Component names: **`PascalCase`**
@@ -158,9 +157,7 @@ Makes sure your naming also satisfies the following conditions:
 - Update the README file whenever there is a change to the project's configuration or installation instructions.
 - Update the README file whenever there is a change to the project's structure, organization or architecture. This includes changes to file directories, infrastructure changes, major libraries,…
 
-### User Documentationation
-
-# User Documentation
+### User Documentation
 
 - Update the user-facing documentation whenever:
   - A new feature is added
