@@ -3,7 +3,6 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  ValidationArguments,
 } from 'class-validator';
 import * as momentTimezone from 'moment-timezone';
 
@@ -21,18 +20,15 @@ export class IsValidTimezoneConstraint implements ValidatorConstraintInterface {
 }
 export function IsValidTimezone(validationOptions?: ValidationOptions) {
   return function (
-    object: Record<string, unknown>,
+    object: Record<string, any>,
     propertyName: string,
   ): void {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: {
+        message: `Invalid timezone: $value. Timezone must follow the format {Continent}/{City}. Examples: America/New_York, Europe/London, Asia/Tokyo`,
         ...validationOptions,
-        message: (args: ValidationArguments) => {
-          const value = args.value;
-          return `Invalid timezone: ${value}. Timezone must follow the format {Continent}/{City}. Examples: America/New_York, Europe/London, Asia/Tokyo`;
-        },
       },
       constraints: [],
       validator: IsValidTimezoneConstraint,
