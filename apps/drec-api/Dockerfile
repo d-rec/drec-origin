@@ -4,8 +4,6 @@ RUN apk --no-cache add bash
 
 WORKDIR /app
 
-RUN npm cache clean --force
-
 COPY . .
 
 RUN npm install --legacy-peer-deps
