@@ -6,6 +6,7 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import * as momentTimezone from 'moment-timezone';
+
 @ValidatorConstraint({ async: false })
 export class IsValidTimezoneConstraint implements ValidatorConstraintInterface {
   validate(timezone: string): boolean {
