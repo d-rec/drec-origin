@@ -43,7 +43,6 @@ export class NewIntmediateMeterReadDTO
   implements
     Omit<Iintermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
 {
-
   @ApiProperty()
   @IsString()
   @IsOptional()
