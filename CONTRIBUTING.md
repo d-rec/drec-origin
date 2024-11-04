@@ -157,3 +157,12 @@ Makes sure your naming also satisfies the following conditions:
 
 - Update the README file whenever there is a change to the project's configuration or installation instructions.
 - Update the README file whenever there is a change to the project's structure, organization or architecture. This includes changes to file directories, infrastructure changes, major libraries,…
+
+### User Documentationation
+
+# User Documentation
+
+- Update the user-facing documentation whenever:
+  - A new feature is added
+  - Any change impacting user-related features is made
+- The added changes should cover all the information users might need to use that particular feature
