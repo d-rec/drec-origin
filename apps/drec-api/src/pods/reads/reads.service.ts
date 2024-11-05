@@ -56,6 +56,7 @@ import {
   filterNoOffLimit,
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
+import { convertToUnits } from '../../utils/convert-to-units';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -125,32 +126,21 @@ export class ReadsService {
 
     return aggregatedReads;
   }
-  private getMultiplier(unit: Unit) {
-    switch (unit) {
-      case Unit.Wh:
-        return 1;
-      case Unit.kWh:
-        return 10 ** 3;
-      case Unit.MWh:
-        return 10 ** 6;
-      case Unit.GWh:
-        return 10 ** 9;
-    }
-  }
   async storeFailedReads(
     meterId: string,
     read: number,
     timeStamp: Date,
     unit: Unit,
   ): Promise<void> {
-    const multiplier = this.getMultiplier(unit);
+    const multiplier = convertToUnits(read,unit);
+
     const points: Point[] = [
       new Point('failed_reads')
         .tag('meter', meterId)
-        .intField('read', read * multiplier)
+        .intField('read', multiplier)
         .timestamp(new Date(timeStamp)),
     ];
-
+    console.log(points)
     await writePoints(points);
   }
 
@@ -427,6 +417,7 @@ export class ReadsService {
               device.externalId,
               element.value,
               element.endtimestamp,
+              measurement.unit,
             );
             return reject(
               new ConflictException({
@@ -450,6 +441,7 @@ export class ReadsService {
               device.externalId,
               element.value,
               element.endtimestamp,
+              measurement.unit,
             );
             return reject(
               new ConflictException({
@@ -482,6 +474,7 @@ export class ReadsService {
               device.externalId,
               element.value,
               element.endtimestamp,
+              measurement.unit,
             );
             return reject(
               new ConflictException({
@@ -512,6 +505,7 @@ export class ReadsService {
                   device.externalId,
                   element.value,
                   element.endtimestamp,
+                  measurement.unit,
                 );
                 return reject(
                   new ConflictException({
@@ -572,6 +566,7 @@ export class ReadsService {
                     device.externalId,
                     element.value,
                     element.endtimestamp,
+                    measurement.unit,
                   );
                   return reject(
                     new ConflictException({
@@ -633,6 +628,7 @@ export class ReadsService {
                   device.externalId,
                   element.value,
                   element.endtimestamp,
+                  measurement.unit,
                 );
                 return reject(
                   new ConflictException({
