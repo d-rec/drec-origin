@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch -p tsconfig.json",
     "start:prod": "node dist/js/src/main",
     "prebuild": "shx rm -rf dist",
-    "build": "pnpm build:ts",
+    "build": "npm run build:ts",
     "build:ts": "tsc -b tsconfig.json",
     "build:containers": "make build",
     "clean": "shx rm -rf dist",
