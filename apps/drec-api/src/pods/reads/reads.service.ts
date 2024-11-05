@@ -44,6 +44,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
+import { parseCsvContent } from '../../utils/csv-parser';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -55,8 +56,8 @@ import {
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
 import { FileService } from '../file';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+import { InjectQueue, Process } from '@nestjs/bull';
+import { Job, Queue } from 'bull';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -129,24 +130,67 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async uploadAndScheduleJob(
-    file: Express.Multer.File,
-    user: ILoggedInUser,
-  ): Promise<any> {
-    this.logger.verbose('Handling file upload and job scheduling');
+  public async storeRead(
+    id: string,
+    measurements: MeasurementDTO,
+  ): Promise<void> {
+    this.logger.debug('DREC is storing smart meter reads:');
+    this.logger.debug(JSON.stringify(measurements));
+    const device = await this.deviceService.findReads(id);
 
-    const result = await this.fileService.upload(file);
+    if (!device) {
+      throw new NotFoundException(`No device found with external id ${id}`);
+    }
+    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
+    const filteredMeasurements = await this.filterMeasurements(
+      id,
+      roundedMeasurements,
+      device,
+    );
+    await this.storeGenerationReading(id, filteredMeasurements, device);
+  }
 
-    const job = await this.readsQueue.add('process-meter-reads', {
-      filename: result.Key,
-      userData: user,
+  async processMeterReadsFile(fileId: string, user: ILoggedInUser) {
+    const file = await this.fileService.get(fileId);
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+    await this.readsQueue.add('process-meter-reads', {
+      fileId,
+      userId: user.id,
+      organizationId: user.organizationId
     });
 
     return {
-      message: 'Job scheduled successfully',
-      jobId: job.id,
+      message: 'Processing scheduled',
+      jobId: fileId
     };
   }
+
+  @Process('process-meter-reads')
+  async handleMeterReadsProcessing(job: Job) {
+    const { fileId, userId, organizationId } = job.data;
+    const fileContent = await this.fileService.get(fileId);
+    if (!fileContent) {
+      throw new Error(`File with ID ${fileId} could not be retrieved.`);
+    }
+    
+    const readings = parseCsvContent(fileContent);
+
+    for (const reading of readings) {
+      const measurement: MeasurementDTO = {
+        unit: reading.unit,
+        reads: reading.reads.map(read => ({
+          ...read,
+          timestamp: new Date(read.starttimestamp ?? Date.now()), // Ensure timestamp is set
+        })) as ReadDTO[],
+      };
+
+      await this.baseReadsService.store(userId, measurement);
+    }
+  }
+
+
   private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,

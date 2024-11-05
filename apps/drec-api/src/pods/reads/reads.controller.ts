@@ -1621,7 +1621,6 @@ export class ReadsController extends BaseReadsController {
       }
 
       return {
-        enddate: latestReadObject[0].timestamp,
         value: latestReadObject[0].value,
       };
     }
