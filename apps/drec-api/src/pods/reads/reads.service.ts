@@ -133,14 +133,12 @@ export class ReadsService {
     unit: Unit,
   ): Promise<void> {
     const multiplier = convertToUnits(read,unit);
-
     const points: Point[] = [
       new Point('failed_reads')
         .tag('meter', meterId)
         .intField('read', multiplier)
         .timestamp(new Date(timeStamp)),
     ];
-    console.log(points)
     await writePoints(points);
   }
 
@@ -199,7 +197,6 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -340,11 +337,9 @@ export class ReadsService {
       );
     }
 
-    const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
-
     const filteredMeasurements = await this.NewfilterMeasurements(
       id,
-      roundedMeasurements,
+      measurements,
       device,
     );
     this.logger.verbose(filteredMeasurements);
@@ -411,7 +406,6 @@ export class ReadsService {
           const historyAge = new Date(device.createdAt);
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           this.logger.verbose('historyAge');
-
           if (checkhistroyreading) {
             this.storeFailedReads(
               device.externalId,
