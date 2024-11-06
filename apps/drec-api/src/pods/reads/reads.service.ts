@@ -346,35 +346,6 @@ export class ReadsService {
     await this.newstoreGenerationReading(id, filteredMeasurements, device);
   }
 
-  private NewroundMeasurementsToUnit(
-    measurement: NewIntmediateMeterReadDTO,
-  ): NewIntmediateMeterReadDTO {
-    const getMultiplier = (unit: Unit) => {
-      switch (unit) {
-        case Unit.Wh:
-          return 1;
-        case Unit.kWh:
-          return 10 ** 3;
-        case Unit.MWh:
-          return 10 ** 6;
-        case Unit.GWh:
-          return 10 ** 9;
-      }
-    };
-
-    const multiplier = getMultiplier(measurement.unit);
-
-    return {
-      reads: measurement.reads.map((r) => ({
-        starttimestamp: r.starttimestamp,
-        endtimestamp: r.endtimestamp,
-        value: Math.round(r.value * multiplier),
-      })),
-      unit: Unit.Wh,
-      type: measurement.type,
-    };
-  }
-
   private async NewfilterMeasurements(
     deviceId: string,
     measurement: NewIntmediateMeterReadDTO,
