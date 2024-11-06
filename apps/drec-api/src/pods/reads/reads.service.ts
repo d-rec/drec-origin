@@ -132,11 +132,10 @@ export class ReadsService {
     timeStamp: Date,
     unit: Unit,
   ): Promise<void> {
-    const multiplier = convertToUnits(read,unit);
     const points: Point[] = [
       new Point('failed_reads')
         .tag('meter', meterId)
-        .intField('read', multiplier)
+        .intField('read', read)
         .timestamp(new Date(timeStamp)),
     ];
     await writePoints(points);
@@ -201,25 +200,12 @@ export class ReadsService {
   }
 
   private roundMeasurementsToUnit(measurement: MeasurementDTO): MeasurementDTO {
-    const getMultiplier = (unit: Unit) => {
-      switch (unit) {
-        case Unit.Wh:
-          return 1;
-        case Unit.kWh:
-          return 10 ** 3;
-        case Unit.MWh:
-          return 10 ** 6;
-        case Unit.GWh:
-          return 10 ** 9;
-      }
-    };
-
-    const multiplier = getMultiplier(measurement.unit);
+    const convertedRead = convertToUnits(measurement.unit);
 
     return {
       reads: measurement.reads.map((r) => ({
         timestamp: r.timestamp,
-        value: Math.round(r.value * multiplier),
+        value: Math.round(r.value * convertedRead),
       })),
       unit: Unit.Wh,
     };
@@ -337,13 +323,31 @@ export class ReadsService {
       );
     }
 
+    const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
+
     const filteredMeasurements = await this.NewfilterMeasurements(
       id,
-      measurements,
+      roundedMeasurements,
       device,
     );
     this.logger.verbose(filteredMeasurements);
     await this.newstoreGenerationReading(id, filteredMeasurements, device);
+  }
+
+  private NewroundMeasurementsToUnit(
+    measurement: NewIntmediateMeterReadDTO,
+  ): NewIntmediateMeterReadDTO {
+    const convertedRead = convertToUnits(measurement.unit);
+
+    return {
+      reads: measurement.reads.map((r) => ({
+        starttimestamp: r.starttimestamp,
+        endtimestamp: r.endtimestamp,
+        value: Math.round(r.value * convertedRead),
+      })),
+      unit: Unit.Wh,
+      type: measurement.type,
+    };
   }
 
   private async NewfilterMeasurements(
