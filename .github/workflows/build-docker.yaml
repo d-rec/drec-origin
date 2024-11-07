@@ -17,13 +17,13 @@ jobs:
         uses: actions/checkout@v2  # Checks out the code
 
       - name: Build Docker image redis
-        run: docker build -t redis .
+        run: docker build -t redis -f apps/drec-api/Dockerfile apps/drec-api
       
       - name: Build Docker image postgres
-        run: docker build -t postgres .
+        run: docker build -t postgres -f apps/drec-api/Dockerfile apps/drec-api
 
       - name: Build Docker image influxdb
-        run: docker build -t influxdb .
+        run: docker build -t influxdb -f apps/drec-api/Dockerfile apps/drec-api
       
       # List all Docker images built in this job
       - name: List all Docker images
