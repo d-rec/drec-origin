@@ -3,9 +3,6 @@ name: Docker Build
 on:
   push:
     branches:
-      - develop  # Trigger on pushes to the develop branch
-  pull_request:
-    branches:
       - develop
 
 jobs:
@@ -14,7 +11,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2  # Checks out the code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         run: docker build -t drec-origin -f apps/drec-api/Dockerfile apps/drec-api
