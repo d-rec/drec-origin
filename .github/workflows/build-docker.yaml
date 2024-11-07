@@ -1,0 +1,32 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - develop  # Trigger on pushes to the develop branch
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Checks out the code
+
+      - name: Build Docker image redis
+        run: docker build -t redis .
+      
+      - name: Build Docker image postgres
+        run: docker build -t postgres .
+
+      - name: Build Docker image influxdb
+        run: docker build -t influxdb .
+      
+      # List all Docker images built in this job
+      - name: List all Docker images
+        run: docker images
+
+
