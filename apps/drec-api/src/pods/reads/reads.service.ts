@@ -150,44 +150,70 @@ export class ReadsService {
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
-  async processMeterReadsFile(fileId: string, user: ILoggedInUser) {
-    const file = await this.fileService.get(fileId);
-    if (!file) {
+  async scheduleMeterReadsProcessing(fileId: string, user: ILoggedInUser) {
+    // Verify file exists
+    const fileExists = await this.fileService.get(fileId,user);
+    if (!fileExists) {
       throw new NotFoundException('File not found');
     }
-    await this.readsQueue.add('process-meter-reads', {
+
+    // Schedule processing job
+    const job = await this.readsQueue.add('reads-queue', {
       fileId,
       userId: user.id,
       organizationId: user.organizationId
     });
 
     return {
-      message: 'Processing scheduled',
-      jobId: fileId
+      message: 'Meter reads processing has been scheduled',
+      jobId: job.id
     };
   }
 
-  @Process('process-meter-reads')
-  async handleMeterReadsProcessing(job: Job) {
-    const { fileId, userId, organizationId } = job.data;
-    const fileContent = await this.fileService.get(fileId);
-    if (!fileContent) {
-      throw new Error(`File with ID ${fileId} could not be retrieved.`);
-    }
+  async processMeterReadsFile(fileId: string, userId: number) {
+    // Get file content from S3
+    const fileContent = await this.fileService.GetuploadS3(fileId);
     
-    const readings = parseCsvContent(fileContent);
+    // Parse CSV
+    const meterReads = await parseCsvContent(fileContent);
 
-    for (const reading of readings) {
-      const measurement: MeasurementDTO = {
-        unit: reading.unit,
-        reads: reading.reads.map(read => ({
-          ...read,
-          timestamp: new Date(read.starttimestamp ?? Date.now()), // Ensure timestamp is set
-        })) as ReadDTO[],
-      };
-
-      await this.baseReadsService.store(userId, measurement);
+    // Process each read
+    for (const read of meterReads) {
+      try {
+        await this.validateAndStoreMeterRead(read, userId);
+      } catch (error) {
+        // Log error but continue processing other reads
+        this.logger.error(`Error processing read: ${error.message}`);
+      }
     }
+  }
+
+  async validateAndStoreMeterRead(read: any, userId: number) {
+  const device = await this.deviceService.findOne(read.deviceId);
+  
+  if (!device) {
+    throw new NotFoundException(`Device not found`);
+  }
+
+  const measurement: MeasurementDTO = {
+    reads: read.value,
+    unit: Unit.kWh
+  };
+
+  await this.baseReadsService.store(device.externalId,measurement);
+  
+//   await this.eventBus.publish(
+//   new GenerationReadingStoredEvent({
+//     deviceId: device.externalId,
+//     fromTime: new Date(measurement.reads.timestamp),
+//     toTime: new Date(measurement.reads.timestamp),
+//     organizationId: organizationId.toString(),
+//     energyValue: BigNumber.from(measurement.value)
+//   })
+// );
+
+
+  return measurement;
   }
 
 

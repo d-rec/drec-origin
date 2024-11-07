@@ -78,7 +78,7 @@ export class ReadsController extends BaseReadsController {
    * @returns {string[]}
    */
   @Get('/time-zones')
-  @UseGuards(PermissionGuard)
+  @UseGuards(AuthGuard(),PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -130,7 +130,7 @@ export class ReadsController extends BaseReadsController {
   ): Promise<any> {
     this.logger.verbose('Handling meter read file upload');
 
-    return await this.internalReadsService.uploadAndScheduleJob(file, user);
+    return await this.internalReadsService.processMeterReadsFile(file.filename, user.id);
   }
 
   /**
