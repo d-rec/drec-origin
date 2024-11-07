@@ -17,7 +17,7 @@ import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
-import { ReadsProcessor } from '../device/reads.processor';
+import { ReadsProcessor } from './reads.processor';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {

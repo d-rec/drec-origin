@@ -19,7 +19,7 @@ export class LoggedInUser implements ILoggedInUser {
     if (!user) {
       throw new Error('User object is required');
     }
-    
+
     this.id = user.id;
     this.organizationId = user.organization?.id;
     this.email = user.email;

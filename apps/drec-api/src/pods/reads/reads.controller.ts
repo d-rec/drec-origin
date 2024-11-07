@@ -29,6 +29,7 @@ import {
   ApiQuery,
   ApiConsumes,
   ApiBody,
+  ApiSecurity,
 } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
 import { ReadsService } from './reads.service';
@@ -78,7 +79,7 @@ export class ReadsController extends BaseReadsController {
    * @returns {string[]}
    */
   @Get('/time-zones')
-  @UseGuards(AuthGuard(),PermissionGuard)
+  @UseGuards(AuthGuard(), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -101,6 +102,8 @@ export class ReadsController extends BaseReadsController {
   }
 
   @Post('upload')
+  @UseGuards(AuthGuard())
+  @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -126,11 +129,18 @@ export class ReadsController extends BaseReadsController {
   )
   async uploadMeterReadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body() user: ILoggedInUser,
-  ): Promise<any> {
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
 
-    return await this.internalReadsService.processMeterReadsFile(file.filename, user.id);
+    // First store the file
+    const [fileId] = await this.fileService.store(user, [file]);
+
+    // Then schedule processing
+    return await this.internalReadsService.scheduleMeterReadsProcessing(
+      fileId,
+      user,
+    );
   }
 
   /**
@@ -201,7 +211,6 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
-    //finding the device details throught the device service
     let orguser: IUser | null;
     if (filter.organizationId) {
       const organization = await this.organizationService.findOne(

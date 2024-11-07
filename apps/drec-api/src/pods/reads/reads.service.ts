@@ -56,8 +56,8 @@ import {
   accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from './dto/filter-no-off-limit.dto';
 import { FileService } from '../file';
-import { InjectQueue, Process } from '@nestjs/bull';
-import { Job, Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -66,6 +66,7 @@ export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
+
   constructor(
     @InjectRepository(AggregateMeterRead)
     private readonly repository: Repository<AggregateMeterRead>,
@@ -150,72 +151,91 @@ export class ReadsService {
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
-  async scheduleMeterReadsProcessing(fileId: string, user: ILoggedInUser) {
-    // Verify file exists
-    const fileExists = await this.fileService.get(fileId,user);
+  async scheduleMeterReadsProcessing(fileId: string, user: ILoggedInUser): Promise<{ message: string; jobId: string }>  {
+    const fileExists = await this.fileService.get(fileId, user);
     if (!fileExists) {
-      throw new NotFoundException('File not found');
+      throw new NotFoundException('File not found')
     }
 
-    // Schedule processing job
-    const job = await this.readsQueue.add('reads-queue', {
-      fileId,
+    const multerFile: Express.Multer.File = {
+      fieldname: 'file',
+      originalname: fileExists.filename,
+      encoding: '7bit',
+      mimetype: fileExists.contentType,
+      buffer: fileExists.data,
+      size: fileExists.data.length,
+      stream: null,
+      destination: '',
+      filename: fileExists.filename,
+      path: '',
+    };
+
+    const s3Upload = await this.fileService.upload(multerFile);
+
+    const job = await this.readsQueue.add('process-meter-reads', {
+      fileId: s3Upload.Key,
       userId: user.id,
-      organizationId: user.organizationId
+      organizationId: user.organizationId,
     });
 
     return {
       message: 'Meter reads processing has been scheduled',
-      jobId: job.id
+      jobId: job.id.toString(),
     };
   }
 
-  async processMeterReadsFile(fileId: string, userId: number) {
-    // Get file content from S3
+  async processMeterReadsFile(fileId: string) {
     const fileContent = await this.fileService.GetuploadS3(fileId);
-    
-    // Parse CSV
-    const meterReads = await parseCsvContent(fileContent);
+    const buffer = Buffer.from(fileContent.data.Body);
+    const meterReads = await parseCsvContent(buffer);
 
-    // Process each read
+    const results = {
+      success: 0,
+      failed: [],
+    };
+
     for (const read of meterReads) {
       try {
-        await this.validateAndStoreMeterRead(read, userId);
+        await this.validateAndStoreMeterRead(read);
+        results.success++;
       } catch (error) {
-        // Log error but continue processing other reads
         this.logger.error(`Error processing read: ${error.message}`);
+        results.failed.push({
+          read,
+          error: error.message,
+        });
       }
     }
+
+    return results;
   }
 
-  async validateAndStoreMeterRead(read: any, userId: number) {
-  const device = await this.deviceService.findOne(read.deviceId);
-  
-  if (!device) {
-    throw new NotFoundException(`Device not found`);
+  async validateAndStoreMeterRead(read: any) {
+    this.logger.debug(`Searching for device: ${read.deviceId}`);
+    const device = await this.deviceService.findOne(read.deviceId);
+    if (!device) {
+      throw new NotFoundException(`Device not found`);
+    }
+
+    const measurement: MeasurementDTO = {
+      reads: read.value,
+      unit: Unit.kWh,
+    };
+
+    await this.baseReadsService.store(device.externalId, measurement);
+
+    await this.eventBus.publish(
+      new GenerationReadingStoredEvent({
+        deviceId: device.externalId,
+        fromTime: new Date(read.timestamp),
+        toTime: new Date(read.timestamp),
+        organizationId: device.organizationId.toString(),
+        energyValue: BigNumber.from(read.value),
+      }),
+    );
+
+    return measurement;
   }
-
-  const measurement: MeasurementDTO = {
-    reads: read.value,
-    unit: Unit.kWh
-  };
-
-  await this.baseReadsService.store(device.externalId,measurement);
-  
-//   await this.eventBus.publish(
-//   new GenerationReadingStoredEvent({
-//     deviceId: device.externalId,
-//     fromTime: new Date(measurement.reads.timestamp),
-//     toTime: new Date(measurement.reads.timestamp),
-//     organizationId: organizationId.toString(),
-//     energyValue: BigNumber.from(measurement.value)
-//   })
-// );
-
-
-  return measurement;
-  }
-
 
   private async storeGenerationReading(
     id: string,
