@@ -16,9 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2  # Checks out the code
 
-      - name: Build Docker image 
+      - name: Build Docker image
         run: docker build -t drec-origin -f apps/drec-api/Dockerfile apps/drec-api
 
-      # List all Docker images built in this job
       - name: List all Docker images
         run: docker images
