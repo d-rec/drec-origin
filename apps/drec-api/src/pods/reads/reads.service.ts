@@ -132,15 +132,14 @@ export class ReadsService {
     timeStamp: Date,
     unit: Unit,
   ): Promise<void> {
-    const multiplier = convertToUnits(read,unit);
+    const convertedRead = convertToUnits(read,unit);
 
     const points: Point[] = [
       new Point('failed_reads')
         .tag('meter', meterId)
-        .intField('read', multiplier)
+        .intField('read', convertedRead)
         .timestamp(new Date(timeStamp)),
     ];
-    console.log(points)
     await writePoints(points);
   }
 
@@ -199,7 +198,6 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -235,7 +233,7 @@ export class ReadsService {
   ): Promise<MeasurementDTO> {
     const final = await this.getLatestRead(id);
     if (!final || !device) {
-      return measurement;
+      return measurement; 
     } else {
       return {
         reads: measurement.reads.filter((read: ReadDTO) =>

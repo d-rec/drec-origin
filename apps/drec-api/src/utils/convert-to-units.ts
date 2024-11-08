@@ -1,7 +1,6 @@
 import { Unit } from "@energyweb/energy-api-influxdb";
 
 export const convertToUnits = (measurement: number, unit: string): number=>{
-  console.log(unit, measurement)
     switch (unit) {
       case Unit.Wh:
         return measurement;
