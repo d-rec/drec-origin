@@ -133,10 +133,8 @@ export class ReadsController extends BaseReadsController {
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
 
-    // First store the file
     const [fileId] = await this.fileService.store(user, [file]);
 
-    // Then schedule processing
     return await this.internalReadsService.scheduleMeterReadsProcessing(
       fileId,
       user,
@@ -211,6 +209,7 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
+    //finding the device details throught the device service
     let orguser: IUser | null;
     if (filter.organizationId) {
       const organization = await this.organizationService.findOne(
@@ -1630,6 +1629,7 @@ export class ReadsController extends BaseReadsController {
       }
 
       return {
+        enddate: latestReadObject[0].timestamp,
         value: latestReadObject[0].value,
       };
     }

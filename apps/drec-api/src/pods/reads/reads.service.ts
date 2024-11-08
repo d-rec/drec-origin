@@ -184,7 +184,7 @@ export class ReadsService {
     };
   }
 
-  async processMeterReadsFile(fileId: string) {
+  async processMeterReadsFile(fileId: string): Promise<{ success: number; failed: Array<{ read: any; error: string }> }>  {
     const fileContent = await this.fileService.GetuploadS3(fileId);
     const buffer = Buffer.from(fileContent.data.Body);
     const meterReads = await parseCsvContent(buffer);
