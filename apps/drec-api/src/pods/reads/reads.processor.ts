@@ -6,7 +6,7 @@ import { Job } from 'bull';
 export class ReadsProcessor {
   constructor(private readsService: ReadsService) {}
 
-  @Process('process-meter-reads')
+  @Process('meter-reads-csv')
   async handleMeterReadsProcessing(job: Job): Promise<void> {
     const { fileId } = job.data;
     await this.readsService.processMeterReadsFile(fileId);

@@ -44,7 +44,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-import { parseCsvContent } from '../../utils/csv-parser';
+import { MeterReadingCSV, parseCsvContent } from '../../utils/csv-parser';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -151,10 +151,13 @@ export class ReadsService {
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
-  async scheduleMeterReadsProcessing(fileId: string, user: ILoggedInUser): Promise<{ message: string; jobId: string }>  {
+  async scheduleMeterReadsProcessing(
+    fileId: string,
+    user: ILoggedInUser,
+  ): Promise<{ message: string; jobId: string }> {
     const fileExists = await this.fileService.get(fileId, user);
     if (!fileExists) {
-      throw new NotFoundException('File not found')
+      throw new NotFoundException('File not found');
     }
 
     const multerFile: Express.Multer.File = {
@@ -172,7 +175,7 @@ export class ReadsService {
 
     const s3Upload = await this.fileService.upload(multerFile);
 
-    const job = await this.readsQueue.add('process-meter-reads', {
+    const job = await this.readsQueue.add('meter-reads-csv', {
       fileId: s3Upload.Key,
       userId: user.id,
       organizationId: user.organizationId,
@@ -184,7 +187,9 @@ export class ReadsService {
     };
   }
 
-  async processMeterReadsFile(fileId: string): Promise<{ success: number; failed: Array<{ read: any; error: string }> }>  {
+  async processMeterReadsFile(
+    fileId: string,
+  ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const fileContent = await this.fileService.GetuploadS3(fileId);
     const buffer = Buffer.from(fileContent.data.Body);
     const meterReads = await parseCsvContent(buffer);
@@ -210,15 +215,24 @@ export class ReadsService {
     return results;
   }
 
-  async validateAndStoreMeterRead(read: any) {
-    this.logger.debug(`Searching for device: ${read.deviceId}`);
-    const device = await this.deviceService.findOne(read.deviceId);
+  async validateAndStoreMeterRead(
+    read: MeterReadingCSV,
+  ): Promise<MeasurementDTO> {
+    const deviceId =
+      typeof read.deviceId === 'string' ? Number(read.deviceId) : read.deviceId;
+    this.logger.debug(`Searching for device: ${deviceId}`);
+    const device = await this.deviceService.findOne(deviceId);
     if (!device) {
       throw new NotFoundException(`Device not found`);
     }
 
     const measurement: MeasurementDTO = {
-      reads: read.value,
+      reads: [
+        {
+          timestamp: new Date(read.timestamp),
+          value: read.value,
+        },
+      ],
       unit: Unit.kWh,
     };
 
