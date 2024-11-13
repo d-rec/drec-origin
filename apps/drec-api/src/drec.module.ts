@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -63,6 +63,7 @@ import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
+import { UserMiddleware } from './validations/user.middleware';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -184,4 +185,10 @@ const QueueingModule = () => {
   ],
   providers: [OnApplicationBootstrapHookService],
 })
-export class DrecModule {}
+export class DrecModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(UserMiddleware)
+      .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
+  }
+}

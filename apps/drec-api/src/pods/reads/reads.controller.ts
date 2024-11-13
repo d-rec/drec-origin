@@ -42,14 +42,16 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import {OrganizationAccessValidator} from '../../validations/organization-access.validation';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
 export class ReadsController extends BaseReadsController {
   private readonly logger = new Logger(ReadsController.name);
-
+  
   constructor(
     private internalReadsService: ReadsService,
+    private readonly OrganizationAccessValidator: OrganizationAccessValidator,
     private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
@@ -344,8 +346,10 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in newstoreRead`);
-    // console.log(user.organizationId)
-    // console.log(user.organizationId)
+    this.logger.log(`User ${user.id} is attempting to store a new meter read.`);
+    measurements.user = {...user};
+    //console.log(measurements, "new measurements")
+    const isAuthorized  = await this.OrganizationAccessValidator.validate(measurements.organizationId, measurements.user)
     // if (measurements.organizationId) {
     //   const senderorg = await this.organizationService.findOne(
     //     measurements.organizationId,

@@ -5,11 +5,12 @@ import {
   IsOptional,
   IsDate,
   ValidateNested,
+  Validate,
 } from 'class-validator';
 import { Unit } from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
-import { Iintermediate, NewReadDTO } from '../../../models';
+import { Iintermediate, NewReadDTO, ILoggedInUser} from '../../../models';
 
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ValidateOrganizationAccess } from '../../../validations/organization-access.decorator';
@@ -62,6 +63,6 @@ export class NewIntmediateMeterReadDTO
 
   @ApiProperty({ type: () => Number })
   @IsOptional()
-  @ValidateOrganizationAccess()
   organizationId?: number;
+  user?: ILoggedInUser;
 }
