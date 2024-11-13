@@ -12,7 +12,7 @@ import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface 
 
 @Injectable()
 @ValidatorConstraint({ async: true })
-export class OrganizationAccessValidator implements ValidatorConstraintInterface {
+export class OrganizationAccessValidator {
   private readonly logger = new Logger(OrganizationAccessValidator.name);
 
   constructor(
