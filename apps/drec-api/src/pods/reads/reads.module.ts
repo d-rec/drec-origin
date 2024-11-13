@@ -1,5 +1,5 @@
 import { ReadsService as BaseReadService } from '@energyweb/energy-api-influxdb';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
@@ -16,6 +16,7 @@ import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
+import { UserMiddleware } from '../../validations/user.middleware';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -51,4 +52,10 @@ const baseReadServiceProvider = {
   ],
   exports: [baseReadServiceProvider, ReadsService],
 })
-export class ReadsModule {}
+export class ReadsModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(UserMiddleware)
+  //     .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
+  // }
+}

@@ -10,10 +10,9 @@ import {
 import { Unit } from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
-import { Iintermediate, NewReadDTO, ILoggedInUser} from '../../../models';
+import { Iintermediate, NewReadDTO, ILoggedInUser } from '../../../models';
 
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ValidateOrganizationAccess } from '../../../validations/organization-access.decorator';
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()

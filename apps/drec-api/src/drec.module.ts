@@ -185,10 +185,4 @@ const QueueingModule = () => {
   ],
   providers: [OnApplicationBootstrapHookService],
 })
-export class DrecModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(UserMiddleware)
-      .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
-  }
-}
+export class DrecModule {}

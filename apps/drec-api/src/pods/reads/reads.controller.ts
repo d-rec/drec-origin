@@ -42,13 +42,13 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import {OrganizationAccessValidator} from '../../validations/organization-access.validation';
+import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
 export class ReadsController extends BaseReadsController {
   private readonly logger = new Logger(ReadsController.name);
-  
+
   constructor(
     private internalReadsService: ReadsService,
     private readonly OrganizationAccessValidator: OrganizationAccessValidator,
@@ -346,60 +346,11 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in newstoreRead`);
-    this.logger.log(`User ${user.id} is attempting to store a new meter read.`);
-    measurements.user = {...user};
-    //console.log(measurements, "new measurements")
-    const isAuthorized  = await this.OrganizationAccessValidator.validate(measurements.organizationId, measurements.user)
-    // if (measurements.organizationId) {
-    //   const senderorg = await this.organizationService.findOne(
-    //     measurements.organizationId,
-    //   );
-    //   const orguser = await this.userService.findByEmail(senderorg.orgEmail);
-    //   if (
-    //     user.organizationId !== measurements.organizationId &&
-    //     user.role !== Role.ApiUser
-    //   ) {
-    //     this.logger.error(
-    //       `Organization in measurement is not same as user's organization`,
-    //     );
-    //     return new Promise((resolve, reject) => {
-    //       reject(
-    //         new ConflictException({
-    //           success: false,
-    //           message: `Organization in measurement is not same as user's organization`,
-    //         }),
-    //       );
-    //     });
-    //   }
-
-    //   if (user.role === Role.ApiUser) {
-    //     if (senderorg.api_user_id !== user.api_user_id) {
-    //       this.logger.error(
-    //         `Organization ${senderorg.name} in measurement is not part of your organization`,
-    //       );
-    //       return new Promise((resolve, reject) => {
-    //         reject(
-    //           new ConflictException({
-    //             success: false,
-    //             message: `Organization ${senderorg.name} in measurement is not part of your organization`,
-    //           }),
-    //         );
-    //       });
-    //     } else if (orguser.role != Role.OrganizationAdmin) {
-    //       this.logger.error(`Unauthorized`);
-    //       return new Promise((resolve, reject) => {
-    //         reject(
-    //           new UnauthorizedException({
-    //             success: false,
-    //             message: `Unauthorized`,
-    //           }),
-    //         );
-    //       });
-    //     } else {
-    //       user.organizationId = measurements.organizationId;
-    //     }
-    //   }
-    // }
+    measurements.user = { ...user };
+    await this.OrganizationAccessValidator.validate(
+      measurements.organizationId,
+      measurements.user,
+    );
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
       return new Promise((resolve, reject) => {
