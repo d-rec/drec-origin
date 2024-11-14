@@ -15,7 +15,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
-
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {

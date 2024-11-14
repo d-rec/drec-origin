@@ -23,6 +23,7 @@ export class OrganizationAccessGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     const organizationId = request.body.organizationId;
+
     if (!user || !organizationId) {
       throw new UnauthorizedException('User or organizationId not provided');
     }
