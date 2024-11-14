@@ -1,4 +1,4 @@
-name: Docker Build and Push to ECR
+name: Docker Build, Push to ECR, and Deploy to Kubernetes
 
 on:
   push:
@@ -50,3 +50,27 @@ jobs:
       - name: Log out from Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Configure AWS credentials for Kubernetes
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up kubectl
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.CLUSTER_NAME }}
+
+      - name: Deploy to Kubernetes
+        env:
+          ECR_REGISTRY: ${{ steps.build.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          kubectl set image deployment/${{ secrets.DEPLOYMENT_NAME }} ${secrets.CONTAINER_NAME}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
