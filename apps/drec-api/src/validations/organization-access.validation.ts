@@ -33,7 +33,7 @@ export class OrganizationAccessValidator {
       const senderOrg = await this.organizationService.findOne(organizationId);
       const orgUser = await this.userService.findByEmail(senderOrg.orgEmail);
 
-      if (user.id !== organizationId && user.role !== Role.ApiUser) {
+      if (user.organizationId !== organizationId && user.role !== Role.ApiUser) {
         this.logger.error(
           `Organization in measurement is not same as user's organization`,
         );

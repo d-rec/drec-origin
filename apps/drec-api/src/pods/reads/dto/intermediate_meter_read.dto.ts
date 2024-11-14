@@ -63,5 +63,6 @@ export class NewIntmediateMeterReadDTO
   @ApiProperty({ type: () => Number })
   @IsOptional()
   organizationId?: number;
+  
   user?: ILoggedInUser;
 }

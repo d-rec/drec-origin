@@ -53,9 +53,9 @@ const baseReadServiceProvider = {
   exports: [baseReadServiceProvider, ReadsService],
 })
 export class ReadsModule {
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer
-  //     .apply(UserMiddleware)
-  //     .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
-  // }
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(UserMiddleware)
+      .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
+  }
 }
