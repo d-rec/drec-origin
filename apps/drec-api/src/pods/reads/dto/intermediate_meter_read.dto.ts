@@ -5,12 +5,11 @@ import {
   IsOptional,
   IsDate,
   ValidateNested,
-  Validate,
 } from 'class-validator';
 import { Unit } from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
-import { Iintermediate, NewReadDTO, ILoggedInUser } from '../../../models';
+import { Iintermediate, NewReadDTO } from '../../../models';
 
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
@@ -63,5 +62,4 @@ export class NewIntmediateMeterReadDTO
   @ApiProperty({ type: () => Number })
   @IsOptional()
   organizationId?: number;
-  
 }

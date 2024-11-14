@@ -33,13 +33,23 @@ export class OrganizationAccessGuard implements CanActivate {
 
       if (user.id !== organizationId && user.role !== Role.ApiUser) {
         this.logger.error(`Organization mismatch`);
-        throw new ConflictException('Organization in measurement is not same as user\'s organization');
+        throw new ConflictException(
+          "Organization in measurement is not same as user's organization",
+        );
       }
 
-      if (user.role === Role.ApiUser && senderOrg.api_user_id !== user.api_user_id) {
+      if (
+        user.role === Role.ApiUser &&
+        senderOrg.api_user_id !== user.api_user_id
+      ) {
         this.logger.error(`User lacks organization access`);
-        throw new ConflictException(`Organization ${senderOrg.name} not accessible to user`);
-      } else if (user.role === Role.ApiUser && orgUser.role !== Role.OrganizationAdmin) {
+        throw new ConflictException(
+          `Organization ${senderOrg.name} not accessible to user`,
+        );
+      } else if (
+        user.role === Role.ApiUser &&
+        orgUser.role !== Role.OrganizationAdmin
+      ) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException(`Unauthorized`);
       }

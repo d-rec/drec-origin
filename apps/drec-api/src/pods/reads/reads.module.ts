@@ -1,5 +1,5 @@
 import { ReadsService as BaseReadService } from '@energyweb/energy-api-influxdb';
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
@@ -43,10 +43,7 @@ const baseReadServiceProvider = {
     OrganizationModule,
   ],
   controllers: [ReadsController],
-  providers: [
-    baseReadServiceProvider,
-    ReadsService,
-  ],
+  providers: [baseReadServiceProvider, ReadsService],
   exports: [baseReadServiceProvider, ReadsService],
 })
 export class ReadsModule {}

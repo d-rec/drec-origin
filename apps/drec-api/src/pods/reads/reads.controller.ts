@@ -18,7 +18,6 @@ import {
   HttpException,
   BadRequestException,
   Logger,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './const';
@@ -335,7 +334,7 @@ export class ReadsController extends BaseReadsController {
     AuthGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
-    OrganizationAccessGuard
+    OrganizationAccessGuard,
   )
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
