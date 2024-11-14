@@ -15,8 +15,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
-import { UserMiddleware } from '../../validations/user.middleware';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -48,14 +46,7 @@ const baseReadServiceProvider = {
   providers: [
     baseReadServiceProvider,
     ReadsService,
-    OrganizationAccessValidator,
   ],
   exports: [baseReadServiceProvider, ReadsService],
 })
-export class ReadsModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(UserMiddleware)
-      .forRoutes({ path: 'meter-reads/new/:id', method: RequestMethod.POST });
-  }
-}
+export class ReadsModule {}

@@ -42,7 +42,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { OrganizationAccessValidator } from '../../validations/organization-access.validation';
+import { OrganizationAccessGuard } from '../../validations/organization-access.validation';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -51,7 +51,6 @@ export class ReadsController extends BaseReadsController {
 
   constructor(
     private internalReadsService: ReadsService,
-    private readonly OrganizationAccessValidator: OrganizationAccessValidator,
     private deviceService: DeviceService,
     @Inject(BASE_READ_SERVICE)
     baseReadsService: BaseReadsService,
@@ -336,6 +335,7 @@ export class ReadsController extends BaseReadsController {
     AuthGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
+    OrganizationAccessGuard
   )
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
@@ -346,11 +346,6 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in newstoreRead`);
-    measurements.user = { ...user };
-    await this.OrganizationAccessValidator.validate(
-      measurements.organizationId,
-      measurements.user,
-    );
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
       return new Promise((resolve, reject) => {

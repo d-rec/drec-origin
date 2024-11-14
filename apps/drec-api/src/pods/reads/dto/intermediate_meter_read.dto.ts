@@ -64,5 +64,4 @@ export class NewIntmediateMeterReadDTO
   @IsOptional()
   organizationId?: number;
   
-  user?: ILoggedInUser;
 }
