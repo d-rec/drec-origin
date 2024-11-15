@@ -41,7 +41,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { OrganizationAccessGuard } from '../../validations/organization-access.validation';
+import { OrganizationAccessGuard } from '../../guards/organization-access.guard';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
