@@ -55,6 +55,7 @@ import { UserService } from '../user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
 import { FileService } from '../file';
+import { MeterReadFileDto } from './dto/meter-read-file.dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -79,7 +80,7 @@ export class ReadsController extends BaseReadsController {
    * @returns {string[]}
    */
   @Get('/time-zones')
-  @UseGuards(AuthGuard(), PermissionGuard)
+  @UseGuards(PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiResponse({
@@ -101,7 +102,7 @@ export class ReadsController extends BaseReadsController {
     }
   }
 
-  @Post('upload')
+  @Post('csv-upload')
   @UseGuards(AuthGuard())
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
@@ -116,20 +117,12 @@ export class ReadsController extends BaseReadsController {
       },
     },
   })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: multer.memoryStorage(),
-      fileFilter: (req, file, callback) => {
-        if (!file.mimetype.includes('csv')) {
-          return callback(new Error('Only CSV files are allowed'), false);
-        }
-        callback(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file', {
+    storage: multer.memoryStorage()
+  }))
   async uploadMeterReadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @UserDecorator() user: ILoggedInUser,
+    @UploadedFile() file: MeterReadFileDto,
+    @UserDecorator() user: ILoggedInUser
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
 
