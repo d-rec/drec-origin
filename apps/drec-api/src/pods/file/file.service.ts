@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import path from 'path';
+import * as path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
@@ -14,7 +14,6 @@ import { S3 } from 'aws-sdk';
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 
 import { File } from './file.entity';
-import { Buffer } from 'buffer';
 
 export type FileUpload = {
   originalname: string;
