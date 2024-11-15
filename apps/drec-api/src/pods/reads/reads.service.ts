@@ -44,7 +44,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-import { MeterReadingCSV, parseCsvContent } from '../../utils/csv-parser';
+import { MeterReadingCSV, parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -192,7 +192,7 @@ export class ReadsService {
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const fileContent = await this.fileService.GetuploadS3(fileId);
     const buffer = Buffer.from(fileContent.data.Body);
-    const meterReads = await parseCsvContent(buffer);
+    const meterReads = await parseMeterReadingCsv(buffer);
 
     const results = {
       success: 0,
