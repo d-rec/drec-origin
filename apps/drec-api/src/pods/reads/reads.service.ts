@@ -83,7 +83,7 @@ export class ReadsService {
     private readonly fileService: FileService,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
-    const url = process.env.INFLUXDB_URL;
+    const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
