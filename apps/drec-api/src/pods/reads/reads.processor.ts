@@ -37,7 +37,7 @@ export class ReadsProcessor {
               value: read.value,
             },
           ],
-          unit: Unit.kWh,
+          unit: Unit[read.unit as keyof typeof Unit],
         };
 
         await this.readsService.storeRead(read.deviceId.toString(), measurement);

@@ -4,6 +4,7 @@ export interface MeterReadingCSV {
   deviceId: string;
   value: number;
   timestamp: string;
+  unit: string;
 }
 
 export const parseMeterReadingCsv = async (
