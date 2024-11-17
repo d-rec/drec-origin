@@ -152,8 +152,8 @@ export class ReadsService {
   }
 
   async scheduleMeterReadsProcessing(
-    fileId: string,
-    user: ILoggedInUser,
+    fileId: string, 
+    user: ILoggedInUser
   ): Promise<{ message: string; jobId: string }> {
     const fileExists = await this.fileService.get(fileId, user);
     if (!fileExists) {
@@ -163,7 +163,7 @@ export class ReadsService {
     const multerFile: Express.Multer.File = {
       fieldname: 'file',
       originalname: fileExists.filename,
-      encoding: '7bit',
+      encoding: '7bit', 
       mimetype: fileExists.contentType,
       buffer: fileExists.data,
       size: fileExists.data.length,
@@ -187,33 +187,6 @@ export class ReadsService {
     };
   }
 
-  async processMeterReadsFile(
-    fileId: string,
-  ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
-    const fileContent = await this.fileService.GetuploadS3(fileId);
-    const buffer = Buffer.from(fileContent.data.Body);
-    const meterReads = await parseMeterReadingCsv(buffer);
-
-    const results = {
-      success: 0,
-      failed: [],
-    };
-
-    for (const read of meterReads) {
-      try {
-        await this.validateAndStoreMeterRead(read);
-        results.success++;
-      } catch (error) {
-        this.logger.error(`Error processing read: ${error.message}`);
-        results.failed.push({
-          read,
-          error: error.message,
-        });
-      }
-    }
-
-    return results;
-  }
 
   async validateAndStoreMeterRead(
     read: MeterReadingCSV,
