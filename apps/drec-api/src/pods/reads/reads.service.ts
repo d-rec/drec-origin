@@ -187,43 +187,6 @@ export class ReadsService {
     };
   }
 
-
-  async validateAndStoreMeterRead(
-    read: MeterReadingCSV,
-  ): Promise<MeasurementDTO> {
-    const deviceId =
-      typeof read.deviceId === 'string' ? Number(read.deviceId) : read.deviceId;
-    this.logger.debug(`Searching for device: ${deviceId}`);
-    const device = await this.deviceService.findOne(deviceId);
-    if (!device) {
-      throw new NotFoundException(`Device not found`);
-    }
-
-    const measurement: MeasurementDTO = {
-      reads: [
-        {
-          timestamp: new Date(read.timestamp),
-          value: read.value,
-        },
-      ],
-      unit: Unit.kWh,
-    };
-
-    await this.baseReadsService.store(device.externalId, measurement);
-
-    await this.eventBus.publish(
-      new GenerationReadingStoredEvent({
-        deviceId: device.externalId,
-        fromTime: new Date(read.timestamp),
-        toTime: new Date(read.timestamp),
-        organizationId: device.organizationId.toString(),
-        energyValue: BigNumber.from(read.value),
-      }),
-    );
-
-    return measurement;
-  }
-
   private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,

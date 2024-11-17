@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
+import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
 import { ReadsService } from './reads.service';
 
 @Processor('reads-queue')
@@ -29,7 +30,17 @@ export class ReadsProcessor {
 
     for (const read of meterReads) {
       try {
-        await this.readsService.validateAndStoreMeterRead(read);
+        const measurement: MeasurementDTO = {
+          reads: [
+            {
+              timestamp: new Date(read.timestamp),
+              value: read.value,
+            },
+          ],
+          unit: Unit.kWh,
+        };
+
+        await this.readsService.storeRead(read.deviceId.toString(), measurement);
         results.success++;
       } catch (error) {
         this.logger.error(`Error processing read: ${error.message}`);
