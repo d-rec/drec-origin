@@ -1,10 +1,14 @@
+import { Unit } from '@energyweb/utils-general';
 import { CsvParser } from '../../../utils/csv-parser';
+import { ReadType } from 'src/utils/enums';
 
 export interface MeterReadingCSV {
   deviceId: string;
   value: number;
-  timestamp: string;
-  unit: string;
+  startTimestamp: Date;
+  endTimestamp: Date;
+  unit: Unit;
+  type: ReadType;
 }
 
 export const parseMeterReadingCsv = async (
@@ -20,13 +24,11 @@ export const parseMeterReadingCsv = async (
     parser.on('readable', () => {
       let record;
       while ((record = parser.read()) !== null) {
-        if (isValidReading(record)) {
-          records.push({
-            deviceId: record.deviceId,
-            value: Number(record.value),
-            timestamp: record.timestamp,
-          });
-        }
+        records.push({
+          deviceId: record.deviceId,
+          value: Number(record.value),
+          timestamp: record.endTimestamp,
+        });
       }
     });
 
@@ -37,16 +39,3 @@ export const parseMeterReadingCsv = async (
     parser.end();
   });
 };
-
-function isValidReading(record: any): record is MeterReadingCSV {
-  return (
-    record.deviceId &&
-    !isNaN(Number(record.value)) &&
-    isValidDate(record.timestamp)
-  );
-}
-
-function isValidDate(date: string): boolean {
-  const timestamp = Date.parse(date);
-  return !isNaN(timestamp);
-}

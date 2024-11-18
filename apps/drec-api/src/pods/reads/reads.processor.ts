@@ -5,6 +5,7 @@ import { FileService } from '../file';
 import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
 import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
 import { ReadsService } from './reads.service';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -32,17 +33,19 @@ export class ReadsProcessor {
 
     for (const read of meterReads) {
       try {
-        const measurement: MeasurementDTO = {
+        const measurement: NewIntmediateMeterReadDTO = {
           reads: [
             {
-              timestamp: new Date(read.timestamp),
+              starttimestamp: read.startTimestamp,
+              endtimestamp: read.endTimestamp,
               value: read.value,
             },
           ],
-          unit: Unit[read.unit as keyof typeof Unit],
+          unit: Unit[read.unit as unknown as keyof typeof Unit],
+          type: read.type,
         };
 
-        await this.readsService.storeRead(
+        await this.readsService.newstoreRead(
           read.deviceId.toString(),
           measurement,
         );
