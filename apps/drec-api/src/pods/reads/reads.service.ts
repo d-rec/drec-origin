@@ -44,7 +44,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
-import { MeterReadingCSV, parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -152,8 +151,8 @@ export class ReadsService {
   }
 
   async scheduleMeterReadsProcessing(
-    fileId: string, 
-    user: ILoggedInUser
+    fileId: string,
+    user: ILoggedInUser,
   ): Promise<{ message: string; jobId: string }> {
     const fileExists = await this.fileService.get(fileId, user);
     if (!fileExists) {
@@ -163,7 +162,7 @@ export class ReadsService {
     const multerFile: Express.Multer.File = {
       fieldname: 'file',
       originalname: fileExists.filename,
-      encoding: '7bit', 
+      encoding: '7bit',
       mimetype: fileExists.contentType,
       buffer: fileExists.data,
       size: fileExists.data.length,

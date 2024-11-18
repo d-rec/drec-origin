@@ -117,12 +117,14 @@ export class ReadsController extends BaseReadsController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file', {
-    storage: multer.memoryStorage()
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.memoryStorage(),
+    }),
+  )
   async uploadMeterReadFile(
     @UploadedFile() file: MeterReadFileDto,
-    @UserDecorator() user: ILoggedInUser
+    @UserDecorator() user: ILoggedInUser,
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
 

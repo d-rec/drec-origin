@@ -1,4 +1,4 @@
-import { CsvParser } from "../../../utils/csv-parser";
+import { CsvParser } from '../../../utils/csv-parser';
 
 export interface MeterReadingCSV {
   deviceId: string;
@@ -12,9 +12,9 @@ export const parseMeterReadingCsv = async (
 ): Promise<MeterReadingCSV[]> => {
   return new Promise((resolve, reject) => {
     const records: any[] = [];
-    
+
     const parser = CsvParser.createParser({
-      columns: ['deviceId', 'value', 'timestamp']
+      columns: ['deviceId', 'value', 'timestamp'],
     });
 
     parser.on('readable', () => {
