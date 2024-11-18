@@ -11,8 +11,8 @@ import { UserService } from '../pods/user/user.service';
 import { Role } from '../pods/user/user.entity';
 
 @Injectable()
-export class OrganizationAccessGuard implements CanActivate {
-  private readonly logger = new Logger(OrganizationAccessGuard.name);
+export class OrganizationManageGuard implements CanActivate {
+  private readonly logger = new Logger(OrganizationManageGuard.name);
 
   constructor(
     private readonly organizationService: OrganizationService,
@@ -28,7 +28,6 @@ export class OrganizationAccessGuard implements CanActivate {
       throw new UnauthorizedException('User or organizationId not provided');
     }
 
-    try {
       const senderOrg = await this.organizationService.findOne(organizationId);
       const orgUser = await this.userService.findByEmail(senderOrg.orgEmail);
 
@@ -47,7 +46,8 @@ export class OrganizationAccessGuard implements CanActivate {
         throw new ConflictException(
           `Organization ${senderOrg.name} not accessible to user`,
         );
-      } else if (
+      } 
+      if (
         user.role === Role.ApiUser &&
         orgUser.role !== Role.OrganizationAdmin
       ) {
@@ -56,9 +56,5 @@ export class OrganizationAccessGuard implements CanActivate {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`Validation failed: ${error.message}`);
-      throw error;
     }
-  }
 }

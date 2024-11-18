@@ -41,7 +41,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { OrganizationAccessGuard } from '../../guards/organization-access.guard';
+import { OrganizationManageGuard } from '../../guards/organization-access.guard';
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -334,7 +334,7 @@ export class ReadsController extends BaseReadsController {
     AuthGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
-    OrganizationAccessGuard,
+    OrganizationManageGuard,
   )
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
