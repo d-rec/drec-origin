@@ -12,6 +12,7 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 import { BASE_READ_SERVICE } from './const';
+import { FileService } from '../file/file.service'; // Adjust path as necessary
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -74,6 +75,13 @@ describe('ReadsService', () => {
         {
           provide: EventBus,
           useValue: {} as any,
+        },
+        {
+          provide: FileService,
+          useValue: {
+            uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
+            retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
+          },
         },
       ],
     }).compile();

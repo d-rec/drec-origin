@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
-import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '@energyweb/energy-api-influxdb';
 import { ReadsService } from './reads.service';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 

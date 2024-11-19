@@ -13,6 +13,7 @@ import { DrecIssuerController } from './drec-issuer.controller';
 import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.service';
 import { CertificateLogModule } from '../certificate-log/certificate-log.module';
 import { UserModule } from '../user/user.module';
+import { FileModule } from '../file';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserModule } from '../user/user.module';
     OrganizationModule,
     HttpModule,
     UserModule,
+    FileModule,
   ],
   providers: [IssuerService, SynchronizeBlockchainTaskService],
   exports: [IssuerService],
