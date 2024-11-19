@@ -50,6 +50,6 @@ const baseReadServiceProvider = {
   ],
   controllers: [ReadsController],
   providers: [baseReadServiceProvider, ReadsService, ReadsProcessor],
-  exports: [baseReadServiceProvider, ReadsService],
+  exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}
