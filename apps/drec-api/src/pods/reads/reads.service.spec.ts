@@ -43,7 +43,7 @@ describe('ReadsService', () => {
     process.env.INFLUXDB_ORG = 'test-org';
 
     const module: TestingModule = await Test.createTestingModule({
-       imports: [ReadsModule],
+      imports: [ReadsModule],
       providers: [
         ReadsService,
         {
