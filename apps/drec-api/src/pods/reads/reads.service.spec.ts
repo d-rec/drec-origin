@@ -60,11 +60,23 @@ describe('ReadsService', () => {
       {
         provide: DeviceService,
         useValue: {
-          someMethod: jest.fn().mockResolvedValue('mocked-value'), // Mock method if needed
+          someMethod: jest.fn(),
         },
       },
       {
-        provide: 'BullQueue_reads-queue', 
+        provide: DeviceGroupService,
+        useValue: {
+          anotherMethod: jest.fn(), // Mock required methods
+        },
+      },
+      {
+        provide: OrganizationService,
+        useValue: {
+          findOne: jest.fn(),
+        },
+      },
+      {
+        provide: 'BullQueue_reads-queue',
         useValue: {
           add: jest.fn(),
           process: jest.fn(),
