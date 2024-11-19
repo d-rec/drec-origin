@@ -38,51 +38,51 @@ describe('ReadsService', () => {
   let eventBus: EventBus;
 
   beforeEach(async () => {
-    process.env.INFLUXDB_URL = 'http://localhost:8086';
-    process.env.INFLUXDB_TOKEN = 'test-token';
-    process.env.INFLUXDB_ORG = 'test-org';
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      ReadsService,
+      {
+        provide: getRepositoryToken(AggregateMeterRead),
+        useClass: Repository,
+      },
+      {
+        provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+        useClass: Repository,
+      },
+      {
+        provide: getRepositoryToken(DeltaFirstRead),
+        useClass: Repository,
+      },
+      {
+        provide: BASE_READ_SERVICE,
+        useValue: {} as any,
+      },
+      {
+        provide: DeviceService,
+        useValue: {
+          someMethod: jest.fn().mockResolvedValue('mocked-value'), // Mock method if needed
+        },
+      },
+      {
+        provide: 'BullQueue_reads-queue', 
+        useValue: {
+          add: jest.fn(),
+          process: jest.fn(),
+        },
+      },
+      {
+        provide: FileService,
+        useValue: {
+          uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
+          retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
+        },
+      },
+    ],
+  }).compile();
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ReadsService,
-        {
-          provide: getRepositoryToken(AggregateMeterRead),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(DeltaFirstRead),
-          useClass: Repository,
-        },
-        {
-          provide: BASE_READ_SERVICE,
-          useValue: {} as any,
-        },
-        {
-          provide: 'BullQueue_reads-queue',
-          useValue: {
-            add: jest.fn(),
-            process: jest.fn(),
-          },
-        },
-        {
-          provide: FileService,
-          useValue: {
-            uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
-            retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
-          },
-        },
-      ],
-    }).compile();
+  service = module.get<ReadsService>(ReadsService);
+});
 
-    service = module.get<ReadsService>(ReadsService);
-    aggregateRepository = module.get<Repository<AggregateMeterRead>>(
-      getRepositoryToken(AggregateMeterRead),
-    );
-  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
