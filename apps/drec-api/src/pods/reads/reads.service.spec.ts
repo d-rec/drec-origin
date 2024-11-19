@@ -43,7 +43,6 @@ describe('ReadsService', () => {
     process.env.INFLUXDB_ORG = 'test-org';
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ReadsModule],
       providers: [
         ReadsService,
         {
@@ -63,20 +62,11 @@ describe('ReadsService', () => {
           useValue: {} as any,
         },
         {
-          provide: DeviceService,
-          useValue: {} as any,
-        },
-        {
-          provide: DeviceGroupService,
-          useValue: {} as any,
-        },
-        {
-          provide: OrganizationService,
-          useValue: {} as any,
-        },
-        {
-          provide: EventBus,
-          useValue: {} as any,
+          provide: 'BullQueue_reads-queue',
+          useValue: {
+            add: jest.fn(),
+            process: jest.fn(),
+          },
         },
         {
           provide: FileService,
