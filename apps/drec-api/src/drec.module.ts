@@ -4,7 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
-import path from 'path';
+import * as path from 'path';
 import {
   BlockchainPropertiesModule,
   entities as IssuerEntities,
