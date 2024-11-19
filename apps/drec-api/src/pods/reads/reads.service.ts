@@ -50,7 +50,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { BASE_READ_SERVICE } from './const';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+import { FilterNoOffLimit, AccumulationType } from './dto/filter-no-off-limit.dto';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
@@ -1261,7 +1261,7 @@ export class ReadsService {
   timeOffset: any;
   async getAllRead(
     externalId: string,
-    filter: filterNoOffLimit,
+    filter: FilterNoOffLimit,
     deviceOnboarded: Date,
     pageNumber: number,
   ): Promise<any> {
@@ -1555,7 +1555,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     meter: string,
     organizationId: number,
     developerExternalId: string,
-    accumulationType: accumulationType,
+    accumulationType: AccumulationType,
     month: number,
     year: number,
   ): Promise<{
