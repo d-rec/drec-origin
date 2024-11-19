@@ -37,63 +37,56 @@ describe('ReadsService', () => {
   let organizationService: OrganizationService;
   let eventBus: EventBus;
 
-  beforeEach(async () => {
-  const module: TestingModule = await Test.createTestingModule({
-    providers: [
-      ReadsService,
-      {
-        provide: getRepositoryToken(AggregateMeterRead),
-        useClass: Repository,
-      },
-      {
-        provide: getRepositoryToken(HistoryIntermediate_MeterRead),
-        useClass: Repository,
-      },
-      {
-        provide: getRepositoryToken(DeltaFirstRead),
-        useClass: Repository,
-      },
-      {
-        provide: BASE_READ_SERVICE,
-        useValue: {} as any,
-      },
-      {
-        provide: DeviceService,
-        useValue: {
-          someMethod: jest.fn(),
-        },
-      },
-      {
-        provide: DeviceGroupService,
-        useValue: {
-          anotherMethod: jest.fn(), // Mock required methods
-        },
-      },
-      {
-        provide: OrganizationService,
-        useValue: {
-          findOne: jest.fn(),
-        },
-      },
-      {
-        provide: 'BullQueue_reads-queue',
-        useValue: {
-          add: jest.fn(),
-          process: jest.fn(),
-        },
-      },
-      {
-        provide: FileService,
-        useValue: {
-          uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
-          retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
-        },
-      },
-    ],
-  }).compile();
+  import { CqrsModule } from '@nestjs/cqrs';
 
-  service = module.get<ReadsService>(ReadsService);
-});
+const module: TestingModule = await Test.createTestingModule({
+  imports: [CqrsModule], // Import the CQRS module for EventBus
+  providers: [
+    ReadsService,
+    {
+      provide: getRepositoryToken(AggregateMeterRead),
+      useClass: Repository,
+    },
+    {
+      provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+      useClass: Repository,
+    },
+    {
+      provide: getRepositoryToken(DeltaFirstRead),
+      useClass: Repository,
+    },
+    {
+      provide: BASE_READ_SERVICE,
+      useValue: {} as any,
+    },
+    {
+      provide: 'BullQueue_reads-queue',
+      useValue: {
+        add: jest.fn(),
+        process: jest.fn(),
+      },
+    },
+    {
+      provide: FileService,
+      useValue: {
+        uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
+        retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
+      },
+    },
+    {
+      provide: DeviceService,
+      useValue: {} as any,
+    },
+    {
+      provide: DeviceGroupService,
+      useValue: {} as any,
+    },
+    {
+      provide: OrganizationService,
+      useValue: {} as any,
+    },
+  ],
+}).compile();
 
 
   it('should be defined', () => {
