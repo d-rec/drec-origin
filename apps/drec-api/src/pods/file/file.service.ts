@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import path from 'path';
+import * as path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
