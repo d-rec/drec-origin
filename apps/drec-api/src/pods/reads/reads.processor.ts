@@ -3,9 +3,8 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
 import { ReadsService } from './reads.service';
-import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -33,19 +32,17 @@ export class ReadsProcessor {
 
     for (const read of meterReads) {
       try {
-        const measurement: NewIntmediateMeterReadDTO = {
+        const measurement: MeasurementDTO = {
           reads: [
             {
-              starttimestamp: read.startTimestamp,
-              endtimestamp: read.endTimestamp,
+              timestamp: new Date(read.timestamp),
               value: read.value,
             },
           ],
           unit: Unit[read.unit as unknown as keyof typeof Unit],
-          type: read.type,
         };
 
-        await this.readsService.newstoreRead(
+        await this.readsService.storeRead(
           read.deviceId.toString(),
           measurement,
         );

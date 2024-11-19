@@ -1,14 +1,10 @@
 import { Unit } from '@energyweb/utils-general';
 import { CsvParser } from '../../../utils/csv-parser';
-import { ReadType } from 'src/utils/enums';
-
 export interface MeterReadingCSV {
   deviceId: string;
   value: number;
-  startTimestamp: Date;
-  endTimestamp: Date;
+  timestamp: Date;
   unit: Unit;
-  type: ReadType;
 }
 
 export const parseMeterReadingCsv = async (

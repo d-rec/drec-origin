@@ -16,10 +16,6 @@ export interface ILoggedInUser {
 
 export class LoggedInUser implements ILoggedInUser {
   constructor(user: IUser) {
-    if (!user) {
-      throw new Error('User object is required');
-    }
-
     this.id = user.id;
     this.organizationId = user.organization?.id;
     this.email = user.email;
