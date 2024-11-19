@@ -50,10 +50,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { BASE_READ_SERVICE } from './const';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import {
-  accumulationType,
-  filterNoOffLimit,
-} from './dto/filter-no-off-limit.dto';
+import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
@@ -131,7 +128,7 @@ export class ReadsService {
     timeStamp: Date,
     unit: Unit,
   ): Promise<void> {
-    const readInWh = convertToWh(read,unit);
+    const readInWh = convertToWh(read, unit);
 
     const points: Point[] = [
       new Point('failed_reads')
@@ -232,7 +229,7 @@ export class ReadsService {
   ): Promise<MeasurementDTO> {
     const final = await this.getLatestRead(id);
     if (!final || !device) {
-      return measurement; 
+      return measurement;
     } else {
       return {
         reads: measurement.reads.filter((read: ReadDTO) =>
