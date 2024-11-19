@@ -50,7 +50,10 @@ import { OrganizationService } from '../organization/organization.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { BASE_READ_SERVICE } from './const';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { FilterNoOffLimit, AccumulationType } from './dto/filter-no-off-limit.dto';
+import {
+  FilterNoOffLimit,
+  AccumulationType,
+} from './dto/filter-no-off-limit.dto';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
