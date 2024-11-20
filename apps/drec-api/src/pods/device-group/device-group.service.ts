@@ -108,7 +108,7 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<
+    private readonly certificateReadModuleRepository: Repository<
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,

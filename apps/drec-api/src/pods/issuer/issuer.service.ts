@@ -77,7 +77,7 @@ export class IssuerService {
   async handleCron(): Promise<void> {
     this.logger.debug('Ongoing Cycle');
     this.logger.debug(
-      'Called every 10 minutes to check for isssuance of certificates',
+      'Called every 10 minutes to check for Issuance of certificates',
     );
 
     const groupsRequestAll =

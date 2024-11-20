@@ -22,7 +22,7 @@ import { CertificatelogResponse } from './dto';
 describe('CertificateLogService', () => {
   let service: CertificateLogService;
   let repository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
-  let certificaterrepository: Repository<Certificate>;
+  let certificateRepository: Repository<Certificate>;
   let certificateReadModelEntity: Repository<CertificateReadModelEntity<any>>;
   let mockResponse: Partial<Response>;
   let deviceService: DeviceService;
@@ -78,7 +78,7 @@ describe('CertificateLogService', () => {
       Repository<CheckCertificateIssueDateLogForDeviceEntity>
     >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    certificaterrepository = module.get<Repository<Certificate>>(
+    certificateRepository = module.get<Repository<Certificate>>(
       getRepositoryToken(Certificate),
     );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -144,7 +144,7 @@ describe('CertificateLogService', () => {
       ];
 
       jest
-        .spyOn(service, 'Findperdevicecertificatelog')
+        .spyOn(service, 'findPerDeviceCertificateLog')
         .mockResolvedValue(mockData);
 
       await service.createCSV(mockResponse as Response, 1, 1, 'Certificates');
@@ -165,7 +165,7 @@ describe('CertificateLogService', () => {
 
     it('should handle errors and throw HttpException', async () => {
       jest
-        .spyOn(service, 'Findperdevicecertificatelog')
+        .spyOn(service, 'findPerDeviceCertificateLog')
         .mockRejectedValue(new Error('Test error'));
 
       await expect(
@@ -178,7 +178,7 @@ describe('CertificateLogService', () => {
     });
   });
 
-  describe('Findperdevicecertificatelog', () => {
+  describe('findPerDeviceCertificateLog', () => {
     it('should return certificate logs for the provided group and organization', async () => {
       const groupId = 1;
       const organizationId = 1;
@@ -223,16 +223,16 @@ describe('CertificateLogService', () => {
       ];
 
       jest
-        .spyOn(service, 'Findperdevicecertificatelog')
+        .spyOn(service, 'findPerDeviceCertificateLog')
         .mockResolvedValueOnce(expectedLogs);
 
-      const result = await service.Findperdevicecertificatelog(
+      const result = await service.findPerDeviceCertificateLog(
         groupId,
         organizationId,
       );
 
       expect(result).toEqual(expectedLogs);
-      expect(service.Findperdevicecertificatelog).toHaveBeenCalledWith(
+      expect(service.findPerDeviceCertificateLog).toHaveBeenCalledWith(
         groupId,
         organizationId,
       );
@@ -242,13 +242,13 @@ describe('CertificateLogService', () => {
       const groupId = 1.3;
       const organizationId = 4;
       jest
-        .spyOn(service, 'Findperdevicecertificatelog')
+        .spyOn(service, 'findPerDeviceCertificateLog')
         .mockRejectedValueOnce(new Error('Invalid group id'));
 
       await expect(
-        service.Findperdevicecertificatelog(groupId, organizationId),
+        service.findPerDeviceCertificateLog(groupId, organizationId),
       ).rejects.toThrowError('Invalid group id');
-      expect(service.Findperdevicecertificatelog).toHaveBeenCalledWith(
+      expect(service.findPerDeviceCertificateLog).toHaveBeenCalledWith(
         groupId,
         organizationId,
       );
@@ -258,13 +258,13 @@ describe('CertificateLogService', () => {
       const groupId = 1;
       const organizationId = 4.5;
       jest
-        .spyOn(service, 'Findperdevicecertificatelog')
+        .spyOn(service, 'findPerDeviceCertificateLog')
         .mockRejectedValueOnce(new Error('Invalid organization id'));
 
       await expect(
-        service.Findperdevicecertificatelog(groupId, organizationId),
+        service.findPerDeviceCertificateLog(groupId, organizationId),
       ).rejects.toThrowError('Invalid organization id');
-      expect(service.Findperdevicecertificatelog).toHaveBeenCalledWith(
+      expect(service.findPerDeviceCertificateLog).toHaveBeenCalledWith(
         groupId,
         organizationId,
       );
@@ -576,14 +576,14 @@ describe('CertificateLogService', () => {
 
       const pageNumber = 1;
 
-      const getreservationinfo = { deviceGroups: [] };
+      const getReservationInfo = { deviceGroups: [] };
 
       jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getreservationinfo);
+        .mockResolvedValueOnce(getReservationInfo);
       jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getreservationinfo);
+        .mockResolvedValueOnce(getReservationInfo);
 
       const expectedCertificates = {
         certificatelog: [],

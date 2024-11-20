@@ -148,7 +148,7 @@ export class CertificateLogController {
         message: 'Group UId is not of this buyer, invalid value was sent',
       });
     }
-    return await this.certificateLogService.getCertificateFromOldOrNewUfinction(
+    return await this.certificateLogService.getCertificateFromOldOrNew(
       deviceGroup.id.toString(),
     );
   }
@@ -185,7 +185,7 @@ export class CertificateLogController {
           message: 'Group UId  does not  belongs to this apiuser',
         });
       }
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
+      return this.certificateLogService.getCertificateFromOldOrNew(
         deviceGroup.id.toString(),
         pageNumber,
       );
@@ -199,7 +199,7 @@ export class CertificateLogController {
           message: 'Group UId is not of this buyer, invalid value was sent',
         });
       }
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
+      return this.certificateLogService.getCertificateFromOldOrNew(
         deviceGroup.id.toString(),
         pageNumber,
       );
