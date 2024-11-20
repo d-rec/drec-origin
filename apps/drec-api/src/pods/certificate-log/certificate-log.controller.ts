@@ -1,15 +1,15 @@
 import {
-    Controller,
-    Get,
-    HttpStatus,
-    Param,
-    UseGuards,
-    ValidationPipe,
-    Query,
-    ConflictException,
-    BadRequestException,
-    Logger,
-    Res, ParseUUIDPipe,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  UseGuards,
+  ValidationPipe,
+  Query,
+  ConflictException,
+  BadRequestException,
+  Logger,
+  Res, ParseUUIDPipe,
 } from '@nestjs/common';
 
 import {
@@ -21,7 +21,9 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import {
+  CheckCertificateIssueDateLogForDeviceEntity,
+} from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import {
   AmountFormattingDTO,
@@ -58,7 +60,8 @@ export class CertificateLogController {
     private readonly devicegroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-  ) {}
+  ) {
+  }
 
   /*
    * It is GET api to list all certificate issues date log of devices.
@@ -87,17 +90,6 @@ export class CertificateLogController {
   async getClaimAmountInEthersJSON(
     @Query() amountFormatData: AmountFormattingDTO,
   ): Promise<string> {
-    if (Number.isNaN(parseInt(amountFormatData.amount))) {
-      this.logger.error(`amount invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'amount invalid value was sent',
-          }),
-        );
-      });
-    }
     this.logger.verbose(`with in getClaimAmountInEthersJSON`);
     return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(
       amountFormatData.amount,
@@ -121,17 +113,6 @@ export class CertificateLogController {
     @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    if (isNaN(parseInt(filterDto.groupId))) {
-      this.logger.error(`Group Id is a number, invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group Id is a number, invalid value was sent',
-          }),
-        );
-      });
-    }
     return this.certificateLogService.findByGroupId(filterDto.groupId);
   }
 
@@ -162,18 +143,11 @@ export class CertificateLogController {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
       });
     }
-    // setTimeout(() => {
-
-    // }, 2000)
     return await this.certificateLogService.getCertificateFromOldOrNewUfinction(
       deviceGroup.id.toString(),
     );
@@ -220,13 +194,9 @@ export class CertificateLogController {
         this.logger.error(
           `Group UId is not of this buyer, invalid value was sent`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: 'Group UId is not of this buyer, invalid value was sent',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
         });
       }
       return this.certificateLogService.getCertificateFromOldOrNewUfinction(
@@ -384,6 +354,7 @@ export class CertificateLogController {
       pageNumber,
     );
   }
+
   /**
    *
    * @param groupuId reservat group uuid

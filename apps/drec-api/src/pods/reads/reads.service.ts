@@ -1032,7 +1032,7 @@ export class ReadsService {
             eddate <= reservEdate &&
             eddate > reservSdate
           ) {
-            this.deviceGroupService.HistoryUpdatecertificateissuedate(
+            this.deviceGroupService.updateHistoryCertificateIssueDate(
               historynextissue.id,
               HistoryNextInssuanceStatus.Pending,
             );
