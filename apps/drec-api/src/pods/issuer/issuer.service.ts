@@ -296,7 +296,7 @@ export class IssuerService {
     this.logger.verbose(`With in handleCronForHistoricalIssuance`);
     const historyDeviceRequestAll =
       await this.groupService.getNextHistoryissuanceDevicelog();
-    console.log(historyDeviceRequestAll)
+
     await Promise.all(
       historyDeviceRequestAll.map(
         async (
@@ -1475,9 +1475,7 @@ export class IssuerService {
   }
   // @Cron('*/2 * * * * ')
   async getMissingCycleBeforeLateOngoing(): Promise<void> {
-    this.logger.debug(
-      'Called every 4pm to check for issuance of certificates',
-    );
+    this.logger.debug('Called every 4pm to check for issuance of certificates');
     const deviceGroups = await this.groupService.getallReservationactive();
     await Promise.all(
       deviceGroups.map(async (groupRequest: DeviceGroup) => {

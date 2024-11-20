@@ -9,7 +9,8 @@ import {
   ConflictException,
   BadRequestException,
   Logger,
-  Res, ParseUUIDPipe,
+  Res,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 
 import {
@@ -21,9 +22,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  CheckCertificateIssueDateLogForDeviceEntity,
-} from '../device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import {
   AmountFormattingDTO,
@@ -60,8 +59,7 @@ export class CertificateLogController {
     private readonly devicegroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-  ) {
-  }
+  ) {}
 
   /*
    * It is GET api to list all certificate issues date log of devices.
@@ -189,21 +187,22 @@ export class CertificateLogController {
         deviceGroup.id.toString(),
         pageNumber,
       );
-    } else {
-      if (deviceGroup === null || deviceGroup.buyerId != user.id) {
-        this.logger.error(
-          `Group UId is not of this buyer, invalid value was sent`,
-        );
-        throw new ConflictException({
-          success: false,
-          message: 'Group UId is not of this buyer, invalid value was sent',
-        });
-      }
-      return this.certificateLogService.getCertificateFromOldOrNew(
-        deviceGroup.id.toString(),
-        pageNumber,
-      );
     }
+
+    if (deviceGroup === null || deviceGroup.buyerId != user.id) {
+      this.logger.error(
+        `Group UId is not of this buyer, invalid value was sent`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
+      });
+    }
+
+    return this.certificateLogService.getCertificateFromOldOrNew(
+      deviceGroup.id.toString(),
+      pageNumber,
+    );
   }
 
   /**

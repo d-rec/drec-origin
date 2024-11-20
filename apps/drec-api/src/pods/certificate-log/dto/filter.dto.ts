@@ -1,6 +1,11 @@
 import { IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DevicetypeCode, FuelCode, OffTaker, SDGBenefitsList } from '../../../utils/enums';
+import {
+  DevicetypeCode,
+  FuelCode,
+  OffTaker,
+  SDGBenefitsList,
+} from '../../../utils/enums';
 
 export class FilterDTO {
   @IsOptional()
@@ -69,7 +74,6 @@ export class FilterDTO {
 }
 
 export class GroupIDBasedFilteringDTO {
-
   @ApiProperty({ description: 'Group Id' })
   @IsNotEmpty()
   @IsNumberString()
