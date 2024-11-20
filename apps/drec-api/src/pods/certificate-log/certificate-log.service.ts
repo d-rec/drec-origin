@@ -1,7 +1,5 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import {
-  CheckCertificateIssueDateLogForDeviceEntity,
-} from '../device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import {
   getManager,
   Repository,
@@ -28,9 +26,7 @@ import {
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import {
-  CertificateReadModelEntity,
-} from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
@@ -57,8 +53,7 @@ export class CertificateLogService {
     >,
     private deviceService: DeviceService,
     private devicegroupService: DeviceGroupService,
-  ) {
-  }
+  ) {}
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in find`);
@@ -101,10 +96,7 @@ export class CertificateLogService {
     pageNumber?: number,
   ): Promise<any> {
     this.logger.verbose(`With in getCertificateFromOldOrNew`);
-    if (pageNumber === undefined || pageNumber === null) {
-      pageNumber = 1;
-    }
-    const page = pageNumber; // Specify the page number you want to retrieve
+    const page = pageNumber ? Number(pageNumber) : 1; // Specify the page number you want to retrieve
     const itemsPerPage = 20; // Specify the number of items per page
 
     const [certificates, totalCertificates] =
@@ -120,10 +112,11 @@ export class CertificateLogService {
       });
 
     if (certificates.length > 0) {
-      const logData = await this.findCertifiedReservations<CertificateWithPerdevicelog>(
-        certificates,
-        groupid,
-      );
+      const logData =
+        await this.findCertifiedReservations<CertificateWithPerdevicelog>(
+          certificates,
+          groupid,
+        );
       return {
         certificatelog: logData,
         totalItems: totalCertificates,
@@ -172,16 +165,22 @@ export class CertificateLogService {
     };
   }
 
-
   async findCertifiedReservations<T>(
-    certificates: Certificate[] | ICertificateReadModel<ICertificateMetadata>[] | any,
+    certificates:
+      | Certificate[]
+      | ICertificateReadModel<ICertificateMetadata>[]
+      | any,
     groupId: string,
     includeTransactionId = false,
   ): Promise<T[]> {
     this.logger.verbose(`With in findCertifiedReservations`);
     return await Promise.all(
-      certificates.map(
-        async (certificate: CertificateWithPerdevicelog) => this.getCertifiedReservation(certificate, groupId, includeTransactionId),
+      certificates.map(async (certificate: CertificateWithPerdevicelog) =>
+        this.getCertifiedReservation(
+          certificate,
+          groupId,
+          includeTransactionId,
+        ),
       ),
     );
   }
@@ -194,7 +193,11 @@ export class CertificateLogService {
       `With in getCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
 
-    return await this.findCertifiedReservations<CertificateNewWithPerDeviceLog>(certifiedReservations, groupId, true);
+    return await this.findCertifiedReservations<CertificateNewWithPerDeviceLog>(
+      certifiedReservations,
+      groupId,
+      true,
+    );
   }
 
   public async getCheckCertificateIssueDateLogForDevice(
@@ -228,7 +231,7 @@ export class CertificateLogService {
         const item: any = {
           id: s.issuelog_id,
           certificate_issuance_startdate:
-          s.issuelog_certificate_issuance_startdate,
+            s.issuelog_certificate_issuance_startdate,
           certificate_issuance_enddate: s.issuelog_certificate_issuance_enddate,
           readvalue_watthour: s.issuelog_readvalue_watthour,
           status: s.issuelog_status,
@@ -242,7 +245,14 @@ export class CertificateLogService {
     }
   }
 
-  private async getCertifiedReservation(certificate: Certificate | ICertificateReadModel<ICertificateMetadata> | any, groupId: string, includeTransactionId = false) {
+  private async getCertifiedReservation(
+    certificate:
+      | Certificate
+      | ICertificateReadModel<ICertificateMetadata>
+      | any,
+    groupId: string,
+    includeTransactionId = false,
+  ) {
     const certificateStartDate = new Date(
       certificate.generationStartTime * 1000,
     ).toISOString();
@@ -253,12 +263,13 @@ export class CertificateLogService {
 
     const perDeviceCertificateLog = [];
 
-
     const metadata = parseMetadata(certificate.metadata);
 
     if (!metadata) return;
 
-    const certificateTransactionUID = includeTransactionId ? metadata.certificateTransactionUID : undefined;
+    const certificateTransactionUID = includeTransactionId
+      ? metadata.certificateTransactionUID
+      : undefined;
 
     const deviceReadStartDate = new Date(
       (certificate.generationStartTime - 1) * 1000,
@@ -515,7 +526,7 @@ export class CertificateLogService {
         'dg.targetVolumeCertificateGenerationRequestedInMegaWattHour <= :targetVolume',
         {
           targetVolume:
-          targetVolumeCertificateGenerationRequestedInMegaWattHour,
+            targetVolumeCertificateGenerationRequestedInMegaWattHour,
         },
       );
     }
@@ -649,11 +660,11 @@ export class CertificateLogService {
   async getDeveloperfindCertifiedReservations(
     certifiedReservation:
       | {
-      deviceGroups: any;
-      pageNumber: number;
-      totalPages: number;
-      totalCount: any;
-    }
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -731,7 +742,7 @@ export class CertificateLogService {
                       );
                     });
                   } else {
-                    this.logger.log('oldlog doesn\'t exist in developer');
+                    this.logger.log("oldlog doesn't exist in developer");
                     const devicelog =
                       await this.getCheckCertificateIssueDateLogForDevice(
                         parseInt(group.dg_id),
@@ -798,11 +809,11 @@ export class CertificateLogService {
   async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
     reservationInfo:
       | {
-      deviceGroups: any;
-      pageNumber: number;
-      totalPages: number;
-      totalCount: any;
-    }
+          deviceGroups: any;
+          pageNumber: number;
+          totalPages: number;
+          totalCount: any;
+        }
       | any,
     role: Role,
   ): Promise<CertificatelogResponse> {
@@ -900,7 +911,7 @@ export class CertificateLogService {
 
                         certificatesInReservationWithLog[
                           index
-                          ].perDeviceCertificateLog.push(singleDeviceLogEle);
+                        ].perDeviceCertificateLog.push(singleDeviceLogEle);
                       });
                     } else {
                       devicelog =
@@ -926,7 +937,7 @@ export class CertificateLogService {
                         );
                         certificatesInReservationWithLog[
                           index
-                          ].perDeviceCertificateLog.push(devicelog[0]);
+                        ].perDeviceCertificateLog.push(devicelog[0]);
                       }
                     }
                   }
@@ -947,7 +958,7 @@ export class CertificateLogService {
                         getLocalTimeZoneFromDevice(device.createdAt, device);
                       certificatesInReservationWithLog[
                         index
-                        ].perDeviceCertificateLog.push(singleDeviceLogEle);
+                      ].perDeviceCertificateLog.push(singleDeviceLogEle);
                     });
                   }
                   return devicelog;
@@ -998,7 +1009,7 @@ export class CertificateLogService {
       .innerJoin(
         CertificateReadModelEntity,
         'crm',
-        'dl.certificateTransactionUID = (crm.metadata::jsonb)->>\'certificateTransactionUID\'',
+        "dl.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
       .where('dl.groupId = :groupId', { groupId: groupId })
       .andWhere('dg.organizationId = :organizationId', {
@@ -1027,10 +1038,10 @@ export class CertificateLogService {
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
-          name +
-          ' ' +
-          new Date().toLocaleDateString() +
-          '.csv',
+            name +
+            ' ' +
+            new Date().toLocaleDateString() +
+            '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
         const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;
