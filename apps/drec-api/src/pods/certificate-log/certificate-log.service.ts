@@ -1,32 +1,22 @@
-import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
-  getManager,
-  Repository,
-  IsNull,
-  Not,
-  Brackets,
-  SelectQueryBuilder,
-} from 'typeorm';
+  CheckCertificateIssueDateLogForDeviceEntity,
+} from '../device/check_certificate_issue_date_log_for_device.entity';
+import { Brackets, getManager, IsNull, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { FilterDTO } from './dto/filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
-import {
-  CertificateNewWithPerDeviceLog,
-  CertificateWithPerdevicelog,
-  CertificatelogResponse,
-} from './dto';
+import { CertificatelogResponse, CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
-import {
-  IGetAllCertificatesOptions,
-  ICertificateReadModel,
-} from '@energyweb/origin-247-certificate';
+import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import {
+  CertificateReadModelEntity,
+} from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
@@ -52,7 +42,7 @@ export class CertificateLogService {
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private deviceService: DeviceService,
-    private devicegroupService: DeviceGroupService,
+    private deviceGroupService: DeviceGroupService,
   ) {}
 
   public async find(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
@@ -86,9 +76,9 @@ export class CertificateLogService {
       .where('d.organizationId = :orgid', { orgid: 3 })
       .andWhere('dl.readvalue_watthour>0')
       .groupBy('d.externalId');
-    const devicelog = await totalNumbers.getRawMany();
+    const deviceLog = await totalNumbers.getRawMany();
 
-    return devicelog;
+    return deviceLog;
   }
 
   async getCertificateFromOldOrNew(
@@ -414,7 +404,7 @@ export class CertificateLogService {
   async getCertificateRedemptionReport(buyerId: number): Promise<any[]> {
     this.logger.verbose(`With in getCertificateRedemptionReport`);
     const deviceGroups =
-      await this.devicegroupService.getBuyerDeviceGroups(buyerId);
+      await this.deviceGroupService.getBuyerDeviceGroups(buyerId);
     const redemptionReports = [];
     await Promise.all(
       deviceGroups.map(async (devicegroup: DeviceGroupDTO) => {
@@ -592,7 +582,7 @@ export class CertificateLogService {
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const getnewreservationinfo =
-      await this.devicegroupService.getReservationInforDeveloperBsise(
+      await this.deviceGroupService.getReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
         filterDto,
@@ -604,7 +594,7 @@ export class CertificateLogService {
       getnewreservationinfo.deviceGroups.length,
     );
     const getoldreservationinfo =
-      await this.devicegroupService.getoldReservationInforDeveloperBsise(
+      await this.deviceGroupService.getoldReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
         filterDto,

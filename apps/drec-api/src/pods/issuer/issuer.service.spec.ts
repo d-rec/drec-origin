@@ -1077,7 +1077,7 @@ describe('IssuerService', () => {
       );
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'exception caught in inbetween device onboarding checking for createdAt',
+        'exception caught in in between device onboarding checking for createdAt',
       );
       expect(loggerErrorSpy).toHaveBeenCalledWith(error);
     });
