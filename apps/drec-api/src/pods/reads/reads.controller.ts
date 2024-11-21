@@ -112,14 +112,10 @@ export class ReadsController extends BaseReadsController {
 
     if (device === null) {
       this.logger.error(`Invalid device id`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Invalid device id`,
-          }),
-        );
-      });
+      })
     }
     return super.getReads(device.externalId, filter);
   }
@@ -274,14 +270,10 @@ export class ReadsController extends BaseReadsController {
 
     if (device === null) {
       this.logger.error(`Invalid device id`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Invalid device id`,
-          }),
-        );
-      });
+          })
     }
 
     if (filter.readType === 'accumulated' && filter.accumulationType) {
@@ -357,14 +349,10 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `Organization in measurement is not same as user's organization`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `Organization in measurement is not same as user's organization`,
-            }),
-          );
-        });
+            })
       }
 
       if (user.role === Role.ApiUser) {
@@ -372,24 +360,16 @@ export class ReadsController extends BaseReadsController {
           this.logger.error(
             `Organization ${senderorg.name} in measurement is not part of your organization`,
           );
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
+          throw new ConflictException({
                 success: false,
                 message: `Organization ${senderorg.name} in measurement is not part of your organization`,
-              }),
-            );
-          });
+          })
         } else if (orguser.role != Role.OrganizationAdmin) {
           this.logger.error(`Unauthorized`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new UnauthorizedException({
+          throw new UnauthorizedException({
                 success: false,
                 message: `Unauthorized`,
-              }),
-            );
-          });
+          })
         } else {
           user.organizationId = measurements.organizationId;
         }
@@ -398,14 +378,10 @@ export class ReadsController extends BaseReadsController {
 
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `id should not be empty`,
-          }),
-        );
-      });
+          })
     }
     id = id.trim();
     const device: DeviceDTO | null =
@@ -415,14 +391,10 @@ export class ReadsController extends BaseReadsController {
       );
     if (device === null) {
       this.logger.error(`Invalid device id`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Invalid device id`,
-          }),
-        );
-      });
+          });
     }
 
     if (
@@ -533,14 +505,10 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-            }),
-          );
-        });
+            })
       }
       device.createdAt = momentTimeZone
         .tz(device.createdAt, measurements.timezone)
@@ -629,93 +597,65 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
-            }),
-          );
-        });
+            })
       }
       if (!datevalid) {
         this.logger.error(
           `Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
+            })
       }
       if (!allStartDatesAreBeforeEnddate) {
         this.logger.error(
           `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp `,
-            }),
-          );
-        });
+            })
       }
       if (!allDatesAreBeforeCreatedAt) {
         this.logger.error(
           `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
-            }),
-          );
-        });
+            })
       }
 
       if (!readvalue) {
         this.logger.error(`meter read value should be greater then 0`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
-            }),
-          );
-        });
+            })
       }
       if (!historyallStartDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
       if (!historyallEndDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
     }
     if (
@@ -778,28 +718,20 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
-            }),
-          );
-        });
+            })
       }
       if (!datevalid1) {
         this.logger.error(
           `Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
+            })
       }
       if (
         measurements.timezone !== null &&
@@ -815,40 +747,28 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
-            }),
-          );
-        });
+            })
       }
       if (!allDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
       if (!allEndDatesAreBeforSystemDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
-            }),
-          );
-        });
+            })
       }
     }
 
@@ -865,14 +785,10 @@ export class ReadsController extends BaseReadsController {
       });
       if (!readvalue) {
         this.logger.error(`meter read value should be greater then 0`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
-            }),
-          );
-        });
+            })
       }
     }
     // device organization and user organization validation
@@ -880,26 +796,18 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(
         `Device doesnt belongs to the requested users organization`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Device doesnt belongs to the requested users organization`,
-          }),
-        );
-      });
+          })
     }
 
     if (measurements.reads.length > 1) {
       this.logger.error(`can not allow multiple reads simultaneously`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `can not allow multiple reads simultaneously `,
-          }),
-        );
-      });
+          })
     }
     return await this.internalReadsService.newstoreRead(
       device.externalId,
@@ -943,14 +851,10 @@ export class ReadsController extends BaseReadsController {
     this.logger.verbose(`With in newstoreReadaddbyadmin`);
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `id should not be empty`,
-          }),
-        );
-      });
+      })
     }
     id = id.trim();
     if (
@@ -967,14 +871,10 @@ export class ReadsController extends BaseReadsController {
       );
     if (device === null) {
       this.logger.error(`Invalid device id`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Invalid device id`,
-          }),
-        );
-      });
+      })
     }
 
     if (
@@ -1085,14 +985,10 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-            }),
-          );
-        });
+            })
       }
       device.createdAt = momentTimeZone
         .tz(device.createdAt, measurements.timezone)
@@ -1179,93 +1075,65 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready typ`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
-            }),
-          );
-        });
+            })
       }
       if (!datevalid) {
         this.logger.error(
           `Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
+            })
       }
       if (!allStartDatesAreBeforeEnddate) {
         this.logger.error(
           `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp `,
-            }),
-          );
-        });
+            })
       }
       if (!allDatesAreBeforeCreatedAt) {
         this.logger.error(
           `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
-            }),
-          );
-        });
+            })
       }
 
       if (!readvalue) {
         this.logger.error(`meter read value should be greater then 0`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
-            }),
-          );
-        });
+            })
       }
       if (!historyallStartDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
       if (!historyallEndDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
     }
     if (
@@ -1328,28 +1196,20 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
-            }),
-          );
-        });
+            })
       }
       if (!datevalid1) {
         this.logger.error(
           `Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
-        });
+            })
       }
       if (
         measurements.timezone !== null &&
@@ -1365,40 +1225,28 @@ export class ReadsController extends BaseReadsController {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
-            }),
-          );
-        });
+            })
       }
       if (!allDatesAreAftercommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
-            }),
-          );
-        });
+            })
       }
       if (!allEndDatesAreBeforSystemDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
-            }),
-          );
-        });
+            })
       }
     }
 
@@ -1415,14 +1263,10 @@ export class ReadsController extends BaseReadsController {
       });
       if (!readvalue) {
         this.logger.error(`meter read value should be greater then 0`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `meter read value should be greater then 0 `,
-            }),
-          );
-        });
+            })
       }
     }
     // device organization and user organization validation
@@ -1430,26 +1274,18 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(
         `Device doesnt belongs to the requested users organization`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Device doesnt belongs to the requested users organization`,
-          }),
-        );
-      });
+          })
     }
 
     if (measurements.reads.length > 1) {
       this.logger.error(`can not allow multiple reads simultaneously`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `can not allow multiple reads simultaneously `,
-          }),
-        );
-      });
+          })
     }
     return await this.internalReadsService.newstoreRead(
       device.externalId,
@@ -1491,14 +1327,10 @@ export class ReadsController extends BaseReadsController {
     }
 
     if (device === null) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `Invalid device id`,
-          }),
-        );
-      });
+      })
     }
 
     let latestReadObject;
