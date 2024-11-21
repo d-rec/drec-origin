@@ -1,22 +1,29 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import {
-  CheckCertificateIssueDateLogForDeviceEntity,
-} from '../device/check_certificate_issue_date_log_for_device.entity';
-import { Brackets, getManager, IsNull, Not, Repository, SelectQueryBuilder } from 'typeorm';
+  Brackets,
+  getManager,
+  IsNull,
+  Not,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { FilterDTO } from './dto/filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
-import { CertificatelogResponse, CertificateNewWithPerDeviceLog, CertificateWithPerdevicelog } from './dto';
+import {
+  CertificatelogResponse,
+  CertificateNewWithPerDeviceLog,
+  CertificateWithPerdevicelog,
+} from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
 import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import {
-  CertificateReadModelEntity,
-} from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { deviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';

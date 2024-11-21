@@ -1,4 +1,6 @@
-export const parseMetadata = (metadata: Record<string, unknown>): any | null => {
+export const parseMetadata = (
+  metadata: Record<string, unknown>,
+): any | null => {
   try {
     if (typeof metadata !== 'string') return metadata;
     return JSON.parse(metadata);
