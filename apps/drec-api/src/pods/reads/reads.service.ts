@@ -417,9 +417,9 @@ export class ReadsService {
               measurement.unit,
             );
             throw new ConflictException({
-                success: false,
-                message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
-            })
+              success: false,
+              message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
+            });
           }
 
           if (
@@ -503,9 +503,9 @@ export class ReadsService {
                   measurement.unit,
                 );
                 throw new ConflictException({
-                    success: false,
-                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
-                  })
+                  success: false,
+                  message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
+                });
               }
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -562,9 +562,9 @@ export class ReadsService {
                     measurement.unit,
                   );
                   throw new ConflictException({
-                      success: false,
-                      message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
-                  })
+                    success: false,
+                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
+                  });
                 }
               }
 
@@ -622,9 +622,9 @@ export class ReadsService {
                   measurement.unit,
                 );
                 throw new ConflictException({
-                    success: false,
-                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
-                })
+                  success: false,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                });
               }
 
               const read: ReadDTO = {
@@ -706,9 +706,9 @@ export class ReadsService {
                 element.value <= lastvalue[0].value
               ) {
                 throw new ConflictException({
-                    success: false,
-                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
-                })
+                  success: false,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                });
               }
 
               const read: ReadDTO = {

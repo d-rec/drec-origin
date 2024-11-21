@@ -554,9 +554,9 @@ export class DeviceService {
         `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
       );
       throw new ConflictException({
-            success: false,
-            message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
-      })
+        success: false,
+        message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+      });
     }
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();

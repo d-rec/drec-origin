@@ -89,9 +89,9 @@ export class CertificateLogController {
     if (Number.isNaN(parseInt(amountFormatData.amount))) {
       this.logger.error(`amount invalid value was sent`);
       throw new ConflictException({
-            success: false,
-            message: 'amount invalid value was sent',
-      })
+        success: false,
+        message: 'amount invalid value was sent',
+      });
     }
     this.logger.verbose(`with in getClaimAmountInEthersJSON`);
     return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(
@@ -119,9 +119,9 @@ export class CertificateLogController {
     if (isNaN(parseInt(filterDto.groupId))) {
       this.logger.error(`Group Id is a number, invalid value was sent`);
       throw new ConflictException({
-            success: false,
-            message: 'Group Id is a number, invalid value was sent',
-      })
+        success: false,
+        message: 'Group Id is a number, invalid value was sent',
+      });
     }
     return this.certificateLogService.findByGroupId(filterDto.groupId);
   }
@@ -151,10 +151,9 @@ export class CertificateLogController {
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
       throw new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-      })
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
+      });
     }
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
@@ -165,9 +164,9 @@ export class CertificateLogController {
         `Group UId is not of this buyer, invalid value was sent`,
       );
       throw new ConflictException({
-            success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
-      })
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
+      });
     }
     // setTimeout(() => {
 
@@ -203,10 +202,9 @@ export class CertificateLogController {
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
       throw new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-      })
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
+      });
     }
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
@@ -229,9 +227,9 @@ export class CertificateLogController {
           `Group UId is not of this buyer, invalid value was sent`,
         );
         throw new ConflictException({
-              success: false,
-              message: 'Group UId is not of this buyer, invalid value was sent',
-        })
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
+        });
       }
       return this.certificateLogService.getCertificateFromOldOrNewUfinction(
         devicegroup.id.toString(),
@@ -413,10 +411,9 @@ export class CertificateLogController {
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
       throw new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-      })
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
+      });
     }
     const devicegroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,

@@ -399,19 +399,19 @@ export class BuyerReservationController {
     ) {
       this.logger.error(`One or more device ids are invalid`);
       throw new ConflictException({
-            success: false,
-            message: 'One or more device ids are invalid',
-      })
+        success: false,
+        message: 'One or more device ids are invalid',
+      });
     }
     if (deviceGroupToRegister.deviceIds.length == 0) {
       this.logger.error(
         `Please provide devices for reservation, deviceIds is empty atleast one device is required`,
       );
       throw new ConflictException({
-            success: false,
-            message:
-              'Please provide devices for reservation, deviceIds is empty atleast one device is required',
-      })
+        success: false,
+        message:
+          'Please provide devices for reservation, deviceIds is empty atleast one device is required',
+      });
     }
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
@@ -421,11 +421,11 @@ export class BuyerReservationController {
       this.logger.error(
         `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,
       );
-        throw new ConflictException({
-            success: false,
-            message:
-              'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
-          });
+      throw new ConflictException({
+        success: false,
+        message:
+          'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
+      });
     }
 
     if (typeof deviceGroupToRegister.reservationStartDate === 'string') {
@@ -434,10 +434,10 @@ export class BuyerReservationController {
           `Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
         throw new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        })
+          success: false,
+          message:
+            ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
       }
       deviceGroupToRegister.reservationStartDate = new Date(
         deviceGroupToRegister.reservationStartDate,
@@ -449,10 +449,10 @@ export class BuyerReservationController {
           `Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
         throw new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        })
+          success: false,
+          message:
+            ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
       }
       deviceGroupToRegister.reservationEndDate = new Date(
         deviceGroupToRegister.reservationEndDate,
@@ -464,10 +464,10 @@ export class BuyerReservationController {
           `Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
         throw new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        })
+          success: false,
+          message:
+            ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
       }
       deviceGroupToRegister.reservationExpiryDate = new Date(
         deviceGroupToRegister.reservationExpiryDate,
@@ -631,9 +631,9 @@ export class BuyerReservationController {
     if (devicenextissuence === null) {
       this.logger.error(`This device groups reservation has already ended`);
       throw new ConflictException({
-            success: false,
-            message: `This device groups reservation has already ended `,
-      })
+        success: false,
+        message: `This device groups reservation has already ended `,
+      });
     }
     if (
       new Date(groupToUpdate.reservationEndDate).getTime() <
@@ -643,9 +643,9 @@ export class BuyerReservationController {
         `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
       );
       throw new ConflictException({
-            success: false,
-            message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
-      })
+        success: false,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+      });
     }
 
     return await this.deviceGroupService.update(id, loggedUser, groupToUpdate);
@@ -929,9 +929,8 @@ export class BuyerReservationController {
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
       throw new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
       });
     }
 

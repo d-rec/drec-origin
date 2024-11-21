@@ -133,9 +133,9 @@ export class UserController {
       userRegistrationData.organizationType === undefined
     ) {
       throw new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-      })
+        success: false,
+        message: `organizationType should not be empty`,
+      });
     }
     if (
       userRegistrationData.organizationType.toLowerCase() !=
@@ -146,15 +146,15 @@ export class UserController {
         'ApiUser'.toLowerCase()
     ) {
       throw new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer/ApiUser`,
-          })
+        success: false,
+        message: `organizationType value should be Developer/Buyer/ApiUser`,
+      });
     }
     if (userRegistrationData.orgName.trim() === '') {
       throw new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-      })
+        success: false,
+        message: `orgName should not be empty`,
+      });
     }
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;

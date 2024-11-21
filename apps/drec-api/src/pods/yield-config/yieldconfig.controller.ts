@@ -102,17 +102,17 @@ export class YieldConfigController {
         ) === undefined
       ) {
         throw new ConflictException({
-              success: false,
-              message:
-                ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-        })
+          success: false,
+          message:
+            ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+        });
       }
     } else {
       throw new ConflictException({
-            success: false,
-            message:
-              ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          })
+        success: false,
+        message:
+          ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+      });
     }
 
     return await this.yieldconfigService.create(yieldToRegister, loggedUser);
