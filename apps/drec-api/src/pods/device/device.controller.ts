@@ -269,30 +269,22 @@ export class DeviceController {
           this.logger.error(
             `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
           );
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
+            throw new ConflictException({
                 success: false,
                 message:
                   ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-              }),
-            );
-          });
+            })
         }
       } else {
         this.logger.error(
           `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+          throw new ConflictException({
               success: false,
               message:
                 ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-            }),
-          );
-        });
-      }
+          })
+        }
     }
     if (filterDto.organizationId) {
       if (role === Role.ApiUser) {
@@ -446,29 +438,21 @@ export class DeviceController {
     deviceToRegister.externalId = deviceToRegister.externalId.trim();
     if (deviceToRegister.externalId.trim() === '') {
       this.logger.error(`externalId should not be empty`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: `externalId should not be empty`,
-          }),
-        );
-      });
+      })
     }
 
     if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
       this.logger.error(
         `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message:
               ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-          }),
-        );
-      });
+      })
     }
     if (
       new Date(deviceToRegister.commissioningDate).getTime() >
@@ -477,14 +461,10 @@ export class DeviceController {
       this.logger.error(
         `Invalid commissioning date, commissioning is greater than current date`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: ` Invalid commissioning date, commissioning is greater than current date`,
-          }),
-        );
-      });
+      })
     }
     if (deviceToRegister['groupId'] === 0 || deviceToRegister['groupId']) {
       deviceToRegister['groupId'] = null;
@@ -504,40 +484,28 @@ export class DeviceController {
         this.logger.error(
           `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-            }),
-          );
-        });
+        })
       }
     } else {
       this.logger.error(
         `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message:
               ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          }),
-        );
-      });
+      })
     }
     if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
       this.logger.error(`Invalid Capacity or energy Storage Capacity`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: ' Invalid Capacity or energy Storage Capacity',
-          }),
-        );
-      });
+      })
     }
     if (
       deviceToRegister.capacity <= 0 ||
@@ -546,15 +514,11 @@ export class DeviceController {
       this.logger.error(
         `Invalid Capacity or energy Storage Capacity, it should be greater than 0`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message:
               ' Invalid Capacity or energy Storage Capacity, it should be greater than 0',
-          }),
-        );
-      });
+      })
     }
     if (
       deviceToRegister.version === null ||
@@ -571,14 +535,10 @@ export class DeviceController {
         this.logger.error(
           `Organization id is required,please add your developer's Organization`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `Organization id is required,please add your developer's Organization `,
-            }),
-          );
-        });
+        })
       }
     }
     return await this.deviceService.register(
@@ -651,14 +611,10 @@ export class DeviceController {
       deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
       if (deviceToUpdate.externalId === '') {
         this.logger.error(`externalId should not be empty`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `externalId should not be empty`,
-            }),
-          );
-        });
+        })
       }
 
       const checkexternalid =
@@ -671,14 +627,10 @@ export class DeviceController {
         checkexternalid.developerExternalId === externalId.trim()
       ) {
         this.logger.log('Line No: 236');
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
-            }),
-          );
-        });
+            })
       }
     }
 
@@ -698,42 +650,30 @@ export class DeviceController {
           this.logger.error(
             `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
           );
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
+          throw new ConflictException({
                 success: false,
                 message:
                   ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-              }),
-            );
-          });
+              })
         }
       } else {
         this.logger.error(
           `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message:
                 ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-            }),
-          );
-        });
+            })
       }
     }
 
     if (deviceToUpdate.capacity <= 0) {
       this.logger.error(`Invalid Capacity, it should be greater than 0`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: ' Invalid Capacity, it should be greater than 0',
-          }),
-        );
-      });
+          })
     }
     if (
       !isValidUTCDateFormat(deviceToUpdate.commissioningDate) &&
@@ -742,15 +682,11 @@ export class DeviceController {
       this.logger.error(
         `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message:
               ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-          }),
-        );
-      });
+          })
     }
     if (
       new Date(deviceToUpdate.commissioningDate).getTime() >
@@ -759,14 +695,10 @@ export class DeviceController {
       this.logger.error(
         `Invalid commissioning date, commissioning is greater than current date`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: ` Invalid commissioning date, commissioning is greater than current date`,
-          }),
-        );
-      });
+          })
     }
 
     if (deviceToUpdate.commissioningDate) {
@@ -984,15 +916,11 @@ export class DeviceController {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message:
               ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
-      });
+          })
     }
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
@@ -1006,28 +934,20 @@ export class DeviceController {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
+      throw new ConflictException({
             success: false,
             message: 'Group UId is not of this buyer, invalid value was sent',
-          }),
-        );
-      });
+          })
     }
     if (externalId != null || externalId != undefined) {
       const device: DeviceDTO | null =
         await this.deviceService.findOne(externalId);
       if (device === null) {
         this.logger.error(`device not found, invalid value was sent`);
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
+        throw new ConflictException({
               success: false,
               message: 'device not found, invalid value was sent',
-            }),
-          );
-        });
+            })
       }
       return await this.deviceService.getcertifieddevicedaterange(
         group.id,
