@@ -387,7 +387,7 @@ export class OrganizationController {
       }
     }
 
-    //const manyotheruserinorg = await this.userService.getatleastoneotheruserinOrg(user.organization.id, user.id)
+    //const manyotheruserinorg = await this.userService.getAnotherUserInOrganization(user.organization.id, user.id)
 
     if (user.role === loggedUser.role && user.status === 'Active') {
       throw new NotFoundException('Unauthorized');

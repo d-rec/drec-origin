@@ -171,7 +171,7 @@ export class UserController {
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
-    return this.userService.newcreate(userRegistrationData);
+    return this.userService.newCreateUser(userRegistrationData);
   }
   /**
    * this api route using for update Profile.
@@ -241,7 +241,7 @@ export class UserController {
     description: `Update your own password`,
   })
   @ApiParam({ name: 'token', type: String })
-  public async updatechangePassword(
+  public async changePassword(
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
@@ -250,7 +250,7 @@ export class UserController {
     let emailConfirmation: any;
     if (emailregex.test(token)) {
       emailConfirmation = await this.userService.findOne({ email: token });
-      return this.userService.updatechangePassword(emailConfirmation, body);
+      return this.userService.changePassword(emailConfirmation, body);
     } else {
       emailConfirmation = await this.emailConfirmationService.findOne({
         token,
@@ -261,7 +261,7 @@ export class UserController {
           errors: `User Not exist .`,
         });
       }
-      return this.userService.updatechangePassword(
+      return this.userService.changePassword(
         emailConfirmation.user,
         body,
       );
@@ -329,7 +329,7 @@ export class UserController {
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
-    return this.userService.geytokenforResetPassword(body.email);
+    return this.userService.getTokenForResetPassword(body.email);
   }
 
   @Get('export-accesskey/:api_user_id')

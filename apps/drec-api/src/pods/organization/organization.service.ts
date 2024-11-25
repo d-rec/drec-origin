@@ -288,10 +288,10 @@ export class OrganizationService {
     return stored;
   }
 
-  public async newcreate(
+  public async newCreateUser(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {
-    this.logger.verbose('With in newcreate');
+    this.logger.verbose('With in newCreateUser');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
         organizationToRegister.name,

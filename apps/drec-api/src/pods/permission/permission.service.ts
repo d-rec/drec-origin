@@ -318,7 +318,7 @@ export class PermissionService {
           permissionIds.push(perId.id);
         }),
       );
-      await this.userService.apiuser_permission_request(
+      await this.userService.apiUserPermissionRequest(
         api_user.api_user_id,
         permissionIds,
       );
@@ -341,7 +341,7 @@ export class PermissionService {
   ): Promise<any> {
     this.logger.verbose(`With in permission_veify`);
     const verify_apiuser =
-      await this.userService.apiuser_permission_accepted_byadmin(
+      await this.userService.apiUserPermissionAcceptedByAdmin(
         api_user_id,
         data.status,
       );

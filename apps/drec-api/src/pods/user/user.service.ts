@@ -80,7 +80,7 @@ export class UserService {
     });
   }
 
-  public async newcreate(
+  public async newCreateUser(
     data: CreateUserORGDTO,
     status?: UserStatus,
     inviteuser?: boolean,
@@ -107,7 +107,7 @@ export class UserService {
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newcreate(orgdata);
+        const org = await this.organizationService.newCreateUser(orgdata);
         org_id = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -160,7 +160,7 @@ export class UserService {
     return user;
   }
 
-  public async adminnewcreate(
+  public async createUserByAdmin(
     data: CreateUserORGDTO,
     status?: UserStatus,
     inviteuser?: boolean,
@@ -185,7 +185,7 @@ export class UserService {
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newcreate(orgdata);
+        const org = await this.organizationService.newCreateUser(orgdata);
         org_id = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -251,7 +251,7 @@ export class UserService {
     }
 
     if (user.role === Role.ApiUser) {
-      const api_user = await this.get_apiuser_permission_status(
+      const api_user = await this.getApiUserPermissionStatus(
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
@@ -325,7 +325,7 @@ export class UserService {
     });
   }
 
-  public getatleastoneotheruserinOrg(
+  public getAnotherUserInOrganization(
     organizationId: number,
     userId: number,
   ): Promise<User[]> {
@@ -413,7 +413,7 @@ export class UserService {
     });
   }
 
-  async updatechangePassword(
+  async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
@@ -564,14 +564,15 @@ export class UserService {
       });
     }
     if (user.role === Role.ApiUser) {
-      const api_user = await this.get_apiuser_permission_status(
+      const api_user = await this.getApiUserPermissionStatus(
         user.api_user_id,
       );
       user['permission_status'] = api_user.permission_status;
     }
     return user;
   }
-  public async geytokenforResetPassword(
+
+  public async getTokenForResetPassword(
     email: string,
   ): Promise<ISuccessResponse> {
     return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
@@ -579,7 +580,7 @@ export class UserService {
     );
   }
 
-  public async sentinvitiontoUser(
+  public async sendUserInvitation(
     inviteuser: CreateUserORGDTO,
     email: string,
   ): Promise<{
@@ -643,7 +644,7 @@ export class UserService {
    * @param api_id
    * @param permissionIds
    */
-  async apiuser_permission_request(
+  async apiUserPermissionRequest(
     api_id: string,
     permissionIds: number[] | any,
   ): Promise<void> {
@@ -652,7 +653,7 @@ export class UserService {
       permission_status: UserPermissionStatus.Request,
     });
   }
-  async apiuser_permission_accepted_byadmin(
+  async apiUserPermissionAcceptedByAdmin(
     api_id: string,
     status: UserPermissionStatus,
   ): Promise<any> {
@@ -670,7 +671,7 @@ export class UserService {
    * @param api_id
    * @returns
    */
-  async get_apiuser_permission_status(api_id: string): Promise<any> {
+  async getApiUserPermissionStatus(api_id: string): Promise<any> {
     const status_apiuser_permissiom =
       await this.apiUserEntityRepository.findOne({
         where: {
@@ -743,14 +744,14 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number, token: string): Promise<any> {
+  async removeUserSession(userId: number, token: string): Promise<any> {
     return await this.userloginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
     });
   }
 
-  async hasgetUserTokenvalid(
+  async hasValidUserSession(
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
     return Boolean(await this.userloginSessionRepository.findOne(conditions));
