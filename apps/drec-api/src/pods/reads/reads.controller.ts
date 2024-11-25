@@ -35,7 +35,7 @@ import { DeviceDTO } from '../device/dto';
 import { ReadType } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import * as momentTimeZone from 'moment-timezone';
-import { filterNoOffLimit } from './dto/filter-no-off-limit.dto';
+import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
@@ -127,7 +127,7 @@ export class ReadsController extends BaseReadsController {
   /**
    * this api route use for all meter read by externalId
    * @param meterId :string
-   * @param filter {filterNoOffLimit}
+   * @param filter {FilterNoOffLimit}
    * @param pagenumber :number
    * @param month :number
    * @param year :number
@@ -148,7 +148,7 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newgetReads(
     @Param('externalId') meterId: string,
-    @Query() filter: filterNoOffLimit,
+    @Query() filter: FilterNoOffLimit,
     @Query('pagenumber') pagenumber: number | null,
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
