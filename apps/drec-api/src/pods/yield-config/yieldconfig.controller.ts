@@ -101,25 +101,17 @@ export class YieldConfigController {
           (ele) => ele.countryCode === yieldToRegister.countryCode,
         ) === undefined
       ) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
         });
       }
     } else {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message:
+          ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
       });
     }
 
