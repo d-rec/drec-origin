@@ -1,6 +1,5 @@
-import { ApiProperty, PickType, IntersectionType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
-import { OrganizationDTO } from '../../organization/dto/organization.dto';
 import {
   IsNotEmpty,
   IsString,
@@ -8,6 +7,7 @@ import {
   MaxLength,
   IsOptional,
   IsUUID,
+  IsIn,
 } from 'class-validator';
 import { UserORGRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
@@ -36,10 +36,7 @@ import { Match } from '../decorators/match.decorator';
 // }
 
 export class CreateUserORGDTO
-  extends IntersectionType(
-    PickType(UserDTO, ['firstName', 'lastName', 'email'] as const),
-    PickType(OrganizationDTO, ['organizationType'] as const),
-  )
+  extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
   implements UserORGRegistrationData
 {
   @ApiProperty({ type: String })
@@ -91,4 +88,17 @@ export class CreateUserORGDTO
 
   @IsOptional()
   orgid?: number;
+  static readonly ALLOWED_ORGANIZATION_TYPES = [
+    'Buyer',
+    'Developer',
+    'ApiUser',
+  ];
+
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(CreateUserORGDTO.ALLOWED_ORGANIZATION_TYPES, {
+    message: `organizationType value should be Developer/Buyer/ApiUser`,
+  })
+  organizationType: string;
 }
