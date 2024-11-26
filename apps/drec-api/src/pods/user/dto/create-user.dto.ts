@@ -88,6 +88,7 @@ export class CreateUserORGDTO
 
   @IsOptional()
   orgid?: number;
+
   static readonly ALLOWED_ORGANIZATION_TYPES = [
     'Buyer',
     'Developer',
@@ -97,8 +98,6 @@ export class CreateUserORGDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  @IsIn(CreateUserORGDTO.ALLOWED_ORGANIZATION_TYPES, {
-    message: `organizationType value should be Developer/Buyer/ApiUser`,
-  })
+  @IsIn(['Buyer', 'Developer', 'ApiUser'])
   organizationType: string;
 }

@@ -42,6 +42,9 @@ export class PermissionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     let user: IUser;
     user = request.user;
+    if (!user) {
+      return false;
+    }
     if (request.url.split('/')[3] === 'register') {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       if (request.body.organizationType === Role.ApiUser) {
