@@ -6,7 +6,7 @@ export class TestingController {
   constructor(private readonly testingService: TestingService) {}
 
   @Delete('clear-db')
-  async clearDatabase(): Promise<{ message: string; error?: string }> { 
+  async clearDatabase(): Promise<{ message: string; error?: string }> {
     try {
       await this.testingService.clearDatabase();
       return { message: 'Database cleared successfully' };

@@ -3,7 +3,7 @@ import { getConnection } from 'typeorm';
 
 @Injectable()
 export class TestingService {
-  async clearDatabase(): Promise<void> {  
+  async clearDatabase(): Promise<void> {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
