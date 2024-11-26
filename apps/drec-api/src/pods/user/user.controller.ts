@@ -249,10 +249,7 @@ export class UserController {
           errors: `User Not exist .`,
         });
       }
-      return this.userService.changePassword(
-        emailConfirmation.user,
-        body,
-      );
+      return this.userService.changePassword(emailConfirmation.user, body);
     }
   }
   /**

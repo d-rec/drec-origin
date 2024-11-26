@@ -155,7 +155,9 @@ describe('UserService', () => {
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newCreateUser').mockResolvedValue(orgData);
+      jest
+        .spyOn(organizationService, 'newCreateUser')
+        .mockResolvedValue(orgData);
       jest
         .spyOn(repository, 'save')
         .mockImplementation((user) =>

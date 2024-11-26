@@ -63,7 +63,7 @@ export class AuthService {
     token: string,
     payload: IJWTPayload,
   ): Promise<boolean> {
-    const session =  await this.userService.hasValidUserSession({
+    const session = await this.userService.hasValidUserSession({
       accesstoken_hash: token,
       userId: payload.id,
     });

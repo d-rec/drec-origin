@@ -251,10 +251,8 @@ export class UserService {
     }
 
     if (user.role === Role.ApiUser) {
-      const api_user = await this.getApiUserPermissionStatus(
-        user.api_user_id,
-      );
-      user['permission_status'] = api_user.permission_status;
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
@@ -564,9 +562,7 @@ export class UserService {
       });
     }
     if (user.role === Role.ApiUser) {
-      const api_user = await this.getApiUserPermissionStatus(
-        user.api_user_id,
-      );
+      const api_user = await this.getApiUserPermissionStatus(user.api_user_id);
       user['permission_status'] = api_user.permission_status;
     }
     return user;

@@ -43,9 +43,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (token && invalidToken) {
       throw new UnauthorizedException('Token revoked. Please log in again.');
     }
-    
+
     const user = await this.userService.findByEmail(payload.email);
-    
+
     return user || null;
   }
 }
