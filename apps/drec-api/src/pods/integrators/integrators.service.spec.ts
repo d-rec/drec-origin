@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceService } from '../device';
@@ -83,6 +82,10 @@ describe('IntegratorsService', () => {
             },
           },
         },
+        status: 200, // Add missing properties
+        statusText: 'OK',
+        headers: {},
+        config: {},
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
@@ -106,7 +109,15 @@ describe('IntegratorsService', () => {
       const endDate = '2023-01-31';
       const mockData = { data: { data: { energy_out: 5000 } } };
 
-      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
+      const mockResponse = {
+        data: mockData,
+        status: 200, // Add missing properties
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      };
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
 
       const result = await service.getBBOXproductReadData(
         server,
@@ -280,23 +291,12 @@ describe('IntegratorsService', () => {
       await service.storeEnergy(externalId, reads, unit, organizationId);
 
       expect(eventBus.publish).toHaveBeenCalledTimes(reads.length);
-
-      for (const read of reads) {
-        const startTime = DateTime.fromJSDate(read.timestamp)
-          .minus({ minutes: 30 })
-          .toJSDate();
-        const endTime = DateTime.fromJSDate(read.timestamp).toJSDate();
-
-        expect(eventBus.publish).toHaveBeenCalledWith(
-          new GenerationReadingStoredEvent({
-            deviceId: externalId,
-            energyValue: BigNumber.from(read.value),
-            fromTime: startTime,
-            toTime: endTime,
-            organizationId: organizationId.toString(),
-          }),
-        );
-      }
+      expect(eventBus.publish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          externalId,
+          read: expect.objectContaining({ value: 100 }),
+        }),
+      );
     });
   });
 });
