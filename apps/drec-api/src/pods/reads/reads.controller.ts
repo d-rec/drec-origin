@@ -42,6 +42,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { toTimezoneDate, toTimezoneDateFormat } from '../../transformers/timezone';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -59,6 +60,7 @@ export class ReadsController extends BaseReadsController {
   ) {
     super(baseReadsService);
   }
+
   /**
    * This api user for get all the timezone list and also from serach key
    * @param searchKeyword :string
@@ -307,6 +309,7 @@ export class ReadsController extends BaseReadsController {
       throw new HttpException('Invalid readType parameter', 400);
     }
   }
+
   /* */
 
   /**
@@ -397,128 +400,18 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    if (
-      measurements.timezone !== null &&
-      measurements.timezone !== undefined &&
-      measurements.timezone.toString().trim() !== ''
-    ) {
-      measurements.timezone = measurements.timezone.toString().trim();
+    if (measurements.timezone) {
+      measurements.reads = measurements.reads.map((read)=> ({
+        ...read,
+        starttimestamp: toTimezoneDate(read.starttimestamp, measurements.timezone),
+        endtimestamp: toTimezoneDate(read.endtimestamp, measurements.timezone)
+      }))
 
-      let dateInvalid = false;
-      measurements.reads.forEach((ele) => {
-        for (const key in ele) {
-          if (key === 'starttimestamp' || key === 'endtimestamp') {
-            if (ele[key]) {
-              const dateTimeRegex =
-                /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.{0,1}\d{0,3}$/;
-              if (ele[key].toString().includes('.')) {
-                if (
-                  Number.isNaN(
-                    parseFloat(
-                      ele[key]
-                        .toString()
-                        .substring(
-                          ele[key].toString().indexOf('.'),
-                          ele[key].toString().length,
-                        ),
-                    ),
-                  )
-                ) {
-                  this.logger.error(
-                    `Invalid date sent  ${ele[key]}` +
-                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-                  );
-                  throw new ConflictException({
-                    success: false,
-                    message:
-                      `Invalid date sent  ${ele[key]}` +
-                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-                  });
-                }
-              }
-
-              if (!dateTimeRegex.test(ele[key].toString())) {
-                dateInvalid = true;
-                this.logger.error(
-                  `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-                );
-                throw new ConflictException({
-                  success: false,
-                  message:
-                    `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-                });
-              } else {
-                const dateTime = momentTimeZone.tz(
-                  ele[key],
-                  measurements.timezone,
-                );
-                if (!dateTime.isValid()) {
-                  dateInvalid = true;
-                  this.logger.error(`Invalid date sent  ${ele[key]}`);
-                  throw new ConflictException({
-                    success: false,
-                    message: `Invalid date sent  ${ele[key]}`,
-                  });
-                } else {
-                  let milliSeondsToAddSentInRequest = '';
-                  if (
-                    ele[key].toString().includes('.') &&
-                    !isNaN(
-                      parseInt(
-                        ele[key]
-                          .toString()
-                          .substring(
-                            ele[key].toString().indexOf('.'),
-                            ele[key].toString().length,
-                          ),
-                      ),
-                    )
-                  ) {
-                    milliSeondsToAddSentInRequest = ele[key]
-                      .toString()
-                      .substring(
-                        ele[key].toString().indexOf('.'),
-                        ele[key].toString().length,
-                      );
-                  }
-                  let utcString: string = dateTime.clone().utc().format();
-
-                  if (milliSeondsToAddSentInRequest != '') {
-                    utcString =
-                      utcString.substring(0, utcString.length - 1) +
-                      milliSeondsToAddSentInRequest +
-                      'Z';
-                  } else {
-                    utcString =
-                      utcString.substring(0, utcString.length - 1) + '.000Z';
-                  }
-                  ele[key] = new Date(utcString);
-                }
-              }
-            }
-          }
-        }
-      });
-      if (dateInvalid) {
-        this.logger.error(
-          `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-        );
-        throw new ConflictException({
-          success: false,
-          message: `Invalid date please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
-        });
-      }
-      device.createdAt = momentTimeZone
-        .tz(device.createdAt, measurements.timezone)
-        .toDate();
-      device.commissioningDate = momentTimeZone
-        .tz(new Date(device?.commissioningDate), measurements.timezone)
-        .format();
+      device.createdAt = toTimezoneDate(device.createdAt, measurements.timezone);
+      device.commissioningDate = toTimezoneDateFormat(device?.commissioningDate || new Date(), measurements.timezone)
     }
 
-    //check for according to read type if start time stamp and end time stamps are sent
+      //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
       let datesContainingNullOrEmptyValues = false;
       let datevalid = true;
@@ -528,16 +421,7 @@ export class ReadsController extends BaseReadsController {
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
-        if (
-          (ele.starttimestamp instanceof Date &&
-            (ele.starttimestamp === null ||
-              ele.starttimestamp === undefined ||
-              isNaN(ele.starttimestamp.getTime()))) ||
-          (ele.endtimestamp instanceof Date &&
-            (ele.endtimestamp === null ||
-              ele.endtimestamp === undefined ||
-              isNaN(ele.endtimestamp.getTime())))
-        ) {
+        if (!ele.starttimestamp || !ele.endtimestamp) {
           datesContainingNullOrEmptyValues = true;
         }
         const startdateformate = isValidUTCDateFormat(
@@ -906,7 +790,7 @@ export class ReadsController extends BaseReadsController {
                 ) {
                   this.logger.error(
                     `Invalid date sent  ${ele[key]}` +
-                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
@@ -921,7 +805,7 @@ export class ReadsController extends BaseReadsController {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                  ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
@@ -1307,7 +1191,6 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
     @Param('externalId') externalId: string,
-
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);

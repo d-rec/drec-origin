@@ -12,8 +12,10 @@ import { ReadType } from '../../../utils/enums';
 import { Iintermediate, NewReadDTO } from '../../../models';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IsValidTimezone } from '../../../validations/timezone';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { transformTimezone } from '../../../transformers/timezone';
+import { Trim } from '../../../transformers/string';
+
 export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
@@ -46,6 +48,7 @@ export class NewIntmediateMeterReadDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Trim()
   @IsValidTimezone()
   @Transform(transformTimezone)
   timezone?: string;
@@ -61,6 +64,7 @@ export class NewIntmediateMeterReadDTO
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
   @ValidateNested()
+  @Type(() => NewReadDTO)
   reads: NewReadDTO[];
 
   @ApiProperty({ type: () => Number })
