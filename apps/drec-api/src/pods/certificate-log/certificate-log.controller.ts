@@ -88,16 +88,6 @@ export class CertificateLogController {
   async getClaimAmountInEthersJSON(
     @Query() amountFormatData: AmountFormattingDTO,
   ): Promise<string> {
-<<<<<<< HEAD
-=======
-    if (Number.isNaN(parseInt(amountFormatData.amount))) {
-      this.logger.error(`amount invalid value was sent`);
-      throw new ConflictException({
-        success: false,
-        message: 'amount invalid value was sent',
-      });
-    }
->>>>>>> develop
     this.logger.verbose(`with in getClaimAmountInEthersJSON`);
     return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(
       amountFormatData.amount,
@@ -121,16 +111,6 @@ export class CertificateLogController {
     @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-<<<<<<< HEAD
-=======
-    if (isNaN(parseInt(filterDto.groupId))) {
-      this.logger.error(`Group Id is a number, invalid value was sent`);
-      throw new ConflictException({
-        success: false,
-        message: 'Group Id is a number, invalid value was sent',
-      });
-    }
->>>>>>> develop
     return this.certificateLogService.findByGroupId(filterDto.groupId);
   }
 
@@ -153,22 +133,7 @@ export class CertificateLogController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(`With in getissueCertificate`);
-<<<<<<< HEAD
     const deviceGroup = await this.devicegroupService.findOne({
-=======
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
->>>>>>> develop
       devicegroup_uid: groupuId,
     });
 
@@ -205,23 +170,8 @@ export class CertificateLogController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
-<<<<<<< HEAD
 
     const deviceGroup = await this.devicegroupService.findOne({
-=======
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
->>>>>>> develop
       devicegroup_uid: groupuId,
     });
 
@@ -233,27 +183,8 @@ export class CertificateLogController {
           message: 'Group UId  does not  belongs to this apiuser',
         });
       }
-<<<<<<< HEAD
       return this.certificateLogService.getCertificateFromOldOrNew(
         deviceGroup.id.toString(),
-=======
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
-        devicegroup.id.toString(),
-        pageNumber,
-      );
-    } else {
-      if (devicegroup === null || devicegroup.buyerId != user.id) {
-        this.logger.error(
-          `Group UId is not of this buyer, invalid value was sent`,
-        );
-        throw new ConflictException({
-          success: false,
-          message: 'Group UId is not of this buyer, invalid value was sent',
-        });
-      }
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
-        devicegroup.id.toString(),
->>>>>>> develop
         pageNumber,
       );
     }
@@ -441,22 +372,7 @@ export class CertificateLogController {
   ): Promise<void> {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
-<<<<<<< HEAD
     const deviceGroup = await this.devicegroupService.findOne({
-=======
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
->>>>>>> develop
       devicegroup_uid: groupuId,
     });
     if (user.role === Role.ApiUser) {
