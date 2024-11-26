@@ -42,6 +42,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { OrganizationManageGuard } from '../../guards/organization-access.guard';
+
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -58,6 +59,7 @@ export class ReadsController extends BaseReadsController {
   ) {
     super(baseReadsService);
   }
+
   /**
    * This api user for get all the timezone list and also from serach key
    * @param searchKeyword :string
@@ -314,6 +316,7 @@ export class ReadsController extends BaseReadsController {
       throw new HttpException('Invalid readType parameter', 400);
     }
   }
+
   /* */
 
   /**
@@ -334,17 +337,24 @@ export class ReadsController extends BaseReadsController {
     AuthGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
-    OrganizationManageGuard,
   )
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newstoreRead(
+  public async newStoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntmediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in newstoreRead`);
+
+    if (measurements.organizationId) {
+      await this.organizationService.checkIfCanManage({
+        user,
+        organizationId: measurements.organizationId,
+      })
+    }
+
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
       return new Promise((resolve, reject) => {
@@ -402,7 +412,7 @@ export class ReadsController extends BaseReadsController {
           allTimezoneNamesLowerCase.findIndex(
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
-        ];
+          ];
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {
@@ -425,7 +435,7 @@ export class ReadsController extends BaseReadsController {
                 ) {
                   this.logger.error(
                     `Invalid date sent  ${ele[key]}` +
-                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
@@ -440,7 +450,7 @@ export class ReadsController extends BaseReadsController {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                  ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
@@ -977,7 +987,7 @@ export class ReadsController extends BaseReadsController {
           allTimezoneNamesLowerCase.findIndex(
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
-        ];
+          ];
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {
@@ -1000,7 +1010,7 @@ export class ReadsController extends BaseReadsController {
                 ) {
                   this.logger.error(
                     `Invalid date sent  ${ele[key]}` +
-                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
@@ -1015,7 +1025,7 @@ export class ReadsController extends BaseReadsController {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                  ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
@@ -1465,7 +1475,6 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
     @Param('externalId') externalId: string,
-
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);
