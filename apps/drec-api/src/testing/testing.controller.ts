@@ -1,13 +1,12 @@
 import { Controller, Delete } from '@nestjs/common';
 import { TestingService } from '../testing/testing.service';
 
-
 @Controller('testing')
 export class TestingController {
   constructor(private readonly testingService: TestingService) {}
 
   @Delete('clear-db')
-  async clearDatabase() {
+  async clearDatabase(): Promise<{ message: string; error?: string }> { 
     try {
       await this.testingService.clearDatabase();
       return { message: 'Database cleared successfully' };
