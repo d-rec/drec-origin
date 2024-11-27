@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TestingModule } from './testing/testing.module';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import * as path from 'path';
@@ -153,6 +154,7 @@ const QueueingModule = () => {
 @Module({
   imports: [
     HttpModule,
+    TestingModule,
     ConfigModule.forRoot({
       envFilePath: getEnvFilePath(),
       isGlobal: true,
