@@ -25,14 +25,16 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
+   @Transform((value, obj ) => {
+  return obj.externalId?.trim();
+  })
   @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
-  @Transform(({ value }) => value.trim())
-  externalId: string;
+externalId: string;
 
   @IsOptional()
   @IsString()
@@ -71,7 +73,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @Transform(({ value }) => value.toUpperCase())
+  @Transform((value,obj) => obj.countryCode.toUpperCase())
   @Matches(/^[A-Z]{3}$/, {
     message: 'Country code must be a valid 3-letter ISO code',
   })
@@ -107,25 +109,25 @@ export class NewDeviceDTO
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })
-  @Transform(({ value }) => parseFloat(value))
+  // @Transform(({ value }) => parseFloat(value))
   capacity: number;
 
   @ApiProperty()
+  // @Transform((value, obj) => {
+  //   const date = new Date(obj.commissioningDate);
+  //   const now = new Date();
+  //   if (date.getTime() > now.getTime()) {
+  //     throw new BadRequestException(
+  //       'Commissioning date cannot be in the future',
+  //     );
+  //   }
+  //   return date.getTime();
+  // })
   @IsString({
     message:
       'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
   })
   @IsISO8601()
-  @Transform(({ value }) => {
-    const date = new Date(value);
-    const now = new Date();
-    if (date.getTime() > now.getTime()) {
-      throw new BadRequestException(
-        'Commissioning date cannot be in the future',
-      );
-    }
-    return date.getTime();
-  })
   commissioningDate: string;
 
   @ApiProperty()
