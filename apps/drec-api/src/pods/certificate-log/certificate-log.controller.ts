@@ -88,13 +88,9 @@ export class CertificateLogController {
   ): Promise<string> {
     if (Number.isNaN(parseInt(amountFormatData.amount))) {
       this.logger.error(`amount invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'amount invalid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'amount invalid value was sent',
       });
     }
     this.logger.verbose(`with in getClaimAmountInEthersJSON`);
@@ -122,13 +118,9 @@ export class CertificateLogController {
     this.logger.verbose(`With in getByGroupId`);
     if (isNaN(parseInt(filterDto.groupId))) {
       this.logger.error(`Group Id is a number, invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group Id is a number, invalid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'Group Id is a number, invalid value was sent',
       });
     }
     return this.certificateLogService.findByGroupId(filterDto.groupId);
@@ -158,14 +150,9 @@ export class CertificateLogController {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
       });
     }
     const devicegroup = await this.devicegroupService.findOne({
@@ -176,13 +163,9 @@ export class CertificateLogController {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
       });
     }
     // setTimeout(() => {
@@ -218,14 +201,9 @@ export class CertificateLogController {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
       });
     }
     const devicegroup = await this.devicegroupService.findOne({
@@ -248,13 +226,9 @@ export class CertificateLogController {
         this.logger.error(
           `Group UId is not of this buyer, invalid value was sent`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: 'Group UId is not of this buyer, invalid value was sent',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message: 'Group UId is not of this buyer, invalid value was sent',
         });
       }
       return this.certificateLogService.getCertificateFromOldOrNewUfinction(
@@ -436,14 +410,9 @@ export class CertificateLogController {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
       });
     }
     const devicegroup = await this.devicegroupService.findOne({

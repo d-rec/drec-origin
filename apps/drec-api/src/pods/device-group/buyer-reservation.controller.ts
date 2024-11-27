@@ -398,27 +398,19 @@ export class BuyerReservationController {
       ).length !== deviceGroupToRegister.deviceIds.length
     ) {
       this.logger.error(`One or more device ids are invalid`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'One or more device ids are invalid',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'One or more device ids are invalid',
       });
     }
     if (deviceGroupToRegister.deviceIds.length == 0) {
       this.logger.error(
         `Please provide devices for reservation, deviceIds is empty atleast one device is required`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              'Please provide devices for reservation, deviceIds is empty atleast one device is required',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message:
+          'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
     }
     if (
@@ -429,14 +421,10 @@ export class BuyerReservationController {
       this.logger.error(
         `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message:
+          'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
       });
     }
 
@@ -445,14 +433,10 @@ export class BuyerReservationController {
         this.logger.error(
           `Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
         });
       }
       deviceGroupToRegister.reservationStartDate = new Date(
@@ -464,14 +448,10 @@ export class BuyerReservationController {
         this.logger.error(
           `Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
         });
       }
       deviceGroupToRegister.reservationEndDate = new Date(
@@ -483,14 +463,10 @@ export class BuyerReservationController {
         this.logger.error(
           `Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
         });
       }
       deviceGroupToRegister.reservationExpiryDate = new Date(
@@ -654,13 +630,9 @@ export class BuyerReservationController {
       });
     if (devicenextissuence === null) {
       this.logger.error(`This device groups reservation has already ended`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `This device groups reservation has already ended `,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `This device groups reservation has already ended `,
       });
     }
     if (
@@ -670,13 +642,9 @@ export class BuyerReservationController {
       this.logger.error(
         `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
       });
     }
 
@@ -960,14 +928,9 @@ export class BuyerReservationController {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: ' Please Add the valid UID ,invalid group uid value was sent',
       });
     }
 

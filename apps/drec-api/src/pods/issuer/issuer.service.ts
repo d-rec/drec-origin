@@ -437,12 +437,12 @@ export class IssuerService {
     );
   }
 
-  private async addlateongoing_devicecertificatecycle(
+  public async addlateongoing_devicecertificatecycle(
     groupId: number,
     device_externalid: string,
-    late_start_date,
-    late_end_date,
-  ) {
+    late_start_date: Date | string | DateTime,
+    late_end_date: Date | string | DateTime,
+  ): Promise<DeviceLateongoingIssueCertificateEntity> {
     const latedevicecertificatelogDto =
       new DeviceLateongoingIssueCertificateEntity();
     (latedevicecertificatelogDto.device_externalid = device_externalid),
@@ -455,7 +455,7 @@ export class IssuerService {
     );
   }
 
-  private async newissueCertificateForGroup(
+  public async newissueCertificateForGroup(
     group: DeviceGroup,
     grouprequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
@@ -836,7 +836,7 @@ export class IssuerService {
   }
   timerForHistoyIssuanceCounter = 0;
 
-  private async newHistoryissueCertificateForDevice(
+  public async newHistoryissueCertificateForDevice(
     group: DeviceGroup,
     devicehistoryrequest: HistoryIntermediate_MeterRead,
     device: IDevice,
@@ -919,7 +919,7 @@ export class IssuerService {
     return;
   }
 
-  private async handleLeftoverReadsByCountryCode(
+  public async handleLeftoverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,
     countryCodeKey: string,
@@ -946,7 +946,7 @@ export class IssuerService {
     return integralVal;
   }
 
-  private separateIntegerAndDecimalByCountryCode(num: number): {
+  public separateIntegerAndDecimalByCountryCode(num: number): {
     integralVal: number;
     decimalVal: number;
   } {
@@ -959,7 +959,7 @@ export class IssuerService {
     return { integralVal, decimalVal };
   }
 
-  private roundDecimalNumberByCountryCode(num: number): number {
+  public roundDecimalNumberByCountryCode(num: number): number {
     this.logger.verbose(`With in roundDecimalNumberByCountryCode`);
     if (num === 0) {
       return num;
@@ -968,7 +968,7 @@ export class IssuerService {
     return Math.round(num * 10 ** precision) / 10 ** precision;
   }
 
-  private async handleLeftoverReads(
+  public async handleLeftoverReads(
     group: DeviceGroup,
     totalReadValueW: number,
   ): Promise<number> {
@@ -990,7 +990,7 @@ export class IssuerService {
     return integralVal;
   }
 
-  private separateIntegerAndDecimal(num: number): {
+  public separateIntegerAndDecimal(num: number): {
     integralVal: number;
     decimalVal: number;
   } {
@@ -1003,7 +1003,7 @@ export class IssuerService {
     return { integralVal, decimalVal };
   }
 
-  private roundDecimalNumber(num: number): number {
+  public roundDecimalNumber(num: number): number {
     this.logger.verbose(`With in roundDecimalNumber`);
     if (num === 0) {
       return num;
@@ -1012,7 +1012,7 @@ export class IssuerService {
     return Math.round(num * 10 ** precision) / 10 ** precision;
   }
 
-  private async getDeviceFullReadsWithTimestampAndValueAsArray(
+  public async getDeviceFullReadsWithTimestampAndValueAsArray(
     meterId: string,
     filter: FilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
@@ -1055,7 +1055,9 @@ export class IssuerService {
     this.issueCertificate(reading);
   }
 
-  private issueCertificate(reading: IIssueCommandParams<ICertificateMetadata>) {
+  public issueCertificate(
+    reading: IIssueCommandParams<ICertificateMetadata>,
+  ): void {
     this.logger.log(`Issuing a certificate for reading`);
     this.offChainCertificateService.issue(reading);
   }
@@ -1232,7 +1234,7 @@ export class IssuerService {
     }
   }
 
-  private async LateOngoingissueCertificateForGroup(
+  public async LateOngoingissueCertificateForGroup(
     group: DeviceGroup,
     startDate: DateTime,
     endDate: DateTime,
