@@ -69,7 +69,7 @@ describe('UserService', () => {
           provide: OrganizationService,
           useValue: {
             isNameAlreadyTaken: jest.fn(),
-            newcreate: jest.fn(),
+            newCreateUser: jest.fn(),
           } as any,
         },
         {
@@ -107,7 +107,7 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('newcreate', () => {
+  describe('newCreateUser', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
       const userData: CreateUserORGDTO = {
         firstName: 'test',
@@ -155,14 +155,16 @@ describe('UserService', () => {
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newcreate').mockResolvedValue(orgData);
+      jest
+        .spyOn(organizationService, 'newCreateUser')
+        .mockResolvedValue(orgData);
       jest
         .spyOn(repository, 'save')
         .mockImplementation((user) =>
           Promise.resolve(user as DeepPartial<User> & User),
         );
 
-      const result = await service.newcreate(userData);
+      const result = await service.newCreateUser(userData);
 
       expect(result).toBeDefined();
       expect(service.checkForExistingUser).toHaveBeenCalledWith(
@@ -174,7 +176,7 @@ describe('UserService', () => {
       expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(
         userData.orgName,
       );
-      expect(organizationService.newcreate).toHaveBeenCalledWith(
+      expect(organizationService.newCreateUser).toHaveBeenCalledWith(
         expect.objectContaining({
           name: userData.orgName,
           organizationType: userData.organizationType,
@@ -268,13 +270,13 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.newcreate(userData)).rejects.toThrowError(
+      await expect(service.newCreateUser(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
   });
 
-  describe('adminnewcreate', () => {
+  describe('createUserByAdmin', () => {
     it('should throw a ConflictException if organization name already exists', async () => {
       const isNameAlreadyTakenSpy = jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
@@ -345,7 +347,7 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.adminnewcreate(userData)).rejects.toThrowError(
+      await expect(service.createUserByAdmin(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
@@ -592,7 +594,7 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockuserEntity);
       const permission_statusSpy = jest
-        .spyOn(service, 'get_apiuser_permission_status')
+        .spyOn(service, 'getApiUserPermissionStatus')
         .mockResolvedValue(mockApiUserEntity);
       jest
         .spyOn(apiUserEntityRepository, 'findOne')

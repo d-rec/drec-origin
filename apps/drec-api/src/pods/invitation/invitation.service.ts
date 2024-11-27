@@ -156,7 +156,7 @@ export class InvitationService {
 
     inviteuser.api_user_id = organization.api_user_id;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const newUser = await this.userService.newcreate(
+    const newUser = await this.userService.newCreateUser(
       inviteuser,
       UserStatus.Pending,
       true,
@@ -164,7 +164,7 @@ export class InvitationService {
 
     if (sender.role !== Role.ApiUser) {
       console.log('inviteuser:', inviteuser, 'lowerCaseEmail:', lowerCaseEmail);
-      await this.userService.sentinvitiontoUser(inviteuser, lowerCaseEmail);
+      await this.userService.sendUserInvitation(inviteuser, lowerCaseEmail);
     }
   }
 
