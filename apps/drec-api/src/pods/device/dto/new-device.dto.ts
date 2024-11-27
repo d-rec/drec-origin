@@ -109,7 +109,7 @@ export class NewDeviceDTO
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })
-  @Transform((value,obj ) => parseFloat(obj.capacity))
+  @Transform((value, obj) => parseFloat(obj.capacity))
   capacity: number;
 
   @ApiProperty()
