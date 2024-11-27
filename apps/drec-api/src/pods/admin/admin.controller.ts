@@ -181,7 +181,7 @@ export class AdminController {
     @UserDecorator() { api_user_id }: LoggedInUser,
   ): Promise<UserDTO> {
     newUser.api_user_id = api_user_id;
-    return await this.userService.adminnewcreate(newUser);
+    return await this.userService.createUserByAdmin(newUser);
   }
 
   @Post('/seed/users')
@@ -321,7 +321,7 @@ export class AdminController {
       throw new NotFoundException('Does not exist');
     }
     const manyotheruserinorg =
-      await this.userService.getatleastoneotheruserinOrg(
+      await this.userService.getAnotherUserInOrganization(
         user.organization.id,
         user.id,
       );
