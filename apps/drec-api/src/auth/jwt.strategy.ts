@@ -36,17 +36,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const token = (
       request.headers as { authorization?: string }
     ).authorization?.split(' ')[1];
-    const tokeninvalidate = await this.authService.isTokenBlacklisted(
+    const invalidToken = await this.authService.isTokenBlacklisted(
       token,
       payload,
     );
-    if (token && !tokeninvalidate) {
+    if (token && invalidToken) {
       throw new UnauthorizedException('Token revoked. Please log in again.');
     }
+
     const user = await this.userService.findByEmail(payload.email);
-    if (user) {
-      return user;
-    }
-    return null;
+
+    return user || null;
   }
 }

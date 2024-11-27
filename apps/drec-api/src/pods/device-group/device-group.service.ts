@@ -108,7 +108,7 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<
+    private readonly certificateReadModuleRepository: Repository<
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,
@@ -2241,10 +2241,10 @@ export class DeviceGroupService {
     });
   }
 
-  public async countgroupIdHistoryissuanceDevicelog(
+  public async countGroupIdHistoryIssuanceDeviceLog(
     groupId: number,
   ): Promise<number> {
-    this.logger.verbose(`With in countgroupIdHistoryissuanceDevicelog`);
+    this.logger.verbose(`With in countGroupIdHistoryIssuanceDeviceLog`);
     const count = await this.historynextissuancedaterepository.count({
       where: {
         groupId: groupId,
@@ -2281,11 +2281,11 @@ export class DeviceGroupService {
       (await this.historynextissuancedaterepository.findOne(conditions)) ?? null
     );
   }
-  async HistoryUpdatecertificateissuedate(
+  async updateHistoryCertificateIssueDate(
     id: number,
     Status: HistoryNextInssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in HistoryUpdatecertificateissuedate`);
+    this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
     const historynextdate = await this.getHistoryCertificateIssueDate({
       id: id,
     });

@@ -51,8 +51,8 @@ describe('InvitationService', () => {
           provide: UserService,
           useValue: {
             findByEmail: jest.fn(),
-            newcreate: jest.fn(),
-            sentinvitiontoUser: jest.fn(),
+            newCreateUser: jest.fn(),
+            sendUserInvitation: jest.fn(),
             addToOrganization: jest.fn(),
             changeRole: jest.fn(),
           } as any,
@@ -229,10 +229,10 @@ describe('InvitationService', () => {
           return value;
         });
       const newcreatespy = jest
-        .spyOn(userService, 'newcreate')
+        .spyOn(userService, 'newCreateUser')
         .mockResolvedValue(mockinvitedUser as any);
       const sendInvitationSpy = jest
-        .spyOn(userService, 'sentinvitiontoUser')
+        .spyOn(userService, 'sendUserInvitation')
         .mockResolvedValue({
           message: 'Invitation sent successfully',
           success: true,
@@ -449,10 +449,10 @@ describe('InvitationService', () => {
         .spyOn(invitationRepository, 'save')
         .mockResolvedValue(savedinvitedUser as any);
       const newcreatespy = jest
-        .spyOn(userService, 'newcreate')
+        .spyOn(userService, 'newCreateUser')
         .mockResolvedValue(mockinvitedUser as any);
       const sendInvitationSpy = jest
-        .spyOn(userService, 'sentinvitiontoUser')
+        .spyOn(userService, 'sendUserInvitation')
         .mockResolvedValue({
           message: 'Invitation sent successfully',
           success: true,

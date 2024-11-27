@@ -6,6 +6,7 @@ import {
   Logger,
   NotFoundException,
   InternalServerErrorException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
@@ -27,6 +28,7 @@ import { defaults } from 'lodash';
 import { Contracts } from '@energyweb/issuer';
 import {
   IFullOrganization,
+  ILoggedInUser,
   isRole,
   ISuccessResponse,
   IUser,
@@ -41,6 +43,7 @@ import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
 import { FileService } from '../file';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
+import { canManageOrganization } from '../../lib/organization';
 
 @Injectable()
 export class OrganizationService {
@@ -184,6 +187,7 @@ export class OrganizationService {
       totalCount,
     };
   }
+
   public async findApiuserOrganizationUsers(
     apiuser_id: string,
     pageNumber: number,
@@ -210,6 +214,7 @@ export class OrganizationService {
       totalCount,
     };
   }
+
   async seed(organizationToRegister: IFullOrganization): Promise<Organization> {
     this.logger.debug(
       `Requested organization registration ${JSON.stringify(
@@ -288,10 +293,10 @@ export class OrganizationService {
     return stored;
   }
 
-  public async newcreate(
+  public async newCreateUser(
     organizationToRegister: NewAddOrganizationDTO,
   ): Promise<Organization> {
-    this.logger.verbose('With in newcreate');
+    this.logger.verbose('With in newCreateUser');
     this.logger.debug(
       ` requested organization registration ${JSON.stringify(
         organizationToRegister.name,
@@ -507,22 +512,6 @@ export class OrganizationService {
     return this.fileService.isOwner(user, documentIds);
   }
 
-  // private async checkForExistingorg(email: string): Promise<void> {
-  //   const isExistingUser = await this.hasorg({ email });
-  //   if (isExistingUser) {
-  //     const message = `User with email ${email} already exists`;
-
-  //     this.logger.error(message);
-  //     throw new ConflictException({
-  //       success: false,
-  //       message,
-  //     });
-  //   }
-  // }
-  // private async hasorg(conditions: FindConditions<Organization>) {
-  //   return Boolean(await this.findOne(conditions));
-  // }
-
   public async getFilteredQuery(
     filterDto: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
@@ -545,5 +534,32 @@ export class OrganizationService {
       );
     }
     return query;
+  }
+
+  public async checkIfCanManage({
+    user,
+    organizationId,
+  }: {
+    user: ILoggedInUser;
+    organizationId: number;
+  }): Promise<boolean> {
+    const organization = await this.findOne(organizationId);
+    const organizationAdmin = await this.userService.findByEmail(
+      organization.orgEmail,
+    );
+
+    const hasAccess = canManageOrganization({
+      user,
+      organizationAdmin,
+      organization,
+    });
+
+    if (!hasAccess) {
+      throw new ForbiddenException(
+        `User doesn't have the right permission for this organization`,
+      );
+    }
+
+    return true;
   }
 }
