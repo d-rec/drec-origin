@@ -412,7 +412,10 @@ export class ReadsController extends BaseReadsController {
         ),
         endtimestamp: toTimezoneDate(read.endtimestamp, measurements.timezone),
       }));
-
+      console.log(
+        'measssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
+        measurements.reads,
+      );
       device.createdAt = toTimezoneDate(
         device.createdAt,
         measurements.timezone,
@@ -779,7 +782,23 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-
+      if (measurements.timezone) {
+        measurements.reads = measurements.reads.map((read) => ({
+          ...read,
+          starttimestamp: toTimezoneDate(
+            read.starttimestamp,
+            measurements.timezone,
+          ),
+          endtimestamp: toTimezoneDate(
+            read.endtimestamp,
+            measurements.timezone,
+          ),
+        }));
+      }
+      console.log(
+        'meassssssssssssss2222222222222222222222222222222222222222',
+        measurements.reads,
+      );
       device.createdAt = momentTimeZone
         .tz(device.createdAt, measurements.timezone)
         .toDate();
