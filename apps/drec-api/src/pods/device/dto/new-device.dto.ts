@@ -15,7 +15,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
-import { BadRequestException } from '@nestjs/common';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 
 export class NewDeviceDTO
@@ -26,8 +25,8 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
-   @Transform((value, obj ) => {
-  return obj.externalId?.trim();
+  @Transform((value, obj) => {
+    return obj.externalId?.trim();
   })
   @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
@@ -35,7 +34,7 @@ export class NewDeviceDTO
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
-externalId: string;
+  externalId: string;
 
   @IsOptional()
   @IsString()
@@ -74,7 +73,7 @@ externalId: string;
 
   @ApiProperty()
   @IsString()
-  @Transform((value,obj) => obj.countryCode.toUpperCase())
+  @Transform((value, obj) => obj.countryCode.toUpperCase())
   @Matches(/^[A-Z]{3}$/, {
     message: 'Country code must be a valid 3-letter ISO code',
   })
@@ -124,11 +123,11 @@ externalId: string;
   //   }
   //   return date.getTime();
   // })
-  @IsString({
+  @IsString()
+  @IsISO8601({
     message:
       'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
   })
-  @IsISO8601()
   @IsValidCommissioningDate()
   commissioningDate: string;
 
