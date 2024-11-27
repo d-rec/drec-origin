@@ -88,12 +88,6 @@ export class CreateUserORGDTO
   @IsOptional()
   orgid?: number;
 
-  static readonly ALLOWED_ORGANIZATION_TYPES = [
-    'Buyer',
-    'Developer',
-    'ApiUser',
-  ];
-
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
