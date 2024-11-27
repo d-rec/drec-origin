@@ -5,7 +5,8 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  InternalServerErrorException, ForbiddenException,
+  InternalServerErrorException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
@@ -541,7 +542,7 @@ export class OrganizationService {
   }: {
     user: ILoggedInUser;
     organizationId: number;
-  }) {
+  }): Promise<boolean> {
     const organization = await this.findOne(organizationId);
     const organizationAdmin = await this.userService.findByEmail(
       organization.orgEmail,
@@ -553,7 +554,10 @@ export class OrganizationService {
       organization,
     });
 
-    if(!hasAccess) throw new ForbiddenException(`User doesn't have the right permission for this organization`)
+    if (!hasAccess)
+      throw new ForbiddenException(
+        `User doesn't have the right permission for this organization`,
+      );
 
     return true;
   }

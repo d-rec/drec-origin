@@ -41,7 +41,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { OrganizationManageGuard } from '../../guards/organization-access.guard';
+`  `;
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -352,7 +352,7 @@ export class ReadsController extends BaseReadsController {
       await this.organizationService.checkIfCanManage({
         user,
         organizationId: measurements.organizationId,
-      })
+      });
     }
 
     if (id.trim() === '' && id.trim() === undefined) {
@@ -412,7 +412,7 @@ export class ReadsController extends BaseReadsController {
           allTimezoneNamesLowerCase.findIndex(
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
-          ];
+        ];
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {
@@ -435,7 +435,7 @@ export class ReadsController extends BaseReadsController {
                 ) {
                   this.logger.error(
                     `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
@@ -450,7 +450,7 @@ export class ReadsController extends BaseReadsController {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
-                  ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
@@ -987,7 +987,7 @@ export class ReadsController extends BaseReadsController {
           allTimezoneNamesLowerCase.findIndex(
             (ele) => ele === measurements.timezone.toLowerCase(),
           )
-          ];
+        ];
       let dateInvalid = false;
       measurements.reads.forEach((ele) => {
         for (const key in ele) {
@@ -1010,7 +1010,7 @@ export class ReadsController extends BaseReadsController {
                 ) {
                   this.logger.error(
                     `Invalid date sent  ${ele[key]}` +
-                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                      ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                   );
                   throw new ConflictException({
                     success: false,
@@ -1025,7 +1025,7 @@ export class ReadsController extends BaseReadsController {
                 dateInvalid = true;
                 this.logger.error(
                   `Invalid date sent  ${ele[key]}` +
-                  ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
+                    ` please sent valid date, format for dates is YYYY-MM-DD hh:mm:ss example 2020-02-19 19:20:55 or to include milliseconds add dot and upto 3 digits after seconds example 2020-02-19 19:20:55.2 or 2020-02-19 19:20:54.333`,
                 );
                 throw new ConflictException({
                   success: false,
