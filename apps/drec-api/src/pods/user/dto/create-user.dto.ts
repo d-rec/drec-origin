@@ -6,8 +6,7 @@ import {
   Matches,
   MaxLength,
   IsOptional,
-  IsUUID,
-  IsIn,
+  IsUUID
 } from 'class-validator';
 import { UserORGRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
@@ -98,6 +97,5 @@ export class CreateUserORGDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  @IsIn(['Buyer', 'Developer', 'ApiUser'])
   organizationType: string;
 }
