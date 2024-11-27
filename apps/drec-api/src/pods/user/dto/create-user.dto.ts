@@ -6,7 +6,7 @@ import {
   Matches,
   MaxLength,
   IsOptional,
-  IsUUID
+  IsUUID,
 } from 'class-validator';
 import { UserORGRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
