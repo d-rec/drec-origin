@@ -435,7 +435,6 @@ export class DeviceController {
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    console.log(deviceToRegister);
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');

@@ -109,20 +109,10 @@ export class NewDeviceDTO
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })
-  // @Transform(({ value }) => parseFloat(value))
+  @Transform((value,obj ) => parseFloat(obj.capacity))
   capacity: number;
 
   @ApiProperty()
-  // @Transform((value, obj) => {
-  //   const date = new Date(obj.commissioningDate);
-  //   const now = new Date();
-  //   if (date.getTime() > now.getTime()) {
-  //     throw new BadRequestException(
-  //       'Commissioning date cannot be in the future',
-  //     );
-  //   }
-  //   return date.getTime();
-  // })
   @IsString()
   @IsISO8601({
     message:
