@@ -1,59 +1,61 @@
 import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
-  ConflictException,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import {
-  Repository,
   Brackets,
-  SelectQueryBuilder,
   FindConditions,
+  Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
 
-import axios from 'axios';
 import {
   Aggregate,
   AggregatedReadDTO,
   AggregateFilterDTO,
+  ReadsService as BaseReadsService,
+  FilterDTO,
   MeasurementDTO,
   ReadDTO,
-  FilterDTO,
-  ReadsService as BaseReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { DeviceService } from '../device/device.service';
-import { OrganizationService } from '../organization/organization.service';
-import { DateTime } from 'luxon';
-import { BASE_READ_SERVICE } from './const';
+import { InfluxDB, Point, QueryApi } from '@influxdata/influxdb-client';
 import { EventBus } from '@nestjs/cqrs';
-import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { BigNumber } from 'ethers';
-import { DeviceDTO } from '../device/dto';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
-import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { IAggregateintermediate } from '../../models';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeltaFirstRead } from './delta_firstread.entity';
+import axios from 'axios';
+import { BigNumber } from 'ethers';
+import { flattenDeep, groupBy, mean, sum, values } from 'lodash';
+import { DateTime } from 'luxon';
+import { convertToWh } from 'src/utils/convert-to-power-units';
+import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
+import { writePoints } from '../../lib/influx-db';
+import { IAggregateintermediate } from '../../models';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { InfluxDB, QueryApi } from '@influxdata/influxdb-client';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceService } from '../device/device.service';
+import { DeviceDTO } from '../device/dto';
+import { OrganizationService } from '../organization/organization.service';
+import { AggregateMeterRead } from './aggregate_readvalue.entity';
+import { BASE_READ_SERVICE } from './const';
+import { DeltaFirstRead } from './delta_firstread.entity';
 import {
-  filterNoOffLimit,
-  accumulationType, // eslint-disable-line @typescript-eslint/no-unused-vars
+  FilterNoOffLimit,
+  AccumulationType,
 } from './dto/filter-no-off-limit.dto';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
+import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -76,7 +78,7 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
   ) {
-    const url = process.env.INFLUXDB_URL;
+    const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
@@ -122,6 +124,22 @@ export class ReadsService {
     );
 
     return aggregatedReads;
+  }
+  async storeFailedReads(
+    meterId: string,
+    read: number,
+    timeStamp: Date,
+    unit: Unit,
+  ): Promise<void> {
+    const readInWh = convertToWh(read, unit);
+
+    const points: Point[] = [
+      new Point('failed_reads')
+        .tag('meter', meterId)
+        .intField('read', readInWh)
+        .timestamp(new Date(timeStamp)),
+    ];
+    await writePoints(points);
   }
 
   public async storeRead(
@@ -179,7 +197,6 @@ export class ReadsService {
   }
 
   private async store(id: string, measurements: MeasurementDTO): Promise<void> {
-    console.log(id);
     return await this.baseReadsService.store(id, measurements);
   }
 
@@ -393,12 +410,16 @@ export class ReadsService {
           this.logger.verbose('historyAge');
 
           if (checkhistroyreading) {
-            return reject(
-              new ConflictException({
-                success: false,
-                message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
-              }),
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+              measurement.unit,
             );
+            throw new ConflictException({
+              success: false,
+              message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
+            });
           }
 
           if (
@@ -411,6 +432,12 @@ export class ReadsService {
             requestcurrentend >=
               DateTime.fromISO(new Date(device?.createdAt).toISOString())
           ) {
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+              measurement.unit,
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -438,6 +465,12 @@ export class ReadsService {
             });
           } else {
             this.logger.verbose('436');
+            this.storeFailedReads(
+              device.externalId,
+              element.value,
+              element.endtimestamp,
+              measurement.unit,
+            );
             return reject(
               new ConflictException({
                 success: false,
@@ -456,19 +489,23 @@ export class ReadsService {
       };
     } else if (measurement.type === 'Delta') {
       if (!final) {
-        await new Promise((resolve, reject) => {
+        await new Promise((resolve) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
             if (final && final['timestamp']) {
               if (
                 new Date(element.endtimestamp).getTime() <
                 new Date(final.timestamp).getTime()
               ) {
-                return reject(
-                  new ConflictException({
-                    success: false,
-                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
-                  }),
+                this.storeFailedReads(
+                  device.externalId,
+                  element.value,
+                  element.endtimestamp,
+                  measurement.unit,
                 );
+                throw new ConflictException({
+                  success: false,
+                  message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
+                });
               }
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -518,12 +555,16 @@ export class ReadsService {
                   new Date(element.endtimestamp).getTime() <
                   new Date(final.timestamp).getTime()
                 ) {
-                  return reject(
-                    new ConflictException({
-                      success: false,
-                      message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
-                    }),
+                  this.storeFailedReads(
+                    device.externalId,
+                    element.value,
+                    element.endtimestamp,
+                    measurement.unit,
                   );
+                  throw new ConflictException({
+                    success: false,
+                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
+                  });
                 }
               }
 
@@ -574,12 +615,16 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
-                return reject(
-                  new ConflictException({
-                    success: false,
-                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
-                  }),
+                this.storeFailedReads(
+                  device.externalId,
+                  element.value,
+                  element.endtimestamp,
+                  measurement.unit,
                 );
+                throw new ConflictException({
+                  success: false,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                });
               }
 
               const read: ReadDTO = {
@@ -660,12 +705,10 @@ export class ReadsService {
                   new Date(lastvalue[0].datetime).getTime() ||
                 element.value <= lastvalue[0].value
               ) {
-                return reject(
-                  new ConflictException({
-                    success: false,
-                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
-                  }),
-                );
+                throw new ConflictException({
+                  success: false,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                });
               }
 
               const read: ReadDTO = {
@@ -1211,7 +1254,7 @@ export class ReadsService {
   timeOffset: any;
   async getAllRead(
     externalId: string,
-    filter: filterNoOffLimit,
+    filter: FilterNoOffLimit,
     deviceOnboarded: Date,
     pageNumber: number,
   ): Promise<any> {
@@ -1505,7 +1548,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     meter: string,
     organizationId: number,
     developerExternalId: string,
-    accumulationType: accumulationType,
+    accumulationType: AccumulationType,
     month: number,
     year: number,
   ): Promise<{

@@ -132,13 +132,9 @@ export class UserController {
       userRegistrationData.organizationType === null ||
       userRegistrationData.organizationType === undefined
     ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `organizationType should not be empty`,
       });
     }
     if (
@@ -149,23 +145,15 @@ export class UserController {
       userRegistrationData.organizationType.toLowerCase() !=
         'ApiUser'.toLowerCase()
     ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer/ApiUser`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `organizationType value should be Developer/Buyer/ApiUser`,
       });
     }
     if (userRegistrationData.orgName.trim() === '') {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `orgName should not be empty`,
       });
     }
     if (!userRegistrationData.api_user_id) {
