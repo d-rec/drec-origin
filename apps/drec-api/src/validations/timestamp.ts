@@ -6,17 +6,22 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import moment from 'moment';
-import * as momentTimeZone from 'moment-timezone';
 
-const supportedFormats = ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD HH:mm:ss.SSS', 'YYYY-MM-DD HH:mm:ss.SS', 'YYYY-MM-DD HH:mm:ss.S'];
-
-
+const supportedFormats = [
+  'YYYY-MM-DD HH:mm:ss',
+  'YYYY-MM-DD HH:mm:ss.SSS',
+  'YYYY-MM-DD HH:mm:ss.SS',
+  'YYYY-MM-DD HH:mm:ss.S',
+];
 
 @ValidatorConstraint({ async: false })
 export class IsValidTimestampConstraint
-  implements ValidatorConstraintInterface {
-  validate(value: string, args: ValidationArguments): boolean {
-    return supportedFormats.some((format)=> moment(value, format, true).isValid())
+  implements ValidatorConstraintInterface
+{
+  validate(value: string): boolean {
+    return supportedFormats.some((format) =>
+      moment(value, format, true).isValid(),
+    );
   }
 
   defaultMessage(args: ValidationArguments): string {
@@ -25,7 +30,7 @@ export class IsValidTimestampConstraint
 }
 
 export function IsTimestamp(validationOptions?: ValidationOptions) {
-  return function(object: Record<string, any>, propertyName: string): void {
+  return function (object: Record<string, any>, propertyName: string): void {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,

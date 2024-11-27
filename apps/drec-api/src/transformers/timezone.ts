@@ -10,18 +10,20 @@ export const transformTimezone = (value?: string): string | null => {
   return index >= 0 ? allTimezones[index] : value;
 };
 
-export const toTimezoneDate = (date: string | Date | null | undefined, timezone: string) => {
-  if(!date) return null;
+export const toTimezoneDate = (
+  date: string | Date | null | undefined,
+  timezone: string,
+): Date | null => {
+  if (!date) return null;
 
-  return momentTimeZone
-    .tz(date, timezone)
-    .toDate();
+  return momentTimeZone.tz(date, timezone).toDate();
 };
 
-export const toTimezoneDateFormat = (date: string | Date | null | undefined, timezone: string) => {
-  if(!date) return null;
+export const toTimezoneDateFormat = (
+  date: string | Date | null | undefined,
+  timezone: string,
+): string | null => {
+  if (!date) return null;
 
-  return momentTimeZone
-    .tz(date, timezone)
-    .format();
+  return momentTimeZone.tz(date, timezone).format();
 };

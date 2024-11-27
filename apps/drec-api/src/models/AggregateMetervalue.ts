@@ -1,5 +1,5 @@
 import { Unit } from '@energyweb/energy-api-influxdb';
-import { IsDate, IsEmpty, IsOptional, IsPositive } from 'class-validator';
+import { IsOptional, IsPositive } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsTimestamp } from '../validations/timestamp';
 import { ConvertToNullIfEmpty } from '../transformers/string';
