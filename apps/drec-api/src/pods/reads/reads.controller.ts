@@ -46,7 +46,6 @@ import {
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
 
-
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('meter-reads')
@@ -746,15 +745,19 @@ export class ReadsController extends BaseReadsController {
       measurements.timezone.toString().trim() !== ''
     ) {
       measurements.timezone = measurements.timezone.toString().trim();
-          if (measurements.timezone) {
-      measurements.reads = measurements.reads.map((read) => ({
-        ...read,
-        starttimestamp: toTimezoneDate(
-          read.starttimestamp,
-          measurements.timezone,
-        ),
-        endtimestamp: toTimezoneDate(read.endtimestamp, measurements.timezone),
-      }));}
+      if (measurements.timezone) {
+        measurements.reads = measurements.reads.map((read) => ({
+          ...read,
+          starttimestamp: toTimezoneDate(
+            read.starttimestamp,
+            measurements.timezone,
+          ),
+          endtimestamp: toTimezoneDate(
+            read.endtimestamp,
+            measurements.timezone,
+          ),
+        }));
+      }
       device.createdAt = momentTimeZone
         .tz(device.createdAt, measurements.timezone)
         .toDate();
