@@ -554,10 +554,11 @@ export class OrganizationService {
       organization,
     });
 
-    if (!hasAccess)
+    if (!hasAccess) {
       throw new ForbiddenException(
         `User doesn't have the right permission for this organization`,
       );
+    }
 
     return true;
   }
