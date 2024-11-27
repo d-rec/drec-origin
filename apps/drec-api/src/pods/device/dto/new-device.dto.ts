@@ -16,6 +16,7 @@ import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { BadRequestException } from '@nestjs/common';
+import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 
 export class NewDeviceDTO
   implements
@@ -128,6 +129,7 @@ externalId: string;
       'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
   })
   @IsISO8601()
+  @IsValidCommissioningDate()
   commissioningDate: string;
 
   @ApiProperty()
