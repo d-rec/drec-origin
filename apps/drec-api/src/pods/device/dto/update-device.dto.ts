@@ -31,13 +31,12 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @Trim()
-  @IsString({message: "externalId should not be empty"})
+  @IsString({ message: 'externalId should not be empty' })
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
   externalId: string;
-
 
   @IsOptional()
   @IsString()
@@ -78,7 +77,10 @@ export class UpdateDeviceDTO
   @Transform((value, obj) => obj.countryCode.toUpperCase())
   @IsOptional()
   @IsString()
-  @Length(3, 3, { message: 'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"' })
+  @Length(3, 3, {
+    message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  })
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })

@@ -53,7 +53,6 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { countryCodesList } from '../../models/country-code';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import {
   DeviceCsvFileProcessingJobsEntity,
@@ -481,8 +480,10 @@ export class DeviceController {
   ): Promise<DeviceDTO> {
     console.log(deviceToUpdate);
     this.logger.verbose(`With in update`);
-    const org = await this.organizationService.findOne(deviceToUpdate.organizationId);
-    console.log(org)
+    const org = await this.organizationService.findOne(
+      deviceToUpdate.organizationId,
+    );
+    console.log(org);
     if (user.role === Role.ApiUser) {
       if (
         user.api_user_id != org.api_user_id ||
@@ -495,7 +496,7 @@ export class DeviceController {
         });
       }
       user.organizationId = deviceToUpdate.organizationId;
-      console.log(user.organizationId)
+      console.log(user.organizationId);
     }
 
     if (user.role != Role.Admin && user.organizationId != org.id) {
@@ -509,7 +510,7 @@ export class DeviceController {
     if (user.role === Role.Admin) {
       user.organizationId = deviceToUpdate.organizationId;
     }
-    
+
     if (deviceToUpdate.externalId) {
       const checkexternalid =
         await this.deviceService.findDeviceByDeveloperExternalId(
@@ -543,7 +544,7 @@ export class DeviceController {
           message:
             ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
         });
-      } 
+      }
     }
 
     if (deviceToUpdate.commissioningDate) {
