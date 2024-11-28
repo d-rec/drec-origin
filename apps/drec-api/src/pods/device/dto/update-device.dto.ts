@@ -15,6 +15,7 @@ import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
+import { Trim } from '../../../transformers/trim-string';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -29,7 +30,7 @@ export class UpdateDeviceDTO
 {
   @ApiProperty()
   @IsOptional()
-  @Transform((value, obj) => obj.externalId?.trim())
+  @Trim()
   @IsString({message: "externalId should not be empty"})
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
@@ -185,6 +186,5 @@ export class UpdateDeviceDTO
   @IsOptional()
   IREC_ID?: string;
 
-  @IsOptional()
   organizationId?: number;
 }

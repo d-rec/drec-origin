@@ -16,6 +16,7 @@ import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
+import { Trim } from '../../../transformers/trim-string';
 
 export class NewDeviceDTO
   implements
@@ -25,7 +26,7 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
-  @Transform((value, obj) => obj.externalId?.trim())
+  @Trim()
   @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
@@ -191,7 +192,7 @@ export class NewDeviceDTO
   @ApiProperty({ default: '1.0' })
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim() || '')
+  @Trim()
   @ValidateIf((o) => o.version === null || o.version === undefined)
   version = '1.0';
 
