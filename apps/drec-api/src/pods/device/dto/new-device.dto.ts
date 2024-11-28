@@ -25,9 +25,7 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
-  @Transform((value, obj) => {
-    return obj.externalId?.trim();
-  })
+  @Transform((value, obj) => obj.externalId?.trim())
   @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
