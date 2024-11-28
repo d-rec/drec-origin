@@ -6,11 +6,15 @@ import {
   IsNumber,
   IsOptional,
   Matches,
+  IsISO8601,
+  Min,
+  Length,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -25,12 +29,14 @@ export class UpdateDeviceDTO
 {
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @Transform((value, obj) => obj.externalId?.trim())
+  @IsString({message: "externalId should not be empty"})
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
-  externalId?: string;
+  externalId: string;
+
 
   @IsOptional()
   @IsString()
@@ -68,14 +74,12 @@ export class UpdateDeviceDTO
   longitude: string;
 
   @ApiProperty()
+  @Transform((value, obj) => obj.countryCode.toUpperCase())
   @IsOptional()
   @IsString()
+  @Length(3, 3, { message: 'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"' })
   countryCode: string;
 
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsNumber()
-  // zipCode: string;
   @ApiProperty({ default: 'ES100' })
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
@@ -91,19 +95,24 @@ export class UpdateDeviceDTO
   @IsOptional()
   deviceTypeCode: DevicetypeCode;
 
-  // @ApiProperty()
-  // @IsEnum(Installation)
-  // @IsOptional()
-  // installationConfiguration: Installation;
-
   @ApiProperty()
   @IsNumber()
   @IsOptional()
+  @Min(0, {
+    message:
+      'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
+  })
+  @Transform((value, obj) => parseFloat(obj.capacity))
   capacity: number;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsISO8601({
+    message:
+      'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
+  })
+  @IsValidCommissioningDate()
   commissioningDate: string;
 
   @ApiProperty()

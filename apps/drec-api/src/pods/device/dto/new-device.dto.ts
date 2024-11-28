@@ -45,7 +45,6 @@ export class NewDeviceDTO
   projectName: string;
 
   @ApiProperty()
-  // @IsOptional()
   @IsString({
     message: 'Address must be added',
   })
@@ -53,7 +52,6 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  // @IsOptional()
   @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
     message:
       'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
@@ -66,7 +64,6 @@ export class NewDeviceDTO
     message:
       'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
   })
-  // @IsOptional()
   longitude: string;
 
   @ApiProperty()
@@ -77,16 +74,10 @@ export class NewDeviceDTO
   })
   countryCode: string;
 
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsString()
-  // zipCode: string;
-
   @ApiProperty({ default: 'ES100' })
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
-  // @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
@@ -94,12 +85,7 @@ export class NewDeviceDTO
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-  // @IsOptional()
   deviceTypeCode: DevicetypeCode;
-
-  // @ApiProperty()
-  // @IsEnum(Installation)
-  // installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
