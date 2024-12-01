@@ -36,9 +36,9 @@ services:
 
   drec-origin-backend:
     container_name: drec-origin-backend
-    build: projects/drec-origin # Adjust path to backend Dockerfile
+    build: ./projects/drec-origin
     ports:
-      - "3040:3040" # Map backend port
+      - "3040:3040" 
     environment:
       DB_HOST: drec-postgres
       DB_PORT: 5432
