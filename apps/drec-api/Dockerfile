@@ -4,20 +4,23 @@ FROM node:20-alpine AS builder
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package files
-COPY package*.json ./
+# Install pnpm globally
+RUN npm install -g pnpm
 
-# Install dependencies
-RUN npm install
+# Copy package files
+COPY package*.json ./ 
+
+# Install dependencies with pnpm
+RUN pnpm install
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Remove development dependencies
-RUN npm prune --production
+RUN pnpm prune --prod
 
 # Production stage
 FROM node:20-alpine AS runner
@@ -25,10 +28,14 @@ FROM node:20-alpine AS runner
 # Create app directory
 WORKDIR /usr/src/app
 
+# Install pnpm globally in the production image
+RUN npm install -g pnpm
+
 # Copy built assets from builder stage
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules/
+COPY --from=builder /usr/src/app/dist ./dist/
+COPY --from=builder /usr/src/app/package*.json ./  
+COPY --from=builder /usr/src/app/pnpm-lock.yaml ./  
 
 # Set port number
 ENV PORT=3040
@@ -37,4 +44,4 @@ ENV PORT=3040
 EXPOSE 3040
 
 # Command to run the application
-CMD ["npm", "run", "start:prod"]
+CMD ["pnpm", "run", "start:prod"]
