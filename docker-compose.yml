@@ -34,6 +34,22 @@ services:
       - influxdb-data:/var/lib/influxdb
       - ./influxdb.conf:/etc/influxdb/influxdb.conf
 
+  drec-origin-backend:
+    container_name: drec-origin-backend
+    build: projects/drec-origin # Adjust path to backend Dockerfile
+    ports:
+      - "3040:3040" # Map backend port
+    environment:
+      DB_HOST: drec-postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: origin
+    depends_on:
+      - drec-postgres
+      - drec-redis
+      - drec-influxdb
+
 volumes:
   postgres-data:
   influxdb-data:
