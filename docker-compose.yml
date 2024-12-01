@@ -1,4 +1,4 @@
-version: "3.8" 
+version: "3.8"
 services:
   drec-postgres:
     image: postgres:latest
@@ -36,7 +36,8 @@ services:
   drec-origin-backend:
     container_name: drec-origin-backend
     build:
-      context: ./apps/drec-api  
+      context: ./   # Use the root folder as the build context
+      dockerfile: ./apps/drec-api/Dockerfile  # Specify the Dockerfile location in the apps folder
     ports:
       - "3040:3040"
     environment:
