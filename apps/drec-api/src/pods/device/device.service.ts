@@ -1042,7 +1042,7 @@ export class DeviceService {
     });
   }
   //add new fuction for add window cycle date for late certificate
-  public async AddLateCertificateIssueDateLogForDevice(
+  public async addLateCertificateIssueDateLogForDevice(
     params: DeviceLateongoingIssueCertificateEntity,
   ): Promise<DeviceLateongoingIssueCertificateEntity> {
     this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
