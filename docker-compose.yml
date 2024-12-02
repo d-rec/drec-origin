@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   drec-postgres:
     image: postgres:latest
@@ -32,24 +33,6 @@ services:
     volumes:
       - influxdb-data:/var/lib/influxdb
       - ./influxdb.conf:/etc/influxdb/influxdb.conf
-
-  drec-origin-backend:
-    container_name: drec-origin-backend
-    build:
-      context: ./   # Use the root folder as the build context
-      dockerfile: ./apps/drec-api/Dockerfile  # Specify the Dockerfile location in the apps folder
-    ports:
-      - "3040:3040"
-    environment:
-      DB_HOST: drec-postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: origin
-    depends_on:
-      - drec-postgres
-      - drec-redis
-      - drec-influxdb
 
 volumes:
   postgres-data:

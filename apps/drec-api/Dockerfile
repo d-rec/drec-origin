@@ -1,46 +1,40 @@
-# Build stage
+#Build stage
 FROM node:20-alpine AS builder
 
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Install Rush globally
-RUN npm install -g @microsoft/rush
+# Copy package files
+COPY package*.json ./
 
-# Copy rush.json from the root folder
-COPY rush.json ./ 
+# Install dependencies
+RUN npm install
 
-# Copy the entire source code into the container
-COPY . ./ 
-
-# Set an alternative recycler folder to avoid cross-device link issues
-ENV RUSH_TEMP_FOLDER=/usr/src/app/common/temp/rush-temp
-
-# Unset RUSH_RECYCLER to avoid conflicts
-RUN unset RUSH_RECYCLER
-
-# Run Rush install with purge
-RUN rush install --purge
+# Copy source code
+COPY . .
 
 # Build the application
-RUN rush build
+RUN npm run build
+
+# Remove development dependencies
+RUN npm prune --production
 
 # Production stage
-FROM node:20-alpine AS runtime
+FROM node:20-alpine AS runner
 
+# Create app directory
 WORKDIR /usr/src/app
 
 # Copy built assets from builder stage
-COPY --from=builder /usr/src/app/apps/drec-api/dist /usr/src/app/dist/
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json ./
 
-# Copy package*.json files from the root folder
-COPY --from=builder /usr/src/app/apps/drec-api/package*.json /usr/src/app/
-
-# Copy pnpm-lock.yaml from apps/drec-api
-COPY --from=builder /usr/src/app/apps/drec-api/pnpm-lock.yaml /usr/src/app/
-
-# Set port number and expose it
+# Set port number
 ENV PORT=3040
+
+# Expose port
 EXPOSE 3040
 
 # Command to run the application
-CMD ["pnpm", "run", "start:prod"]
+CMD ["npm", "run", "start:prod"]
