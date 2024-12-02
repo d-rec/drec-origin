@@ -1,0 +1,48 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+# Set working directory to /usr/src/app (root of the container)
+WORKDIR /usr/src/app
+
+# Copy rush.json from the root folder
+COPY rush.json ./
+
+# Copy the entire source code into the container
+COPY . ./
+
+# Install Rush globally in the root folder
+RUN npm install -g pnpm @microsoft/rush
+
+# Set environment variable to modify Rush purge behavior
+ENV RUSH_PURGE_POLICY=delete
+
+# Install dependencies using Rush in the root folder, forcing a fresh install by purging the old store
+RUN rush install --purge
+
+# Build the application (this assumes there is a rush build step in the root folder)
+RUN rush build
+
+# Prune development dependencies (if needed)
+RUN rush prune --prod
+
+# Production stage
+FROM node:20-alpine AS runtime
+
+WORKDIR /usr/src/app
+
+# Copy built assets from builder stage (adjust path based on actual location of dist)
+COPY --from=builder /usr/src/app/apps/drec-api/dist /usr/src/app/dist/
+
+# Copy package*.json files from the root folder
+COPY --from=builder /usr/src/app/package*.json /usr/src/app/
+
+# Copy pnpm-lock.yaml if available
+COPY --from=builder /usr/src/app/pnpm-lock.yaml /usr/src/app/
+
+# Set port number and expose it
+ENV PORT=3040
+EXPOSE 3040
+
+# Command to run the application
+CMD ["pnpm", "run", "start:prod"]
+
