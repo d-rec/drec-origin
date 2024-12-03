@@ -65,7 +65,6 @@ import { CertificateSettingEntity } from './pods/device-group/certificate_settin
 import { HttpModule } from '@nestjs/axios';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
-import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { SentryFilter } from './filters/sentry.filter';
 
 const getEnvFilePath = () => {
@@ -187,10 +186,11 @@ const QueueingModule = () => {
     OnChainCertificateModule,
     BlockchainPropertiesModule,
   ],
-  providers: [OnApplicationBootstrapHookService, 
+  providers: [
+    OnApplicationBootstrapHookService,
     {
       provide: APP_FILTER,
-      useClass: SentryFilter
+      useClass: SentryFilter,
     },
   ],
 })

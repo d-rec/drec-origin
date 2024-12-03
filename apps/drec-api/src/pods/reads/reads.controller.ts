@@ -61,13 +61,15 @@ export class ReadsController extends BaseReadsController {
   }
 
   @Get('/test-sentry')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
-@Permission('Read')
-@ACLModules('READS_MANAGEMENT_CRUDL')
-async throwTestError() {
-  throw new HttpException('Test Sentry Error', HttpStatus.INTERNAL_SERVER_ERROR);
-}
-
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  async throwTestError(): Promise<boolean> {
+    throw new HttpException(
+      'Test Sentry Error',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
 
   /**
    * This api user for get all the timezone list and also from serach key
