@@ -8,8 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
-
+RUN npm install --legacy-peer-deps
 # Copy source code
 COPY . .
 
@@ -17,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Remove development dependencies
-RUN npm prune --production
+RUN npm prune --production --legacy-peer-deps
 
 # Production stage
 FROM node:20-alpine AS runner
