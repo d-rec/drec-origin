@@ -28,7 +28,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal server error';
 
-    // Only log to Sentry if not in local development
     if (process.env.NODE_ENV !== 'local') {
       this.logger.error({
         statusCode: status,
