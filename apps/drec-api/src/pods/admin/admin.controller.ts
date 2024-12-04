@@ -320,27 +320,27 @@ export class AdminController {
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const manyotheruserinorg =
+    const manyOtherUserInOrg =
       await this.userService.getAnotherUserInOrganization(
         user.organization.id,
         user.id,
       );
 
     if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
-      const buyerresrvation = await this.devicegroupService.findOne({
+      const buyerReservation = await this.devicegroupService.findOne({
         organizationId: user.organization.id,
       });
 
-      if (buyerresrvation) {
+      if (buyerReservation) {
         throw new NotFoundException(
           'This user is part of reservation,So you cannot remove this user and organization',
         );
       }
-      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(
+      const deviceOfOrg = await this.deviceService.getatleastonedeviceinOrg(
         user.organization.id,
       );
 
-      if (deviceoforg.length > 0) {
+      if (deviceOfOrg.length > 0) {
         throw new NotFoundException(
           'Some device are available in organization ',
         );
@@ -348,7 +348,7 @@ export class AdminController {
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       // }
-      if (!(manyotheruserinorg.length > 0)) {
+      if (!(manyOtherUserInOrg.length > 0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
