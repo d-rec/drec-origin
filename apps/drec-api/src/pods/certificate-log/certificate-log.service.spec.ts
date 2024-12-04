@@ -308,7 +308,7 @@ describe('CertificateLogService', () => {
 
       const pageNumber = 1;
 
-      const getoldreservationinfo = {
+      const getOldReservationInfo = {
         deviceGroups: [
           {
             dg_id: 2,
@@ -331,15 +331,15 @@ describe('CertificateLogService', () => {
         ],
       };
 
-      const getnewreservationinfo = { deviceGroups: [] };
+      const getNewReservationInfo = { deviceGroups: [] };
 
       const getReservationInforDeveloperBsiseSpy = jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getnewreservationinfo);
+        .mockResolvedValueOnce(getNewReservationInfo);
 
-      const getoldReservationInforDeveloperBsiseSpy = jest
+      const getOldReservationInforDeveloperBsiseSpy = jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getoldreservationinfo);
+        .mockResolvedValueOnce(getOldReservationInfo);
 
       const expectedCertificates = {
         certificatelog: [
@@ -403,7 +403,7 @@ describe('CertificateLogService', () => {
         user.api_user_id,
       );
 
-      expect(getoldReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
+      expect(getOldReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDto,
@@ -449,9 +449,9 @@ describe('CertificateLogService', () => {
 
       const pageNumber = 1;
 
-      const getoldreservationinfo = { deviceGroups: [] };
+      const getOldReservationInfo = { deviceGroups: [] };
 
-      const getnewreservationinfo = {
+      const getNewReservationInfo = {
         deviceGroups: [
           {
             dg_id: 5,
@@ -476,10 +476,10 @@ describe('CertificateLogService', () => {
 
       jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getnewreservationinfo);
+        .mockResolvedValueOnce(getNewReservationInfo);
       jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getoldreservationinfo);
+        .mockResolvedValueOnce(getOldReservationInfo);
 
       const expectedCertificates = {
         certificatelog: [
