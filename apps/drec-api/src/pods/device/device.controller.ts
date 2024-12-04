@@ -125,7 +125,7 @@ export class DeviceController {
       const organization = await this.organizationService.findOne(
         filterDto.organizationId,
       );
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
@@ -138,8 +138,8 @@ export class DeviceController {
         }
 
         if (
-          orguser.role === Role.OrganizationAdmin ||
-          orguser.role === Role.DeviceOwner
+          orgUser.role === Role.OrganizationAdmin ||
+          orgUser.role === Role.DeviceOwner
         ) {
           this.logger.error(
             `Unauthorized... The requested user is developer or device owner`,
@@ -291,7 +291,7 @@ export class DeviceController {
         const organization = await this.organizationService.findOne(
           filterDto.organizationId,
         );
-        const orguser = await this.userService.findByEmail(
+        const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
         if (organization.api_user_id != api_user_id) {
@@ -303,7 +303,7 @@ export class DeviceController {
             message: 'The organization Id in param is belongs to other apiuser',
           });
         } else {
-          if (orguser.role != Role.OrganizationAdmin) {
+          if (orgUser.role != Role.OrganizationAdmin) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -617,14 +617,14 @@ export class DeviceController {
         });
       }
 
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           deviceToUpdate.externalId,
           user.organizationId,
         );
       if (
-        checkexternalid != undefined &&
-        checkexternalid.developerExternalId === externalId.trim()
+        checkExternalId != undefined &&
+        checkExternalId.developerExternalId === externalId.trim()
       ) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
@@ -702,37 +702,37 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           externalId,
           user.organizationId,
         );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistReads(
-          checkexternalid.externalId,
+          checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
         await this.deviceService.getNumberOfOngReads(
-          checkexternalid.externalId,
-          checkexternalid.createdAt,
+          checkExternalId.externalId,
+          checkExternalId.createdAt,
         );
 
       if (
-        deviceToUpdate.commissioningDate != checkexternalid.commissioningDate
+        deviceToUpdate.commissioningDate != checkExternalId.commissioningDate
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           });
         }
 
         if (
           new Date(deviceToUpdate.commissioningDate).getTime() >
-          new Date(checkexternalid.createdAt).getTime()
+          new Date(checkExternalId.createdAt).getTime()
         ) {
           this.logger.error(
             `Invalid commissioning date, commissioning is greater than device onboarding date`,
@@ -773,8 +773,8 @@ export class DeviceController {
     @UserDecorator() { organizationId, role }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkisungroup = this.deviceService.findUngroupedById(id);
-    if (checkisungroup) {
+    const checkIsUnGroup = this.deviceService.findUngroupedById(id);
+    if (checkIsUnGroup) {
       let fitlerop: any;
       if (role === 'Admin') {
         fitlerop = {
@@ -1010,7 +1010,7 @@ export class DeviceController {
     if (user.role === Role.ApiUser) {
       const organization =
         await this.organizationService.findOne(organizationId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (organization.api_user_id != user.api_user_id) {
         this.logger.error(
           `The requested organization is belongs to other apiuser`,
@@ -1021,7 +1021,7 @@ export class DeviceController {
         });
       }
 
-      if (orguser.role != Role.OrganizationAdmin) {
+      if (orgUser.role != Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,

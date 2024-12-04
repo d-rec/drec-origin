@@ -721,13 +721,13 @@ export class CertificateLogService {
                     group.developerdeviceIds.find((ele) => ele === deviceid)
                   ) {
                     this.logger.log('oldlog exist in developer');
-                    const deviceLog =
-                      await this.getCheckCertificateIssueDateLogForDevice(
-                        parseInt(group.dg_id),
-                        device.externalId,
-                        deviceReadStartDate,
-                        deviceReadEndDate,
-                      );
+                    // const deviceLog =
+                    //   await this.getCheckCertificateIssueDateLogForDevice(
+                    //     parseInt(group.dg_id),
+                    //     device.externalId,
+                    //     deviceReadStartDate,
+                    //     deviceReadEndDate,
+                    //   );
                     devicelog.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId =
                         device.developerExternalId;
@@ -740,13 +740,13 @@ export class CertificateLogService {
                     });
                   } else {
                     this.logger.log("oldlog doesn't exist in developer");
-                    const deviceLog =
-                      await this.getCheckCertificateIssueDateLogForDevice(
-                        parseInt(group.dg_id),
-                        device.externalId,
-                        deviceReadStartDate,
-                        deviceReadEndDate,
-                      );
+                    // const deviceLog =
+                    //   await this.getCheckCertificateIssueDateLogForDevice(
+                    //     parseInt(group.dg_id),
+                    //     device.externalId,
+                    //     deviceReadStartDate,
+                    //     deviceReadEndDate,
+                    //   );
                     if (devicelog.length > 0) {
                       const totalReadValue = devicelog.reduce(
                         (accumulator, currentValue) =>

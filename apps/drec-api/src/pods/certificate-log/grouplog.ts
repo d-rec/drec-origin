@@ -1,4 +1,4 @@
-export const grouplog = [
+export const groupLog = [
   {
     id: 1,
     groupid: 1,
