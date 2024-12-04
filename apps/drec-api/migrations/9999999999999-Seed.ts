@@ -301,11 +301,11 @@ export class Seed9999999999999 implements MigrationInterface {
             const permissionValue =
               await this.computePermissions(addedPermissionList);
 
-            const checkForExistingmodule = await queryRunner.query(
+            const checkForExistingModule = await queryRunner.query(
               `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
             );
 
-            if (!checkForExistingmodule.length) {
+            if (!checkForExistingModule.length) {
               queryRunner.query(
                 `INSERT INTO public.aclmodules (
                 "id", 

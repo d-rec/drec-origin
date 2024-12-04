@@ -47,7 +47,7 @@ export class AccessControlLayerModuleServiceService {
     const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
 
-    await this.checkForExistingmodule(data.name);
+    await this.checkForExistingModule(data.name);
     const moduledata = new AClModules({
       ...data,
       permissionsValue: permissionValue,
@@ -57,8 +57,8 @@ export class AccessControlLayerModuleServiceService {
 
     return module;
   }
-  private async checkForExistingmodule(name: string): Promise<void> {
-    this.logger.verbose(`With in checkForExistingmodule`);
+  private async checkForExistingModule(name: string): Promise<void> {
+    this.logger.verbose(`With in checkForExistingModule`);
     const isExistingUser = await this.hasModule({ name });
     if (isExistingUser) {
       const message = `This Module Permission name ${name} already exists`;
