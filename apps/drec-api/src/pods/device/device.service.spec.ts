@@ -1015,10 +1015,10 @@ describe('DeviceService', () => {
 
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
-      const api_user_id = 'api-user-123';
+      const apiUserId = 'api-user-123';
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
-      const pagenumber = null;
+      const pageNumber = null;
       const mockDevices = [
         {
           id: 1,
@@ -1033,10 +1033,10 @@ describe('DeviceService', () => {
 
       const result = await service.getOrganizationDevices(
         organizationId,
-        api_user_id,
+        apiUserId,
         role,
         filterDto,
-        pagenumber,
+        pageNumber,
       );
 
       expect(repository.findAndCount).toHaveBeenCalledWith(

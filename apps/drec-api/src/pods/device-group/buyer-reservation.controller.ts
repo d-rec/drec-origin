@@ -624,11 +624,11 @@ export class BuyerReservationController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
-    const devicenextissuence: DeviceGroupNextIssueCertificate | null =
+    const deviceNextIssuence: DeviceGroupNextIssueCertificate | null =
       await this.deviceGroupService.getGroupiCertificateIssueDate({
         groupId: id,
       });
-    if (devicenextissuence === null) {
+    if (deviceNextIssuence === null) {
       this.logger.error(`This device groups reservation has already ended`);
       throw new ConflictException({
         success: false,
@@ -637,14 +637,14 @@ export class BuyerReservationController {
     }
     if (
       new Date(groupToUpdate.reservationEndDate).getTime() <
-      new Date(devicenextissuence.start_date).getTime()
+      new Date(deviceNextIssuence.start_date).getTime()
     ) {
       this.logger.error(
-        `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuence.start_date}`,
       );
       throw new ConflictException({
         success: false,
-        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuence.start_date}`,
       });
     }
 
@@ -802,7 +802,7 @@ export class BuyerReservationController {
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
 
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id != user.api_user_id) {
@@ -815,7 +815,7 @@ export class BuyerReservationController {
           });
         }
 
-        if (orguser.role != Role.OrganizationAdmin) {
+        if (orgUser.role != Role.OrganizationAdmin) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
