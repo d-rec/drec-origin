@@ -221,10 +221,10 @@ export class PermissionService {
 
     const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
-    const checkData = {
-      aclmodulesId: userPermission.aclmodulesId,
-      permissions: data.permissions,
-    };
+    // const checkData = {
+    //   aclmodulesId: userPermission.aclmodulesId,
+    //   permissions: data.permissions,
+    // };
     const permissionBoolean = await this.checkForExistingmodulepermission(
       PermissionDTO,
       permissionValue,
