@@ -86,7 +86,7 @@ export class UserService {
     inviteuser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    const api_user =
+    const apiUser =
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
@@ -100,7 +100,7 @@ export class UserService {
         address: data.orgAddress,
       };
 
-      orgdata['api_user_id'] = api_user.api_user_id;
+      orgdata['api_user_id'] = apiUser.api_user_id;
       if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
         throw new ConflictException({
           success: false,
@@ -149,7 +149,7 @@ export class UserService {
       role: role,
       roleId: roleId,
       organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user ? api_user.api_user_id : null,
+      api_user_id: apiUser ? apiUser.api_user_id : null,
     });
     const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.debug(
@@ -562,8 +562,8 @@ export class UserService {
       });
     }
     if (user.role === Role.ApiUser) {
-      const api_user = await this.getApiUserPermissionStatus(user.api_user_id);
-      user['permission_status'] = api_user.permission_status;
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
@@ -695,9 +695,9 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    const filterDto = new UserFilterDTO();
-    filterDto.organizationName = organizationName;
-    const query = await this.getFilteredQuery(filterDto);
+    const filterDTO = new UserFilterDTO();
+    filterDTO.organizationName = organizationName;
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       const [apiusers, totalCount] = await query
         .andWhere(`user.role = :role`, { role: Role.ApiUser })

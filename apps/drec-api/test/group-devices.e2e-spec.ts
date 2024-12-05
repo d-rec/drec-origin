@@ -105,14 +105,14 @@ describe('Device Group tests', () => {
       email: 'admin2@mailinator.com',
       password: '******123',
     };
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
       orgs.organizations.map(
@@ -185,12 +185,12 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
       orgs.organizations.map(
@@ -235,12 +235,12 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
       orgs.organizations.map(
@@ -285,12 +285,12 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
 
     const firstBatch = devices.filter((device: Device) =>
       orgs.organizations.map(
@@ -342,12 +342,12 @@ describe('Device Group tests', () => {
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK);
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
     const firstBatch = devices.filter((device: Device) =>
       orgs.organizations.map(
         (o: IFullOrganization) => device.organizationId === o.id,

@@ -41,7 +41,7 @@ export class YieldConfigService {
         message: `add the valid yield value`,
       });
     }
-    const yieldvalue = await this.repository.save({
+    const yieldValue = await this.repository.save({
       countryCode: data.countryCode,
       countryName: data.countryName,
       yieldValue: data.yieldValue,
@@ -49,7 +49,7 @@ export class YieldConfigService {
       status: data.status,
     });
 
-    return new YieldConfig(yieldvalue);
+    return new YieldConfig(yieldValue);
   }
   private async checkForExistingyieldvalue(
     countryCode: string,

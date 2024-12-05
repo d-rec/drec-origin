@@ -157,7 +157,7 @@ export class IssuerService {
             await this.groupService.EndReservationGroup(
               group.id,
               group.organizationId,
-              endDTO ,
+              endDTO,
               group,
               groupRequest,
             );
