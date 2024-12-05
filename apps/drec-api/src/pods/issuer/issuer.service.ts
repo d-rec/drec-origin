@@ -152,12 +152,12 @@ export class IssuerService {
             group.reservationEndDate.getTime()
           ) {
             skipUpdatingNextIssuanceLogTable = true;
-            const endDto = new EndReservationdateDTO();
-            endDto.endresavationdate = new Date(group.reservationEndDate);
+            const endDTO = new EndReservationdateDTO();
+            endDTO.endresavationdate = new Date(group.reservationEndDate);
             await this.groupService.EndReservationGroup(
               group.id,
               group.organizationId,
-              endDto,
+              endDTO ,
               group,
               groupRequest,
             );
@@ -980,11 +980,11 @@ export class IssuerService {
     // 4. Separate all decimal values from the current kw value and store it as leftover value to the device group
     // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
 
-    const totalReadValueKw = group.leftoverReads
+    const totalReadValueKW = group.leftoverReads
       ? totalReadValueW / 10 ** 3 + group.leftoverReads
       : totalReadValueW / 10 ** 3;
     const { integralVal, decimalVal } =
-      this.separateIntegerAndDecimal(totalReadValueKw);
+      this.separateIntegerAndDecimal(totalReadValueKW);
     await this.groupService.updateLeftOverRead(group.id, decimalVal);
 
     return integralVal;
