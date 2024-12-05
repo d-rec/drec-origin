@@ -63,9 +63,6 @@ import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
-import { SentryModule } from '@sentry/nestjs/setup';
-import { APP_FILTER } from '@nestjs/core';
-import { SentryFilter } from './filters/sentry.filter';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -155,7 +152,6 @@ const QueueingModule = () => {
 
 @Module({
   imports: [
-    SentryModule.forRoot(),
     HttpModule,
     ConfigModule.forRoot({
       envFilePath: getEnvFilePath(),
@@ -186,12 +182,6 @@ const QueueingModule = () => {
     OnChainCertificateModule,
     BlockchainPropertiesModule,
   ],
-  providers: [
-    OnApplicationBootstrapHookService,
-    {
-      provide: APP_FILTER,
-      useClass: SentryFilter,
-    },
-  ],
+  providers: [OnApplicationBootstrapHookService],
 })
 export class DrecModule {}
