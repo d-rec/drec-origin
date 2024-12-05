@@ -110,7 +110,7 @@ export class InvitationService {
       }
     }
 
-    const orginvitee = await this.invitationRepository.findOne({
+    const orgInvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: {
@@ -119,7 +119,7 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    if (orginvitee) {
+    if (orgInvitee) {
       this.logger.error(
         `Requested invitation User ${lowerCaseEmail} is already exist`,
       );
@@ -143,7 +143,7 @@ export class InvitationService {
         return x[Math.floor(Math.random() * x.length)];
       })
       .join('');
-    const inviteuser: CreateUserORGDTO = {
+    const inviteUser: CreateUserORGDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
@@ -154,17 +154,17 @@ export class InvitationService {
     };
     this.logger.debug('invitee');
 
-    inviteuser.api_user_id = organization.api_user_id;
+    inviteUser.api_user_id = organization.api_user_id;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const newUser = await this.userService.newCreateUser(
-      inviteuser,
+      inviteUser,
       UserStatus.Pending,
       true,
     );
 
     if (sender.role !== Role.ApiUser) {
-      console.log('inviteuser:', inviteuser, 'lowerCaseEmail:', lowerCaseEmail);
-      await this.userService.sendUserInvitation(inviteuser, lowerCaseEmail);
+      console.log('inviteuser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
+      await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
   }
 
@@ -174,8 +174,8 @@ export class InvitationService {
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
-    const userinvite = await this.userService.findByEmail(lowerCaseEmail);
-    this.logger.debug(userinvite);
+    const userInvite = await this.userService.findByEmail(lowerCaseEmail);
+    this.logger.debug(userInvite);
     const invitation = await this.invitationRepository.findOne({
       where: {
         id: invitationId,
@@ -203,10 +203,10 @@ export class InvitationService {
 
     if (user.status === OrganizationInvitationStatus.Accepted) {
       await this.userService.addToOrganization(
-        userinvite.id,
+        userInvite.id,
         invitation.organization.id,
       );
-      await this.userService.changeRole(userinvite.id, invitation.role);
+      await this.userService.changeRole(userInvite.id, invitation.role);
     }
 
     invitation.status = user.status;
@@ -323,7 +323,7 @@ export class InvitationService {
 
   async remove(email: string, orgId: number): Promise<void> {
     const lowerCaseEmail = email.toLowerCase();
-    const orginvitee = await this.invitationRepository.findOne({
+    const orgInvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: orgId,
@@ -331,13 +331,13 @@ export class InvitationService {
       relations: ['organization'],
     });
     this.logger.verbose('orginvitee');
-    if (orginvitee) {
-      await this.invitationRepository.delete(orginvitee.id);
+    if (orgInvitee) {
+      await this.invitationRepository.delete(orgInvitee.id);
     }
   }
   async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
-    const orginvitee = await this.invitationRepository.findOne({
+    const orgInvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: {
@@ -346,6 +346,6 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    return orginvitee;
+    return orgInvitee;
   }
 }

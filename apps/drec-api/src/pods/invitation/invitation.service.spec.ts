@@ -385,7 +385,7 @@ describe('InvitationService', () => {
         invitations: [],
       };
 
-      const savedinvitedUser = {
+      const savedInvitedUser = {
         email: 'diuqtdpnqttfuvauha@cazlq.com',
         organization: {
           createdAt: '2024-03-03T17:18:55.388Z',
@@ -415,7 +415,7 @@ describe('InvitationService', () => {
         id: 6,
       };
 
-      const mockinvitedUser = {
+      const mockInvitedUser = {
         firstName: 'test',
         lastName: 'test',
         email: 'diuqtdpnqttfuvauha@cazlq.com',
@@ -436,10 +436,10 @@ describe('InvitationService', () => {
         .spyOn(userService, 'findByEmail')
         .mockResolvedValueOnce(mockApiUserEntity as IUser)
         .mockResolvedValueOnce(null);
-      const orgfindOneSpy = jest
+      const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
         .mockResolvedValue(inviteeOrganization as unknown as Organization);
-      const inviteefindOneSpy = jest
+      const inviteeFindOneSpy = jest
         .spyOn(invitationRepository, 'findOne')
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
@@ -447,10 +447,10 @@ describe('InvitationService', () => {
         .mockImplementation();
       const saveSpy = jest
         .spyOn(invitationRepository, 'save')
-        .mockResolvedValue(savedinvitedUser as any);
-      const newcreatespy = jest
+        .mockResolvedValue(savedInvitedUser as any);
+      const newCreateSpy = jest
         .spyOn(userService, 'newCreateUser')
-        .mockResolvedValue(mockinvitedUser as any);
+        .mockResolvedValue(mockInvitedUser as any);
       const sendInvitationSpy = jest
         .spyOn(userService, 'sendUserInvitation')
         .mockResolvedValue({
@@ -470,9 +470,9 @@ describe('InvitationService', () => {
       ).resolves.not.toThrow();
 
       await expect(findByEmailSpy).toHaveBeenCalledWith(user.email);
-      await expect(orgfindOneSpy).toHaveBeenCalledWith(orgId);
+      await expect(orgFindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
-      await expect(inviteefindOneSpy).toHaveBeenCalledWith({
+      await expect(inviteeFindOneSpy).toHaveBeenCalledWith({
         where: {
           email: email,
           organization: {
@@ -494,7 +494,7 @@ describe('InvitationService', () => {
           ? `${mockApiUserEntity.firstName} ${mockApiUserEntity.lastName}`
           : '',
       });
-      await expect(newcreatespy).toHaveBeenCalledWith(
+      await expect(newCreateSpy).toHaveBeenCalledWith(
         {
           firstName: firstName,
           lastName: lastName,
