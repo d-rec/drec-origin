@@ -74,8 +74,8 @@ export class OauthClientCredentialsService {
 
   generateClientCredentials(): { client_id: string; client_secret: string } {
     const client_id = randomBytes(16).toString('hex');
-    const client_secret = randomBytes(32).toString('hex');
-    return { client_id, client_secret: client_secret };
+    const clientSecret = randomBytes(32).toString('hex');
+    return { client_id, client_secret: clientSecret };
   }
 
   async findOneByclient_id(

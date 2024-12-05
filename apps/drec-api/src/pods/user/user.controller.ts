@@ -233,10 +233,10 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    const emailregex =
+    const emailRegex =
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
     let emailConfirmation: any;
-    if (emailregex.test(token)) {
+    if (emailRegex.test(token)) {
       emailConfirmation = await this.userService.findOne({ email: token });
       return this.userService.changePassword(emailConfirmation, body);
     } else {
