@@ -91,7 +91,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    const userDto: UserDTO = {
+    const userDTO: UserDTO = {
       id: 1,
       firstName: 'fName',
       lastName: 'lName',
@@ -115,7 +115,7 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const response = await service.login(userDto);
+      const response = await service.login(userDTO);
 
       expect(response).toBeDefined();
     });
@@ -125,7 +125,7 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const result = await service.login(userDto);
+      const result = await service.login(userDTO);
 
       expect(result).toEqual({ accessToken: token });
     });
@@ -135,10 +135,10 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      await service.login(userDto);
+      await service.login(userDTO);
 
       expect(userService.createUserSession).toHaveBeenCalledWith(
-        userDto,
+        userDTO,
         token,
       );
     });

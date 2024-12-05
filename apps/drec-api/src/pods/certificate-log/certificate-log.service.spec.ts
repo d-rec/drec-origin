@@ -435,7 +435,7 @@ describe('CertificateLogService', () => {
         api_user_id: 'apiuserId',
       };
 
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         fromAmountread: 20,
@@ -534,7 +534,7 @@ describe('CertificateLogService', () => {
 
       const result = await service.getCertifiedlogofDevices(
         user,
-        filterDto,
+        filterDTO,
         pageNumber,
       );
 

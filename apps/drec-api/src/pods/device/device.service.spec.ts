@@ -569,7 +569,7 @@ describe('DeviceService', () => {
       },
     ];
     it('should retrieve devices without pagination', async () => {
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         capacity: undefined, //600,
@@ -600,9 +600,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, undefined, orgId);
+      const result = await service.find(filterDTO, undefined, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -905,7 +905,7 @@ describe('DeviceService', () => {
           organization: organizationEntity,
         },
       ];
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         capacity: undefined, //600,
@@ -925,7 +925,7 @@ describe('DeviceService', () => {
             _value: '200', // Adjust as needed
             _useParameter: true,
           },
-          countryCode: filterDto.country,
+          countryCode: filterDTO.country,
           organizationId: orgId.toString(), // Use orgId provided dynamically
           commissioningDate: {
             _type: 'moreThanOrEqual',
@@ -940,13 +940,13 @@ describe('DeviceService', () => {
           },
           deviceTypeCode: {
             _type: 'raw',
-            _value: [filterDto.deviceTypeCode], // Adjust as needed
+            _value: [filterDTO.deviceTypeCode], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
           offTaker: {
             _type: 'raw',
-            _value: [filterDto.offTaker], // Adjust as needed
+            _value: [filterDTO.offTaker], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
@@ -962,9 +962,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, pageNumber, orgId);
+      const result = await service.find(filterDTO, pageNumber, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -1853,7 +1853,7 @@ const device = {
   describe('findUngrouped', () => {
     it('should return grouped devices when ungrouped devices are found', async () => {
       const organizationId = 1;
-      const orderFilterDto: DeviceGroupByDTO = {
+      const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       }; // Provide necessary DTO properties
       const mockDevices = [
@@ -1867,7 +1867,7 @@ const device = {
 
       const result = await service.findUngrouped(
         organizationId,
-        orderFilterDto,
+        orderFilterDTO,
       );
 
       expect(findSpy).toHaveBeenCalledWith({

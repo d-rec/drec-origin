@@ -234,8 +234,8 @@ export class DeviceGroupService {
       }
 
       if (filterDto.offTaker) {
-        const newoffTaker = filterDto.offTaker.toString();
-        const offTakerArray = newoffTaker.split(',');
+        const newOffTaker = filterDto.offTaker.toString();
+        const offTakerArray = newOffTaker.split(',');
         query.andWhere(
           new Brackets((qb) => {
             offTakerArray.forEach((offTaker, index) => {
@@ -294,8 +294,8 @@ export class DeviceGroupService {
       }
 
       if (filterDto.sdgbenefit) {
-        const sdgstr = filterDto.sdgbenefit.toString();
-        const sdgBenefitsArray = sdgstr.split(',');
+        const sdgStr = filterDto.sdgbenefit.toString();
+        const sdgBenefitsArray = sdgStr.split(',');
         query.andWhere(
           new Brackets((qb) => {
             sdgBenefitsArray.forEach((benefit, index) => {
@@ -621,9 +621,9 @@ export class DeviceGroupService {
             }
 
             if (groupfilterDto.sdgbenefit) {
-              const newsdg = groupfilterDto.sdgbenefit.toString();
+              const newSdg = groupfilterDto.sdgbenefit.toString();
 
-              const sdgBenefitsArray = newsdg.split(',');
+              const sdgBenefitsArray = newSdg.split(',');
 
               sdgBenefitsArray.map((benefit) => benefit).join(',');
 
@@ -869,14 +869,14 @@ export class DeviceGroupService {
   ): Promise<JobFailedRowsDTO | undefined> {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
     if (organizationId) {
-      const csvjob = await this.repositoyCSVJobProcessing.findOne({
+      const csvJob = await this.repositoyCSVJobProcessing.findOne({
         where: {
           jobId: jobId,
           organizationId: organizationId,
         },
       });
 
-      if (!csvjob) {
+      if (!csvJob) {
         this.logger.error(`The job requested is belongs to other organization`);
         throw new UnauthorizedException({
           success: false,
@@ -963,15 +963,15 @@ export class DeviceGroupService {
         hours = 91 * 24;
       }
       let newEndDate = '';
-      const end_date = new Date(
+      const endDate = new Date(
         new Date(startDate).getTime() + hours * 3.6e6,
       ).toISOString();
 
       if (
-        new Date(end_date).getTime() <
+        new Date(endDate).getTime() <
         new Date(data.reservationEndDate).getTime()
       ) {
-        newEndDate = end_date;
+        newEndDate = endDate;
       } else {
         newEndDate = data.reservationEndDate.toISOString();
       }
@@ -1881,15 +1881,15 @@ export class DeviceGroupService {
         records.filter(
           (record, index) => recordsErrors[index].isError === false,
         );
-        const listofExistingDevices = await this.checkIfDeviceExisting(
+        const listOfExistingDevices = await this.checkIfDeviceExisting(
           records,
           organizationId,
         );
 
-        if (listofExistingDevices.length > 0) {
+        if (listOfExistingDevices.length > 0) {
           records.forEach((singleRecord, index) => {
             if (
-              listofExistingDevices.find(
+              listOfExistingDevices.find(
                 (ele) => ele === singleRecord.externalId,
               )
             ) {
@@ -2120,11 +2120,11 @@ export class DeviceGroupService {
     groupId: number,
   ): Promise<DeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
-    const nextissuance =
+    const nextIssuance =
       await this.repositorynextDeviceGroupcertificate.findOne({
         where: { groupId: groupId },
       });
-    return nextissuance;
+    return nextIssuance;
   }
   async updatecertificateissuedate(
     id: number,
@@ -2286,14 +2286,14 @@ export class DeviceGroupService {
     Status: HistoryNextInssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
-    const historynextdate = await this.getHistoryCertificateIssueDate({
+    const historyNextdate = await this.getHistoryCertificateIssueDate({
       id: id,
     });
     let updatedissuedatestatus = new HistoryDeviceGroupNextIssueCertificate();
-    if (historynextdate) {
-      historynextdate.status = Status;
+    if (historyNextdate) {
+      historyNextdate.status = Status;
       updatedissuedatestatus =
-        await this.historynextissuancedaterepository.save(historynextdate);
+        await this.historynextissuancedaterepository.save(historyNextdate);
     }
     return updatedissuedatestatus;
   }
@@ -2326,7 +2326,7 @@ export class DeviceGroupService {
       });
     }
     await this.deviceService.findByIds(group.deviceIdsInt);
-    const device_historynextissuance = [];
+    const deviceHistoryNextIssuance = [];
     if (pageNumber === undefined || pageNumber === null) {
       pageNumber = 1;
     }
@@ -2346,23 +2346,23 @@ export class DeviceGroupService {
     const count = await queryBuilder.getCount();
 
     const result = await queryBuilder.getRawMany();
-    const historynext_issuancer = result;
+    const historyNextIssuancer = result;
 
-    historynext_issuancer.forEach((element) => {
+    historyNextIssuancer.forEach((element) => {
       element.device_externalid = element.externalId;
       delete element['createdAt'];
       delete element['groupId'];
       delete element['id'];
       delete element['updatedAt'];
     });
-    device_historynextissuance.push({
-      historynext_issuancer,
+    deviceHistoryNextIssuance.push({
+      historyNextIssuancer,
     });
 
-    const AllDeviceshistnextissuansinfo: any = [];
-    device_historynextissuance.forEach((ele) =>
-      ele.historynext_issuancer.forEach((he) =>
-        AllDeviceshistnextissuansinfo.push(he),
+    const AllDevicesHistNextIssuansInfo: any = [];
+    deviceHistoryNextIssuance.forEach((ele) =>
+      ele.historyNextIssuancer.forEach((he) =>
+        AllDevicesHistNextIssuansInfo.push(he),
       ),
     );
 
@@ -2377,7 +2377,7 @@ export class DeviceGroupService {
 
     return {
       historynextissuansinfo: {
-        AllDeviceshistnextissuansinfo: AllDeviceshistnextissuansinfo,
+        AllDeviceshistnextissuansinfo: AllDevicesHistNextIssuansInfo,
         totalItems: count,
         currentPage: pageNumber,
         totalPages: totalPages,
@@ -2498,8 +2498,8 @@ export class DeviceGroupService {
               }
             }
             if (filterDto.fuelCode) {
-              const newfuelCode = filterDto.fuelCode.toString();
-              const fuelCodeArray = newfuelCode.split(',');
+              const newFuelCode = filterDto.fuelCode.toString();
+              const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   fuelCodeArray.forEach((fuelCode, index) => {
@@ -2517,8 +2517,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.offTaker) {
-              const newoffTaker = filterDto.offTaker.toString();
-              const offTakerArray = newoffTaker.split(',');
+              const newOffTaker = filterDto.offTaker.toString();
+              const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   offTakerArray.forEach((offTaker, index) => {
@@ -2565,8 +2565,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.SDGBenefits) {
-              const newsdg = filterDto.SDGBenefits.toString();
-              const sdgBenefitsArray = newsdg.split(',');
+              const newSdg = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newSdg.split(',');
               // sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
@@ -2771,8 +2771,8 @@ export class DeviceGroupService {
               }
             }
             if (filterDto.fuelCode) {
-              const newfuelCode = filterDto.fuelCode.toString();
-              const fuelCodeArray = newfuelCode.split(',');
+              const newFuelCode = filterDto.fuelCode.toString();
+              const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   fuelCodeArray.forEach((fuelCode, index) => {
@@ -2790,8 +2790,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.offTaker) {
-              const newoffTaker = filterDto.offTaker.toString();
-              const offTakerArray = newoffTaker.split(',');
+              const newOffTaker = filterDto.offTaker.toString();
+              const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
                   offTakerArray.forEach((offTaker, index) => {
@@ -2839,8 +2839,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.SDGBenefits) {
-              const newsdg = filterDto.SDGBenefits.toString();
-              const sdgBenefitsArray = newsdg.split(',');
+              const newSdg = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newSdg.split(',');
               //sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
@@ -2888,11 +2888,11 @@ export class DeviceGroupService {
         );
     });
     const totalCountQuery = await queryBuilder.getRawMany();
-    const groupedDatasql = await queryBuilder
+    const groupedDataSql = await queryBuilder
       .offset(skip)
       .limit(pageSize)
       .getSql();
-    this.logger.debug(groupedDatasql);
+    this.logger.debug(groupedDataSql);
     const groupedData = await queryBuilder
       .offset(skip)
       .limit(pageSize)
@@ -3002,7 +3002,7 @@ export class DeviceGroupService {
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    const csvjobsWithOrganization = await Promise.all(
+    const csvJobsWithOrganization = await Promise.all(
       csvjobs.map(async (csvjob: DeviceCsvFileProcessingJobsEntity) => {
         const organization = await this.organizationService.findOne(
           csvjob.organizationId,
@@ -3015,7 +3015,7 @@ export class DeviceGroupService {
     );
 
     return {
-      csvJobs: csvjobsWithOrganization,
+      csvJobs: csvJobsWithOrganization,
       currentPage: pageNumber,
       totalPages,
       totalCount,
