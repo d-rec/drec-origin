@@ -510,15 +510,15 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startdateformate = isValidUTCDateFormat(
+        const startDateFormate = isValidUTCDateFormat(
           new Date(ele.starttimestamp).toISOString(),
         );
         //dateFormateToCheck.test(ele.starttimestamp);
-        const enddateformate = isValidUTCDateFormat(
+        const endDateFormate = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!startdateformate || !enddateformate) {
+        if (!startDateFormate || !endDateFormate) {
           datevalid = false;
         }
         if (device && device.createdAt) {
@@ -650,11 +650,11 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const enddateformate = isValidUTCDateFormat(
+        const endDateFormate = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!enddateformate) {
+        if (!endDateFormate) {
           datevalid1 = false;
         }
         //check validation with onboarding date
@@ -990,15 +990,15 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startdateformate = isValidUTCDateFormat(
+        const startDateFormate = isValidUTCDateFormat(
           new Date(ele.starttimestamp).toISOString(),
         );
 
-        const enddateformate = isValidUTCDateFormat(
+        const endDateFormate = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!startdateformate || !enddateformate) {
+        if (!startDateFormate || !endDateFormate) {
           datevalid = false;
         }
         if (device && device.createdAt) {
@@ -1128,11 +1128,11 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const enddateformate = isValidUTCDateFormat(
+        const endDateFormate = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!enddateformate) {
+        if (!endDateFormate) {
           datevalid1 = false;
         }
         //check validation with onboarding date

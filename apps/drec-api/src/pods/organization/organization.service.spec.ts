@@ -71,7 +71,7 @@ describe('OrganizationService', () => {
 
   describe('getAll', () => {
     it('should return organizations without filtering when user is not provided', async () => {
-      const filterDto: OrganizationFilterDTO = {
+      const filterDTO: OrganizationFilterDTO = {
         organizationName: undefined,
       };
       const pageNumber = 1;
@@ -88,7 +88,7 @@ describe('OrganizationService', () => {
       jest
         .spyOn(service, 'getFilteredQuery')
         .mockResolvedValue(queryMock as any);
-      const result = await service.getAll(filterDto, pageNumber, limit, user);
+      const result = await service.getAll(filterDTO, pageNumber, limit, user);
 
       expect(result.organizations).toBeDefined();
       expect(result.currentPage).toBe(pageNumber);
@@ -97,7 +97,7 @@ describe('OrganizationService', () => {
     });
 
     it('should return organizations filtered by API user ID when user is an API user', async () => {
-      const filterDto: OrganizationFilterDTO = {
+      const filterDTO: OrganizationFilterDTO = {
         organizationName: undefined,
       };
       const pageNumber = 1;
@@ -118,7 +118,7 @@ describe('OrganizationService', () => {
         .mockResolvedValue(queryMock as any);
 
       const result = await service.getAll(
-        filterDto,
+        filterDTO,
         pageNumber,
         limit,
         user as LoggedInUser,

@@ -71,7 +71,7 @@ export class PermissionService {
       permissionValue,
     );
     if (permissionboolean) {
-      const aclpermission = new ACLModulePermissions({
+      const ACLPermission = new ACLModulePermissions({
         ...data,
         permissionValue: permissionValue,
       });
@@ -81,7 +81,7 @@ export class PermissionService {
         loginuser.role === Role.Admin ||
         loginuser.role === Role.ApiUser
       ) {
-        const modulepermission = await this.repository.save(aclpermission);
+        const modulepermission = await this.repository.save(ACLPermission);
         return modulepermission;
       } else {
         this.logger.error(`You are not authorized to add module for any Role`);
@@ -107,12 +107,12 @@ export class PermissionService {
       id: data.aclmodulesId,
     });
 
-    const Ispermission =
+    const isPermission =
       await this.Permissionvalue.checkModulePermissionAgainstUserPermission(
         moduleId.permissionsValue,
         newpermissionvalue,
       );
-    if (data.permissions.length === Ispermission.length) {
+    if (data.permissions.length === isPermission.length) {
       return true;
     }
     return false;
@@ -126,7 +126,7 @@ export class PermissionService {
     const moduleId = await this.ACLpermissionService.findOne({
       name: modulename[0],
     });
-    const userpermission = await this.repository.find({
+    const userPermission = await this.repository.find({
       relations: ['aclmodules'],
       where: [
         {
@@ -143,11 +143,11 @@ export class PermissionService {
       ],
     });
 
-    if (!userpermission) {
+    if (!userPermission) {
       this.logger.error(`No module found`);
       throw new NotFoundException(`No module found `);
     }
-    return userpermission;
+    return userPermission;
   }
   async findOne(
     conditions: FindConditions<ACLModulePermissions>,
@@ -170,7 +170,7 @@ export class PermissionService {
   }
   async FindbyRole(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyRole`);
-    const aclpermission = await this.repository.find({
+    const ACLPermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
         entityType: EntityType.Role,
@@ -181,11 +181,11 @@ export class PermissionService {
       },
     });
 
-    return aclpermission;
+    return ACLPermission;
   }
   async FindbyUser(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyUser`);
-    const useraclpermission = await this.repository.find({
+    const userACLPermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
         entityType: EntityType.User,
@@ -196,7 +196,7 @@ export class PermissionService {
       },
     });
 
-    return useraclpermission;
+    return userACLPermission;
   }
   async update(
     id: number,
@@ -217,19 +217,19 @@ export class PermissionService {
         }
       });
     }
-    const userpermission = await this.findOne({ id });
+    const userPermission = await this.findOne({ id });
 
     const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
-    const checkdata = {
-      aclmodulesId: userpermission.aclmodulesId,
+    const checkData = {
+      aclmodulesId: userPermission.aclmodulesId,
       permissions: data.permissions,
     };
-    const permissionboolean = await this.checkForExistingmodulepermission(
-      checkdata,
+    const permissionBoolean = await this.checkForExistingmodulepermission(
+      PermissionDTO,
       permissionValue,
     );
-    if (permissionboolean) {
+    if (permissionBoolean) {
       if (loginuser.role === Role.ApiUser) {
         await this.repository.update(id, {
           permissions: data.permissions,
@@ -282,29 +282,29 @@ export class PermissionService {
       this.logger.error(`No module permission available in requeste`);
       throw new NotFoundException(`No module permission available in requeste`);
     }
-    const api_user = await this.userService.findById(loginuser.id);
+    const apiUser = await this.userService.findById(loginuser.id);
 
     let permissionIds: any = [];
-    const api_userpermission = await this.userService.getApiuser(
-      api_user.api_user_id,
+    const apiUserpermission = await this.userService.getApiuser(
+      apiUser.api_user_id,
     );
 
     if (
-      api_userpermission.permissionIds != null &&
-      api_userpermission.permissionIds.length > 0
+      apiUserpermission.permissionIds != null &&
+      apiUserpermission.permissionIds.length > 0
     ) {
-      permissionIds = api_userpermission.permissionIds;
+      permissionIds = apiUserpermission.permissionIds;
     }
 
-    const userpermissions = await this.repository.find({
+    const userPermissions = await this.repository.find({
       entityType: EntityType.User,
       entityId: loginuser.id,
     });
 
     const hasId = data.some((aclmodule) =>
-      userpermissions.some(
-        (userpermission) =>
-          userpermission.aclmodulesId === aclmodule.aclmodulesId,
+      userPermissions.some(
+        (userPermission) =>
+          userPermission.aclmodulesId === aclmodule.aclmodulesId,
       ),
     );
 
@@ -319,7 +319,7 @@ export class PermissionService {
         }),
       );
       await this.userService.apiUserPermissionRequest(
-        api_user.api_user_id,
+        apiUser.api_user_id,
         permissionIds,
       );
 
