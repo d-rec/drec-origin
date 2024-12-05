@@ -409,7 +409,7 @@ export class ReadsService {
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           this.logger.verbose('historyAge');
 
-          if (checkHistroyreading ) {
+          if (checkHistroyreading) {
             this.storeFailedReads(
               device.externalId,
               element.value,
@@ -1067,11 +1067,15 @@ export class ReadsService {
             historyNextIssue.reservationEndDate,
           ).getTime();
           this.logger.verbose(reservedEnddate);
-          this.logger.verbose(startDate  >= reservedStartdate && startDate  < reservedEnddate);
-          this.logger.verbose(endDate <= reservedEnddate && endDate > reservedStartdate);
+          this.logger.verbose(
+            startDate >= reservedStartdate && startDate < reservedEnddate,
+          );
+          this.logger.verbose(
+            endDate <= reservedEnddate && endDate > reservedStartdate,
+          );
           if (
-            startDate  >= reservedStartdate &&
-            startDate  < reservedEnddate &&
+            startDate >= reservedStartdate &&
+            startDate < reservedEnddate &&
             endDate <= reservedEnddate &&
             endDate > reservedStartdate
           ) {
