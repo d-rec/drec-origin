@@ -23,27 +23,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message =
-      exception instanceof HttpException
-        ? exception.message
-        : 'Internal server error';
+    let errorResponse: any;
 
-    if (process.env.NODE_ENV !== 'local') {
-      this.logger.error({
+    if (exception instanceof HttpException) {
+      errorResponse = exception.getResponse();
+    } else {
+      errorResponse = {
         statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        message,
-        stack: exception.stack,
-        environment: process.env.NODE_ENV,
-      });
+        message: exception.message || 'Internal server error',
+      };
     }
 
-    response.status(status).json({
+    // Log the error
+    this.logger.error({
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
-      message,
+      error: errorResponse,
+      stack: exception.stack,
+      environment: process.env.NODE_ENV,
     });
+
+    // Send the response
+    response.status(status).json(errorResponse);
   }
 }

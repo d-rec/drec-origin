@@ -21,10 +21,20 @@ export class SentryFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      message: 'Internal server error',
-    });
+    let errorResponse: any;
+
+    if (exception instanceof HttpException) {
+      errorResponse = exception.getResponse();
+    } else {
+      errorResponse = {
+        statusCode: status,
+        message:
+          exception instanceof Error
+            ? exception.message
+            : 'Internal server error',
+      };
+    }
+
+    response.status(status).json(errorResponse);
   }
 }
