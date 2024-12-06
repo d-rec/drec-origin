@@ -990,15 +990,15 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startDateFormate = isValidUTCDateFormat(
+        const startDateFormat = isValidUTCDateFormat(
           new Date(ele.starttimestamp).toISOString(),
         );
 
-        const endDateFormate = isValidUTCDateFormat(
+        const endDateFormat = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!startDateFormate || !endDateFormate) {
+        if (!startDateFormat || !endDateFormat) {
           datevalid = false;
         }
         if (device && device.createdAt) {

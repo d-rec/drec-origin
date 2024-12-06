@@ -588,7 +588,7 @@ export class CertificateLogService {
     oldcertificatelog: boolean;
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
-    const getNewReservationInfo =
+    const reservationInfo =
       await this.deviceGroupService.getReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
@@ -598,9 +598,9 @@ export class CertificateLogService {
       );
     this.logger.debug(
       'getNewReservationInfo',
-      getNewReservationInfo.deviceGroups.length,
+      reservationInfo.deviceGroups.length,
     );
-    const getOldReservationInfo =
+    const oldReservationInfo =
       await this.deviceGroupService.getoldReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
@@ -610,34 +610,34 @@ export class CertificateLogService {
       );
     this.logger.debug(
       'getOldReservationInfo',
-      getOldReservationInfo.deviceGroups.length,
+      oldReservationInfo.deviceGroups.length,
     );
     const oldCertificateLog = this.isTrue(filterDto.oldcertificatelog);
-    if (!oldCertificateLog && getNewReservationInfo.deviceGroups.length > 0) {
+    if (!oldCertificateLog && reservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 580');
       const newLog =
         await this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
-          getNewReservationInfo,
+          reservationInfo,
           user.role,
         );
 
       return {
         ...newLog,
         oldcertificatelog:
-          getOldReservationInfo.deviceGroups.length > 0 ? true : false,
+          oldReservationInfo.deviceGroups.length > 0 ? true : false,
       };
     }
 
-    if (oldCertificateLog && getOldReservationInfo.deviceGroups.length > 0) {
+    if (oldCertificateLog && oldReservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 581');
       const oldLog = await this.getDeveloperfindCertifiedReservations(
-        getOldReservationInfo,
+        oldReservationInfo,
         user.role,
       );
       return {
         ...oldLog,
         oldcertificatelog:
-          getOldReservationInfo.deviceGroups.length > 0 ? true : false,
+          oldReservationInfo.deviceGroups.length > 0 ? true : false,
       };
     }
 

@@ -2359,10 +2359,10 @@ export class DeviceGroupService {
       historyNextIssuancer,
     });
 
-    const AllDevicesHistNextIssuansInfo: any = [];
+    const allDevicesHistNextIssuansInfo: any = [];
     deviceHistoryNextIssuance.forEach((ele) =>
       ele.historyNextIssuancer.forEach((he) =>
-        AllDevicesHistNextIssuansInfo.push(he),
+        allDevicesHistNextIssuansInfo.push(he),
       ),
     );
 
@@ -2377,7 +2377,7 @@ export class DeviceGroupService {
 
     return {
       historynextissuansinfo: {
-        AllDeviceshistnextissuansinfo: AllDevicesHistNextIssuansInfo,
+        AllDeviceshistnextissuansinfo: allDevicesHistNextIssuansInfo,
         totalItems: count,
         currentPage: pageNumber,
         totalPages: totalPages,

@@ -400,7 +400,7 @@ export class ReadsService {
               ?.hours || 0,
           );
 
-          const checkHistroyreading = await this.checkhistoryreadexist(
+          const checkHistroyReading = await this.checkhistoryreadexist(
             device.externalId,
             element.starttimestamp,
             element.endtimestamp,
@@ -409,7 +409,7 @@ export class ReadsService {
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           this.logger.verbose('historyAge');
 
-          if (checkHistroyreading) {
+          if (checkHistroyReading) {
             this.storeFailedReads(
               device.externalId,
               element.value,
@@ -1059,25 +1059,25 @@ export class ReadsService {
         if (historyNextIssue != undefined) {
           const startDate = new Date(startdate).getTime();
           const endDate = new Date(enddate).getTime();
-          const reservedStartdate = new Date(
+          const reservedStartDate = new Date(
             historyNextIssue.reservationStartDate,
           ).getTime();
-          this.logger.verbose(reservedStartdate);
+          this.logger.verbose(reservedStartDate);
           const reservedEnddate = new Date(
             historyNextIssue.reservationEndDate,
           ).getTime();
           this.logger.verbose(reservedEnddate);
           this.logger.verbose(
-            startDate >= reservedStartdate && startDate < reservedEnddate,
+            startDate >= reservedStartDate && startDate < reservedEnddate,
           );
           this.logger.verbose(
-            endDate <= reservedEnddate && endDate > reservedStartdate,
+            endDate <= reservedEnddate && endDate > reservedStartDate,
           );
           if (
-            startDate >= reservedStartdate &&
+            startDate >= reservedStartDate &&
             startDate < reservedEnddate &&
             endDate <= reservedEnddate &&
-            endDate > reservedStartdate
+            endDate > reservedStartDate
           ) {
             this.deviceGroupService.updateHistoryCertificateIssueDate(
               historyNextIssue.id,

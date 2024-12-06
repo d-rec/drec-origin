@@ -110,7 +110,7 @@ export class DecimalPermissionValue {
         ).isSet = true;
       }
     });
-    const getPermission: any = [];
+    const permission: any = [];
     this.permissionListMAPToBItPOSITIONSAtAPI.forEach((ele) => {
       if (
         (ele.andOperationNumber & userPermission) ===
@@ -124,10 +124,10 @@ export class DecimalPermissionValue {
           this.userPermissions.find(
             (eleMod: any) => eleMod.bitPosition == ele.bitPosition,
           ).isSet = true;
-          getPermission.push(ele.permissionString);
+          permission.push(ele.permissionString);
         }
       }
     });
-    return getPermission;
+    return permission;
   }
 }

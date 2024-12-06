@@ -323,7 +323,7 @@ export class InvitationService {
 
   async remove(email: string, orgId: number): Promise<void> {
     const lowerCaseEmail = email.toLowerCase();
-    const orgInvitee = await this.invitationRepository.findOne({
+    const orgInvite = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: orgId,
@@ -331,8 +331,8 @@ export class InvitationService {
       relations: ['organization'],
     });
     this.logger.verbose('orginvitee');
-    if (orgInvitee) {
-      await this.invitationRepository.delete(orgInvitee.id);
+    if (orgInvite) {
+      await this.invitationRepository.delete(orgInvite.id);
     }
   }
   async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {

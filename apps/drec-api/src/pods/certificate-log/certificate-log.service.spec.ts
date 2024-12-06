@@ -308,7 +308,7 @@ describe('CertificateLogService', () => {
 
       const pageNumber = 1;
 
-      const getOldReservationInfo = {
+      const oldReservationInfo = {
         deviceGroups: [
           {
             dg_id: 2,
@@ -331,15 +331,15 @@ describe('CertificateLogService', () => {
         ],
       };
 
-      const ReservationInfo = { deviceGroups: [] };
+      const reservationInfo = { deviceGroups: [] };
 
-      const ReservationInforDeveloperBsiseSpy = jest
+      const reservationInforDeveloperBsiseSpy = jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(ReservationInfo);
+        .mockResolvedValueOnce(reservationInfo);
 
-      const OldReservationInforDeveloperBsiseSpy = jest
+      const oldReservationInforDeveloperBsiseSpy = jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getOldReservationInfo);
+        .mockResolvedValueOnce(oldReservationInfo);
 
       const expectedCertificates = {
         certificatelog: [
@@ -395,7 +395,7 @@ describe('CertificateLogService', () => {
         pageNumber,
       );
 
-      expect(ReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
+      expect(reservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDto,
@@ -403,7 +403,7 @@ describe('CertificateLogService', () => {
         user.api_user_id,
       );
 
-      expect(OldReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
+      expect(oldReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDto,
