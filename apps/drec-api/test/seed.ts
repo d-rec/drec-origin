@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { UserService } from '../src/pods/user/user.service';
-import { CreateUserORGDTO } from '../src/pods/user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/enums/role.enum';
 import { DeviceDTO, NewDeviceDTO } from '../src/pods/device/dto';
 import {
@@ -64,7 +64,7 @@ export const testOrgs: OrganizationDTO[] = [
   },
 ];
 
-export const testUsers: Omit<CreateUserORGDTO, 'organizationId'>[] = [
+export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
   {
     firstName: 'Jane',
     lastName: 'Williams',

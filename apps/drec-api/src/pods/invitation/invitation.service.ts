@@ -23,7 +23,7 @@ import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
 import { UpdateInviteStatusDTO } from './dto/invite.dto';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
@@ -143,7 +143,7 @@ export class InvitationService {
         return x[Math.floor(Math.random() * x.length)];
       })
       .join('');
-    const inviteuser: CreateUserORGDTO = {
+    const inviteuser: CreateUserOrgDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),

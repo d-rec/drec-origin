@@ -17,7 +17,7 @@ import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -342,7 +342,7 @@ export class EmailConfirmationService {
   }
 
   public async sendInvitation(
-    inviteuser: any | CreateUserORGDTO,
+    inviteuser: any | CreateUserOrgDTO,
     email: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
