@@ -3,7 +3,7 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../../device/check_
 import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../../utils/types';
 
-export class CertificateWithPerdevicelog extends Certificate {
+export class CertificateWithPerDevicelog extends Certificate {
   id: number;
   deviceId: string;
   generationStartTime: number;
@@ -25,10 +25,10 @@ export class CertificateNewWithPerDeviceLog {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity[];
 }
 
-export class CertificatelogResponse {
+export class CertificateLogResponse {
   certificatelog:
     | CertificateNewWithPerDeviceLog[]
-    | CertificateWithPerdevicelog[];
+    | CertificateWithPerDevicelog[];
   totalPages: number;
   totalCount: number;
 }

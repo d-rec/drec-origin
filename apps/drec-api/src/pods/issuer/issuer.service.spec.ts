@@ -17,7 +17,7 @@ import { Organization } from '../organization/organization.entity';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { DeviceLateongoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { NotFoundException } from '@nestjs/common'; // Adjust the import path as needed
 import { DateTime } from 'luxon';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
@@ -294,7 +294,7 @@ describe('IssuerService', () => {
       const late_end_date = new Date('2023-01-31');
 
       const mockReturnValue =
-        {} as unknown as DeviceLateongoingIssueCertificateEntity; // or any expected return value
+        {} as unknown as DeviceLateOngoingIssueCertificateEntity; // or any expected return value
 
       const addLateCertificateIssueDateLogForDeviceSpy = jest
         .spyOn(deviceService, 'addLateCertificateIssueDateLogForDevice')

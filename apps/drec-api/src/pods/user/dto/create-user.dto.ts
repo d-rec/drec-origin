@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsUUID,
 } from 'class-validator';
-import { UserORGRegistrationData } from '../../../models';
+import { UserOrgRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [
@@ -35,12 +35,12 @@ import { Match } from '../decorators/match.decorator';
 
 // }
 
-export class CreateUserORGDTO
+export class CreateUserOrgDTO
   extends IntersectionType(
     PickType(UserDTO, ['firstName', 'lastName', 'email'] as const),
     PickType(OrganizationDTO, ['organizationType'] as const),
   )
-  implements UserORGRegistrationData
+  implements UserOrgRegistrationData
 {
   @ApiProperty({ type: String })
   @MaxLength(20)

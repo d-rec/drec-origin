@@ -14,9 +14,9 @@ import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { DeviceService } from '../device/device.service';
 import {
-  CertificatelogResponse,
+  CertificateLogResponse,
   CertificateNewWithPerDeviceLog,
-  CertificateWithPerdevicelog,
+  CertificateWithPerDevicelog,
 } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
@@ -25,7 +25,7 @@ import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { deviceFilterDTO } from './dto/deviceFilter.dto';
+import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
 import { Response } from 'express';
@@ -110,7 +110,7 @@ export class CertificateLogService {
 
     if (certificates.length > 0) {
       const logData =
-        await this.findCertifiedReservations<CertificateWithPerdevicelog>(
+        await this.findCertifiedReservations<CertificateWithPerDevicelog>(
           certificates,
           groupid,
         );
@@ -172,7 +172,7 @@ export class CertificateLogService {
   ): Promise<T[]> {
     this.logger.verbose(`With in findCertifiedReservations`);
     return await Promise.all(
-      certificates.map(async (certificate: CertificateWithPerdevicelog) =>
+      certificates.map(async (certificate: CertificateWithPerDevicelog) =>
         this.getCertifiedReservation(
           certificate,
           groupId,
@@ -466,7 +466,7 @@ export class CertificateLogService {
   async getsCertificateReadModule(
     userOrgId: string,
     pageNumber: number,
-    deviceFilter: deviceFilterDTO,
+    deviceFilter: DeviceFilterDTO,
     generationStartTime?: string,
     generationEndTime?: string,
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
@@ -581,7 +581,7 @@ export class CertificateLogService {
   ): Promise<{
     certificatelog:
       | CertificateNewWithPerDeviceLog[]
-      | CertificateWithPerdevicelog[];
+      | CertificateWithPerDevicelog[];
     currentpage?: number;
     totalPages: number;
     totalCount: number;
@@ -664,7 +664,7 @@ export class CertificateLogService {
         }
       | any,
     role: Role,
-  ): Promise<CertificatelogResponse> {
+  ): Promise<CertificateLogResponse> {
     const finalcertificatesInReservationWithLog: Array<any> = [];
     this.logger.verbose(`With in getDeveloperfindCertifiedReservations`);
     await Promise.all(
@@ -679,7 +679,7 @@ export class CertificateLogService {
         this.logger.debug(groupedDatasql);
         const result = await newq.getMany();
         const res = await Promise.all(
-          result.map(async (certifiedlist: CertificateWithPerdevicelog) => {
+          result.map(async (certifiedlist: CertificateWithPerDevicelog) => {
             certifiedlist.certificateStartDate = new Date(
               certifiedlist.generationStartTime * 1000,
             ).toISOString();
@@ -813,7 +813,7 @@ export class CertificateLogService {
         }
       | any,
     role: Role,
-  ): Promise<CertificatelogResponse> {
+  ): Promise<CertificateLogResponse> {
     this.logger.verbose(
       `With in getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );

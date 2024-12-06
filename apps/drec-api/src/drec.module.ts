@@ -48,9 +48,9 @@ import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { CountrycodeModule } from './pods/countrycode/countrycode.module';
-import { SdgbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
-import { SdgBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
+import { CountryCodeModule } from './pods/countrycode/countrycode.module';
+import { SDGbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
@@ -60,7 +60,7 @@ import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_info
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
 
@@ -103,12 +103,12 @@ export const entities = [
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
-  SdgBenefit,
+  SDGBenefit,
   DeltaFirstRead,
   IrecDevicesInformationEntity,
   IrecErrorLogInformationEntity,
   UserLoginSessionEntity,
-  DeviceLateongoingIssueCertificateEntity,
+  DeviceLateOngoingIssueCertificateEntity,
   CertificateSettingEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
@@ -176,8 +176,8 @@ const QueueingModule = () => {
     YieldConfigModule,
     AccessControlLayerModuleServiceModule,
     PermissionModule,
-    CountrycodeModule,
-    SdgbenefitModule,
+    CountryCodeModule,
+    SDGbenefitModule,
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,

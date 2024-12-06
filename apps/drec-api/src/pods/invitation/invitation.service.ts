@@ -22,7 +22,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { updateInviteStatusDTO } from './dto/invite.dto';
+import { UpdateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
@@ -169,7 +169,7 @@ export class InvitationService {
   }
 
   public async update(
-    user: updateInviteStatusDTO,
+    user: UpdateInviteStatusDTO,
     invitationId: number,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
