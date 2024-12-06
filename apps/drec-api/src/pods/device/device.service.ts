@@ -257,13 +257,13 @@ export class DeviceService {
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
-        const irecDeviceAddDto = new IrecDevicesInformationEntity();
-        (irecDeviceAddDto.IREC_id = data.code),
-          (irecDeviceAddDto.event = 'register'),
-          (irecDeviceAddDto.request = requestBody),
-          (irecDeviceAddDto.responses = data);
+        const irecDeviceAddDTO = new IrecDevicesInformationEntity();
+        (irecDeviceAddDTO.IREC_id = data.code),
+          (irecDeviceAddDTO.event = 'register'),
+          (irecDeviceAddDTO.request = requestBody),
+          (irecDeviceAddDTO.responses = data);
         await this.irecinforepository.save({
-          ...irecDeviceAddDto,
+          ...irecDeviceAddDTO,
         });
         this.logger.log(`Device Added Successfully in I-REC`);
         return {
@@ -272,13 +272,13 @@ export class DeviceService {
           IREC_ID: data.code,
         };
       } catch (error) {
-        const irecDeviceErrorLogDto = new IrecErrorLogInformationEntity();
+        const irecDeviceErrorLogDTO = new IrecErrorLogInformationEntity();
 
-        (irecDeviceErrorLogDto.event = 'register'),
-          (irecDeviceErrorLogDto.request = requestBody),
-          (irecDeviceErrorLogDto.error_log_responses = error);
+        (irecDeviceErrorLogDTO.event = 'register'),
+          (irecDeviceErrorLogDTO.request = requestBody),
+          (irecDeviceErrorLogDTO.error_log_responses = error);
         await this.irecerrorlogrepository.save({
-          ...irecDeviceErrorLogDto,
+          ...irecDeviceErrorLogDTO,
         });
         this.logger.error(`Device Added Failure in I-REC ${error}`);
         return {
