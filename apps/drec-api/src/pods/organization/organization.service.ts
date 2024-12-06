@@ -175,13 +175,13 @@ export class OrganizationService {
       limit,
     );
     const totalPages = Math.ceil(totalCount / limit);
-    let newuser = users;
+    let newUser = users;
     if (role != undefined && role != Role.OrganizationAdmin) {
-      newuser = users.filter((user) => user.role != 'OrganizationAdmin');
+      newUser = users.filter((user) => user.role != 'OrganizationAdmin');
     }
 
     return {
-      users: newuser,
+      users: newUser,
       currentPage: pageNumber,
       totalPages,
       totalCount,

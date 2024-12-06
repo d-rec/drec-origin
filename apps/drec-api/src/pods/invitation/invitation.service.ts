@@ -49,10 +49,10 @@ export class InvitationService {
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
-    let inviteorg: number;
+    let inviteOrg: number;
     if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
-        inviteorg = orgId;
+        inviteOrg = orgId;
       } else {
         if (user.organizationId != orgId) {
           this.logger.error(
@@ -65,9 +65,9 @@ export class InvitationService {
         }
       }
     } else {
-      inviteorg = user.organizationId;
+      inviteOrg = user.organizationId;
     }
-    const organization = await this.organizationService.findOne(inviteorg);
+    const organization = await this.organizationService.findOne(inviteOrg);
     if (!organization) {
       this.logger.error(`Organization information not found`);
       throw new ConflictException({
@@ -91,7 +91,7 @@ export class InvitationService {
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      if (invitee.organization.id === inviteorg) {
+      if (invitee.organization.id === inviteOrg) {
         this.logger.error(
           `User ${lowerCaseEmail} is already part of this organization`,
         );
@@ -114,7 +114,7 @@ export class InvitationService {
       where: {
         email: lowerCaseEmail,
         organization: {
-          id: inviteorg,
+          id: inviteOrg,
         },
       },
       relations: ['organization'],

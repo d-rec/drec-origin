@@ -37,7 +37,7 @@ describe('IssuerService', () => {
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
-  let readservice: ReadsService;
+  let readService: ReadsService;
   let httpService: HttpService;
   let offChainCertificateService: OffChainCertificateService;
   let logger: Logger;
@@ -136,7 +136,7 @@ describe('IssuerService', () => {
     logger = module.get<Logger>(Logger);
     deviceService = module.get<DeviceService>(DeviceService);
     organizationService = module.get<OrganizationService>(OrganizationService);
-    readservice = module.get<ReadsService>(ReadsService);
+    readService = module.get<ReadsService>(ReadsService);
     baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
     offChainCertificateService = module.get<OffChainCertificateService>(
       OffChainCertificateService,
@@ -479,7 +479,7 @@ describe('IssuerService', () => {
         groupService.AddCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).not.toHaveBeenCalled();
     });
 
@@ -506,7 +506,7 @@ describe('IssuerService', () => {
         groupService.AddCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).not.toHaveBeenCalled();
     });
 
@@ -602,7 +602,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
         deviceHistoryRequest.readsStartDate,

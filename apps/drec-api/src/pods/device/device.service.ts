@@ -375,19 +375,19 @@ export class DeviceService {
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
     this.logger.verbose(`With in NewfindForGroup`);
-    let groupdevice: Array<any> = await this.repository.find({
+    let groupDevice: Array<any> = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
     });
-    groupdevice = groupdevice.filter(
+    groupDevice = groupDevice.filter(
       (ele) =>
         ele.meterReadtype == ReadType.Delta ||
         ele.meterReadtype == ReadType.ReadMeter,
     );
 
-    const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
+    const deviceGroupedByCountry = this.groupBy(groupDevice, 'countryCode');
     return deviceGroupedByCountry ?? null;
   }
 

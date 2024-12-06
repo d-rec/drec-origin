@@ -361,16 +361,16 @@ export class DeviceController {
     @Query('organizationId') organizationId: number | null,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in get`);
-    let devicedata: Device;
+    let deviceData: Device;
     if (api_user_id && organizationId) {
-      devicedata = await this.deviceService.findOne(id, {
+      deviceData = await this.deviceService.findOne(id, {
         api_user_id: api_user_id,
         organizationId: organizationId,
       } as FindOneOptions<Device>);
     } else {
-      devicedata = await this.deviceService.findOne(id);
+      deviceData = await this.deviceService.findOne(id);
     }
-    return devicedata;
+    return deviceData;
   }
 
   /**
@@ -392,27 +392,27 @@ export class DeviceController {
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    let devicedata: Device;
+    let deviceData: Device;
 
     if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
 
-      devicedata =
+      deviceData =
         await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
           id,
           loginUser.api_user_id,
         );
     } else {
-      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         loginUser.organizationId,
       );
     }
-    devicedata.externalId = devicedata.developerExternalId;
-    delete devicedata['developerExternalId'];
-    return devicedata;
+    deviceData.externalId = deviceData.developerExternalId;
+    delete deviceData['developerExternalId'];
+    return deviceData;
   }
 
   /**
@@ -775,18 +775,18 @@ export class DeviceController {
     this.logger.verbose(`With in remove`);
     const checkIsUnGroup = this.deviceService.findUngroupedById(id);
     if (checkIsUnGroup) {
-      let fitlerop: any;
+      let fitleRop: any;
       if (role === 'Admin') {
-        fitlerop = {
+        fitleRop = {
           groupId: null,
         };
       } else {
-        fitlerop = {
+        fitleRop = {
           groupId: null,
           organizationId: organizationId,
         };
       }
-      return await this.deviceService.remove(id, fitlerop);
+      return await this.deviceService.remove(id, fitleRop);
     }
   }
 

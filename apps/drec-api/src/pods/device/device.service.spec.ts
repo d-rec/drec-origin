@@ -44,7 +44,7 @@ import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_pr
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyrepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediate_MeterRead>;
   let repository: Repository<Device>;
   let checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
