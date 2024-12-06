@@ -1223,14 +1223,14 @@ export class ReadsService {
     const historyDevice = await this.getDeviceHistoryCertificateIssueDate({
       id: id,
     });
-    let updatedhistoryissue = new HistoryIntermediate_MeterRead();
+    let updatedHistoryIssue = new HistoryIntermediate_MeterRead();
     if (historyDevice) {
       historyDevice.certificate_issuance_startdate = startdate;
       historyDevice.certificate_issuance_enddate = enddate;
       historyDevice.certificate_issued = true;
-      updatedhistoryissue = await this.historyrepository.save(historyDevice);
+      updatedHistoryIssue = await this.historyrepository.save(historyDevice);
     }
-    return updatedhistoryissue;
+    return updatedHistoryIssue;
   }
   async getAggregateMeterReadsFirstEntryOfDevice(
     meterId: string,
@@ -1510,19 +1510,19 @@ export class ReadsService {
       this.logger.verbose('The given dates are not for on-going reads');
       return 0;
     }
-    let fluxquery = ``;
+    let fluxQuery = ``;
     if (new Date(start).getTime() > new Date(onboarded).getTime()) {
-      fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
   |> range(start: ${start}, stop: ${end})
   |> filter(fn: (r) => r._measurement == "read" and r.meter == "${externalId}")
   |> count()`;
     } else {
-      fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
   |> range(start: ${onboarded}, stop: ${end})
   |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
   |> count()`;
     }
-    const noOfReads = await this.ongExecute(fluxquery);
+    const noOfReads = await this.ongExecute(fluxQuery);
 
     return noOfReads;
   }

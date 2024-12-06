@@ -32,7 +32,7 @@ import { IUser } from '../../models';
 describe('UserService', () => {
   let service: UserService;
   let repository: Repository<User>;
-  let rolerepository: Repository<UserRole>;
+  let roleRepository: Repository<UserRole>;
   let emailConfirmationService: EmailConfirmationService;
   let oauthClientCredentialsService: OauthClientCredentialsService;
   let organizationService: OrganizationService;
@@ -85,7 +85,7 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
     repository = module.get<Repository<User>>(getRepositoryToken(User));
-    rolerepository = module.get<Repository<UserRole>>(
+    roleRepository = module.get<Repository<UserRole>>(
       getRepositoryToken(UserRole),
     );
     oauthClientCredentialsService = module.get<OauthClientCredentialsService>(

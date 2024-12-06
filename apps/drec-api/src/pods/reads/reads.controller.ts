@@ -153,12 +153,12 @@ export class ReadsController extends BaseReadsController {
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
     //finding the device details throught the device service
-    let orguser: IUser | null;
+    let orgUser: IUser | null;
     if (filter.organizationId) {
       const organization = await this.organizationService.findOne(
         filter.organizationId,
       );
-      orguser = await this.userService.findByEmail(organization.orgEmail);
+      orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
@@ -212,7 +212,7 @@ export class ReadsController extends BaseReadsController {
     if (
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
-      (filter.organizationId != undefined && orguser.role === 'Buyer') ||
+      (filter.organizationId != undefined && orgUser.role === 'Buyer') ||
       (user.role === 'ApiUser' && filter.organizationId == undefined)
     ) {
       if (isNaN(parseInt(meterId))) {
@@ -226,9 +226,9 @@ export class ReadsController extends BaseReadsController {
       }
       device = await this.deviceService.findOne(parseInt(meterId));
       if (
-        orguser != undefined &&
+        orgUser != undefined &&
         device.api_user_id === null &&
-        orguser.role === Role.Buyer
+        orgUser.role === Role.Buyer
       ) {
         this.logger.error(
           `An buyer of apiuser can't view the reads of direct organization`,
@@ -250,8 +250,8 @@ export class ReadsController extends BaseReadsController {
         }
 
         if (
-          orguser != undefined &&
-          device.organizationId === orguser.organization.id
+          orgUser != undefined &&
+          device.organizationId === orgUser.organization.id
         ) {
           this.logger.error(
             `The organizationId given not same as the device's organization`,
@@ -494,7 +494,7 @@ export class ReadsController extends BaseReadsController {
       let datevalid = true;
       let allDatesAreBeforeCreatedAt = true;
       let allStartDatesAreBeforeEnddate = true;
-      let readvalue = true;
+      let readValue = true;
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
@@ -543,7 +543,7 @@ export class ReadsController extends BaseReadsController {
         }
 
         if (ele.value < 0) {
-          readvalue = false;
+          readValue = false;
         }
         if (device && device.commissioningDate) {
           //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
@@ -602,7 +602,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
 
-      if (!readvalue) {
+      if (!readValue) {
         this.logger.error(`meter read value should be greater then 0`);
         throw new ConflictException({
           success: false,
@@ -634,12 +634,12 @@ export class ReadsController extends BaseReadsController {
     ) {
       this.logger.log('Line No: 505');
       let datesContainingNullOrEmptyValues = false;
-      let datevalid1 = true;
+      let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
       let allDatesAreAftercommissioningDate = true;
       let allEndDatesAreBeforSystemDate = true;
-      let enddate: any;
-      let currentdate: Date = new Date();
+      let endDate: any;
+      let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
         if (
@@ -655,7 +655,7 @@ export class ReadsController extends BaseReadsController {
         );
 
         if (!endDateFormate) {
-          datevalid1 = false;
+          dateValid1 = false;
         }
         //check validation with onboarding date
         if (device && device.createdAt) {
@@ -664,7 +664,7 @@ export class ReadsController extends BaseReadsController {
             new Date(device.createdAt).getTime()
           ) {
             allDatesAreAfterCreatedAt = false;
-            enddate = ele.endtimestamp;
+            endDate = ele.endtimestamp;
           }
         }
         //check validation with commissioning Date
@@ -674,14 +674,14 @@ export class ReadsController extends BaseReadsController {
             new Date(device.commissioningDate).getTime()
           ) {
             allDatesAreAftercommissioningDate = false;
-            enddate = ele.endtimestamp;
+            endDate = ele.endtimestamp;
           }
         }
 
         //check validation with System Date
         if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
           allEndDatesAreBeforSystemDate = false;
-          enddate = ele.endtimestamp;
+          endDate = ele.endtimestamp;
         }
       });
       if (datesContainingNullOrEmptyValues) {
@@ -693,7 +693,7 @@ export class ReadsController extends BaseReadsController {
           message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
         });
       }
-      if (!datevalid1) {
+      if (!dateValid1) {
         this.logger.error(
           `Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
@@ -708,36 +708,36 @@ export class ReadsController extends BaseReadsController {
         measurements.timezone !== undefined &&
         measurements.timezone.toString().trim() !== ''
       ) {
-        enddate = momentTimeZone.tz(enddate, measurements.timezone);
-        currentdate = momentTimeZone
-          .tz(currentdate, measurements.timezone)
+        endDate = momentTimeZone.tz(endDate, measurements.timezone);
+        currentDate = momentTimeZone
+          .tz(currentDate, measurements.timezone)
           .toDate();
       }
       if (!allDatesAreAfterCreatedAt) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
+          `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
+          message: `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         });
       }
       if (!allDatesAreAftercommissioningDate) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+          `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+          message: `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         });
       }
       if (!allEndDatesAreBeforSystemDate) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
+          `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
+          message: `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         });
       }
     }
@@ -747,13 +747,13 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.History ||
       measurements.type === ReadType.Delta
     ) {
-      let readvalue = true;
+      let readValue = true;
       measurements.reads.forEach((ele) => {
         if (ele.value <= 0) {
-          readvalue = false;
+          readValue = false;
         }
       });
-      if (!readvalue) {
+      if (!readValue) {
         this.logger.error(`meter read value should be greater then 0`);
         throw new ConflictException({
           success: false,
@@ -912,7 +912,7 @@ export class ReadsController extends BaseReadsController {
                     message: `Invalid date sent  ${ele[key]}`,
                   });
                 } else {
-                  let milliSeondsToAddSentInRequest = '';
+                  let milliSecondsToAddSentInRequest = '';
                   if (
                     ele[key].toString().includes('.') &&
                     !isNaN(
@@ -926,7 +926,7 @@ export class ReadsController extends BaseReadsController {
                       ),
                     )
                   ) {
-                    milliSeondsToAddSentInRequest = ele[key]
+                    milliSecondsToAddSentInRequest = ele[key]
                       .toString()
                       .substring(
                         ele[key].toString().indexOf('.'),
@@ -935,10 +935,10 @@ export class ReadsController extends BaseReadsController {
                   }
                   let utcString: string = dateTime.clone().utc().format();
 
-                  if (milliSeondsToAddSentInRequest != '') {
+                  if (milliSecondsToAddSentInRequest != '') {
                     utcString =
                       utcString.substring(0, utcString.length - 1) +
-                      milliSeondsToAddSentInRequest +
+                      milliSecondsToAddSentInRequest +
                       'Z';
                   } else {
                     utcString =
@@ -974,7 +974,7 @@ export class ReadsController extends BaseReadsController {
       let datevalid = true;
       let allDatesAreBeforeCreatedAt = true;
       let allStartDatesAreBeforeEnddate = true;
-      let readvalue = true;
+      let readValue = true;
       let historyallStartDatesAreAftercommissioningDate = true;
       let historyallEndDatesAreAftercommissioningDate = true;
       measurements.reads.forEach((ele) => {
@@ -1023,7 +1023,7 @@ export class ReadsController extends BaseReadsController {
         }
 
         if (ele.value < 0) {
-          readvalue = false;
+          readValue = false;
         }
         if (device && device.commissioningDate) {
           if (
@@ -1080,7 +1080,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
 
-      if (!readvalue) {
+      if (!readValue) {
         this.logger.error(`meter read value should be greater then 0`);
         throw new ConflictException({
           success: false,
@@ -1112,12 +1112,12 @@ export class ReadsController extends BaseReadsController {
     ) {
       this.logger.log('Line No: 505');
       let datesContainingNullOrEmptyValues = false;
-      let datevalid1 = true;
+      let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
       let allDatesAreAftercommissioningDate = true;
       let allEndDatesAreBeforSystemDate = true;
-      let enddate: any;
-      let currentdate: Date = new Date();
+      let endDate: any;
+      let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
         this.logger.log('Line No: 512');
         if (
@@ -1133,7 +1133,7 @@ export class ReadsController extends BaseReadsController {
         );
 
         if (!endDateFormate) {
-          datevalid1 = false;
+          dateValid1 = false;
         }
         //check validation with onboarding date
         if (device && device.createdAt) {
@@ -1142,7 +1142,7 @@ export class ReadsController extends BaseReadsController {
             new Date(device.createdAt).getTime()
           ) {
             allDatesAreAfterCreatedAt = false;
-            enddate = ele.endtimestamp;
+            endDate = ele.endtimestamp;
           }
         }
         //check validation with commissioning Date
@@ -1152,14 +1152,14 @@ export class ReadsController extends BaseReadsController {
             new Date(device.commissioningDate).getTime()
           ) {
             allDatesAreAftercommissioningDate = false;
-            enddate = ele.endtimestamp;
+            endDate = ele.endtimestamp;
           }
         }
 
         //check validation with System Date
         if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
           allEndDatesAreBeforSystemDate = false;
-          enddate = ele.endtimestamp;
+          endDate = ele.endtimestamp;
         }
       });
       if (datesContainingNullOrEmptyValues) {
@@ -1171,7 +1171,7 @@ export class ReadsController extends BaseReadsController {
           message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
         });
       }
-      if (!datevalid1) {
+      if (!dateValid1) {
         this.logger.error(
           `Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
@@ -1186,36 +1186,36 @@ export class ReadsController extends BaseReadsController {
         measurements.timezone !== undefined &&
         measurements.timezone.toString().trim() !== ''
       ) {
-        enddate = momentTimeZone.tz(enddate, measurements.timezone);
-        currentdate = momentTimeZone
-          .tz(currentdate, measurements.timezone)
+        endDate = momentTimeZone.tz(endDate, measurements.timezone);
+        currentDate = momentTimeZone
+          .tz(currentDate, measurements.timezone)
           .toDate();
       }
       if (!allDatesAreAfterCreatedAt) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
+          `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} is less than or equal to device onboarding date ${device?.createdAt}`,
+          message: `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         });
       }
       if (!allDatesAreAftercommissioningDate) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+          `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+          message: `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         });
       }
       if (!allEndDatesAreBeforSystemDate) {
         this.logger.error(
-          `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
+          `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         );
         throw new ConflictException({
           success: false,
-          message: `One or more measurements endtimestamp ${enddate} is greater than current date ${currentdate}`,
+          message: `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         });
       }
     }
@@ -1225,13 +1225,13 @@ export class ReadsController extends BaseReadsController {
       measurements.type === ReadType.History ||
       measurements.type === ReadType.Delta
     ) {
-      let readvalue = true;
+      let readValue = true;
       measurements.reads.forEach((ele) => {
         if (ele.value <= 0) {
-          readvalue = false;
+          readValue = false;
         }
       });
-      if (!readvalue) {
+      if (!readValue) {
         this.logger.error(`meter read value should be greater then 0`);
         throw new ConflictException({
           success: false,

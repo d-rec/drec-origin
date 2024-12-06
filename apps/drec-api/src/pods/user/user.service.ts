@@ -90,7 +90,7 @@ export class UserService {
       data.api_user_id,
     );
 
-    let org_id;
+    let orgId;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
@@ -107,14 +107,14 @@ export class UserService {
         });
       } else {
         const org = await this.organizationService.newCreateUser(orgdata);
-        org_id = org.id;
+        orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
     if (data.orgid) {
-      org_id = data.orgid;
+      orgId = data.orgid;
     }
     let role;
     let roleId;
@@ -147,7 +147,7 @@ export class UserService {
       status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
-      organization: org_id ? { id: org_id } : {},
+      organization: orgId ? { id: orgId } : {},
       api_user_id: apiUser ? apiUser.api_user_id : null,
     });
     const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -168,7 +168,7 @@ export class UserService {
     const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
       data.api_user_id,
     );
-    let org_id;
+    let orgId;
     if (!inviteuser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
@@ -185,7 +185,7 @@ export class UserService {
         });
       } else {
         const org = await this.organizationService.newCreateUser(orgdata);
-        org_id = org.id;
+        orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
@@ -213,7 +213,7 @@ export class UserService {
       status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
-      organization: org_id ? { id: org_id } : {},
+      organization: orgId ? { id: orgId } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
     const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
