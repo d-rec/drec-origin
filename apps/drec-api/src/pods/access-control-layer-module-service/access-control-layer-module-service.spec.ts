@@ -11,7 +11,7 @@ import { ConflictException } from '@nestjs/common';
 describe('AccessControlLayerModuleServiceService', () => {
   let service: AccessControlLayerModuleServiceService;
   let repository: Repository<AClModules>;
-  let PermissionValue: DecimalPermissionValue;
+  let permissionValue: DecimalPermissionValue;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +43,7 @@ describe('AccessControlLayerModuleServiceService', () => {
     repository = module.get<Repository<AClModules>>(
       getRepositoryToken(AClModules),
     );
-    PermissionValue = module.get<DecimalPermissionValue>(
+    permissionValue = module.get<DecimalPermissionValue>(
       DecimalPermissionValue,
     );
   });
@@ -76,7 +76,7 @@ describe('AccessControlLayerModuleServiceService', () => {
         .mockResolvedValue(null);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const computePermissionsSpy = jest
-        .spyOn(PermissionValue, 'computePermissions')
+        .spyOn(permissionValue, 'computePermissions')
         .mockReturnValue(3);
 
       const result = await service.create(newModule);
@@ -186,7 +186,7 @@ describe('AccessControlLayerModuleServiceService', () => {
         .mockResolvedValue(existingModule);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const computePermissionsSpy = jest
-        .spyOn(PermissionValue, 'computePermissions')
+        .spyOn(permissionValue, 'computePermissions')
         .mockReturnValue(5);
 
       const updateResult = {
