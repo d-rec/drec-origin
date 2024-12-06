@@ -217,7 +217,7 @@ export class PermissionService {
         }
       });
     }
-    const userPermission = await this.findOne({ id });
+    //const userPermission = await this.findOne({ id });
 
     const permissionValue =
       await this.Permissionvalue.computePermissions(addedPermissionList);
