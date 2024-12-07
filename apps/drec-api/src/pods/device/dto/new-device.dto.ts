@@ -90,7 +90,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsNumber()
-  @Min(0, {
+  @Min(1, {
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })

@@ -478,7 +478,6 @@ export class DeviceController {
     @Param('externalId') externalId: string,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
-    console.log(deviceToUpdate);
     this.logger.verbose(`With in update`);
     const org = await this.organizationService.findOne(
       deviceToUpdate.organizationId,
