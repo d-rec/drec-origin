@@ -32,7 +32,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
 
   const app = await NestFactory.create(DrecModule);
 
-  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
+  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false, transform: true }));
 
   app.enableShutdownHooks();
   app.enableCors();
