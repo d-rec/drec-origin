@@ -601,7 +601,7 @@ export class CertificateLogService {
       getnewreservationinfo.deviceGroups.length,
     );
     const getoldreservationinfo =
-      await this.deviceGroupService.getOldReservationInforDeveloperBsise(
+      await this.deviceGroupService.getOldReservationInfOrDeveloperBsise(
         user.organizationId,
         user.role,
         filterDto,
