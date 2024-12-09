@@ -2672,7 +2672,7 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getOldReservationInforDeveloperBsise(
+  async getOldReservationInfOrDeveloperBsise(
     orgId: number,
     role: Role,
     filterDto: FilterDTO,

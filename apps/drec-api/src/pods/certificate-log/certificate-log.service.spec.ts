@@ -66,7 +66,7 @@ describe('CertificateLogService', () => {
           provide: DeviceGroupService,
           useValue: {
             getReservationInforDeveloperBsise: jest.fn(),
-            getoldReservationInforDeveloperBsise: jest.fn(),
+            getOldReservationInfOrDeveloperBsise: jest.fn(),
           } as any,
         },
       ],
@@ -338,7 +338,7 @@ describe('CertificateLogService', () => {
         .mockResolvedValueOnce(getnewreservationinfo);
 
       const getoldReservationInforDeveloperBsiseSpy = jest
-        .spyOn(devicegroupService, 'getOldReservationInforDeveloperBsise')
+        .spyOn(devicegroupService, 'getOldReservationInfOrDeveloperBsise')
         .mockResolvedValueOnce(getoldreservationinfo);
 
       const expectedCertificates = {
@@ -478,7 +478,7 @@ describe('CertificateLogService', () => {
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getnewreservationinfo);
       jest
-        .spyOn(devicegroupService, 'getOldReservationInforDeveloperBsise')
+        .spyOn(devicegroupService, 'getOldReservationInfOrDeveloperBsise')
         .mockResolvedValueOnce(getoldreservationinfo);
 
       const expectedCertificates = {
@@ -582,7 +582,7 @@ describe('CertificateLogService', () => {
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getReservationInfo);
       jest
-        .spyOn(devicegroupService, 'getOldReservationInforDeveloperBsise')
+        .spyOn(devicegroupService, 'getOldReservationInfOrDeveloperBsise')
         .mockResolvedValueOnce(getReservationInfo);
 
       const expectedCertificates = {
