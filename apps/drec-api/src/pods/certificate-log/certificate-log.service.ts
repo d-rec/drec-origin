@@ -16,7 +16,7 @@ import { DeviceService } from '../device/device.service';
 import {
   CertificateLogResponse,
   CertificateNewWithPerDeviceLog,
-  CertificateWithPerDevicelog,
+  CertificateWithPerDeviceLog,
 } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
@@ -110,7 +110,7 @@ export class CertificateLogService {
 
     if (certificates.length > 0) {
       const logData =
-        await this.findCertifiedReservations<CertificateWithPerDevicelog>(
+        await this.findCertifiedReservations<CertificateWithPerDeviceLog>(
           certificates,
           groupid,
         );
@@ -172,7 +172,7 @@ export class CertificateLogService {
   ): Promise<T[]> {
     this.logger.verbose(`With in findCertifiedReservations`);
     return await Promise.all(
-      certificates.map(async (certificate: CertificateWithPerDevicelog) =>
+      certificates.map(async (certificate: CertificateWithPerDeviceLog) =>
         this.getCertifiedReservation(
           certificate,
           groupId,
@@ -581,7 +581,7 @@ export class CertificateLogService {
   ): Promise<{
     certificatelog:
       | CertificateNewWithPerDeviceLog[]
-      | CertificateWithPerDevicelog[];
+      | CertificateWithPerDeviceLog[];
     currentpage?: number;
     totalPages: number;
     totalCount: number;
@@ -679,7 +679,7 @@ export class CertificateLogService {
         this.logger.debug(groupedDatasql);
         const result = await newq.getMany();
         const res = await Promise.all(
-          result.map(async (certifiedlist: CertificateWithPerDevicelog) => {
+          result.map(async (certifiedlist: CertificateWithPerDeviceLog) => {
             certifiedlist.certificateStartDate = new Date(
               certifiedlist.generationStartTime * 1000,
             ).toISOString();
