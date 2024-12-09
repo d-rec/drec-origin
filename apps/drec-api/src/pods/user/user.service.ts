@@ -221,7 +221,7 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-    await this.emailConfirmationService.admincreate(user, data.password);
+    await this.emailConfirmationService.adminCreate(user, data.password);
 
     return new User(user);
   }
@@ -571,7 +571,7 @@ export class UserService {
   public async getTokenForResetPassword(
     email: string,
   ): Promise<ISuccessResponse> {
-    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
+    return await this.emailConfirmationService.confirmationEmailForResetPassword(
       email,
     );
   }
@@ -592,7 +592,7 @@ export class UserService {
       };
     }
     const { id, confirmed } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
-    await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
+    await this.emailConfirmationService.generateToken(getcurrenttoken, id);
     await this.emailConfirmationService.sendInvitation(inviteuser, email);
   }
 

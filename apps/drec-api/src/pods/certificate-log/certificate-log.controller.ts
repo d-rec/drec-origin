@@ -262,7 +262,7 @@ export class CertificateLogController {
     type: Object,
     required: false,
   })
-  async GetCertificateReadModule(
+  async getCertificateReadModule(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('pageNumber') pageNumber: number,
     @Query('certificateStartDate') generationStartTime?: string,
@@ -347,7 +347,7 @@ export class CertificateLogController {
       }
     }
 
-    return this.certificateLogService.getCertifiedlogofDevices(
+    return this.certificateLogService.getCertifiedLogOfDevices(
       user,
       filterDto,
       pageNumber,
@@ -365,7 +365,7 @@ export class CertificateLogController {
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
-  async getcertifcateLog_Perdevice(
+  async getCertifcateLogPerDevice(
     @UserDecorator() user: ILoggedInUser,
     @Param('groupUid', ParseUUIDPipe) groupuId: string,
     @Res() res: Response,

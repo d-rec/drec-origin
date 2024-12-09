@@ -331,7 +331,7 @@ export class ReadsService {
       measurements.timezone !== undefined &&
       measurements.timezone.toString().trim() !== ''
     ) {
-      await this.deviceService.updatetimezone(
+      await this.deviceService.updateTimezone(
         device.externalId,
         measurements.timezone,
       );
@@ -339,13 +339,13 @@ export class ReadsService {
 
     const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
 
-    const filteredMeasurements = await this.NewfilterMeasurements(
+    const filteredMeasurements = await this.newFilterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
     this.logger.verbose(filteredMeasurements);
-    await this.newstoreGenerationReading(id, filteredMeasurements, device);
+    await this.newStoreGenerationReading(id, filteredMeasurements, device);
   }
 
   private NewroundMeasurementsToUnit(
@@ -377,7 +377,7 @@ export class ReadsService {
     };
   }
 
-  private async NewfilterMeasurements(
+  private async newFilterMeasurements(
     deviceId: string,
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
@@ -400,7 +400,7 @@ export class ReadsService {
               ?.hours || 0,
           );
 
-          const checkhistroyreading = await this.checkhistoryreadexist(
+          const checkhistroyreading = await this.checkHistoryReadExist(
             device.externalId,
             element.starttimestamp,
             element.endtimestamp,
@@ -449,7 +449,7 @@ export class ReadsService {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
           };
-          const historyvalidation = await this.NewhistoryvalidateEnergy(
+          const historyvalidation = await this.newHistoryValidateEnergy(
             read,
             device,
             meteredTimePeriod,
@@ -528,7 +528,7 @@ export class ReadsService {
             }
           });
         });
-        await this.deviceService.updatereadtype(deviceId, measurement.type);
+        await this.deviceService.updateReadType(deviceId, measurement.type);
         return {
           reads: reads,
           unit: measurement.unit,
@@ -680,7 +680,7 @@ export class ReadsService {
             }
           });
         });
-        await this.deviceService.updatereadtype(deviceId, measurement.type);
+        await this.deviceService.updateReadType(deviceId, measurement.type);
         return {
           reads: reads,
           unit: measurement.unit,
@@ -792,7 +792,7 @@ export class ReadsService {
     return new InfluxDB({ url, token }).getQueryApi(org);
   }
 
-  private async checkhistoryreadexist(
+  private async checkHistoryReadExist(
     deviceid: string,
     startDate: Date,
     endDate: Date,
@@ -982,7 +982,7 @@ export class ReadsService {
     }
   }
 
-  async NewhistoryvalidateEnergy(
+  async newHistoryValidateEnergy(
     read: ReadDTO,
     device: DeviceDTO,
     requestmeteredTimePeriod: number,
@@ -1088,7 +1088,7 @@ export class ReadsService {
     }
   }
 
-  private async newstoreGenerationReading(
+  private async newStoreGenerationReading(
     id: string,
     measurements: MeasurementDTO,
     device: DeviceDTO,
@@ -1211,7 +1211,7 @@ export class ReadsService {
   ): Promise<HistoryIntermediate_MeterRead | null> {
     return (await this.historyrepository.findOne(conditions)) ?? null;
   }
-  async updatehistorycertificateissuedate(
+  async updateHistoryCertificateIssueDate(
     id: number,
     startdate: Date,
     enddate: Date,
@@ -1273,7 +1273,7 @@ export class ReadsService {
 
     const sizeOfPage = 5;
     let numberOfPages = 0;
-    const numberOfHistReads = await this.getnumberOfHistReads(
+    const numberOfHistReads = await this.getNumberOfHistReads(
       externalId,
       filter.start,
       filter.end,
@@ -1288,7 +1288,7 @@ export class ReadsService {
       filter.offset = sizeOfPage * (pageNumber - 1);
       filter.limit = sizeOfPage;
     }
-    numberOfOngReads = await this.getnumberOfOngReads(
+    numberOfOngReads = await this.getNumberOfOngReads(
       filter.start,
       filter.end,
       externalId,
@@ -1454,7 +1454,7 @@ export class ReadsService {
 
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
-        (await this.getnumberOfOngReads(
+        (await this.getNumberOfOngReads(
           filter.start,
           filter.end,
           externalId,
@@ -1480,7 +1480,7 @@ export class ReadsService {
     }
   }
 
-  async getnumberOfHistReads(
+  async getNumberOfHistReads(
     deviceId: string,
     startDate: Date | string,
     endDate: Date | string,
@@ -1495,7 +1495,7 @@ export class ReadsService {
     return count;
   }
 
-  async getnumberOfOngReads(
+  async getNumberOfOngReads(
     start: Date,
     end: Date,
     externalId: string,
@@ -1532,7 +1532,7 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
-  async latestread(meterId: string, deviceOnboarded: Date): Promise<any> {
+  async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
     const query = `
 from(bucket: "${process.env.INFLUXDB_BUCKET}")
 |> range(start: ${deviceOnboarded}, stop: now())

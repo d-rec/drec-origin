@@ -78,13 +78,13 @@ export class OauthClientCredentialsService {
     return { client_id, client_secret: client_secret };
   }
 
-  async findOneByclient_id(
+  async findOneByclientId(
     client_id: string,
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { client_id } });
   }
 
-  async findOneByclient_idAndUserId(
+  async findOneByClientIdAndUserId(
     client_id: string,
     api_user_id: string,
   ): Promise<OauthClientCredentials | undefined> {
@@ -95,7 +95,7 @@ export class OauthClientCredentialsService {
       },
     });
   }
-  async findOneByuserid(
+  async findOneByuserId(
     api_user_id: string,
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { api_user_id } });

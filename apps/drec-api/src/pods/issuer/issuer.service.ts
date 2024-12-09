@@ -105,7 +105,7 @@ export class IssuerService {
             );
           }
 
-          const countryDeviceGroup = await this.deviceService.NewfindForGroup(
+          const countryDeviceGroup = await this.deviceService.newfindForGroup(
             group.id,
           );
 
@@ -154,7 +154,7 @@ export class IssuerService {
             skipUpdatingNextIssuanceLogTable = true;
             const endDto = new EndReservationdateDTO();
             endDto.endresavationdate = new Date(group.reservationEndDate);
-            await this.groupService.EndReservationGroup(
+            await this.groupService.endReservationGroup(
               group.id,
               group.organizationId,
               endDto,
@@ -207,7 +207,7 @@ export class IssuerService {
               );
               this.logger.error(e);
             }
-            await this.groupService.updatecertificateissuedate(
+            await this.groupService.updateCertificateIssueDate(
               groupRequest.id,
               start_date,
               newEndDate,
@@ -570,7 +570,7 @@ export class IssuerService {
           if (deviceReadValue === 0) {
             filteredDevicesIndexesListIfMeterReadsNotAvailable.push(index);
             const isLateOngoingCycle =
-              await this.deviceService.finddeviceLateCycleOfdaterange(
+              await this.deviceService.findDeviceLateCycleOfDateRange(
                 group.id,
                 device.externalId,
                 startDate,
@@ -587,7 +587,7 @@ export class IssuerService {
             }
           }
           if (deviceReadValue !== 0) {
-            const lastRead = await this.readService.latestread(
+            const lastRead = await this.readService.latestRead(
               device.externalId,
               device.createdAt,
             );
@@ -598,7 +598,7 @@ export class IssuerService {
               const newStartDate = new Date(lastRead[0].timestamp);
               newStartDate.setTime(newStartDate.getTime() + 1);
               const isLateOngoingCycle =
-                await this.deviceService.finddeviceLateCycleOfdaterange(
+                await this.deviceService.findDeviceLateCycleOfDateRange(
                   group.id,
                   device.externalId,
                   DateTime.fromISO(newStartDate.toISOString()).toUTC(),
@@ -738,7 +738,7 @@ export class IssuerService {
             certificateTransactionUID.toString());
         (deviceCertificateLogDTO.ongoing_start_date = groupRequest.start_date),
           (deviceCertificateLogDTO.ongoing_end_date = groupRequest.end_date);
-        await this.deviceService.AddCertificateIssueDateLogForDevice(
+        await this.deviceService.addCertificateIssueDateLogForDevice(
           deviceCertificateLogDTO,
         );
       }),
@@ -829,7 +829,7 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     this.issueCertificate(issuance);
@@ -864,7 +864,7 @@ export class IssuerService {
     deviceCertificateLogDTO.groupId = group.id;
     deviceCertificateLogDTO.certificateTransactionUID =
       certificateTransactionUID.toString();
-    await this.deviceService.AddCertificateIssueDateLogForDevice(
+    await this.deviceService.addCertificateIssueDateLogForDevice(
       deviceCertificateLogDTO,
     );
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
@@ -906,12 +906,12 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = device.countryCode),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     //const issuedCertificate = await
     this.issueCertificate(issuance);
-    await this.readService.updatehistorycertificateissuedate(
+    await this.readService.updateHistoryCertificateIssueDate(
       deviceHistoryRequest.id,
       deviceHistoryRequest.readsStartDate,
       deviceHistoryRequest.readsEndDate,
@@ -1125,7 +1125,7 @@ export class IssuerService {
           nextIssuance.start_date = element.late_start_date;
           nextIssuance.end_date = element.late_end_date;
         }
-        const lastRead = await this.readService.latestread(
+        const lastRead = await this.readService.latestRead(
           device.externalId,
           device.createdAt,
         );
@@ -1156,14 +1156,14 @@ export class IssuerService {
             new Date(newStartDate).getTime() !==
               new Date(element.late_start_date).getTime()
           ) {
-            await this.deviceService.updatelateongoing(
+            await this.deviceService.updateLateOngoing(
               device.externalId,
               element.id,
               new Date(lastRead[0].timestamp).toISOString(),
             );
 
             const isLateOngoingCycle =
-              await this.deviceService.finddeviceLateCycleOfdaterange(
+              await this.deviceService.findDeviceLateCycleOfDateRange(
                 group.id,
                 device.externalId,
                 DateTime.fromISO(
@@ -1209,7 +1209,7 @@ export class IssuerService {
             );
           if (allReadsForDeviceBetweenTimeRange.length > 0) {
             this.logger.verbose('if read are available in date range');
-            await this.deviceService.updatelateongoing(
+            await this.deviceService.updateLateOngoing(
               device.externalId,
               element.id,
               element.late_end_date,
@@ -1404,7 +1404,7 @@ export class IssuerService {
         certificateTransactionUID.toString());
     (deviceCertificateLogDTO.ongoing_start_date = startDate.toString()),
       (deviceCertificateLogDTO.ongoing_end_date = endDate.toString());
-    await this.deviceService.AddCertificateIssueDateLogForDevice(
+    await this.deviceService.addCertificateIssueDateLogForDevice(
       deviceCertificateLogDTO,
     );
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
@@ -1467,7 +1467,7 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     this.issueCertificate(issuance);
@@ -1476,7 +1476,7 @@ export class IssuerService {
   // @Cron('*/2 * * * * ')
   async getMissingCycleBeforeLateOngoing(): Promise<void> {
     this.logger.debug('Called every 4pm to check for issuance of certificates');
-    const deviceGroups = await this.groupService.getallReservationactive();
+    const deviceGroups = await this.groupService.getAllReservationActive();
     await Promise.all(
       deviceGroups.map(async (groupRequest: DeviceGroup) => {
         const group = groupRequest;
@@ -1492,7 +1492,7 @@ export class IssuerService {
               group.id,
             );
 
-            const lateOngoing = await this.deviceService.findoneLateCycle(
+            const lateOngoing = await this.deviceService.findOneLateCycle(
               group.id,
               element.externalId,
             );
@@ -1536,7 +1536,7 @@ export class IssuerService {
               const endDate = (nextDate < end ? nextDate : end).toISOString();
               const endDate1 = DateTime.fromISO(endDate).toUTC();
               const isLateOngoingCycle =
-                await this.deviceService.finddeviceLateCycleOfdaterange(
+                await this.deviceService.findDeviceLateCycleOfDateRange(
                   group.id,
                   element.externalId,
                   startDate,

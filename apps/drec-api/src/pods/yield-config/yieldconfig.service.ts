@@ -55,7 +55,7 @@ export class YieldConfigService {
     countryCode: string,
     countryname: string,
   ): Promise<void> {
-    const isExistingUser = await this.hasvalue({ countryCode });
+    const isExistingUser = await this.hasValue({ countryCode });
     if (isExistingUser) {
       const message = `Yield value  for this country ${countryname} already exists`;
 
@@ -66,7 +66,7 @@ export class YieldConfigService {
       });
     }
   }
-  private async hasvalue(conditions: FindConditions<YieldConfig>) {
+  private async hasValue(conditions: FindConditions<YieldConfig>) {
     return Boolean(await this.findOne(conditions));
   }
   async findOne(

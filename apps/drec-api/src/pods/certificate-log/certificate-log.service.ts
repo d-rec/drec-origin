@@ -556,7 +556,7 @@ export class CertificateLogService {
   }
 
   // add function for check the last end certified log in active reservation time
-  async getLastCertifiedDevicelogBYgroupId(
+  async getLastCertifiedDevicelogBygroupId(
     groupId: number,
     deviceId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
@@ -574,7 +574,7 @@ export class CertificateLogService {
 
   //add function to get the certified log which device of developer added in reservation for developer
 
-  async getCertifiedlogofDevices(
+  async getCertifiedLogOfDevices(
     user: ILoggedInUser,
     filterDto: FilterDTO,
     pageNumber: number,
@@ -601,7 +601,7 @@ export class CertificateLogService {
       getnewreservationinfo.deviceGroups.length,
     );
     const getoldreservationinfo =
-      await this.deviceGroupService.getoldReservationInforDeveloperBsise(
+      await this.deviceGroupService.getOldReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
         filterDto,
@@ -630,7 +630,7 @@ export class CertificateLogService {
 
     if (oldcertificatelog && getoldreservationinfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 581');
-      const oldlog = await this.getDeveloperfindCertifiedReservations(
+      const oldlog = await this.getDeveloperFindCertifiedReservations(
         getoldreservationinfo,
         user.role,
       );
@@ -654,7 +654,7 @@ export class CertificateLogService {
     return value === 'true' || value === true;
   }
 
-  async getDeveloperfindCertifiedReservations(
+  async getDeveloperFindCertifiedReservations(
     certifiedReservation:
       | {
           deviceGroups: any;

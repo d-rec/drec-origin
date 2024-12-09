@@ -66,7 +66,7 @@ export class PermissionService {
     const permissionValue =
       this.Permissionvalue.computePermissions(addedPermissionList);
 
-    const permissionboolean = await this.checkForExistingmodulepermission(
+    const permissionboolean = await this.checkForExistingModulePermission(
       data,
       permissionValue,
     );
@@ -98,11 +98,11 @@ export class PermissionService {
       });
     }
   }
-  private async checkForExistingmodulepermission(
+  private async checkForExistingModulePermission(
     data: any,
     newpermissionvalue: number,
   ): Promise<boolean> {
-    this.logger.verbose(`With in checkForExistingmodulepermission`);
+    this.logger.verbose(`With in checkForExistingModulepermission`);
     const moduleId = await this.ACLpermissionService.findOne({
       id: data.aclmodulesId,
     });
@@ -168,7 +168,7 @@ export class PermissionService {
     });
     return permission;
   }
-  async FindbyRole(id: number): Promise<IACLmodulsPermissions[]> {
+  async findByRole(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyRole`);
     const aclpermission = await this.repository.find({
       relations: ['aclmodules'],
@@ -183,7 +183,7 @@ export class PermissionService {
 
     return aclpermission;
   }
-  async FindbyUser(id: number): Promise<IACLmodulsPermissions[]> {
+  async findByUser(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyUser`);
     const useraclpermission = await this.repository.find({
       relations: ['aclmodules'],
@@ -225,7 +225,7 @@ export class PermissionService {
       aclmodulesId: userpermission.aclmodulesId,
       permissions: data.permissions,
     };
-    const permissionboolean = await this.checkForExistingmodulepermission(
+    const permissionboolean = await this.checkForExistingModulePermission(
       checkdata,
       permissionValue,
     );
@@ -251,7 +251,7 @@ export class PermissionService {
       );
     }
   }
-  public async updatepermissionstatus(
+  public async updatePermissionStatus(
     id: number,
     apipermission_status?: UserPermissionStatus,
   ): Promise<ExtendedBaseEntity & UpdatePermissionDTO> {
@@ -273,7 +273,7 @@ export class PermissionService {
     return this.findOne({ id: id });
   }
 
-  async permisssion_request(
+  async permisssionRequest(
     data: [NewApiUserPermissionDTO],
     loginuser: ILoggedInUser,
   ): Promise<any> {
@@ -335,7 +335,7 @@ export class PermissionService {
       });
     }
   }
-  async permission_veify(
+  async permissionVeify(
     api_user_id: string,
     data: ApiUserPermissionUpdateDTO,
   ): Promise<any> {
@@ -349,7 +349,7 @@ export class PermissionService {
     await Promise.all(
       pre.map(
         async (pre: number) =>
-          await this.updatepermissionstatus(pre, data.status),
+          await this.updatePermissionStatus(pre, data.status),
       ),
     );
     return { statsu: 'success' };

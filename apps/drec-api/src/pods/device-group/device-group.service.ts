@@ -377,7 +377,7 @@ export class DeviceGroupService {
           orguser.role === Role.OrganizationAdmin ||
           orguser.role === Role.DeviceOwner
         ) {
-          const isMyDevice = await this.checkdeveloperorganization(
+          const isMyDevice = await this.checkDeveloperOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -409,7 +409,7 @@ export class DeviceGroupService {
           user.role === Role.OrganizationAdmin ||
           user.role === Role.DeviceOwner
         ) {
-          const isMyDevice = await this.checkdeveloperorganization(
+          const isMyDevice = await this.checkDeveloperOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -1635,7 +1635,7 @@ export class DeviceGroupService {
     const data = new LoggedInUser(user);
     data.id = filesAddedForProcessing.userId;
     data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.GetuploadS3(
+    const response = await this.fileService.getUploadS3(
       filesAddedForProcessing.fileId,
     );
     this.logger.debug(response);
@@ -2126,7 +2126,7 @@ export class DeviceGroupService {
       });
     return nextissuance;
   }
-  async updatecertificateissuedate(
+  async updateCertificateIssueDate(
     id: number,
     startdate: string,
     enddate: string,
@@ -2145,7 +2145,7 @@ export class DeviceGroupService {
     return updatedissuedate;
   }
 
-  async EndReservationGroup(
+  async endReservationGroup(
     groupId: number,
     organizationId: number,
     reservationend: EndReservationdateDTO,
@@ -2221,7 +2221,7 @@ export class DeviceGroupService {
     });
   }
 
-  public async AddCertificateIssueDateLogForDeviceGroup(
+  public async addCertificateIssueDateLogForDeviceGroup(
     params: CheckCertificateIssueDateLogForDeviceGroupEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
     this.logger.verbose(`With in AddCertificateIssueDateLogForDeviceGroup`);
@@ -2298,7 +2298,7 @@ export class DeviceGroupService {
     return updatedissuedatestatus;
   }
 
-  async getallReservationactive(): Promise<DeviceGroup[]> {
+  async getAllReservationActive(): Promise<DeviceGroup[]> {
     this.logger.verbose(`With in getallReservationactive`);
     const activeresvation = await this.repository.find({
       where: {
@@ -2309,7 +2309,7 @@ export class DeviceGroupService {
     return activeresvation;
   }
 
-  async getcurrentInformationofDevicesInReservation(
+  async getCurrentInformationofDevicesInReservation(
     groupuid: string,
     pageNumber?: number,
   ): Promise<any> {
@@ -2672,7 +2672,7 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getoldReservationInforDeveloperBsise(
+  async getOldReservationInforDeveloperBsise(
     orgId: number,
     role: Role,
     filterDto: FilterDTO,
@@ -2952,7 +2952,7 @@ export class DeviceGroupService {
     return response;
   }
 
-  public async checkdeveloperorganization(
+  public async checkDeveloperOrganization(
     deviceIds: number[],
     organizationId: number,
   ): Promise<any> {

@@ -166,7 +166,7 @@ export class DeviceController {
       api_user_id = null;
     }
 
-    return this.deviceService.finddeviceForBuyer(
+    return this.deviceService.findDeviceForBuyer(
       filterDto,
       pagenumber,
       api_user_id,
@@ -878,7 +878,7 @@ export class DeviceController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
   ): Promise<any> {
@@ -903,7 +903,7 @@ export class DeviceController {
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
-  async certifiedlogdaterang(
+  async certifiedLogDateRang(
     @UserDecorator() user: ILoggedInUser,
     @Query('groupUid') groupuId: string,
     @Query('pagenumber') pagenumber: number,
@@ -948,12 +948,12 @@ export class DeviceController {
           message: 'device not found, invalid value was sent',
         });
       }
-      return await this.deviceService.getcertifieddevicedaterange(
+      return await this.deviceService.getCertifiedDeviceDateRange(
         group.id,
         device,
       );
     } else {
-      return await this.deviceService.getcertifieddevicedaterangeBygroupid(
+      return await this.deviceService.getCertifiedDeviceDateRangeBygroupId(
         group.id,
         pagenumber,
       );

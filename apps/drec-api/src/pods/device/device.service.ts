@@ -216,7 +216,7 @@ export class DeviceService {
   }
 
   //@Cron('*/30 * * * * *')
-  async I_recPostData(deviceId: number): Promise<any> {
+  async IRECPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'NotRegistered' },
@@ -289,7 +289,7 @@ export class DeviceService {
     }
   }
 
-  async I_RECDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
+  async IRECDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
     this.logger.verbose(`With in I_RECDeviceDetailsPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },
@@ -371,7 +371,7 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
-  public async NewfindForGroup(
+  public async newfindForGroup(
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
     this.logger.verbose(`With in NewfindForGroup`);
@@ -932,7 +932,7 @@ export class DeviceService {
       },
     });
   }
-  public async updatereadtype(
+  public async updateReadType(
     deviceId: string,
     meterReadtype: string,
   ): Promise<Device> {
@@ -950,7 +950,7 @@ export class DeviceService {
 
     return await this.repository.save(devicereadtype);
   }
-  public async updatetimezone(
+  public async updateTimezone(
     deviceId: string,
     timeZone: string,
   ): Promise<Device> {
@@ -996,7 +996,7 @@ export class DeviceService {
     };
     return query;
   }
-  public async finddeviceForBuyer(
+  public async findDeviceForBuyer(
     filterDto: FilterDTO,
     pagenumber: number,
     api_user_id: string,
@@ -1033,7 +1033,7 @@ export class DeviceService {
     };
   }
 
-  public async AddCertificateIssueDateLogForDevice(
+  public async addCertificateIssueDateLogForDevice(
     params: CheckCertificateIssueDateLogForDeviceEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in AddCertificateIssueDateLogForDevice`);
@@ -1063,7 +1063,7 @@ export class DeviceService {
       },
     });
   }
-  public async finddeviceLateCycleOfdaterange(
+  public async findDeviceLateCycleOfDateRange(
     groupid: number,
     externalid: string,
     latestartDate: DateTime,
@@ -1082,7 +1082,7 @@ export class DeviceService {
       return true;
     }
   }
-  public async findoneLateCycle(
+  public async findOneLateCycle(
     groupid: number,
     externalid: string,
   ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
@@ -1163,7 +1163,7 @@ export class DeviceService {
     return query;
   }
 
-  async getallread(
+  async getAllRead(
     meterId: string,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     this.logger.verbose(`With in getallread`);
@@ -1205,7 +1205,7 @@ export class DeviceService {
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        const totalamount = await this.getallread(device.externalId);
+        const totalamount = await this.getAllRead(device.externalId);
         const totalReadValue = totalamount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -1234,7 +1234,7 @@ export class DeviceService {
     );
 
     if (numberOfHistReads <= 0 && numberOfOngReads <= 0) {
-      return this.changecreatedAtDate(onboardedDate, givenDate, externalId);
+      return this.changeCreatedAtDate(onboardedDate, givenDate, externalId);
     } else {
       this.logger.error(
         `The given device already had some meter reads;Thus you cannot change the createdAt`,
@@ -1281,7 +1281,7 @@ export class DeviceService {
     return Number(data[0]._value);
   }
 
-  async changecreatedAtDate(
+  async changeCreatedAtDate(
     onboardedDate: Date,
     givenDate: string,
     externalId: string,
@@ -1357,7 +1357,7 @@ export class DeviceService {
       },
     });
   }
-  async getcertifieddevicedaterange(
+  async getCertifiedDeviceDateRange(
     groupId: number,
     device?: DeviceDTO,
   ): Promise<any> {
@@ -1383,7 +1383,7 @@ export class DeviceService {
 
     return finalresult;
   }
-  async getcertifieddevicedaterangeBygroupid(
+  async getCertifiedDeviceDateRangeBygroupId(
     groupId: number,
     pageNumber?: number,
   ): Promise<any> {
@@ -1455,7 +1455,7 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
-  async updatelateongoing(
+  async updateLateOngoing(
     externalId: string,
     id: number,
     lateend_date?: string,
@@ -1467,7 +1467,7 @@ export class DeviceService {
       { late_end_date: lateend_date, certificate_issued: true },
     );
   }
-  async updatelateongoingIfReservationInactive(
+  async updateLateOngoingIfReservationInactive(
     externalId: string,
   ): Promise<any> {
     this.logger.verbose(`With in updatelateongoingIfReservationInactive`);

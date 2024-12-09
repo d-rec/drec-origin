@@ -136,7 +136,7 @@ export class YieldConfigController {
     type: YieldConfigDTO,
     description: 'Updates a yield value or status by admin',
   })
-  public async updateyield(
+  public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: UpdateYieldValueDTO,
     @UserDecorator() loggedUser: ILoggedInUser,

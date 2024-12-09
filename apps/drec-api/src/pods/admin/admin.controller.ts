@@ -372,11 +372,11 @@ export class AdminController {
     // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
-  public async IrecdeviceRegister(
+  public async IRECDeviceRegister(
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
-    return await this.deviceService.I_recPostData(id);
+    return await this.deviceService.IRECPostData(id);
   }
 
   @Get('/devices/autocomplete')
@@ -390,7 +390,7 @@ export class AdminController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     // @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,

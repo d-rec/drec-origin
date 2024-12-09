@@ -194,10 +194,10 @@ describe('IssuerService', () => {
         .spyOn(groupService, 'findOne')
         .mockResolvedValue(mockGroup);
       const updatecertificateissuedateSpy = jest
-        .spyOn(groupService, 'updatecertificateissuedate')
+        .spyOn(groupService, 'updateCertificateIssueDate')
         .mockResolvedValue(undefined);
       const NewfindForGroupSpy = jest
-        .spyOn(deviceService, 'NewfindForGroup')
+        .spyOn(deviceService, 'newfindForGroup')
         .mockImplementation(() => Promise.resolve({}));
       const orgfindOneSpy = jest
         .spyOn(organizationService, 'findOne')
@@ -473,10 +473,10 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).not.toHaveBeenCalled();
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
         readservice.updatehistorycertificateissuedate,
@@ -500,10 +500,10 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).not.toHaveBeenCalled();
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
         readservice.updatehistorycertificateissuedate,
@@ -538,7 +538,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).toHaveBeenCalled();
     });
 
@@ -570,7 +570,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).toHaveBeenCalled();
     });
 
@@ -1188,13 +1188,13 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       jest
-        .spyOn(groupService, 'getallReservationactive')
+        .spyOn(groupService, 'getallReservationActive')
         .mockResolvedValue([mockGroup]);
       jest.spyOn(organizationService, 'findOne').mockResolvedValue({
         name: 'OrgName',
         blockchainAccountAddress: 'Address',
       } as unknown as Organization);
-      jest.spyOn(deviceService, 'NewfindForGroup').mockResolvedValue({});
+      jest.spyOn(deviceService, 'newfindForGroup').mockResolvedValue({});
       jest
         .spyOn(groupService, 'getGroupiCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);

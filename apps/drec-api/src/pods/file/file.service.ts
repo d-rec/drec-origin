@@ -233,7 +233,7 @@ export class FileService {
     });
   }
 
-  public async GetuploadS3(key: string): Promise<any> {
+  public async getUploadS3(key: string): Promise<any> {
     this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
 

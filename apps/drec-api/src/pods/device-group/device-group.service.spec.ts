@@ -384,7 +384,7 @@ describe('DeviceGroupService', () => {
         .spyOn(userService, 'findByEmail')
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest
-        .spyOn(service, 'checkdeveloperorganization')
+        .spyOn(service, 'checkDeveloperOrganization')
         .mockResolvedValue(false);
 
       await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
@@ -411,7 +411,7 @@ describe('DeviceGroupService', () => {
       jest
         .spyOn(userService, 'findByEmail')
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
-      jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       const result = await service.findById(deviceGroupId, mockUser);
 
@@ -431,7 +431,7 @@ describe('DeviceGroupService', () => {
       } as ILoggedInUser;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
         UnauthorizedException,

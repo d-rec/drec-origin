@@ -870,7 +870,7 @@ export class BuyerReservationController {
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async getdevciegrouplog(
+  async getDevcieGroupLog(
     @Param('id') id: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
     this.logger.verbose(`With in getdevciegrouplog`);
@@ -892,7 +892,7 @@ export class BuyerReservationController {
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
-  public async endresavation(
+  public async endResavation(
     @Param('id') id: number,
     @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
@@ -917,7 +917,7 @@ export class BuyerReservationController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async getReservationcurrentinformation(
+  public async getReservationCurrentInformation(
     @Param('groupUid') groupuId: string,
     @Query('pagenumber') pagenumber: number,
   ): Promise<any> {

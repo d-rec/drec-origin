@@ -79,7 +79,7 @@ export class EmailConfirmationService {
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
-  public async admincreate(
+  public async adminCreate(
     user: User,
     password: string,
   ): Promise<EmailConfirmation> {
@@ -110,7 +110,7 @@ export class EmailConfirmationService {
       expiryTimestamp,
     });
 
-    await this.sendadminConfirmEmailRequest(user.email, password);
+    await this.sendAdminConfirmEmailRequest(user.email, password);
 
     return emailConfirmation;
   }
@@ -212,7 +212,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -221,7 +221,7 @@ export class EmailConfirmationService {
     };
   }
 
-  public async ConfirmationEmailForResetPassword(
+  public async confirmationEmailForResetPassword(
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in ConfirmationEmailForResetPassword`);
@@ -234,7 +234,7 @@ export class EmailConfirmationService {
       };
     }
     const { id } = currentToken;
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),
@@ -251,7 +251,7 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(
+  public async generateToken(
     currentToken: EmailConfirmation,
     id: number,
   ): Promise<any> {
@@ -295,7 +295,7 @@ export class EmailConfirmationService {
     }
   }
 
-  private async sendadminConfirmEmailRequest(
+  private async sendAdminConfirmEmailRequest(
     email: string,
     password: string,
   ): Promise<void> {

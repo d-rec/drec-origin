@@ -310,7 +310,7 @@ export class UserController {
     type: SuccessResponseDTO,
     description: `send a email`,
   })
-  public async Forgetpassword(
+  public async forgetPassword(
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
@@ -320,7 +320,7 @@ export class UserController {
   @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
   @Roles(Role.ApiUser)
-  public async AccessKeyFile(
+  public async accessKeyFile(
     @Param('api_user_id') api_user_id: string,
     @Res() res: Response,
   ): Promise<any> {

@@ -76,11 +76,11 @@ export class PermissionController {
     type: PermissionDTO,
     description: 'Get list of user role permission',
   })
-  async rolepermission(
+  async rolePermission(
     @Param('id', new ParseIntPipe()) id: number,
   ): Promise<PermissionDTO[]> {
     this.logger.verbose(`With in rolepermission`);
-    return this.PermissionService.FindbyRole(id);
+    return this.PermissionService.findByRole(id);
   }
 
   /**
@@ -102,7 +102,7 @@ export class PermissionController {
     @Param('id', new ParseIntPipe()) id: number,
   ): Promise<PermissionDTO[] | null> {
     this.logger.verbose(`With in user`);
-    return this.PermissionService.FindbyUser(id);
+    return this.PermissionService.findByUser(id);
   }
   /**
    * This api route use to add permission for all role by admin
@@ -145,7 +145,7 @@ export class PermissionController {
     description:
       'Updates a permission (Read,Write,Delete,Update) or status by admin',
   })
-  public async updateyield(
+  public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: UpdatePermissionDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
@@ -168,13 +168,13 @@ export class PermissionController {
     type: PermissionDTO,
     description: 'Request of permission from ApiUser',
   })
-  public async apiuser_modulerequest(
+  public async APIUserModuleRequest(
     //  @Param('apiuserId') api_user_id: string,
     @Body() moduleData: [NewApiUserPermissionDTO],
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<{ statsu: string; message: string }> {
     this.logger.verbose(`With in apiuser_modulerequest`);
-    return this.PermissionService.permisssion_request(moduleData, loggedUser);
+    return this.PermissionService.permisssionRequest(moduleData, loggedUser);
   }
 
   /**
@@ -193,11 +193,11 @@ export class PermissionController {
     type: PermissionDTO,
     description: 'Request for api user',
   })
-  public async apiuser_moduleapprove(
+  public async APIUserModuleApprove(
     @Param('apiuserId') api_user_id: string,
     @Body() moduleData: ApiUserPermissionUpdateDTO,
   ): Promise<{ statsu: string; message: string }> {
     this.logger.verbose(`With in apiuser_moduleapprove`);
-    return this.PermissionService.permission_veify(api_user_id, moduleData);
+    return this.PermissionService.permissionVeify(api_user_id, moduleData);
   }
 }

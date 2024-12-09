@@ -384,12 +384,12 @@ describe('CertificateLogService', () => {
       };
 
       jest
-        .spyOn(service, 'getDeveloperfindCertifiedReservations')
+        .spyOn(service, 'getDeveloperFindCertifiedReservations')
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificatelogResponse,
         );
 
-      const result = await service.getCertifiedlogofDevices(
+      const result = await service.getCertifiedLogOfDevices(
         user,
         filterDto,
         pageNumber,
@@ -532,7 +532,7 @@ describe('CertificateLogService', () => {
           expectedCertificates as unknown as CertificatelogResponse,
         );
 
-      const result = await service.getCertifiedlogofDevices(
+      const result = await service.getCertifiedLogOfDevices(
         user,
         filterDto,
         pageNumber,
@@ -593,7 +593,7 @@ describe('CertificateLogService', () => {
         oldcertificatelog: false, // Include this to match the actual result
       };
 
-      const result = await service.getCertifiedlogofDevices(
+      const result = await service.getCertifiedLogOfDevices(
         user,
         filterDto,
         pageNumber,

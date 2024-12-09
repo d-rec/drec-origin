@@ -143,7 +143,7 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newgetReads(
+  public async newGetReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterNoOffLimit,
     @Query('pagenumber') pagenumber: number | null,
@@ -812,7 +812,7 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newstoreReadaddbyadmin(
+  public async newstoreReadaddByAdmin(
     @Param('id') id: string,
     @Query('organizationId') organizationId: number | null,
     @Body() measurements: NewIntmediateMeterReadDTO,
@@ -1310,7 +1310,7 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(`Read not found`);
       throw new HttpException('Read not found', 400);
     } else {
-      latestReadObject = await this.internalReadsService.latestread(
+      latestReadObject = await this.internalReadsService.latestRead(
         deviceExternalId,
         device.createdAt,
       );
