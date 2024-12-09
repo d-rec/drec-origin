@@ -3,11 +3,11 @@ import { ReadDTO } from '@energyweb/energy-api-influxdb';
 import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { Logger } from '@nestjs/common';
 
-export const NewfindLatestRead = async (
+export const newFindLatestRead = async (
   meterId: string,
   deviceregisterdate: Date,
 ): Promise<ReadDTO | void> => {
-  const logger = new Logger('NewfindLatestRead');
+  const logger = new Logger('newfindLatestRead');
 
   const url = process.env.INFLUXDB_URL;
   const token = process.env.INFLUXDB_TOKEN;

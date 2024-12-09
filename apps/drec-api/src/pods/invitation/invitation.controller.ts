@@ -35,8 +35,8 @@ import { InvitationDTO } from './dto/invitation.dto';
 import {
   ensureOrganizationRole,
   ILoggedInUser,
-  ResponseFailure,
-  ResponseSuccess,
+  responseFailure,
+  responseSuccess,
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums';
@@ -183,7 +183,7 @@ export class InvitationController {
     if (!loggedUser.hasOrganization) {
       this.logger.error(`User doesn't belong to any organization.`);
       throw new BadRequestException(
-        ResponseFailure(`User doesn't belong to any organization.`),
+        responseFailure(`User doesn't belong to any organization.`),
       );
     }
 
@@ -192,7 +192,7 @@ export class InvitationController {
     } catch (e) {
       this.logger.error(`Unknown role was requested for the invitee`);
       throw new ForbiddenException(
-        ResponseFailure('Unknown role was requested for the invitee'),
+        responseFailure('Unknown role was requested for the invitee'),
       );
     }
 
@@ -200,7 +200,7 @@ export class InvitationController {
       if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
-            ResponseFailure(
+            responseFailure(
               `Organization id is required,please add your Organization id`,
             ),
           );
@@ -238,7 +238,7 @@ export class InvitationController {
       //  return error
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   /**

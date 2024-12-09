@@ -39,7 +39,7 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { IUser, LoggedInUser, ResponseSuccess } from '../../models';
+import { IUser, LoggedInUser, responseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserORGDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
@@ -299,7 +299,7 @@ export class AdminController {
 
     await this.organizationService.remove(organizationId);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   @Delete('/user/:id')
@@ -358,7 +358,7 @@ export class AdminController {
       await this.userService.remove(user.id);
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')

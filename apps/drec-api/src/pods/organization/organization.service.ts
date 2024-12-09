@@ -33,7 +33,7 @@ import {
   ISuccessResponse,
   IUser,
   LoggedInUser,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationDocumentOwnershipMismatchError } from './error/organization-document-ownership-mismatch.error';
@@ -472,7 +472,7 @@ export class OrganizationService {
 
     await this.repository.save(organization);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   async isNameAlreadyTaken(name: string): Promise<boolean> {

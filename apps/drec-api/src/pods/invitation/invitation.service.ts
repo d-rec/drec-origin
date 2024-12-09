@@ -13,7 +13,7 @@ import {
   ISuccessResponse,
   LoggedInUser,
   OrganizationRole,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { UserService } from '../user/user.service';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
@@ -213,7 +213,7 @@ export class InvitationService {
 
     await this.invitationRepository.save(invitation);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   public async getUsersInvitation(

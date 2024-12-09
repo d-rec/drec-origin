@@ -47,7 +47,7 @@ import {
   ILoggedInUser,
   isRole,
   IUser,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
@@ -307,7 +307,7 @@ export class OrganizationController {
       role,
     );
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   /**
@@ -395,6 +395,6 @@ export class OrganizationController {
       await this.invitationservice.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
-    return ResponseSuccess();
+    return responseSuccess();
   }
 }

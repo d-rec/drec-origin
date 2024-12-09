@@ -382,7 +382,7 @@ export class ReadsService {
     measurement: NewIntmediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    const final = await this.NewfindLatestRead(deviceId, device.createdAt);
+    const final = await this.newfindLatestRead(deviceId, device.createdAt);
     this.logger.verbose(`final: ${final}`);
     const reads: any = [];
 
@@ -751,7 +751,7 @@ export class ReadsService {
     }
   }
 
-  async NewfindLatestRead(
+  async newfindLatestRead(
     meterId: string,
     deviceregisterdate: Date,
   ): Promise<ReadDTO | void> {

@@ -115,7 +115,7 @@ export const entities = [
   ...OffChainCertificateEntities,
 ];
 
-const OriginAppTypeOrmModule = () => {
+const originAppTypeOrmModule = () => {
   return process.env.DATABASE_URL
     ? TypeOrmModule.forRoot({
         type: 'postgres',
@@ -143,7 +143,7 @@ const redisOptions = {
   port: 6379,
 };
 
-const QueueingModule = () => {
+const queueingModule = () => {
   return BullModule.forRoot({
     redis: redisOptions,
     //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
@@ -157,8 +157,8 @@ const QueueingModule = () => {
       envFilePath: getEnvFilePath(),
       isGlobal: true,
     }),
-    OriginAppTypeOrmModule(),
-    QueueingModule(),
+    originAppTypeOrmModule(),
+    queueingModule(),
     ScheduleModule.forRoot(),
     AuthModule,
     MailModule,
