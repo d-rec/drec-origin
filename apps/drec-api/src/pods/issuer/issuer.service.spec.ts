@@ -96,7 +96,7 @@ describe('IssuerService', () => {
           provide: ReadsService,
           useValue: {
             getCheckHistoryCertificateIssueDateLogForDevice: jest.fn(),
-            updatehistorycertificateissuedate: jest.fn(),
+            updateHistoryCertificateIssueDate: jest.fn(),
             getDeltaMeterReadsFirstEntryOfDevice: jest.fn(),
             latestread: jest.fn(),
             findLastReadForMeterWithinRange: jest.fn(),
