@@ -57,9 +57,9 @@ describe('IssuerService', () => {
             getAllNextrequestCertificate: jest.fn(),
             findOne: jest.fn(),
             EndReservationGroup: jest.fn(),
-            updatecertificateissuedate: jest.fn(),
+            updateCertificateIssueDate: jest.fn(),
             getNextHistoryissuanceDevicelog: jest.fn(),
-            AddCertificateIssueDateLogForDeviceGroup: jest.fn(),
+            addCertificateIssueDateLogForDeviceGroup: jest.fn(),
             updateHistoryCertificateIssueDate: jest.fn(),
             updateTotalReadingRequestedForCertificateIssuance: jest.fn(),
             countGroupIdHistoryIssuanceDeviceLog: jest.fn(),
@@ -75,7 +75,7 @@ describe('IssuerService', () => {
         {
           provide: DeviceService,
           useValue: {
-            NewfindForGroup: jest.fn(),
+            newFindForGroup: jest.fn(),
             findForGroup: jest.fn(),
             findReads: jest.fn(),
             addCertificateIssueDateLogForDevice: jest.fn(),
@@ -196,8 +196,8 @@ describe('IssuerService', () => {
       const updatecertificateissuedateSpy = jest
         .spyOn(groupService, 'updateCertificateIssueDate')
         .mockResolvedValue(undefined);
-      const NewfindForGroupSpy = jest
-        .spyOn(deviceService, 'newfindForGroup')
+      const NewFindForGroupSpy = jest
+        .spyOn(deviceService, 'newFindForGroup')
         .mockImplementation(() => Promise.resolve({}));
       const orgfindOneSpy = jest
         .spyOn(organizationService, 'findOne')
@@ -216,7 +216,7 @@ describe('IssuerService', () => {
       expect(getAllNextrequestCertificateSpy).toHaveBeenCalled();
       expect(findOneSpy).toHaveBeenCalledWith({ id: mockGroupRequest.groupId });
       expect(updatecertificateissuedateSpy).toHaveBeenCalled();
-      expect(NewfindForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
+      expect(NewFindForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
       expect(orgfindOneSpy).toHaveBeenCalledWith(mockGroup.organizationId);
       expect(findForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
     });
@@ -1194,7 +1194,7 @@ describe('IssuerService', () => {
         name: 'OrgName',
         blockchainAccountAddress: 'Address',
       } as unknown as Organization);
-      jest.spyOn(deviceService, 'newfindForGroup').mockResolvedValue({});
+      jest.spyOn(deviceService, 'newFindForGroup').mockResolvedValue({});
       jest
         .spyOn(groupService, 'getGroupiCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);

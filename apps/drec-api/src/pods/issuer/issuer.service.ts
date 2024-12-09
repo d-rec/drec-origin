@@ -105,7 +105,7 @@ export class IssuerService {
             );
           }
 
-          const countryDeviceGroup = await this.deviceService.newfindForGroup(
+          const countryDeviceGroup = await this.deviceService.newFindForGroup(
             group.id,
           );
 

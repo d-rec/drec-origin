@@ -371,7 +371,7 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
-  public async newfindForGroup(
+  public async newFindForGroup(
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
     this.logger.verbose(`With in NewfindForGroup`);
