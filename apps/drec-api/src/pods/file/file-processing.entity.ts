@@ -7,6 +7,7 @@ export enum FileProcessingStatus {
   Added = 'Added',
   Running = 'Running',
   Completed = 'Completed',
+  Failed = 'Failed',
 }
 
 export enum FileProcessingType {
