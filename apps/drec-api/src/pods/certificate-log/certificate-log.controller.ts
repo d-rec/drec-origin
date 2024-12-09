@@ -10,6 +10,7 @@ import {
   BadRequestException,
   Logger,
   Res,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 
 import {
@@ -42,6 +43,7 @@ import { Role } from '../../utils/enums';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Response } from 'express';
+
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
  */
@@ -86,17 +88,6 @@ export class CertificateLogController {
   async getClaimAmountInEthersJSON(
     @Query() amountFormatData: AmountFormattingDTO,
   ): Promise<string> {
-    if (Number.isNaN(parseInt(amountFormatData.amount))) {
-      this.logger.error(`amount invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'amount invalid value was sent',
-          }),
-        );
-      });
-    }
     this.logger.verbose(`with in getClaimAmountInEthersJSON`);
     return PowerFormatter.getBaseValueFromValueInDisplayUnitInEthers(
       amountFormatData.amount,
@@ -120,24 +111,14 @@ export class CertificateLogController {
     @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    if (isNaN(parseInt(filterDto.groupId))) {
-      this.logger.error(`Group Id is a number, invalid value was sent`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group Id is a number, invalid value was sent',
-          }),
-        );
-      });
-    }
     return this.certificateLogService.findByGroupId(filterDto.groupId);
   }
 
   /**
    * It is GET api to list issuer certificates of groupId
    * @return { Array<CertificateNewWithPerDeviceLog> } returns issuer certicates of groupId
-   * @param { groupUid } is an uniqueId in the certificate log from reservation
+   * @param groupuId
+   * @param user
    */
   @Get('/issuer/certified/:groupUid')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -147,49 +128,26 @@ export class CertificateLogController {
     type: [CertificateNewWithPerDeviceLog],
     description: 'Returns issuer Certificate of groupId',
   })
-  async getissueCertificate(
-    @Param('groupUid') groupuId: string,
+  async getIssuerCertificate(
+    @Param('groupUid', ParseUUIDPipe) groupuId: string,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(`With in getissueCertificate`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
+    const deviceGroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
 
-    if (devicegroup === null || devicegroup.buyerId != user.id) {
+    if (deviceGroup === null || deviceGroup.buyerId != user.id) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Group UId is not of this buyer, invalid value was sent',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
       });
     }
-    // setTimeout(() => {
-
-    // }, 2000)
-    return await this.certificateLogService.getCertificateFromOldOrNewUfinction(
-      devicegroup.id.toString(),
+    return await this.certificateLogService.getCertificateFromOldOrNew(
+      deviceGroup.id.toString(),
     );
   }
 
@@ -207,61 +165,44 @@ export class CertificateLogController {
     description: 'Returns issuer Certificate of groupId',
   })
   async getCertificatesFromUpdatedCertificateTables(
-    @Param('groupUid') groupuId: string,
+    @Param('groupUid', ParseUUIDPipe) groupuId: string,
     @Query('pageNumber') pageNumber: number,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
+
+    const deviceGroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
+
     if (user.role === Role.ApiUser) {
-      if (devicegroup.api_user_id != user.api_user_id) {
+      if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({
           success: false,
           message: 'Group UId  does not  belongs to this apiuser',
         });
       }
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
-        devicegroup.id.toString(),
-        pageNumber,
-      );
-    } else {
-      if (devicegroup === null || devicegroup.buyerId != user.id) {
-        this.logger.error(
-          `Group UId is not of this buyer, invalid value was sent`,
-        );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message: 'Group UId is not of this buyer, invalid value was sent',
-            }),
-          );
-        });
-      }
-      return this.certificateLogService.getCertificateFromOldOrNewUfinction(
-        devicegroup.id.toString(),
+      return this.certificateLogService.getCertificateFromOldOrNew(
+        deviceGroup.id.toString(),
         pageNumber,
       );
     }
+
+    if (deviceGroup === null || deviceGroup.buyerId != user.id) {
+      this.logger.error(
+        `Group UId is not of this buyer, invalid value was sent`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
+      });
+    }
+
+    return this.certificateLogService.getCertificateFromOldOrNew(
+      deviceGroup.id.toString(),
+      pageNumber,
+    );
   }
 
   /**
@@ -412,6 +353,7 @@ export class CertificateLogController {
       pageNumber,
     );
   }
+
   /**
    *
    * @param groupuId reservat group uuid
@@ -425,45 +367,29 @@ export class CertificateLogController {
   //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
   async getcertifcateLog_Perdevice(
     @UserDecorator() user: ILoggedInUser,
-    @Param('groupUid') groupuId: string,
+    @Param('groupUid', ParseUUIDPipe) groupuId: string,
     @Res() res: Response,
   ): Promise<void> {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Please Add the valid UID ,invalid group uid value was sent',
-          }),
-        );
-      });
-    }
-    const devicegroup = await this.devicegroupService.findOne({
+    const deviceGroup = await this.devicegroupService.findOne({
       devicegroup_uid: groupuId,
     });
     if (user.role === Role.ApiUser) {
-      if (devicegroup.api_user_id != user.api_user_id) {
+      if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({
           success: false,
           message: 'Group UId  does not  belongs to this apiuser',
         });
       }
-      user.organizationId = devicegroup.organizationId;
+      user.organizationId = deviceGroup.organizationId;
     }
     return this.certificateLogService.createCSV(
       res,
-      devicegroup.id,
+      deviceGroup.id,
       user.organizationId,
-      devicegroup.name,
+      deviceGroup.name,
     );
   }
 }

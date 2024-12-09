@@ -132,13 +132,9 @@ export class UserController {
       userRegistrationData.organizationType === null ||
       userRegistrationData.organizationType === undefined
     ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `organizationType should not be empty`,
       });
     }
     if (
@@ -149,29 +145,21 @@ export class UserController {
       userRegistrationData.organizationType.toLowerCase() !=
         'ApiUser'.toLowerCase()
     ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer/ApiUser`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `organizationType value should be Developer/Buyer/ApiUser`,
       });
     }
     if (userRegistrationData.orgName.trim() === '') {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `orgName should not be empty`,
       });
     }
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
-    return this.userService.newcreate(userRegistrationData);
+    return this.userService.newCreateUser(userRegistrationData);
   }
   /**
    * this api route using for update Profile.
@@ -241,7 +229,7 @@ export class UserController {
     description: `Update your own password`,
   })
   @ApiParam({ name: 'token', type: String })
-  public async updatechangePassword(
+  public async changePassword(
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
@@ -250,7 +238,7 @@ export class UserController {
     let emailConfirmation: any;
     if (emailregex.test(token)) {
       emailConfirmation = await this.userService.findOne({ email: token });
-      return this.userService.updatechangePassword(emailConfirmation, body);
+      return this.userService.changePassword(emailConfirmation, body);
     } else {
       emailConfirmation = await this.emailConfirmationService.findOne({
         token,
@@ -261,10 +249,7 @@ export class UserController {
           errors: `User Not exist .`,
         });
       }
-      return this.userService.updatechangePassword(
-        emailConfirmation.user,
-        body,
-      );
+      return this.userService.changePassword(emailConfirmation.user, body);
     }
   }
   /**
@@ -329,7 +314,7 @@ export class UserController {
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
-    return this.userService.geytokenforResetPassword(body.email);
+    return this.userService.getTokenForResetPassword(body.email);
   }
 
   @Get('export-accesskey/:api_user_id')

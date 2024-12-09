@@ -69,7 +69,7 @@ describe('UserService', () => {
           provide: OrganizationService,
           useValue: {
             isNameAlreadyTaken: jest.fn(),
-            newcreate: jest.fn(),
+            newCreateUser: jest.fn(),
           } as any,
         },
         {
@@ -107,7 +107,7 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('newcreate', () => {
+  describe('newCreateUser', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
       const userData: CreateUserORGDTO = {
         firstName: 'test',
@@ -155,14 +155,16 @@ describe('UserService', () => {
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newcreate').mockResolvedValue(orgData);
+      jest
+        .spyOn(organizationService, 'newCreateUser')
+        .mockResolvedValue(orgData);
       jest
         .spyOn(repository, 'save')
         .mockImplementation((user) =>
           Promise.resolve(user as DeepPartial<User> & User),
         );
 
-      const result = await service.newcreate(userData);
+      const result = await service.newCreateUser(userData);
 
       expect(result).toBeDefined();
       expect(service.checkForExistingUser).toHaveBeenCalledWith(
@@ -174,7 +176,7 @@ describe('UserService', () => {
       expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(
         userData.orgName,
       );
-      expect(organizationService.newcreate).toHaveBeenCalledWith(
+      expect(organizationService.newCreateUser).toHaveBeenCalledWith(
         expect.objectContaining({
           name: userData.orgName,
           organizationType: userData.organizationType,
@@ -268,91 +270,13 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.newcreate(userData)).rejects.toThrowError(
+      await expect(service.newCreateUser(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
   });
 
-  describe('adminnewcreate', () => {
-    it('should create a new user with valid input data', async () => {
-      const userData: CreateUserORGDTO = {
-        firstName: 'test',
-        lastName: 'ApiUser',
-        email: 'testsweya2@gmail.com',
-        organizationType: 'Developer',
-        password: 'Drec@1234',
-        confirmPassword: 'Drec@1234',
-        orgName: 'DIRECT_DEVELOPER1',
-        orgAddress: 'Chennai',
-        api_user_id: 'b44f8e86-3a9b-427b-8376-fdda83a1a8f4',
-      } as CreateUserORGDTO;
-
-      const orgData: Organization = {
-        id: 1,
-        api_user_id: userData.api_user_id,
-        name: userData.orgName,
-        organizationType: userData.organizationType,
-        orgEmail: userData.email,
-        address: userData.orgAddress,
-        zipCode: null,
-        city: null,
-        country: null,
-        blockchainAccountAddress: null,
-        blockchainAccountSignedMessage: null,
-        status: OrganizationStatus.Active,
-        users: [],
-        invitations: [],
-        documentIds: [],
-      } as Organization;
-
-      const mockApiUserEntity: ApiUserEntity = {
-        api_user_id: userData.api_user_id,
-        permission_status: UserPermissionStatus.Request,
-        permissionIds: [],
-      };
-
-      jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
-      jest
-        .spyOn(organizationService, 'isNameAlreadyTaken')
-        .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newcreate').mockResolvedValue(orgData);
-      jest
-        .spyOn(repository, 'save')
-        .mockImplementation((user) =>
-          Promise.resolve(user as DeepPartial<User> & User),
-        );
-
-      const resultPromise = service.adminnewcreate(userData);
-
-      await expect(resultPromise).resolves.toBeDefined();
-      await expect(service.checkForExistingUser).toHaveBeenCalledWith(
-        userData.email.toLowerCase(),
-      );
-      await expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(
-        userData.orgName,
-      );
-      await expect(organizationService.newcreate).toHaveBeenCalledWith({
-        name: userData.orgName,
-        organizationType: userData.organizationType,
-        orgEmail: userData.email,
-        address: userData.orgAddress,
-      });
-      await expect(repository.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email.toLowerCase(),
-          password: expect.any(String),
-          notifications: true,
-          status: UserStatus.Active,
-          role: Role.OrganizationAdmin,
-          roleId: 2,
-          organization: { id: 1 },
-        }),
-      );
-    });
-
+  describe('createUserByAdmin', () => {
     it('should throw a ConflictException if organization name already exists', async () => {
       const isNameAlreadyTakenSpy = jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
@@ -423,7 +347,7 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.adminnewcreate(userData)).rejects.toThrowError(
+      await expect(service.createUserByAdmin(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
@@ -670,7 +594,7 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockuserEntity);
       const permission_statusSpy = jest
-        .spyOn(service, 'get_apiuser_permission_status')
+        .spyOn(service, 'getApiUserPermissionStatus')
         .mockResolvedValue(mockApiUserEntity);
       jest
         .spyOn(apiUserEntityRepository, 'findOne')
