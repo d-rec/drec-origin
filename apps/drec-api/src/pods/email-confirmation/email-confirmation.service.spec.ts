@@ -398,7 +398,7 @@ describe('EmailConfirmationService', () => {
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
       const generatetokenSpy = jest
-        .spyOn(service, 'generatetoken')
+        .spyOn(service, 'generateToken')
         .mockResolvedValueOnce(generatedToken);
       const sendResetPasswordRequestSpy = jest
         .spyOn<any, any>(service, 'sendResetPasswordRequest')

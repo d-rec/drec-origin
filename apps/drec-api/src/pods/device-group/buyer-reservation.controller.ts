@@ -898,7 +898,7 @@ export class BuyerReservationController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);
-    return await this.deviceGroupService.EndReservationGroup(
+    return await this.deviceGroupService.endReservationGroup(
       id,
       organizationId,
       endresavationdate,
@@ -934,7 +934,7 @@ export class BuyerReservationController {
       });
     }
 
-    return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
+    return await this.deviceGroupService.getCurrentInformationofDevicesInReservation(
       groupuId,
       pagenumber,
     );

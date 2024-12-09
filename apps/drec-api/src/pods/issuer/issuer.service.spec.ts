@@ -479,7 +479,7 @@ describe('IssuerService', () => {
         groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readservice.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -506,7 +506,7 @@ describe('IssuerService', () => {
         groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readservice.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -602,7 +602,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readservice.updateHistoryCertificateIssueDate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
         deviceHistoryRequest.readsStartDate,
@@ -1188,7 +1188,7 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       jest
-        .spyOn(groupService, 'getallReservationActive')
+        .spyOn(groupService, 'getAllReservationActive')
         .mockResolvedValue([mockGroup]);
       jest.spyOn(organizationService, 'findOne').mockResolvedValue({
         name: 'OrgName',
