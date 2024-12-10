@@ -49,25 +49,25 @@ export class AuthService {
       role: user.role,
     };
     const token = this.jwtService.sign(payload);
-    this.userService.createUserSession(user, token);
+    await this.userService.createUserSession(user, token);
     return {
       accessToken: token,
     };
   }
+
   async logout(payload: IJWTPayload, token: string): Promise<DeleteResult> {
-    return await this.userService.removeUsersession(payload.id, token);
+    return await this.userService.removeUserSession(payload.id, token);
   }
 
   async isTokenBlacklisted(
     token: string,
     payload: IJWTPayload,
   ): Promise<boolean> {
-    //hasUser({ email })
-    const tokeninvalidate = await this.userService.hasgetUserTokenvalid({
+    const session = await this.userService.hasValidUserSession({
       accesstoken_hash: token,
       userId: payload.id,
     });
-    return tokeninvalidate;
+    return !session;
   }
 
   async generateToken(

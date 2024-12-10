@@ -108,7 +108,7 @@ export class DeviceGroupService {
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
-    private readonly cretificatereadmoduleRepository: Repository<
+    private readonly certificateReadModuleRepository: Repository<
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,
@@ -159,13 +159,9 @@ export class DeviceGroupService {
       ) {
         if (filterDto.start_date != null && filterDto.end_date === null) {
           this.logger.error(`End Date should be mandatory`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `End Date should be mandatory`,
-              }),
-            );
+          throw new ConflictException({
+            success: false,
+            message: `End Date should be mandatory`,
           });
         }
 
@@ -176,13 +172,9 @@ export class DeviceGroupService {
           )
         ) {
           this.logger.error(`End date should be greater then from Start date`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `End date should be greater then from Start date `,
-              }),
-            );
+          throw new ConflictException({
+            success: false,
+            message: `End date should be greater then from Start date `,
           });
         }
 
@@ -193,13 +185,9 @@ export class DeviceGroupService {
           )
         ) {
           this.logger.error(`End date should be greater then from Start date`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `End date should be greater then from Start date `,
-              }),
-            );
+          throw new ConflictException({
+            success: false,
+            message: `End date should be greater then from Start date `,
           });
         }
       }
@@ -502,13 +490,9 @@ export class DeviceGroupService {
           groupfilterDto.end_date === null
         ) {
           this.logger.error(`End Date should be mandatory`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `End Date should be mandatory`,
-              }),
-            );
+          throw new ConflictException({
+            success: false,
+            message: `End Date should be mandatory`,
           });
         }
 
@@ -519,13 +503,9 @@ export class DeviceGroupService {
           )
         ) {
           this.logger.error(`End date should be greater then from Start date`);
-          return new Promise((resolve, reject) => {
-            reject(
-              new ConflictException({
-                success: false,
-                message: `End date should be greater then from Start date `,
-              }),
-            );
+          throw new ConflictException({
+            success: false,
+            message: `End date should be greater then from Start date `,
           });
         }
       }
@@ -1100,13 +1080,9 @@ export class DeviceGroupService {
       this.logger.error(
         `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       );
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       });
     }
     let allDevicesAvailableforBuyerReservation = true;
@@ -1155,16 +1131,12 @@ export class DeviceGroupService {
         this.logger.error(
           `One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                'One or more devices device Ids: ' +
-                unavailableDeviceIds.join(',') +
-                ' are already included in buyer reservation, please add other devices',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            'One or more devices device Ids: ' +
+            unavailableDeviceIds.join(',') +
+            ' are already included in buyer reservation, please add other devices',
         });
       }
     }
@@ -1196,21 +1168,16 @@ export class DeviceGroupService {
         this.logger.error(
           `Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration`,
         );
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                'Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration',
-              details: {
-                meteredTimePeriodInHours,
-                targetCapacityInMegaWattHour:
-                  group.targetCapacityInMegaWattHour,
-                probablyAchievableCapacityInMegaWattHour:
-                  aggregatedCapacity * meteredTimePeriodInHours * 0.001,
-              },
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            'Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration',
+          details: {
+            meteredTimePeriodInHours,
+            targetCapacityInMegaWattHour: group.targetCapacityInMegaWattHour,
+            probablyAchievableCapacityInMegaWattHour:
+              aggregatedCapacity * meteredTimePeriodInHours * 0.001,
+          },
         });
       }
     }
@@ -2274,10 +2241,10 @@ export class DeviceGroupService {
     });
   }
 
-  public async countgroupIdHistoryissuanceDevicelog(
+  public async countGroupIdHistoryIssuanceDeviceLog(
     groupId: number,
   ): Promise<number> {
-    this.logger.verbose(`With in countgroupIdHistoryissuanceDevicelog`);
+    this.logger.verbose(`With in countGroupIdHistoryIssuanceDeviceLog`);
     const count = await this.historynextissuancedaterepository.count({
       where: {
         groupId: groupId,
@@ -2314,11 +2281,11 @@ export class DeviceGroupService {
       (await this.historynextissuancedaterepository.findOne(conditions)) ?? null
     );
   }
-  async HistoryUpdatecertificateissuedate(
+  async updateHistoryCertificateIssueDate(
     id: number,
     Status: HistoryNextInssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in HistoryUpdatecertificateissuedate`);
+    this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
     const historynextdate = await this.getHistoryCertificateIssueDate({
       id: id,
     });
@@ -2353,13 +2320,9 @@ export class DeviceGroupService {
     });
     if (group === null) {
       this.logger.error(`Reservation expired`);
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: 'Reservation expired',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: 'Reservation expired',
       });
     }
     await this.deviceService.findByIds(group.deviceIdsInt);

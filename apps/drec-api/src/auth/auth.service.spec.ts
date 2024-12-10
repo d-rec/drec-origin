@@ -27,8 +27,8 @@ describe('AuthService', () => {
             getUserAndPasswordByEmail: jest.fn(), // Mock method
             findById: jest.fn(), // Include other methods if needed
             createUserSession: jest.fn(),
-            removeUsersession: jest.fn(),
-            hasgetUserTokenvalid: jest.fn(),
+            removeUserSession: jest.fn(),
+            hasValidUserSession: jest.fn(),
           } as any,
         },
         {
@@ -145,7 +145,7 @@ describe('AuthService', () => {
   });
 
   describe('logout', () => {
-    it('should call removeUsersession with correct parameters', async () => {
+    it('should call removeUserSession with correct parameters', async () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
@@ -155,12 +155,12 @@ describe('AuthService', () => {
 
       const deleteResult = { affected: 1, raw: [] };
       jest
-        .spyOn(userService, 'removeUsersession')
+        .spyOn(userService, 'removeUserSession')
         .mockResolvedValue(deleteResult);
 
       await service.logout(payload, token);
 
-      expect(userService.removeUsersession).toHaveBeenCalledWith(
+      expect(userService.removeUserSession).toHaveBeenCalledWith(
         payload.id,
         token,
       );
@@ -176,7 +176,7 @@ describe('AuthService', () => {
 
       const deleteResult = { affected: 1, raw: [] };
       jest
-        .spyOn(userService, 'removeUsersession')
+        .spyOn(userService, 'removeUserSession')
         .mockResolvedValue(deleteResult);
 
       const result = await service.logout(payload, token);
@@ -184,7 +184,7 @@ describe('AuthService', () => {
       expect(result).toBe(deleteResult);
     });
 
-    it('should handle errors thrown by removeUsersession', async () => {
+    it('should handle errors thrown by removeUserSession', async () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
@@ -193,7 +193,7 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
 
       const error = new Error('Unable to remove user session');
-      jest.spyOn(userService, 'removeUsersession').mockRejectedValue(error);
+      jest.spyOn(userService, 'removeUserSession').mockRejectedValue(error);
 
       await expect(service.logout(payload, token)).rejects.toThrow(
         'Unable to remove user session',
@@ -210,7 +210,7 @@ describe('AuthService', () => {
 
       const deleteResult = { affected: 0, raw: [] };
       jest
-        .spyOn(userService, 'removeUsersession')
+        .spyOn(userService, 'removeUserSession')
         .mockResolvedValue(deleteResult);
 
       const result = await service.logout(payload, token);
@@ -221,7 +221,7 @@ describe('AuthService', () => {
   });
 
   describe('isTokenBlacklisted', () => {
-    it('should call hasgetUserTokenvalid with correct parameters', async () => {
+    it('should call hasValidUserSession with correct parameters', async () => {
       const token = 'fake-jwt-token';
       const payload: IJWTPayload = {
         id: 1,
@@ -231,12 +231,12 @@ describe('AuthService', () => {
 
       const tokeninvalidate = true;
       jest
-        .spyOn(userService, 'hasgetUserTokenvalid')
+        .spyOn(userService, 'hasValidUserSession')
         .mockResolvedValue(tokeninvalidate);
 
       await service.isTokenBlacklisted(token, payload);
 
-      expect(userService.hasgetUserTokenvalid).toHaveBeenCalledWith({
+      expect(userService.hasValidUserSession).toHaveBeenCalledWith({
         accesstoken_hash: token,
         userId: payload.id,
       });
@@ -250,7 +250,7 @@ describe('AuthService', () => {
         role: Role.Buyer,
       };
 
-      jest.spyOn(userService, 'hasgetUserTokenvalid').mockResolvedValue(true);
+      jest.spyOn(userService, 'hasValidUserSession').mockResolvedValue(false);
 
       const result = await service.isTokenBlacklisted(token, payload);
 
@@ -265,14 +265,14 @@ describe('AuthService', () => {
         role: Role.OrganizationAdmin,
       };
 
-      jest.spyOn(userService, 'hasgetUserTokenvalid').mockResolvedValue(false);
+      jest.spyOn(userService, 'hasValidUserSession').mockResolvedValue(true);
 
       const result = await service.isTokenBlacklisted(token, payload);
 
       expect(result).toBe(false);
     });
 
-    it('should handle errors thrown by hasgetUserTokenvalid', async () => {
+    it('should handle errors thrown by hasValidUserSession', async () => {
       const token = 'fake-jwt-token';
       const payload: IJWTPayload = {
         id: 1,
@@ -281,7 +281,7 @@ describe('AuthService', () => {
       };
 
       const error = new Error('Error checking token validity');
-      jest.spyOn(userService, 'hasgetUserTokenvalid').mockRejectedValue(error);
+      jest.spyOn(userService, 'hasValidUserSession').mockRejectedValue(error);
 
       await expect(service.isTokenBlacklisted(token, payload)).rejects.toThrow(
         'Error checking token validity',
