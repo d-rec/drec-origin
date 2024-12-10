@@ -1,5 +1,5 @@
 import { Unit } from '@energyweb/energy-api-influxdb';
-import { IsOptional, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsPositive } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsTimestamp } from '../validations/timestamp';
 import { ConvertToNullIfEmpty } from '../transformers/string';
@@ -11,6 +11,7 @@ export class NewReadDTO {
   starttimestamp: Date;
 
   @ApiProperty({ type: Date })
+  @IsNotEmpty()
   @IsTimestamp()
   endtimestamp: Date;
 
