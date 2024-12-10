@@ -37,7 +37,7 @@ const baseReadServiceProvider = {
       AggregateMeterRead,
       HistoryIntermediate_MeterRead,
       DeltaFirstRead,
-      FileProcessingEntity
+      FileProcessingEntity,
     ]),
     BullModule.registerQueue({
       name: 'reads-queue',

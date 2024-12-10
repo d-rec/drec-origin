@@ -1,5 +1,5 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { IsEnum, IsString, IsNumber, IsOptional } from 'class-validator';
 
@@ -17,7 +17,6 @@ export enum FileProcessingType {
 
 @Entity('file_processing_jobs')
 export class FileProcessingEntity extends ExtendedBaseEntity {
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -48,5 +47,4 @@ export class FileProcessingEntity extends ExtendedBaseEntity {
   @Column({ nullable: true, default: null })
   @IsOptional()
   apiUserId: string;
-
 }

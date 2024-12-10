@@ -18,7 +18,7 @@ export class ReadsProcessor {
 
   @Process('meter-reads-csv')
   async handleMeterReadsProcessing(
-    job: Job<{ fileId: string, userId: string }>,
+    job: Job<{ fileId: string; userId: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, userId } = job.data;
 
@@ -48,7 +48,7 @@ export class ReadsProcessor {
           measurement,
         );
         results.success++;
-        console.log("read", read)
+        console.log('read', read);
         await this.readsService.storeFileProccesingJobs(read, 2);
       } catch (error) {
         this.logger.error(`Error processing read: ${error.message}`);
@@ -59,9 +59,9 @@ export class ReadsProcessor {
       }
     }
     await this.readsService.fileProcessingRepository.update(
-       { fileId: fileId },
-        { status: FileProcessingStatus.Completed },
-      ); 
+      { fileId: fileId },
+      { status: FileProcessingStatus.Completed },
+    );
     return results;
   }
 }

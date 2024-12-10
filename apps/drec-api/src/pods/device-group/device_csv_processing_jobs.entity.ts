@@ -41,5 +41,4 @@ export class DeviceCsvFileProcessingJobsEntity extends ExtendedBaseEntity {
   @Column({ nullable: true, default: null })
   @IsOptional()
   api_user_id: string;
-
 }

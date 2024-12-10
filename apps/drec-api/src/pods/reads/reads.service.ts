@@ -60,7 +60,11 @@ import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { MeterReadingCSV } from './parser/meter-reading-csv.parser';
-import { FileProcessingEntity, FileProcessingStatus, FileProcessingType } from '../file/file-processing.entity';
+import {
+  FileProcessingEntity,
+  FileProcessingStatus,
+  FileProcessingType,
+} from '../file/file-processing.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -136,16 +140,19 @@ export class ReadsService {
     return aggregatedReads;
   }
 
-  async storeFileProccesingJobs(record: MeterReadingCSV, user: any ): Promise<void> {
+  async storeFileProccesingJobs(
+    record: MeterReadingCSV,
+    user: any,
+  ): Promise<void> {
     const successful = {
       userId: user,
       fileId: record.deviceId,
       organizationId: user.organizationId,
       status: FileProcessingStatus.Completed,
       type: FileProcessingType.AddMeterRead,
-    }
+    };
     await this.fileProcessingRepository.save(successful);
-    console.log('success')
+    console.log('success');
   }
   async storeFailedReads(
     meterId: string,
@@ -212,7 +219,7 @@ export class ReadsService {
       organizationId: user.organizationId,
       status: FileProcessingStatus.Running,
       type: FileProcessingType.AddMeterRead,
-      apiUserId: user.api_user_id
+      apiUserId: user.api_user_id,
     });
 
     const s3Upload = await this.fileService.upload(multerFile);
