@@ -66,7 +66,7 @@ export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
 @Injectable()
 export class ReadsService {
-  private readonly logger = new Logger(ReadsService.name);
+  public readonly logger = new Logger(ReadsService.name);
   private readonly influxDB: InfluxDB;
   private readonly queryApi: QueryApi;
 
@@ -85,7 +85,7 @@ export class ReadsService {
     private readonly eventBus: EventBus,
     private readonly fileService: FileService,
     @InjectRepository(FileProcessingEntity)
-    private readonly fileProcessingRepository: Repository<FileProcessingEntity>,
+    public readonly fileProcessingRepository: Repository<FileProcessingEntity>,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
@@ -206,6 +206,15 @@ export class ReadsService {
       path: '',
     };
 
+    await this.fileProcessingRepository.save({
+      fileId: fileExists.id,
+      userId: user.id,
+      organizationId: user.organizationId,
+      status: FileProcessingStatus.Running,
+      type: FileProcessingType.AddMeterRead,
+      apiUserId: user.api_user_id
+    });
+
     const s3Upload = await this.fileService.upload(multerFile);
 
     const job = await this.readsQueue.add('meter-reads-csv', {
@@ -213,7 +222,7 @@ export class ReadsService {
       userId: user.id,
       organizationId: user.organizationId,
     });
-
+    this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
     return {
       message: 'Meter reads processing has been scheduled',
       jobId: job.id.toString(),

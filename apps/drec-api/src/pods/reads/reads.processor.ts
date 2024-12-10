@@ -5,6 +5,7 @@ import { FileService } from '../file';
 import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
 import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
 import { ReadsService } from './reads.service';
+import { FileProcessingStatus } from '../file/file-processing.entity';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -17,9 +18,9 @@ export class ReadsProcessor {
 
   @Process('meter-reads-csv')
   async handleMeterReadsProcessing(
-    job: Job<{ fileId: string }>,
+    job: Job<{ fileId: string, userId: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
-    const { fileId } = job.data;
+    const { fileId, userId } = job.data;
 
     const fileContent = await this.fileService.GetuploadS3(fileId);
     const buffer = Buffer.from(fileContent.data.Body);
@@ -57,7 +58,10 @@ export class ReadsProcessor {
         });
       }
     }
-
+    await this.readsService.fileProcessingRepository.update(
+       { fileId: fileId },
+        { status: FileProcessingStatus.Completed },
+      ); 
     return results;
   }
 }
