@@ -59,6 +59,8 @@ import {
 import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { MeterReadingCSV } from './parser/meter-reading-csv.parser';
+import { FileProcessingEntity, FileProcessingStatus, FileProcessingType } from '../file/file-processing.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -82,6 +84,8 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
     private readonly fileService: FileService,
+    @InjectRepository(FileProcessingEntity)
+    private readonly fileProcessingRepository: Repository<FileProcessingEntity>,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
@@ -130,6 +134,18 @@ export class ReadsService {
     );
 
     return aggregatedReads;
+  }
+
+  async storeFileProccesingJobs(record: MeterReadingCSV, user: any ): Promise<void> {
+    const successful = {
+      userId: user,
+      fileId: record.deviceId,
+      organizationId: user.organizationId,
+      status: FileProcessingStatus.Completed,
+      type: FileProcessingType.AddMeterRead,
+    }
+    await this.fileProcessingRepository.save(successful);
+    console.log('success')
   }
   async storeFailedReads(
     meterId: string,

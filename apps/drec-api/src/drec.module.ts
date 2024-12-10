@@ -63,6 +63,7 @@ import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
+import { FileProcessingEntity } from './pods/file/file-processing.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -113,6 +114,7 @@ export const entities = [
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities,
+  FileProcessingEntity,
 ];
 
 const OriginAppTypeOrmModule = () => {

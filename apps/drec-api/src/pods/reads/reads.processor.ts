@@ -47,6 +47,8 @@ export class ReadsProcessor {
           measurement,
         );
         results.success++;
+        console.log("read", read)
+        await this.readsService.storeFileProccesingJobs(read, 2);
       } catch (error) {
         this.logger.error(`Error processing read: ${error.message}`);
         results.failed.push({

@@ -17,9 +17,6 @@ export enum FileProcessingType {
 
 @Entity('file_processing_jobs')
 export class FileProcessingEntity extends ExtendedBaseEntity {
-  constructor() {
-    super();
-  }
 
   @PrimaryGeneratedColumn('uuid')
   id: string;

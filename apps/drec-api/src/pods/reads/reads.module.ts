@@ -18,6 +18,7 @@ import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
 import { ReadsProcessor } from './reads.processor';
+import { FileProcessingEntity } from '../file/file-processing.entity';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -36,6 +37,7 @@ const baseReadServiceProvider = {
       AggregateMeterRead,
       HistoryIntermediate_MeterRead,
       DeltaFirstRead,
+      FileProcessingEntity
     ]),
     BullModule.registerQueue({
       name: 'reads-queue',
