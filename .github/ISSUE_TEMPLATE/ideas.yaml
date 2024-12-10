@@ -2,7 +2,7 @@ name: Idea / Feature request
 description: Suggest an idea to improve Testing Form
 title: "[Idea]: "
 labels: ["idea", "feature-request"]
-projects: ["d-rec/1"]
+projects: ["d-rec/2"]
 body:
   - type: markdown
     attributes:
