@@ -11,8 +11,8 @@ export enum FileProcessingStatus {
 }
 
 export enum FileProcessingType {
-  AddMeterRead = "MeterRead",
-  DeviceCreation = "DeviceCreation",
+  AddMeterRead = 'MeterRead',
+  DeviceCreation = 'DeviceCreation',
 }
 
 @Entity('file_processing_jobs')

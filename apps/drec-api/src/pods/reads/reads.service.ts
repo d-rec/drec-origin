@@ -37,14 +37,11 @@ import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { IAggregateintermediate, ILoggedInUser } from '../../models';
-import { InjectRepository } from '@nestjs/typeorm';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { flattenDeep, groupBy, mean, sum, values } from 'lodash';
 import { DateTime } from 'luxon';
 import { convertToWh } from 'src/utils/convert-to-power-units';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
-import { IAggregateintermediate } from '../../models';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import {
   getFormattedOffSetFromOffsetAsJson,
@@ -52,13 +49,9 @@ import {
   getLocalTimeZoneFromDevice,
   getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
-import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceService } from '../device/device.service';
-import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { BASE_READ_SERVICE } from './const';
-import { DeltaFirstRead } from './delta_firstread.entity';
 import {
   FilterNoOffLimit,
   AccumulationType,
@@ -66,8 +59,6 @@ import {
 import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 

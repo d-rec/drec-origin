@@ -1,8 +1,7 @@
-import {MigrationInterface, QueryRunner, Table} from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class fileProcessingType1733820066628 implements MigrationInterface {
-
- public async up(queryRunner: QueryRunner): Promise<void> {
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
         name: 'file_processing_jobs',
@@ -29,7 +28,7 @@ export class fileProcessingType1733820066628 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: ['Pending', 'InProgress', 'Completed', 'Failed'], 
+            enum: ['Pending', 'InProgress', 'Completed', 'Failed'],
           },
           {
             name: 'type',
@@ -54,5 +53,5 @@ export class fileProcessingType1733820066628 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropTable('file_processing_jobs');
-  } 
+  }
 }

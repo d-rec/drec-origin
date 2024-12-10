@@ -18,7 +18,6 @@ import {
   HttpException,
   BadRequestException,
   Logger,
-  UnauthorizedException,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
