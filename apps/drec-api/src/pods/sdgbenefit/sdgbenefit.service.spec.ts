@@ -3,17 +3,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { SdgbenefitService } from './sdgbenefit.service';
+import { SDGBenefitService } from './sdgbenefit.service';
 import { SDGBenefit } from './sdgbenefit.entity';
 
 describe('SdgbenefitService', () => {
-  let service: SdgbenefitService;
+  let service: SDGBenefitService;
   let repository: Repository<SDGBenefit>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SdgbenefitService,
+        SDGBenefitService,
         {
           provide: getRepositoryToken(SDGBenefit),
           useClass: Repository,
@@ -21,7 +21,7 @@ describe('SdgbenefitService', () => {
       ],
     }).compile();
 
-    service = module.get<SdgbenefitService>(SdgbenefitService);
+    service = module.get<SDGBenefitService>(SDGBenefitService);
     repository = module.get<Repository<SDGBenefit>>(
       getRepositoryToken(SDGBenefit),
     );
