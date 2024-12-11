@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SdgbenefitController } from './sdgbenefit.controller';
-import { SdgbenefitService } from './sdgbenefit.service';
-import { SdgBenefit } from './sdgbenefit.entity';
+import { SDGBenefitController } from './sdgbenefit.controller';
+import { SDGBenefitService } from './sdgbenefit.service';
+import { SDGBenefit } from './sdgbenefit.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([SdgBenefit])],
-  controllers: [SdgbenefitController],
-  providers: [SdgbenefitService],
+  imports: [TypeOrmModule.forFeature([SDGBenefit])],
+  controllers: [SDGBenefitController],
+  providers: [SDGBenefitService],
 })
-export class SdgbenefitModule {}
+export class SDGBenefitModule {}

@@ -36,7 +36,7 @@ import {
 } from '../../utils/enums';
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
@@ -52,7 +52,7 @@ describe('DeviceService', () => {
   let irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>;
   let organizationService: OrganizationService;
   let userService: UserService;
-  let deviceLateOngoingCertificaterepository: DeviceLateongoingIssueCertificateEntity;
+  let deviceLateOngoingCertificaterepository: DeviceLateOngoingIssueCertificateEntity;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -97,7 +97,7 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
-          provide: getRepositoryToken(DeviceLateongoingIssueCertificateEntity),
+          provide: getRepositoryToken(DeviceLateOngoingIssueCertificateEntity),
           useClass: Repository,
         },
       ],

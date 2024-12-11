@@ -27,7 +27,7 @@ export class UserRegistrationData {
   password: string;
 }
 
-export class UserORGRegistrationData {
+export class UserOrgRegistrationData {
   @IsNotEmpty()
   @IsString()
   firstName: string;

@@ -18,7 +18,7 @@ import {
 } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { User } from '../user/user.entity';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { BadRequestException } from '@nestjs/common';
 import { OrganizationDTO } from '../organization/dto/organization.dto';
 
@@ -504,7 +504,7 @@ describe('InvitationService', () => {
           organizationType: inviteeOrganization.organizationType,
           orgid: orgId,
           api_user_id: inviteeOrganization.api_user_id,
-        } as CreateUserORGDTO,
+        } as CreateUserOrgDTO,
         UserStatus.Pending,
         true,
       );

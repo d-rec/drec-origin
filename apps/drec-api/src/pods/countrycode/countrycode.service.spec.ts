@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CountrycodeService } from './countrycode.service';
+import { CountryCodeService } from './countrycode.service';
 import { FilterKeyDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';
 
 describe('CountrycodeService', () => {
-  let service: CountrycodeService;
+  let service: CountryCodeService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CountrycodeService],
+      providers: [CountryCodeService],
     }).compile();
 
-    service = module.get<CountrycodeService>(CountrycodeService);
+    service = module.get<CountryCodeService>(CountryCodeService);
   });
 
   it('should be defined', () => {

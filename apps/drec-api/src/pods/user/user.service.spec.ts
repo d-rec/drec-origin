@@ -16,7 +16,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { OrganizationService } from '../organization/organization.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
 import {
   OrganizationStatus,
@@ -109,7 +109,7 @@ describe('UserService', () => {
 
   describe('newCreateUser', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya3@gmail.com',
@@ -119,7 +119,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const orgData: Organization = {
         id: 1,
@@ -207,7 +207,7 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
@@ -217,7 +217,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
@@ -283,7 +283,7 @@ describe('UserService', () => {
         .mockResolvedValue(true);
 
       // Test data
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
@@ -293,7 +293,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
