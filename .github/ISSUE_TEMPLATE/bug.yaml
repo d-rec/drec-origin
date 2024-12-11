@@ -28,6 +28,15 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: env
+    attributes:
+      label: What environment are you seeing the problem on?
+      multiple: true
+      options:
+        - Production
+        - Staging
+        - Dev
+  - type: dropdown
     id: os
     attributes:
       label: What Operating System(OS) are you seeing the problem on?
