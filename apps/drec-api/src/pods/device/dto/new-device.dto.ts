@@ -20,6 +20,7 @@ import { IsValidCommissioningDate } from '../../../validations/commissioning-dat
 import { Trim } from '../../../transformers/trim-string';
 import { ToUpperCase } from '../../../transformers/uppercase';
 import {countryCodesList } from '../../../models/country-code';
+import { IsValidCountryCode } from '../../../validations/country-code.validator';
 
 export class NewDeviceDTO
   implements
@@ -72,11 +73,9 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @IsIn(countryCodesList.map((ele) => ele.countryCode), {message:
-      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-  })
   @IsNotEmpty()
   @ToUpperCase()
+  @IsValidCountryCode()
   @Matches(/^[A-Z]{3}$/, {
     message: 'Country code must be a valid 3-letter ISO code',
   })
