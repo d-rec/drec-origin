@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
 import { DrecModule } from './drec.module';
-import './instrument';
+import './sentry';
 import * as PortUtils from './port';
 
 export { DrecModule };
