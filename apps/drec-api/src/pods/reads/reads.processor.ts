@@ -20,48 +20,50 @@ export class ReadsProcessor {
   async handleMeterReadsProcessing(
     job: Job<{ fileId: string; userId: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
-    const { fileId, userId } = job.data;
+    try{
+        this.logger.debug(`Starting job processing for fileId: ${job.data.fileId}`);
+        const { fileId, userId } = job.data;
+  
+        const fileContent = await this.fileService.GetuploadS3(fileId);
+        const buffer = Buffer.from(fileContent.data.Body);
+        const meterReads = await parseMeterReadingCsv(buffer);
 
-    const fileContent = await this.fileService.GetuploadS3(fileId);
-    const buffer = Buffer.from(fileContent.data.Body);
-    const meterReads = await parseMeterReadingCsv(buffer);
-
-    const results = {
-      success: 0,
-      failed: [],
-    };
-
-    for (const read of meterReads) {
-      try {
-        const measurement: MeasurementDTO = {
-          reads: [
-            {
-              timestamp: new Date(read.timestamp),
-              value: read.value,
-            },
-          ],
-          unit: Unit[read.unit as unknown as keyof typeof Unit],
+        const results = {
+          success: 0,
+          failed: [],
         };
 
-        await this.readsService.storeRead(
-          read.deviceId.toString(),
-          measurement,
-        );
-        results.success++;
-        console.log('read', read);
-        await this.readsService.storeFileProccesingJobs(read, 2);
-      } catch (error) {
-        this.logger.error(`Error processing read: ${error.message}`);
-        results.failed.push({
-          read,
-          error: error.message,
-        });
-      }
+        for (const read of meterReads) {
+          try {
+            const measurement: MeasurementDTO = {
+              reads: [
+                {
+                  timestamp: new Date(read.timestamp),
+                  value: read.value,
+                },
+              ],
+              unit: Unit[read.unit as unknown as keyof typeof Unit],
+            };
+
+            await this.readsService.storeRead(
+              read.deviceId.toString(),
+              measurement,
+            );
+            results.success++;
+            console.log('read', read);
+          } catch (error) {
+            this.logger.error(`Error processing read: ${error.message}`);
+            results.failed.push({
+              read,
+              error: error.message,
+            });
+          }
+        }
+        await this.readsService.fileProcessingRepository.update({fileId: fileId}, {status: FileProcessingStatus.Completed});
+        return results;
+    }catch (error) {
+    this.logger.error(`Job ${job.id} failed: ${error.message}`);
+    throw error;
     }
-    await this.readsService.fileProcessingRepository.update(
-      { fileId: fileId },
-      { status: FileProcessingStatus.Completed },
-    );
-    return results;
   }
 }

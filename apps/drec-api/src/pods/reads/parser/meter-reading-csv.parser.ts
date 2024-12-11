@@ -14,16 +14,17 @@ export const parseMeterReadingCsv = async (
     const records: any[] = [];
 
     const parser = CsvParser.createParser({
-      columns: ['deviceId', 'value', 'timestamp'],
+      columns: ['id', 'value', 'timestamp', 'unit'],
     });
 
     parser.on('readable', () => {
       let record;
       while ((record = parser.read()) !== null) {
         records.push({
-          deviceId: record.deviceId,
+          deviceId: record.id,
           value: Number(record.value),
-          timestamp: record.endTimestamp,
+          timestamp: record.timestamp,
+          unit: record.unit,
         });
       }
     });
