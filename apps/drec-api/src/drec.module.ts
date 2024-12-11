@@ -49,7 +49,7 @@ import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
-import { SDGbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
@@ -177,7 +177,7 @@ const QueueingModule = () => {
     AccessControlLayerModuleServiceModule,
     PermissionModule,
     CountryCodeModule,
-    SDGbenefitModule,
+    SDGBenefitModule,
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,
