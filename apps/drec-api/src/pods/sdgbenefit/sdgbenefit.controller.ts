@@ -13,17 +13,17 @@ import {
   ApiSecurity,
 } from '@nestjs/swagger';
 import { SDGBenefitDTO, SDGBCodeNameDTO } from './dto/add_sdgbenefit.dto';
-import { SdgbenefitService } from './sdgbenefit.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { SDGBenefitService } from './sdgbenefit.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { plainToClass } from 'class-transformer';
 import { SDGBenefit } from './sdgbenefit.entity';
 @ApiTags('SdgBenefit')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('sdgbenefit')
-export class SdgbenefitController {
-  private readonly logger = new Logger(SdgbenefitController.name);
+export class SDGBenefitController {
+  private readonly logger = new Logger(SDGBenefitController.name);
 
-  constructor(private readonly SdgbenefitService: SdgbenefitService) {}
+  constructor(private readonly SdgbenefitService: SDGBenefitService) {}
 
   /**
    * this Api rout use for add sdg Benifites name and code

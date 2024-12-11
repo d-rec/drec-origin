@@ -6,8 +6,8 @@ import { SDGBenefitDTO, SDGBCodeNameDTO } from './dto/add_sdgbenefit.dto';
 import { SDGBenefit } from './sdgbenefit.entity';
 import { SDGBenefits } from '../../models/Sdgbenefit';
 @Injectable()
-export class SdgbenefitService {
-  private readonly logger = new Logger(SdgbenefitService.name);
+export class SDGBenefitService {
+  private readonly logger = new Logger(SDGBenefitService.name);
 
   constructor(
     @InjectRepository(SDGBenefit)
