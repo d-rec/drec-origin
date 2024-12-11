@@ -1,5 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
+<<<<<<< HEAD
 import { isNotEmpty } from 'class-validator';
 
 export const Trim = (): PropertyDecorator =>
@@ -13,3 +14,8 @@ export const ConvertToNullIfEmpty = (): PropertyDecorator =>
       return value;
     }),
   );
+=======
+
+export const Trim = (): PropertyDecorator =>
+  applyDecorators(Transform((value?: string) => value?.trim()));
+>>>>>>> develop

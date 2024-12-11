@@ -40,7 +40,7 @@ import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_met
 import { Device } from '../device';
 import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { DeviceLateongoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -443,9 +443,9 @@ export class IssuerService {
     deviceExternalId: string,
     late_start_date: Date | string | DateTime,
     late_end_date: Date | string | DateTime,
-  ): Promise<DeviceLateongoingIssueCertificateEntity> {
+  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
     const lateDeviceCertificateLogDTO =
-      new DeviceLateongoingIssueCertificateEntity();
+      new DeviceLateOngoingIssueCertificateEntity();
     (lateDeviceCertificateLogDTO.device_externalid = deviceExternalId),
       (lateDeviceCertificateLogDTO.groupId = groupId),
       (lateDeviceCertificateLogDTO.late_start_date =

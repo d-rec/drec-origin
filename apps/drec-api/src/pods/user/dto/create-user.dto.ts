@@ -1,6 +1,5 @@
-import { ApiProperty, PickType, IntersectionType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { UserDTO } from './user.dto';
-import { OrganizationDTO } from '../../organization/dto/organization.dto';
 import {
   IsNotEmpty,
   IsString,
@@ -8,9 +7,12 @@ import {
   MaxLength,
   IsOptional,
   IsUUID,
+  IsIn,
 } from 'class-validator';
-import { UserORGRegistrationData } from '../../../models';
+import { UserOrgRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
+import { Trim } from '../../../transformers/string';
+import { Role } from '../../../utils/enums/role.enum';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [
 //     'title',
@@ -35,12 +37,9 @@ import { Match } from '../decorators/match.decorator';
 
 // }
 
-export class CreateUserORGDTO
-  extends IntersectionType(
-    PickType(UserDTO, ['firstName', 'lastName', 'email'] as const),
-    PickType(OrganizationDTO, ['organizationType'] as const),
-  )
-  implements UserORGRegistrationData
+export class CreateUserOrgDTO
+  extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
+  implements UserOrgRegistrationData
 {
   @ApiProperty({ type: String })
   @MaxLength(20)
@@ -58,6 +57,7 @@ export class CreateUserORGDTO
 
   @ApiProperty({ type: String })
   @IsString()
+  @Trim()
   @IsNotEmpty()
   orgName?: string;
 
@@ -91,4 +91,12 @@ export class CreateUserORGDTO
 
   @IsOptional()
   orgid?: number;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  @IsIn([Role.Developer, Role.ApiUser, Role.Buyer], {
+    message: 'organizationType value should be Developer/Buyer/ApiUser',
+  })
+  organizationType: string;
 }
