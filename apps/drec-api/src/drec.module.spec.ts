@@ -27,7 +27,7 @@ import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_info
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
-import { SDGbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { PermissionModule } from './pods/permission/permission.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
@@ -322,7 +322,7 @@ describe('DrecModule', () => {
   });
 
   it('should import SdgbenefitModule', () => {
-    const sdgbenefitModule = module.get(SDGbenefitModule);
+    const sdgbenefitModule = module.get(SDGBenefitModule);
     expect(sdgbenefitModule).toBeDefined();
   });
 

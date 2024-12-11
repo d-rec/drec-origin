@@ -8,4 +8,4 @@ import { SDGBenefit } from './sdgbenefit.entity';
   controllers: [SDGBenefitController],
   providers: [SDGBenefitService],
 })
-export class SDGbenefitModule {}
+export class SDGBenefitModule {}

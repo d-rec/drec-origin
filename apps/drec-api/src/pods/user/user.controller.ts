@@ -52,6 +52,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
+import { IsEmail } from 'class-validator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -127,35 +128,6 @@ export class UserController {
     @Req() request: Request,
   ): Promise<UserDTO> {
     const user = request.user;
-    if (
-      userRegistrationData.organizationType === '' ||
-      userRegistrationData.organizationType === null ||
-      userRegistrationData.organizationType === undefined
-    ) {
-      throw new ConflictException({
-        success: false,
-        message: `organizationType should not be empty`,
-      });
-    }
-    if (
-      userRegistrationData.organizationType.toLowerCase() !=
-        'Buyer'.toLowerCase() &&
-      userRegistrationData.organizationType.toLowerCase() !=
-        'Developer'.toLowerCase() &&
-      userRegistrationData.organizationType.toLowerCase() !=
-        'ApiUser'.toLowerCase()
-    ) {
-      throw new ConflictException({
-        success: false,
-        message: `organizationType value should be Developer/Buyer/ApiUser`,
-      });
-    }
-    if (userRegistrationData.orgName.trim() === '') {
-      throw new ConflictException({
-        success: false,
-        message: `orgName should not be empty`,
-      });
-    }
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
@@ -233,14 +205,13 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    const emailregex =
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
-    let emailConfirmation: any;
-    if (emailregex.test(token)) {
-      emailConfirmation = await this.userService.findOne({ email: token });
+    if (IsEmail(token)) {
+      const emailConfirmation = await this.userService.findOne({
+        email: token,
+      });
       return this.userService.changePassword(emailConfirmation, body);
     } else {
-      emailConfirmation = await this.emailConfirmationService.findOne({
+      const emailConfirmation = await this.emailConfirmationService.findOne({
         token,
       });
       if (!emailConfirmation) {
