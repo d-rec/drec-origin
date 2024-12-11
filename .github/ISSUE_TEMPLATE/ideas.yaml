@@ -1,13 +1,18 @@
+---
 name: Idea / Feature request
 description: Suggest an idea to improve Testing Form
 title: "[Idea]: "
-labels: ["idea", "feature-request"]
-projects: ["d-rec/2"]
+labels:
+  - idea
+  - feature-request
+projects:
+  - d-rec/2
 body:
   - type: markdown
     attributes:
-      value: |
-        Thank you for sharing your ideas. Please take the time to provide as much detail as possible.
+      value: >
+        Thank you for sharing your ideas. Please take the time to provide as much
+        detail as possible.
   - type: textarea
     id: problem
     attributes:

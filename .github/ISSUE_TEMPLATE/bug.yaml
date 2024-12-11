@@ -1,8 +1,12 @@
+---
 name: Bug Report
 description: File a bug report.
 title: "[Bug]: "
-labels: ["bug", "triage"]
-projects: ["d-rec/2"]
+labels:
+  - bug
+  - triage
+projects:
+  - d-rec/2
 body:
   - type: markdown
     attributes:
@@ -24,13 +28,13 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: os 
+    id: os
     attributes:
       label: What Operating System(OS) are you seeing the problem on?
       multiple: true
       options:
         - Android
-        - iOS 
+        - iOS
         - Windows
         - MacOS
         - Linux
