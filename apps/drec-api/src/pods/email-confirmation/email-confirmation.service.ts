@@ -337,8 +337,8 @@ export class EmailConfirmationService {
 
   async remove(userId: number): Promise<void> {
     this.logger.verbose(`With in remove`);
-    const allEmailConfirmations = await this.get(userId);
-    await this.repository.delete(allEmailConfirmations.id);
+    const confirmation = await this.get(userId);
+    await this.repository.delete(confirmation.id);
   }
 
   public async sendInvitation(

@@ -2346,9 +2346,9 @@ export class DeviceGroupService {
     const count = await queryBuilder.getCount();
 
     const result = await queryBuilder.getRawMany();
-    const historyNextIssuancer = result;
+    const historyNextIssuance = result;
 
-    historyNextIssuancer.forEach((element) => {
+    historyNextIssuance.forEach((element) => {
       element.device_externalid = element.externalId;
       delete element['createdAt'];
       delete element['groupId'];
@@ -2356,13 +2356,14 @@ export class DeviceGroupService {
       delete element['updatedAt'];
     });
     deviceHistoryNextIssuance.push({
-      historyNextIssuancer,
+      historyNextIssuance,
     });
 
-    const allDevicesHistNextIssuansInfo: any = [];
+    const allIssuance: any = [];
+    
     deviceHistoryNextIssuance.forEach((ele) =>
-      ele.historyNextIssuancer.forEach((he) =>
-        allDevicesHistNextIssuansInfo.push(he),
+      ele.historyNextIssuance.forEach((he) =>
+        allIssuance.push(he),
       ),
     );
 
@@ -2377,7 +2378,7 @@ export class DeviceGroupService {
 
     return {
       historynextissuansinfo: {
-        AllDeviceshistnextissuansinfo: allDevicesHistNextIssuansInfo,
+        AllDeviceshistnextissuansinfo: allIssuance,
         totalItems: count,
         currentPage: pageNumber,
         totalPages: totalPages,

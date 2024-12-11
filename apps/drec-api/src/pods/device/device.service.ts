@@ -541,7 +541,7 @@ export class DeviceService {
     this.logger.verbose(`With in register`);
     const code = newDevice.countryCode.toUpperCase();
     newDevice.countryCode = code;
-    const sdgbBenifitsList = SDGBenefits;
+    const sdgBenifitsList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
@@ -569,7 +569,7 @@ export class DeviceService {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
       newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        const foundEle = sdgbBenifitsList.find(
+        const foundEle = sdgBenifitsList.find(
           (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
         );
         if (foundEle) {
@@ -642,7 +642,7 @@ export class DeviceService {
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
     updateDeviceDTO.externalId = currentDevice.externalId;
-    const sdgbBenifitsList = SDGBenefits;
+    const sdgBenifitsList = SDGBenefits;
 
     if (
       updateDeviceDTO.SDGBenefits.includes('0') ||
@@ -651,7 +651,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
       updateDeviceDTO.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        const foundEle = sdgbBenifitsList.find(
+        const foundEle = sdgBenifitsList.find(
           (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
         );
         if (foundEle) {
