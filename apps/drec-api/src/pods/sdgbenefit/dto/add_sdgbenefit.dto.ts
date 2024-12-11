@@ -6,7 +6,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ISdgBenefit } from '../../../models';
 
 @Entity()
-export class SdgBenefitDTO implements Omit<ISdgBenefit, 'id'> {
+export class SDGBenefitDTO implements Omit<ISdgBenefit, 'id'> {
   @ApiProperty()
   @IsString()
   SdgbenefitName: string;

@@ -9,14 +9,14 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { IDeltaintermediate } from '../../models/Delta_firstread';
+import { IDeltaIntermediate } from '../../models/Delta_firstread';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'delta_firstread' })
 export class DeltaFirstRead
   extends ExtendedBaseEntity
-  implements IDeltaintermediate
+  implements IDeltaIntermediate
 {
-  constructor(deltafirstreadvalue?: Partial<IDeltaintermediate>) {
+  constructor(deltafirstreadvalue?: Partial<IDeltaIntermediate>) {
     super();
     Object.assign(this, deltafirstreadvalue);
   }

@@ -13,7 +13,7 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { CountrycodeService } from './countrycode.service';
+import { CountryCodeService } from './countrycode.service';
 import { CountryCodeNameDTO, FilterKeyDTO } from './dto';
 
 /*
@@ -23,10 +23,10 @@ import { CountryCodeNameDTO, FilterKeyDTO } from './dto';
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('countrycode')
-export class CountrycodeController {
-  private readonly logger = new Logger(CountrycodeController.name);
+export class CountryCodeController {
+  private readonly logger = new Logger(CountryCodeController.name);
 
-  constructor(private readonly countrycodeService: CountrycodeService) {}
+  constructor(private readonly countrycodeService: CountryCodeService) {}
 
   /*
    * It is GET api to get list of all country codes with filteration by pattern(string)

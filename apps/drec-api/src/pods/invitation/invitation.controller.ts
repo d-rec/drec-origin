@@ -44,7 +44,7 @@ import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
+import { InviteDTO, UpdateInviteStatusDTO } from './dto/invite.dto';
 import { Invitation } from './invitation.entity';
 
 @ApiTags('invitation')
@@ -128,7 +128,7 @@ export class InvitationController {
   async updateInvitation(
     @Param('id') invitationId: number,
     //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation: updateInviteStatusDTO,
+    @Body() useracceptinvitation: UpdateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);

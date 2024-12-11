@@ -40,7 +40,7 @@ export class InviteDTO {
   @IsOptional()
   status?: string;
 }
-export class updateInviteStatusDTO {
+export class UpdateInviteStatusDTO {
   @ApiProperty({ type: String })
   @IsNotEmpty()
   @IsEmail()

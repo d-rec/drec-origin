@@ -32,13 +32,13 @@ import {
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { CertificateNewWithPerDeviceLog, CertificatelogResponse } from './dto';
+import { CertificateNewWithPerDeviceLog, CertificateLogResponse } from './dto';
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { deviceFilterDTO } from './dto/deviceFilter.dto';
+import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { Role } from '../../utils/enums';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
@@ -269,7 +269,7 @@ export class CertificateLogController {
     @Query('certiifcateEndDate') generationEndTime?: string,
     @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour')
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
-    @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
+    @Query('deviceFilter') deviceFilter?: DeviceFilterDTO,
   ): Promise<{
     result: any[];
     pageNumber: number;
@@ -298,7 +298,7 @@ export class CertificateLogController {
     description: 'This query parameter is for apiuser',
   })
   @ApiOkResponse({
-    type: [CertificatelogResponse],
+    type: [CertificateLogResponse],
     description: 'Returns issuer Certificate of Reservation',
   })
   async getCertificatesForDeveloper(
@@ -310,7 +310,7 @@ export class CertificateLogController {
       new ValidationPipe({ skipMissingProperties: true }),
     )
     organizationId: number,
-  ): Promise<CertificatelogResponse> {
+  ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
 
     if (user.role === Role.ApiUser) {

@@ -6,18 +6,18 @@ import { Device } from './device.entity';
 import { ACLModulePermissions } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { CountrycodeModule } from '../countrycode/countrycode.module';
+import { CountryCodeModule } from '../countrycode/countrycode.module';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
-    CountrycodeModule,
+    CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([
       Device,
@@ -26,7 +26,7 @@ import { HttpModule } from '@nestjs/axios';
       HistoryIntermediate_MeterRead,
       IrecDevicesInformationEntity,
       IrecErrorLogInformationEntity,
-      DeviceLateongoingIssueCertificateEntity,
+      DeviceLateOngoingIssueCertificateEntity,
     ]),
     UserModule,
     OrganizationModule,
