@@ -320,11 +320,10 @@ export class AdminController {
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const otherOrgUsers =
-      await this.userService.getAnotherUserInOrganization(
-        user.organization.id,
-        user.id,
-      );
+    const otherOrgUsers = await this.userService.getAnotherUserInOrganization(
+      user.organization.id,
+      user.id,
+    );
 
     if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
       const buyerReservation = await this.devicegroupService.findOne({
