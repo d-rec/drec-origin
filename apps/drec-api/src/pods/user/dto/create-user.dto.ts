@@ -9,7 +9,7 @@ import {
   IsUUID,
   IsIn,
 } from 'class-validator';
-import { UserORGRegistrationData } from '../../../models';
+import { UserOrgRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
 import { Trim } from '../../../transformers/string';
 import { Role } from '../../../utils/enums/role.enum';
@@ -37,9 +37,9 @@ import { Role } from '../../../utils/enums/role.enum';
 
 // }
 
-export class CreateUserORGDTO
+export class CreateUserOrgDTO
   extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
-  implements UserORGRegistrationData
+  implements UserOrgRegistrationData
 {
   @ApiProperty({ type: String })
   @MaxLength(20)

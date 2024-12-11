@@ -27,7 +27,7 @@ import {
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import {
   ActiveUserGuard,
@@ -114,7 +114,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Post('register')
-  @ApiBody({ type: CreateUserORGDTO })
+  @ApiBody({ type: CreateUserOrgDTO })
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
@@ -124,7 +124,7 @@ export class UserController {
     description: 'Register a new user ',
   })
   public async register(
-    @Body() userRegistrationData: CreateUserORGDTO,
+    @Body() userRegistrationData: CreateUserOrgDTO,
     @Req() request: Request,
   ): Promise<UserDTO> {
     const user = request.user;
