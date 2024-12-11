@@ -81,7 +81,8 @@ export class PermissionService {
         loginuser.role === Role.Admin ||
         loginuser.role === Role.ApiUser
       ) {
-        const modulepermission = await this.repository.save(aclPermissionService);
+        const modulepermission =
+          await this.repository.save(aclPermissionService);
         return modulepermission;
       } else {
         this.logger.error(`You are not authorized to add module for any Role`);
