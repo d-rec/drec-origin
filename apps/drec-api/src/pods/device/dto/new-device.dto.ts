@@ -10,6 +10,7 @@ import {
   IsISO8601,
   Min,
   ValidateIf,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
@@ -17,6 +18,8 @@ import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 import { Trim } from '../../../transformers/trim-string';
+import { ToUpperCase } from '../../../transformers/uppercase';
+import {countryCodesList } from '../../../models/country-code';
 
 export class NewDeviceDTO
   implements
@@ -69,7 +72,11 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @Transform((value, obj) => obj.countryCode.toUpperCase())
+  @IsIn(countryCodesList.map((ele) => ele.countryCode), {message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  })
+  @IsNotEmpty()
+  @ToUpperCase()
   @Matches(/^[A-Z]{3}$/, {
     message: 'Country code must be a valid 3-letter ISO code',
   })

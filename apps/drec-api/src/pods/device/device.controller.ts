@@ -482,7 +482,6 @@ export class DeviceController {
     const org = await this.organizationService.findOne(
       deviceToUpdate.organizationId,
     );
-    console.log(org);
     if (user.role === Role.ApiUser) {
       if (
         user.api_user_id != org.api_user_id ||
@@ -495,7 +494,6 @@ export class DeviceController {
         });
       }
       user.organizationId = deviceToUpdate.organizationId;
-      console.log(user.organizationId);
     }
 
     if (user.role != Role.Admin && user.organizationId != org.id) {
