@@ -7,10 +7,12 @@ import {
   MaxLength,
   IsOptional,
   IsUUID,
+  IsIn,
 } from 'class-validator';
 import { UserORGRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
 import { Trim } from '../../../transformers/string';
+import { Role } from '../../../utils/enums/role.enum';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [
 //     'title',
@@ -93,5 +95,8 @@ export class CreateUserORGDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
+  @IsIn([Role.Developer, Role.ApiUser, Role.Buyer], {
+    message: 'organizationType value should be Developer/Buyer/ApiUser',
+  })
   organizationType: string;
 }
