@@ -621,9 +621,9 @@ export class DeviceGroupService {
             }
 
             if (groupfilterDto.sdgbenefit) {
-              const newSdg = groupfilterDto.sdgbenefit.toString();
+              const newSDG = groupfilterDto.sdgbenefit.toString();
 
-              const sdgBenefitsArray = newSdg.split(',');
+              const sdgBenefitsArray = newSDG.split(',');
 
               sdgBenefitsArray.map((benefit) => benefit).join(',');
 
@@ -2565,8 +2565,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.SDGBenefits) {
-              const newSdg = filterDto.SDGBenefits.toString();
-              const sdgBenefitsArray = newSdg.split(',');
+              const newSDG = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newSDG.split(',');
               // sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
@@ -2839,8 +2839,8 @@ export class DeviceGroupService {
               );
             }
             if (filterDto.SDGBenefits) {
-              const newSdg = filterDto.SDGBenefits.toString();
-              const sdgBenefitsArray = newSdg.split(',');
+              const newSDG = filterDto.SDGBenefits.toString();
+              const sdgBenefitsArray = newSDG.split(',');
               //sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
@@ -2888,11 +2888,11 @@ export class DeviceGroupService {
         );
     });
     const totalCountQuery = await queryBuilder.getRawMany();
-    const groupedDataSql = await queryBuilder
+    const groupedDataSQL = await queryBuilder
       .offset(skip)
       .limit(pageSize)
       .getSql();
-    this.logger.debug(groupedDataSql);
+    this.logger.debug(groupedDataSQL);
     const groupedData = await queryBuilder
       .offset(skip)
       .limit(pageSize)

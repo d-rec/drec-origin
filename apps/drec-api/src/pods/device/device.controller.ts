@@ -775,18 +775,18 @@ export class DeviceController {
     this.logger.verbose(`With in remove`);
     const checkIsUnGroup = this.deviceService.findUngroupedById(id);
     if (checkIsUnGroup) {
-      let fitleRop: any;
+      let filterOptions: any;
       if (role === 'Admin') {
-        fitleRop = {
+        filterOptions = {
           groupId: null,
         };
       } else {
-        fitleRop = {
+        filterOptions = {
           groupId: null,
           organizationId: organizationId,
         };
       }
-      return await this.deviceService.remove(id, fitleRop);
+      return await this.deviceService.remove(id, filterOptions);
     }
   }
 

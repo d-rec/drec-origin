@@ -71,7 +71,7 @@ export class PermissionService {
       permissionValue,
     );
     if (permissionboolean) {
-      const ACLPermission = new ACLModulePermissions({
+      const aclPermissionService = new ACLModulePermissions({
         ...data,
         permissionValue: permissionValue,
       });
@@ -81,7 +81,7 @@ export class PermissionService {
         loginuser.role === Role.Admin ||
         loginuser.role === Role.ApiUser
       ) {
-        const modulepermission = await this.repository.save(ACLPermission);
+        const modulepermission = await this.repository.save(aclPermissionService);
         return modulepermission;
       } else {
         this.logger.error(`You are not authorized to add module for any Role`);
@@ -107,12 +107,12 @@ export class PermissionService {
       id: data.aclmodulesId,
     });
 
-    const isPermission =
+    const permissions =
       await this.Permissionvalue.checkModulePermissionAgainstUserPermission(
         moduleId.permissionsValue,
         newpermissionvalue,
       );
-    if (data.permissions.length === isPermission.length) {
+    if (data.permissions.length === permissions.length) {
       return true;
     }
     return false;
@@ -170,7 +170,7 @@ export class PermissionService {
   }
   async FindbyRole(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyRole`);
-    const ACLPermission = await this.repository.find({
+    const aclPermission = await this.repository.find({
       relations: ['aclmodules'],
       where: {
         entityType: EntityType.Role,
@@ -181,7 +181,7 @@ export class PermissionService {
       },
     });
 
-    return ACLPermission;
+    return aclPermission;
   }
   async FindbyUser(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyUser`);
@@ -225,11 +225,11 @@ export class PermissionService {
     //   aclmodulesId: userPermission.aclmodulesId,
     //   permissions: data.permissions,
     // };
-    const permissionBoolean = await this.checkForExistingmodulepermission(
+    const hasPermission = await this.checkForExistingmodulepermission(
       PermissionDTO,
       permissionValue,
     );
-    if (permissionBoolean) {
+    if (hasPermission) {
       if (loginuser.role === Role.ApiUser) {
         await this.repository.update(id, {
           permissions: data.permissions,
@@ -285,15 +285,15 @@ export class PermissionService {
     const apiUser = await this.userService.findById(loginuser.id);
 
     let permissionIds: any = [];
-    const apiUserpermission = await this.userService.getApiuser(
+    const apiUserPermission = await this.userService.getApiuser(
       apiUser.api_user_id,
     );
 
     if (
-      apiUserpermission.permissionIds != null &&
-      apiUserpermission.permissionIds.length > 0
+      apiUserPermission.permissionIds != null &&
+      apiUserPermission.permissionIds.length > 0
     ) {
-      permissionIds = apiUserpermission.permissionIds;
+      permissionIds = apiUserPermission.permissionIds;
     }
 
     const userPermissions = await this.repository.find({

@@ -12,7 +12,7 @@ import { DecimalPermissionValue } from '../access-control-layer-module-service/c
 describe('PermissionService', () => {
   let service: PermissionService;
   let repository: Repository<ACLModulePermissions>;
-  let ACLPermissionService: AccessControlLayerModuleServiceService;
+  let aclPermissionService: AccessControlLayerModuleServiceService;
   let userService: UserService;
   let permissionValue: DecimalPermissionValue;
 

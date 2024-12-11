@@ -439,7 +439,7 @@ describe('InvitationService', () => {
       const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
         .mockResolvedValue(inviteeOrganization as unknown as Organization);
-      const inviteeFindOneSpy = jest
+      const inviteFindOneSpy = jest
         .spyOn(invitationRepository, 'findOne')
         .mockResolvedValue(undefined);
       const ensureIsNotMemberSpy = jest
@@ -472,7 +472,7 @@ describe('InvitationService', () => {
       await expect(findByEmailSpy).toHaveBeenCalledWith(user.email);
       await expect(orgFindOneSpy).toHaveBeenCalledWith(orgId);
       await expect(findByEmailSpy).toHaveBeenCalledWith(email.toLowerCase());
-      await expect(inviteeFindOneSpy).toHaveBeenCalledWith({
+      await expect(inviteFindOneSpy).toHaveBeenCalledWith({
         where: {
           email: email,
           organization: {
