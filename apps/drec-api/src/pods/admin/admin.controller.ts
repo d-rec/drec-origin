@@ -320,7 +320,7 @@ export class AdminController {
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const manyOtherUserInOrg =
+    const otherOrgUsers =
       await this.userService.getAnotherUserInOrganization(
         user.organization.id,
         user.id,
@@ -348,7 +348,7 @@ export class AdminController {
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       // }
-      if (!(manyOtherUserInOrg.length > 0)) {
+      if (!(otherOrgUsers.length > 0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);

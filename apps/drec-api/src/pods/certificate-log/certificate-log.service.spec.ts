@@ -333,11 +333,11 @@ describe('CertificateLogService', () => {
 
       const reservationInfo = { deviceGroups: [] };
 
-      const reservationInforDeveloperBsiseSpy = jest
+      const developerReservationSpy = jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(reservationInfo);
 
-      const oldReservationInforDeveloperBsiseSpy = jest
+      const developerOldReservationSpy = jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(oldReservationInfo);
 
@@ -395,7 +395,7 @@ describe('CertificateLogService', () => {
         pageNumber,
       );
 
-      expect(reservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
+      expect(developerReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDto,
@@ -403,7 +403,7 @@ describe('CertificateLogService', () => {
         user.api_user_id,
       );
 
-      expect(oldReservationInforDeveloperBsiseSpy).toHaveBeenCalledWith(
+      expect(developerOldReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDto,
@@ -449,9 +449,9 @@ describe('CertificateLogService', () => {
 
       const pageNumber = 1;
 
-      const getOldReservationInfo = { deviceGroups: [] };
+      const oldReservationInfo = { deviceGroups: [] };
 
-      const getNewReservationInfo = {
+      const reservationInfo = {
         deviceGroups: [
           {
             dg_id: 5,
@@ -476,10 +476,10 @@ describe('CertificateLogService', () => {
 
       jest
         .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getNewReservationInfo);
+        .mockResolvedValueOnce(reservationInfo);
       jest
         .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
-        .mockResolvedValueOnce(getOldReservationInfo);
+        .mockResolvedValueOnce(oldReservationInfo);
 
       const expectedCertificates = {
         certificatelog: [
