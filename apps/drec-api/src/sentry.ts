@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nestjs';
 
-const {SENTRY_DSN, SENTRY_ENV, SENTRY_ENABLED} = process.env;
+const { SENTRY_DSN, SENTRY_ENV, SENTRY_ENABLED } = process.env;
 
 Sentry.init({
   dsn: SENTRY_DSN,
