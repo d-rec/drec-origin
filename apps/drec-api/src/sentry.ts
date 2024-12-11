@@ -1,8 +1,10 @@
 import * as Sentry from '@sentry/nestjs';
 
+const {SENTRY_DSN, SENTRY_ENV, MODE} = process.env;
+
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.SENTRY_ENV,
+  dsn: SENTRY_DSN,
+  environment: SENTRY_ENV || 'development',
   tracesSampleRate: 1.0,
-  enabled: process.env.NODE_ENV === 'production',
+  enabled: SENTRY_DSN && MODE && !(['dev', 'local', 'development'].includes(MODE)),
 });
