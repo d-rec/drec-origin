@@ -37,7 +37,7 @@ import { Role } from '../../../utils/enums/role.enum';
 
 // }
 
-export class CreateUserORGDTO
+export class CreateUserOrgDTO
   extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
   implements UserOrgRegistrationData
 {
