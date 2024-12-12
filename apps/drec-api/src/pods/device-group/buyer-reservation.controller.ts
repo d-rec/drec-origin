@@ -892,7 +892,7 @@ export class BuyerReservationController {
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
-  public async endResavation(
+  public async endReservation(
     @Param('id') id: number,
     @Body() endresavationdate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,

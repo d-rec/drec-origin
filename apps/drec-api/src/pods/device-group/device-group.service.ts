@@ -2672,14 +2672,16 @@ export class DeviceGroupService {
     };
     return response;
   }
-  async getOldReservationInfOrDeveloperBsise(
+  async getFilteredDeviceGroupReservationHistoryByUserRole(
     orgId: number,
     role: Role,
     filterDto: FilterDTO,
     pageNumber: number,
     apiuser_id?: string,
   ): Promise<any> {
-    this.logger.verbose(`With in getoldReservationInforDeveloperBsise`);
+    this.logger.verbose(
+      `With in getFilteredDeviceGroupReservationHistoryByUserRole`,
+    );
     const pageSize = 10;
     // const pageNumber = 2
     if (pageNumber <= 0) {

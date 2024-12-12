@@ -146,7 +146,7 @@ const redisOptions = {
   port: 6379,
 };
 
-const queueingModule = () => {
+const queueModule = () => {
   return BullModule.forRoot({
     redis: redisOptions,
     //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
@@ -162,7 +162,7 @@ const queueingModule = () => {
       isGlobal: true,
     }),
     originAppTypeOrmModule(),
-    queueingModule(),
+    queueModule(),
     ScheduleModule.forRoot(),
     AuthModule,
     MailModule,
