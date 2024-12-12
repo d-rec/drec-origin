@@ -216,7 +216,7 @@ export class DeviceService {
   }
 
   //@Cron('*/30 * * * * *')
-  async IRECPostData(deviceId: number): Promise<any> {
+  async irecPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'NotRegistered' },
@@ -289,7 +289,7 @@ export class DeviceService {
     }
   }
 
-  async IRECDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
+  async irecDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
     this.logger.verbose(`With in I_RECDeviceDetailsPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },

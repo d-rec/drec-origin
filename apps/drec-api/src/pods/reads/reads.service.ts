@@ -337,7 +337,7 @@ export class ReadsService {
       );
     }
 
-    const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
+    const roundedMeasurements = this.newRoundMeasurementsToUnit(measurements);
 
     const filteredMeasurements = await this.newFilterMeasurements(
       id,
@@ -348,7 +348,7 @@ export class ReadsService {
     await this.newStoreGenerationReading(id, filteredMeasurements, device);
   }
 
-  private NewroundMeasurementsToUnit(
+  private newRoundMeasurementsToUnit(
     measurement: NewIntmediateMeterReadDTO,
   ): NewIntmediateMeterReadDTO {
     const getMultiplier = (unit: Unit) => {
@@ -572,7 +572,7 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const newdeltavalidation = this.NewvalidateEnergy(
+              const newdeltavalidation = this.newValidateEnergy(
                 read,
                 final,
                 device,
@@ -715,7 +715,7 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: Delta,
               };
-              const newvalidation = this.NewvalidateEnergy(read, final, device);
+              const newvalidation = this.newValidateEnergy(read, final, device);
               if (newvalidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
@@ -913,7 +913,7 @@ export class ReadsService {
       };
     }
   }
-  private NewvalidateEnergy(
+  private newValidateEnergy(
     read: ReadDTO,
     final: ReadDTO,
     device: DeviceDTO,

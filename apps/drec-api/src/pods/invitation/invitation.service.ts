@@ -335,7 +335,7 @@ export class InvitationService {
       await this.invitationRepository.delete(orginvitee.id);
     }
   }
-  async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
+  async getInviteInfoByEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
     const orginvitee = await this.invitationRepository.findOne({
       where: {

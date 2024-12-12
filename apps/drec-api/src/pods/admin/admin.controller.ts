@@ -372,11 +372,11 @@ export class AdminController {
     // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
-  public async IRECDeviceRegister(
+  public async irecDeviceRegister(
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
-    return await this.deviceService.IRECPostData(id);
+    return await this.deviceService.irecPostData(id);
   }
 
   @Get('/devices/autocomplete')

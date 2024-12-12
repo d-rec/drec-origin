@@ -168,7 +168,7 @@ export class PermissionController {
     type: PermissionDTO,
     description: 'Request of permission from ApiUser',
   })
-  public async APIUserModuleRequest(
+  public async apiUserModuleRequest(
     //  @Param('apiuserId') api_user_id: string,
     @Body() moduleData: [NewApiUserPermissionDTO],
     @UserDecorator() loggedUser: ILoggedInUser,
@@ -193,7 +193,7 @@ export class PermissionController {
     type: PermissionDTO,
     description: 'Request for api user',
   })
-  public async APIUserModuleApprove(
+  public async apiUserModuleApprove(
     @Param('apiuserId') api_user_id: string,
     @Body() moduleData: ApiUserPermissionUpdateDTO,
   ): Promise<{ statsu: string; message: string }> {
