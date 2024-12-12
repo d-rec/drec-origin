@@ -15,7 +15,7 @@ import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
-import { Trim } from '../../../transformers/trim-string';
+import { Trim } from '../../../transformers/string';
 export class UpdateDeviceDTO
   implements
     Omit<

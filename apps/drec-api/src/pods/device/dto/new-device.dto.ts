@@ -19,7 +19,7 @@ import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
-import { Trim } from '../../../transformers/trim-string';
+import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { ToUpperCase } from '../../../transformers/uppercase';
 import {countryCodesList } from '../../../models/country-code';
 
@@ -107,10 +107,10 @@ export class NewDeviceDTO
   capacity: number;
 
   @ApiProperty()
-  @IsString()
   @Transform( ({ value }) => new Date(value))
   @IsDate()
-  @MaxDate(new Date())
+  @IsISO8601({message: "Invalid commissioning date, valid format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z"})
+  @IsValidCommissioningDate()
   commissioningDate: string;
 
   @ApiProperty()
@@ -199,7 +199,7 @@ export class NewDeviceDTO
   @ApiProperty({ default: '1.0' })
   @IsString()
   @IsOptional()
-  @Trim()
+  @ConvertToNullIfEmpty()
   @ValidateIf((o) => o.version === null || o.version === undefined)
   version = '1.0';
 
