@@ -556,7 +556,7 @@ export class CertificateLogService {
   }
 
   // add function for check the last end certified log in active reservation time
-  async getLastCertifiedDevicelogBygroupId(
+  async getLastCertifiedDevicelogByGroupId(
     groupId: number,
     deviceId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {

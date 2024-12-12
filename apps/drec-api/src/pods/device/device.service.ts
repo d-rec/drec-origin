@@ -1342,7 +1342,7 @@ export class DeviceService {
     });
     return newDevices;
   }
-  async getLastCertifiedDevicelogBYgroupId(
+  async getLastCertifiedDevicelogByGroupId(
     groupId: number,
     deviceId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
