@@ -61,8 +61,8 @@ export class AdminController {
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
-    private readonly devicegroupService: DeviceGroupService,
-    private readonly invitationservice: InvitationService,
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly invitationService: InvitationService,
   ) {}
 
   @Get('/users')
@@ -326,7 +326,7 @@ export class AdminController {
     );
 
     if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
-      const buyerReservation = await this.devicegroupService.findOne({
+      const buyerReservation = await this.deviceGroupService.findOne({
         organizationId: user.organization.id,
       });
 
@@ -353,7 +353,7 @@ export class AdminController {
         await this.organizationService.remove(user.organization.id);
       }
     } else {
-      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.invitationService.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
 

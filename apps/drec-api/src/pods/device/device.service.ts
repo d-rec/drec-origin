@@ -92,16 +92,16 @@ export class DeviceService {
 
   public async find(
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
     OrgId?: number,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in find`);
     const limit = 20;
     let query = await this.getFilteredQuery(filterDto, OrgId);
-    if (pagenumber) {
+    if (pageNumber) {
       query = {
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
       };
     }
@@ -111,7 +111,7 @@ export class DeviceService {
       ...query,
     });
     const totalPages = Math.ceil(totalCount / 20);
-    const currentPage = pagenumber;
+    const currentPage = pageNumber;
     const newDevices = [];
 
     await devices.map((device: Device) => {
@@ -133,12 +133,12 @@ export class DeviceService {
     api_user_id: string,
     role: Role,
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
   ): Promise<any> {
     this.logger.verbose(`With in getOrganizationDevices`);
     if (
       Object.keys(filterDto).length != 0 &&
-      (pagenumber != null || pagenumber != undefined)
+      (pageNumber != null || pageNumber != undefined)
     ) {
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
@@ -156,7 +156,7 @@ export class DeviceService {
       query.where = where;
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
         order: {
           createdAt: 'DESC',
@@ -164,7 +164,7 @@ export class DeviceService {
       });
 
       const totalPages = Math.ceil(totalCount / limit);
-      const currentPage = pagenumber;
+      const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
         device['internalexternalId'] = device.externalId;
@@ -971,7 +971,7 @@ export class DeviceService {
 
   private getBuyerFilteredQuery(
     filter: FilterDTO,
-    pagenumber,
+    pageNumber,
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
@@ -991,22 +991,22 @@ export class DeviceService {
       order: {
         organizationId: 'ASC',
       },
-      skip: (pagenumber - 1) * limit,
+      skip: (pageNumber - 1) * limit,
       take: limit,
     };
     return query;
   }
   public async finddeviceForBuyer(
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
     api_user_id: string,
   ): Promise<any> {
     const limit = 20;
     let query = this.getFilteredQuery(filterDto);
-    if (pagenumber) {
+    if (pageNumber) {
       query = {
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
       };
     }
@@ -1019,7 +1019,7 @@ export class DeviceService {
     const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
-    const currentPage = pagenumber;
+    const currentPage = pageNumber;
 
     const newUnreservedDevices = devices.map((device: Device) => {
       delete device['organization'];

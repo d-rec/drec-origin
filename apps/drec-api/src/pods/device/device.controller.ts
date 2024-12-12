@@ -94,11 +94,11 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
-    return this.deviceService.find(filterDto, pagenumber, OrgId);
+    return this.deviceService.find(filterDto, pageNumber, OrgId);
   }
 
   /**
@@ -117,7 +117,7 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
@@ -168,7 +168,7 @@ export class DeviceController {
 
     return this.deviceService.finddeviceForBuyer(
       filterDto,
-      pagenumber,
+      pageNumber,
       api_user_id,
     );
   }
@@ -250,7 +250,7 @@ export class DeviceController {
   async getMyDevices(
     @Query(ValidationPipe) filterDto: FilterDTO,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<any> {
     this.logger.verbose(`With in getMyDevices`);
     if (filterDto.country) {
@@ -332,7 +332,7 @@ export class DeviceController {
       api_user_id,
       role,
       filterDto,
-      pagenumber,
+      pageNumber,
     );
   }
 
@@ -889,8 +889,9 @@ export class DeviceController {
   /**
    * It is GET api to fetch the certified device records with in the range of date
    * @param user is loggedIn user at request
+   * @param pageNumber
    * @param externalId is unique identifier of device
-   * @param groupuId
+   * @param groupId
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
@@ -905,14 +906,14 @@ export class DeviceController {
   })
   async certifiedlogdaterang(
     @UserDecorator() user: ILoggedInUser,
-    @Query('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+    @Query('groupUid') groupId: string,
+    @Query('pagenumber') pageNumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
     this.logger.verbose(`With in certifiedlogdaterang`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
+    if (groupId === null || !regexExp.test(groupId)) {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
@@ -923,7 +924,7 @@ export class DeviceController {
     }
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupuId,
+      devicegroup_uid: groupId,
     });
     if (
       group === null ||
@@ -955,7 +956,7 @@ export class DeviceController {
     } else {
       return await this.deviceService.getcertifieddevicedaterangeBygroupid(
         group.id,
-        pagenumber,
+        pageNumber,
       );
     }
   }

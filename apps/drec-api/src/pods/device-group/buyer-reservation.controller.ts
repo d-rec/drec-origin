@@ -119,7 +119,7 @@ export class BuyerReservationController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
-    @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
+    @Query('apiuserId', new DefaultValuePipe(null)) apiUserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -146,8 +146,8 @@ export class BuyerReservationController {
     /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     this.logger.verbose('With in getAll');
     let organization: any;
-    if (!apiuserId) {
-      apiuserId = user.api_user_id;
+    if (!apiUserId) {
+      apiUserId = user.api_user_id;
     }
 
     if (organizationId) {
@@ -165,9 +165,9 @@ export class BuyerReservationController {
       }
     }
 
-    if (apiuserId) {
+    if (apiUserId) {
       if (user.role === Role.ApiUser) {
-        if (apiuserId != user.api_user_id) {
+        if (apiUserId != user.api_user_id) {
           this.logger.error(
             `An apiuser is unauthorized to request for other apiuser`,
           );
@@ -178,7 +178,7 @@ export class BuyerReservationController {
         }
       }
 
-      if (organizationId && apiuserId != organization.api_user_id) {
+      if (organizationId && apiUserId != organization.api_user_id) {
         this.logger.error(
           `The requested organization is not belongs to the apiuser`,
         );
@@ -191,7 +191,7 @@ export class BuyerReservationController {
     return this.deviceGroupService.getAll(
       user,
       organizationId,
-      apiuserId,
+      apiUserId,
       pageNumber,
       limit,
       filterDto,
@@ -202,7 +202,7 @@ export class BuyerReservationController {
    * It is GET api to list all device groups of loggedIn user
    * @param param0 is getting userId, organizationId and user role from user at request
    * @param filterDto is filteration fields to retrieve records
-   * @param pagenumber is for pagination
+   * @param pageNumber is for pagination
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get('/my')
@@ -224,7 +224,7 @@ export class BuyerReservationController {
     )
     filterDto: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -244,13 +244,13 @@ export class BuyerReservationController {
       case Role.Buyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
+          pageNumber,
           filterDto,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
+          pageNumber,
           filterDto,
         );
       case Role.OrganizationAdmin:
@@ -352,7 +352,7 @@ export class BuyerReservationController {
     deviceGroupToRegister.api_user_id = user.api_user_id;
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id !== user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
@@ -361,15 +361,15 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-        if (orguser.role === Role.Buyer) {
+        if (orgUser.role === Role.Buyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-        if (orguser.role != Role.Buyer) {
-          this.logger.error(`Unauthorized for ${orguser.role}`);
+        if (orgUser.role != Role.Buyer) {
+          this.logger.error(`Unauthorized for ${orgUser.role}`);
           throw new UnauthorizedException({
             success: false,
-            message: `Unauthorized for ${orguser.role}`,
+            message: `Unauthorized for ${orgUser.role}`,
           });
         }
       } else {
@@ -624,11 +624,11 @@ export class BuyerReservationController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
-    const deviceNextIssuence: DeviceGroupNextIssueCertificate | null =
+    const deviceNextIssuance: DeviceGroupNextIssueCertificate | null =
       await this.deviceGroupService.getGroupiCertificateIssueDate({
         groupId: id,
       });
-    if (deviceNextIssuence === null) {
+    if (deviceNextIssuance === null) {
       this.logger.error(`This device groups reservation has already ended`);
       throw new ConflictException({
         success: false,
@@ -637,14 +637,14 @@ export class BuyerReservationController {
     }
     if (
       new Date(groupToUpdate.reservationEndDate).getTime() <
-      new Date(deviceNextIssuence.start_date).getTime()
+      new Date(deviceNextIssuance.start_date).getTime()
     ) {
       this.logger.error(
-        `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuence.start_date}`,
+        `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       );
       throw new ConflictException({
         success: false,
-        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuence.start_date}`,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       });
     }
 
@@ -703,7 +703,7 @@ export class BuyerReservationController {
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
 
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
@@ -716,7 +716,7 @@ export class BuyerReservationController {
           });
         }
 
-        if (orguser.role != Role.OrganizationAdmin) {
+        if (orgUser.role != Role.OrganizationAdmin) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
@@ -880,7 +880,7 @@ export class BuyerReservationController {
   /**
    * It is DELETE api to delete an device reservation
    * @param id is unique identifier of an device group
-   * @param endresavationdate is date of end reservation
+   * @param endReservationDate is date of end reservation
    * @param param2 is getting organization Id of loggedIn user
    * @returns {void}
    */
@@ -894,21 +894,21 @@ export class BuyerReservationController {
   @ApiNotFoundResponse({ description: `No  Reservation found` })
   public async endresavation(
     @Param('id') id: number,
-    @Body() endresavationdate: EndReservationdateDTO,
+    @Body() endReservationDate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);
     return await this.deviceGroupService.EndReservationGroup(
       id,
       organizationId,
-      endresavationdate,
+      endReservationDate,
     );
   }
 
   /**
    * It is GET api to fetch current information of reservation
-   * @param groupuId is an identifier of device
-   * @param param1
+   * @param groupId is an identifier of device
+   * @param pageNumber
    * @returns {any}
    */
   @Get('current-information/:groupUid')
@@ -918,13 +918,13 @@ export class BuyerReservationController {
     status: HttpStatus.OK,
   })
   public async getReservationcurrentinformation(
-    @Param('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+    @Param('groupUid') groupId: string,
+    @Query('pagenumber') pageNumber: number,
   ): Promise<any> {
     this.logger.verbose(`With in getReservationcurrentinformation`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
+    if (groupId === null || !regexExp.test(groupId)) {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
@@ -935,8 +935,8 @@ export class BuyerReservationController {
     }
 
     return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
-      groupuId,
-      pagenumber,
+      groupId,
+      pageNumber,
     );
   }
 }

@@ -128,7 +128,7 @@ export class ReadsController extends BaseReadsController {
    * this api route use for all meter read by externalId
    * @param meterId :string
    * @param filter {FilterNoOffLimit}
-   * @param pagenumber :number
+   * @param pageNumber :number
    * @param month :number
    * @param year :number
    * @param user {ILoggedInUser}
@@ -149,7 +149,7 @@ export class ReadsController extends BaseReadsController {
   public async newgetReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterNoOffLimit,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
     @Query('Month') month: number | null,
     @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
@@ -296,7 +296,7 @@ export class ReadsController extends BaseReadsController {
         device.externalId,
         filter,
         device.createdAt,
-        pagenumber,
+        pageNumber,
       );
       this.logger.log(
         'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
@@ -392,26 +392,26 @@ export class ReadsController extends BaseReadsController {
     //check for according to read type if start time stamp and end time stamps are sent
     if (measurements.type === ReadType.History) {
       let datesContainingNullOrEmptyValues = false;
-      let datevalid = true;
+      let dateValid = true;
       let allDatesAreBeforeCreatedAt = true;
-      let allStartDatesAreBeforeEnddate = true;
+      let allStartDatesAreBeforeEndDate = true;
       let readValue = true;
-      let historyallStartDatesAreAftercommissioningDate = true;
-      let historyallEndDatesAreAftercommissioningDate = true;
+      let historyAllStartDatesAreAfterCommissioningDate = true;
+      let historyAllEndDatesAreAfterCommissioningDate = true;
       measurements.reads.forEach((ele) => {
         if (!ele.starttimestamp || !ele.endtimestamp) {
           datesContainingNullOrEmptyValues = true;
         }
-        const startDateFormate = isValidUTCDateFormat(
+        const startDateFormatted = isValidUTCDateFormat(
           new Date(ele.starttimestamp).toISOString(),
         );
-        //dateFormateToCheck.test(ele.starttimestamp);
-        const endDateFormate = isValidUTCDateFormat(
+        //dateFormattedToCheck.test(ele.starttimestamp);
+        const endDateFormatted = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!startDateFormate || !endDateFormate) {
-          datevalid = false;
+        if (!startDateFormatted || !endDateFormatted) {
+          dateValid = false;
         }
         if (device && device.createdAt) {
           if (
@@ -430,7 +430,7 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.starttimestamp).getTime() >
             new Date(ele.endtimestamp).getTime()
           ) {
-            allStartDatesAreBeforeEnddate = false;
+            allStartDatesAreBeforeEndDate = false;
           }
         }
 
@@ -444,13 +444,13 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            historyallStartDatesAreAftercommissioningDate = false;
+           historyAllStartDatesAreAfterCommissioningDate = false;
           }
           if (
             new Date(ele.endtimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            historyallEndDatesAreAftercommissioningDate = false;
+            historyAllEndDatesAreAfterCommissioningDate = false;
           }
         }
       });
@@ -465,7 +465,7 @@ export class ReadsController extends BaseReadsController {
             'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
         });
       }
-      if (!datevalid) {
+      if (!dateValid) {
         this.logger.error(
           `Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
         );
@@ -475,7 +475,7 @@ export class ReadsController extends BaseReadsController {
             ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
         });
       }
-      if (!allStartDatesAreBeforeEnddate) {
+      if (!allStartDatesAreBeforeEndDate) {
         this.logger.error(
           `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp`,
         );
@@ -501,7 +501,7 @@ export class ReadsController extends BaseReadsController {
           message: `meter read value should be greater then 0 `,
         });
       }
-      if (!historyallStartDatesAreAftercommissioningDate) {
+      if (!historyAllStartDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
@@ -510,7 +510,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         });
       }
-      if (!historyallEndDatesAreAftercommissioningDate) {
+      if (!historyAllEndDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
         );
@@ -528,8 +528,8 @@ export class ReadsController extends BaseReadsController {
       let datesContainingNullOrEmptyValues = false;
       let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
-      let allDatesAreAftercommissioningDate = true;
-      let allEndDatesAreBeforSystemDate = true;
+      let allDatesAreAfterCommissioningDate = true;
+      let allEndDatesAreBeforeSystemDate = true;
       let endDate: any;
       let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
@@ -542,11 +542,11 @@ export class ReadsController extends BaseReadsController {
         ) {
           datesContainingNullOrEmptyValues = true;
         }
-        const endDateFormate = isValidUTCDateFormat(
+        const endDateFormatted = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!endDateFormate) {
+        if (!endDateFormatted) {
           dateValid1 = false;
         }
         //check validation with onboarding date
@@ -565,14 +565,14 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.endtimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            allDatesAreAftercommissioningDate = false;
+            allDatesAreAfterCommissioningDate = false;
             endDate = ele.endtimestamp;
           }
         }
 
         //check validation with System Date
         if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
-          allEndDatesAreBeforSystemDate = false;
+          allEndDatesAreBeforeSystemDate = false;
           endDate = ele.endtimestamp;
         }
       });
@@ -614,7 +614,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         });
       }
-      if (!allDatesAreAftercommissioningDate) {
+      if (!allDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
@@ -623,7 +623,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         });
       }
-      if (!allEndDatesAreBeforSystemDate) {
+      if (!allEndDatesAreBeforeSystemDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         );
@@ -770,10 +770,10 @@ export class ReadsController extends BaseReadsController {
     if (measurements.type === ReadType.History) {
       let datesContainingNullOrEmptyValues = false;
       let allDatesAreBeforeCreatedAt = true;
-      let allStartDatesAreBeforeEnddate = true;
+      let allStartDatesAreBeforeEndDate = true;
       let readValue = true;
-      let historyallStartDatesAreAftercommissioningDate = true;
-      let historyallEndDatesAreAftercommissioningDate = true;
+      let historyAllStartDatesAreAfterCommissioningDate = true;
+      let historyAllEndDatesAreAfterCommissioningDate = true;
       measurements.reads.forEach((ele) => {
         if (!ele.starttimestamp || !ele.endtimestamp) {
           datesContainingNullOrEmptyValues = true;
@@ -795,7 +795,7 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.starttimestamp).getTime() >
             new Date(ele.endtimestamp).getTime()
           ) {
-            allStartDatesAreBeforeEnddate = false;
+            allStartDatesAreBeforeEndDate = false;
           }
         }
 
@@ -807,13 +807,13 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            historyallStartDatesAreAftercommissioningDate = false;
+            historyAllStartDatesAreAfterCommissioningDate = false;
           }
           if (
             new Date(ele.endtimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            historyallEndDatesAreAftercommissioningDate = false;
+            historyAllEndDatesAreAfterCommissioningDate = false;
           }
         }
       });
@@ -829,7 +829,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
 
-      if (!allStartDatesAreBeforeEnddate) {
+      if (!allStartDatesAreBeforeEndDate) {
         this.logger.error(
           `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp`,
         );
@@ -855,7 +855,7 @@ export class ReadsController extends BaseReadsController {
           message: `meter read value should be greater then 0 `,
         });
       }
-      if (!historyallStartDatesAreAftercommissioningDate) {
+      if (!historyAllStartDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
@@ -864,7 +864,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         });
       }
-      if (!historyallEndDatesAreAftercommissioningDate) {
+      if (!historyAllEndDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
         );
@@ -882,8 +882,8 @@ export class ReadsController extends BaseReadsController {
       let datesContainingNullOrEmptyValues = false;
       let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
-      let allDatesAreAftercommissioningDate = true;
-      let allEndDatesAreBeforSystemDate = true;
+      let allDatesAreAfterCommissioningDate = true;
+      let allEndDatesAreBeforeSystemDate = true;
       let endDate: any;
       let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
@@ -892,11 +892,11 @@ export class ReadsController extends BaseReadsController {
         if (!ele.endtimestamp) {
           datesContainingNullOrEmptyValues = true;
         }
-        const endDateFormate = isValidUTCDateFormat(
+        const endDateFormatted = isValidUTCDateFormat(
           new Date(ele.endtimestamp).toISOString(),
         );
 
-        if (!endDateFormate) {
+        if (!endDateFormatted) {
           dateValid1 = false;
         }
         //check validation with onboarding date
@@ -915,14 +915,14 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.endtimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-            allDatesAreAftercommissioningDate = false;
+            allDatesAreAfterCommissioningDate = false;
             endDate = ele.endtimestamp;
           }
         }
 
         //check validation with System Date
         if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
-          allEndDatesAreBeforSystemDate = false;
+          allEndDatesAreBeforeSystemDate = false;
           endDate = ele.endtimestamp;
         }
       });
@@ -964,7 +964,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
         });
       }
-      if (!allDatesAreAftercommissioningDate) {
+      if (!allDatesAreAfterCommissioningDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         );
@@ -973,7 +973,7 @@ export class ReadsController extends BaseReadsController {
           message: `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
         });
       }
-      if (!allEndDatesAreBeforSystemDate) {
+      if (!allEndDatesAreBeforeSystemDate) {
         this.logger.error(
           `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
         );

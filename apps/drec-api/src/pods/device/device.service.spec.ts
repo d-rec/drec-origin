@@ -982,7 +982,7 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
       const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
       const mockTotalCount = 1;
 
@@ -992,7 +992,7 @@ describe('DeviceService', () => {
 
       jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
 
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber);
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
@@ -1058,14 +1058,14 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = {} as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
       const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
       const mockTotalCount = 1;
 
       jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
       jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
 
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber);
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
@@ -1092,12 +1092,12 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
 
       jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
       jest.spyOn(repository, 'findAndCount').mockRejectedValue(new Error('Database error'));
 
-      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber)).rejects.toThrow('Database error');
+      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber)).rejects.toThrow('Database error');
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalled();

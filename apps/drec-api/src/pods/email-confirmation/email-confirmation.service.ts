@@ -78,7 +78,7 @@ export class EmailConfirmationService {
     return null;
   }
 
-  // create function when orguseradmin direct added by super admin so confirm email true
+  // create function when orgUseradmin direct added by super admin so confirm email true
   public async admincreate(
     user: User,
     password: string,

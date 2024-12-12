@@ -26,7 +26,7 @@ describe('CertificateLogService', () => {
   let certificateReadModelEntity: Repository<CertificateReadModelEntity<any>>;
   let mockResponse: Partial<Response>;
   let deviceService: DeviceService;
-  let devicegroupService: DeviceGroupService;
+  let deviceGroupService: DeviceGroupService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -87,7 +87,7 @@ describe('CertificateLogService', () => {
     >(getRepositoryToken(CertificateReadModelEntity));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deviceService = module.get<DeviceService>(DeviceService);
-    devicegroupService = module.get<DeviceGroupService>(DeviceGroupService);
+    deviceGroupService = module.get<DeviceGroupService>(DeviceGroupService);
 
     mockResponse = {
       setHeader: jest.fn(),
@@ -334,11 +334,11 @@ describe('CertificateLogService', () => {
       const reservationInfo = { deviceGroups: [] };
 
       const developerReservationSpy = jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(reservationInfo);
 
       const developerOldReservationSpy = jest
-        .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(oldReservationInfo);
 
       const expectedCertificates = {
@@ -475,10 +475,10 @@ describe('CertificateLogService', () => {
       };
 
       jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(reservationInfo);
       jest
-        .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(oldReservationInfo);
 
       const expectedCertificates = {
@@ -579,10 +579,10 @@ describe('CertificateLogService', () => {
       const getReservationInfo = { deviceGroups: [] };
 
       jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getReservationInfo);
       jest
-        .spyOn(devicegroupService, 'getoldReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getoldReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getReservationInfo);
 
       const expectedCertificates = {

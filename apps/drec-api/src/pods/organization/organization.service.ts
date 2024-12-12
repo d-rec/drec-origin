@@ -189,7 +189,7 @@ export class OrganizationService {
   }
 
   public async findApiuserOrganizationUsers(
-    apiuser_id: string,
+    apiUserId: string,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -202,7 +202,7 @@ export class OrganizationService {
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(
-      apiuser_id,
+      apiUserId,
       pageNumber,
       limit,
     );

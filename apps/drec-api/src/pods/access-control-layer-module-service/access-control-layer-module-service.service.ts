@@ -1,21 +1,13 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindConditions, Repository } from 'typeorm';
-import { AClModules } from './aclmodule.entity';
-import {
-  ACLModuleDTO,
-  NewACLModuleDTO,
-  UpdateACLModuleDTO,
-} from './dto/aclmodule.dto';
-import { IACLModuleConfig } from '../../models';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import {ConflictException, Injectable, Logger, NotFoundException,} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {FindConditions, Repository} from 'typeorm';
+import {AClModules} from './aclmodule.entity';
+import {ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO,} from './dto/aclmodule.dto';
+import {IACLModuleConfig} from '../../models';
+import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
+import {DecimalPermissionValue} from './common/permissionBitposition';
+
 export type TmoduleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
-import { DecimalPermissionValue } from './common/permissionBitposition';
 
 @Injectable()
 export class AccessControlLayerModuleServiceService {
@@ -25,7 +17,7 @@ export class AccessControlLayerModuleServiceService {
   constructor(
     @InjectRepository(AClModules)
     private readonly repository: Repository<AClModules>,
-    private readonly Permissionvalue: DecimalPermissionValue,
+    private readonly permissionValue: DecimalPermissionValue,
   ) {}
 
   public async create(data: NewACLModuleDTO): Promise<ACLModuleDTO> {
@@ -45,17 +37,15 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      await this.Permissionvalue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
 
     await this.checkForExistingModule(data.name);
-    const moduledata = new AClModules({
+    const moduleData = new AClModules({
       ...data,
       permissionsValue: permissionValue,
     });
 
-    const module = await this.repository.save(moduledata);
-
-    return module;
+    return await this.repository.save(moduleData);
   }
   private async checkForExistingModule(name: string): Promise<void> {
     this.logger.verbose(`With in checkForExistingModule`);
@@ -119,7 +109,7 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      await this.Permissionvalue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
     await this.repository.update(id, {
       permissions: data.permissions,
       permissionsValue: permissionValue,

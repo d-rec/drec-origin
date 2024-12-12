@@ -77,9 +77,7 @@ export const getOffsetFromTimeZoneName = (givenTimeZone: string | any): any => {
         );
         matchingTimezone = elementTimeZone[j];
         break;
-      } else {
-        continue;
-      }
+      } 
     }
   }
 

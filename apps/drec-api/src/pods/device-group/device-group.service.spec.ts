@@ -31,8 +31,8 @@ describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
   let repository: Repository<DeviceGroup>;
   let repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>;
-  let repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>;
-  let repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>;
+  let repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>;
+  let repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>;
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
   let fileService: FileService;
@@ -130,11 +130,11 @@ describe('DeviceGroupService', () => {
       Repository<DeviceCsvProcessingFailedRowsEntity>
     >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositoyCSVJobProcessing = module.get<
+    repositoryCSVJobProcessing = module.get<
       Repository<DeviceCsvFileProcessingJobsEntity>
     >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositorynextDeviceGroupcertificate = module.get<
+    repositoryNextDeviceGroupCertificate = module.get<
       Repository<DeviceGroupNextIssueCertificate>
     >(getRepositoryToken(DeviceGroupNextIssueCertificate));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -208,7 +208,7 @@ describe('DeviceGroupService', () => {
         email: 'user@example.com',
         blockchainAccountAddress: '0x123',
       } as ILoggedInUser;
-      const apiuserId = 'admin123';
+      const apiUserId = 'admin123';
       const deviceGroups = [
         {
           id: 1,
@@ -234,7 +234,7 @@ describe('DeviceGroupService', () => {
         } as any;
       });
 
-      const result = await service.getAll(user, undefined, apiuserId);
+      const result = await service.getAll(user, undefined, apiUserId);
       expect(result).toEqual({
         groupedData: deviceGroups,
         currentPage: undefined,
@@ -621,7 +621,7 @@ describe('DeviceGroupService', () => {
       const buyerId = 1;
 
       // Add all required properties to groupfilterDto
-      const groupfilterDto = {
+      const groupFilterDTO = {
         name: null, // Adjust based on the actual type, use '' or null if appropriate
         country: null, // Same here, adjust accordingly
         fuelCode: null,
@@ -644,7 +644,7 @@ describe('DeviceGroupService', () => {
         service.getBuyerDeviceGroups(
           buyerId,
           1,
-          groupfilterDto as unknown as UnreservedDeviceGroupsFilterDTO,
+          groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
         ),
       ).rejects.toThrow(ConflictException);
     });
