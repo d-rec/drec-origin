@@ -797,7 +797,7 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): Promise<boolean> {
-    const query = this.getexisthistorydevcielogFilteredQuery(
+    const query = this.getExistingHistoryDevcieLogFilteredQuery(
       deviceid,
       startDate,
       endDate,
@@ -810,7 +810,7 @@ export class ReadsService {
       this.logger.error(`Failed to retrieve device`, error.stack);
     }
   }
-  private getexisthistorydevcielogFilteredQuery(
+  private getExistingHistoryDevcieLogFilteredQuery(
     deviceid: string,
     startDate: Date,
     endDate: Date,
@@ -1325,7 +1325,7 @@ export class ReadsService {
     if (
       new Date(filter.start).getTime() <= new Date(deviceOnboarded).getTime()
     ) {
-      const query = await this.getexisthistorydevcielogFilteredQuery(
+      const query = await this.getExistingHistoryDevcieLogFilteredQuery(
         externalId,
         filter.start,
         filter.end,
