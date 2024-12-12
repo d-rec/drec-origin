@@ -1,4 +1,10 @@
-import {AggregatedReadDTO, FilterDTO, MeasurementDTO, ReadDTO, ReadsService,} from '@energyweb/energy-api-influxdb';
+import {
+  AggregatedReadDTO,
+  FilterDTO,
+  MeasurementDTO,
+  ReadDTO,
+  ReadsService,
+} from '@energyweb/energy-api-influxdb';
 
 type PublicPart<T> = { [K in keyof T]: T[K] };
 
@@ -30,14 +36,13 @@ export class BaseReadServiceForCi implements PublicPart<ReadsService> {
   }
 
   public async findLatestRead(): Promise<ReadDTO> {
-      return {
-        timestamp: new Date(),
-        value: 0,
+    return {
+      timestamp: new Date(),
+      value: 0,
     };
   }
 
-  
-  public findLatestReadByMeterQuery(_meterId: string): string {
+  public findLatestReadByMeterQuery(): string {
     return '';
   }
 

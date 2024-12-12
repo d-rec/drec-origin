@@ -1,11 +1,20 @@
-import {ConflictException, Injectable, Logger, NotFoundException,} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {FindConditions, Repository} from 'typeorm';
-import {AClModules} from './aclmodule.entity';
-import {ACLModuleDTO, NewACLModuleDTO, UpdateACLModuleDTO,} from './dto/aclmodule.dto';
-import {IACLModuleConfig} from '../../models';
-import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
-import {DecimalPermissionValue} from './common/permissionBitposition';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindConditions, Repository } from 'typeorm';
+import { AClModules } from './aclmodule.entity';
+import {
+  ACLModuleDTO,
+  NewACLModuleDTO,
+  UpdateACLModuleDTO,
+} from './dto/aclmodule.dto';
+import { IACLModuleConfig } from '../../models';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { DecimalPermissionValue } from './common/permissionBitposition';
 
 export type TmoduleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
 
@@ -78,8 +87,8 @@ export class AccessControlLayerModuleServiceService {
     conditions: FindConditions<AClModules>,
   ): Promise<TmoduleBaseEntity> {
     this.logger.verbose(`With in findOne`);
-      return await (this.repository.findOne(
-        conditions,
+    return await (this.repository.findOne(
+      conditions,
     ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
   }
 

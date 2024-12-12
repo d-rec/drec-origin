@@ -444,7 +444,7 @@ export class ReadsController extends BaseReadsController {
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()
           ) {
-           historyAllStartDatesAreAfterCommissioningDate = false;
+            historyAllStartDatesAreAfterCommissioningDate = false;
           }
           if (
             new Date(ele.endtimestamp).getTime() <=

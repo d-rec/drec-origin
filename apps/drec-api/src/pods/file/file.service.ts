@@ -1,15 +1,19 @@
-import {Logger, NotAcceptableException, NotFoundException,} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
+import {
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as path from 'path';
-import {Connection, Repository} from 'typeorm';
-import {v4 as uuid} from 'uuid';
-import {ILoggedInUser, LoggedInUser} from '../../models';
-import {Role} from '../../utils/enums';
-import {S3} from 'aws-sdk';
+import { Connection, Repository } from 'typeorm';
+import { v4 as uuid } from 'uuid';
+import { ILoggedInUser, LoggedInUser } from '../../models';
+import { Role } from '../../utils/enums';
+import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
-import {File} from './file.entity';
-import {Buffer} from 'buffer';
+import { File } from './file.entity';
+import { Buffer } from 'buffer';
 
 export type FileUpload = {
   originalname: string;
@@ -194,7 +198,7 @@ export class FileService {
     this.logger.debug(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
-      return await this.uploadS3(file.buffer, bucketS3, originalname);
+    return await this.uploadS3(file.buffer, bucketS3, originalname);
   }
 
   async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {

@@ -15,7 +15,6 @@ import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
 import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
-import { ICertificateMetadata } from '../../utils/types';
 import {
   ConflictException,
   UnauthorizedException,
@@ -30,19 +29,9 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
   let repository: Repository<DeviceGroup>;
-  let repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>;
-  let repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>;
-  let repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>;
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
-  let fileService: FileService;
-  let yieldConfigService: YieldConfigService;
   let userService: UserService;
-  let checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>;
-  let historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>;
-  let certificateReadModelEntity: Repository<
-    CertificateReadModelEntity<ICertificateMetadata>
-  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -119,46 +108,45 @@ describe('DeviceGroupService', () => {
       ],
     }).compile();
 
-    
     service = module.get<DeviceGroupService>(DeviceGroupService);
-    
+
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
-    
-    repositoryJobFailedRows = module.get<
-      Repository<DeviceCsvProcessingFailedRowsEntity>
-    >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-    
-    repositoryCSVJobProcessing = module.get<
-      Repository<DeviceCsvFileProcessingJobsEntity>
-    >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-    
-    repositoryNextDeviceGroupCertificate = module.get<
-      Repository<DeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(DeviceGroupNextIssueCertificate));
-    
+
+    // repositoryJobFailedRows = module.get<
+    //   Repository<DeviceCsvProcessingFailedRowsEntity>
+    // >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+
+    // repositoryCSVJobProcessing = module.get<
+    //   Repository<DeviceCsvFileProcessingJobsEntity>
+    // >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+
+    // repositoryNextDeviceGroupCertificate = module.get<
+    //   Repository<DeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(DeviceGroupNextIssueCertificate));
+
     organizationService = module.get<OrganizationService>(OrganizationService);
-    
+
     deviceService = module.get<DeviceService>(DeviceService);
-    
-    fileService = module.get<FileService>(FileService);
-    
-    yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
-    
+
+    //fileService = module.get<FileService>(FileService);
+
+    //yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
+
     userService = module.get<UserService>(UserService);
-    
-    checkdevciegrouplogcertificaterepository = module.get<
-      Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
-    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-    
-    historynextissuancedaterepository = module.get<
-      Repository<HistoryDeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-    
-    certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    >(getRepositoryToken(CertificateReadModelEntity));
+
+    // checkdevciegrouplogcertificaterepository = module.get<
+    //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
+    // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+
+    // historyNextIssuanceDateRepository = module.get<
+    //   Repository<HistoryDeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
+
+    // certificateReadModelEntity = module.get<
+    //   Repository<CertificateReadModelEntity<ICertificateMetadata>>
+    // >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {

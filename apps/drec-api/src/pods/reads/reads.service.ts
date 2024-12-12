@@ -1,53 +1,61 @@
 import {
-    ConflictException,
-    HttpException,
-    HttpStatus,
-    Inject,
-    Injectable,
-    Logger,
-    NotFoundException,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
-import {Brackets, FindConditions, Repository, SelectQueryBuilder,} from 'typeorm';
+import {
+  Brackets,
+  FindConditions,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import {
-    Aggregate,
-    AggregatedReadDTO,
-    AggregateFilterDTO,
-    FilterDTO,
-    MeasurementDTO,
-    ReadDTO,
-    ReadsService as BaseReadsService,
-    Unit,
+  Aggregate,
+  AggregatedReadDTO,
+  AggregateFilterDTO,
+  FilterDTO,
+  MeasurementDTO,
+  ReadDTO,
+  ReadsService as BaseReadsService,
+  Unit,
 } from '@energyweb/energy-api-influxdb';
-import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
-import {InfluxDB, Point, QueryApi} from '@influxdata/influxdb-client';
-import {EventBus} from '@nestjs/cqrs';
-import {InjectRepository} from '@nestjs/typeorm';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { InfluxDB, Point, QueryApi } from '@influxdata/influxdb-client';
+import { EventBus } from '@nestjs/cqrs';
+import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
-import {BigNumber} from 'ethers';
-import {flattenDeep, groupBy, mean, sum, values} from 'lodash';
-import {DateTime} from 'luxon';
-import {convertToWh} from 'src/utils/convert-to-power-units';
-import {GenerationReadingStoredEvent} from '../../events/GenerationReadingStored.event';
-import {writePoints} from '../../lib/influx-db';
-import {IAggregateintermediate} from '../../models';
-import {HistoryNextInssuanceStatus} from '../../utils/enums/history_next_issuance.enum';
+import { BigNumber } from 'ethers';
+import { flattenDeep, groupBy, mean, sum, values } from 'lodash';
+import { DateTime } from 'luxon';
+import { convertToWh } from 'src/utils/convert-to-power-units';
+import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
+import { writePoints } from '../../lib/influx-db';
+import { IAggregateintermediate } from '../../models';
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import {
-    getFormattedOffSetFromOffsetAsJson,
-    getLocalTime,
-    getLocalTimeZoneFromDevice,
-    getOffsetFromTimeZoneName,
+  getFormattedOffSetFromOffsetAsJson,
+  getLocalTime,
+  getLocalTimeZoneFromDevice,
+  getOffsetFromTimeZoneName,
 } from '../../utils/localTimeDetailsForDevice';
-import {DeviceGroupService} from '../device-group/device-group.service';
-import {DeviceService} from '../device/device.service';
-import {DeviceDTO} from '../device/dto';
-import {OrganizationService} from '../organization/organization.service';
-import {AggregateMeterRead} from './aggregate_readvalue.entity';
-import {BASE_READ_SERVICE} from './const';
-import {DeltaFirstRead} from './delta_firstread.entity';
-import {AccumulationType, FilterNoOffLimit,} from './dto/filter-no-off-limit.dto';
-import {NewIntmediateMeterReadDTO} from './dto/intermediate_meter_read.dto';
-import {HistoryIntermediate_MeterRead} from './history_intermideate_meterread.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceService } from '../device/device.service';
+import { DeviceDTO } from '../device/dto';
+import { OrganizationService } from '../organization/organization.service';
+import { AggregateMeterRead } from './aggregate_readvalue.entity';
+import { BASE_READ_SERVICE } from './const';
+import { DeltaFirstRead } from './delta_firstread.entity';
+import {
+  AccumulationType,
+  FilterNoOffLimit,
+} from './dto/filter-no-off-limit.dto';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
+import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
 
@@ -103,16 +111,16 @@ export class ReadsService {
     );
 
     return readsGroupedBySameDates.map(
-        (group: AggregatedReadDTO[]): AggregatedReadDTO => {
-            return {
-                start: group[0].start,
-                stop: group[0].stop,
-                value: this.aggregateArray(
-                    filter.aggregate,
-                    group.map((item: AggregatedReadDTO) => item.value),
-                ),
-            };
-        },
+      (group: AggregatedReadDTO[]): AggregatedReadDTO => {
+        return {
+          start: group[0].start,
+          stop: group[0].stop,
+          value: this.aggregateArray(
+            filter.aggregate,
+            group.map((item: AggregatedReadDTO) => item.value),
+          ),
+        };
+      },
     );
   }
   async storeFailedReads(
@@ -498,7 +506,7 @@ export class ReadsService {
                 });
               }
             }
-            
+
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -805,28 +813,28 @@ export class ReadsService {
     this.logger.verbose(endDate);
 
     return this.historyrepository
-        .createQueryBuilder('devicehistory')
-        .where('devicehistory.externalId = :deviceid', {deviceid: deviceid})
-        .andWhere(
-            new Brackets((db) => {
-                db.where(
-                    'devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
-                    {startDateFirstWhere: startDate, endDateFirstWhere: endDate},
-                )
-                    .orWhere(
-                        'devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
-                        {startDateSecondtWhere: startDate, endDateSecondWhere: endDate},
-                    )
-                    .orWhere(
-                        ':startdateThirdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-                        {startdateThirdWhere: startDate},
-                    )
-                    .orWhere(
-                        ':enddateforthdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-                        {enddateforthdWhere: endDate},
-                    );
-            }),
-        );
+      .createQueryBuilder('devicehistory')
+      .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
+      .andWhere(
+        new Brackets((db) => {
+          db.where(
+            'devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
+            { startDateFirstWhere: startDate, endDateFirstWhere: endDate },
+          )
+            .orWhere(
+              'devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
+              { startDateSecondtWhere: startDate, endDateSecondWhere: endDate },
+            )
+            .orWhere(
+              ':startdateThirdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
+              { startdateThirdWhere: startDate },
+            )
+            .orWhere(
+              ':enddateforthdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
+              { enddateforthdWhere: endDate },
+            );
+        }),
+      );
   }
   private firstvalidateEnergy(
     read: ReadDTO,
@@ -1132,15 +1140,15 @@ export class ReadsService {
 
     try {
       const device = await query.getRawMany();
-        return device.map((s: any) => {
-          const item: any = {
-              id: s.devicehistory_id,
-              readsStartDate: s.devicehistory_readsStartDate,
-              readsEndDate: s.devicehistory_readsEndDate,
-              readsvalue: s.devicehistory_readsvalue,
-              externalId: s.devicehistory_externalId,
-          };
-          return item;
+      return device.map((s: any) => {
+        const item: any = {
+          id: s.devicehistory_id,
+          readsStartDate: s.devicehistory_readsStartDate,
+          readsEndDate: s.devicehistory_readsEndDate,
+          readsvalue: s.devicehistory_readsvalue,
+          externalId: s.devicehistory_externalId,
+        };
+        return item;
       });
     } catch (error) {
       this.logger.error(`Failed to retrieve device`, error.stack);
@@ -1152,44 +1160,44 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-      return this.historyrepository
-        .createQueryBuilder('devicehistory')
-        .where('devicehistory.externalId = :deviceid', {deviceid: deviceid})
-        .andWhere(
-            new Brackets((db) => {
-                db.where(
-                    new Brackets((db1) => {
-                        db1
-                            .where(
-                                'devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
-                                {
-                                    reservationStartDate1: startDate,
-                                    reservationEndDate1: endDate,
-                                },
-                            )
-                            .orWhere(
-                                'devicehistory.readsStartDate = :reservationStartDate',
-                                {reservationStartDate: startDate},
-                            );
-                    }),
-                ).andWhere(
-                    new Brackets((db2) => {
-                        db2
-                            .where(
-                                'devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
-                                {
-                                    reservationStartDate2: startDate,
-                                    reservationEndDate2: endDate,
-                                },
-                            )
-                            .orWhere('devicehistory.readsEndDate = :reservationEndDate ', {
-                                reservationEndDate: endDate,
-                            });
-                    }),
+    return this.historyrepository
+      .createQueryBuilder('devicehistory')
+      .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
+      .andWhere(
+        new Brackets((db) => {
+          db.where(
+            new Brackets((db1) => {
+              db1
+                .where(
+                  'devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
+                  {
+                    reservationStartDate1: startDate,
+                    reservationEndDate1: endDate,
+                  },
+                )
+                .orWhere(
+                  'devicehistory.readsStartDate = :reservationStartDate',
+                  { reservationStartDate: startDate },
                 );
             }),
-        )
-        .andWhere('devicehistory.certificate_issued != true');
+          ).andWhere(
+            new Brackets((db2) => {
+              db2
+                .where(
+                  'devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
+                  {
+                    reservationStartDate2: startDate,
+                    reservationEndDate2: endDate,
+                  },
+                )
+                .orWhere('devicehistory.readsEndDate = :reservationEndDate ', {
+                  reservationEndDate: endDate,
+                });
+            }),
+          );
+        }),
+      )
+      .andWhere('devicehistory.certificate_issued != true');
   }
 
   async getDeviceHistoryCertificateIssueDate(
@@ -1282,7 +1290,7 @@ export class ReadsService {
     if (numberOfOngReads > numberOfHistReads) {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
     }
-    let numberOfReads = numberOfHistReads + numberOfOngReads;
+    const numberOfReads = numberOfHistReads + numberOfOngReads;
     if (numberOfHistReads == 0 && numberOfOngReads == 0) {
       return {
         historyRead,
@@ -1501,7 +1509,7 @@ export class ReadsService {
   |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
   |> count()`;
     }
-      return await this.ongExecute(fluxQuery);
+    return await this.ongExecute(fluxQuery);
   }
 
   async ongExecute(query: string | any): Promise<number> {
@@ -1627,13 +1635,13 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
         if (j % 2 === 0) {
           const startDateStr = new Date(tempResults[i][j]).getTime();
           const startDate = new Date(startDateStr);
-            resultObj.startTime = startDate.toISOString();
+          resultObj.startTime = startDate.toISOString();
         } else {
           resultObj.value = tempResults[i][j];
           if (i < tempResults.length - 1) {
             const endDateStr = new Date(tempResults[i + 1][j - 1]).getTime();
             const endDate = new Date(endDateStr);
-              resultObj.endTime = endDate.toISOString();
+            resultObj.endTime = endDate.toISOString();
           } else {
             resultObj.endTime = endDate;
           }
@@ -1664,15 +1672,15 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   }
 
   convertToISODate(month: number, year: number): any {
-      return DateTime.fromObject({
-        year: year,
-        month: month,
-        day: 1,
-        hour: 0,
-        minute: 0,
-        second: 0,
-        zone: 'utc',
-    }).toISO({suppressMilliseconds: true});
+    return DateTime.fromObject({
+      year: year,
+      month: month,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      zone: 'utc',
+    }).toISO({ suppressMilliseconds: true });
   }
 
   getNumberOfDaysInMonth(month: number, year: number): any {

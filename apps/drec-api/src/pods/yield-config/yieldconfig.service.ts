@@ -1,19 +1,19 @@
 import {
-    BadRequestException,
-    ConflictException,
-    Injectable,
-    Logger,
-    NotFoundException,
-    UnprocessableEntityException,
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import {validate} from 'class-validator';
-import {InjectRepository} from '@nestjs/typeorm';
-import {FindConditions, Repository} from 'typeorm';
-import {ILoggedInUser, IYieldConfig} from '../../models';
-import {NewYieldConfigDTO} from './dto/new-yieldconfig.dto';
-import {UpdateYieldValueDTO, YieldConfigDTO} from './dto';
-import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
-import {YieldConfig} from './yieldconfig.entity';
+import { validate } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindConditions, Repository } from 'typeorm';
+import { ILoggedInUser, IYieldConfig } from '../../models';
+import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
+import { UpdateYieldValueDTO, YieldConfigDTO } from './dto';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { YieldConfig } from './yieldconfig.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
 
@@ -72,8 +72,8 @@ export class YieldConfigService {
   async findOne(
     conditions: FindConditions<YieldConfig>,
   ): Promise<TUserBaseEntity> {
-      return await (this.repository.findOne(
-        conditions,
+    return await (this.repository.findOne(
+      conditions,
     ) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
   }
   async findById(id: number): Promise<IYieldConfig> {

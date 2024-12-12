@@ -44,7 +44,7 @@ describe('Device Group tests', () => {
       userService,
       deviceService,
       databaseService,
-      
+
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'device', 'organization');

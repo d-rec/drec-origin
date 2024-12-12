@@ -1,28 +1,31 @@
-import {ConflictException, Injectable, Logger, NotFoundException,} from '@nestjs/common';
-import {FindConditions, Repository} from 'typeorm';
-import {ACLModulePermissions} from './permission.entity';
-import {InjectRepository} from '@nestjs/typeorm';
-import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
 import {
-    ApiUserPermissionUpdateDTO,
-    NewApiUserPermissionDTO,
-    NewPermissionDTO,
-    PermissionDTO,
-    UpdatePermissionDTO,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { FindConditions, Repository } from 'typeorm';
+import { ACLModulePermissions } from './permission.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import {
+  ApiUserPermissionUpdateDTO,
+  NewApiUserPermissionDTO,
+  NewPermissionDTO,
+  PermissionDTO,
+  UpdatePermissionDTO,
 } from './dto/modulepermission.dto';
 import {
-    IACLmodulsPermissions,
-    IaddModulePermission,
-    ILoggedInUser,
-    IModulePermissionsConfig,
-    LoggedInUser,
+  IACLmodulsPermissions,
+  IaddModulePermission,
+  ILoggedInUser,
+  IModulePermissionsConfig,
+  LoggedInUser,
 } from '../../models';
-import {EntityType, Role, UserPermissionStatus} from '../../utils/enums';
-import {DecimalPermissionValue} from '../access-control-layer-module-service/common/permissionBitposition';
-import {
-    AccessControlLayerModuleServiceService
-} from '../access-control-layer-module-service/access-control-layer-module-service.service';
-import {UserService} from '../user/user.service';
+import { EntityType, Role, UserPermissionStatus } from '../../utils/enums';
+import { DecimalPermissionValue } from '../access-control-layer-module-service/common/permissionBitposition';
+import { AccessControlLayerModuleServiceService } from '../access-control-layer-module-service/access-control-layer-module-service.service';
+import { UserService } from '../user/user.service';
 
 export type TModuleBaseEntity = ExtendedBaseEntity & IModulePermissionsConfig;
 
@@ -80,7 +83,7 @@ export class PermissionService {
         loginuser.role === Role.Admin ||
         loginuser.role === Role.ApiUser
       ) {
-          return await this.repository.save(aclPermissionService);
+        return await this.repository.save(aclPermissionService);
       } else {
         this.logger.error(`You are not authorized to add module for any Role`);
         throw new ConflictException({
@@ -151,43 +154,43 @@ export class PermissionService {
     conditions: FindConditions<ACLModulePermissions>,
   ): Promise<ACLModulePermissions> {
     this.logger.verbose(`With in findOne`);
-      return await (this.repository.findOne(
-        conditions,
+    return await (this.repository.findOne(
+      conditions,
     ) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
   }
   async getAll(): Promise<ACLModulePermissions[]> {
     this.logger.verbose(`With in getAll`);
-      return await this.repository.find({
-        order: {
-            createdAt: 'DESC',
-        },
-        relations: ['aclmodules'],
+    return await this.repository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+      relations: ['aclmodules'],
     });
   }
   async FindbyRole(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyRole`);
-      return await this.repository.find({
-        relations: ['aclmodules'],
-        where: {
-            entityType: EntityType.Role,
-            entityId: id,
-        },
-        order: {
-            createdAt: 'DESC',
-        },
+    return await this.repository.find({
+      relations: ['aclmodules'],
+      where: {
+        entityType: EntityType.Role,
+        entityId: id,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
   async FindbyUser(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyUser`);
-      return await this.repository.find({
-        relations: ['aclmodules'],
-        where: {
-            entityType: EntityType.User,
-            entityId: id,
-        },
-        order: {
-            createdAt: 'DESC',
-        },
+    return await this.repository.find({
+      relations: ['aclmodules'],
+      where: {
+        entityType: EntityType.User,
+        entityId: id,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
   async update(

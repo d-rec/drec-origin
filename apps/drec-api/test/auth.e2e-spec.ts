@@ -27,7 +27,7 @@ describe('Authentication tests', () => {
       userService,
       deviceService,
       databaseService,
-      
+
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization', 'device');

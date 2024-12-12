@@ -1,64 +1,68 @@
 import {
-    BadRequestException,
-    Body,
-    ConflictException,
-    Controller,
-    DefaultValuePipe,
-    Delete,
-    Get,
-    HttpStatus,
-    Logger,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    UnauthorizedException,
-    UseGuards,
-    ValidationPipe,
+  BadRequestException,
+  Body,
+  ConflictException,
+  Controller,
+  DefaultValuePipe,
+  Delete,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UnauthorizedException,
+  UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiNotFoundResponse,
-    ApiOkResponse,
-    ApiQuery,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
+  ApiBearerAuth,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+  ApiSecurity,
+  ApiTags,
 } from '@nestjs/swagger';
-import {AuthGuard} from '@nestjs/passport';
-import {DeviceGroupService} from './device-group.service';
+import { AuthGuard } from '@nestjs/passport';
+import { DeviceGroupService } from './device-group.service';
 import {
-    AddGroupDTO,
-    CSVBulkUploadDTO,
-    DeviceGroupDTO,
-    EndReservationdateDTO,
-    JobFailedRowsDTO,
-    NewUpdateDeviceGroupDTO,
-    ResponseDeviceGroupDTO,
-    UnreservedDeviceGroupsFilterDTO,
+  AddGroupDTO,
+  CSVBulkUploadDTO,
+  DeviceGroupDTO,
+  EndReservationdateDTO,
+  JobFailedRowsDTO,
+  NewUpdateDeviceGroupDTO,
+  ResponseDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
 } from './dto';
-import {Roles} from '../user/decorators/roles.decorator';
-import {Role} from '../../utils/enums';
-import {isValidUTCDateFormat} from '../../utils/checkForISOStringFormat';
-import {RolesGuard} from '../../guards/RolesGuard';
-import {UserDecorator} from '../user/decorators/user.decorator';
-import {BuyerReservationCertificateGenerationFrequency, ILoggedInUser,} from '../../models';
-import {FileService} from '../file';
-
-import {parse} from 'csv-parse';
-import csv from 'csv-parser';
-import {DeviceCsvFileProcessingJobsEntity, StatusCSV,} from './device_csv_processing_jobs.entity';
-import {Permission} from '../permission/decorators/permission.decorator';
-import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import {PermissionGuard} from '../../guards';
-import {DeviceGroupNextIssueCertificate} from './device_group_issuecertificate.entity';
+import { Roles } from '../user/decorators/roles.decorator';
+import { Role } from '../../utils/enums';
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { UserDecorator } from '../user/decorators/user.decorator';
 import {
-    CheckCertificateIssueDateLogForDeviceGroupEntity
-} from './check_certificate_issue_date_log_for_device_group.entity';
-import {OrganizationService} from '../organization/organization.service';
-import {UserService} from '../user/user.service';
+  BuyerReservationCertificateGenerationFrequency,
+  ILoggedInUser,
+} from '../../models';
+import { FileService } from '../file';
+
+import { parse } from 'csv-parse';
+import csv from 'csv-parser';
+import {
+  DeviceCsvFileProcessingJobsEntity,
+  StatusCSV,
+} from './device_csv_processing_jobs.entity';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { PermissionGuard } from '../../guards';
+import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 
 @ApiTags('buyer-reservation')
 @ApiBearerAuth('access-token')
@@ -588,11 +592,11 @@ export class BuyerReservationController {
         message: 'Invalid file',
       });
     }
-      return await this.deviceGroupService.createCSVJobForFile(
-        user.id,
-        organizationId,
-        StatusCSV.Added,
-        fileToProcess.fileName,
+    return await this.deviceGroupService.createCSVJobForFile(
+      user.id,
+      organizationId,
+      StatusCSV.Added,
+      fileToProcess.fileName,
     );
   }
 

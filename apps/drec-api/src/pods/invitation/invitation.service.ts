@@ -1,17 +1,30 @@
-import {BadRequestException, ConflictException, forwardRef, Inject, Injectable, Logger,} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository, SelectQueryBuilder} from 'typeorm';
-import {ILoggedInUser, ISuccessResponse, LoggedInUser, OrganizationRole, ResponseSuccess,} from '../../models';
-import {UserService} from '../user/user.service';
-import {OrganizationInvitationStatus, Role} from '../../utils/enums';
-import {Invitation} from './invitation.entity';
-import {OrganizationService} from '../organization/organization.service';
-import {Organization} from '../organization/organization.entity';
-import {OrganizationDTO} from '../organization/dto';
-import {MailService} from '../../mail/mail.service';
-import {UpdateInviteStatusDTO} from './dto/invite.dto';
-import {CreateUserOrgDTO} from '../user/dto/create-user.dto';
-import {UserStatus} from '@energyweb/origin-backend-core';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  ILoggedInUser,
+  ISuccessResponse,
+  LoggedInUser,
+  OrganizationRole,
+  ResponseSuccess,
+} from '../../models';
+import { UserService } from '../user/user.service';
+import { OrganizationInvitationStatus, Role } from '../../utils/enums';
+import { Invitation } from './invitation.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationDTO } from '../organization/dto';
+import { MailService } from '../../mail/mail.service';
+import { UpdateInviteStatusDTO } from './dto/invite.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
+import { UserStatus } from '@energyweb/origin-backend-core';
 
 @Injectable()
 export class InvitationService {
@@ -143,12 +156,8 @@ export class InvitationService {
     this.logger.debug('invitee');
 
     inviteUser.api_user_id = organization.api_user_id;
-      await this.userService.newCreateUser(
-          inviteUser,
-          UserStatus.Pending,
-          true,
-      );
-      if (sender.role !== Role.ApiUser) {
+    await this.userService.newCreateUser(inviteUser, UserStatus.Pending, true);
+    if (sender.role !== Role.ApiUser) {
       console.log('inviteuser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
       await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
@@ -323,14 +332,14 @@ export class InvitationService {
   }
   async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
-      return await this.invitationRepository.findOne({
-        where: {
-            email: lowerCaseEmail,
-            organization: {
-                id: user.organizationId,
-            },
+    return await this.invitationRepository.findOne({
+      where: {
+        email: lowerCaseEmail,
+        organization: {
+          id: user.organizationId,
         },
-        relations: ['organization'],
+      },
+      relations: ['organization'],
     });
   }
 }

@@ -1,39 +1,46 @@
-import {Inject, Injectable, Logger, NotFoundException} from '@nestjs/common';
-import {Cron, CronExpression} from '@nestjs/schedule';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 import {
-    IGetAllCertificatesOptions,
-    IIssueCommandParams,
-    OffChainCertificateService,
+  IGetAllCertificatesOptions,
+  IIssueCommandParams,
+  OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
-import {ICertificateMetadata} from '../../utils/types';
-import {DateTime} from 'luxon';
-import {FilterDTO, ReadsService as BaseReadsService,} from '@energyweb/energy-api-influxdb';
-import {v4 as uuid} from 'uuid';
-
-import {HttpService} from '@nestjs/axios';
-
-import {DeviceService} from '../device/device.service';
-import {BASE_READ_SERVICE} from '../reads/const';
-import {OrganizationService} from '../organization/organization.service';
-import {DeviceGroupService} from '../device-group/device-group.service';
-import {BuyerReservationCertificateGenerationFrequency, IDevice,} from '../../models';
-import {DeviceGroup} from '../device-group/device-group.entity';
-import {DeviceGroupNextIssueCertificate} from '../device-group/device_group_issuecertificate.entity';
-import {EndReservationdateDTO} from '../device-group/dto';
-import {CertificateType, ReadType, SingleDeviceIssuanceStatus, StandardCompliance,} from '../../utils/enums';
+import { ICertificateMetadata } from '../../utils/types';
+import { DateTime } from 'luxon';
 import {
-    CheckCertificateIssueDateLogForDeviceEntity
-} from '../device/check_certificate_issue_date_log_for_device.entity';
+  FilterDTO,
+  ReadsService as BaseReadsService,
+} from '@energyweb/energy-api-influxdb';
+import { v4 as uuid } from 'uuid';
+
+import { HttpService } from '@nestjs/axios';
+
+import { DeviceService } from '../device/device.service';
+import { BASE_READ_SERVICE } from '../reads/const';
+import { OrganizationService } from '../organization/organization.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
 import {
-    CheckCertificateIssueDateLogForDeviceGroupEntity
-} from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
-import {HistoryDeviceGroupNextIssueCertificate} from '../device-group/history_next_issuance_date_log.entity';
-import {ReadsService} from '../reads/reads.service';
-import {HistoryIntermediate_MeterRead} from '../reads/history_intermideate_meterread.entity';
-import {Device} from '../device';
-import {HistoryNextInssuanceStatus} from '../../utils/enums/history_next_issuance.enum';
-import {DeviceLateOngoingIssueCertificateEntity} from '../device/device_lateongoing_certificate.entity';
+  BuyerReservationCertificateGenerationFrequency,
+  IDevice,
+} from '../../models';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
+import { EndReservationdateDTO } from '../device-group/dto';
+import {
+  CertificateType,
+  ReadType,
+  SingleDeviceIssuanceStatus,
+  StandardCompliance,
+} from '../../utils/enums';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
+import { ReadsService } from '../reads/reads.service';
+import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { Device } from '../device';
+import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 
 @Injectable()
 export class IssuerService {
@@ -158,7 +165,8 @@ export class IssuerService {
           }
           if (!skipUpdatingNextIssuanceLogTable) {
             if (
-              new Date(endDateFormatted).getTime() < group.reservationEndDate.getTime()
+              new Date(endDateFormatted).getTime() <
+              group.reservationEndDate.getTime()
             ) {
               newEndDate = endDateFormatted;
             } else {
@@ -1013,7 +1021,7 @@ export class IssuerService {
     );
 
     try {
-        return await this.baseReadsService.find(meterId, filter);
+      return await this.baseReadsService.find(meterId, filter);
     } catch (e) {
       this.logger.error(
         'exception caught in in between device onboarding checking for createdAt',

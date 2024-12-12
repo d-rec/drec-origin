@@ -39,7 +39,7 @@ describe('AccessControlLayerModuleServiceService', () => {
     service = module.get<AccessControlLayerModuleServiceService>(
       AccessControlLayerModuleServiceService,
     );
-    
+
     repository = module.get<Repository<AClModules>>(
       getRepositoryToken(AClModules),
     );
@@ -70,14 +70,10 @@ describe('AccessControlLayerModuleServiceService', () => {
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedModule);
-      
-      jest
-        .spyOn(repository, 'findOne')
-        .mockResolvedValue(null);
 
-      jest
-        .spyOn(permissionValue, 'computePermissions')
-        .mockReturnValue(3);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+
+      jest.spyOn(permissionValue, 'computePermissions').mockReturnValue(3);
 
       const result = await service.create(newModule);
 
@@ -101,10 +97,8 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-      
-       jest
-        .spyOn(repository, 'findOne')
-        .mockResolvedValue(savedModule);
+
+      jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
 
       await expect(service.create(newModule)).rejects.toThrow(
         ConflictException,
@@ -126,10 +120,8 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-      
-      jest
-        .spyOn(repository, 'findOne')
-        .mockResolvedValue(savedModule);
+
+      jest.spyOn(repository, 'findOne').mockResolvedValue(savedModule);
 
       const result = await service.findById(1);
 
@@ -157,7 +149,7 @@ describe('AccessControlLayerModuleServiceService', () => {
           permissionsValue: 1,
         },
       ] as AClModules[];
-      
+
       jest.spyOn(repository, 'find').mockResolvedValue(modules);
 
       const result = await service.getAll();
@@ -180,14 +172,10 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...updateData,
       } as AClModules;
-      
-      jest
-        .spyOn(repository, 'findOne')
-        .mockResolvedValue(existingModule);
-      
-      jest
-        .spyOn(permissionValue, 'computePermissions')
-        .mockReturnValue(5);
+
+      jest.spyOn(repository, 'findOne').mockResolvedValue(existingModule);
+
+      jest.spyOn(permissionValue, 'computePermissions').mockReturnValue(5);
 
       const updateResult = {
         generatedMaps: [],

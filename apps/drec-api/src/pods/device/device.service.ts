@@ -1,58 +1,74 @@
 import {
-    ConflictException,
-    HttpException,
-    Injectable,
-    Logger,
-    NotAcceptableException,
-    NotFoundException,
-    UnauthorizedException,
+  ConflictException,
+  HttpException,
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
-    Between,
-    Brackets,
-    FindConditions,
-    FindManyOptions,
-    FindOneOptions,
-    FindOperator,
-    In,
-    LessThanOrEqual,
-    MoreThanOrEqual,
-    Raw,
-    Repository,
-    SelectQueryBuilder,
+  Between,
+  Brackets,
+  FindConditions,
+  FindManyOptions,
+  FindOneOptions,
+  FindOperator,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Raw,
+  Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
-import {Device} from './device.entity';
-import {NewDeviceDTO} from './dto/new-device.dto';
-import {defaults} from 'lodash';
-import {DeviceDTO, FilterDTO, GroupedDevicesDTO, UngroupedDeviceDTO, UpdateDeviceDTO,} from './dto';
-import {DeviceOrderBy, IRECDeviceStatus, ReadType, Role,} from '../../utils/enums';
+import { Device } from './device.entity';
+import { NewDeviceDTO } from './dto/new-device.dto';
+import { defaults } from 'lodash';
+import {
+  DeviceDTO,
+  FilterDTO,
+  GroupedDevicesDTO,
+  UngroupedDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import {
+  DeviceOrderBy,
+  IRECDeviceStatus,
+  ReadType,
+  Role,
+} from '../../utils/enums';
 import cleanDeep from 'clean-deep';
-import {DeviceKey, DeviceSortPropertyMapper, IREC_DEVICE_TYPES, IREC_FUEL_TYPES,} from '../../models';
-import {CodeNameDTO} from './dto/code-name.dto';
-import {DeviceGroupByDTO} from './dto/device-group-by.dto';
-import {groupByProps} from '../../utils/group-by-properties';
-import {getCapacityRange} from '../../utils/get-capacity-range';
-import {getDateRangeFromYear} from '../../utils/get-commissioning-date-range';
-import {getCodeFromCountry} from '../../utils/getCodeFromCountry';
-import {getFuelNameFromCode} from '../../utils/getFuelNameFromCode';
-import {getDeviceTypeFromCode} from '../../utils/getDeviceTypeFromCode';
-import {regenerateToken} from '../../utils/evident-login';
-import {CheckCertificateIssueDateLogForDeviceEntity} from './check_certificate_issue_date_log_for_device.entity';
-import {InfluxDB} from '@influxdata/influxdb-client';
-import {SDGBenefits} from '../../models/Sdgbenefit';
-import {v4 as uuid} from 'uuid';
-import {HistoryIntermediate_MeterRead} from '../reads/history_intermideate_meterread.entity';
-import {Observable} from 'rxjs';
-import {IrecDevicesInformationEntity} from './irec_devices_information.entity';
-import {IrecErrorLogInformationEntity} from './irec_error_log_information.entity';
-import {getLocalTimeZoneFromDevice} from '../../utils/localTimeDetailsForDevice';
-import {OrganizationService} from '../organization/organization.service';
-import {UserService} from '../user/user.service';
-import {DeviceLateOngoingIssueCertificateEntity} from './device_lateongoing_certificate.entity';
-import {HttpService} from '@nestjs/axios';
-import {Organization} from '../organization/organization.entity';
-import {DateTime} from 'luxon';
+import {
+  DeviceKey,
+  DeviceSortPropertyMapper,
+  IREC_DEVICE_TYPES,
+  IREC_FUEL_TYPES,
+} from '../../models';
+import { CodeNameDTO } from './dto/code-name.dto';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
+import { groupByProps } from '../../utils/group-by-properties';
+import { getCapacityRange } from '../../utils/get-capacity-range';
+import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
+import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
+import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
+import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
+import { regenerateToken } from '../../utils/evident-login';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { InfluxDB } from '@influxdata/influxdb-client';
+import { SDGBenefits } from '../../models/Sdgbenefit';
+import { v4 as uuid } from 'uuid';
+import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { Observable } from 'rxjs';
+import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
+import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { HttpService } from '@nestjs/axios';
+import { Organization } from '../organization/organization.entity';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class DeviceService {
@@ -524,7 +540,7 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
-      newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenifitsList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
       where: {
@@ -724,28 +740,23 @@ export class DeviceService {
         ];
       },
     );
-      return groupedDevicesByProps.map(
-        (devices: DeviceDTO[]) => {
+    return groupedDevicesByProps.map((devices: DeviceDTO[]) => {
+      return {
+        name: this.getDeviceGroupNameFromGroupedDevices(devices, orderByRules),
+        devices: devices.map(
+          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
             return {
-                name: this.getDeviceGroupNameFromGroupedDevices(
-                    devices,
-                    orderByRules,
-                ),
-                devices: devices.map(
-                    (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
-                        return {
-                            ...device,
-                            commissioningDateRange: getDateRangeFromYear(
-                                device.commissioningDate,
-                            ),
-                            capacityRange: getCapacityRange(device.capacity),
-                            selected: true,
-                        };
-                    },
-                ),
+              ...device,
+              commissioningDateRange: getDateRangeFromYear(
+                device.commissioningDate,
+              ),
+              capacityRange: getCapacityRange(device.capacity),
+              selected: true,
             };
-        },
-    );
+          },
+        ),
+      };
+    });
   }
 
   private getDeviceGroupNameFromGroupedDevices(
@@ -753,17 +764,17 @@ export class DeviceService {
     orderByRules: DeviceOrderBy[],
   ): string {
     this.logger.verbose(`With in getDeviceGroupNameFromGroupedDevices`);
-      return `${orderByRules.map((orderRule: DeviceOrderBy) => {
-        const deviceKey: DeviceKey = DeviceSortPropertyMapper[
-            orderRule
-            ] as DeviceKey;
-        if (deviceKey === 'fuelCode') {
-            return getFuelNameFromCode(devices[0][deviceKey]);
-        }
-        if (deviceKey === 'deviceTypeCode') {
-            return getDeviceTypeFromCode(devices[0][deviceKey]);
-        }
-        return devices[0][deviceKey];
+    return `${orderByRules.map((orderRule: DeviceOrderBy) => {
+      const deviceKey: DeviceKey = DeviceSortPropertyMapper[
+        orderRule
+      ] as DeviceKey;
+      if (deviceKey === 'fuelCode') {
+        return getFuelNameFromCode(devices[0][deviceKey]);
+      }
+      if (deviceKey === 'deviceTypeCode') {
+        return getDeviceTypeFromCode(devices[0][deviceKey]);
+      }
+      return devices[0][deviceKey];
     })}`;
   }
 
@@ -822,11 +833,11 @@ export class DeviceService {
           `${alias} ILIKE ANY(ARRAY[${newOffTakerArray.map((term) => `'%${term}%'`)}])`,
       );
     }
-      return {
-        where,
-        order: {
-            organizationId: 'DESC',
-        },
+    return {
+      where,
+      order: {
+        organizationId: 'DESC',
+      },
     };
   }
   private getRawFilter(filter: string): FindOperator<any> {
@@ -967,13 +978,13 @@ export class DeviceService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-      return {
-        where,
-        order: {
-            organizationId: 'ASC',
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
+    return {
+      where,
+      order: {
+        organizationId: 'ASC',
+      },
+      skip: (pageNumber - 1) * limit,
+      take: limit,
     };
   }
   public async finddeviceForBuyer(
@@ -1087,16 +1098,16 @@ export class DeviceService {
     const query = this.getdevcielogFilteredQuery(deviceid, startDate, endDate);
     try {
       const device = await query.getRawMany();
-        return device.map((s: any) => {
-          const item: any = {
-              certificate_issuance_startdate:
-              s.device_certificate_issuance_startdate,
-              certificate_issuance_enddate: s.device_certificate_issuance_enddate,
-              readvalue_watthour: s.device_readvalue_watthour,
-              status: s.device_status,
-              deviceid: s.device_externalId,
-          };
-          return item;
+      return device.map((s: any) => {
+        const item: any = {
+          certificate_issuance_startdate:
+            s.device_certificate_issuance_startdate,
+          certificate_issuance_enddate: s.device_certificate_issuance_enddate,
+          readvalue_watthour: s.device_readvalue_watthour,
+          status: s.device_status,
+          deviceid: s.device_externalId,
+        };
+        return item;
       });
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
@@ -1110,34 +1121,34 @@ export class DeviceService {
   ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in getdevcielogFilteredQuery`);
     //  const { organizationName, status } = filterDto;
-      return this.checkdevcielogcertificaterepository
-        .createQueryBuilder('device')
-        .where('device.externalId = :deviceid', {deviceid: deviceid})
-        .andWhere(
-            new Brackets((db) => {
-                db.where("device.status ='Requested' OR device.status ='Succeeded'");
-            }),
-        )
-        .andWhere(
-            new Brackets((db) => {
-                db.where(
-                    'device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
-                    {startDateFirstWhere: startDate, endDateFirstWhere: endDate},
-                )
-                    .orWhere(
-                        'device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
-                        {startDateSecondtWhere: startDate, endDateSecondWhere: endDate},
-                    )
-                    .orWhere(
-                        ':startdateThirdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate',
-                        {startdateThirdWhere: startDate},
-                    )
-                    .orWhere(
-                        ':enddateforthdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate',
-                        {enddateforthdWhere: endDate},
-                    );
-            }),
-        );
+    return this.checkdevcielogcertificaterepository
+      .createQueryBuilder('device')
+      .where('device.externalId = :deviceid', { deviceid: deviceid })
+      .andWhere(
+        new Brackets((db) => {
+          db.where("device.status ='Requested' OR device.status ='Succeeded'");
+        }),
+      )
+      .andWhere(
+        new Brackets((db) => {
+          db.where(
+            'device.certificate_issuance_startdate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
+            { startDateFirstWhere: startDate, endDateFirstWhere: endDate },
+          )
+            .orWhere(
+              'device.certificate_issuance_enddate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
+              { startDateSecondtWhere: startDate, endDateSecondWhere: endDate },
+            )
+            .orWhere(
+              ':startdateThirdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate',
+              { startdateThirdWhere: startDate },
+            )
+            .orWhere(
+              ':enddateforthdWhere BETWEEN device.certificate_issuance_startdate AND device.certificate_issuance_enddate',
+              { enddateforthdWhere: endDate },
+            );
+        }),
+      );
   }
 
   async getallread(
@@ -1228,7 +1239,7 @@ export class DeviceService {
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId });
-      return await query.getCount();
+    return await query.getCount();
   }
 
   async getNumberOfOngReads(
@@ -1236,12 +1247,12 @@ export class DeviceService {
     onboardedDate: Date,
   ): Promise<number> {
     this.logger.verbose(`With in getNumberOfOngReads`);
-      new Date();
+    new Date();
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
       |> range(start: ${onboardedDate})
       |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
       |> count()`;
-      return await this.ongExecute(fluxQuery);
+    return await this.ongExecute(fluxQuery);
   }
 
   async ongExecute(query: string | any): Promise<number> {
@@ -1352,7 +1363,7 @@ export class DeviceService {
       })
       .andWhere('deviceData.groupId= :groupId', { groupId });
     const result = await queryBuilder.getRawOne();
-      return {...result, extenalId: device.developerExternalId};
+    return { ...result, extenalId: device.developerExternalId };
   }
   async getcertifieddevicedaterangeBygroupid(
     groupId: number,

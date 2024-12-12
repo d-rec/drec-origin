@@ -9,7 +9,7 @@ import { File } from './file.entity';
 
 describe('FileService', () => {
   let service: FileService;
-    beforeEach(async () => {
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FileService,

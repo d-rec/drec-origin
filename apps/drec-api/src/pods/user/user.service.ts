@@ -1,33 +1,45 @@
 import {
-    ConflictException,
-    forwardRef,
-    Inject,
-    Injectable,
-    InternalServerErrorException,
-    Logger,
-    NotFoundException,
-    UnauthorizedException,
-    UnprocessableEntityException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
-import {FindConditions, FindManyOptions, Not, Repository, SelectQueryBuilder,} from 'typeorm';
-import {ILoggedInUser, ISuccessResponse, IUser, UserChangePasswordUpdate, UserPasswordUpdate,} from '../../models';
-import {Role, UserPermissionStatus, UserStatus} from '../../utils/enums';
-import {CreateUserOrgDTO} from './dto/create-user.dto';
-import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
-import {validate} from 'class-validator';
-import {UserRole} from './user_role.entity';
-import {UserDTO} from './dto/user.dto';
-import {User} from './user.entity';
-import {UpdateUserProfileDTO} from './dto/update-user-profile.dto';
-import {EmailConfirmationService} from '../email-confirmation/email-confirmation.service';
-import {UpdateUserDTO} from '../admin/dto/update-user.dto';
-import {UserFilterDTO} from '../admin/dto/user-filter.dto';
-import {OrganizationService} from '../organization/organization.service';
-import {OauthClientCredentialsService} from './oauth_client.service';
-import {ApiUserEntity} from './api-user.entity';
-import {UserLoginSessionEntity} from './user_login_session.entity';
+import {
+  FindConditions,
+  FindManyOptions,
+  Not,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
+import {
+  ILoggedInUser,
+  ISuccessResponse,
+  IUser,
+  UserChangePasswordUpdate,
+  UserPasswordUpdate,
+} from '../../models';
+import { Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
+import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { validate } from 'class-validator';
+import { UserRole } from './user_role.entity';
+import { UserDTO } from './dto/user.dto';
+import { User } from './user.entity';
+import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
+import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
+import { UpdateUserDTO } from '../admin/dto/update-user.dto';
+import { UserFilterDTO } from '../admin/dto/user-filter.dto';
+import { OrganizationService } from '../organization/organization.service';
+import { OauthClientCredentialsService } from './oauth_client.service';
+import { ApiUserEntity } from './api-user.entity';
+import { UserLoginSessionEntity } from './user_login_session.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -140,7 +152,7 @@ export class UserService {
       organization: orgId ? { id: orgId } : {},
       api_user_id: apiUser ? apiUser.api_user_id : null,
     });
-    const { password, ...userData } = user; 
+    const { ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -206,7 +218,7 @@ export class UserService {
       organization: orgId ? { id: orgId } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
-    const { password, ...userData } = user; 
+    const { ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -374,7 +386,10 @@ export class UserService {
   ): Promise<ExtendedBaseEntity & IUser> {
     const userEntity = await this.getUserAndPasswordByEmail(email);
 
-    if (userEntity && bcrypt.compareSync(user.oldPassword, userEntity.password)) {
+    if (
+      userEntity &&
+      bcrypt.compareSync(user.oldPassword, userEntity.password)
+    ) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
       });
@@ -657,10 +672,10 @@ export class UserService {
    * @returns
    */
   async getApiUserPermissionStatus(api_id: string): Promise<any> {
-      return await this.apiUserEntityRepository.findOne({
-        where: {
-            api_user_id: api_id,
-        },
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      },
     });
   }
 
