@@ -1,0 +1,61 @@
+---
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+projects:
+  - d-rec/2
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Description of the bug
+      description: Tell us what bug you encountered and what should have happened
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: Please write the steps in a list form
+    validations:
+      required: true
+  - type: dropdown
+    id: env
+    attributes:
+      label: What environment are you seeing the problem on?
+      multiple: true
+      options:
+        - Production
+        - Staging
+        - Dev
+  - type: dropdown
+    id: os
+    attributes:
+      label: What Operating System(OS) are you seeing the problem on?
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - Windows
+        - MacOS
+        - Linux
+        - Other
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - API

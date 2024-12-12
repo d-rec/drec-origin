@@ -20,15 +20,15 @@ import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
 import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { SdgBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
+import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
 import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
-import { SdgbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
-import { CountrycodeModule } from './pods/countrycode/countrycode.module';
+import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { PermissionModule } from './pods/permission/permission.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
@@ -187,8 +187,8 @@ describe('DrecModule', () => {
   });
 
   it('should provide SdgBenefit repository', () => {
-    const sdgBenefitRepository = module.get<Repository<SdgBenefit>>(
-      getRepositoryToken(SdgBenefit),
+    const sdgBenefitRepository = module.get<Repository<SDGBenefit>>(
+      getRepositoryToken(SDGBenefit),
     );
     expect(sdgBenefitRepository).toBeDefined();
   });
@@ -223,8 +223,8 @@ describe('DrecModule', () => {
 
   it('should provide DeviceLateongoingIssueCertificateEntity repository', () => {
     const deviceLateongoingIssueCertificateRepository = module.get<
-      Repository<DeviceLateongoingIssueCertificateEntity>
-    >(getRepositoryToken(DeviceLateongoingIssueCertificateEntity));
+      Repository<DeviceLateOngoingIssueCertificateEntity>
+    >(getRepositoryToken(DeviceLateOngoingIssueCertificateEntity));
     expect(deviceLateongoingIssueCertificateRepository).toBeDefined();
   });
 
@@ -317,12 +317,12 @@ describe('DrecModule', () => {
   });
 
   it('should import CountrycodeModule', () => {
-    const countrycodeModule = module.get(CountrycodeModule);
+    const countrycodeModule = module.get(CountryCodeModule);
     expect(countrycodeModule).toBeDefined();
   });
 
   it('should import SdgbenefitModule', () => {
-    const sdgbenefitModule = module.get(SdgbenefitModule);
+    const sdgbenefitModule = module.get(SDGBenefitModule);
     expect(sdgbenefitModule).toBeDefined();
   });
 

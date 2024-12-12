@@ -17,7 +17,7 @@ import {
   Role,
 } from '../../utils/enums';
 import { FilterDTO } from './dto/filter.dto';
-import { CertificatelogResponse } from './dto';
+import { CertificateLogResponse } from './dto';
 
 describe('CertificateLogService', () => {
   let service: CertificateLogService;
@@ -386,7 +386,7 @@ describe('CertificateLogService', () => {
       jest
         .spyOn(service, 'getDeveloperfindCertifiedReservations')
         .mockResolvedValueOnce(
-          expectedCertificates as unknown as CertificatelogResponse,
+          expectedCertificates as unknown as CertificateLogResponse,
         );
 
       const result = await service.getCertifiedlogofDevices(
@@ -529,7 +529,7 @@ describe('CertificateLogService', () => {
           'getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247',
         )
         .mockResolvedValueOnce(
-          expectedCertificates as unknown as CertificatelogResponse,
+          expectedCertificates as unknown as CertificateLogResponse,
         );
 
       const result = await service.getCertifiedlogofDevices(
