@@ -1273,33 +1273,33 @@ export class ReadsService {
 
     const sizeOfPage = 5;
     let numberOfPages = 0;
-    const numberOfHistReads = await this.getNumberOfHistReads(
+    const numberOfHistoryReads = await this.getNumberOfHistoryReads(
       externalId,
       filter.start,
       filter.end,
     );
     let numberOfOngReads = 0;
-    let numberOfReads = numberOfHistReads + numberOfOngReads;
-    if (numberOfHistReads > 0) {
-      numberOfPages = Math.ceil(numberOfHistReads / sizeOfPage);
+    let numberOfReads = numberOfHistoryReads + numberOfOngReads;
+    if (numberOfHistoryReads > 0) {
+      numberOfPages = Math.ceil(numberOfHistoryReads / sizeOfPage);
     }
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       filter.offset = sizeOfPage * (pageNumber - 1);
       filter.limit = sizeOfPage;
     }
-    numberOfOngReads = await this.getNumberOfOngReads(
+    numberOfOngReads = await this.getNumberOfOngoingReads(
       filter.start,
       filter.end,
       externalId,
       deviceOnboarded,
     );
     this.logger.verbose(numberOfOngReads);
-    if (numberOfOngReads > numberOfHistReads) {
+    if (numberOfOngReads > numberOfHistoryReads) {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
     }
-    numberOfReads = numberOfHistReads + numberOfOngReads;
-    if (numberOfHistReads == 0 && numberOfOngReads == 0) {
+    numberOfReads = numberOfHistoryReads + numberOfOngReads;
+    if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
       return {
         historyread,
         ongoing,
@@ -1454,7 +1454,7 @@ export class ReadsService {
 
     this.logger.verbose(
       'count of ong reads:::::::::::::::::::::::::::::::::::' +
-        (await this.getNumberOfOngReads(
+        (await this.getNumberOfOngoingReads(
           filter.start,
           filter.end,
           externalId,
@@ -1480,7 +1480,7 @@ export class ReadsService {
     }
   }
 
-  async getNumberOfHistReads(
+  async getNumberOfHistoryReads(
     deviceId: string,
     startDate: Date | string,
     endDate: Date | string,
@@ -1495,7 +1495,7 @@ export class ReadsService {
     return count;
   }
 
-  async getNumberOfOngReads(
+  async getNumberOfOngoingReads(
     start: Date,
     end: Date,
     externalId: string,

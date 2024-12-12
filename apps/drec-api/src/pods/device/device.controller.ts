@@ -708,11 +708,11 @@ export class DeviceController {
           user.organizationId,
         );
       const noOfHistRead: number =
-        await this.deviceService.getNumberOfHistReads(
+        await this.deviceService.getNumberOfHistoryReads(
           checkexternalid.externalId,
         );
       const noOfOnGoingRead: number =
-        await this.deviceService.getNumberOfOngReads(
+        await this.deviceService.getNumberOfOngoingReads(
           checkexternalid.externalId,
           checkexternalid.createdAt,
         );
@@ -903,7 +903,7 @@ export class DeviceController {
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
-  async certifiedLogDateRang(
+  async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,
     @Query('groupUid') groupuId: string,
     @Query('pagenumber') pagenumber: number,

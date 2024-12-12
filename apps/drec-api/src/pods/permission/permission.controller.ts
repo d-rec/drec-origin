@@ -174,7 +174,7 @@ export class PermissionController {
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<{ statsu: string; message: string }> {
     this.logger.verbose(`With in apiuser_modulerequest`);
-    return this.PermissionService.permisssionRequest(moduleData, loggedUser);
+    return this.PermissionService.request(moduleData, loggedUser);
   }
 
   /**
@@ -198,6 +198,6 @@ export class PermissionController {
     @Body() moduleData: ApiUserPermissionUpdateDTO,
   ): Promise<{ statsu: string; message: string }> {
     this.logger.verbose(`With in apiuser_moduleapprove`);
-    return this.PermissionService.permissionVeify(api_user_id, moduleData);
+    return this.PermissionService.verify(api_user_id, moduleData);
   }
 }

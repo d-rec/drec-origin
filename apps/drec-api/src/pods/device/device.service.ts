@@ -1226,14 +1226,14 @@ export class DeviceService {
     givenDate: string,
   ): Promise<string> {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
-    const numberOfHistReads: number =
-      await this.getNumberOfHistReads(externalId);
-    const numberOfOngReads: number = await this.getNumberOfOngReads(
+    const numberOfHistoryReads: number =
+      await this.getNumberOfHistoryReads(externalId);
+    const numberOfOngReads: number = await this.getNumberOfOngoingReads(
       externalId,
       onboardedDate,
     );
 
-    if (numberOfHistReads <= 0 && numberOfOngReads <= 0) {
+    if (numberOfHistoryReads <= 0 && numberOfOngReads <= 0) {
       return this.changeCreatedAtDate(onboardedDate, givenDate, externalId);
     } else {
       this.logger.error(
@@ -1246,7 +1246,7 @@ export class DeviceService {
     }
   }
 
-  async getNumberOfHistReads(deviceId: string): Promise<number> {
+  async getNumberOfHistoryReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
     const query = this.historyrepository
       .createQueryBuilder('devicehistory')
@@ -1255,7 +1255,7 @@ export class DeviceService {
     return count;
   }
 
-  async getNumberOfOngReads(
+  async getNumberOfOngoingReads(
     externalId: string,
     onboardedDate: Date,
   ): Promise<number> {

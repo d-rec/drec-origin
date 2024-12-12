@@ -273,7 +273,7 @@ export class PermissionService {
     return this.findOne({ id: id });
   }
 
-  async permisssionRequest(
+  async request(
     data: [NewApiUserPermissionDTO],
     loginuser: ILoggedInUser,
   ): Promise<any> {
@@ -335,7 +335,7 @@ export class PermissionService {
       });
     }
   }
-  async permissionVeify(
+  async verify(
     api_user_id: string,
     data: ApiUserPermissionUpdateDTO,
   ): Promise<any> {

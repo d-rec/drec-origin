@@ -56,7 +56,7 @@ describe('IssuerService', () => {
           useValue: {
             getAllNextrequestCertificate: jest.fn(),
             findOne: jest.fn(),
-            EndReservationGroup: jest.fn(),
+            endReservationGroup: jest.fn(),
             updateCertificateIssueDate: jest.fn(),
             getNextHistoryissuanceDevicelog: jest.fn(),
             addCertificateIssueDateLogForDeviceGroup: jest.fn(),
