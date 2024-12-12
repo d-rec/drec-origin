@@ -11,6 +11,8 @@ import {
   Min,
   ValidateIf,
   IsIn,
+  IsDate,
+  MaxDate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
@@ -20,7 +22,6 @@ import { IsValidCommissioningDate } from '../../../validations/commissioning-dat
 import { Trim } from '../../../transformers/trim-string';
 import { ToUpperCase } from '../../../transformers/uppercase';
 import {countryCodesList } from '../../../models/country-code';
-import { IsValidCountryCode } from '../../../validations/country-code.validator';
 
 export class NewDeviceDTO
   implements
@@ -75,7 +76,9 @@ export class NewDeviceDTO
   @IsString()
   @IsNotEmpty()
   @ToUpperCase()
-  @IsValidCountryCode()
+  @IsIn(countryCodesList.map((value) => value.countryCode), {message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  })
   @Matches(/^[A-Z]{3}$/, {
     message: 'Country code must be a valid 3-letter ISO code',
   })
@@ -105,11 +108,9 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @IsISO8601({
-    message:
-      'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
-  })
-  @IsValidCommissioningDate()
+  @Transform( ({ value }) => new Date(value))
+  @IsDate()
+  @MaxDate(new Date())
   commissioningDate: string;
 
   @ApiProperty()
