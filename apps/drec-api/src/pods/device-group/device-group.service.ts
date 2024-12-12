@@ -2360,11 +2360,9 @@ export class DeviceGroupService {
     });
 
     const allIssuance: any = [];
-    
+
     deviceHistoryNextIssuance.forEach((ele) =>
-      ele.historyNextIssuance.forEach((he) =>
-        allIssuance.push(he),
-      ),
+      ele.historyNextIssuance.forEach((he) => allIssuance.push(he)),
     );
 
     const totalPages = Math.ceil(count / pageSize);
