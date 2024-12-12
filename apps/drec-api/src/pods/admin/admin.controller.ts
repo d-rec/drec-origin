@@ -61,8 +61,8 @@ export class AdminController {
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
-    private readonly devicegroupService: DeviceGroupService,
-    private readonly invitationservice: InvitationService,
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly invitationService: InvitationService,
   ) {}
 
   @Get('/users')
@@ -320,27 +320,26 @@ export class AdminController {
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const manyotheruserinorg =
-      await this.userService.getAnotherUserInOrganization(
-        user.organization.id,
-        user.id,
-      );
+    const otherOrgUsers = await this.userService.getAnotherUserInOrganization(
+      user.organization.id,
+      user.id,
+    );
 
     if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
-      const buyerresrvation = await this.devicegroupService.findOne({
+      const buyerReservation = await this.deviceGroupService.findOne({
         organizationId: user.organization.id,
       });
 
-      if (buyerresrvation) {
+      if (buyerReservation) {
         throw new NotFoundException(
           'This user is part of reservation,So you cannot remove this user and organization',
         );
       }
-      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(
+      const deviceOfOrg = await this.deviceService.getatleastonedeviceinOrg(
         user.organization.id,
       );
 
-      if (deviceoforg.length > 0) {
+      if (deviceOfOrg.length > 0) {
         throw new NotFoundException(
           'Some device are available in organization ',
         );
@@ -348,13 +347,13 @@ export class AdminController {
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       // }
-      if (!(manyotheruserinorg.length > 0)) {
+      if (!(otherOrgUsers.length > 0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
       }
     } else {
-      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.invitationService.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
 

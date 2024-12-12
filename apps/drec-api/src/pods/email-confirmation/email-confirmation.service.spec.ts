@@ -346,7 +346,7 @@ describe('EmailConfirmationService', () => {
       const getByEmailSpy = jest
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
-      const generatetokenSpy = jest
+      const generateTokenSpy = jest
         .spyOn(service, 'generatetoken')
         .mockResolvedValueOnce(generatedToken);
 
@@ -358,7 +358,7 @@ describe('EmailConfirmationService', () => {
       const result = await service.sendConfirmationEmail(email);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
-      expect(generatetokenSpy).toHaveBeenCalledWith(
+      expect(generateTokenSpy).toHaveBeenCalledWith(
         currentToken,
         currentToken.id,
       );
@@ -397,7 +397,7 @@ describe('EmailConfirmationService', () => {
       const getByEmailSpy = jest
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
-      const generatetokenSpy = jest
+      const generateTokenSpy = jest
         .spyOn(service, 'generatetoken')
         .mockResolvedValueOnce(generatedToken);
       const sendResetPasswordRequestSpy = jest
@@ -407,7 +407,7 @@ describe('EmailConfirmationService', () => {
       const result = await service.ConfirmationEmailForResetPassword(email);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
-      expect(generatetokenSpy).toHaveBeenCalledWith(
+      expect(generateTokenSpy).toHaveBeenCalledWith(
         currentToken,
         currentToken.id,
       );

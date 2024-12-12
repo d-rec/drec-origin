@@ -175,13 +175,13 @@ export class OrganizationService {
       limit,
     );
     const totalPages = Math.ceil(totalCount / limit);
-    let newuser = users;
+    let newUser = users;
     if (role != undefined && role != Role.OrganizationAdmin) {
-      newuser = users.filter((user) => user.role != 'OrganizationAdmin');
+      newUser = users.filter((user) => user.role != 'OrganizationAdmin');
     }
 
     return {
-      users: newuser,
+      users: newUser,
       currentPage: pageNumber,
       totalPages,
       totalCount,
@@ -189,7 +189,7 @@ export class OrganizationService {
   }
 
   public async findApiuserOrganizationUsers(
-    apiuser_id: string,
+    apiUserId: string,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -202,7 +202,7 @@ export class OrganizationService {
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(
-      apiuser_id,
+      apiUserId,
       pageNumber,
       limit,
     );
