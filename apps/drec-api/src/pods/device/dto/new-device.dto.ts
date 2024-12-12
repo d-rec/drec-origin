@@ -18,10 +18,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
-import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { ToUpperCase } from '../../../transformers/uppercase';
 import {countryCodesList } from '../../../models/country-code';
+import { isValidUTCDateFormat } from '../../../utils/checkForISOStringFormat';
+import { BadRequestException } from '@nestjs/common';
 
 export class NewDeviceDTO
   implements
@@ -107,10 +108,9 @@ export class NewDeviceDTO
   capacity: number;
 
   @ApiProperty()
-  @Transform( ({ value }) => new Date(value))
+  @Transform(( value, obj ) => new Date(obj.commissioningDate))
   @IsDate()
-  @IsISO8601({message: "Invalid commissioning date, valid format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z"})
-  @IsValidCommissioningDate()
+  @MaxDate(new Date(), {message: `Commissioning date cannot be in the future`})
   commissioningDate: string;
 
   @ApiProperty()

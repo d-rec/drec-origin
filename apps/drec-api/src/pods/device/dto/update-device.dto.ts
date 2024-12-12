@@ -6,16 +6,19 @@ import {
   IsNumber,
   IsOptional,
   Matches,
-  IsISO8601,
   Min,
-  Length,
+  IsNotEmpty,
+  IsIn,
+  IsDate,
+  MaxDate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
-import { IsValidCommissioningDate } from '../../../validations/commissioning-date.validator';
 import { Trim } from '../../../transformers/string';
+import { countryCodesList } from '../../../models/country-code';
+import { ToUpperCase } from '../../../transformers/uppercase';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -31,7 +34,8 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @Trim()
-  @IsString({ message: 'externalId should not be empty' })
+  @IsNotEmpty({ message: 'externalId should not be empty' })
+  @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
@@ -74,13 +78,15 @@ export class UpdateDeviceDTO
   longitude: string;
 
   @ApiProperty()
-  @Transform((value, obj) => obj.countryCode.toUpperCase())
   @IsOptional()
   @IsString()
-  @Length(3, 3, {
-    message:
-      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  @ToUpperCase()
+  @IsIn(countryCodesList.map((value) => value.countryCode), {message:
+    'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
   })
+   @Matches(/^[A-Z]{3}$/, {
+     message: 'Country code must be a valid 3-letter ISO code',
+   })
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })
@@ -101,7 +107,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsNumber()
   @IsOptional()
-  @Min(0, {
+  @Min(1, {
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })
@@ -109,13 +115,10 @@ export class UpdateDeviceDTO
   capacity: number;
 
   @ApiProperty()
-  @IsString()
   @IsOptional()
-  @IsISO8601({
-    message:
-      'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
-  })
-  @IsValidCommissioningDate()
+  @Transform(( value, obj ) => new Date(obj.commissioningDate))
+  @IsDate()
+  @MaxDate(new Date(), {message: `Commissioning date cannot be in the future`})
   commissioningDate: string;
 
   @ApiProperty()
