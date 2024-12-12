@@ -1,35 +1,28 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  HttpStatus,
-  Param,
-  Body,
-  UseGuards,
-  ParseIntPipe,
-  ConflictException,
+    Body,
+    ConflictException,
+    Controller,
+    Get,
+    HttpStatus,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiResponse,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-  ApiBody,
-} from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { YieldConfigService } from './yieldconfig.service';
-import { YieldConfigDTO, NewYieldConfigDTO, UpdateYieldValueDTO } from './dto';
-import { countryCodesList } from '../../models/country-code';
-import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/enums';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { ILoggedInUser } from '../../models';
-import { UserDecorator } from '../user/decorators/user.decorator';
-import { ActiveUserGuard, PermissionGuard } from '../../guards';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import {ApiBearerAuth, ApiBody, ApiOkResponse, ApiResponse, ApiSecurity, ApiTags,} from '@nestjs/swagger';
+import {AuthGuard} from '@nestjs/passport';
+import {YieldConfigService} from './yieldconfig.service';
+import {NewYieldConfigDTO, UpdateYieldValueDTO, YieldConfigDTO} from './dto';
+import {countryCodesList} from '../../models/country-code';
+import {Roles} from '../user/decorators/roles.decorator';
+import {Role} from '../../utils/enums';
+import {RolesGuard} from '../../guards/RolesGuard';
+import {ILoggedInUser} from '../../models';
+import {UserDecorator} from '../user/decorators/user.decorator';
+import {ActiveUserGuard, PermissionGuard} from '../../guards';
+import {Permission} from '../permission/decorators/permission.decorator';
+import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
 @ApiTags('YieldConfigration')
 @ApiBearerAuth('access-token')
@@ -95,9 +88,8 @@ export class YieldConfigController {
       typeof yieldToRegister.countryCode === 'string' &&
       yieldToRegister.countryCode.length === 3
     ) {
-      const countries = countryCodesList;
-      if (
-        countries.find(
+        if (
+        countryCodesList.find(
           (ele) => ele.countryCode === yieldToRegister.countryCode,
         ) === undefined
       ) {

@@ -206,9 +206,8 @@ export class DeviceGroupService {
             typeof filterDto.country === 'string' &&
             filterDto.country.length === 3
           ) {
-            const countries = countryCodesList;
-            if (
-              countries.find(
+              if (
+              countryCodesList.find(
                 (element) => element.countryCode === filterDto.country,
               ) === undefined
             ) {
@@ -536,9 +535,8 @@ export class DeviceGroupService {
                   typeof groupFilterDTO.country === 'string' &&
                   groupFilterDTO.country.length === 3
                 ) {
-                  const countries = countryCodesList;
-                  if (
-                    countries.find(
+                    if (
+                    countryCodesList.find(
                       (ele) => ele.countryCode === groupFilterDTO.country,
                     ) === undefined
                   ) {
@@ -720,13 +718,12 @@ export class DeviceGroupService {
       deviceIds: deviceGroup.dg_deviceIdsInt,
       SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
     }));
-    const response = {
-      groupedData: finalReservation,
-      pageNumber,
-      totalPages,
-      totalCount: totalCountQuery,
+      return {
+        groupedData: finalReservation,
+        pageNumber,
+        totalPages,
+        totalCount: totalCountQuery,
     };
-    return response;
   }
 
   async findOne(
@@ -909,7 +906,6 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
       let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
     devices.filter((ele) => {
       if (
@@ -1127,9 +1123,7 @@ export class DeviceGroupService {
       !group.continueWithReservationIfOneOrMoreDevicesUnavailableForReservation
     ) {
       if (!allDevicesAvailableForBuyerReservation) {
-        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
-          true;
-        this.logger.error(
+          this.logger.error(
           `One or more devices device Ids: ' + unavailableDeviceIds.join(',') + ' are already included in buyer reservation, please add other devices`,
         );
         throw new ConflictException({
@@ -1164,9 +1158,7 @@ export class DeviceGroupService {
         aggregatedCapacity * meteredTimePeriodInHours <
         targetCapacityInKiloWattHour
       ) {
-        smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
-          true;
-        this.logger.error(
+          this.logger.error(
           `Target Capacity Cannot be reached by selected devices within provided start date and end date, either add more devices or increase the end date duration`,
         );
         throw new ConflictException({
@@ -1275,9 +1267,7 @@ export class DeviceGroupService {
       deviceGroup.targetVolumeCertificateGenerationRequestedInMegaWattHour +
       targetVolumeCertificateGenerationRequestedInMegaWattHour;
 
-    const updatedGroup = await this.repository.save(deviceGroup);
-
-    return updatedGroup;
+    return await this.repository.save(deviceGroup);
   }
 
   async updateLeftOverRead(
@@ -1287,8 +1277,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in updateLeftOverRead`);
     const deviceGroup = await this.findById(id);
     deviceGroup.leftoverReads = leftOverRead;
-    const updatedGroup = await this.repository.save(deviceGroup);
-    return updatedGroup;
+      return await this.repository.save(deviceGroup);
   }
 
   async updateLeftOverReadByCountryCode(
@@ -1314,8 +1303,7 @@ export class DeviceGroupService {
     deviceGroup.leftoverReadsByCountryCode = JSON.stringify(
       deviceGroup.leftoverReadsByCountryCode,
     );
-    const updatedGroup = await this.repository.save(deviceGroup);
-    return updatedGroup;
+      return await this.repository.save(deviceGroup);
   }
 
   async remove(id: number, organizationId: number): Promise<void> {
@@ -1366,29 +1354,25 @@ export class DeviceGroupService {
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
     this.logger.verbose(`With in registerCSVBulkDevicess`);
-    const devices: (
-      | DeviceDTO
-      | { isError: boolean; device: NewDeviceDTO; errorDetail: any }
-    )[] = await Promise.all(
-      newDevices.map(async (device: NewDeviceDTO) => {
-        try {
-          if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
-          } else {
-            return await this.deviceService.register(
-              orgCode,
-              device,
-              api_user_id,
-              Role.ApiUser,
-            );
-          }
-        } catch (e) {
-          this.logger.error(e);
-          return { isError: true, device: device, errorDetail: e };
-        }
-      }),
+      return await Promise.all(
+        newDevices.map(async (device: NewDeviceDTO) => {
+            try {
+                if (api_user_id == null) {
+                    return await this.deviceService.register(orgCode, device);
+                } else {
+                    return await this.deviceService.register(
+                        orgCode,
+                        device,
+                        api_user_id,
+                        Role.ApiUser,
+                    );
+                }
+            } catch (e) {
+                this.logger.error(e);
+                return {isError: true, device: device, errorDetail: e};
+            }
+        }),
     );
-    return devices;
   }
 
   private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
@@ -1459,14 +1443,13 @@ export class DeviceGroupService {
     devices: DeviceDTO[],
   ): CommissioningDateRange[] {
     this.logger.verbose(`With in getCommissioningDateRange`);
-    const dates = Array.from(
-      new Set(
-        devices.map((device: DeviceDTO) =>
-          getDateRangeFromYear(device.commissioningDate),
+      return Array.from(
+        new Set(
+            devices.map((device: DeviceDTO) =>
+                getDateRangeFromYear(device.commissioningDate),
+            ),
         ),
-      ),
     );
-    return dates;
   }
 
   private createDeviceGroupFromDevices(
@@ -1520,20 +1503,18 @@ export class DeviceGroupService {
     //deviceIdsInt
     Array.from(new Set(devices.map((device: DeviceDTO) => device.id)));
 
-    const deviceGroup: NewDeviceGroupDTO = {
-      name: groupName,
-      deviceIds: devices.map((device: DeviceDTO) => device.id),
-      fuelCode: fuelCode,
-      countryCode: countryCode,
-      deviceTypeCodes: deviceTypeCodes,
-      offTakers: offTakers,
-      gridInterconnection,
-      aggregatedCapacity,
-      capacityRange: getCapacityRange(aggregatedCapacity),
-      commissioningDateRange: this.getCommissioningDateRange(devices),
+    return {
+        name: groupName,
+        deviceIds: devices.map((device: DeviceDTO) => device.id),
+        fuelCode: fuelCode,
+        countryCode: countryCode,
+        deviceTypeCodes: deviceTypeCodes,
+        offTakers: offTakers,
+        gridInterconnection,
+        aggregatedCapacity,
+        capacityRange: getCapacityRange(aggregatedCapacity),
+        commissioningDateRange: this.getCommissioningDateRange(devices),
     };
-
-    return deviceGroup;
   }
 
   private getreservationFilteredQuery(
@@ -1554,17 +1535,15 @@ export class DeviceGroupService {
     if (filter.offTaker) {
       where.offTakers = this.getRawFilter(filter.offTaker);
     }
-    const query: FindManyOptions<DeviceGroup> = {
-      where: {
-        buyerId: buyerId || null,
-        ...where,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
+      return {
+        where: {
+            buyerId: buyerId || null,
+            ...where,
+        },
+        order: {
+            createdAt: 'DESC',
+        },
     };
-
-    return query;
   }
 
   private getRawFilter(
@@ -1608,12 +1587,9 @@ export class DeviceGroupService {
       throw new Error(`No job found with ID ${jobId}`);
     }
 
-    const updatedJob: DeviceCsvFileProcessingJobsEntity =
-      await this.repositoryCSVJobProcessing.findOne({
-        where: { jobId: jobId },
-      });
-
-    return updatedJob;
+    return await this.repositoryCSVJobProcessing.findOne({
+        where: {jobId: jobId},
+    });
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -2112,10 +2088,9 @@ export class DeviceGroupService {
     DeviceGroupNextIssueCertificate[]
   > {
     this.logger.verbose(`With in getAllNextrequestCertificate`);
-    const groupId = await this.repositoryNextDeviceGroupCertificate.find({
-      where: { end_date: LessThan(new Date().toISOString()) },
+      return await this.repositoryNextDeviceGroupCertificate.find({
+        where: {end_date: LessThan(new Date().toISOString())},
     });
-    return groupId;
   }
   async getNextrequestCertificateBYgroupId(
     groupId: number,
@@ -2338,8 +2313,7 @@ export class DeviceGroupService {
 
     const count = await queryBuilder.getCount();
 
-    const result = await queryBuilder.getRawMany();
-    const historyNextIssuance = result;
+    const historyNextIssuance = await queryBuilder.getRawMany();
 
     historyNextIssuance.forEach((element) => {
       element.device_externalid = element.externalId;
@@ -2359,13 +2333,12 @@ export class DeviceGroupService {
     );
 
     const totalPages = Math.ceil(count / pageSize);
-    let nextIssuance = {};
-    nextIssuance =
-      (await this.repositoryNextDeviceGroupCertificate.findOne({
+    let nextIssuance: {} = (await this.repositoryNextDeviceGroupCertificate.findOne({
         where: {
-          groupId: group.id,
+            groupId: group.id,
         },
-      })) ?? null;
+    })) ?? null;
+
 
     return {
       historynextissuansinfo: {
@@ -2459,9 +2432,8 @@ export class DeviceGroupService {
                 typeof filterDto.country === 'string' &&
                 filterDto.country.length === 3
               ) {
-                const countries = countryCodesList;
-                if (
-                  countries.find(
+                  if (
+                  countryCodesList.find(
                     (ele) => ele.countryCode === filterDto.country,
                   ) === undefined
                 ) {
@@ -2656,13 +2628,12 @@ export class DeviceGroupService {
       }, []);
     }
 
-    const response = {
-      deviceGroups,
-      pageNumber,
-      totalPages,
-      totalCount,
+    return {
+        deviceGroups,
+        pageNumber,
+        totalPages,
+        totalCount,
     };
-    return response;
   }
   async getoldReservationInforDeveloperBsise(
     orgId: number,
@@ -2732,9 +2703,8 @@ export class DeviceGroupService {
                 typeof filterDto.country === 'string' &&
                 filterDto.country.length === 3
               ) {
-                const countries = countryCodesList;
-                if (
-                  countries.find(
+                  if (
+                  countryCodesList.find(
                     (ele) => ele.countryCode === filterDto.country,
                   ) === undefined
                 ) {
@@ -2935,13 +2905,12 @@ export class DeviceGroupService {
         return acc;
       }, []);
     }
-    const response = {
-      deviceGroups,
-      pageNumber,
-      totalPages,
-      totalCount,
+      return {
+        deviceGroups,
+        pageNumber,
+        totalPages,
+        totalCount,
     };
-    return response;
   }
 
   public async checkdeveloperorganization(

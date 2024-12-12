@@ -1,46 +1,36 @@
 import {
-  ConflictException,
-  Injectable,
-  Inject,
-  Logger,
-  UnprocessableEntityException,
-  UnauthorizedException,
-  NotFoundException,
-  InternalServerErrorException,
-  forwardRef,
+    ConflictException,
+    forwardRef,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
+    UnauthorizedException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
-import {
-  FindConditions,
-  Repository,
-  FindManyOptions,
-  SelectQueryBuilder,
-  Not,
-} from 'typeorm';
-import {
-  ILoggedInUser,
-  IUser,
-  UserPasswordUpdate,
-  UserChangePasswordUpdate,
-} from '../../models';
-import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
-import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { validate } from 'class-validator';
-import { UserRole } from './user_role.entity';
-import { UserDTO } from './dto/user.dto';
-import { User } from './user.entity';
-import { UpdateUserProfileDTO } from './dto/update-user-profile.dto';
-import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
-import { UpdateUserDTO } from '../admin/dto/update-user.dto';
-import { UserFilterDTO } from '../admin/dto/user-filter.dto';
-import { OrganizationService } from '../organization/organization.service';
-import { ISuccessResponse } from '../../models';
-import { OauthClientCredentialsService } from './oauth_client.service';
+import {FindConditions, FindManyOptions, Not, Repository, SelectQueryBuilder,} from 'typeorm';
+import {ILoggedInUser, ISuccessResponse, IUser, UserChangePasswordUpdate, UserPasswordUpdate,} from '../../models';
+import {Role, UserPermissionStatus, UserStatus} from '../../utils/enums';
+import {CreateUserOrgDTO} from './dto/create-user.dto';
+import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
+import {validate} from 'class-validator';
+import {UserRole} from './user_role.entity';
+import {UserDTO} from './dto/user.dto';
+import {User} from './user.entity';
+import {UpdateUserProfileDTO} from './dto/update-user-profile.dto';
+import {EmailConfirmationService} from '../email-confirmation/email-confirmation.service';
+import {UpdateUserDTO} from '../admin/dto/update-user.dto';
+import {UserFilterDTO} from '../admin/dto/user-filter.dto';
+import {OrganizationService} from '../organization/organization.service';
+import {OauthClientCredentialsService} from './oauth_client.service';
+import {ApiUserEntity} from './api-user.entity';
+import {UserLoginSessionEntity} from './user_login_session.entity';
+
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
-import { ApiUserEntity } from './api-user.entity';
-import { UserLoginSessionEntity } from './user_login_session.entity';
+
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -150,7 +140,7 @@ export class UserService {
       organization: orgId ? { id: orgId } : {},
       api_user_id: apiUser ? apiUser.api_user_id : null,
     });
-    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { password, ...userData } = user; 
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -216,7 +206,7 @@ export class UserService {
       organization: orgId ? { id: orgId } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
-    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { password, ...userData } = user; 
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -382,9 +372,9 @@ export class UserService {
     email: string,
     user: UserPasswordUpdate,
   ): Promise<ExtendedBaseEntity & IUser> {
-    const _user = await this.getUserAndPasswordByEmail(email);
+    const userEntity = await this.getUserAndPasswordByEmail(email);
 
-    if (_user && bcrypt.compareSync(user.oldPassword, _user.password)) {
+    if (userEntity && bcrypt.compareSync(user.oldPassword, userEntity.password)) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
       });
@@ -400,8 +390,8 @@ export class UserService {
         });
       }
 
-      await this.repository.update(_user.id, updateEntity);
-      return this.findOne({ id: _user.id });
+      await this.repository.update(userEntity.id, updateEntity);
+      return this.findOne({ id: userEntity.id });
     }
 
     throw new ConflictException({
@@ -590,7 +580,7 @@ export class UserService {
         success: false,
       };
     }
-    const { id, confirmed } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { id } = getcurrenttoken;
     await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
     await this.emailConfirmationService.sendInvitation(inviteuser, email);
   }
@@ -667,14 +657,11 @@ export class UserService {
    * @returns
    */
   async getApiUserPermissionStatus(api_id: string): Promise<any> {
-    const status_apiuser_permissiom =
-      await this.apiUserEntityRepository.findOne({
+      return await this.apiUserEntityRepository.findOne({
         where: {
-          api_user_id: api_id,
+            api_user_id: api_id,
         },
-      });
-
-    return status_apiuser_permissiom;
+    });
   }
 
   /**

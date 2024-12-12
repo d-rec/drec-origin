@@ -27,7 +27,7 @@ describe('Authentication tests', () => {
       userService,
       deviceService,
       databaseService,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      
       configService,
     } = await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization', 'device');

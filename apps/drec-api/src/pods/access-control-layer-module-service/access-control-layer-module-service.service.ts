@@ -78,10 +78,9 @@ export class AccessControlLayerModuleServiceService {
     conditions: FindConditions<AClModules>,
   ): Promise<TmoduleBaseEntity> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(
-      conditions,
+      return await (this.repository.findOne(
+        conditions,
     ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
-    return module;
   }
 
   async getAll(): Promise<AClModules[]> {

@@ -1,46 +1,40 @@
-import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import {Inject, Injectable, Logger, NotFoundException} from '@nestjs/common';
+import {Cron, CronExpression} from '@nestjs/schedule';
 
 import {
-  IGetAllCertificatesOptions,
-  IIssueCommandParams,
+    IGetAllCertificatesOptions,
+    IIssueCommandParams,
+    OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
-import { ICertificateMetadata } from '../../utils/types';
-import { DateTime } from 'luxon';
-import {
-  FilterDTO,
-  ReadsService as BaseReadsService,
-} from '@energyweb/energy-api-influxdb';
-import { v4 as uuid } from 'uuid';
+import {ICertificateMetadata} from '../../utils/types';
+import {DateTime} from 'luxon';
+import {FilterDTO, ReadsService as BaseReadsService,} from '@energyweb/energy-api-influxdb';
+import {v4 as uuid} from 'uuid';
 
-import { HttpService } from '@nestjs/axios';
+import {HttpService} from '@nestjs/axios';
 
-import { DeviceService } from '../device/device.service';
-import { BASE_READ_SERVICE } from '../reads/const';
-import { OrganizationService } from '../organization/organization.service';
-import { DeviceGroupService } from '../device-group/device-group.service';
+import {DeviceService} from '../device/device.service';
+import {BASE_READ_SERVICE} from '../reads/const';
+import {OrganizationService} from '../organization/organization.service';
+import {DeviceGroupService} from '../device-group/device-group.service';
+import {BuyerReservationCertificateGenerationFrequency, IDevice,} from '../../models';
+import {DeviceGroup} from '../device-group/device-group.entity';
+import {DeviceGroupNextIssueCertificate} from '../device-group/device_group_issuecertificate.entity';
+import {EndReservationdateDTO} from '../device-group/dto';
+import {CertificateType, ReadType, SingleDeviceIssuanceStatus, StandardCompliance,} from '../../utils/enums';
 import {
-  IDevice,
-  BuyerReservationCertificateGenerationFrequency,
-} from '../../models';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { EndReservationdateDTO } from '../device-group/dto';
+    CheckCertificateIssueDateLogForDeviceEntity
+} from '../device/check_certificate_issue_date_log_for_device.entity';
 import {
-  CertificateType,
-  ReadType,
-  SingleDeviceIssuanceStatus,
-  StandardCompliance,
-} from '../../utils/enums';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { ReadsService } from '../reads/reads.service';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Device } from '../device';
-import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
-import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+    CheckCertificateIssueDateLogForDeviceGroupEntity
+} from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import {HistoryDeviceGroupNextIssueCertificate} from '../device-group/history_next_issuance_date_log.entity';
+import {ReadsService} from '../reads/reads.service';
+import {HistoryIntermediate_MeterRead} from '../reads/history_intermideate_meterread.entity';
+import {Device} from '../device';
+import {HistoryNextInssuanceStatus} from '../../utils/enums/history_next_issuance.enum';
+import {DeviceLateOngoingIssueCertificateEntity} from '../device/device_lateongoing_certificate.entity';
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -119,7 +113,7 @@ export class IssuerService {
 
           const startDate = DateTime.fromISO(groupRequest.start_date).toUTC();
           const endDate = DateTime.fromISO(groupRequest.end_date).toUTC();
-          const start_date = endDate.toString();
+          const startDateFormatted = endDate.toString();
 
           let hours = 1;
           const frequency = group.frequency.toLowerCase();
@@ -141,7 +135,7 @@ export class IssuerService {
           ) {
             hours = 91 * 24;
           }
-          const end_date = new Date(
+          const endDateFormatted = new Date(
             new Date(new Date(endDate.toString())).getTime() + hours * 3.6e6,
           ).toISOString();
 
@@ -164,9 +158,9 @@ export class IssuerService {
           }
           if (!skipUpdatingNextIssuanceLogTable) {
             if (
-              new Date(end_date).getTime() < group.reservationEndDate.getTime()
+              new Date(endDateFormatted).getTime() < group.reservationEndDate.getTime()
             ) {
-              newEndDate = end_date;
+              newEndDate = endDateFormatted;
             } else {
               newEndDate = group.reservationEndDate.toISOString();
             }
@@ -189,7 +183,7 @@ export class IssuerService {
                   //returns first find which is minimum and between next frequency
                   if (
                     new Date(ele.createdAt).getTime() >
-                      new Date(start_date).getTime() &&
+                      new Date(startDateFormatted).getTime() &&
                     new Date(ele.createdAt).getTime() <
                       new Date(newEndDate).getTime()
                   ) {
@@ -209,7 +203,7 @@ export class IssuerService {
             }
             await this.groupService.updatecertificateissuedate(
               groupRequest.id,
-              start_date,
+              startDateFormatted,
               newEndDate,
             );
           }
@@ -514,14 +508,14 @@ export class IssuerService {
             device.meterReadtype === 'Delta' ||
             allReadsForDeviceBetweenTimeRange.length > 0
           ) {
-            const FirstDeltaRead =
+            const firstDeltaRead =
               await this.readService.getDeltaMeterReadsFirstEntryOfDevice(
                 device.externalId,
               );
             allReadsForDeviceBetweenTimeRange =
               allReadsForDeviceBetweenTimeRange.filter(
                 (v) =>
-                  !FirstDeltaRead.some(
+                  !firstDeltaRead.some(
                     (e) => e.readsEndDate.getTime() === v.timestamp.getTime(),
                   ),
               );
@@ -745,7 +739,6 @@ export class IssuerService {
     );
     //find the minimum of all previous reading dates of devices  and use it as start date
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     if (allPreviousReadingsOfDevices.length == 1) {
       minimumStartDate = new Date(
         new Date(allPreviousReadingsOfDevices[0].timestamp).getTime() + 1000,
@@ -760,7 +753,6 @@ export class IssuerService {
       );
     }
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     if (allDevicesCompleteReadsBetweenTimeRange.length == 1) {
       maximumEndDate =
@@ -1021,9 +1013,7 @@ export class IssuerService {
     );
 
     try {
-      const allReads: Array<{ timestamp: Date; value: number }> =
-        await this.baseReadsService.find(meterId, filter);
-      return allReads;
+        return await this.baseReadsService.find(meterId, filter);
     } catch (e) {
       this.logger.error(
         'exception caught in in between device onboarding checking for createdAt',
@@ -1274,14 +1264,14 @@ export class IssuerService {
         group?.devices[0].meterReadtype === 'Delta' ||
         allReadsForDeviceBetweenTimeRange.length > 0
       ) {
-        const FirstDeltaRead =
+        const firstDeltaRead =
           await this.readService.getDeltaMeterReadsFirstEntryOfDevice(
             group?.devices[0].externalId,
           );
         allReadsForDeviceBetweenTimeRange =
           allReadsForDeviceBetweenTimeRange.filter(
             (v) =>
-              !FirstDeltaRead.some(
+              !firstDeltaRead.some(
                 (e) => e.readsEndDate.getTime() === v.timestamp.getTime(),
               ),
           );
@@ -1408,13 +1398,11 @@ export class IssuerService {
       deviceCertificateLogDTO,
     );
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    const checkMinimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     minimumStartDate =
       previousReading.length > 0
         ? new Date(previousReading[0].timestamp.getTime() + 1000)
         : new Date(startDate.toString());
     let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    const checkMaximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z'); // eslint-disable-line @typescript-eslint/no-unused-vars
     maximumEndDate =
       allReadsForDeviceBetweenTimeRange[
         allReadsForDeviceBetweenTimeRange.length - 1

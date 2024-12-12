@@ -1,32 +1,31 @@
+import {ConflictException, Injectable, Logger, NotFoundException,} from '@nestjs/common';
+import {FindConditions, Repository} from 'typeorm';
+import {ACLModulePermissions} from './permission.entity';
+import {InjectRepository} from '@nestjs/typeorm';
+import {ExtendedBaseEntity} from '@energyweb/origin-backend-utils';
 import {
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { FindConditions, Repository } from 'typeorm';
-import { ACLModulePermissions } from './permission.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import {
-  PermissionDTO,
-  NewPermissionDTO,
-  UpdatePermissionDTO,
-  NewApiUserPermissionDTO,
-  ApiUserPermissionUpdateDTO,
+    ApiUserPermissionUpdateDTO,
+    NewApiUserPermissionDTO,
+    NewPermissionDTO,
+    PermissionDTO,
+    UpdatePermissionDTO,
 } from './dto/modulepermission.dto';
 import {
-  IModulePermissionsConfig,
-  LoggedInUser,
-  IACLmodulsPermissions,
-  IaddModulePermission,
-  ILoggedInUser,
+    IACLmodulsPermissions,
+    IaddModulePermission,
+    ILoggedInUser,
+    IModulePermissionsConfig,
+    LoggedInUser,
 } from '../../models';
+import {EntityType, Role, UserPermissionStatus} from '../../utils/enums';
+import {DecimalPermissionValue} from '../access-control-layer-module-service/common/permissionBitposition';
+import {
+    AccessControlLayerModuleServiceService
+} from '../access-control-layer-module-service/access-control-layer-module-service.service';
+import {UserService} from '../user/user.service';
+
 export type TModuleBaseEntity = ExtendedBaseEntity & IModulePermissionsConfig;
-import { EntityType, Role, UserPermissionStatus } from '../../utils/enums';
-import { DecimalPermissionValue } from '../access-control-layer-module-service/common/permissionBitposition';
-import { AccessControlLayerModuleServiceService } from '../access-control-layer-module-service/access-control-layer-module-service.service';
-import { UserService } from '../user/user.service';
+
 @Injectable()
 export class PermissionService {
   addedPermissionList: any = {
@@ -81,9 +80,7 @@ export class PermissionService {
         loginuser.role === Role.Admin ||
         loginuser.role === Role.ApiUser
       ) {
-        const modulepermission =
-          await this.repository.save(aclPermissionService);
-        return modulepermission;
+          return await this.repository.save(aclPermissionService);
       } else {
         this.logger.error(`You are not authorized to add module for any Role`);
         throw new ConflictException({
@@ -154,50 +151,44 @@ export class PermissionService {
     conditions: FindConditions<ACLModulePermissions>,
   ): Promise<ACLModulePermissions> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(
-      conditions,
+      return await (this.repository.findOne(
+        conditions,
     ) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
-    return module;
   }
   async getAll(): Promise<ACLModulePermissions[]> {
     this.logger.verbose(`With in getAll`);
-    const permission = await this.repository.find({
-      order: {
-        createdAt: 'DESC',
-      },
-      relations: ['aclmodules'],
+      return await this.repository.find({
+        order: {
+            createdAt: 'DESC',
+        },
+        relations: ['aclmodules'],
     });
-    return permission;
   }
   async FindbyRole(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyRole`);
-    const aclPermission = await this.repository.find({
-      relations: ['aclmodules'],
-      where: {
-        entityType: EntityType.Role,
-        entityId: id,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
+      return await this.repository.find({
+        relations: ['aclmodules'],
+        where: {
+            entityType: EntityType.Role,
+            entityId: id,
+        },
+        order: {
+            createdAt: 'DESC',
+        },
     });
-
-    return aclPermission;
   }
   async FindbyUser(id: number): Promise<IACLmodulsPermissions[]> {
     this.logger.verbose(`With in FindbyUser`);
-    const userACLPermission = await this.repository.find({
-      relations: ['aclmodules'],
-      where: {
-        entityType: EntityType.User,
-        entityId: id,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
+      return await this.repository.find({
+        relations: ['aclmodules'],
+        where: {
+            entityType: EntityType.User,
+            entityId: id,
+        },
+        order: {
+            createdAt: 'DESC',
+        },
     });
-
-    return userACLPermission;
   }
   async update(
     id: number,
@@ -341,12 +332,12 @@ export class PermissionService {
     data: ApiUserPermissionUpdateDTO,
   ): Promise<any> {
     this.logger.verbose(`With in permission_veify`);
-    const verify_apiuser =
+    const verifyApiUser =
       await this.userService.apiUserPermissionAcceptedByAdmin(
         api_user_id,
         data.status,
       );
-    const pre = verify_apiuser.permissionIds;
+    const pre = verifyApiUser.permissionIds;
     await Promise.all(
       pre.map(
         async (pre: number) =>

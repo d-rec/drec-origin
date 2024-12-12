@@ -1,51 +1,37 @@
 import {
-  BadRequestException,
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  HttpStatus,
-  Logger,
-  Param,
-  Post,
-  Put,
-  UseGuards,
-  UseInterceptors,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
+    BadRequestException,
+    Body,
+    Controller,
+    DefaultValuePipe,
+    ForbiddenException,
+    Get,
+    HttpStatus,
+    Logger,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+    Query,
+    UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import {AuthGuard} from '@nestjs/passport';
 
-import {
-  NullOrUndefinedResultInterceptor,
-  SuccessResponseDTO,
-} from '@energyweb/origin-backend-utils';
+import {NullOrUndefinedResultInterceptor, SuccessResponseDTO,} from '@energyweb/origin-backend-utils';
 
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiResponse,
-  ApiTags,
-  ApiQuery,
-} from '@nestjs/swagger';
-import { InvitationService } from './invitation.service';
-import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
-import { InvitationDTO } from './dto/invitation.dto';
-import {
-  ensureOrganizationRole,
-  ILoggedInUser,
-  ResponseFailure,
-  ResponseSuccess,
-} from '../../models';
-import { UserDecorator } from '../user/decorators/user.decorator';
-import { Role } from '../../utils/enums';
-import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
-import { Roles } from '../user/decorators/roles.decorator';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { InviteDTO, UpdateInviteStatusDTO } from './dto/invite.dto';
-import { Invitation } from './invitation.entity';
+import {ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags,} from '@nestjs/swagger';
+import {InvitationService} from './invitation.service';
+import {AlreadyPartOfOrganizationError} from './errors/already-part-of-organization.error';
+import {InvitationDTO} from './dto/invitation.dto';
+import {ensureOrganizationRole, ILoggedInUser, ResponseFailure, ResponseSuccess,} from '../../models';
+import {UserDecorator} from '../user/decorators/user.decorator';
+import {Role} from '../../utils/enums';
+import {ActiveUserGuard, PermissionGuard, RolesGuard} from '../../guards';
+import {Roles} from '../user/decorators/roles.decorator';
+import {Permission} from '../permission/decorators/permission.decorator';
+import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import {InviteDTO, UpdateInviteStatusDTO} from './dto/invite.dto';
+import {Invitation} from './invitation.entity';
 
 @ApiTags('invitation')
 @ApiBearerAuth('access-token')
@@ -94,15 +80,12 @@ export class InvitationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getInvitations`);
-    const invitations =
-      await this.organizationInvitationService.getUsersInvitation(
+      return await this.organizationInvitationService.getUsersInvitation(
         loggedUser,
         organizationId,
         pageNumber,
         limit,
-      );
-
-    return invitations;
+    );
   }
 
   /**
@@ -259,11 +242,8 @@ export class InvitationController {
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);
-    const invitations =
-      await this.organizationInvitationService.getinvite_info_byEmail(
+      return await this.organizationInvitationService.getinvite_info_byEmail(
         loggedUser,
-      );
-
-    return invitations;
+    );
   }
 }

@@ -39,7 +39,7 @@ describe('AccessControlLayerModuleServiceService', () => {
     service = module.get<AccessControlLayerModuleServiceService>(
       AccessControlLayerModuleServiceService,
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     repository = module.get<Repository<AClModules>>(
       getRepositoryToken(AClModules),
     );
@@ -70,12 +70,12 @@ describe('AccessControlLayerModuleServiceService', () => {
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedModule);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const findOneSpy = jest
+      
+      jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(null);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const computePermissionsSpy = jest
+
+      jest
         .spyOn(permissionValue, 'computePermissions')
         .mockReturnValue(3);
 
@@ -101,8 +101,8 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const findOneSpy = jest
+      
+       jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(savedModule);
 
@@ -126,8 +126,8 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...newModule,
       } as AClModules;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const findOneSpy = jest
+      
+      jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(savedModule);
 
@@ -157,8 +157,8 @@ describe('AccessControlLayerModuleServiceService', () => {
           permissionsValue: 1,
         },
       ] as AClModules[];
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(modules);
+      
+      jest.spyOn(repository, 'find').mockResolvedValue(modules);
 
       const result = await service.getAll();
 
@@ -180,12 +180,12 @@ describe('AccessControlLayerModuleServiceService', () => {
         id: 1,
         ...updateData,
       } as AClModules;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const findOneSpy = jest
+      
+      jest
         .spyOn(repository, 'findOne')
         .mockResolvedValue(existingModule);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const computePermissionsSpy = jest
+      
+      jest
         .spyOn(permissionValue, 'computePermissions')
         .mockReturnValue(5);
 

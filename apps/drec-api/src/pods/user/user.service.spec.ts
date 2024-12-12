@@ -593,7 +593,7 @@ describe('UserService', () => {
       const findOneSpy = jest
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockUserEntity);
-      const permission_statusSpy = jest
+      const permissionStatusSpy = jest
         .spyOn(service, 'getApiUserPermissionStatus')
         .mockResolvedValue(mockApiUserEntity);
       jest
@@ -603,7 +603,7 @@ describe('UserService', () => {
       const user = await service.findById(userId);
 
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
-      expect(permission_statusSpy).toHaveBeenCalledWith(
+      expect(permissionStatusSpy).toHaveBeenCalledWith(
         mockUserEntity.api_user_id,
       );
       expect(user.permission_status).toBe(UserPermissionStatus.Request);
@@ -611,7 +611,7 @@ describe('UserService', () => {
 
     it('should not include permission_status when the found user has a role other than Role.ApiUser', async () => {
       const userId = 1;
-      const OrganizationEntity = {
+      const organizationEntity = {
         id: 1,
         name: 'DIRECT_ORG_DEVELOPER1',
         address: 'Bangalore',
@@ -640,7 +640,7 @@ describe('UserService', () => {
         role: Role.OrganizationAdmin,
         roleId: 2,
         api_user_id: 'apiuserId',
-        organization: OrganizationEntity,
+        organization: organizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;

@@ -1,68 +1,58 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Patch,
-  Delete,
-  HttpStatus,
-  Param,
-  Body,
-  UseGuards,
-  ValidationPipe,
-  Query,
-  ConflictException,
-  HttpException,
-  UnauthorizedException,
-  BadRequestException,
-  Logger,
+    BadRequestException,
+    Body,
+    ConflictException,
+    Controller,
+    Delete,
+    Get,
+    HttpException,
+    HttpStatus,
+    Logger,
+    Param,
+    Patch,
+    Post,
+    Put,
+    Query,
+    UnauthorizedException,
+    UseGuards,
+    ValidationPipe,
 } from '@nestjs/common';
 
 import {
-  ApiBearerAuth,
-  ApiNotFoundResponse,
-  ApiResponse,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-  ApiQuery,
-  ApiBody,
+    ApiBearerAuth,
+    ApiBody,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiQuery,
+    ApiResponse,
+    ApiSecurity,
+    ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { plainToClass } from 'class-transformer';
+import {AuthGuard} from '@nestjs/passport';
+import {plainToClass} from 'class-transformer';
 
-import { DeviceService } from './device.service';
-import {
-  FilterDTO,
-  NewDeviceDTO,
-  UpdateDeviceDTO,
-  DeviceDTO,
-  DeviceGroupByDTO,
-  GroupedDevicesDTO,
-} from './dto';
-import { CSVBulkUploadDTO } from '../device-group/dto';
-import { Role } from '../../utils/enums';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { PermissionGuard } from '../../guards/PermissionGuard';
-import { ILoggedInUser } from '../../models';
-import { CodeNameDTO } from './dto/code-name.dto';
-import { ActiveUserGuard } from '../../guards';
-import { Roles } from '../user/decorators/roles.decorator';
-import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { countryCodesList } from '../../models/country-code';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { Device } from './device.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { FindOneOptions } from 'typeorm';
+import {DeviceService} from './device.service';
+import {DeviceDTO, DeviceGroupByDTO, FilterDTO, GroupedDevicesDTO, NewDeviceDTO, UpdateDeviceDTO,} from './dto';
+import {CSVBulkUploadDTO} from '../device-group/dto';
+import {Role} from '../../utils/enums';
+import {RolesGuard} from '../../guards/RolesGuard';
+import {PermissionGuard} from '../../guards/PermissionGuard';
+import {ILoggedInUser} from '../../models';
+import {CodeNameDTO} from './dto/code-name.dto';
+import {ActiveUserGuard} from '../../guards';
+import {Roles} from '../user/decorators/roles.decorator';
+import {UserDecorator} from '../user/decorators/user.decorator';
+import {DeviceGroupService} from '../device-group/device-group.service';
+import {Permission} from '../permission/decorators/permission.decorator';
+import {ACLModules} from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import {countryCodesList} from '../../models/country-code';
+import {isValidUTCDateFormat} from '../../utils/checkForISOStringFormat';
+import {DeviceGroup} from '../device-group/device-group.entity';
+import {DeviceCsvFileProcessingJobsEntity, StatusCSV,} from '../device-group/device_csv_processing_jobs.entity';
+import {Device} from './device.entity';
+import {OrganizationService} from '../organization/organization.service';
+import {UserService} from '../user/user.service';
+import {FindOneOptions} from 'typeorm';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -261,9 +251,8 @@ export class DeviceController {
         typeof filterDto.country === 'string' &&
         filterDto.country.length === 3
       ) {
-        const countries = countryCodesList;
-        if (
-          countries.find((ele) => ele.countryCode === filterDto.country) ===
+          if (
+          countryCodesList.find((ele) => ele.countryCode === filterDto.country) ===
           undefined
         ) {
           this.logger.error(
@@ -475,9 +464,8 @@ export class DeviceController {
       typeof deviceToRegister.countryCode === 'string' &&
       deviceToRegister.countryCode.length === 3
     ) {
-      const countries = countryCodesList;
-      if (
-        countries.find(
+        if (
+        countryCodesList.find(
           (ele) => ele.countryCode === deviceToRegister.countryCode,
         ) === undefined
       ) {
@@ -641,9 +629,8 @@ export class DeviceController {
         typeof deviceToUpdate.countryCode === 'string' &&
         deviceToUpdate.countryCode.length === 3
       ) {
-        const countries = countryCodesList;
-        if (
-          countries.find(
+          if (
+          countryCodesList.find(
             (ele) => ele.countryCode === deviceToUpdate.countryCode,
           ) === undefined
         ) {
