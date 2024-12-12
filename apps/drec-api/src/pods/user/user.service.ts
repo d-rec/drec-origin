@@ -25,7 +25,7 @@ import {
   UserChangePasswordUpdate,
 } from '../../models';
 import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
 import { UserRole } from './user_role.entity';
@@ -59,7 +59,7 @@ export class UserService {
   ) {}
 
   public async seed(
-    data: CreateUserORGDTO,
+    data: CreateUserOrgDTO,
 
     organizationId: number | null,
     role?: Role,
@@ -81,7 +81,7 @@ export class UserService {
   }
 
   public async newCreateUser(
-    data: CreateUserORGDTO,
+    data: CreateUserOrgDTO,
     status?: UserStatus,
     inviteuser?: boolean,
   ): Promise<UserDTO> {
@@ -161,7 +161,7 @@ export class UserService {
   }
 
   public async createUserByAdmin(
-    data: CreateUserORGDTO,
+    data: CreateUserOrgDTO,
     status?: UserStatus,
     inviteuser?: boolean,
   ): Promise<UserDTO> {
@@ -577,7 +577,7 @@ export class UserService {
   }
 
   public async sendUserInvitation(
-    inviteuser: CreateUserORGDTO,
+    inviteuser: CreateUserOrgDTO,
     email: string,
   ): Promise<{
     message: string;

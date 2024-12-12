@@ -30,4 +30,4 @@ export const responseFailure = (
   message,
 });
 
-export type onUploadProgressFunction = (progressEvent: ProgressEvent) => void;
+export type OnUploadProgressFunction = (progressEvent: ProgressEvent) => void;

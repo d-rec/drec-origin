@@ -65,7 +65,7 @@ import { IrecErrorLogInformationEntity } from './irec_error_log_information.enti
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
@@ -86,8 +86,8 @@ export class DeviceService {
     private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-    @InjectRepository(DeviceLateongoingIssueCertificateEntity)
-    private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
+    @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
+    private readonly latedevciecertificaterepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
   ) {}
 
   public async find(
@@ -1043,15 +1043,15 @@ export class DeviceService {
   }
   //add new fuction for add window cycle date for late certificate
   public async addLateCertificateIssueDateLogForDevice(
-    params: DeviceLateongoingIssueCertificateEntity,
-  ): Promise<DeviceLateongoingIssueCertificateEntity> {
+    params: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
     this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
     return await this.latedevciecertificaterepository.save({
       ...params,
     });
   }
   public async findAllLateCycle(): Promise<
-    DeviceLateongoingIssueCertificateEntity[]
+    DeviceLateOngoingIssueCertificateEntity[]
   > {
     this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
     return await this.latedevciecertificaterepository.find({
@@ -1085,7 +1085,7 @@ export class DeviceService {
   public async findOneLateCycle(
     groupid: number,
     externalid: string,
-  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
+  ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {
     return await this.latedevciecertificaterepository.find({
       where: {
         groupId: groupid,

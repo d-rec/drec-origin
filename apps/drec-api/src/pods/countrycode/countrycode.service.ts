@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CountryCodeNameDTO, FilterKeyDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';
 @Injectable()
-export class CountrycodeService {
-  private readonly logger = new Logger(CountrycodeService.name);
+export class CountryCodeService {
+  private readonly logger = new Logger(CountryCodeService.name);
 
   //@InjectRepository(Device) private readonly repository: Repository<Device>,
   public async getCountryCode(

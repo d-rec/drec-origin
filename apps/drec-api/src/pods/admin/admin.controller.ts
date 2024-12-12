@@ -41,7 +41,7 @@ import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
 import { IUser, LoggedInUser, responseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
@@ -173,11 +173,11 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
-    type: CreateUserORGDTO,
+    type: CreateUserOrgDTO,
     description: 'Returns a new created user',
   })
   public async createUser(
-    @Body() newUser: CreateUserORGDTO,
+    @Body() newUser: CreateUserOrgDTO,
     @UserDecorator() { api_user_id }: LoggedInUser,
   ): Promise<UserDTO> {
     newUser.api_user_id = api_user_id;
