@@ -260,9 +260,7 @@ export class InvitationController {
   ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
-      await this.organizationInvitationService.getInviteInfoByEmail(
-        loggedUser,
-      );
+      await this.organizationInvitationService.getInviteInfoByEmail(loggedUser);
 
     return invitations;
   }
