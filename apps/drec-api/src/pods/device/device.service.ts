@@ -1383,7 +1383,7 @@ export class DeviceService {
 
     return finalresult;
   }
-  async getCertifiedDeviceDateRangeBygroupId(
+  async getCertifiedDeviceDateRangeByGroupId(
     groupId: number,
     pageNumber?: number,
   ): Promise<any> {

@@ -95,7 +95,7 @@ export class OauthClientCredentialsService {
       },
     });
   }
-  async findOneByuserId(
+  async findOneByUserId(
     api_user_id: string,
   ): Promise<OauthClientCredentials | undefined> {
     return this.clientCredentialsRepository.findOne({ where: { api_user_id } });

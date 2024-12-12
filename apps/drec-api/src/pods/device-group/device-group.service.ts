@@ -2309,11 +2309,11 @@ export class DeviceGroupService {
     return activeresvation;
   }
 
-  async getCurrentInformationofDevicesInReservation(
+  async getCurrentInformationOfDevicesInReservation(
     groupuid: string,
     pageNumber?: number,
   ): Promise<any> {
-    this.logger.verbose(`With in getcurrentInformationofDevicesInReservation`);
+    this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
       devicegroup_uid: groupuid,
       reservationActive: true,

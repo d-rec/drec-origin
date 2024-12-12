@@ -953,7 +953,7 @@ export class DeviceController {
         device,
       );
     } else {
-      return await this.deviceService.getCertifiedDeviceDateRangeBygroupId(
+      return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
         group.id,
         pagenumber,
       );

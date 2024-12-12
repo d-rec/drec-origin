@@ -870,10 +870,10 @@ export class BuyerReservationController {
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async getDevcieGroupLog(
+  async getDeviceGroupLog(
     @Param('id') id: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
-    this.logger.verbose(`With in getdevciegrouplog`);
+    this.logger.verbose(`With in getdevicegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
 
@@ -934,7 +934,7 @@ export class BuyerReservationController {
       });
     }
 
-    return await this.deviceGroupService.getCurrentInformationofDevicesInReservation(
+    return await this.deviceGroupService.getCurrentInformationOfDevicesInReservation(
       groupuId,
       pagenumber,
     );

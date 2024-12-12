@@ -704,7 +704,7 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newstoreReadAddByAdmin(
+  public async newStoreReadAddByAdmin(
     @Param('id') id: string,
     @Query('organizationId') organizationId: number | null,
     @Body() measurements: NewIntmediateMeterReadDTO,
