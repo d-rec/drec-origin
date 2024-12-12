@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsNotEmpty,
   Matches,
-  IsISO8601,
   Min,
   ValidateIf,
   IsIn,
@@ -20,9 +19,7 @@ import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { ToUpperCase } from '../../../transformers/uppercase';
-import {countryCodesList } from '../../../models/country-code';
-import { isValidUTCDateFormat } from '../../../utils/checkForISOStringFormat';
-import { BadRequestException } from '@nestjs/common';
+import { countryCodesList } from '../../../models/country-code';
 
 export class NewDeviceDTO
   implements
@@ -77,7 +74,8 @@ export class NewDeviceDTO
   @IsString()
   @IsNotEmpty()
   @ToUpperCase()
-  @IsIn(countryCodesList.map((value) => value.countryCode), {message:
+  @IsIn(countryCodesList.map((value) => value.countryCode), {
+    message:
       'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
   })
   @Matches(/^[A-Z]{3}$/, {
@@ -108,9 +106,11 @@ export class NewDeviceDTO
   capacity: number;
 
   @ApiProperty()
-  @Transform(( value, obj ) => new Date(obj.commissioningDate))
+  @Transform((value, obj) => new Date(obj.commissioningDate))
   @IsDate()
-  @MaxDate(new Date(), {message: `Commissioning date cannot be in the future`})
+  @MaxDate(new Date(), {
+    message: `Commissioning date cannot be in the future`,
+  })
   commissioningDate: string;
 
   @ApiProperty()

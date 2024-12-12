@@ -3,5 +3,7 @@ import { Transform } from 'class-transformer';
 
 export const ToUpperCase = (): PropertyDecorator =>
   applyDecorators(
-    Transform((value) => (typeof value === 'string' ? value.toUpperCase() : value)),
-  )
+    Transform((value) =>
+      typeof value === 'string' ? value.toUpperCase() : value,
+    ),
+  );

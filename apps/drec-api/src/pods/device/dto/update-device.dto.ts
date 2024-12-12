@@ -81,12 +81,13 @@ export class UpdateDeviceDTO
   @IsOptional()
   @IsString()
   @ToUpperCase()
-  @IsIn(countryCodesList.map((value) => value.countryCode), {message:
-    'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  @IsIn(countryCodesList.map((value) => value.countryCode), {
+    message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
   })
-   @Matches(/^[A-Z]{3}$/, {
-     message: 'Country code must be a valid 3-letter ISO code',
-   })
+  @Matches(/^[A-Z]{3}$/, {
+    message: 'Country code must be a valid 3-letter ISO code',
+  })
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })
@@ -116,9 +117,11 @@ export class UpdateDeviceDTO
 
   @ApiProperty()
   @IsOptional()
-  @Transform(( value, obj ) => new Date(obj.commissioningDate))
+  @Transform((value, obj) => new Date(obj.commissioningDate))
   @IsDate()
-  @MaxDate(new Date(), {message: `Commissioning date cannot be in the future`})
+  @MaxDate(new Date(), {
+    message: `Commissioning date cannot be in the future`,
+  })
   commissioningDate: string;
 
   @ApiProperty()
