@@ -37,7 +37,7 @@ describe('IssuerService', () => {
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
-  let readservice: ReadsService;
+  let readService: ReadsService;
   let httpService: HttpService;
   let offChainCertificateService: OffChainCertificateService;
   let logger: Logger;
@@ -136,7 +136,7 @@ describe('IssuerService', () => {
     logger = module.get<Logger>(Logger);
     deviceService = module.get<DeviceService>(DeviceService);
     organizationService = module.get<OrganizationService>(OrganizationService);
-    readservice = module.get<ReadsService>(ReadsService);
+    readService = module.get<ReadsService>(ReadsService);
     baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
     offChainCertificateService = module.get<OffChainCertificateService>(
       OffChainCertificateService,
@@ -199,7 +199,7 @@ describe('IssuerService', () => {
       const NewfindForGroupSpy = jest
         .spyOn(deviceService, 'NewfindForGroup')
         .mockImplementation(() => Promise.resolve({}));
-      const orgfindOneSpy = jest
+      const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
         .mockResolvedValue({
           id: 1,
@@ -217,7 +217,7 @@ describe('IssuerService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({ id: mockGroupRequest.groupId });
       expect(updatecertificateissuedateSpy).toHaveBeenCalled();
       expect(NewfindForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
-      expect(orgfindOneSpy).toHaveBeenCalledWith(mockGroup.organizationId);
+      expect(orgFindOneSpy).toHaveBeenCalledWith(mockGroup.organizationId);
       expect(findForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
     });
   });
@@ -289,9 +289,9 @@ describe('IssuerService', () => {
     it('should call addLateCertificateIssueDateLogForDevice with correct arguments', async () => {
       // Arrange
       const groupId = 1;
-      const device_externalid = 'device123';
-      const late_start_date = new Date('2023-01-01');
-      const late_end_date = new Date('2023-01-31');
+      const deviceExternalId = 'device123';
+      const lateStartDate = new Date('2023-01-01');
+      const lateEndDate = new Date('2023-01-31');
 
       const mockReturnValue =
         {} as unknown as DeviceLateOngoingIssueCertificateEntity; // or any expected return value
@@ -303,18 +303,18 @@ describe('IssuerService', () => {
       // Act
       const result = await service.addLateOngoingDeviceCertificateCycle(
         groupId,
-        device_externalid,
-        late_start_date,
-        late_end_date,
+        deviceExternalId,
+        lateStartDate,
+        lateEndDate,
       );
 
       // Assert
       expect(addLateCertificateIssueDateLogForDeviceSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          device_externalid: device_externalid,
+          device_externalid: deviceExternalId,
           groupId: groupId,
-          late_start_date: late_start_date.toString(),
-          late_end_date: late_end_date.toString(),
+          late_start_date: lateStartDate.toString(),
+          late_end_date: lateEndDate.toString(),
         }),
       );
       expect(result).toBe(mockReturnValue);
@@ -479,7 +479,7 @@ describe('IssuerService', () => {
         groupService.AddCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).not.toHaveBeenCalled();
     });
 
@@ -506,7 +506,7 @@ describe('IssuerService', () => {
         groupService.AddCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).not.toHaveBeenCalled();
     });
 
@@ -602,7 +602,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        readservice.updatehistorycertificateissuedate,
+        readService.updatehistorycertificateissuedate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
         deviceHistoryRequest.readsStartDate,

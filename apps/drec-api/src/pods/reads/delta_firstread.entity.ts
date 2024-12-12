@@ -16,9 +16,9 @@ export class DeltaFirstRead
   extends ExtendedBaseEntity
   implements IDeltaIntermediate
 {
-  constructor(deltafirstreadvalue?: Partial<IDeltaIntermediate>) {
+  constructor(deltaFirstReadValue?: Partial<IDeltaIntermediate>) {
     super();
-    Object.assign(this, deltafirstreadvalue);
+    Object.assign(this, deltaFirstReadValue);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()

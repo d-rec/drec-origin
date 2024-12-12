@@ -15,7 +15,6 @@ import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
 import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
-import { ICertificateMetadata } from '../../utils/types';
 import {
   ConflictException,
   UnauthorizedException,
@@ -30,19 +29,9 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
   let repository: Repository<DeviceGroup>;
-  let repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>;
-  let repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>;
-  let repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>;
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
-  let fileService: FileService;
-  let yieldConfigService: YieldConfigService;
   let userService: UserService;
-  let checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>;
-  let historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>;
-  let certificateReadModelEntity: Repository<
-    CertificateReadModelEntity<ICertificateMetadata>
-  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -119,46 +108,45 @@ describe('DeviceGroupService', () => {
       ],
     }).compile();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     service = module.get<DeviceGroupService>(DeviceGroupService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositoryJobFailedRows = module.get<
-      Repository<DeviceCsvProcessingFailedRowsEntity>
-    >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositoyCSVJobProcessing = module.get<
-      Repository<DeviceCsvFileProcessingJobsEntity>
-    >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositorynextDeviceGroupcertificate = module.get<
-      Repository<DeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(DeviceGroupNextIssueCertificate));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    // repositoryJobFailedRows = module.get<
+    //   Repository<DeviceCsvProcessingFailedRowsEntity>
+    // >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+
+    // repositoryCSVJobProcessing = module.get<
+    //   Repository<DeviceCsvFileProcessingJobsEntity>
+    // >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+
+    // repositoryNextDeviceGroupCertificate = module.get<
+    //   Repository<DeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(DeviceGroupNextIssueCertificate));
+
     organizationService = module.get<OrganizationService>(OrganizationService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     deviceService = module.get<DeviceService>(DeviceService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    fileService = module.get<FileService>(FileService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    //fileService = module.get<FileService>(FileService);
+
+    //yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
+
     userService = module.get<UserService>(UserService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    checkdevciegrouplogcertificaterepository = module.get<
-      Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
-    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    historynextissuancedaterepository = module.get<
-      Repository<HistoryDeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    >(getRepositoryToken(CertificateReadModelEntity));
+
+    // checkdevciegrouplogcertificaterepository = module.get<
+    //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
+    // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+
+    // historyNextIssuanceDateRepository = module.get<
+    //   Repository<HistoryDeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
+
+    // certificateReadModelEntity = module.get<
+    //   Repository<CertificateReadModelEntity<ICertificateMetadata>>
+    // >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {
@@ -208,7 +196,7 @@ describe('DeviceGroupService', () => {
         email: 'user@example.com',
         blockchainAccountAddress: '0x123',
       } as ILoggedInUser;
-      const apiuserId = 'admin123';
+      const apiUserId = 'admin123';
       const deviceGroups = [
         {
           id: 1,
@@ -234,7 +222,7 @@ describe('DeviceGroupService', () => {
         } as any;
       });
 
-      const result = await service.getAll(user, undefined, apiuserId);
+      const result = await service.getAll(user, undefined, apiUserId);
       expect(result).toEqual({
         groupedData: deviceGroups,
         currentPage: undefined,
@@ -621,7 +609,7 @@ describe('DeviceGroupService', () => {
       const buyerId = 1;
 
       // Add all required properties to groupfilterDto
-      const groupfilterDto = {
+      const groupFilterDTO = {
         name: null, // Adjust based on the actual type, use '' or null if appropriate
         country: null, // Same here, adjust accordingly
         fuelCode: null,
@@ -644,7 +632,7 @@ describe('DeviceGroupService', () => {
         service.getBuyerDeviceGroups(
           buyerId,
           1,
-          groupfilterDto as unknown as UnreservedDeviceGroupsFilterDTO,
+          groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
         ),
       ).rejects.toThrow(ConflictException);
     });
