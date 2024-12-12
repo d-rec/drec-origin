@@ -29,6 +29,7 @@ export class CertificateLogResponse {
   certificatelog:
     | CertificateNewWithPerDeviceLog[]
     | CertificateWithPerDeviceLog[];
+  currentpage?: number;
   totalPages: number;
   totalCount: number;
 }

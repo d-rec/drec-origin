@@ -18,10 +18,10 @@ import {
   Aggregate,
   AggregatedReadDTO,
   AggregateFilterDTO,
-  ReadsService as BaseReadsService,
   FilterDTO,
   MeasurementDTO,
   ReadDTO,
+  ReadsService as BaseReadsService,
   Unit,
 } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -51,8 +51,8 @@ import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { BASE_READ_SERVICE } from './const';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import {
-  FilterNoOffLimit,
   AccumulationType,
+  FilterNoOffLimit,
 } from './dto/filter-no-off-limit.dto';
 import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
@@ -110,7 +110,7 @@ export class ReadsService {
       groupBy(allReads, (read) => JSON.stringify([read.start, read.stop])),
     );
 
-    const aggregatedReads = readsGroupedBySameDates.map(
+    return readsGroupedBySameDates.map(
       (group: AggregatedReadDTO[]): AggregatedReadDTO => {
         return {
           start: group[0].start,
@@ -122,8 +122,6 @@ export class ReadsService {
         };
       },
     );
-
-    return aggregatedReads;
   }
   async storeFailedReads(
     meterId: string,
@@ -400,7 +398,7 @@ export class ReadsService {
               ?.hours || 0,
           );
 
-          const checkhistroyreading = await this.checkHistoryReadExist(
+          const checkHistoryReading = await this.checkHistoryReadExist(
             device.externalId,
             element.starttimestamp,
             element.endtimestamp,
@@ -409,7 +407,7 @@ export class ReadsService {
           historyAge.setFullYear(historyAge.getFullYear() - 3);
           this.logger.verbose('historyAge');
 
-          if (checkhistroyreading) {
+          if (checkHistoryReading) {
             this.storeFailedReads(
               device.externalId,
               element.value,
@@ -449,7 +447,7 @@ export class ReadsService {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
           };
-          const historyvalidation = await this.newHistoryValidateEnergy(
+          const historyValidation = await this.newHistoryValidateEnergy(
             read,
             device,
             meteredTimePeriod,
@@ -457,8 +455,8 @@ export class ReadsService {
             requeststartdate.toJSDate(),
             requestcurrentend.toJSDate(),
           );
-          this.logger.verbose(historyvalidation);
-          if (historyvalidation) {
+          this.logger.verbose(historyValidation);
+          if (historyValidation) {
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -508,11 +506,7 @@ export class ReadsService {
                 });
               }
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const read: ReadDTO = {
-              timestamp: new Date(element.endtimestamp),
-              value: element.value,
-            };
+
             reads.push({
               timestamp: new Date(element.endtimestamp),
               value: element.value,
@@ -572,12 +566,12 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const newdeltavalidation = this.newValidateEnergy(
+              const newDeltaValidation = this.newValidateEnergy(
                 read,
                 final,
                 device,
               );
-              if (newdeltavalidation.success) {
+              if (newDeltaValidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
                   value: element.value,
@@ -586,7 +580,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: newdeltavalidation.message,
+                    message: newDeltaValidation.message,
                   }),
                 );
               }
@@ -605,15 +599,15 @@ export class ReadsService {
       if (!final) {
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
-            const lastvalue = await this.findlastRead(deviceId);
-            let Delta = 0;
-            if (lastvalue.length > 0) {
-              Delta = Math.abs(element.value - lastvalue[0].value);
+            const lastValue = await this.findlastRead(deviceId);
+            let delta = 0;
+            if (lastValue.length > 0) {
+              delta = Math.abs(element.value - lastValue[0].value);
 
               if (
                 new Date(element.endtimestamp).getTime() <
-                  new Date(lastvalue[0].datetime).getTime() ||
-                element.value <= lastvalue[0].value
+                  new Date(lastValue[0].datetime).getTime() ||
+                element.value <= lastValue[0].value
               ) {
                 this.storeFailedReads(
                   device.externalId,
@@ -623,32 +617,32 @@ export class ReadsService {
                 );
                 throw new ConflictException({
                   success: false,
-                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
                 });
               }
 
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
-                value: Delta,
+                value: delta,
               };
-              const firstvalidation = this.firstvalidateEnergy(read, device);
-              if (firstvalidation.success) {
+              const firstValidation = this.firstvalidateEnergy(read, device);
+              if (firstValidation.success) {
                 await this.repository.save({
                   value: element.value,
-                  deltaValue: Delta,
+                  deltaValue: delta,
                   externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString(),
                 });
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
-                  value: Delta,
+                  value: delta,
                 });
               } else {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: firstvalidation.message,
+                    message: firstValidation.message,
                   }),
                 );
               }
@@ -657,11 +651,11 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const firstvalidation = this.firstvalidateEnergy(read, device);
-              if (firstvalidation.success) {
+              const firstValidation = this.firstvalidateEnergy(read, device);
+              if (firstValidation.success) {
                 await this.repository.save({
                   value: element.value,
-                  deltaValue: Delta,
+                  deltaValue: delta,
                   externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString(),
@@ -670,7 +664,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: firstvalidation.message,
+                    message: firstValidation.message,
                   }),
                 );
               }
@@ -696,34 +690,34 @@ export class ReadsService {
         }
         await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurmentreadindex) => {
-            const lastvalue = await this.findlastRead(deviceId);
-            let Delta;
-            if (lastvalue.length > 0) {
-              Delta = Math.abs(element.value - lastvalue[0].value);
+            const lastValue = await this.findlastRead(deviceId);
+            let delta;
+            if (lastValue.length > 0) {
+              delta = Math.abs(element.value - lastValue[0].value);
               if (
                 new Date(element.endtimestamp).getTime() <
-                  new Date(lastvalue[0].datetime).getTime() ||
-                element.value <= lastvalue[0].value
+                  new Date(lastValue[0].datetime).getTime() ||
+                element.value <= lastValue[0].value
               ) {
                 throw new ConflictException({
                   success: false,
-                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastvalue[0].datetime}/${lastvalue[0].value} `,
+                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
                 });
               }
 
               const read: ReadDTO = {
                 timestamp: new Date(element.endtimestamp),
-                value: Delta,
+                value: delta,
               };
-              const newvalidation = this.newValidateEnergy(read, final, device);
-              if (newvalidation.success) {
+              const newValidation = this.newValidateEnergy(read, final, device);
+              if (newValidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
-                  value: Delta,
+                  value: delta,
                 });
                 await this.repository.save({
                   value: element.value,
-                  deltaValue: Delta,
+                  deltaValue: delta,
                   externalId: deviceId,
                   unit: measurement.unit,
                   datetime: element.endtimestamp.toString(),
@@ -732,7 +726,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: newvalidation.message,
+                    message: newValidation.message,
                   }),
                 );
               }
@@ -818,7 +812,7 @@ export class ReadsService {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
-    const query = this.historyrepository
+    return this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
@@ -841,7 +835,6 @@ export class ReadsService {
             );
         }),
       );
-    return query;
   }
   private firstvalidateEnergy(
     read: ReadDTO,
@@ -893,15 +886,15 @@ export class ReadsService {
       degradationPercentage,
       yieldValue,
     );
-    const finalmax = maxEnergy * (120 / 100);
+    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
     );
     this.logger.verbose(`hgfgfdt871, ${Math.round(read.value)}`);
-    if (read.value < finalmax) {
+    if (read.value < finalMax) {
       return {
         success: true,
         message: 'Validation successful',
@@ -909,7 +902,7 @@ export class ReadsService {
     } else {
       return {
         success: false,
-        message: `Failed, MaxEnergy: ${finalmax}`,
+        message: `Failed, MaxEnergy: ${finalMax}`,
       };
     }
   }
@@ -962,14 +955,14 @@ export class ReadsService {
       degradationPercentage,
       yieldValue,
     );
-    const finalmax = maxEnergy * (120 / 100);
+    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
     );
-    if (read.value < finalmax) {
+    if (read.value < finalMax) {
       return {
         success: true,
         message: 'Validation successful',
@@ -977,7 +970,7 @@ export class ReadsService {
     } else {
       return {
         success: false,
-        message: `Failed, MaxEnergy: ${finalmax}`,
+        message: `Failed, MaxEnergy: ${finalMax}`,
       };
     }
   }
@@ -1031,15 +1024,15 @@ export class ReadsService {
       degradationPercentage,
       yieldValue,
     );
-    const finalmax = maxEnergy * (120 / 100);
+    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalmax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalmax}`,
+      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
     );
 
-    if (read.value < finalmax) {
+    if (read.value < finalMax) {
       this.historyrepository.save({
         type: measurement.type,
         externalId: device.externalId,
@@ -1050,39 +1043,43 @@ export class ReadsService {
       });
       this.logger.verbose('1267');
       if (device.groupId != null) {
-        const historynextissue =
+        const historyNextIssue =
           await this.deviceGroupService.getNextHistoryissuanceDevicelogafterreservation(
             device.externalId,
             device.groupId,
           );
         this.logger.verbose('historynextissue');
-        if (historynextissue != undefined) {
-          const stdate = new Date(startdate).getTime();
-          const eddate = new Date(enddate).getTime();
-          const reservSdate = new Date(
-            historynextissue.reservationStartDate,
+        if (historyNextIssue != undefined) {
+          const startDate = new Date(startdate).getTime();
+          const endDate = new Date(enddate).getTime();
+          const reservedStartDate = new Date(
+            historyNextIssue.reservationStartDate,
           ).getTime();
-          this.logger.verbose(reservSdate);
-          const reservEdate = new Date(
-            historynextissue.reservationEndDate,
+          this.logger.verbose(reservedStartDate);
+          const reservedEnddate = new Date(
+            historyNextIssue.reservationEndDate,
           ).getTime();
-          this.logger.verbose(reservEdate);
-          this.logger.verbose(stdate >= reservSdate && stdate < reservEdate);
-          this.logger.verbose(eddate <= reservEdate && eddate > reservSdate);
+          this.logger.verbose(reservedEnddate);
+          this.logger.verbose(
+            startDate >= reservedStartDate && startDate < reservedEnddate,
+          );
+          this.logger.verbose(
+            endDate <= reservedEnddate && endDate > reservedStartDate,
+          );
           if (
-            stdate >= reservSdate &&
-            stdate < reservEdate &&
-            eddate <= reservEdate &&
-            eddate > reservSdate
+            startDate >= reservedStartDate &&
+            startDate < reservedEnddate &&
+            endDate <= reservedEnddate &&
+            endDate > reservedStartDate
           ) {
             this.deviceGroupService.updateHistoryCertificateIssueDate(
-              historynextissue.id,
+              historyNextIssue.id,
               HistoryNextInssuanceStatus.Pending,
             );
           }
         }
       }
-      return read.value < finalmax;
+      return read.value < finalMax;
     } else {
       return false;
     }
@@ -1143,7 +1140,7 @@ export class ReadsService {
 
     try {
       const device = await query.getRawMany();
-      const devices = device.map((s: any) => {
+      return device.map((s: any) => {
         const item: any = {
           id: s.devicehistory_id,
           readsStartDate: s.devicehistory_readsStartDate,
@@ -1153,8 +1150,6 @@ export class ReadsService {
         };
         return item;
       });
-
-      return devices;
     } catch (error) {
       this.logger.error(`Failed to retrieve device`, error.stack);
     }
@@ -1165,7 +1160,7 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
-    const query = this.historyrepository
+    return this.historyrepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
@@ -1203,7 +1198,6 @@ export class ReadsService {
         }),
       )
       .andWhere('devicehistory.certificate_issued != true');
-    return query;
   }
 
   async getDeviceHistoryCertificateIssueDate(
@@ -1216,17 +1210,17 @@ export class ReadsService {
     startdate: Date,
     enddate: Date,
   ): Promise<HistoryIntermediate_MeterRead> {
-    const historydevice = await this.getDeviceHistoryCertificateIssueDate({
+    const historyDevice = await this.getDeviceHistoryCertificateIssueDate({
       id: id,
     });
-    let updatedhistoryissue = new HistoryIntermediate_MeterRead();
-    if (historydevice) {
-      historydevice.certificate_issuance_startdate = startdate;
-      historydevice.certificate_issuance_enddate = enddate;
-      historydevice.certificate_issued = true;
-      updatedhistoryissue = await this.historyrepository.save(historydevice);
+    let updatedHistoryIssue = new HistoryIntermediate_MeterRead();
+    if (historyDevice) {
+      historyDevice.certificate_issuance_startdate = startdate;
+      historyDevice.certificate_issuance_enddate = enddate;
+      historyDevice.certificate_issued = true;
+      updatedHistoryIssue = await this.historyrepository.save(historyDevice);
     }
-    return updatedhistoryissue;
+    return updatedHistoryIssue;
   }
   async getAggregateMeterReadsFirstEntryOfDevice(
     meterId: string,
@@ -1264,9 +1258,8 @@ export class ReadsService {
         400,
       );
     }
-    const historyread = [];
+    const historyRead = [];
     let ongoing = [];
-    const finalongoing = []; // eslint-disable-line @typescript-eslint/no-unused-vars
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
@@ -1301,7 +1294,7 @@ export class ReadsService {
     numberOfReads = numberOfHistoryReads + numberOfOngReads;
     if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
       return {
-        historyread,
+        historyRead,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: 0,
@@ -1314,7 +1307,7 @@ export class ReadsService {
       pageNumber > numberOfPages
     ) {
       return {
-        historyread,
+        historyRead,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1336,13 +1329,13 @@ export class ReadsService {
       );
       this.logger.verbose('historyexistdevicequery');
       try {
-        const histroread = await query
+        const historyRead = await query
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
 
-        await histroread.forEach((element) => {
-          historyread.push({
+        await historyRead.forEach((element) => {
+          historyRead.push({
             startdate: element.devicehistory_readsStartDate,
             enddate: element.devicehistory_readsEndDate,
             value: element.devicehistory_readsvalue,
@@ -1463,7 +1456,7 @@ export class ReadsService {
     );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
-        historyread,
+        historyRead,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1471,7 +1464,7 @@ export class ReadsService {
       };
     } else {
       return {
-        historyread,
+        historyRead,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1491,8 +1484,7 @@ export class ReadsService {
       .andWhere('devicehistory.readsStartDate <= :endDate', { endDate })
       .andWhere('devicehistory.readsEndDate >= :startDate', { startDate });
 
-    const count = await query.getCount();
-    return count;
+    return await query.getCount();
   }
 
   async getNumberOfOngoingReads(
@@ -1506,21 +1498,19 @@ export class ReadsService {
       this.logger.verbose('The given dates are not for on-going reads');
       return 0;
     }
-    let fluxquery = ``;
+    let fluxQuery = ``;
     if (new Date(start).getTime() > new Date(onboarded).getTime()) {
-      fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
   |> range(start: ${start}, stop: ${end})
   |> filter(fn: (r) => r._measurement == "read" and r.meter == "${externalId}")
   |> count()`;
     } else {
-      fluxquery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
   |> range(start: ${onboarded}, stop: ${end})
   |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
   |> count()`;
     }
-    const noOfReads = await this.ongExecute(fluxquery);
-
-    return noOfReads;
+    return await this.ongExecute(fluxQuery);
   }
 
   async ongExecute(query: string | any): Promise<number> {
@@ -1646,15 +1636,13 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
         if (j % 2 === 0) {
           const startDateStr = new Date(tempResults[i][j]).getTime();
           const startDate = new Date(startDateStr);
-          const isoStartDateStr = startDate.toISOString();
-          resultObj.startTime = isoStartDateStr;
+          resultObj.startTime = startDate.toISOString();
         } else {
           resultObj.value = tempResults[i][j];
           if (i < tempResults.length - 1) {
             const endDateStr = new Date(tempResults[i + 1][j - 1]).getTime();
             const endDate = new Date(endDateStr);
-            const isoEndDateStr = endDate.toISOString();
-            resultObj.endTime = isoEndDateStr;
+            resultObj.endTime = endDate.toISOString();
           } else {
             resultObj.endTime = endDate;
           }
@@ -1685,7 +1673,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
   }
 
   convertToISODate(month: number, year: number): any {
-    const isoDate = DateTime.fromObject({
+    return DateTime.fromObject({
       year: year,
       month: month,
       day: 1,
@@ -1694,8 +1682,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       second: 0,
       zone: 'utc',
     }).toISO({ suppressMilliseconds: true });
-
-    return isoDate;
   }
 
   getNumberOfDaysInMonth(month: number, year: number): any {
@@ -1757,7 +1743,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     const token = process.env.INFLUXDB_TOKEN;
 
     const influxDB = new InfluxDB({ url, token });
-    const queryApi = influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
+    influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
 
     return result.map((record: any) => ({
@@ -1788,12 +1774,11 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       localTime = getLocalTime(startDate, device);
     }
 
-    const localTimeZone = getLocalTimeZoneFromDevice(localTime, device);
-    const localTimeZoneName = localTimeZone;
+    const localTimeZoneName = getLocalTimeZoneFromDevice(localTime, device);
     const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
-    const offset = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-    const offSetHoursString = offset.hours.toString();
-    const offSetMinutesString = offset.minutes.toString();
+    const offSet = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
+    const offSetHoursString = offSet.hours.toString();
+    const offSetMinutesString = offSet.minutes.toString();
 
     formattedOffset = offSetHoursString + 'h' + offSetMinutesString + 'm';
 
@@ -1801,8 +1786,8 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
 
     return {
       formattedOffset: formattedOffset,
-      offSetHours: offset.hours,
-      offSetMinutes: offset.minutes,
+      offSetHours: offSet.hours,
+      offSetMinutes: offSet.minutes,
       localTimeZone: localTimeZoneName,
     };
   }

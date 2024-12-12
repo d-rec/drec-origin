@@ -2,18 +2,18 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   ForbiddenException,
   Get,
   HttpStatus,
   Logger,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -25,9 +25,9 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiQuery,
   ApiResponse,
   ApiTags,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { InvitationService } from './invitation.service';
 import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
@@ -94,15 +94,12 @@ export class InvitationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getInvitations`);
-    const invitations =
-      await this.organizationInvitationService.getUsersInvitation(
-        loggedUser,
-        organizationId,
-        pageNumber,
-        limit,
-      );
-
-    return invitations;
+    return await this.organizationInvitationService.getUsersInvitation(
+      loggedUser,
+      organizationId,
+      pageNumber,
+      limit,
+    );
   }
 
   /**

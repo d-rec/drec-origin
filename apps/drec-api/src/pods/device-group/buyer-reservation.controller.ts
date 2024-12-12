@@ -1,43 +1,43 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  HttpStatus,
-  Param,
-  Body,
-  UseGuards,
-  Delete,
-  Query,
-  ValidationPipe,
-  ConflictException,
   BadRequestException,
-  UnauthorizedException,
+  Body,
+  ConflictException,
+  Controller,
   DefaultValuePipe,
-  ParseIntPipe,
+  Delete,
+  Get,
+  HttpStatus,
   Logger,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UnauthorizedException,
+  UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiNotFoundResponse,
-  ApiResponse,
   ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
-  DeviceGroupDTO,
-  UnreservedDeviceGroupsFilterDTO,
   CSVBulkUploadDTO,
-  JobFailedRowsDTO,
+  DeviceGroupDTO,
   EndReservationdateDTO,
+  JobFailedRowsDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
@@ -45,8 +45,8 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import {
-  ILoggedInUser,
   BuyerReservationCertificateGenerationFrequency,
+  ILoggedInUser,
 } from '../../models';
 import { FileService } from '../file';
 
@@ -119,7 +119,7 @@ export class BuyerReservationController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
-    @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
+    @Query('apiuserId', new DefaultValuePipe(null)) apiUserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -146,8 +146,8 @@ export class BuyerReservationController {
     /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     this.logger.verbose('With in getAll');
     let organization: any;
-    if (!apiuserId) {
-      apiuserId = user.api_user_id;
+    if (!apiUserId) {
+      apiUserId = user.api_user_id;
     }
 
     if (organizationId) {
@@ -165,9 +165,9 @@ export class BuyerReservationController {
       }
     }
 
-    if (apiuserId) {
+    if (apiUserId) {
       if (user.role === Role.ApiUser) {
-        if (apiuserId != user.api_user_id) {
+        if (apiUserId != user.api_user_id) {
           this.logger.error(
             `An apiuser is unauthorized to request for other apiuser`,
           );
@@ -178,7 +178,7 @@ export class BuyerReservationController {
         }
       }
 
-      if (organizationId && apiuserId != organization.api_user_id) {
+      if (organizationId && apiUserId != organization.api_user_id) {
         this.logger.error(
           `The requested organization is not belongs to the apiuser`,
         );
@@ -191,7 +191,7 @@ export class BuyerReservationController {
     return this.deviceGroupService.getAll(
       user,
       organizationId,
-      apiuserId,
+      apiUserId,
       pageNumber,
       limit,
       filterDto,
@@ -202,7 +202,7 @@ export class BuyerReservationController {
    * It is GET api to list all device groups of loggedIn user
    * @param param0 is getting userId, organizationId and user role from user at request
    * @param filterDto is filteration fields to retrieve records
-   * @param pagenumber is for pagination
+   * @param pageNumber is for pagination
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get('/my')
@@ -224,7 +224,7 @@ export class BuyerReservationController {
     )
     filterDto: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -244,13 +244,13 @@ export class BuyerReservationController {
       case Role.Buyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
+          pageNumber,
           filterDto,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
+          pageNumber,
           filterDto,
         );
       case Role.OrganizationAdmin:
@@ -352,7 +352,7 @@ export class BuyerReservationController {
     deviceGroupToRegister.api_user_id = user.api_user_id;
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id !== user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
@@ -361,15 +361,15 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-        if (orguser.role === Role.Buyer) {
+        if (orgUser.role === Role.Buyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-        if (orguser.role != Role.Buyer) {
-          this.logger.error(`Unauthorized for ${orguser.role}`);
+        if (orgUser.role != Role.Buyer) {
+          this.logger.error(`Unauthorized for ${orgUser.role}`);
           throw new UnauthorizedException({
             success: false,
-            message: `Unauthorized for ${orguser.role}`,
+            message: `Unauthorized for ${orgUser.role}`,
           });
         }
       } else {
@@ -592,14 +592,12 @@ export class BuyerReservationController {
         message: 'Invalid file',
       });
     }
-    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
+    return await this.deviceGroupService.createCSVJobForFile(
       user.id,
       organizationId,
       StatusCSV.Added,
       fileToProcess.fileName,
     );
-
-    return jobCreated;
   }
 
   /**
@@ -624,11 +622,11 @@ export class BuyerReservationController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
-    const devicenextissuence: DeviceGroupNextIssueCertificate | null =
+    const deviceNextIssuance: DeviceGroupNextIssueCertificate | null =
       await this.deviceGroupService.getGroupiCertificateIssueDate({
         groupId: id,
       });
-    if (devicenextissuence === null) {
+    if (deviceNextIssuance === null) {
       this.logger.error(`This device groups reservation has already ended`);
       throw new ConflictException({
         success: false,
@@ -637,14 +635,14 @@ export class BuyerReservationController {
     }
     if (
       new Date(groupToUpdate.reservationEndDate).getTime() <
-      new Date(devicenextissuence.start_date).getTime()
+      new Date(deviceNextIssuance.start_date).getTime()
     ) {
       this.logger.error(
-        `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       );
       throw new ConflictException({
         success: false,
-        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       });
     }
 
@@ -703,7 +701,7 @@ export class BuyerReservationController {
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
 
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
@@ -716,7 +714,7 @@ export class BuyerReservationController {
           });
         }
 
-        if (orguser.role != Role.OrganizationAdmin) {
+        if (orgUser.role != Role.OrganizationAdmin) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
@@ -802,7 +800,7 @@ export class BuyerReservationController {
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
 
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id != user.api_user_id) {
@@ -815,7 +813,7 @@ export class BuyerReservationController {
           });
         }
 
-        if (orguser.role != Role.OrganizationAdmin) {
+        if (orgUser.role != Role.OrganizationAdmin) {
           this.logger.error(`Unauthorized`);
           throw new UnauthorizedException({
             success: false,
@@ -880,7 +878,7 @@ export class BuyerReservationController {
   /**
    * It is DELETE api to delete an device reservation
    * @param id is unique identifier of an device group
-   * @param endresavationdate is date of end reservation
+   * @param endReservationDate is date of end reservation
    * @param param2 is getting organization Id of loggedIn user
    * @returns {void}
    */
@@ -894,21 +892,21 @@ export class BuyerReservationController {
   @ApiNotFoundResponse({ description: `No  Reservation found` })
   public async endReservation(
     @Param('id') id: number,
-    @Body() endresavationdate: EndReservationdateDTO,
+    @Body() endReservationDate: EndReservationdateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);
     return await this.deviceGroupService.endReservationGroup(
       id,
       organizationId,
-      endresavationdate,
+      endReservationDate,
     );
   }
 
   /**
    * It is GET api to fetch current information of reservation
-   * @param groupuId is an identifier of device
-   * @param param1
+   * @param groupId is an identifier of device
+   * @param pageNumber
    * @returns {any}
    */
   @Get('current-information/:groupUid')

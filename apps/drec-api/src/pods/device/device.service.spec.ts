@@ -44,7 +44,7 @@ import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_pr
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyrepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediate_MeterRead>;
   let repository: Repository<Device>;
   let checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
@@ -569,7 +569,7 @@ describe('DeviceService', () => {
       },
     ];
     it('should retrieve devices without pagination', async () => {
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         capacity: undefined, //600,
@@ -600,9 +600,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, undefined, orgId);
+      const result = await service.find(filterDTO, undefined, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -905,7 +905,7 @@ describe('DeviceService', () => {
           organization: organizationEntity,
         },
       ];
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         capacity: undefined, //600,
@@ -925,7 +925,7 @@ describe('DeviceService', () => {
             _value: '200', // Adjust as needed
             _useParameter: true,
           },
-          countryCode: filterDto.country,
+          countryCode: filterDTO.country,
           organizationId: orgId.toString(), // Use orgId provided dynamically
           commissioningDate: {
             _type: 'moreThanOrEqual',
@@ -940,13 +940,13 @@ describe('DeviceService', () => {
           },
           deviceTypeCode: {
             _type: 'raw',
-            _value: [filterDto.deviceTypeCode], // Adjust as needed
+            _value: [filterDTO.deviceTypeCode], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
           offTaker: {
             _type: 'raw',
-            _value: [filterDto.offTaker], // Adjust as needed
+            _value: [filterDTO.offTaker], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
@@ -962,9 +962,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, pageNumber, orgId);
+      const result = await service.find(filterDTO, pageNumber, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -982,7 +982,7 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
       const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
       const mockTotalCount = 1;
 
@@ -992,7 +992,7 @@ describe('DeviceService', () => {
 
       jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
 
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber);
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
@@ -1015,10 +1015,10 @@ describe('DeviceService', () => {
 
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
-      const api_user_id = 'api-user-123';
+      const apiUserId = 'api-user-123';
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
-      const pagenumber = null;
+      const pageNumber = null;
       const mockDevices = [
         {
           id: 1,
@@ -1033,10 +1033,10 @@ describe('DeviceService', () => {
 
       const result = await service.getOrganizationDevices(
         organizationId,
-        api_user_id,
+        apiUserId,
         role,
         filterDto,
-        pagenumber,
+        pageNumber,
       );
 
       expect(repository.findAndCount).toHaveBeenCalledWith(
@@ -1058,14 +1058,14 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = {} as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
       const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
       const mockTotalCount = 1;
 
       jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
       jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
 
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
+      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber);
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
@@ -1092,12 +1092,12 @@ describe('DeviceService', () => {
       const api_user_id = 'api-user-123';
       const role = Role.ApiUser;
       const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
+      const pageNumber = 1;
 
       jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
       jest.spyOn(repository, 'findAndCount').mockRejectedValue(new Error('Database error'));
 
-      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber)).rejects.toThrow('Database error');
+      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pageNumber)).rejects.toThrow('Database error');
 
       expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
       expect(repository.findAndCount).toHaveBeenCalled();
@@ -1853,7 +1853,7 @@ const device = {
   describe('findUngrouped', () => {
     it('should return grouped devices when ungrouped devices are found', async () => {
       const organizationId = 1;
-      const orderFilterDto: DeviceGroupByDTO = {
+      const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       }; // Provide necessary DTO properties
       const mockDevices = [
@@ -1867,7 +1867,7 @@ const device = {
 
       const result = await service.findUngrouped(
         organizationId,
-        orderFilterDto,
+        orderFilterDTO,
       );
 
       expect(findSpy).toHaveBeenCalledWith({

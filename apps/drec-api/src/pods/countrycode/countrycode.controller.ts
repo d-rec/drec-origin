@@ -26,7 +26,7 @@ import { CountryCodeNameDTO, FilterKeyDTO } from './dto';
 export class CountryCodeController {
   private readonly logger = new Logger(CountryCodeController.name);
 
-  constructor(private readonly countrycodeService: CountryCodeService) {}
+  constructor(private readonly countryCodeService: CountryCodeService) {}
 
   /*
    * It is GET api to get list of all country codes with filteration by pattern(string)
@@ -42,6 +42,6 @@ export class CountryCodeController {
     @Query(ValidationPipe) filterDto: FilterKeyDTO,
   ): Promise<CountryCodeNameDTO[]> {
     this.logger.verbose(`With in getCountryCode`);
-    return this.countrycodeService.getCountryCode(filterDto);
+    return this.countryCodeService.getCountryCode(filterDto);
   }
 }

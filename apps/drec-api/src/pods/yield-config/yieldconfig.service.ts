@@ -1,22 +1,22 @@
 import {
-  Injectable,
-  NotFoundException,
-  Logger,
-  ConflictException,
-  UnprocessableEntityException,
   BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { IYieldConfig, ILoggedInUser } from '../../models';
+import { FindConditions, Repository } from 'typeorm';
+import { ILoggedInUser, IYieldConfig } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
-import { YieldConfigDTO, UpdateYieldValueDTO } from './dto';
+import { UpdateYieldValueDTO, YieldConfigDTO } from './dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { FindConditions } from 'typeorm';
+import { YieldConfig } from './yieldconfig.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;
-import { YieldConfig } from './yieldconfig.entity';
+
 @Injectable()
 export class YieldConfigService {
   private readonly logger = new Logger(YieldConfigService.name);
@@ -41,7 +41,7 @@ export class YieldConfigService {
         message: `add the valid yield value`,
       });
     }
-    const yieldvalue = await this.repository.save({
+    const yieldValue = await this.repository.save({
       countryCode: data.countryCode,
       countryName: data.countryName,
       yieldValue: data.yieldValue,
@@ -49,7 +49,7 @@ export class YieldConfigService {
       status: data.status,
     });
 
-    return new YieldConfig(yieldvalue);
+    return new YieldConfig(yieldValue);
   }
   private async checkForExistingyieldvalue(
     countryCode: string,
@@ -72,18 +72,16 @@ export class YieldConfigService {
   async findOne(
     conditions: FindConditions<YieldConfig>,
   ): Promise<TUserBaseEntity> {
-    const yieldvalue = await (this.repository.findOne(
+    return await (this.repository.findOne(
       conditions,
     ) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
-
-    return yieldvalue;
   }
   async findById(id: number): Promise<IYieldConfig> {
-    const yieldvaluebyId = this.findOne({ id });
-    if (!yieldvaluebyId) {
+    const yieldValueById = this.findOne({ id });
+    if (!yieldValueById) {
       throw new NotFoundException(`No Yield value found with id ${id}`);
     }
-    return yieldvaluebyId;
+    return yieldValueById;
   }
 
   async findByCountryCode(countryCode: string): Promise<any> {

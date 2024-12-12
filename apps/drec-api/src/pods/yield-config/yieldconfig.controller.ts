@@ -1,26 +1,26 @@
 import {
+  Body,
+  ConflictException,
   Controller,
   Get,
-  Post,
-  Patch,
   HttpStatus,
   Param,
-  Body,
-  UseGuards,
   ParseIntPipe,
-  ConflictException,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiResponse,
+  ApiBody,
   ApiOkResponse,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { YieldConfigService } from './yieldconfig.service';
-import { YieldConfigDTO, NewYieldConfigDTO, UpdateYieldValueDTO } from './dto';
+import { NewYieldConfigDTO, UpdateYieldValueDTO, YieldConfigDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
@@ -95,9 +95,8 @@ export class YieldConfigController {
       typeof yieldToRegister.countryCode === 'string' &&
       yieldToRegister.countryCode.length === 3
     ) {
-      const countries = countryCodesList;
       if (
-        countries.find(
+        countryCodesList.find(
           (ele) => ele.countryCode === yieldToRegister.countryCode,
         ) === undefined
       ) {

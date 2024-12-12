@@ -12,7 +12,6 @@ import { Role } from '../../utils/enums';
 import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
-
 import { File } from './file.entity';
 import { Buffer } from 'buffer';
 
@@ -199,8 +198,7 @@ export class FileService {
     this.logger.debug(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
-    const result = await this.uploadS3(file.buffer, bucketS3, originalname);
-    return result;
+    return await this.uploadS3(file.buffer, bucketS3, originalname);
   }
 
   async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {

@@ -1,44 +1,44 @@
 import {
+  BadRequestException,
+  Body,
+  ConflictException,
   Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+  Patch,
   Post,
   Put,
-  Patch,
-  Delete,
-  HttpStatus,
-  Param,
-  Body,
+  Query,
+  UnauthorizedException,
   UseGuards,
   ValidationPipe,
-  Query,
-  ConflictException,
-  HttpException,
-  UnauthorizedException,
-  BadRequestException,
-  Logger,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiNotFoundResponse,
-  ApiResponse,
   ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiQuery,
-  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
 import { DeviceService } from './device.service';
 import {
-  FilterDTO,
-  NewDeviceDTO,
-  UpdateDeviceDTO,
   DeviceDTO,
   DeviceGroupByDTO,
+  FilterDTO,
   GroupedDevicesDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
 } from './dto';
 import { CSVBulkUploadDTO } from '../device-group/dto';
 import { Role } from '../../utils/enums';
@@ -94,11 +94,11 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
     @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
-    return this.deviceService.find(filterDto, pagenumber, OrgId);
+    return this.deviceService.find(filterDto, pageNumber, OrgId);
   }
 
   /**
@@ -117,7 +117,7 @@ export class DeviceController {
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
@@ -125,7 +125,7 @@ export class DeviceController {
       const organization = await this.organizationService.findOne(
         filterDto.organizationId,
       );
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
@@ -138,8 +138,8 @@ export class DeviceController {
         }
 
         if (
-          orguser.role === Role.OrganizationAdmin ||
-          orguser.role === Role.DeviceOwner
+          orgUser.role === Role.OrganizationAdmin ||
+          orgUser.role === Role.DeviceOwner
         ) {
           this.logger.error(
             `Unauthorized... The requested user is developer or device owner`,
@@ -168,7 +168,7 @@ export class DeviceController {
 
     return this.deviceService.findDeviceForBuyer(
       filterDto,
-      pagenumber,
+      pageNumber,
       api_user_id,
     );
   }
@@ -250,7 +250,7 @@ export class DeviceController {
   async getMyDevices(
     @Query(ValidationPipe) filterDto: FilterDTO,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<any> {
     this.logger.verbose(`With in getMyDevices`);
     if (filterDto.country) {
@@ -261,10 +261,10 @@ export class DeviceController {
         typeof filterDto.country === 'string' &&
         filterDto.country.length === 3
       ) {
-        const countries = countryCodesList;
         if (
-          countries.find((ele) => ele.countryCode === filterDto.country) ===
-          undefined
+          countryCodesList.find(
+            (ele) => ele.countryCode === filterDto.country,
+          ) === undefined
         ) {
           this.logger.error(
             `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
@@ -291,7 +291,7 @@ export class DeviceController {
         const organization = await this.organizationService.findOne(
           filterDto.organizationId,
         );
-        const orguser = await this.userService.findByEmail(
+        const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
         if (organization.api_user_id != api_user_id) {
@@ -303,7 +303,7 @@ export class DeviceController {
             message: 'The organization Id in param is belongs to other apiuser',
           });
         } else {
-          if (orguser.role != Role.OrganizationAdmin) {
+          if (orgUser.role != Role.OrganizationAdmin) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -332,7 +332,7 @@ export class DeviceController {
       api_user_id,
       role,
       filterDto,
-      pagenumber,
+      pageNumber,
     );
   }
 
@@ -361,16 +361,16 @@ export class DeviceController {
     @Query('organizationId') organizationId: number | null,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in get`);
-    let devicedata: Device;
+    let deviceData: Device;
     if (api_user_id && organizationId) {
-      devicedata = await this.deviceService.findOne(id, {
+      deviceData = await this.deviceService.findOne(id, {
         api_user_id: api_user_id,
         organizationId: organizationId,
       } as FindOneOptions<Device>);
     } else {
-      devicedata = await this.deviceService.findOne(id);
+      deviceData = await this.deviceService.findOne(id);
     }
-    return devicedata;
+    return deviceData;
   }
 
   /**
@@ -392,27 +392,27 @@ export class DeviceController {
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    let devicedata: Device;
+    let deviceData: Device;
 
     if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
 
-      devicedata =
+      deviceData =
         await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
           id,
           loginUser.api_user_id,
         );
     } else {
-      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         loginUser.organizationId,
       );
     }
-    devicedata.externalId = devicedata.developerExternalId;
-    delete devicedata['developerExternalId'];
-    return devicedata;
+    deviceData.externalId = deviceData.developerExternalId;
+    delete deviceData['developerExternalId'];
+    return deviceData;
   }
 
   /**
@@ -475,9 +475,8 @@ export class DeviceController {
       typeof deviceToRegister.countryCode === 'string' &&
       deviceToRegister.countryCode.length === 3
     ) {
-      const countries = countryCodesList;
       if (
-        countries.find(
+        countryCodesList.find(
           (ele) => ele.countryCode === deviceToRegister.countryCode,
         ) === undefined
       ) {
@@ -617,14 +616,14 @@ export class DeviceController {
         });
       }
 
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           deviceToUpdate.externalId,
           user.organizationId,
         );
       if (
-        checkexternalid != undefined &&
-        checkexternalid.developerExternalId === externalId.trim()
+        checkExternalId != undefined &&
+        checkExternalId.developerExternalId === externalId.trim()
       ) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
@@ -641,9 +640,8 @@ export class DeviceController {
         typeof deviceToUpdate.countryCode === 'string' &&
         deviceToUpdate.countryCode.length === 3
       ) {
-        const countries = countryCodesList;
         if (
-          countries.find(
+          countryCodesList.find(
             (ele) => ele.countryCode === deviceToUpdate.countryCode,
           ) === undefined
         ) {
@@ -702,37 +700,37 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           externalId,
           user.organizationId,
         );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistoryReads(
-          checkexternalid.externalId,
+          checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
         await this.deviceService.getNumberOfOngoingReads(
-          checkexternalid.externalId,
-          checkexternalid.createdAt,
+          checkExternalId.externalId,
+          checkExternalId.createdAt,
         );
 
       if (
-        deviceToUpdate.commissioningDate != checkexternalid.commissioningDate
+        deviceToUpdate.commissioningDate != checkExternalId.commissioningDate
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           });
         }
 
         if (
           new Date(deviceToUpdate.commissioningDate).getTime() >
-          new Date(checkexternalid.createdAt).getTime()
+          new Date(checkExternalId.createdAt).getTime()
         ) {
           this.logger.error(
             `Invalid commissioning date, commissioning is greater than device onboarding date`,
@@ -773,20 +771,20 @@ export class DeviceController {
     @UserDecorator() { organizationId, role }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkisungroup = this.deviceService.findUngroupedById(id);
-    if (checkisungroup) {
-      let fitlerop: any;
+    const checkIsUnGroup = this.deviceService.findUngroupedById(id);
+    if (checkIsUnGroup) {
+      let filterOptions: any;
       if (role === 'Admin') {
-        fitlerop = {
+        filterOptions = {
           groupId: null,
         };
       } else {
-        fitlerop = {
+        filterOptions = {
           groupId: null,
           organizationId: organizationId,
         };
       }
-      return await this.deviceService.remove(id, fitlerop);
+      return await this.deviceService.remove(id, filterOptions);
     }
   }
 
@@ -889,8 +887,9 @@ export class DeviceController {
   /**
    * It is GET api to fetch the certified device records with in the range of date
    * @param user is loggedIn user at request
+   * @param pageNumber
    * @param externalId is unique identifier of device
-   * @param groupuId
+   * @param groupId
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
@@ -905,14 +904,14 @@ export class DeviceController {
   })
   async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,
-    @Query('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+    @Query('groupUid') groupId: string,
+    @Query('pagenumber') pageNumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
     this.logger.verbose(`With in certifiedlogdaterang`);
     const regexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
+    if (groupId === null || !regexExp.test(groupId)) {
       this.logger.error(
         `Please Add the valid UID ,invalid group uid value was sent`,
       );
@@ -923,7 +922,7 @@ export class DeviceController {
     }
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupuId,
+      devicegroup_uid: groupId,
     });
     if (
       group === null ||
@@ -955,7 +954,7 @@ export class DeviceController {
     } else {
       return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
         group.id,
-        pagenumber,
+        pageNumber,
       );
     }
   }
@@ -1010,7 +1009,7 @@ export class DeviceController {
     if (user.role === Role.ApiUser) {
       const organization =
         await this.organizationService.findOne(organizationId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (organization.api_user_id != user.api_user_id) {
         this.logger.error(
           `The requested organization is belongs to other apiuser`,
@@ -1021,7 +1020,7 @@ export class DeviceController {
         });
       }
 
-      if (orguser.role != Role.OrganizationAdmin) {
+      if (orgUser.role != Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,

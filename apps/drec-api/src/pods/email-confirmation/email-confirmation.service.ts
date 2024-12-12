@@ -1,23 +1,23 @@
 import {
   BadRequestException,
   ConflictException,
-  Injectable,
-  Logger,
   forwardRef,
   Inject,
+  Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository, FindConditions } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
-import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
+
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -32,7 +32,6 @@ export class EmailConfirmationService {
     private mailService: MailService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) {}
 
   public async create(user: User): Promise<EmailConfirmation | null> {
@@ -137,11 +136,9 @@ export class EmailConfirmationService {
     conditions: FindConditions<EmailConfirmation>,
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
-    const user = await (this.repository.findOne(conditions, {
+    return await (this.repository.findOne(conditions, {
       relations: ['user'],
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
-
-    return user;
   }
   async confirmEmail(
     token: IEmailConfirmationToken['token'],
@@ -337,8 +334,8 @@ export class EmailConfirmationService {
 
   async remove(userId: number): Promise<void> {
     this.logger.verbose(`With in remove`);
-    const allemialconfirm = await this.get(userId);
-    await this.repository.delete(allemialconfirm.id);
+    const confirmation = await this.get(userId);
+    await this.repository.delete(confirmation.id);
   }
 
   public async sendInvitation(

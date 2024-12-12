@@ -1,4 +1,4 @@
-export const issuercertificatelog = [
+export const issuerCertificateLog = [
   {
     createdAt: '2023-01-21 18:59:02.444933+00',
     updatedAt: '2023-01-21 18:59:12.707698+00',

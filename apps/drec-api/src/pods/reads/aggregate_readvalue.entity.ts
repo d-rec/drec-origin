@@ -16,9 +16,9 @@ export class AggregateMeterRead
   extends ExtendedBaseEntity
   implements IAggregateintermediate
 {
-  constructor(aggrgatevalue?: Partial<IAggregateintermediate>) {
+  constructor(aggregateValue?: Partial<IAggregateintermediate>) {
     super();
-    Object.assign(this, aggrgatevalue);
+    Object.assign(this, aggregateValue);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
