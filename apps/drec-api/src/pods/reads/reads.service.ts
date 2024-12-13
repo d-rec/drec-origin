@@ -1259,7 +1259,7 @@ export class ReadsService {
       );
     }
     let historyRead = [];
-    let ongoing = [];
+    let onGoing = [];
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
@@ -1294,7 +1294,7 @@ export class ReadsService {
     if (numberOfHistReads == 0 && numberOfOngReads == 0) {
       return {
         historyRead,
-        ongoing,
+        onGoing,
         numberOfReads: numberOfReads,
         numberOfPages: 0,
         currentPageNumber: 0,
@@ -1307,7 +1307,7 @@ export class ReadsService {
     ) {
       return {
         historyRead,
-        ongoing,
+        onGoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
         currentPageNumber: 1,
@@ -1440,7 +1440,7 @@ export class ReadsService {
             });
           }
         }
-        ongoing = transformedFinalOngoing;
+        onGoing = transformedFinalOngoing;
       }
     }
 
@@ -1456,7 +1456,7 @@ export class ReadsService {
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
         historyRead,
-        ongoing,
+        onGoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
         currentPageNumber: pageNumber,
@@ -1464,7 +1464,7 @@ export class ReadsService {
     } else {
       return {
         historyRead,
-        ongoing,
+        onGoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
         currentPageNumber: 1,
