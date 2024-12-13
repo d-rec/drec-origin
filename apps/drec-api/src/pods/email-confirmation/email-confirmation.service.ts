@@ -66,7 +66,7 @@ export class EmailConfirmationService {
         token,
         expiryTimestamp,
       });
-      // if (inviteuser) {
+      // if (inviteUser) {
       //   //  await this.sendResetPasswordRequest(user.email, token);
       //   await this.sendInvitation(orgname, user.email, token);
       // } else {
@@ -339,7 +339,7 @@ export class EmailConfirmationService {
   }
 
   public async sendInvitation(
-    inviteuser: any | CreateUserOrgDTO,
+    inviteUser: any | CreateUserOrgDTO,
     email: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
@@ -347,11 +347,11 @@ export class EmailConfirmationService {
 
     const htmlTemplate = `
     <p> Dear ${email},<p>
-    <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
+    <p> you have been invited to register with D-REC from Organization <b>${inviteUser.orgName}</b></p>
     <p>Use your email and the password below to login into D-REC Initiative.<p>
     <p>
     Username: <b>${email}</b><br>
-    Password: <b>${inviteuser.password}<b><p>
+    Password: <b>${inviteUser.password}<b><p>
     <p><a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click me</a></p>
    <hr>
     <p>Thank you<br>

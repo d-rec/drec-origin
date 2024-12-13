@@ -85,7 +85,7 @@ export class UserService {
   public async newCreateUser(
     data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
@@ -93,7 +93,7 @@ export class UserService {
     );
 
     let orgId;
-    if (!inviteuser) {
+    if (!inviteUser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
@@ -164,14 +164,14 @@ export class UserService {
   public async createUserByAdmin(
     data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
       data.api_user_id,
     );
     let orgId;
-    if (!inviteuser) {
+    if (!inviteUser) {
       const orgdata = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
@@ -581,23 +581,23 @@ export class UserService {
   }
 
   public async sendUserInvitation(
-    inviteuser: CreateUserOrgDTO,
+    inviteUser: CreateUserOrgDTO,
     email: string,
   ): Promise<{
     message: string;
     success: boolean;
   }> {
-    const getcurrenttoken =
+    const currentToken =
       await this.emailConfirmationService.getByEmail(email);
-    if (!getcurrenttoken) {
+    if (!currentToken) {
       return {
         message: 'Token not found',
         success: false,
       };
     }
-    const { id } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
-    await this.emailConfirmationService.generateToken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(inviteuser, email);
+    const { id } = currentToken; 
+    await this.emailConfirmationService.generateToken(currentToken, id);
+    await this.emailConfirmationService.sendInvitation(inviteUser, email);
   }
 
   public async findUserByOrganization(

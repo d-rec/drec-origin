@@ -29,7 +29,7 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-  inviteuseradd = false;
+  inviteUserAdd = false;
   randPassword: string;
   constructor(
     @InjectRepository(Invitation)
@@ -158,7 +158,7 @@ export class InvitationService {
     inviteUser.api_user_id = organization.api_user_id;
     await this.userService.newCreateUser(inviteUser, UserStatus.Pending, true);
     if (sender.role !== Role.ApiUser) {
-      console.log('inviteuser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
+      console.log('inviteUser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
       await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
   }
