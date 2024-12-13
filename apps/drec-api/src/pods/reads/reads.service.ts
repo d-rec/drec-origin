@@ -212,6 +212,7 @@ export class ReadsService {
       filename: fileExists.filename,
       path: '',
     };
+    console.log("service", fileExists.id)
 
     await this.fileProcessingRepository.save({
       fileId: fileExists.id,
@@ -221,11 +222,12 @@ export class ReadsService {
       type: FileProcessingType.AddMeterRead,
       apiUserId: user.api_user_id,
     });
-
+    console.log("S3 upload", multerFile)
     const s3Upload = await this.fileService.upload(multerFile);
 
     const job = await this.readsQueue.add('meter-reads-csv', {
-      fileId: s3Upload.Key,
+      s3Id: s3Upload.Key,
+      fileId: fileExists.id,
       userId: user.id,
       organizationId: user.organizationId,
     });

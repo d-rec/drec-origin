@@ -18,16 +18,16 @@ export class ReadsProcessor {
 
   @Process('meter-reads-csv')
   async handleMeterReadsProcessing(
-    job: Job<{ fileId: string; userId: string }>,
+    job: Job<{ fileId: string; userId: string, s3Id : string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     try{
         this.logger.debug(`Starting job processing for fileId: ${job.data.fileId}`);
-        const { fileId, userId } = job.data;
+        const { fileId, userId, s3Id } = job.data;
   
-        const fileContent = await this.fileService.GetuploadS3(fileId);
+        const fileContent = await this.fileService.GetuploadS3(s3Id);
         const buffer = Buffer.from(fileContent.data.Body);
         const meterReads = await parseMeterReadingCsv(buffer);
-
+        
         const results = {
           success: 0,
           failed: [],
@@ -44,13 +44,11 @@ export class ReadsProcessor {
               ],
               unit: Unit[read.unit as unknown as keyof typeof Unit],
             };
-
-            await this.readsService.storeRead(
-              read.deviceId.toString(),
-              measurement,
-            );
+            // await this.readsService.storeRead(
+            //   read.deviceId.toString(),
+            //   measurement,
+            // );
             results.success++;
-            console.log('read', read);
           } catch (error) {
             this.logger.error(`Error processing read: ${error.message}`);
             results.failed.push({
