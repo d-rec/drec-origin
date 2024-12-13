@@ -79,9 +79,6 @@ export class NewDeviceDTO
     message:
       'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
   })
-  @Matches(/^[A-Z]{3}$/, {
-    message: 'Country code must be a valid 3-letter ISO code',
-  })
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })
@@ -99,7 +96,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsNumber()
-  @Min(1, {
+  @Min(0.001, {
     message:
       'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
   })
@@ -204,7 +201,9 @@ export class NewDeviceDTO
   @IsString()
   @IsOptional()
   @ConvertToNullIfEmpty()
-  @ValidateIf((o) => o.version === null || o.version === undefined)
+  @ValidateIf(
+    (o) => o.version === null || o.version === undefined || o.version === '0',
+  )
   version = '1.0';
 
   @ApiProperty()
