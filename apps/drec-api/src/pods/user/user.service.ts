@@ -49,7 +49,8 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
+    @InjectRepository(UserRole)
+    private userRoleRepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
@@ -57,7 +58,7 @@ export class UserService {
     @InjectRepository(ApiUserEntity)
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
-    private readonly userloginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
   ) {}
 
   public async seed(
@@ -85,7 +86,7 @@ export class UserService {
   public async newCreateUser(
     data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
@@ -93,22 +94,25 @@ export class UserService {
     );
 
     let orgId;
-    if (!inviteuser) {
-      const orgdata = {
+    if (!inviteUser) {
+      const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         orgEmail: data.email,
         address: data.orgAddress,
       };
 
-      orgdata['api_user_id'] = apiUser.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      organizationData['api_user_id'] = apiUser.api_user_id;
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newCreateUser(orgdata);
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
         orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -164,29 +168,32 @@ export class UserService {
   public async createUserByAdmin(
     data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
       data.api_user_id,
     );
     let orgId;
-    if (!inviteuser) {
-      const orgdata = {
+    if (!inviteUser) {
+      const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress,
       };
-      orgdata['api_user_id'] = admin.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      organizationData['api_user_id'] = admin.api_user_id;
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newCreateUser(orgdata);
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
         orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -222,7 +229,7 @@ export class UserService {
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-    await this.emailConfirmationService.admincreate(user, data.password);
+    await this.emailConfirmationService.adminCreate(user, data.password);
 
     return new User(user);
   }
@@ -371,8 +378,8 @@ export class UserService {
         errors: validationErrors,
       });
     }
-    const updateuser = await this.findById(id);
-    if (!(updateuser.email === email.toLowerCase())) {
+    const updateUser = await this.findById(id);
+    if (!(updateUser.email === email.toLowerCase())) {
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -450,12 +457,12 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({
+    const userRole = await this.userRoleRepository.findOne({
       where: {
         name: role,
       },
     });
-    await this.repository.update(userId, { role, roleId: getrole.id });
+    await this.repository.update(userId, { role, roleId: userRole.id });
     return this.findOne({ id: userId });
   }
 
@@ -464,7 +471,7 @@ export class UserService {
   }
 
   public async getUsersByFilter(
-    filterDto: UserFilterDTO,
+    filterDTO: UserFilterDTO,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -473,7 +480,7 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    const query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
         .andWhere(`role != :role`, { role: Role.ApiUser })
@@ -494,8 +501,8 @@ export class UserService {
     }
   }
 
-  private getFilteredQuery(filterDto: UserFilterDTO): SelectQueryBuilder<User> {
-    const { organizationName, status } = filterDto;
+  private getFilteredQuery(filterDTO: UserFilterDTO): SelectQueryBuilder<User> {
+    const { organizationName, status } = filterDTO;
     const query = this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -530,8 +537,8 @@ export class UserService {
       });
     }
 
-    const updateuser = await this.findById(id);
-    if (!(updateuser.email === data.email)) {
+    const updateUser = await this.findById(id);
+    if (!(updateUser.email === data.email)) {
       await this.checkForExistingUser(data.email);
     }
 
@@ -575,29 +582,28 @@ export class UserService {
   public async getTokenForResetPassword(
     email: string,
   ): Promise<ISuccessResponse> {
-    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
+    return await this.emailConfirmationService.confirmationEmailForResetPassword(
       email,
     );
   }
 
   public async sendUserInvitation(
-    inviteuser: CreateUserOrgDTO,
+    inviteUser: CreateUserOrgDTO,
     email: string,
   ): Promise<{
     message: string;
     success: boolean;
   }> {
-    const getcurrenttoken =
-      await this.emailConfirmationService.getByEmail(email);
-    if (!getcurrenttoken) {
+    const currentToken = await this.emailConfirmationService.getByEmail(email);
+    if (!currentToken) {
       return {
         message: 'Token not found',
         success: false,
       };
     }
-    const { id } = getcurrenttoken;
-    await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(inviteuser, email);
+    const { id } = currentToken;
+    await this.emailConfirmationService.generateToken(currentToken, id);
+    await this.emailConfirmationService.sendInvitation(inviteUser, email);
   }
 
   public async findUserByOrganization(
@@ -632,7 +638,7 @@ export class UserService {
   }
   /** ApiUser Fuction*/
 
-  async getApiuser(api_id: string): Promise<ApiUserEntity | undefined> {
+  async getApiUser(api_id: string): Promise<ApiUserEntity | undefined> {
     return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: api_id,
@@ -700,7 +706,7 @@ export class UserService {
     filterDTO.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDTO);
     try {
-      const [apiusers, totalCount] = await query
+      const [apiUsers, totalCount] = await query
         .andWhere(`user.role = :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -708,14 +714,14 @@ export class UserService {
 
       const totalPages = Math.ceil(totalCount / limit);
       return {
-        users: apiusers,
+        users: apiUsers,
         currentPage: pageNumber,
         totalPages,
         totalCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to retrieve apiusers`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve apiusers');
+      this.logger.error(`Failed to retrieve apiUsers`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve apiUsers');
     }
   }
 
@@ -730,7 +736,7 @@ export class UserService {
     user: Omit<IUser, 'password'>,
     token: string,
   ): Promise<void> {
-    await this.userloginSessionRepository.save({
+    await this.userLoginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
     });
@@ -742,7 +748,7 @@ export class UserService {
    * @returns
    */
   async removeUserSession(userId: number, token: string): Promise<any> {
-    return await this.userloginSessionRepository.delete({
+    return await this.userLoginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
     });
@@ -751,6 +757,6 @@ export class UserService {
   async hasValidUserSession(
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
-    return Boolean(await this.userloginSessionRepository.findOne(conditions));
+    return Boolean(await this.userLoginSessionRepository.findOne(conditions));
   }
 }

@@ -10,6 +10,7 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -33,7 +34,7 @@ import {
   AddGroupDTO,
   CSVBulkUploadDTO,
   DeviceGroupDTO,
-  EndReservationdateDTO,
+  EndReservationDateDTO,
   JobFailedRowsDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
@@ -103,7 +104,7 @@ export class BuyerReservationController {
     description: 'This query parameter is used for Apiuser',
   })
   @ApiQuery({
-    name: 'apiuserId',
+    name: 'apiUserId',
     type: String,
     required: false,
     description:
@@ -119,7 +120,7 @@ export class BuyerReservationController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
-    @Query('apiuserId', new DefaultValuePipe(null)) apiUserId: string | null,
+    @Query('apiUserId', new DefaultValuePipe(null)) apiUserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -129,7 +130,7 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -194,14 +195,14 @@ export class BuyerReservationController {
       apiUserId,
       pageNumber,
       limit,
-      filterDto,
+      filterDTO,
     );
   }
 
   /**
    * It is GET api to list all device groups of loggedIn user
    * @param param0 is getting userId, organizationId and user role from user at request
-   * @param filterDto is filteration fields to retrieve records
+   * @param filterDTO is filteration fields to retrieve records
    * @param pageNumber is for pagination
    * @returns {Array<DeviceGroupDTO>}
    */
@@ -222,7 +223,7 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
 
     @Query('pagenumber') pageNumber: number | null,
   ): Promise<
@@ -245,13 +246,13 @@ export class BuyerReservationController {
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
           pageNumber,
-          filterDto,
+          filterDTO,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
           pageNumber,
-          filterDto,
+          filterDTO,
         );
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
@@ -265,7 +266,7 @@ export class BuyerReservationController {
   /**
    * It is GET api to fetch device group by id
    * @param id is unique identifier of device groupId
-   * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
+   * @returns {DeviceGroupDTO | null} DeviceGroupDTO is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
@@ -623,7 +624,7 @@ export class BuyerReservationController {
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
     const deviceNextIssuance: DeviceGroupNextIssueCertificate | null =
-      await this.deviceGroupService.getGroupiCertificateIssueDate({
+      await this.deviceGroupService.getGroupCertificateIssueDate({
         groupId: id,
       });
     if (deviceNextIssuance === null) {
@@ -868,10 +869,10 @@ export class BuyerReservationController {
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async getdevciegrouplog(
+  async getDeviceGroupLog(
     @Param('id') id: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
-    this.logger.verbose(`With in getdevciegrouplog`);
+    this.logger.verbose(`With in getdevicegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
 
@@ -886,17 +887,17 @@ export class BuyerReservationController {
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
-    type: EndReservationdateDTO,
+    type: EndReservationDateDTO,
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
-  public async endresavation(
+  public async endReservation(
     @Param('id') id: number,
-    @Body() endReservationDate: EndReservationdateDTO,
+    @Body() endReservationDate: EndReservationDateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);
-    return await this.deviceGroupService.EndReservationGroup(
+    return await this.deviceGroupService.endReservationGroup(
       id,
       organizationId,
       endReservationDate,
@@ -915,24 +916,13 @@ export class BuyerReservationController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async getReservationcurrentinformation(
-    @Param('groupUid') groupId: string,
+  public async getReservationCurrentInformation(
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
     @Query('pagenumber') pageNumber: number,
   ): Promise<any> {
-    this.logger.verbose(`With in getReservationcurrentinformation`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupId === null || !regexExp.test(groupId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in getReservationCurrentInformation`);
 
-    return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
+    return await this.deviceGroupService.getCurrentInformationOfDevicesInReservation(
       groupId,
       pageNumber,
     );

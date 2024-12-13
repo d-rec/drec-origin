@@ -108,10 +108,10 @@ export class CertificateLogController {
       'Returns Certificate logs For individual devices based on groupId',
   })
   async getByGroupId(
-    @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
+    @Query(ValidationPipe) filterDTO: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    return this.certificateLogService.findByGroupId(filterDto.groupId);
+    return this.certificateLogService.findByGroupId(filterDTO.groupId);
   }
 
   /**
@@ -206,7 +206,7 @@ export class CertificateLogController {
   }
 
   /**
-   * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
+   * This is GET api used in previous version of DREC, after claiming certicate user can view the redemption report
    */
   @Get('/redemption-report')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -262,7 +262,7 @@ export class CertificateLogController {
     type: Object,
     required: false,
   })
-  async GetCertificateReadModule(
+  async getCertificateReadModule(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('pageNumber') pageNumber: number,
     @Query('certificateStartDate') generationStartTime?: string,
@@ -303,7 +303,7 @@ export class CertificateLogController {
   })
   async getCertificatesForDeveloper(
     @UserDecorator() user: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pageNumber') pageNumber: number,
     @Query(
       'organizationId',
@@ -347,9 +347,9 @@ export class CertificateLogController {
       }
     }
 
-    return this.certificateLogService.getCertifiedlogofDevices(
+    return this.certificateLogService.getCertifiedLogOfDevices(
       user,
-      filterDto,
+      filterDTO,
       pageNumber,
     );
   }
@@ -365,7 +365,7 @@ export class CertificateLogController {
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
-  async getcertifcateLog_Perdevice(
+  async getCertifcateLogPerDevice(
     @UserDecorator() user: ILoggedInUser,
     @Param('groupUid', ParseUUIDPipe) groupId: string,
     @Res() res: Response,

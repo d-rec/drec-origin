@@ -17,7 +17,7 @@ import { v4 as uuid } from 'uuid';
 import { HttpService } from '@nestjs/axios';
 
 import { DeviceService } from '../device/device.service';
-import { BASE_READ_SERVICE } from '../reads/const';
+import { BASE_READ_SERVICE } from '../reads/constants';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import {
@@ -26,7 +26,7 @@ import {
 } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { EndReservationdateDTO } from '../device-group/dto';
+import { EndReservationDateDTO } from '../device-group/dto';
 import {
   CertificateType,
   ReadType,
@@ -37,9 +37,9 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
 import { ReadsService } from '../reads/reads.service';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from '../device';
-import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 
 @Injectable()
@@ -82,7 +82,7 @@ export class IssuerService {
     );
 
     const groupsRequestAll =
-      await this.groupService.getAllNextrequestCertificate();
+      await this.groupService.getAllNextRequestCertificate();
     await Promise.all(
       groupsRequestAll.map(
         async (groupRequest: DeviceGroupNextIssueCertificate) => {
@@ -106,7 +106,7 @@ export class IssuerService {
             );
           }
 
-          const countryDeviceGroup = await this.deviceService.NewfindForGroup(
+          const countryDeviceGroup = await this.deviceService.newFindForGroup(
             group.id,
           );
 
@@ -153,9 +153,9 @@ export class IssuerService {
             group.reservationEndDate.getTime()
           ) {
             skipUpdatingNextIssuanceLogTable = true;
-            const endDTO = new EndReservationdateDTO();
+            const endDTO = new EndReservationDateDTO();
             endDTO.endresavationdate = new Date(group.reservationEndDate);
-            await this.groupService.EndReservationGroup(
+            await this.groupService.endReservationGroup(
               group.id,
               group.organizationId,
               endDTO,
@@ -209,7 +209,7 @@ export class IssuerService {
               );
               this.logger.error(e);
             }
-            await this.groupService.updatecertificateissuedate(
+            await this.groupService.updateCertificateIssueDate(
               groupRequest.id,
               startDateFormatted,
               newEndDate,
@@ -297,7 +297,7 @@ export class IssuerService {
     this.logger.debug('History Cycle');
     this.logger.verbose(`With in handleCronForHistoricalIssuance`);
     const historyDeviceRequestAll =
-      await this.groupService.getNextHistoryissuanceDevicelog();
+      await this.groupService.getNextHistoryIssuanceDeviceLog();
 
     await Promise.all(
       historyDeviceRequestAll.map(
@@ -332,7 +332,7 @@ export class IssuerService {
           if (historyRead?.length > 0) {
             await Promise.all(
               historyRead.map(
-                async (historyDeviceRead: HistoryIntermediate_MeterRead) => {
+                async (historyDeviceRead: HistoryIntermediateMeterRead) => {
                   this.newHistoryIssueCertificateForDevice(
                     group,
                     historyDeviceRead,
@@ -343,7 +343,7 @@ export class IssuerService {
             );
             let totalHistoryReadForSingleDevices = 0;
             historyRead.forEach(
-              (historyDeviceRead: HistoryIntermediate_MeterRead) => {
+              (historyDeviceRead: HistoryIntermediateMeterRead) => {
                 if (!group.buyerAddress || !group.buyerId) {
                   return;
                 }
@@ -373,7 +373,7 @@ export class IssuerService {
             }
             await this.groupService.updateHistoryCertificateIssueDate(
               historyDevice.id,
-              HistoryNextInssuanceStatus.Completed,
+              HistoryNextIssuanceStatus.Completed,
             );
             if (group.reservationExpiryDate !== null) {
               if (
@@ -394,7 +394,7 @@ export class IssuerService {
           }
           await this.groupService.updateHistoryCertificateIssueDate(
             historyDevice.id,
-            HistoryNextInssuanceStatus.Completed,
+            HistoryNextIssuanceStatus.Completed,
           );
           if (group.reservationExpiryDate !== null) {
             if (
@@ -418,7 +418,7 @@ export class IssuerService {
               historyDevice.groupId,
             );
           const checkNextOngoingIssuance =
-            await this.groupService.getGroupiCertificateIssueDate({
+            await this.groupService.getGroupCertificateIssueDate({
               groupId: group.id,
             });
 
@@ -429,10 +429,10 @@ export class IssuerService {
                   group.reservationEndDate.getTime() ||
                 group.reservationExpiryDate.getTime() <= new Date().getTime()
               ) {
-                await this.groupService.deactiveReaservation(group);
+                await this.groupService.deactivateReservation(group);
               }
             } else {
-              await this.groupService.deactiveReaservation(group);
+              await this.groupService.deactivateReservation(group);
             }
           }
         },
@@ -572,7 +572,7 @@ export class IssuerService {
           if (deviceReadValue === 0) {
             filteredDevicesIndexesListIfMeterReadsNotAvailable.push(index);
             const isLateOngoingCycle =
-              await this.deviceService.finddeviceLateCycleOfdaterange(
+              await this.deviceService.findDeviceLateCycleOfDateRange(
                 group.id,
                 device.externalId,
                 startDate,
@@ -589,7 +589,7 @@ export class IssuerService {
             }
           }
           if (deviceReadValue !== 0) {
-            const lastRead = await this.readService.latestread(
+            const lastRead = await this.readService.latestRead(
               device.externalId,
               device.createdAt,
             );
@@ -600,7 +600,7 @@ export class IssuerService {
               const newStartDate = new Date(lastRead[0].timestamp);
               newStartDate.setTime(newStartDate.getTime() + 1);
               const isLateOngoingCycle =
-                await this.deviceService.finddeviceLateCycleOfdaterange(
+                await this.deviceService.findDeviceLateCycleOfDateRange(
                   group.id,
                   device.externalId,
                   DateTime.fromISO(newStartDate.toISOString()).toUTC(),
@@ -740,7 +740,7 @@ export class IssuerService {
             certificateTransactionUID.toString());
         (deviceCertificateLogDTO.ongoing_start_date = groupRequest.start_date),
           (deviceCertificateLogDTO.ongoing_end_date = groupRequest.end_date);
-        await this.deviceService.AddCertificateIssueDateLogForDevice(
+        await this.deviceService.addCertificateIssueDateLogForDevice(
           deviceCertificateLogDTO,
         );
       }),
@@ -829,7 +829,7 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     this.issueCertificate(issuance);
@@ -838,7 +838,7 @@ export class IssuerService {
 
   public async newHistoryIssueCertificateForDevice(
     group: DeviceGroup,
-    deviceHistoryRequest: HistoryIntermediate_MeterRead,
+    deviceHistoryRequest: HistoryIntermediateMeterRead,
     device: IDevice,
   ): Promise<void> {
     if (!group.buyerAddress || !group.buyerId) {
@@ -864,7 +864,7 @@ export class IssuerService {
     deviceCertificateLogDTO.groupId = group.id;
     deviceCertificateLogDTO.certificateTransactionUID =
       certificateTransactionUID.toString();
-    await this.deviceService.AddCertificateIssueDateLogForDevice(
+    await this.deviceService.addCertificateIssueDateLogForDevice(
       deviceCertificateLogDTO,
     );
     const issuance: IIssueCommandParams<ICertificateMetadata> = {
@@ -906,12 +906,12 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = device.countryCode),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     //const issuedCertificate = await
     this.issueCertificate(issuance);
-    await this.readService.updatehistorycertificateissuedate(
+    await this.readService.updateHistoryCertificateIssueDate(
       deviceHistoryRequest.id,
       deviceHistoryRequest.readsStartDate,
       deviceHistoryRequest.readsEndDate,
@@ -1115,7 +1115,7 @@ export class IssuerService {
         const startDate = DateTime.fromISO(element.late_start_date).toUTC();
         const endDate = DateTime.fromISO(element.late_end_date).toUTC();
         const nextIssuance =
-          await this.groupService.getGroupiCertificateIssueDate({
+          await this.groupService.getGroupCertificateIssueDate({
             groupId: group.id,
           });
 
@@ -1123,7 +1123,7 @@ export class IssuerService {
           nextIssuance.start_date = element.late_start_date;
           nextIssuance.end_date = element.late_end_date;
         }
-        const lastRead = await this.readService.latestread(
+        const lastRead = await this.readService.latestRead(
           device.externalId,
           device.createdAt,
         );
@@ -1154,14 +1154,14 @@ export class IssuerService {
             new Date(newStartDate).getTime() !==
               new Date(element.late_start_date).getTime()
           ) {
-            await this.deviceService.updatelateongoing(
+            await this.deviceService.updateLateOngoing(
               device.externalId,
               element.id,
               new Date(lastRead[0].timestamp).toISOString(),
             );
 
             const isLateOngoingCycle =
-              await this.deviceService.finddeviceLateCycleOfdaterange(
+              await this.deviceService.findDeviceLateCycleOfDateRange(
                 group.id,
                 device.externalId,
                 DateTime.fromISO(
@@ -1207,7 +1207,7 @@ export class IssuerService {
             );
           if (allReadsForDeviceBetweenTimeRange.length > 0) {
             this.logger.verbose('if read are available in date range');
-            await this.deviceService.updatelateongoing(
+            await this.deviceService.updateLateOngoing(
               device.externalId,
               element.id,
               element.late_end_date,
@@ -1402,7 +1402,7 @@ export class IssuerService {
         certificateTransactionUID.toString());
     (deviceCertificateLogDTO.ongoing_start_date = startDate.toString()),
       (deviceCertificateLogDTO.ongoing_end_date = endDate.toString());
-    await this.deviceService.AddCertificateIssueDateLogForDevice(
+    await this.deviceService.addCertificateIssueDateLogForDevice(
       deviceCertificateLogDTO,
     );
     let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
@@ -1463,7 +1463,7 @@ export class IssuerService {
       (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
       (deviceGroupCertificateLogDTO.certificateTransactionUID =
         certificateTransactionUID.toString());
-    await this.groupService.AddCertificateIssueDateLogForDeviceGroup(
+    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
       deviceGroupCertificateLogDTO,
     );
     this.issueCertificate(issuance);
@@ -1472,7 +1472,7 @@ export class IssuerService {
   // @Cron('*/2 * * * * ')
   async getMissingCycleBeforeLateOngoing(): Promise<void> {
     this.logger.debug('Called every 4pm to check for issuance of certificates');
-    const deviceGroups = await this.groupService.getallReservationactive();
+    const deviceGroups = await this.groupService.getAllReservationActive();
     await Promise.all(
       deviceGroups.map(async (groupRequest: DeviceGroup) => {
         const group = groupRequest;
@@ -1484,11 +1484,11 @@ export class IssuerService {
         const deviceGroup = await this.deviceService.findForGroup(group.id);
         await Promise.all(
           deviceGroup.map(async (element) => {
-            await this.groupService.getNextrequestCertificateBYgroupId(
+            await this.groupService.getNextRequestCertificateByGroupId(
               group.id,
             );
 
-            const lateOngoing = await this.deviceService.findoneLateCycle(
+            const lateOngoing = await this.deviceService.findOneLateCycle(
               group.id,
               element.externalId,
             );
@@ -1532,7 +1532,7 @@ export class IssuerService {
               const endDate = (nextDate < end ? nextDate : end).toISOString();
               const endDate1 = DateTime.fromISO(endDate).toUTC();
               const isLateOngoingCycle =
-                await this.deviceService.finddeviceLateCycleOfdaterange(
+                await this.deviceService.findDeviceLateCycleOfDateRange(
                   group.id,
                   element.externalId,
                   startDate,

@@ -5,7 +5,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
-import { BASE_READ_SERVICE } from './const';
+import { BASE_READ_SERVICE } from './constants';
 import { ReadsController } from './reads.controller';
 import { ReadsService } from './reads.service';
 import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
@@ -13,7 +13,7 @@ import { DeviceGroupModule } from '../device-group/device-group.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -31,7 +31,7 @@ const baseReadServiceProvider = {
   imports: [
     TypeOrmModule.forFeature([
       AggregateMeterRead,
-      HistoryIntermediate_MeterRead,
+      HistoryIntermediateMeterRead,
       DeltaFirstRead,
     ]),
     ConfigModule,

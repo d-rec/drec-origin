@@ -3,7 +3,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceService } from '../device';
 import { HttpService } from '@nestjs/axios';
-import { BASE_READ_SERVICE } from '../reads/const';
+import { BASE_READ_SERVICE } from '../reads/constants';
 import { IntegratorsService } from './integrators.service';
 import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
@@ -97,7 +97,7 @@ describe('IntegratorsService', () => {
     });
   });
 
-  describe('getBBOXproductReadData', () => {
+  describe('getBBOXProductReadData', () => {
     it('should return energy_out data successfully', async () => {
       const server = 'http://example.com';
       const token = 'test_token';
@@ -108,7 +108,7 @@ describe('IntegratorsService', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
 
-      const result = await service.getBBOXproductReadData(
+      const result = await service.getBBOXProductReadData(
         server,
         token,
         productId,
@@ -144,7 +144,7 @@ describe('IntegratorsService', () => {
         .mockReturnValue(throwError(() => new Error(errorMessage)));
 
       await expect(
-        service.getBBOXproductReadData(
+        service.getBBOXProductReadData(
           server,
           token,
           productId,
@@ -168,7 +168,7 @@ describe('IntegratorsService', () => {
     });
   });
 
-  describe('storeBBOXenergyReads', () => {
+  describe('storeBBOXEnergyReads', () => {
     it('should log and return when no energy data is found', async () => {
       const server = 'http://example.com';
       const authToken = 'test_token';
@@ -177,12 +177,12 @@ describe('IntegratorsService', () => {
       const endDate = '2023-01-31';
       const organizationId = 1;
 
-      const getBBOXproductReadDataSpy = jest
-        .spyOn(service, 'getBBOXproductReadData')
+      const getBBOXProductReadDataSpy = jest
+        .spyOn(service, 'getBBOXProductReadData')
         .mockResolvedValue([]);
       const storeEnergySpy = jest.spyOn(service, 'storeEnergy');
 
-      await service.storeBBOXenergyReads(
+      await service.storeBBOXEnergyReads(
         server,
         authToken,
         externalId,
@@ -191,7 +191,7 @@ describe('IntegratorsService', () => {
         organizationId,
       );
 
-      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(
+      expect(getBBOXProductReadDataSpy).toHaveBeenCalledWith(
         server,
         authToken,
         externalId,
@@ -210,14 +210,14 @@ describe('IntegratorsService', () => {
       const organizationId = 1;
       const mockEnergyData = [['100', '2023-01-01T00:00:00Z']];
 
-      const getBBOXproductReadDataSpy = jest
-        .spyOn(service, 'getBBOXproductReadData')
+      const getBBOXProductReadDataSpy = jest
+        .spyOn(service, 'getBBOXProductReadData')
         .mockResolvedValue(mockEnergyData);
       const storeEnergySpy = jest
         .spyOn(service, 'storeEnergy')
         .mockResolvedValue();
 
-      await service.storeBBOXenergyReads(
+      await service.storeBBOXEnergyReads(
         server,
         authToken,
         externalId,
@@ -226,7 +226,7 @@ describe('IntegratorsService', () => {
         organizationId,
       );
 
-      expect(getBBOXproductReadDataSpy).toHaveBeenCalledWith(
+      expect(getBBOXProductReadDataSpy).toHaveBeenCalledWith(
         server,
         authToken,
         externalId,

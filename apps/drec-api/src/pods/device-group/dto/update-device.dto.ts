@@ -33,7 +33,7 @@ export class NewUpdateDeviceGroupDTO {
   // frequency:BuyerReservationCertificateGenerationFrequency;
 }
 
-export class EndReservationdateDTO {
+export class EndReservationDateDTO {
   @ApiProperty()
   @IsDate()
   endresavationdate: Date;

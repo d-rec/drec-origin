@@ -20,13 +20,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { BASE_READ_SERVICE } from './const';
+import { BASE_READ_SERVICE } from './constants';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { Role } from '../../utils/enums';
-import { NewIntmediateMeterReadDTO } from '../reads/dto/intermediate_meter_read.dto';
+import { NewIntermediateMeterReadDTO } from '../reads/dto/intermediate_meter_read.dto';
 import { DeviceService } from '../device';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser, IUser } from '../../models';
@@ -92,7 +92,7 @@ export class ReadsController extends BaseReadsController {
   }
 
   /**
-   * This api route use for to get all read of devcie
+   * This api route use for to get all read of device
    * @param meterId :string
    * @param filter:{FilterDTO}
    * @returns {ReadDTO[]}
@@ -146,7 +146,7 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newgetReads(
+  public async newGetReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterNoOffLimit,
     @Query('pagenumber') pageNumber: number | null,
@@ -319,14 +319,14 @@ export class ReadsController extends BaseReadsController {
    * @param id
    * @param measurements
    * @param user
-   * @returns {NewIntmediateMeterReadDTO}
+   * @returns {NewIntermediateMeterReadDTO}
    */
   @Post('new/:id')
   @ApiResponse({
     status: HttpStatus.OK,
     description:
       'New meter reads for historical data, Delta readings and Aggregate Readings',
-    type: [NewIntmediateMeterReadDTO],
+    type: [NewIntermediateMeterReadDTO],
   })
   @UseGuards(
     AuthGuard(['jwt', 'oauth2-client-password']),
@@ -338,10 +338,10 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreRead(
     @Param('id') id: string,
-    @Body() measurements: NewIntmediateMeterReadDTO,
+    @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    this.logger.verbose(`With in newstoreRead`);
+    this.logger.verbose(`With in newStoreRead`);
     if (measurements.organizationId) {
       await this.organizationService.checkIfCanManage({
         user,
@@ -671,7 +671,7 @@ export class ReadsController extends BaseReadsController {
         message: `can not allow multiple reads simultaneously `,
       });
     }
-    return await this.internalReadsService.newstoreRead(
+    return await this.internalReadsService.newStoreRead(
       device.externalId,
       measurements,
     );
@@ -684,7 +684,7 @@ export class ReadsController extends BaseReadsController {
    * @param organizationId
    * @param measurements
    * @param user
-   * @returns {NewIntmediateMeterReadDTO}
+   * @returns {NewIntermediateMeterReadDTO}
    */
 
   @Post('addByAdmin/new/:id')
@@ -692,7 +692,7 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.OK,
     description:
       'New meter reads for historical data, Delta readings and Aggregate Readings',
-    type: [NewIntmediateMeterReadDTO],
+    type: [NewIntermediateMeterReadDTO],
   })
   @ApiQuery({
     name: 'organizationId',
@@ -704,13 +704,13 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newstoreReadaddbyadmin(
+  public async newStoreReadAddByAdmin(
     @Param('id') id: string,
     @Query('organizationId') organizationId: number | null,
-    @Body() measurements: NewIntmediateMeterReadDTO,
+    @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    this.logger.verbose(`With in newstoreReadaddbyadmin`);
+    this.logger.verbose(`With in newStoreReadaddbyadmin`);
     if (id.trim() === '' && id.trim() === undefined) {
       this.logger.error(`id should not be empty`);
       throw new ConflictException({
@@ -1021,7 +1021,7 @@ export class ReadsController extends BaseReadsController {
         message: `can not allow multiple reads simultaneously `,
       });
     }
-    return await this.internalReadsService.newstoreRead(
+    return await this.internalReadsService.newStoreRead(
       device.externalId,
       measurements,
     );
@@ -1074,7 +1074,7 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(`Read not found`);
       throw new HttpException('Read not found', 400);
     } else {
-      latestReadObject = await this.internalReadsService.latestread(
+      latestReadObject = await this.internalReadsService.latestRead(
         deviceExternalId,
         device.createdAt,
       );

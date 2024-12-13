@@ -8,14 +8,14 @@ import { ReadsService } from '../reads/reads.service';
 import { Device, DeviceService } from '../device';
 import { HttpService } from '@nestjs/axios';
 import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
-import { BASE_READ_SERVICE } from '../reads/const';
+import { BASE_READ_SERVICE } from '../reads/constants';
 import { of } from 'rxjs';
 import { Logger } from '@nestjs/common';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { Organization } from '../organization/organization.entity';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { NotFoundException } from '@nestjs/common'; // Adjust the import path as needed
@@ -54,31 +54,31 @@ describe('IssuerService', () => {
         {
           provide: DeviceGroupService,
           useValue: {
-            getAllNextrequestCertificate: jest.fn(),
+            getAllNextRequestCertificate: jest.fn(),
             findOne: jest.fn(),
-            EndReservationGroup: jest.fn(),
-            updatecertificateissuedate: jest.fn(),
-            getNextHistoryissuanceDevicelog: jest.fn(),
-            AddCertificateIssueDateLogForDeviceGroup: jest.fn(),
+            endReservationGroup: jest.fn(),
+            updateCertificateIssueDate: jest.fn(),
+            getNextHistoryIssuanceDeviceLog: jest.fn(),
+            addCertificateIssueDateLogForDeviceGroup: jest.fn(),
             updateHistoryCertificateIssueDate: jest.fn(),
             updateTotalReadingRequestedForCertificateIssuance: jest.fn(),
             countGroupIdHistoryIssuanceDeviceLog: jest.fn(),
-            getGroupiCertificateIssueDate: jest.fn(),
-            deactiveReaservation: jest.fn(),
+            getGroupCertificateIssueDate: jest.fn(),
+            deactivateReservation: jest.fn(),
             updateLeftOverReadByCountryCode: jest.fn(),
             updateLeftOverRead: jest.fn(),
-            getallReservationactive: jest.fn(),
+            getAllReservationActive: jest.fn(),
             endReservation: jest.fn(),
-            getNextrequestCertificateBYgroupId: jest.fn(),
+            getNextRequestCertificateByGroupId: jest.fn(),
           } as any,
         },
         {
           provide: DeviceService,
           useValue: {
-            NewfindForGroup: jest.fn(),
+            newFindForGroup: jest.fn(),
             findForGroup: jest.fn(),
             findReads: jest.fn(),
-            AddCertificateIssueDateLogForDevice: jest.fn(),
+            addCertificateIssueDateLogForDevice: jest.fn(),
             removeFromGroup: jest.fn(),
             addLateCertificateIssueDateLogForDevice: jest.fn(),
             finddeviceLateCycleOfdaterange: jest.fn(),
@@ -96,7 +96,7 @@ describe('IssuerService', () => {
           provide: ReadsService,
           useValue: {
             getCheckHistoryCertificateIssueDateLogForDevice: jest.fn(),
-            updatehistorycertificateissuedate: jest.fn(),
+            updateHistoryCertificateIssueDate: jest.fn(),
             getDeltaMeterReadsFirstEntryOfDevice: jest.fn(),
             latestread: jest.fn(),
             findLastReadForMeterWithinRange: jest.fn(),
@@ -188,16 +188,16 @@ describe('IssuerService', () => {
         organizationId: 1,
       } as unknown as DeviceGroup;
       const getAllNextrequestCertificateSpy = jest
-        .spyOn(groupService, 'getAllNextrequestCertificate')
+        .spyOn(groupService, 'getAllNextRequestCertificate')
         .mockResolvedValue([mockGroupRequest]);
       const findOneSpy = jest
         .spyOn(groupService, 'findOne')
         .mockResolvedValue(mockGroup);
       const updatecertificateissuedateSpy = jest
-        .spyOn(groupService, 'updatecertificateissuedate')
+        .spyOn(groupService, 'updateCertificateIssueDate')
         .mockResolvedValue(undefined);
-      const NewfindForGroupSpy = jest
-        .spyOn(deviceService, 'NewfindForGroup')
+      const NewFindForGroupSpy = jest
+        .spyOn(deviceService, 'newFindForGroup')
         .mockImplementation(() => Promise.resolve({}));
       const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
@@ -216,7 +216,7 @@ describe('IssuerService', () => {
       expect(getAllNextrequestCertificateSpy).toHaveBeenCalled();
       expect(findOneSpy).toHaveBeenCalledWith({ id: mockGroupRequest.groupId });
       expect(updatecertificateissuedateSpy).toHaveBeenCalled();
-      expect(NewfindForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
+      expect(NewFindForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
       expect(orgFindOneSpy).toHaveBeenCalledWith(mockGroup.organizationId);
       expect(findForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
     });
@@ -242,9 +242,9 @@ describe('IssuerService', () => {
         readsvalue: 1000,
         readsStartDate: new Date('2023-01-01'),
         readsEndDate: new Date('2023-01-02'),
-      } as unknown as HistoryIntermediate_MeterRead;
+      } as unknown as HistoryIntermediateMeterRead;
   
-      jest.spyOn(groupService, 'getNextHistoryissuanceDevicelog').mockResolvedValue([
+      jest.spyOn(groupService, 'getNextHistoryIssuanceDeviceLog').mockResolvedValue([
         {
           groupId: 1,
           id: 1,
@@ -268,9 +268,9 @@ describe('IssuerService', () => {
   
       jest.spyOn(groupService, 'updateHistoryCertificateIssueDate').mockResolvedValue(undefined);
       jest.spyOn(deviceService, 'removeFromGroup').mockResolvedValue(undefined);
-      jest.spyOn(groupService, 'deactiveReaservation').mockResolvedValue(undefined);
+      jest.spyOn(groupService, 'deactivateReservation').mockResolvedValue(undefined);
       jest.spyOn(groupService, 'countGroupIdHistoryIssuanceDeviceLog').mockResolvedValue(0);
-      jest.spyOn(groupService, 'getGroupiCertificateIssueDate').mockResolvedValue(undefined);
+      jest.spyOn(groupService, 'getGroupCertificateIssueDate').mockResolvedValue(undefined);
   
       await service.handleCronForHistoricalIssuance();
   
@@ -463,7 +463,7 @@ describe('IssuerService', () => {
         buyerId: null,
       } as unknown as DeviceGroup;
       const deviceHistoryRequest =
-        {} as unknown as HistoryIntermediate_MeterRead;
+        {} as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
       await service.newHistoryIssueCertificateForDevice(
@@ -473,13 +473,13 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).not.toHaveBeenCalled();
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readService.updatehistorycertificateissuedate,
+        readService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -490,7 +490,7 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
       const deviceHistoryRequest = {
         readsvalue: 999,
-      } as unknown as HistoryIntermediate_MeterRead;
+      } as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
       await service.newHistoryIssueCertificateForDevice(
@@ -500,13 +500,13 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).not.toHaveBeenCalled();
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readService.updatehistorycertificateissuedate,
+        readService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -524,7 +524,7 @@ describe('IssuerService', () => {
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediate_MeterRead;
+      } as unknown as HistoryIntermediateMeterRead;
 
       const device = {
         externalId: 'device123',
@@ -538,7 +538,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        deviceService.AddCertificateIssueDateLogForDevice,
+        deviceService.addCertificateIssueDateLogForDevice,
       ).toHaveBeenCalled();
     });
 
@@ -556,7 +556,7 @@ describe('IssuerService', () => {
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediate_MeterRead;
+      } as unknown as HistoryIntermediateMeterRead;
 
       const device = {
         externalId: 'device123',
@@ -570,7 +570,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        groupService.AddCertificateIssueDateLogForDeviceGroup,
+        groupService.addCertificateIssueDateLogForDeviceGroup,
       ).toHaveBeenCalled();
     });
 
@@ -588,7 +588,7 @@ describe('IssuerService', () => {
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediate_MeterRead;
+      } as unknown as HistoryIntermediateMeterRead;
 
       const device = {
         externalId: 'device123',
@@ -602,7 +602,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        readService.updatehistorycertificateissuedate,
+        readService.updateHistoryCertificateIssueDate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
         deviceHistoryRequest.readsStartDate,
@@ -1188,15 +1188,15 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       jest
-        .spyOn(groupService, 'getallReservationactive')
+        .spyOn(groupService, 'getAllReservationActive')
         .mockResolvedValue([mockGroup]);
       jest.spyOn(organizationService, 'findOne').mockResolvedValue({
         name: 'OrgName',
         blockchainAccountAddress: 'Address',
       } as unknown as Organization);
-      jest.spyOn(deviceService, 'NewfindForGroup').mockResolvedValue({});
+      jest.spyOn(deviceService, 'newFindForGroup').mockResolvedValue({});
       jest
-        .spyOn(groupService, 'getGroupiCertificateIssueDate')
+        .spyOn(groupService, 'getGroupCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);
 
       await service.handleCronForOngoingLateIssuance();
@@ -1209,12 +1209,12 @@ describe('IssuerService', () => {
     });
   });
 
-  describe('lateOngoingIssueCertificateForGroup', () => {
+  describe('LateOngoingIssueCertificateForGroup', () => {
     it('should handle missing organization', async () => {
       const group: DeviceGroup = {
         /* mock group data */
       } as unknown as DeviceGroup;
-      const grouprequest: DeviceGroupNextIssueCertificate = {
+      const groupRequest: DeviceGroupNextIssueCertificate = {
         /* mock request data */
       } as unknown as DeviceGroupNextIssueCertificate;
       const startDate = DateTime.now();
@@ -1229,7 +1229,7 @@ describe('IssuerService', () => {
           startDate,
           endDate,
           countryCodeKey,
-          grouprequest,
+          groupRequest,
         );
       } catch (error) {
         console.log('Caught error:', error);
@@ -1241,7 +1241,7 @@ describe('IssuerService', () => {
       const group: DeviceGroup = {
         devices: [] /* other mock data */,
       } as unknown as DeviceGroup;
-      const grouprequest: DeviceGroupNextIssueCertificate = {
+      const groupRequest: DeviceGroupNextIssueCertificate = {
         /* mock request data */
       } as unknown as DeviceGroupNextIssueCertificate;
       const startDate = DateTime.now();
@@ -1253,83 +1253,11 @@ describe('IssuerService', () => {
         startDate,
         endDate,
         countryCodeKey,
-        grouprequest,
+        groupRequest,
       );
 
       // Verify that no further methods are called
       expect(organizationService.findOne).not.toHaveBeenCalled();
     });
-    /*
-    it('should handle successful certificate issuance', async () => {
-      const group: DeviceGroup = {
-        devices: [
-          {
-            externalId: 'device123',
-            meterReadtype: 'Delta',
-            createdAt: new Date(),
-          },
-        ],
-        organizationId: 'org123',
-        buyerAddress: 'buyer@example.com',
-        buyerId: 'buyerId123',
-        id: 'group123',
-        devicegroup_uid: 'devicegroup123',
-        authorityToExceed: false,
-        targetVolumeCertificateGenerationRequestedInMegaWattHour: 0,
-        targetVolumeInMegaWattHour: 100,
-      } as unknown as DeviceGroup;
-      
-      const grouprequest: DeviceGroupNextIssueCertificate = { } as unknown as DeviceGroupNextIssueCertificate;
-      const startDate = DateTime.now();
-      const endDate = DateTime.now();
-      const countryCodeKey = 'US';
-    
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue({
-        id: 'org123',
-        // Mock other necessary properties
-      } as unknown as Organization);
-      
-      jest.spyOn(readservice, 'getDeltaMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
-      jest.spyOn(readservice, 'findLastReadForMeterWithinRange').mockResolvedValue([]);
-      jest.spyOn(readservice, 'getAggregateMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
-      
-      jest.spyOn(deviceService, 'getCheckCertificateIssueDateLogForDevice').mockResolvedValue([]);
-      jest.spyOn(deviceService, 'AddCertificateIssueDateLogForDevice').mockImplementation(() => undefined);
-      jest.spyOn(groupService, 'updateTotalReadingRequestedForCertificateIssuance').mockImplementation(() => undefined);
-      jest.spyOn(groupService, 'endReservation').mockImplementation(() => undefined);
-      jest.spyOn(groupService, 'AddCertificateIssueDateLogForDeviceGroup').mockImplementation(() => undefined);
-      jest.spyOn(service, 'issueCertificate').mockImplementation(() => undefined);
-    
-      await service.lateOngoingIssueCertificateForGroup(group, grouprequest, startDate, endDate, countryCodeKey);
-    
-      // Add assertions to verify expected behavior
-      expect(deviceService.AddCertificateIssueDateLogForDevice).toHaveBeenCalled();
-      expect(groupService.AddCertificateIssueDateLogForDeviceGroup).toHaveBeenCalled();
-      expect(service.issueCertificate).toHaveBeenCalled();
-    });*/
   });
-  /*
-  describe('getMissingCycleBeforeLateOngoing', () => {
-    it('should add late ongoing device certificate cycle', async () => {
-      const startDate = new Date();
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 1);
-      
-      groupService.getallReservationactive = jest.fn().mockResolvedValue([{ id: 'group1', frequency: 'daily' }]);
-      deviceService.findForGroup = jest.fn().mockResolvedValue([{ externalId: 'device1', createdAt: startDate }]);
-      deviceService.findoneLateCycle = jest.fn().mockResolvedValue([{ late_start_date: startDate.toISOString() }]);
-      deviceService.finddeviceLateCycleOfdaterange = jest.fn().mockResolvedValue(null);
-      service.addLateOngoingDeviceCertificateCycle = jest.fn().mockResolvedValue(undefined);
-      
-      await service.getMissingCycleBeforeLateOngoing();
-      
-      // Verify that addLateOngoingDeviceCertificateCycle was called
-      expect(service.addLateOngoingDeviceCertificateCycle).toHaveBeenCalledWith(
-        'group1',
-        'device1',
-        startDate.toISOString(),
-        endDate.toISOString()
-      );
-    });
-  });*/
 });

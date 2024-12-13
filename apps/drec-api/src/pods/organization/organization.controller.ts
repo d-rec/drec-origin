@@ -47,7 +47,7 @@ import {
   ILoggedInUser,
   isRole,
   IUser,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
@@ -70,7 +70,7 @@ export class OrganizationController {
   constructor(
     private readonly organizationService: OrganizationService,
     private userService: UserService,
-    private invitationservice: InvitationService,
+    private invitationService: InvitationService,
   ) {}
 
   /**
@@ -110,7 +110,7 @@ export class OrganizationController {
   })
   async getAllOrganizations(
     @UserDecorator() loggedUser: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -122,7 +122,7 @@ export class OrganizationController {
   }> {
     this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(
-      filterDto,
+      filterDTO,
       pageNumber,
       limit,
       loggedUser,
@@ -163,7 +163,7 @@ export class OrganizationController {
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.ApiUser) {
-      return this.organizationService.findApiuserOrganizationUsers(
+      return this.organizationService.findApiUserOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
         limit,
@@ -180,8 +180,8 @@ export class OrganizationController {
 
   /**
    * It is GET api to fetch an organization renord.
-   * @param {orhanizationId} is type of number which is the identifier of an organization
-   * @return { OrganizationDTO | undefined } OrganizationDto is for success response
+   * @param {organizationId} is type of number which is the identifier of an organization
+   * @return { OrganizationDTO | undefined } OrganizationDTO is for success response
    * and undefined when there is no particular record not available.
    */
   @Get('/:id')
@@ -307,7 +307,7 @@ export class OrganizationController {
       role,
     );
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   /**
@@ -392,9 +392,9 @@ export class OrganizationController {
     if (user.role === loggedUser.role && user.status === 'Active') {
       throw new NotFoundException('Unauthorized');
     } else {
-      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.invitationService.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
-    return ResponseSuccess();
+    return responseSuccess();
   }
 }

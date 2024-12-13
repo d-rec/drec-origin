@@ -12,7 +12,7 @@ export interface ISuccessResponse {
   message?: string;
 }
 
-export const ResponseSuccess = (
+export const responseSuccess = (
   message?: string,
   statusCode?: number,
 ): ISuccessResponse => ({
@@ -21,7 +21,7 @@ export const ResponseSuccess = (
   message,
 });
 
-export const ResponseFailure = (
+export const responseFailure = (
   message?: string,
   statusCode?: number,
 ): ISuccessResponse => ({

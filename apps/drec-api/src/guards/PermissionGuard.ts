@@ -64,20 +64,20 @@ export class PermissionGuard implements CanActivate {
     }
     const per: any = [];
 
-    const userpermission1 = await this.userPermission.findById(
+    const userPermissionOne = await this.userPermission.findById(
       user.roleId,
       user.id,
       module,
     );
 
-    userpermission1.forEach((e) => {
+    userPermissionOne.forEach((e) => {
       e.permissions.forEach((element) => {
         if (!per.includes(element)) {
           per.push(element);
         }
       });
     });
-    if (!userpermission1) {
+    if (!userPermissionOne) {
       return false;
     }
     user.permissions = per;

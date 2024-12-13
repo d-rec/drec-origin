@@ -76,8 +76,8 @@ export class User extends ExtendedBaseEntity implements IUser {
   })
   organization: Organization;
 
-  // @ApiProperty({ type: () => [ACLModulePermissions] })
-  // @OneToMany(() => ACLModulePermissions, (permission) => permission.user, {
+  // @ApiProperty({ type: () => [ACLModulePermission] })
+  // @OneToMany(() => ACLModulePermission, (permission) => permission.user, {
   //   eager: true,
   // })
   @IsEnum(PermissionString)

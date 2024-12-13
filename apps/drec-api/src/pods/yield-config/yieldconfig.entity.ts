@@ -8,9 +8,9 @@ import { IYieldConfig } from '../../models';
 
 @Entity({ name: 'yieldconfig' })
 export class YieldConfig extends ExtendedBaseEntity implements IYieldConfig {
-  constructor(yieldvalue?: Partial<YieldConfig>) {
+  constructor(yieldConfig?: Partial<YieldConfig>) {
     super();
-    Object.assign(this, yieldvalue);
+    Object.assign(this, yieldConfig);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn('uuid')

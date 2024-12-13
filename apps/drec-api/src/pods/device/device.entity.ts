@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { OffTaker, FuelCode, DevicetypeCode } from '../../utils/enums';
+import { OffTaker, FuelCode, DeviceTypeCode } from '../../utils/enums';
 import {
   IsEnum,
   IsBoolean,
@@ -76,8 +76,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   fuelCode: FuelCode;
 
   @Column({ nullable: true })
-  @IsEnum(DevicetypeCode)
-  deviceTypeCode: DevicetypeCode;
+  @IsEnum(DeviceTypeCode)
+  deviceTypeCode: DeviceTypeCode;
 
   // @Column()
   // @IsEnum(Installation)
