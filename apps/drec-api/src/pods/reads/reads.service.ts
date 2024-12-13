@@ -1258,7 +1258,7 @@ export class ReadsService {
         400,
       );
     }
-    const historyRead = [];
+    let historyRead = [];
     let ongoing = [];
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
@@ -1328,7 +1328,7 @@ export class ReadsService {
       );
       this.logger.verbose('historyexistdevicequery');
       try {
-        const historyRead = await query
+        historyRead = await query
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
