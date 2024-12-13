@@ -541,7 +541,7 @@ export class DeviceService {
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
-    const sdgBenifitsList = SDGBenefits;
+    const sdgBenefitList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
@@ -569,8 +569,9 @@ export class DeviceService {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
       newDevice.SDGBenefits.forEach((sdbBenefitName: string, index: number) => {
-        const foundEle = sdgBenifitsList.find(
-          (ele) => ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
+        const foundEle = sdgBenefitList.find(
+          (ele) =>
+            ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
         if (foundEle) {
           newDevice.SDGBenefits[index] = foundEle.value;
@@ -642,7 +643,7 @@ export class DeviceService {
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
     updateDeviceDTO.externalId = currentDevice.externalId;
-    const sdgBenifitsList = SDGBenefits;
+    const sdgBenefitList = SDGBenefits;
 
     if (
       updateDeviceDTO.SDGBenefits.includes('0') ||
@@ -650,16 +651,20 @@ export class DeviceService {
     ) {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
-      updateDeviceDTO.SDGBenefits.forEach((sdbBenefitName: string, index: number) => {
-        const foundEle = sdgBenifitsList.find(
-          (ele) => ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
-        );
-        if (foundEle) {
-          updateDeviceDTO.SDGBenefits[index] = foundEle.value;
-        } else {
-          updateDeviceDTO.SDGBenefits[index] = 'invalid';
-        }
-      });
+      updateDeviceDTO.SDGBenefits.forEach(
+        (sdbBenefitName: string, index: number) => {
+          const foundEle = sdgBenefitList.find(
+            (ele) =>
+              ele.name.toLowerCase() ===
+              sdbBenefitName.toString().toLowerCase(),
+          );
+          if (foundEle) {
+            updateDeviceDTO.SDGBenefits[index] = foundEle.value;
+          } else {
+            updateDeviceDTO.SDGBenefits[index] = 'invalid';
+          }
+        },
+      );
       updateDeviceDTO.SDGBenefits = updateDeviceDTO.SDGBenefits.filter(
         (ele) => ele !== 'invalid',
       );

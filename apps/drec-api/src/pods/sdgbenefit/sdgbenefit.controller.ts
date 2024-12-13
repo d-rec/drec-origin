@@ -64,6 +64,8 @@ export class SDGBenefitController {
   getFuelTypes(): SDGBenefitCodeNameDTO[] {
     this.logger.verbose(`With in getFuelTypes`);
     const sdgBenefitCode = this.sdgBenefitService.getSDGBenefitCode();
-    return sdgBenefitCode.map((sdgBenefit) => plainToClass(SDGBenefitCodeNameDTO, sdgBenefit));
+    return sdgBenefitCode.map((sdgBenefit) =>
+      plainToClass(SDGBenefitCodeNameDTO, sdgBenefit),
+    );
   }
 }

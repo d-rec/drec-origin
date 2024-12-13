@@ -49,7 +49,8 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private userRoleRepository: Repository<UserRole>,
+    @InjectRepository(UserRole)
+    private userRoleRepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
@@ -102,13 +103,16 @@ export class UserService {
       };
 
       organizationData['api_user_id'] = apiUser.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(organizationData.name)) {
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newCreateUser(organizationData);
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
         orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -180,13 +184,16 @@ export class UserService {
         address: data.orgAddress,
       };
       organizationData['api_user_id'] = admin.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(organizationData.name)) {
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newCreateUser(organizationData);
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
         orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
@@ -587,15 +594,14 @@ export class UserService {
     message: string;
     success: boolean;
   }> {
-    const currentToken =
-      await this.emailConfirmationService.getByEmail(email);
+    const currentToken = await this.emailConfirmationService.getByEmail(email);
     if (!currentToken) {
       return {
         message: 'Token not found',
         success: false,
       };
     }
-    const { id } = currentToken; 
+    const { id } = currentToken;
     await this.emailConfirmationService.generateToken(currentToken, id);
     await this.emailConfirmationService.sendInvitation(inviteUser, email);
   }

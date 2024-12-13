@@ -976,8 +976,6 @@ describe('DeviceService', () => {
   });
 
   describe('getOrganizationDevices', () => {
-    
-
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
       const apiUserId = 'api-user-123';

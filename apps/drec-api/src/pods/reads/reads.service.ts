@@ -1061,7 +1061,8 @@ export class ReadsService {
           ).getTime();
           this.logger.verbose(reservedEndDate);
           this.logger.verbose(
-            startTimestamp >= reservedStartDate && startTimestamp < reservedEndDate,
+            startTimestamp >= reservedStartDate &&
+              startTimestamp < reservedEndDate,
           );
           this.logger.verbose(
             endTimestamp <= reservedEndDate && endTimestamp > reservedStartDate,
