@@ -39,9 +39,9 @@ export class CountryCodeController {
     description: 'Returns all  Country code List',
   })
   async getCountryCode(
-    @Query(ValidationPipe) filterDto: FilterKeyDTO,
+    @Query(ValidationPipe) filterDTO: FilterKeyDTO,
   ): Promise<CountryCodeNameDTO[]> {
     this.logger.verbose(`With in getCountryCode`);
-    return this.countryCodeService.getCountryCode(filterDto);
+    return this.countryCodeService.getCountryCode(filterDTO);
   }
 }

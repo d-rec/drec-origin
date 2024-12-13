@@ -20,7 +20,7 @@ export class NewReadDTO {
   value: number;
 }
 
-export interface IAggregateintermediate {
+export interface IAggregateIntermediate {
   id: number;
   // type: string;
   unit: Unit;
@@ -31,7 +31,7 @@ export interface IAggregateintermediate {
   updatedAt: Date;
   externalId?: string;
 }
-export interface Iintermediate {
+export interface IIntermediate {
   id: number;
   type: string;
   unit: Unit;

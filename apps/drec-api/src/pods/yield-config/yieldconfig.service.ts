@@ -34,7 +34,7 @@ export class YieldConfigService {
     data: NewYieldConfigDTO,
     loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
-    await this.checkForExistingyieldvalue(data.countryCode, data.countryName);
+    await this.checkForExistingYieldValue(data.countryCode, data.countryName);
     if (data.yieldValue === 0) {
       throw new BadRequestException({
         success: false,
@@ -51,13 +51,13 @@ export class YieldConfigService {
 
     return new YieldConfig(yieldValue);
   }
-  private async checkForExistingyieldvalue(
+  private async checkForExistingYieldValue(
     countryCode: string,
-    countryname: string,
+    countryName: string,
   ): Promise<void> {
-    const isExistingUser = await this.hasvalue({ countryCode });
+    const isExistingUser = await this.hasValue({ countryCode });
     if (isExistingUser) {
-      const message = `Yield value  for this country ${countryname} already exists`;
+      const message = `Yield value  for this country ${countryName} already exists`;
 
       this.logger.error(message);
       throw new ConflictException({
@@ -66,7 +66,7 @@ export class YieldConfigService {
       });
     }
   }
-  private async hasvalue(conditions: FindConditions<YieldConfig>) {
+  private async hasValue(conditions: FindConditions<YieldConfig>) {
     return Boolean(await this.findOne(conditions));
   }
   async findOne(

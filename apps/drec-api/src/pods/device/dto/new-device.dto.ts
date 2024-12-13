@@ -15,7 +15,7 @@ import {
   IsISO8601,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { OffTaker, FuelCode, DevicetypeCode } from '../../../utils/enums';
+import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
@@ -91,11 +91,11 @@ export class NewDeviceDTO
   fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsEnum(DevicetypeCode, {
+  @IsEnum(DeviceTypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-  deviceTypeCode: DevicetypeCode;
+  deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
   @IsNumber()

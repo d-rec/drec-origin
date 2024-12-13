@@ -66,7 +66,7 @@ export class EmailConfirmationService {
         token,
         expiryTimestamp,
       });
-      // if (inviteuser) {
+      // if (inviteUser) {
       //   //  await this.sendResetPasswordRequest(user.email, token);
       //   await this.sendInvitation(orgname, user.email, token);
       // } else {
@@ -77,8 +77,8 @@ export class EmailConfirmationService {
     return null;
   }
 
-  // create function when orgUseradmin direct added by super admin so confirm email true
-  public async admincreate(
+  // create function when orguseradmin direct added by super admin so confirm email true
+  public async adminCreate(
     user: User,
     password: string,
   ): Promise<EmailConfirmation> {
@@ -109,7 +109,7 @@ export class EmailConfirmationService {
       expiryTimestamp,
     });
 
-    await this.sendadminConfirmEmailRequest(user.email, password);
+    await this.sendAdminConfirmEmailRequest(user.email, password);
 
     return emailConfirmation;
   }
@@ -209,7 +209,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -218,7 +218,7 @@ export class EmailConfirmationService {
     };
   }
 
-  public async ConfirmationEmailForResetPassword(
+  public async confirmationEmailForResetPassword(
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in ConfirmationEmailForResetPassword`);
@@ -231,7 +231,7 @@ export class EmailConfirmationService {
       };
     }
     const { id } = currentToken;
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),
@@ -248,7 +248,7 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(
+  public async generateToken(
     currentToken: EmailConfirmation,
     id: number,
   ): Promise<any> {
@@ -292,7 +292,7 @@ export class EmailConfirmationService {
     }
   }
 
-  private async sendadminConfirmEmailRequest(
+  private async sendAdminConfirmEmailRequest(
     email: string,
     password: string,
   ): Promise<void> {
@@ -302,7 +302,7 @@ export class EmailConfirmationService {
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Welcome TO D-REC`,
-      html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
+      html: `Welcome to the marketplace!You are added in DREC platform, Please click the link below to login: <br/> <br/>
       <p>UserName:<b>${email}</b></p>
       <p> PassWord:<b>${password}</b></p>
       <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
@@ -339,7 +339,7 @@ export class EmailConfirmationService {
   }
 
   public async sendInvitation(
-    inviteuser: any | CreateUserOrgDTO,
+    inviteUser: any | CreateUserOrgDTO,
     email: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
@@ -347,11 +347,11 @@ export class EmailConfirmationService {
 
     const htmlTemplate = `
     <p> Dear ${email},<p>
-    <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
+    <p> you have been invited to register with D-REC from Organization <b>${inviteUser.orgName}</b></p>
     <p>Use your email and the password below to login into D-REC Initiative.<p>
     <p>
     Username: <b>${email}</b><br>
-    Password: <b>${inviteuser.password}<b><p>
+    Password: <b>${inviteUser.password}<b><p>
     <p><a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click me</a></p>
    <hr>
     <p>Thank you<br>

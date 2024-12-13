@@ -9,6 +9,6 @@ export enum UserPermissionStatus {
   Request = 'Request',
   // Process = 'Process',
   Active = 'Active',
-  Deactive = 'Deactive',
+  Disabled = 'Deactive',
   // Deleted = 'Deleted',
 }

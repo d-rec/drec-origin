@@ -111,7 +111,7 @@ describe('EmailConfirmationService', () => {
 
       const password = 'password';
 
-      await expect(service.admincreate(user, password)).rejects.toThrow(
+      await expect(service.adminCreate(user, password)).rejects.toThrow(
         ConflictException,
       );
 
@@ -347,7 +347,7 @@ describe('EmailConfirmationService', () => {
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
       const generateTokenSpy = jest
-        .spyOn(service, 'generatetoken')
+        .spyOn(service, 'generateToken')
         .mockResolvedValueOnce(generatedToken);
 
       // TypeScript workaround: Cast service to 'any' to bypass typing issues
@@ -378,7 +378,7 @@ describe('EmailConfirmationService', () => {
 
       jest.spyOn(service, 'getByEmail').mockResolvedValueOnce(undefined);
 
-      const result = await service.ConfirmationEmailForResetPassword(email);
+      const result = await service.confirmationEmailForResetPassword(email);
 
       expect(result).toEqual({
         message: 'Email not found or Email not registered',
@@ -398,13 +398,13 @@ describe('EmailConfirmationService', () => {
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
       const generateTokenSpy = jest
-        .spyOn(service, 'generatetoken')
+        .spyOn(service, 'generateToken')
         .mockResolvedValueOnce(generatedToken);
       const sendResetPasswordRequestSpy = jest
         .spyOn<any, any>(service, 'sendResetPasswordRequest')
         .mockResolvedValueOnce(undefined);
 
-      const result = await service.ConfirmationEmailForResetPassword(email);
+      const result = await service.confirmationEmailForResetPassword(email);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
       expect(generateTokenSpy).toHaveBeenCalledWith(
@@ -446,7 +446,7 @@ describe('EmailConfirmationService', () => {
         .spyOn(service, 'generateEmailToken')
         .mockReturnValue(newToken);
 
-      const result = await service.generatetoken(currentToken, id);
+      const result = await service.generateToken(currentToken, id);
 
       expect(generateEmailTokenSpy).toHaveBeenCalled();
       expect(updateSpy).toHaveBeenCalledWith(id, newToken);

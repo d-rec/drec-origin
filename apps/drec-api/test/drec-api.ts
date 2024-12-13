@@ -11,7 +11,7 @@ import { Contracts } from '@energyweb/issuer';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
 
-import { entities, DrecModule } from '../src/drec.module';
+import { entities, DRECModule } from '../src/drec.module';
 import { UserService } from '../src/pods/user/user.service';
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { DeviceService } from '../src/pods/device';
@@ -59,7 +59,7 @@ export const bootstrapTestInstance: any = async () => {
         logging: ['info'],
         keepConnectionAlive: true,
       }),
-      DrecModule,
+      DRECModule,
     ],
     providers: [DatabaseService],
   }).compile();
@@ -91,7 +91,7 @@ export const bootstrapTestInstance: any = async () => {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
 
-  useContainer(app.select(DrecModule), { fallbackOnErrors: true });
+  useContainer(app.select(DRECModule), { fallbackOnErrors: true });
 
   return {
     databaseService,

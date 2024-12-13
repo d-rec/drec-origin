@@ -4,10 +4,10 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
-import { DrecModule } from './drec.module';
+import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
 
-export { DrecModule };
+export { DRECModule };
 
 export async function startAPI(logger?: LoggerService): Promise<any> {
   const PORT = PortUtils.getPort();
@@ -29,7 +29,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   logger?.log(`Backend starting on port: ${PORT}`);
   logger?.log(`Backend versions: ${JSON.stringify(getVersion())}`);
 
-  const app = await NestFactory.create(DrecModule);
+  const app = await NestFactory.create(DRECModule);
 
   app.useGlobalPipes(
     new ValidationPipe({ forbidUnknownValues: false, transform: true }),
@@ -39,7 +39,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   app.enableCors();
   app.setGlobalPrefix('api');
 
-  useContainer(app.select(DrecModule), { fallbackOnErrors: true });
+  useContainer(app.select(DRECModule), { fallbackOnErrors: true });
 
   if (logger) {
     app.useLogger(logger);

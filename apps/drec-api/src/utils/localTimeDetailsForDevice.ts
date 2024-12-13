@@ -13,7 +13,7 @@ export const getLocalTime = (
   const logger = new Logger('getLocalTime');
   const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
   logger.log(`latitude is:::: + ${device.latitude}`);
-  logger.log(`longitue is::: + ${device.longitude}`);
+  logger.log(`longitude is::: + ${device.longitude}`);
   logger.log(`point is::: + ${point}`);
   const timestamp = new Date(startDate);
   const localTime = mapBoxTimeSpace
@@ -105,9 +105,9 @@ export const getFormattedOffSetFromOffsetAsJson = (
     hours = -1 * hours;
   }
 
-  logger.log(`OFFSET hours FROM UTILS FUNCTOIN: ${hours}`);
+  logger.log(`OFFSET hours FROM UTILS FUNCTION: ${hours}`);
 
-  logger.log(`OFFSET hours FROM UTILS FUNCTOIN: ${minutes}`);
+  logger.log(`OFFSET hours FROM UTILS FUNCTION: ${minutes}`);
 
   const formattedJson = {
     hours: hours,
