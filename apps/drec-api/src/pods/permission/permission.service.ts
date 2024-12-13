@@ -103,7 +103,7 @@ export class PermissionService {
     data: any,
     newPermissionValue: number,
   ): Promise<boolean> {
-    this.logger.verbose(`With in checkForExistingModulepermission`);
+    this.logger.verbose(`With in checkForExistingModulePermission`);
     const moduleId = await this.ACLpermissionService.findOne({
       id: data.aclmodulesId,
     });
@@ -280,7 +280,7 @@ export class PermissionService {
     const apiUser = await this.userService.findById(loggedInUser.id);
 
     let permissionIds: any = [];
-    const apiUserPermission = await this.userService.getApiuser(
+    const apiUserPermission = await this.userService.getApiUser(
       apiUser.api_user_id,
     );
 
@@ -296,10 +296,10 @@ export class PermissionService {
       entityId: loggedInUser.id,
     });
 
-    const hasId = data.some((aclmodule) =>
+    const hasId = data.some((aclModule) =>
       userPermissions.some(
         (userPermission) =>
-          userPermission.aclmodulesId === aclmodule.aclmodulesId,
+          userPermission.aclmodulesId === aclModule.aclmodulesId,
       ),
     );
 
