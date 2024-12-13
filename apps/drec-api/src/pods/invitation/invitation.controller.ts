@@ -105,7 +105,7 @@ export class InvitationController {
   /**
    *
    * @param invitationId
-   * @param useracceptinvitation
+   * @param updateInviteStatusDTO
    * @returns
    */
   @Put(':id')
@@ -125,12 +125,12 @@ export class InvitationController {
   async updateInvitation(
     @Param('id') invitationId: number,
     //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation: UpdateInviteStatusDTO,
+    @Body() updateInviteStatusDTO: UpdateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);
     return this.organizationInvitationService.update(
-      useracceptinvitation,
+      updateInviteStatusDTO,
       invitationId,
       // status,
     );
@@ -252,7 +252,7 @@ export class InvitationController {
     type: [InvitationDTO],
     description: 'Gets all invitations for a user',
   })
-  async getInvitationsByemail(
+  async getInvitationsByEmail(
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);

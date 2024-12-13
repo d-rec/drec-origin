@@ -5,13 +5,13 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { DeviceService } from '../device';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
-import { BASE_READ_SERVICE } from './const';
+import { BASE_READ_SERVICE } from './constants';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -28,7 +28,7 @@ jest.mock('@influxdata/influxdb-client', () => {
 describe('ReadsService', () => {
   let service: ReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;
-  let historyRepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let deltaRepository: Repository<DeltaFirstRead>;
   let deviceService: DeviceService;
   let deviceGroupService: DeviceGroupService;
@@ -48,7 +48,7 @@ describe('ReadsService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+          provide: getRepositoryToken(HistoryIntermediateMeterRead),
           useClass: Repository,
         },
         {

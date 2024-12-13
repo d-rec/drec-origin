@@ -10,7 +10,7 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { Response } from 'express';
 import { ILoggedInUser } from '../../models/LoggedInUser';
 import {
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   OffTaker,
   PermissionString,
@@ -290,12 +290,12 @@ describe('CertificateLogService', () => {
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       };
 
       const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         fromAmountread: 20,
         toAmountread: 1500,
         offTaker: OffTaker.Education,
@@ -435,12 +435,12 @@ describe('CertificateLogService', () => {
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       };
 
       const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         fromAmountread: 20,
         toAmountread: 1500,
         offTaker: OffTaker.Education,
@@ -565,12 +565,12 @@ describe('CertificateLogService', () => {
         hasPermission: function (...permissions: PermissionString[]): boolean {
           throw new Error('Function not implemented.');
         },
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       };
 
       const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         fromAmountread: 20,
         toAmountread: 1500,
         offTaker: OffTaker.Education,

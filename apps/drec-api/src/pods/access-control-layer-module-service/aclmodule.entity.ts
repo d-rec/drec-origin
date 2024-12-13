@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RoleStatus } from '../../utils/enums';
 import { IsEnum, IsString, IsArray } from 'class-validator';
 import { IACLModuleConfig } from '../../models';
-import { ACLModulePermissions } from '../permission/permission.entity';
+import { ACLModulePermission } from '../permission/permission.entity';
 @Entity('aclmodules')
 export class AClModules extends ExtendedBaseEntity implements IACLModuleConfig {
   constructor(module: Partial<AClModules>) {
@@ -41,11 +41,11 @@ export class AClModules extends ExtendedBaseEntity implements IACLModuleConfig {
   permissionsValue: number;
 
   @OneToMany(
-    () => ACLModulePermissions,
+    () => ACLModulePermission,
     (aclpermission) => aclpermission.aclmodules,
     {
       cascade: true,
     },
   )
-  aclpermission: ACLModulePermissions[];
+  aclpermission: ACLModulePermission[];
 }

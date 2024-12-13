@@ -35,8 +35,8 @@ import { DateTime } from 'luxon';
 import { convertToWh } from 'src/utils/convert-to-power-units';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
-import { IAggregateintermediate } from '../../models';
-import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { IAggregateIntermediate } from '../../models';
+import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -48,16 +48,16 @@ import { DeviceService } from '../device/device.service';
 import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { BASE_READ_SERVICE } from './const';
+import { BASE_READ_SERVICE } from './constants';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import {
   AccumulationType,
   FilterNoOffLimit,
 } from './dto/filter-no-off-limit.dto';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 
-export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
+export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
 @Injectable()
 export class ReadsService {
@@ -67,8 +67,8 @@ export class ReadsService {
   constructor(
     @InjectRepository(AggregateMeterRead)
     private readonly repository: Repository<AggregateMeterRead>,
-    @InjectRepository(HistoryIntermediate_MeterRead)
-    private readonly historyRepository: Repository<HistoryIntermediate_MeterRead>,
+    @InjectRepository(HistoryIntermediateMeterRead)
+    private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(DeltaFirstRead)
     private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
     @Inject(BASE_READ_SERVICE)
@@ -808,7 +808,7 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+  ): SelectQueryBuilder<HistoryIntermediateMeterRead> {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
@@ -1044,7 +1044,7 @@ export class ReadsService {
       this.logger.verbose('1267');
       if (device.groupId != null) {
         const historyNextIssue =
-          await this.deviceGroupService.getNextHistoryissuanceDevicelogafterreservation(
+          await this.deviceGroupService.getNextHistoryIssuanceDeviceLogAfterReservation(
             device.externalId,
             device.groupId,
           );
@@ -1074,7 +1074,7 @@ export class ReadsService {
           ) {
             this.deviceGroupService.updateHistoryCertificateIssueDate(
               historyNextIssue.id,
-              HistoryNextInssuanceStatus.Pending,
+              HistoryNextIssuanceStatus.Pending,
             );
           }
         }
@@ -1131,7 +1131,7 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<HistoryIntermediate_MeterRead[]> {
+  ): Promise<HistoryIntermediateMeterRead[]> {
     const query = this.getHistoryDeviceLogFilteredQuery(
       deviceId,
       startDate,
@@ -1159,7 +1159,7 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): SelectQueryBuilder<HistoryIntermediate_MeterRead> {
+  ): SelectQueryBuilder<HistoryIntermediateMeterRead> {
     return this.historyRepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId })
@@ -1201,19 +1201,19 @@ export class ReadsService {
   }
 
   async getDeviceHistoryCertificateIssueDate(
-    conditions: FindConditions<HistoryIntermediate_MeterRead>,
-  ): Promise<HistoryIntermediate_MeterRead | null> {
+    conditions: FindConditions<HistoryIntermediateMeterRead>,
+  ): Promise<HistoryIntermediateMeterRead | null> {
     return (await this.historyRepository.findOne(conditions)) ?? null;
   }
   async updateHistoryCertificateIssueDate(
     id: number,
     startDate: Date,
     endDate: Date,
-  ): Promise<HistoryIntermediate_MeterRead> {
+  ): Promise<HistoryIntermediateMeterRead> {
     const historyDevice = await this.getDeviceHistoryCertificateIssueDate({
       id: id,
     });
-    let updatedHistoryIssue = new HistoryIntermediate_MeterRead();
+    let updatedHistoryIssue = new HistoryIntermediateMeterRead();
     if (historyDevice) {
       historyDevice.certificate_issuance_startdate = startDate;
       historyDevice.certificate_issuance_enddate = endDate;
@@ -1634,14 +1634,14 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
         {};
       for (let j = 0; j < 2; j++) {
         if (j % 2 === 0) {
-          const startDateStr = new Date(tempResults[i][j]).getTime();
-          const startDate = new Date(startDateStr);
+          const startTimestamp = new Date(tempResults[i][j]).getTime();
+          const startDate = new Date(startTimestamp);
           resultObj.startTime = startDate.toISOString();
         } else {
           resultObj.value = tempResults[i][j];
           if (i < tempResults.length - 1) {
-            const endDateStr = new Date(tempResults[i + 1][j - 1]).getTime();
-            const endDate = new Date(endDateStr);
+            const endTimestamp = new Date(tempResults[i + 1][j - 1]).getTime();
+            const endDate = new Date(endTimestamp);
             resultObj.endTime = endDate.toISOString();
           } else {
             resultObj.endTime = endDate;

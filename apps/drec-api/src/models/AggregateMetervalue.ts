@@ -20,7 +20,7 @@ export class NewReadDTO {
   value: number;
 }
 
-export interface IAggregateintermediate {
+export interface IAggregateIntermediate {
   id: number;
   // type: string;
   unit: Unit;

@@ -37,7 +37,7 @@ describe('UserService', () => {
   let oauthClientCredentialsService: OauthClientCredentialsService;
   let organizationService: OrganizationService;
   let apiUserEntityRepository: Repository<ApiUserEntity>;
-  let userloginSessionRepository: Repository<UserLoginSessionEntity>;
+  let userLoginSessionRepository: Repository<UserLoginSessionEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -98,7 +98,7 @@ describe('UserService', () => {
     apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
       getRepositoryToken(ApiUserEntity),
     );
-    userloginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
+    userLoginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
       getRepositoryToken(UserLoginSessionEntity),
     );
   });
@@ -234,7 +234,7 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
       const mockUserEntity = {
@@ -247,13 +247,13 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;
 
-      const mockemailConfirmationEntity = {
+      const mockEmailConfirmationEntity = {
         id: 1,
         confirmed: true,
         token:
@@ -265,7 +265,7 @@ describe('UserService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockUserEntity);
       jest
         .spyOn(emailConfirmationService, 'get')
-        .mockResolvedValue(mockemailConfirmationEntity);
+        .mockResolvedValue(mockEmailConfirmationEntity);
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
@@ -310,7 +310,7 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
       const mockUserEntity = {
@@ -323,13 +323,13 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;
 
-      const mockemailConfirmationEntity = {
+      const mockEmailConfirmationEntity = {
         id: 1,
         confirmed: true,
         token:
@@ -341,7 +341,7 @@ describe('UserService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockUserEntity);
       jest
         .spyOn(emailConfirmationService, 'get')
-        .mockResolvedValue(mockemailConfirmationEntity);
+        .mockResolvedValue(mockEmailConfirmationEntity);
 
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
@@ -369,7 +369,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockOrganizationEntity2 = {
@@ -387,7 +387,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const userss: IUser[] = [
@@ -531,7 +531,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockUserEntity = {
@@ -544,7 +544,7 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
@@ -626,7 +626,7 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
       const userEntity = {
@@ -639,7 +639,7 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
         organization: organizationEntity,
         moduleName: null,
         updatedAt: new Date(),
@@ -680,7 +680,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockUserEntity = {
@@ -693,7 +693,7 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
@@ -748,7 +748,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockUserEntity = {
@@ -761,7 +761,7 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
@@ -827,7 +827,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockUserEntity = {
@@ -840,7 +840,7 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),

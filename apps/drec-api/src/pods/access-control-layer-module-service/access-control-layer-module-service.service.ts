@@ -16,7 +16,7 @@ import { IACLModuleConfig } from '../../models';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 
-export type TmoduleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
+export type TModuleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
 
 @Injectable()
 export class AccessControlLayerModuleServiceService {
@@ -85,11 +85,11 @@ export class AccessControlLayerModuleServiceService {
   }
   async findOne(
     conditions: FindConditions<AClModules>,
-  ): Promise<TmoduleBaseEntity> {
+  ): Promise<TModuleBaseEntity> {
     this.logger.verbose(`With in findOne`);
     return await (this.repository.findOne(
       conditions,
-    ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
+    ) as Promise<IACLModuleConfig> as Promise<TModuleBaseEntity>);
   }
 
   async getAll(): Promise<AClModules[]> {

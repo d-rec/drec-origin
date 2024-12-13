@@ -49,7 +49,7 @@ export class UserService {
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
+    @InjectRepository(UserRole) private userRoleRepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
@@ -57,7 +57,7 @@ export class UserService {
     @InjectRepository(ApiUserEntity)
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
-    private readonly userloginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
   ) {}
 
   public async seed(
@@ -450,7 +450,7 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({
+    const getrole = await this.userRoleRepository.findOne({
       where: {
         name: role,
       },
@@ -730,7 +730,7 @@ export class UserService {
     user: Omit<IUser, 'password'>,
     token: string,
   ): Promise<void> {
-    await this.userloginSessionRepository.save({
+    await this.userLoginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
     });
@@ -742,7 +742,7 @@ export class UserService {
    * @returns
    */
   async removeUserSession(userId: number, token: string): Promise<any> {
-    return await this.userloginSessionRepository.delete({
+    return await this.userLoginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
     });
@@ -751,6 +751,6 @@ export class UserService {
   async hasValidUserSession(
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
-    return Boolean(await this.userloginSessionRepository.findOne(conditions));
+    return Boolean(await this.userLoginSessionRepository.findOne(conditions));
   }
 }

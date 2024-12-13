@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DrecModule } from './drec.module';
+import { DRECModule } from './drec.module';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -12,12 +12,12 @@ import { Invitation } from './pods/invitation/invitation.entity';
 import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.entity';
 import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
-import { ACLModulePermissions } from './pods/permission/permission.entity';
+import { ACLModulePermission } from './pods/permission/permission.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
 import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
@@ -49,7 +49,7 @@ import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { getConnection } from 'typeorm';
 
-describe('DrecModule', () => {
+describe('DRECModule', () => {
   let module: TestingModule;
 
   afterEach(async () => {
@@ -61,7 +61,7 @@ describe('DrecModule', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [DrecModule],
+      imports: [DRECModule],
     }).compile();
   });
 
@@ -130,10 +130,10 @@ describe('DrecModule', () => {
     expect(aclModulesRepository).toBeDefined();
   });
 
-  it('should provide ACLModulePermissions repository', () => {
+  it('should provide ACLModulePermission repository', () => {
     const aclModulePermissionsRepository = module.get<
-      Repository<ACLModulePermissions>
-    >(getRepositoryToken(ACLModulePermissions));
+      Repository<ACLModulePermission>
+    >(getRepositoryToken(ACLModulePermission));
     expect(aclModulePermissionsRepository).toBeDefined();
   });
 
@@ -165,10 +165,10 @@ describe('DrecModule', () => {
     expect(aggregateMeterReadRepository).toBeDefined();
   });
 
-  it('should provide HistoryIntermediate_MeterRead repository', () => {
+  it('should provide HistoryIntermediateMeterRead repository', () => {
     const historyIntermediateMeterReadRepository = module.get<
-      Repository<HistoryIntermediate_MeterRead>
-    >(getRepositoryToken(HistoryIntermediate_MeterRead));
+      Repository<HistoryIntermediateMeterRead>
+    >(getRepositoryToken(HistoryIntermediateMeterRead));
     expect(historyIntermediateMeterReadRepository).toBeDefined();
   });
 

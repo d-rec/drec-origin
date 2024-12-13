@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FindConditions, Repository } from 'typeorm';
-import { ACLModulePermissions } from './permission.entity';
+import { ACLModulePermission } from './permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import {
@@ -16,8 +16,8 @@ import {
   UpdatePermissionDTO,
 } from './dto/modulepermission.dto';
 import {
-  IACLmodulsPermissions,
-  IaddModulePermission,
+  IACLModulePermission,
+  IAddModulePermission,
   ILoggedInUser,
   IModulePermissionsConfig,
   LoggedInUser,
@@ -39,17 +39,17 @@ export class PermissionService {
   };
   private readonly logger = new Logger(PermissionService.name);
   constructor(
-    @InjectRepository(ACLModulePermissions)
-    private readonly repository: Repository<ACLModulePermissions>,
+    @InjectRepository(ACLModulePermission)
+    private readonly repository: Repository<ACLModulePermission>,
     private readonly ACLpermissionService: AccessControlLayerModuleServiceService,
     private readonly userService: UserService,
 
-    private readonly Permissionvalue: DecimalPermissionValue,
+    private readonly permissionValue: DecimalPermissionValue,
   ) {}
 
   public async create(
     data: NewPermissionDTO,
-    loginuser: LoggedInUser,
+    loggedInUser: LoggedInUser,
   ): Promise<PermissionDTO> {
     this.logger.verbose(`With in create`);
     const addedPermissionList: any = {
@@ -66,22 +66,22 @@ export class PermissionService {
       });
     }
     const permissionValue =
-      this.Permissionvalue.computePermissions(addedPermissionList);
+      this.permissionValue.computePermissions(addedPermissionList);
 
-    const permissionboolean = await this.checkForExistingModulePermission(
+    const hasPermission = await this.checkForExistingModulePermission(
       data,
       permissionValue,
     );
-    if (permissionboolean) {
-      const aclPermissionService = new ACLModulePermissions({
+    if (hasPermission) {
+      const aclPermissionService = new ACLModulePermission({
         ...data,
         permissionValue: permissionValue,
       });
       if (
-        (loginuser.role === Role.OrganizationAdmin &&
+        (loggedInUser.role === Role.OrganizationAdmin &&
           data.entityType != 'Role') ||
-        loginuser.role === Role.Admin ||
-        loginuser.role === Role.ApiUser
+        loggedInUser.role === Role.Admin ||
+        loggedInUser.role === Role.ApiUser
       ) {
         return await this.repository.save(aclPermissionService);
       } else {
@@ -101,7 +101,7 @@ export class PermissionService {
   }
   private async checkForExistingModulePermission(
     data: any,
-    newpermissionvalue: number,
+    newPermissionValue: number,
   ): Promise<boolean> {
     this.logger.verbose(`With in checkForExistingModulepermission`);
     const moduleId = await this.ACLpermissionService.findOne({
@@ -109,9 +109,9 @@ export class PermissionService {
     });
 
     const permissions =
-      await this.Permissionvalue.checkModulePermissionAgainstUserPermission(
+      await this.permissionValue.checkModulePermissionAgainstUserPermission(
         moduleId.permissionsValue,
-        newpermissionvalue,
+        newPermissionValue,
       );
     if (data.permissions.length === permissions.length) {
       return true;
@@ -151,14 +151,14 @@ export class PermissionService {
     return userPermission;
   }
   async findOne(
-    conditions: FindConditions<ACLModulePermissions>,
-  ): Promise<ACLModulePermissions> {
+    conditions: FindConditions<ACLModulePermission>,
+  ): Promise<ACLModulePermission> {
     this.logger.verbose(`With in findOne`);
     return await (this.repository.findOne(
       conditions,
-    ) as Promise<IaddModulePermission> as Promise<ACLModulePermissions>);
+    ) as Promise<IAddModulePermission> as Promise<ACLModulePermission>);
   }
-  async getAll(): Promise<ACLModulePermissions[]> {
+  async getAll(): Promise<ACLModulePermission[]> {
     this.logger.verbose(`With in getAll`);
     return await this.repository.find({
       order: {
@@ -167,7 +167,7 @@ export class PermissionService {
       relations: ['aclmodules'],
     });
   }
-  async findByRole(id: number): Promise<IACLmodulsPermissions[]> {
+  async findByRole(id: number): Promise<IACLModulePermission[]> {
     this.logger.verbose(`With in FindbyRole`);
     return await this.repository.find({
       relations: ['aclmodules'],
@@ -180,7 +180,7 @@ export class PermissionService {
       },
     });
   }
-  async findByUser(id: number): Promise<IACLmodulsPermissions[]> {
+  async findByUser(id: number): Promise<IACLModulePermission[]> {
     this.logger.verbose(`With in FindbyUser`);
     return await this.repository.find({
       relations: ['aclmodules'],
@@ -196,8 +196,8 @@ export class PermissionService {
   async update(
     id: number,
     data: UpdatePermissionDTO,
-    loginuser: LoggedInUser,
-  ): Promise<ExtendedBaseEntity & IACLmodulsPermissions> {
+    loggedInUser: LoggedInUser,
+  ): Promise<ExtendedBaseEntity & IACLModulePermission> {
     this.logger.verbose(`With in update`);
     const addedPermissionList: any = {
       Read: false,
@@ -215,7 +215,7 @@ export class PermissionService {
     //const userPermission = await this.findOne({ id });
 
     const permissionValue =
-      await this.Permissionvalue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
     // const checkData = {
     //   aclmodulesId: userPermission.aclmodulesId,
     //   permissions: data.permissions,
@@ -225,7 +225,7 @@ export class PermissionService {
       permissionValue,
     );
     if (hasPermission) {
-      if (loginuser.role === Role.ApiUser) {
+      if (loggedInUser.role === Role.ApiUser) {
         await this.repository.update(id, {
           permissions: data.permissions,
           permissionValue: permissionValue,
@@ -248,17 +248,17 @@ export class PermissionService {
   }
   public async updatePermissionStatus(
     id: number,
-    apipermission_status?: UserPermissionStatus,
+    permissionStatus?: UserPermissionStatus,
   ): Promise<ExtendedBaseEntity & UpdatePermissionDTO> {
     this.logger.verbose(`With in updatepermissionstatus`);
     if (
-      apipermission_status != undefined &&
-      apipermission_status === UserPermissionStatus.Active
+      permissionStatus != undefined &&
+      permissionStatus === UserPermissionStatus.Active
     ) {
       await this.repository.update(id, { status: 1 });
     } else if (
-      apipermission_status != undefined &&
-      apipermission_status === UserPermissionStatus.Deactive
+      permissionStatus != undefined &&
+      permissionStatus === UserPermissionStatus.Disabled
     ) {
       this.logger.log('Line No: 232');
       await this.repository.update(id, { status: 0 });
@@ -270,14 +270,14 @@ export class PermissionService {
 
   async request(
     data: [NewApiUserPermissionDTO],
-    loginuser: ILoggedInUser,
+    loggedInUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in permisssion_request`);
     if (!data.length) {
       this.logger.error(`No module permission available in requeste`);
       throw new NotFoundException(`No module permission available in requeste`);
     }
-    const apiUser = await this.userService.findById(loginuser.id);
+    const apiUser = await this.userService.findById(loggedInUser.id);
 
     let permissionIds: any = [];
     const apiUserPermission = await this.userService.getApiuser(
@@ -293,7 +293,7 @@ export class PermissionService {
 
     const userPermissions = await this.repository.find({
       entityType: EntityType.User,
-      entityId: loginuser.id,
+      entityId: loggedInUser.id,
     });
 
     const hasId = data.some((aclmodule) =>
@@ -305,10 +305,10 @@ export class PermissionService {
 
     if (!hasId) {
       await Promise.all(
-        data.map(async (newpermission: NewPermissionDTO) => {
-          newpermission.entityType = EntityType.User;
-          newpermission.entityId = loginuser.id;
-          const perId = await this.create(newpermission, loginuser);
+        data.map(async (newPermission: NewPermissionDTO) => {
+          newPermission.entityType = EntityType.User;
+          newPermission.entityId = loggedInUser.id;
+          const perId = await this.create(newPermission, loggedInUser);
 
           permissionIds.push(perId.id);
         }),
@@ -319,7 +319,7 @@ export class PermissionService {
       );
 
       return {
-        statsu: 'success',
+        status: 'success',
         message: 'Your permission request send successfully',
       };
     } else if (hasId) {
@@ -347,6 +347,6 @@ export class PermissionService {
           await this.updatePermissionStatus(pre, data.status),
       ),
     );
-    return { statsu: 'success' };
+    return { status: 'success' };
   }
 }

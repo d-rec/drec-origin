@@ -206,7 +206,7 @@ export class CertificateLogController {
   }
 
   /**
-   * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
+   * This is GET api used in previous version of DREC, after claiming certicate user can view the redemption report
    */
   @Get('/redemption-report')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)

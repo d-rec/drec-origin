@@ -187,7 +187,7 @@ describe('DeviceGroupService', () => {
       });
     });
 
-    it('should filter device groups by apiuserId when user is admin', async () => {
+    it('should filter device groups by apiUserId when user is admin', async () => {
       const user = {
         id: 1,
         role: Role.User, // Non-admin role

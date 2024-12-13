@@ -3,17 +3,17 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ApiProperty } from '@nestjs/swagger';
 import { EntityType } from '../../utils/enums';
 import { IsEnum, IsArray } from 'class-validator';
-import { IaddModulePermission } from '../../models';
+import { IAddModulePermission } from '../../models';
 import { AClModules } from '../access-control-layer-module-service/aclmodule.entity';
 @Entity({ name: 'aclmodulepermissions' })
-export class ACLModulePermissions
+export class ACLModulePermission
   extends ExtendedBaseEntity
-  implements IaddModulePermission
+  implements IAddModulePermission
 {
-  constructor(aclmodulespermission: Partial<ACLModulePermissions>) {
+  constructor(aclModulePermission: Partial<ACLModulePermission>) {
     super();
 
-    Object.assign(this, aclmodulespermission);
+    Object.assign(this, aclModulePermission);
   }
 
   @ApiProperty({ type: Number })

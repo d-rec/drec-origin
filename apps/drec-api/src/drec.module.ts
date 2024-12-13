@@ -39,13 +39,13 @@ import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
 import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
-import { ACLModulePermissions } from './pods/permission/permission.entity';
+import { ACLModulePermission } from './pods/permission/permission.entity';
 import { PermissionModule } from './pods/permission/permission.module';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
 import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
@@ -97,12 +97,12 @@ export const entities = [
   File,
   YieldConfig,
   AClModules,
-  ACLModulePermissions,
+  ACLModulePermission,
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
-  HistoryIntermediate_MeterRead,
+  HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
@@ -194,4 +194,4 @@ const queueModule = () => {
     },
   ],
 })
-export class DrecModule {}
+export class DRECModule {}

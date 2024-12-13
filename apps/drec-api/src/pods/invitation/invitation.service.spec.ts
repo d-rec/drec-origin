@@ -181,7 +181,7 @@ describe('InvitationService', () => {
         permissionId: null,
         createdAt: '2024-03-03T06:30:23.875Z',
         updatedAt: '2024-03-03T06:30:23.875Z',
-        password: 'Drec@1234',
+        password: 'DREC@1234',
         id: 4,
       };
 

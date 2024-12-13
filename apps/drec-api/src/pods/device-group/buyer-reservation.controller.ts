@@ -34,7 +34,7 @@ import {
   AddGroupDTO,
   CSVBulkUploadDTO,
   DeviceGroupDTO,
-  EndReservationdateDTO,
+  EndReservationDateDTO,
   JobFailedRowsDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
@@ -104,7 +104,7 @@ export class BuyerReservationController {
     description: 'This query parameter is used for Apiuser',
   })
   @ApiQuery({
-    name: 'apiuserId',
+    name: 'apiUserId',
     type: String,
     required: false,
     description:
@@ -120,7 +120,7 @@ export class BuyerReservationController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
-    @Query('apiuserId', new DefaultValuePipe(null)) apiUserId: string | null,
+    @Query('apiUserId', new DefaultValuePipe(null)) apiUserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -624,7 +624,7 @@ export class BuyerReservationController {
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
     const deviceNextIssuance: DeviceGroupNextIssueCertificate | null =
-      await this.deviceGroupService.getGroupiCertificateIssueDate({
+      await this.deviceGroupService.getGroupCertificateIssueDate({
         groupId: id,
       });
     if (deviceNextIssuance === null) {
@@ -887,13 +887,13 @@ export class BuyerReservationController {
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
-    type: EndReservationdateDTO,
+    type: EndReservationDateDTO,
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
   public async endReservation(
     @Param('id') id: number,
-    @Body() endReservationDate: EndReservationdateDTO,
+    @Body() endReservationDate: EndReservationDateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);

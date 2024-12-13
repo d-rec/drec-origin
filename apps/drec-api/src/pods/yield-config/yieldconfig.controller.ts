@@ -36,7 +36,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 @ApiSecurity('drec')
 @Controller('yield/config')
 export class YieldConfigController {
-  constructor(private readonly yieldconfigService: YieldConfigService) {}
+  constructor(private readonly yieldConfigService: YieldConfigService) {}
 
   /**
    * This api route use for get all yield value of country
@@ -52,7 +52,7 @@ export class YieldConfigController {
     description: 'Returns all country yield value',
   })
   async getAll(): Promise<YieldConfigDTO[]> {
-    return this.yieldconfigService.getAll();
+    return this.yieldConfigService.getAll();
   }
 
   /**
@@ -67,7 +67,7 @@ export class YieldConfigController {
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
-    return this.yieldconfigService.findById(id);
+    return this.yieldConfigService.findById(id);
   }
   /**
    * This api route use to add yield value for country
@@ -114,7 +114,7 @@ export class YieldConfigController {
       });
     }
 
-    return await this.yieldconfigService.create(yieldToRegister, loggedUser);
+    return await this.yieldConfigService.create(yieldToRegister, loggedUser);
   }
 
   /**
@@ -140,6 +140,6 @@ export class YieldConfigController {
     @Body() body: UpdateYieldValueDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
-    return this.yieldconfigService.update(id, body, loggedUser);
+    return this.yieldConfigService.update(id, body, loggedUser);
   }
 }

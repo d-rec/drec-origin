@@ -7,13 +7,13 @@ import { ReadType } from '../../utils/enums';
 import { IIntermediate } from '../../models';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'history_intermediate_meteread' })
-export class HistoryIntermediate_MeterRead
+export class HistoryIntermediateMeterRead
   extends ExtendedBaseEntity
   implements IIntermediate
 {
-  constructor(intermideatevalue?: Partial<IIntermediate>) {
+  constructor(intermediateValue?: Partial<IIntermediate>) {
     super();
-    Object.assign(this, intermideatevalue);
+    Object.assign(this, intermediateValue);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn('uuid')

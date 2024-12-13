@@ -26,8 +26,8 @@ export class SDGBenefitService {
     return this.repository.find();
   }
 
-  getSDGBCode(): SDGBenefitCodeNameDTO[] {
-    this.logger.verbose(`With in getSDGBCode`);
+  getSDGBenefitCode(): SDGBenefitCodeNameDTO[] {
+    this.logger.verbose(`With in getSDGBenefitCode`);
     return SDGBenefits;
   }
 }

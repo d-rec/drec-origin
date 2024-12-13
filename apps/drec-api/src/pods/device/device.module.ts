@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { DeviceController } from './device.controller';
 import { Device } from './device.entity';
-import { ACLModulePermissions } from '../permission/permission.entity';
+import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { CountryCodeModule } from '../countrycode/countrycode.module';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { UserModule } from '../user/user.module';
@@ -21,9 +21,9 @@ import { HttpModule } from '@nestjs/axios';
     HttpModule,
     TypeOrmModule.forFeature([
       Device,
-      ACLModulePermissions,
+      ACLModulePermission,
       CheckCertificateIssueDateLogForDeviceEntity,
-      HistoryIntermediate_MeterRead,
+      HistoryIntermediateMeterRead,
       IRECDevicesInformationEntity,
       IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,

@@ -58,7 +58,7 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate
 import { InfluxDB } from '@influxdata/influxdb-client';
 import { SDGBenefits } from '../../models/Sdgbenefit';
 import { v4 as uuid } from 'uuid';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
 import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
@@ -75,8 +75,8 @@ export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(HistoryIntermediate_MeterRead)
-    private readonly historyRepository: Repository<HistoryIntermediate_MeterRead>,
+    @InjectRepository(HistoryIntermediateMeterRead)
+    private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,

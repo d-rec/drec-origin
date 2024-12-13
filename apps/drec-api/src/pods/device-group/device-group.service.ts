@@ -24,7 +24,7 @@ import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
-  EndReservationdateDTO,
+  EndReservationDateDTO,
   JobFailedRowsDTO,
   NewDeviceGroupDTO,
   NewUpdateDeviceGroupDTO,
@@ -44,7 +44,7 @@ import {
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   Installation,
   OffTaker,
@@ -59,7 +59,7 @@ import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { nanoid } from 'nanoid';
-import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
@@ -121,7 +121,7 @@ export class DeviceGroupService {
   async getAll(
     user?: ILoggedInUser,
     organizationId?: number,
-    apiuserId?: string,
+    apiUserId?: string,
     pageNumber?: number,
     limit?: number,
     filterDTO?: UnreservedDeviceGroupsFilterDTO,
@@ -142,11 +142,11 @@ export class DeviceGroupService {
       .orderBy('group.createdAt', 'DESC')
       .groupBy('group.id');
 
-    if (apiuserId) {
-      if (user.role === Role.Admin && apiuserId === user.api_user_id) {
+    if (apiUserId) {
+      if (user.role === Role.Admin && apiUserId === user.api_user_id) {
         query.andWhere(`group.api_user_id IS NULL`);
       } else {
-        query.andWhere(`group.api_user_id = '${apiuserId}'`);
+        query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
 
@@ -195,8 +195,7 @@ export class DeviceGroupService {
       }
 
       if (filterDTO.country) {
-        const countrystr = filterDTO.country;
-        const values = countrystr.split(',');
+        const values = filterDTO.country.split(',');
         let invalidCountry = false;
         values.forEach((element) => {
           filterDTO.country = element.toUpperCase();
@@ -295,8 +294,7 @@ export class DeviceGroupService {
       }
 
       if (filterDTO.sdgbenefit) {
-        const sdgStr = filterDTO.sdgbenefit.toString();
-        const sdgBenefitsArray = sdgStr.split(',');
+        const sdgBenefitsArray = filterDTO.sdgbenefit.toString().split(',');
         query.andWhere(
           new Brackets((qb) => {
             sdgBenefitsArray.forEach((benefit, index) => {
@@ -1033,7 +1031,7 @@ export class DeviceGroupService {
                 ? data.reservationEndDate
                 : device.createdAt,
             device_createdAt: device.createdAt,
-            status: HistoryNextInssuanceStatus.Pending,
+            status: HistoryNextIssuanceStatus.Pending,
           });
         }
         return await this.deviceService.addGroupIdToDeviceForReserving(
@@ -1514,11 +1512,11 @@ export class DeviceGroupService {
     };
   }
 
-  private getreservationFilteredQuery(
+  private getReservationFilteredQuery(
     buyerId: number,
     filter?: UnreservedDeviceGroupsFilterDTO,
   ): FindManyOptions<DeviceGroup> {
-    this.logger.verbose(`With in getreservationFilteredQuery`);
+    this.logger.verbose(`With in getReservationFilteredQuery`);
     const where: FindConditions<DeviceGroup> = cleanDeep({
       reservationStartDate:
         filter.start_date &&
@@ -1662,7 +1660,7 @@ export class DeviceGroupService {
           longitude: '',
           countryCode: '',
           fuelCode: FuelCode.ES100,
-          deviceTypeCode: DevicetypeCode.TC150,
+          deviceTypeCode: DeviceTypeCode.TC150,
           capacity: 0,
           commissioningDate: '',
           gridInterconnection: false,
@@ -2013,11 +2011,11 @@ export class DeviceGroupService {
 
       // Create an empty object to later add
       // values of the current row to it
-      // Declare string str as current array
+      // Declare string stringValue as current array
       // value to change the delimiter and
       // store the generated string in a new
       // string s
-      const str = array[i];
+      const stringValue = array[i];
       let s = '';
 
       // By Default, we get the comma separated
@@ -2030,7 +2028,7 @@ export class DeviceGroupService {
       // We keep adding the characters we
       // traverse to a String s
       let flag = 0;
-      for (let ch of str) {
+      for (let ch of stringValue) {
         if (ch === '"' && flag === 0) {
           flag = 1;
         } else if (ch === '"' && flag == 1) flag = 0;
@@ -2071,28 +2069,28 @@ export class DeviceGroupService {
       return false;
     }
   }
-  async getGroupiCertificateIssueDate(
+  async getGroupCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
-    this.logger.verbose(`With in getGroupiCertificateIssueDate`);
+    this.logger.verbose(`With in getGroupCertificateIssueDate`);
     this.logger.log('Line No: 1883');
     return (
       (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
       null
     );
   }
-  async getAllNextrequestCertificate(): Promise<
+  async getAllNextRequestCertificate(): Promise<
     DeviceGroupNextIssueCertificate[]
   > {
-    this.logger.verbose(`With in getAllNextrequestCertificate`);
+    this.logger.verbose(`With in getAllNextRequestCertificate`);
     return await this.repositoryNextDeviceGroupCertificate.find({
       where: { end_date: LessThan(new Date().toISOString()) },
     });
   }
-  async getNextrequestCertificateBYgroupId(
+  async getNextRequestCertificateByGroupId(
     groupId: number,
   ): Promise<DeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in getAllNextrequestCertificate`);
+    this.logger.verbose(`With in getAllNextRequestCertificate`);
     return await this.repositoryNextDeviceGroupCertificate.findOne({
       where: { groupId: groupId },
     });
@@ -2102,8 +2100,8 @@ export class DeviceGroupService {
     startDate: string,
     endDate: string,
   ): Promise<DeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in updatecertificateissuenextdate`);
-    const deviceGroupDate = await this.getGroupiCertificateIssueDate({
+    this.logger.verbose(`With in updateCertificateIssueDate`);
+    const deviceGroupDate = await this.getGroupCertificateIssueDate({
       id: id,
     });
     let updatedIssueDate = new DeviceGroupNextIssueCertificate();
@@ -2119,7 +2117,7 @@ export class DeviceGroupService {
   async endReservationGroup(
     groupId: number,
     organizationId: number,
-    reservationDate: EndReservationdateDTO,
+    reservationDate: EndReservationDateDTO,
     group?: DeviceGroupDTO | DeviceGroup,
     deviceGroupIssueNextDateDTO?: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
@@ -2131,7 +2129,7 @@ export class DeviceGroupService {
       new Date(reservationDate.endresavationdate).getTime()
     ) {
       if (!deviceGroupIssueNextDateDTO)
-        deviceGroupIssueNextDateDTO = await this.getGroupiCertificateIssueDate({
+        deviceGroupIssueNextDateDTO = await this.getGroupCertificateIssueDate({
           groupId: groupId,
         });
 
@@ -2172,8 +2170,8 @@ export class DeviceGroupService {
     return;
   }
 
-  async deactiveReaservation(group: DeviceGroup): Promise<void> {
-    this.logger.verbose(`With in deactiveReaservation`);
+  async deactivateReservation(group: DeviceGroup): Promise<void> {
+    this.logger.verbose(`With in deactivateReservation`);
     if (group) {
       group.reservationActive = false;
       await this.repository.save(group);
@@ -2201,13 +2199,13 @@ export class DeviceGroupService {
     });
   }
 
-  public async getNextHistoryissuanceDevicelog(): Promise<
+  public async getNextHistoryIssuanceDeviceLog(): Promise<
     HistoryDeviceGroupNextIssueCertificate[] | undefined
   > {
-    this.logger.verbose(`With in getNextHistoryissuanceDevicelog`);
+    this.logger.verbose(`With in getNextHistoryIssuanceDeviceLog`);
     return this.historyNextIssuanceDateRepository.find({
       where: {
-        status: HistoryNextInssuanceStatus.Pending,
+        status: HistoryNextIssuanceStatus.Pending,
       },
     });
   }
@@ -2224,12 +2222,12 @@ export class DeviceGroupService {
     });
   }
 
-  public async getNextHistoryissuanceDevicelogafterreservation(
+  public async getNextHistoryIssuanceDeviceLogAfterReservation(
     developerExternalId: string,
     groupId: number,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     this.logger.verbose(
-      `With in getNextHistoryissuanceDevicelogafterreservation`,
+      `With in getNextHistoryIssuanceDeviceLogAfterReservation`,
     );
     return await this.historyNextIssuanceDateRepository.findOne({
       where: {
@@ -2250,7 +2248,7 @@ export class DeviceGroupService {
   }
   async updateHistoryCertificateIssueDate(
     id: number,
-    Status: HistoryNextInssuanceStatus,
+    Status: HistoryNextIssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
     this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
     const historyNextDate = await this.getHistoryCertificateIssueDate({
@@ -2928,7 +2926,7 @@ export class DeviceGroupService {
   }
 
   async getAllCSVJobsForApiUser(
-    apiuserId: string,
+    apiUserId: string,
     organizationId?: number,
     pageNumber?: number,
     limit?: number,
@@ -2947,8 +2945,8 @@ export class DeviceGroupService {
         .createQueryBuilder('csvjobs')
         .orderBy('csvjobs.createdAt', 'DESC');
 
-    if (apiuserId) {
-      query.andWhere(`csvjobs.api_user_id = '${apiuserId}'`);
+    if (apiUserId) {
+      query.andWhere(`csvjobs.api_user_id = '${apiUserId}'`);
     }
 
     if (organizationId) {

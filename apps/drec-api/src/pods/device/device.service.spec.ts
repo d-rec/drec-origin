@@ -11,7 +11,7 @@ import {
   FindOneOptions,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { ConflictException } from '@nestjs/common';
@@ -29,7 +29,7 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   OffTaker,
   OrganizationStatus,
@@ -44,7 +44,7 @@ import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_pr
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyRepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
   let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
@@ -67,7 +67,7 @@ describe('DeviceService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+          provide: getRepositoryToken(HistoryIntermediateMeterRead),
           useClass: Repository,
         },
         {
@@ -121,7 +121,7 @@ describe('DeviceService', () => {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -201,7 +201,7 @@ describe('DeviceService', () => {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -571,7 +571,7 @@ describe('DeviceService', () => {
     it('should retrieve devices without pagination', async () => {
       const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: undefined, //600,
         start_date: undefined, //'2023-02-01T06:59:11.000Z',
         end_date: undefined, //'2024-02-26T06:59:11.000Z',
@@ -907,7 +907,7 @@ describe('DeviceService', () => {
       ];
       const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: undefined, //600,
         start_date: undefined, //'2023-02-01T06:59:11.000Z',
         end_date: undefined, //'2024-02-26T06:59:11.000Z',
@@ -1504,7 +1504,7 @@ describe('DeviceService', () => {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -1570,7 +1570,7 @@ describe('DeviceService', () => {
           latitude: '23.65362',
           longitude: '25.43647',
           fuelCode: FuelCode.ES100,
-          deviceTypeCode: DevicetypeCode.TC110,
+          deviceTypeCode: DeviceTypeCode.TC110,
           capacity: 2500,
           commissioningDate: '2024-02-01T06:59:11.000Z',
           gridInterconnection: true,

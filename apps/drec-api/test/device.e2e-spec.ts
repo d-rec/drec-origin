@@ -19,7 +19,7 @@ import {
 import { DeviceService } from '../src/pods/device/device.service';
 import {
   DeviceOrderBy,
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   Installation,
   OffTaker,
@@ -126,7 +126,7 @@ describe('Device tests', () => {
       longitude: '135.717309',
       countryCode: 'DE',
       fuelCode: FuelCode.ES100,
-      deviceTypeCode: DevicetypeCode.TC110,
+      deviceTypeCode: DeviceTypeCode.TC110,
       capacity: 1340,
       commissioningDate: '2012-07-01',
       gridInterconnection: true,
@@ -179,7 +179,7 @@ describe('Device tests', () => {
       latitude: '34.921213',
       longitude: '135.717309',
       fuelCode: FuelCode.ES100,
-      deviceTypeCode: DevicetypeCode.TC110,
+      deviceTypeCode: DeviceTypeCode.TC110,
       capacity: 1340,
       countryCode: 'DE',
       commissioningDate: '2012-07-01',

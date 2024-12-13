@@ -70,7 +70,7 @@ export class OrganizationController {
   constructor(
     private readonly organizationService: OrganizationService,
     private userService: UserService,
-    private invitationservice: InvitationService,
+    private invitationService: InvitationService,
   ) {}
 
   /**
@@ -163,7 +163,7 @@ export class OrganizationController {
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.ApiUser) {
-      return this.organizationService.findApiuserOrganizationUsers(
+      return this.organizationService.findApiUserOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
         limit,
@@ -392,7 +392,7 @@ export class OrganizationController {
     if (user.role === loggedUser.role && user.status === 'Active') {
       throw new NotFoundException('Unauthorized');
     } else {
-      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.invitationService.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
     return responseSuccess();

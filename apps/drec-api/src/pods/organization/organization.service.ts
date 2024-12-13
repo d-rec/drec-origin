@@ -188,7 +188,7 @@ export class OrganizationService {
     };
   }
 
-  public async findApiuserOrganizationUsers(
+  public async findApiUserOrganizationUsers(
     apiUserId: string,
     pageNumber: number,
     limit: number,
@@ -198,7 +198,7 @@ export class OrganizationService {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`With in findApiuserOrganizationUsers`);
+    this.logger.verbose(`With in findApiUserOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(
