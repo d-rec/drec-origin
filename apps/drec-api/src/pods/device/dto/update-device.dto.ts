@@ -33,7 +33,6 @@ export class UpdateDeviceDTO
     >
 {
   @ApiProperty()
-  @IsOptional()
   @Trim()
   @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
