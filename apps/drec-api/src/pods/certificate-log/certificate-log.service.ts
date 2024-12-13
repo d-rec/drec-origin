@@ -625,7 +625,7 @@ export class CertificateLogService {
 
     if (oldCertificateLog && oldReservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 581');
-      const oldLog = await this.getDeveloperFindCertifiedReservations(
+      const oldLog = await this.getDeveloperCertifiedReservations(
         oldReservationInfo,
         user.role,
       );
@@ -649,7 +649,7 @@ export class CertificateLogService {
     return value === 'true' || value === true;
   }
 
-  async getDeveloperFindCertifiedReservations(
+  async getDeveloperCertifiedReservations(
     certifiedReservation:
       | {
           deviceGroups: any;
@@ -661,7 +661,7 @@ export class CertificateLogService {
     role: Role,
   ): Promise<CertificateLogResponse> {
     const finalCertificatesInReservationWithLogs: Array<any> = [];
-    this.logger.verbose(`With in getDeveloperfindCertifiedReservations`);
+    this.logger.verbose(`With in getDeveloperCertifiedReservations`);
     await Promise.all(
       certifiedReservation.deviceGroups.map(async (group: any) => {
         const newQuery = await this.certificateRepository

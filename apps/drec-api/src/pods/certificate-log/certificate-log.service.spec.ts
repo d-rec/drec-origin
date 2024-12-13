@@ -387,7 +387,7 @@ describe('CertificateLogService', () => {
       };
 
       jest
-        .spyOn(service, 'getDeveloperFindCertifiedReservations')
+        .spyOn(service, 'getDeveloperCertifiedReservations')
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificateLogResponse,
         );

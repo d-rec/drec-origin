@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -904,22 +905,11 @@ export class DeviceController {
   })
   async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,
-    @Query('groupUid') groupId: string,
+    @Query('groupUid', ParseUUIDPipe) groupId: string,
     @Query('pagenumber') pageNumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
-    this.logger.verbose(`With in certifiedlogdaterang`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupId === null || !regexExp.test(groupId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupId,

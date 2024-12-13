@@ -10,6 +10,7 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -916,25 +917,14 @@ export class BuyerReservationController {
     status: HttpStatus.OK,
   })
   public async getReservationCurrentInformation(
-    @Param('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
+    @Query('pagenumber') pageNumber: number,
   ): Promise<any> {
-    this.logger.verbose(`With in getReservationcurrentinformation`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in getReservationCurrentInformation`);
 
     return await this.deviceGroupService.getCurrentInformationOfDevicesInReservation(
-      groupuId,
-      pagenumber,
+      groupId,
+      pageNumber,
     );
   }
 }
