@@ -571,7 +571,7 @@ export class CertificateLogService {
 
   async getCertifiedLogOfDevices(
     user: ILoggedInUser,
-    filterDto: FilterDTO,
+    filterDTO: FilterDTO,
     pageNumber: number,
   ): Promise<{
     certificatelog:
@@ -587,7 +587,7 @@ export class CertificateLogService {
       await this.deviceGroupService.getReservationInforDeveloperBsise(
         user.organizationId,
         user.role,
-        filterDto,
+        filterDTO,
         pageNumber,
         user.api_user_id,
       );
@@ -599,7 +599,7 @@ export class CertificateLogService {
       await this.deviceGroupService.getFilteredDeviceGroupReservationHistoryByUserRole(
         user.organizationId,
         user.role,
-        filterDto,
+        filterDTO,
         pageNumber,
         user.api_user_id,
       );
@@ -607,7 +607,7 @@ export class CertificateLogService {
       'getOldReservationInfo',
       oldReservationInfo.deviceGroups.length,
     );
-    const oldCertificateLog = this.isTrue(filterDto.oldcertificatelog);
+    const oldCertificateLog = this.isTrue(filterDTO.oldcertificatelog);
     if (!oldCertificateLog && reservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 580');
       const newLog =

@@ -77,7 +77,7 @@ export class AdminController {
     description: 'Gets all users',
   })
   public async getUsers(
-    @Query(ValidationPipe) filterDto: UserFilterDTO,
+    @Query(ValidationPipe) filterDTO: UserFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -87,7 +87,7 @@ export class AdminController {
     totalPages: number;
     totalCount: number;
   }> {
-    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
+    return this.userService.getUsersByFilter(filterDTO, pageNumber, limit);
   }
 
   @Get('/organizations')
@@ -102,7 +102,7 @@ export class AdminController {
     description: 'Returns all Organizations',
   })
   async getAllOrganizations(
-    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -114,7 +114,7 @@ export class AdminController {
     totalCount: number;
   }> {
     return await this.organizationService.getAll(
-      filterDto,
+      filterDTO,
       pageNumber,
       limit,
       user,

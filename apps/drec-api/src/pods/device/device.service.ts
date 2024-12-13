@@ -60,8 +60,8 @@ import { SDGBenefits } from '../../models/Sdgbenefit';
 import { v4 as uuid } from 'uuid';
 import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
-import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
@@ -76,19 +76,19 @@ export class DeviceService {
 
   constructor(
     @InjectRepository(HistoryIntermediate_MeterRead)
-    private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
+    private readonly historyRepository: Repository<HistoryIntermediate_MeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
-    private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+    private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     private httpService: HttpService,
-    @InjectRepository(IrecDevicesInformationEntity)
-    private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
-    @InjectRepository(IrecErrorLogInformationEntity)
-    private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
+    @InjectRepository(IRECDevicesInformationEntity)
+    private readonly irecInfoRepository: Repository<IRECDevicesInformationEntity>,
+    @InjectRepository(IRECErrorLogInformationEntity)
+    private readonly irecErrorLogRepository: Repository<IRECErrorLogInformationEntity>,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
-    private readonly latedevciecertificaterepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
+    private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
   ) {}
 
   public async find(
@@ -258,12 +258,12 @@ export class DeviceService {
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
-        const irecDeviceAddDTO = new IrecDevicesInformationEntity();
+        const irecDeviceAddDTO = new IRECDevicesInformationEntity();
         (irecDeviceAddDTO.IREC_id = data.code),
           (irecDeviceAddDTO.event = 'register'),
           (irecDeviceAddDTO.request = requestBody),
           (irecDeviceAddDTO.responses = data);
-        await this.irecinforepository.save({
+        await this.irecInfoRepository.save({
           ...irecDeviceAddDTO,
         });
         this.logger.log(`Device Added Successfully in I-REC`);
@@ -273,12 +273,12 @@ export class DeviceService {
           IREC_ID: data.code,
         };
       } catch (error) {
-        const irecDeviceErrorLogDTO = new IrecErrorLogInformationEntity();
+        const irecDeviceErrorLogDTO = new IRECErrorLogInformationEntity();
 
         (irecDeviceErrorLogDTO.event = 'register'),
           (irecDeviceErrorLogDTO.request = requestBody),
           (irecDeviceErrorLogDTO.error_log_responses = error);
-        await this.irecerrorlogrepository.save({
+        await this.irecErrorLogRepository.save({
           ...irecDeviceErrorLogDTO,
         });
         this.logger.error(`Device Added Failure in I-REC ${error}`);
@@ -568,9 +568,9 @@ export class DeviceService {
     ) {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
-      newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
+      newDevice.SDGBenefits.forEach((sdbBenefitName: string, index: number) => {
         const foundEle = sdgBenifitsList.find(
-          (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
+          (ele) => ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
         if (foundEle) {
           newDevice.SDGBenefits[index] = foundEle.value;
@@ -650,9 +650,9 @@ export class DeviceService {
     ) {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
-      updateDeviceDTO.SDGBenefits.forEach((sdgbname: string, index: number) => {
+      updateDeviceDTO.SDGBenefits.forEach((sdbBenefitName: string, index: number) => {
         const foundEle = sdgBenifitsList.find(
-          (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
+          (ele) => ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
         if (foundEle) {
           updateDeviceDTO.SDGBenefits[index] = foundEle.value;
@@ -926,7 +926,7 @@ export class DeviceService {
   }
   public async updateReadType(
     deviceId: string,
-    meterReadtype: string,
+    meterReadType: string,
   ): Promise<Device> {
     this.logger.verbose(`With in updatereadtype`);
     const deviceReadType = await this.repository.findOne({
@@ -938,7 +938,7 @@ export class DeviceService {
       this.logger.error(`No device found with id ${deviceId}`);
       throw new NotFoundException(`No device found with id ${deviceId}`);
     }
-    deviceReadType.meterReadtype = meterReadtype;
+    deviceReadType.meterReadtype = meterReadType;
 
     return await this.repository.save(deviceReadType);
   }
@@ -1028,7 +1028,7 @@ export class DeviceService {
     params: CheckCertificateIssueDateLogForDeviceEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in AddCertificateIssueDateLogForDevice`);
-    return await this.checkdevcielogcertificaterepository.save({
+    return await this.checkDeviceLogCertificateRepository.save({
       ...params,
     });
   }
@@ -1037,7 +1037,7 @@ export class DeviceService {
     params: DeviceLateOngoingIssueCertificateEntity,
   ): Promise<DeviceLateOngoingIssueCertificateEntity> {
     this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
-    return await this.latedevciecertificaterepository.save({
+    return await this.lateDeviceCertificateRepository.save({
       ...params,
     });
   }
@@ -1045,7 +1045,7 @@ export class DeviceService {
     DeviceLateOngoingIssueCertificateEntity[]
   > {
     this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
-    return await this.latedevciecertificaterepository.find({
+    return await this.lateDeviceCertificateRepository.find({
       where: {
         certificate_issued: false,
       },
@@ -1060,7 +1060,7 @@ export class DeviceService {
     latestartDate: DateTime,
     lateendDate: DateTime,
   ): Promise<boolean> {
-    const isAlreadyAdded = await this.latedevciecertificaterepository.findOne({
+    const isAlreadyAdded = await this.lateDeviceCertificateRepository.findOne({
       where: {
         groupId: groupid,
         device_externalid: externalid,
@@ -1074,13 +1074,13 @@ export class DeviceService {
     }
   }
   public async findOneLateCycle(
-    groupid: number,
-    externalid: string,
+    groupId: number,
+    externalId: string,
   ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {
-    return await this.latedevciecertificaterepository.find({
+    return await this.lateDeviceCertificateRepository.find({
       where: {
-        groupId: groupid,
-        device_externalid: externalid,
+        groupId: groupId,
+        device_externalid: externalId,
         //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
@@ -1095,7 +1095,7 @@ export class DeviceService {
     endDate: Date,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
-    const query = this.getdevcielogFilteredQuery(deviceid, startDate, endDate);
+    const query = this.getDeviceLogFilteredQuery(deviceid, startDate, endDate);
     try {
       const device = await query.getRawMany();
       return device.map((s: any) => {
@@ -1114,14 +1114,14 @@ export class DeviceService {
     }
   }
 
-  private getdevcielogFilteredQuery(
+  private getDeviceLogFilteredQuery(
     deviceid: string,
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
-    this.logger.verbose(`With in getdevcielogFilteredQuery`);
+    this.logger.verbose(`With in getDeviceLogFilteredQuery`);
     //  const { organizationName, status } = filterDto;
-    return this.checkdevcielogcertificaterepository
+    return this.checkDeviceLogCertificateRepository
       .createQueryBuilder('device')
       .where('device.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
@@ -1185,7 +1185,7 @@ export class DeviceService {
     await Promise.all(
       devices.map(async (device: Device) => {
         const certifiedAmountOfRead =
-          await this.checkdevcielogcertificaterepository.find({
+          await this.checkDeviceLogCertificateRepository.find({
             where: { externalId: device.externalId },
           });
         const totalCertifiedReadValue = certifiedAmountOfRead.reduce(
@@ -1236,7 +1236,7 @@ export class DeviceService {
 
   async getNumberOfHistoryReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
-    const query = this.historyrepository
+    const query = this.historyRepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId });
     return await query.getCount();
@@ -1331,7 +1331,7 @@ export class DeviceService {
     deviceId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return await this.checkdevcielogcertificaterepository.find({
+    return await this.checkDeviceLogCertificateRepository.find({
       where: {
         groupId: groupId,
         externalId: deviceId,
@@ -1347,7 +1347,7 @@ export class DeviceService {
   ): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterange`);
 
-    const queryBuilder = this.checkdevcielogcertificaterepository
+    const queryBuilder = this.checkDeviceLogCertificateRepository
       .createQueryBuilder('deviceData')
       .select(
         'MIN(deviceData.certificate_issuance_startdate)',
@@ -1376,7 +1376,7 @@ export class DeviceService {
     const pageSize = 10;
     const skip: number = (pageNumber - 1) * pageSize;
 
-    const queryBuilder = await this.checkdevcielogcertificaterepository
+    const queryBuilder = await this.checkDeviceLogCertificateRepository
       .createQueryBuilder('deviceData')
       .leftJoin('device', 'd', 'deviceData.externalId = d.externalId')
       .select([
@@ -1418,7 +1418,7 @@ export class DeviceService {
       };
     }
     const certifiedAmountOfRead =
-      await this.checkdevcielogcertificaterepository.findOne({
+      await this.checkDeviceLogCertificateRepository.findOne({
         where: { externalId: checkDeviceUnreserve.externalId },
       });
 
@@ -1444,7 +1444,7 @@ export class DeviceService {
   ): Promise<any> {
     this.logger.verbose(`With in updatelateongoing`);
     this.logger.verbose(`With in updatelateongoing`, id);
-    return await this.latedevciecertificaterepository.update(
+    return await this.lateDeviceCertificateRepository.update(
       { id: id, device_externalid: externalId },
       { late_end_date: lateend_date, certificate_issued: true },
     );
@@ -1457,7 +1457,7 @@ export class DeviceService {
       `With in updatelateongoingIfReservationInactive`,
       externalId,
     );
-    return await this.latedevciecertificaterepository.update(
+    return await this.lateDeviceCertificateRepository.update(
       { device_externalid: externalId },
       { certificate_issued: true },
     );

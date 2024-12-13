@@ -106,16 +106,16 @@ export class DeviceGroupService {
     private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
-    private readonly checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
+    private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
-    private readonly historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
+    private readonly historyNextIssuanceDateRepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
     @InjectRepository(CertificateReadModelEntity)
     private readonly certificateReadModuleRepository: Repository<
       CertificateReadModelEntity<ICertificateMetadata>
     >,
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
-    private readonly certificate_settingrepository: Repository<CertificateSettingEntity>,
+    private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
   ) {}
 
   async getAll(
@@ -124,7 +124,7 @@ export class DeviceGroupService {
     apiuserId?: string,
     pageNumber?: number,
     limit?: number,
-    filterDto?: UnreservedDeviceGroupsFilterDTO,
+    filterDTO?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -134,7 +134,7 @@ export class DeviceGroupService {
       }
     | any
   > {
-    this.logger.verbose(`With in dg service ${filterDto}`);
+    this.logger.verbose(`With in dg service ${filterDTO}`);
     const query: SelectQueryBuilder<DeviceGroup> = await this.repository
       .createQueryBuilder('group')
       .innerJoin(Device, 'device', 'device.id = ANY("group"."deviceIdsInt")')
@@ -154,12 +154,12 @@ export class DeviceGroupService {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
 
-    if (filterDto) {
+    if (filterDTO) {
       if (
-        filterDto.start_date != undefined &&
-        filterDto.end_date != undefined
+        filterDTO.start_date != undefined &&
+        filterDTO.end_date != undefined
       ) {
-        if (filterDto.start_date != null && filterDto.end_date === null) {
+        if (filterDTO.start_date != null && filterDTO.end_date === null) {
           this.logger.error(`End Date should be mandatory`);
           throw new ConflictException({
             success: false,
@@ -169,8 +169,8 @@ export class DeviceGroupService {
 
         if (
           !(
-            new Date(filterDto.start_date).getTime() <
-            new Date(filterDto.end_date).getTime()
+            new Date(filterDTO.start_date).getTime() <
+            new Date(filterDTO.end_date).getTime()
           )
         ) {
           this.logger.error(`End date should be greater then from Start date`);
@@ -182,8 +182,8 @@ export class DeviceGroupService {
 
         if (
           !(
-            new Date(filterDto.start_date).getTime() <
-            new Date(filterDto.end_date).getTime()
+            new Date(filterDTO.start_date).getTime() <
+            new Date(filterDTO.end_date).getTime()
           )
         ) {
           this.logger.error(`End date should be greater then from Start date`);
@@ -194,20 +194,20 @@ export class DeviceGroupService {
         }
       }
 
-      if (filterDto.country) {
-        const countrystr = filterDto.country;
+      if (filterDTO.country) {
+        const countrystr = filterDTO.country;
         const values = countrystr.split(',');
         let invalidCountry = false;
         values.forEach((element) => {
-          filterDto.country = element.toUpperCase();
+          filterDTO.country = element.toUpperCase();
           if (
-            filterDto.country &&
-            typeof filterDto.country === 'string' &&
-            filterDto.country.length === 3
+            filterDTO.country &&
+            typeof filterDTO.country === 'string' &&
+            filterDTO.country.length === 3
           ) {
             if (
               countryCodesList.find(
-                (element) => element.countryCode === filterDto.country,
+                (element) => element.countryCode === filterDTO.country,
               ) === undefined
             ) {
               invalidCountry = true;
@@ -222,20 +222,20 @@ export class DeviceGroupService {
         }
       }
 
-      if (filterDto.fuelCode) {
-        if (typeof filterDto.fuelCode === 'string') {
+      if (filterDTO.fuelCode) {
+        if (typeof filterDTO.fuelCode === 'string') {
           query.andWhere('group.fuelCode = :fuelcode', {
-            fuelcode: [filterDto.fuelCode],
+            fuelcode: [filterDTO.fuelCode],
           });
-        } else if (typeof filterDto.fuelCode === 'object') {
+        } else if (typeof filterDTO.fuelCode === 'object') {
           query.andWhere('group.fuelCode @> ARRAY[:...fuelcode]', {
-            fuelcode: filterDto.fuelCode,
+            fuelcode: filterDTO.fuelCode,
           });
         }
       }
 
-      if (filterDto.offTaker) {
-        const newOffTaker = filterDto.offTaker.toString();
+      if (filterDTO.offTaker) {
+        const newOffTaker = filterDTO.offTaker.toString();
         const offTakerArray = newOffTaker.split(',');
         query.andWhere(
           new Brackets((qb) => {
@@ -256,7 +256,7 @@ export class DeviceGroupService {
         );
       }
 
-      if (filterDto.start_date && filterDto.end_date) {
+      if (filterDTO.start_date && filterDTO.end_date) {
         query.andWhere(
           new Brackets((db) => {
             db.where(
@@ -265,13 +265,13 @@ export class DeviceGroupService {
                   .where(
                     'group.reservationStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
                     {
-                      reservationStartDate1: filterDto.start_date,
-                      reservationEndDate1: filterDto.end_date,
+                      reservationStartDate1: filterDTO.start_date,
+                      reservationEndDate1: filterDTO.end_date,
                     },
                   )
                   .orWhere(
                     'group.reservationStartDate = :reservationStartDate',
-                    { reservationStartDate: filterDto.start_date },
+                    { reservationStartDate: filterDTO.start_date },
                   );
               }),
             ).andWhere(
@@ -280,13 +280,13 @@ export class DeviceGroupService {
                   .where(
                     'group.reservationEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
                     {
-                      reservationStartDate2: filterDto.start_date,
-                      reservationEndDate2: filterDto.end_date,
+                      reservationStartDate2: filterDTO.start_date,
+                      reservationEndDate2: filterDTO.end_date,
                     },
                   )
                   .orWhere(
                     'group.reservationEndDate = :reservationStartDate ',
-                    { reservationStartDate: filterDto.end_date },
+                    { reservationStartDate: filterDTO.end_date },
                   );
               }),
             );
@@ -294,8 +294,8 @@ export class DeviceGroupService {
         );
       }
 
-      if (filterDto.sdgbenefit) {
-        const sdgStr = filterDto.sdgbenefit.toString();
+      if (filterDTO.sdgbenefit) {
+        const sdgStr = filterDTO.sdgbenefit.toString();
         const sdgBenefitsArray = sdgStr.split(',');
         query.andWhere(
           new Brackets((qb) => {
@@ -313,16 +313,16 @@ export class DeviceGroupService {
           }),
         );
       }
-      if (filterDto.name) {
-        const name = filterDto.name.toString();
+      if (filterDTO.name) {
+        const name = filterDTO.name.toString();
         const baseQuery = 'group.name ILIKE :name';
         query.andWhere(baseQuery, { name: `%${name}%` });
       }
-      if (filterDto.reservationActive) {
-        if (filterDto.reservationActive === 'Active') {
+      if (filterDTO.reservationActive) {
+        if (filterDTO.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
         }
-        if (filterDto.reservationActive === 'Deactive') {
+        if (filterDTO.reservationActive === 'Deactive') {
           query.andWhere('group.reservationActive = :active', {
             active: false,
           });
@@ -1023,7 +1023,7 @@ export class DeviceGroupService {
           new Date(data.reservationStartDate).getTime() <
           new Date(device.createdAt).getTime()
         ) {
-          await this.historynextissuancedaterepository.save({
+          await this.historyNextIssuanceDateRepository.save({
             groupId: group.id,
             device_externalid: device.externalId,
             reservationStartDate: data.reservationStartDate,
@@ -1202,7 +1202,7 @@ export class DeviceGroupService {
         deviceGroup['api_user_id'] = group.api_user_id;
       }
       const configurationSetting =
-        await this.certificate_settingrepository.find();
+        await this.certificateSettingsRepository.find();
       const lastCertifiableDate = new Date(group.reservationEndDate);
       lastCertifiableDate.setDate(
         lastCertifiableDate.getDate() + configurationSetting[0].no_of_days,
@@ -2185,7 +2185,7 @@ export class DeviceGroupService {
     groupId: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | undefined> {
     this.logger.verbose(`With in getDeviceGrouplog`);
-    return this.checkdevciegrouplogcertificaterepository.find({
+    return this.checkDeviceGroupLogCertificateRepository.find({
       where: {
         groupid: groupId.toString(),
       },
@@ -2196,7 +2196,7 @@ export class DeviceGroupService {
     params: CheckCertificateIssueDateLogForDeviceGroupEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
     this.logger.verbose(`With in AddCertificateIssueDateLogForDeviceGroup`);
-    return await this.checkdevciegrouplogcertificaterepository.save({
+    return await this.checkDeviceGroupLogCertificateRepository.save({
       ...params,
     });
   }
@@ -2205,7 +2205,7 @@ export class DeviceGroupService {
     HistoryDeviceGroupNextIssueCertificate[] | undefined
   > {
     this.logger.verbose(`With in getNextHistoryissuanceDevicelog`);
-    return this.historynextissuancedaterepository.find({
+    return this.historyNextIssuanceDateRepository.find({
       where: {
         status: HistoryNextInssuanceStatus.Pending,
       },
@@ -2216,7 +2216,7 @@ export class DeviceGroupService {
     groupId: number,
   ): Promise<number> {
     this.logger.verbose(`With in countGroupIdHistoryIssuanceDeviceLog`);
-    return await this.historynextissuancedaterepository.count({
+    return await this.historyNextIssuanceDateRepository.count({
       where: {
         groupId: groupId,
         status: 'Pending',
@@ -2231,7 +2231,7 @@ export class DeviceGroupService {
     this.logger.verbose(
       `With in getNextHistoryissuanceDevicelogafterreservation`,
     );
-    return await this.historynextissuancedaterepository.findOne({
+    return await this.historyNextIssuanceDateRepository.findOne({
       where: {
         device_externalid: developerExternalId,
         groupId: groupId,
@@ -2245,7 +2245,7 @@ export class DeviceGroupService {
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historynextissuancedaterepository.findOne(conditions)) ?? null
+      (await this.historyNextIssuanceDateRepository.findOne(conditions)) ?? null
     );
   }
   async updateHistoryCertificateIssueDate(
@@ -2260,7 +2260,7 @@ export class DeviceGroupService {
     if (historyNextDate) {
       historyNextDate.status = Status;
       updatedIssueDateStatus =
-        await this.historynextissuancedaterepository.save(historyNextDate);
+        await this.historyNextIssuanceDateRepository.save(historyNextDate);
     }
     return updatedIssueDateStatus;
   }
@@ -2297,7 +2297,7 @@ export class DeviceGroupService {
     }
     const pageSize = 10;
     const skip = (pageNumber - 1) * pageSize;
-    const queryBuilder = await this.historynextissuancedaterepository
+    const queryBuilder = await this.historyNextIssuanceDateRepository
       .createQueryBuilder('hni')
       .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
       .select([
@@ -2351,7 +2351,7 @@ export class DeviceGroupService {
   async getReservationInforDeveloperBsise(
     orgId: number,
     role: Role,
-    filterDto: FilterDTO,
+    filterDTO: FilterDTO,
     pageNumber: number,
     apiUserId?: string,
   ): Promise<any> {
@@ -2419,19 +2419,19 @@ export class DeviceGroupService {
         )
         .andWhere(
           new Brackets((qb) => {
-            if (filterDto.country) {
-              const string = filterDto.country;
+            if (filterDTO.country) {
+              const string = filterDTO.country;
               string.split(',');
               let CountryInvalid = false;
-              filterDto.country = filterDto.country.toUpperCase();
+              filterDTO.country = filterDTO.country.toUpperCase();
               if (
-                filterDto.country &&
-                typeof filterDto.country === 'string' &&
-                filterDto.country.length === 3
+                filterDTO.country &&
+                typeof filterDTO.country === 'string' &&
+                filterDTO.country.length === 3
               ) {
                 if (
                   countryCodesList.find(
-                    (ele) => ele.countryCode === filterDto.country,
+                    (ele) => ele.countryCode === filterDTO.country,
                   ) === undefined
                 ) {
                   CountryInvalid = true;
@@ -2439,7 +2439,7 @@ export class DeviceGroupService {
               }
 
               if (!CountryInvalid) {
-                const newCountry = filterDto.country.toString();
+                const newCountry = filterDTO.country.toString();
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
@@ -2458,8 +2458,8 @@ export class DeviceGroupService {
                 );
               }
             }
-            if (filterDto.fuelCode) {
-              const newFuelCode = filterDto.fuelCode.toString();
+            if (filterDTO.fuelCode) {
+              const newFuelCode = filterDTO.fuelCode.toString();
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
@@ -2477,8 +2477,8 @@ export class DeviceGroupService {
                 }),
               );
             }
-            if (filterDto.offTaker) {
-              const newOffTaker = filterDto.offTaker.toString();
+            if (filterDTO.offTaker) {
+              const newOffTaker = filterDTO.offTaker.toString();
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
@@ -2497,19 +2497,19 @@ export class DeviceGroupService {
               );
             }
             const startTimestamp =
-              new Date(filterDto.start_date).getTime() / 1000;
-            const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-            if (filterDto.start_date && filterDto.end_date === undefined) {
+              new Date(filterDTO.start_date).getTime() / 1000;
+            const endTimestamp = new Date(filterDTO.end_date).getTime() / 1000;
+            if (filterDTO.start_date && filterDTO.end_date === undefined) {
               qb.orWhere('crm.generationStartTime > :certificateStartDate ', {
                 certificateStartDate: startTimestamp,
               });
             }
-            if (filterDto.end_date && filterDto.start_date === undefined) {
+            if (filterDTO.end_date && filterDTO.start_date === undefined) {
               qb.orWhere('crm.generationEndTime  <:certificateEndDate', {
                 certificateEndDate: endTimestamp,
               });
             }
-            if (filterDto.start_date && filterDto.end_date) {
+            if (filterDTO.start_date && filterDTO.end_date) {
               qb.orWhere(
                 'crm.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
                 {
@@ -2525,8 +2525,8 @@ export class DeviceGroupService {
                 },
               );
             }
-            if (filterDto.SDGBenefits) {
-              const newSDG = filterDto.SDGBenefits.toString();
+            if (filterDTO.SDGBenefits) {
+              const newSDG = filterDTO.SDGBenefits.toString();
               const sdgBenefitsArray = newSDG.split(',');
               // sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
@@ -2546,29 +2546,29 @@ export class DeviceGroupService {
                 }),
               );
             }
-            if (filterDto.fromAmountread && filterDto.toAmountread) {
+            if (filterDTO.fromAmountread && filterDTO.toAmountread) {
               qb.orWhere(
                 'dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread',
                 {
-                  fromAmountread: filterDto.fromAmountread,
-                  toAmountread: filterDto.toAmountread,
+                  fromAmountread: filterDTO.fromAmountread,
+                  toAmountread: filterDTO.toAmountread,
                 },
               );
             }
             if (
-              filterDto.fromAmountread != null &&
-              filterDto.toAmountread === undefined
+              filterDTO.fromAmountread != null &&
+              filterDTO.toAmountread === undefined
             ) {
               qb.orWhere('dg_log.readvalue_watthour > :fromAmountread', {
-                fromAmountread: filterDto.fromAmountread,
+                fromAmountread: filterDTO.fromAmountread,
               });
             }
             if (
-              filterDto.fromAmountread === undefined &&
-              filterDto.toAmountread != null
+              filterDTO.fromAmountread === undefined &&
+              filterDTO.toAmountread != null
             ) {
               qb.orWhere('dg_log.readvalue_watthour < :toAmountread', {
-                toAmountread: filterDto.toAmountread,
+                toAmountread: filterDTO.toAmountread,
               });
             }
           }),
@@ -2635,7 +2635,7 @@ export class DeviceGroupService {
   async getFilteredDeviceGroupReservationHistoryByUserRole(
     orgId: number,
     role: Role,
-    filterDto: FilterDTO,
+    filterDTO: FilterDTO,
     pageNumber: number,
     apiUserId?: string,
   ): Promise<any> {
@@ -2692,19 +2692,19 @@ export class DeviceGroupService {
         )
         .andWhere(
           new Brackets((qb) => {
-            if (filterDto.country) {
-              const string = filterDto.country;
+            if (filterDTO.country) {
+              const string = filterDTO.country;
               string.split(',');
               let CountryInvalid = false;
-              filterDto.country = filterDto.country.toUpperCase();
+              filterDTO.country = filterDTO.country.toUpperCase();
               if (
-                filterDto.country &&
-                typeof filterDto.country === 'string' &&
-                filterDto.country.length === 3
+                filterDTO.country &&
+                typeof filterDTO.country === 'string' &&
+                filterDTO.country.length === 3
               ) {
                 if (
                   countryCodesList.find(
-                    (ele) => ele.countryCode === filterDto.country,
+                    (ele) => ele.countryCode === filterDTO.country,
                   ) === undefined
                 ) {
                   CountryInvalid = true;
@@ -2712,7 +2712,7 @@ export class DeviceGroupService {
               }
 
               if (!CountryInvalid) {
-                const newCountry = filterDto.country.toString();
+                const newCountry = filterDTO.country.toString();
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
@@ -2731,8 +2731,8 @@ export class DeviceGroupService {
                 );
               }
             }
-            if (filterDto.fuelCode) {
-              const newFuelCode = filterDto.fuelCode.toString();
+            if (filterDTO.fuelCode) {
+              const newFuelCode = filterDTO.fuelCode.toString();
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
@@ -2750,8 +2750,8 @@ export class DeviceGroupService {
                 }),
               );
             }
-            if (filterDto.offTaker) {
-              const newOffTaker = filterDto.offTaker.toString();
+            if (filterDTO.offTaker) {
+              const newOffTaker = filterDTO.offTaker.toString();
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
@@ -2770,20 +2770,20 @@ export class DeviceGroupService {
               );
             }
             const startTimestamp =
-              new Date(filterDto.start_date).getTime() / 1000;
-            const endTimestamp = new Date(filterDto.end_date).getTime() / 1000;
-            if (filterDto.start_date && filterDto.end_date === undefined) {
+              new Date(filterDTO.start_date).getTime() / 1000;
+            const endTimestamp = new Date(filterDTO.end_date).getTime() / 1000;
+            if (filterDTO.start_date && filterDTO.end_date === undefined) {
               qb.orWhere(
                 'issuer.generationStartTime > :certificateStartDate ',
                 { certificateStartDate: startTimestamp },
               );
             }
-            if (filterDto.end_date && filterDto.start_date === undefined) {
+            if (filterDTO.end_date && filterDTO.start_date === undefined) {
               qb.orWhere('issuer.generationEndTime  <:certificateEndDate', {
                 certificateEndDate: endTimestamp,
               });
             }
-            if (filterDto.start_date && filterDto.end_date) {
+            if (filterDTO.start_date && filterDTO.end_date) {
               qb.orWhere(
                 'issuer.generationStartTime BETWEEN :certificateStartDate1  AND :certificateEndDate1',
                 {
@@ -2799,8 +2799,8 @@ export class DeviceGroupService {
                 },
               );
             }
-            if (filterDto.SDGBenefits) {
-              const newSDG = filterDto.SDGBenefits.toString();
+            if (filterDTO.SDGBenefits) {
+              const newSDG = filterDTO.SDGBenefits.toString();
               const sdgBenefitsArray = newSDG.split(',');
               //sdgBenefitString
               sdgBenefitsArray.map((benefit) => benefit).join(',');
@@ -2820,29 +2820,29 @@ export class DeviceGroupService {
                 }),
               );
             }
-            if (filterDto.fromAmountread && filterDto.toAmountread) {
+            if (filterDTO.fromAmountread && filterDTO.toAmountread) {
               qb.orWhere(
                 'dg_log.readvalue_watthour BETWEEN :fromAmountread  AND :toAmountread',
                 {
-                  fromAmountread: filterDto.fromAmountread,
-                  toAmountread: filterDto.toAmountread,
+                  fromAmountread: filterDTO.fromAmountread,
+                  toAmountread: filterDTO.toAmountread,
                 },
               );
             }
             if (
-              filterDto.fromAmountread != null &&
-              filterDto.toAmountread === undefined
+              filterDTO.fromAmountread != null &&
+              filterDTO.toAmountread === undefined
             ) {
               qb.orWhere('dg_log.readvalue_watthour > :fromAmountread', {
-                fromAmountread: filterDto.fromAmountread,
+                fromAmountread: filterDTO.fromAmountread,
               });
             }
             if (
-              filterDto.fromAmountread === undefined &&
-              filterDto.toAmountread != null
+              filterDTO.fromAmountread === undefined &&
+              filterDTO.toAmountread != null
             ) {
               qb.orWhere('dg_log.readvalue_watthour < :toAmountread', {
-                toAmountread: filterDto.toAmountread,
+                toAmountread: filterDTO.toAmountread,
               });
             }
           }),

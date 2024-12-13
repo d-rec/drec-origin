@@ -92,7 +92,7 @@ export class OrganizationService {
   }
 
   async getAll(
-    filterDto: OrganizationFilterDTO,
+    filterDTO: OrganizationFilterDTO,
     pageNumber: number,
     limit: number,
     user?: LoggedInUser,
@@ -103,7 +103,7 @@ export class OrganizationService {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getAll`);
-    const query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
         query
@@ -513,10 +513,10 @@ export class OrganizationService {
   }
 
   public async getFilteredQuery(
-    filterDto: OrganizationFilterDTO,
+    filterDTO: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName, organizationType } = filterDto;
+    const { organizationName, organizationType } = filterDTO;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')

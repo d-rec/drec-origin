@@ -464,7 +464,7 @@ export class UserService {
   }
 
   public async getUsersByFilter(
-    filterDto: UserFilterDTO,
+    filterDTO: UserFilterDTO,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -473,7 +473,7 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    const query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
         .andWhere(`role != :role`, { role: Role.ApiUser })
@@ -494,8 +494,8 @@ export class UserService {
     }
   }
 
-  private getFilteredQuery(filterDto: UserFilterDTO): SelectQueryBuilder<User> {
-    const { organizationName, status } = filterDto;
+  private getFilteredQuery(filterDTO: UserFilterDTO): SelectQueryBuilder<User> {
+    const { organizationName, status } = filterDTO;
     const query = this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')

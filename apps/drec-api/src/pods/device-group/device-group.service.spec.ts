@@ -14,7 +14,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
-import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
+import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
 import {
   ConflictException,
   UnauthorizedException,
@@ -54,7 +54,7 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(IrecErrorLogInformationEntity),
+          provide: getRepositoryToken(IRECErrorLogInformationEntity),
           useClass: Repository,
         },
         {
@@ -136,7 +136,7 @@ describe('DeviceGroupService', () => {
 
     userService = module.get<UserService>(UserService);
 
-    // checkdevciegrouplogcertificaterepository = module.get<
+    // checkDeviceGroupLogCertificateRepository = module.get<
     //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
     // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
 
@@ -230,89 +230,6 @@ describe('DeviceGroupService', () => {
         totalCount: 1,
       });
     });
-    /*  
-    it('should throw a ConflictException when start date is provided without end date', async () => {
-      const filterDto = {
-        start_date: new Date('2023-01-01'),
-        end_date: null,
-        name: undefined,
-        country: undefined,
-        fuelCode: undefined,
-        offTaker: undefined,
-        sdgbenefit: undefined,
-        reservationActive: undefined,
-      };
-    
-      jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
-        return {
-          innerJoin: jest.fn().mockReturnThis(),
-          addSelect: jest.fn().mockReturnThis(),
-          orderBy: jest.fn().mockReturnThis(),
-          groupBy: jest.fn().mockReturnThis(),
-          andWhere: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([[], 0]),  // Mock with empty result
-        } as any;
-      });
-          
-      // Ensure service throws ConflictException when only start_date is provided
-      await expect(
-        service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto)
-      ).rejects.toThrow(ConflictException);
-    }); 
-
-    it('should throw a ConflictException when start date is not less than end date', async () => {
-      const filterDto = {
-        start_date: new Date('2023-01-01'),
-        end_date: null,
-        name: undefined,
-        country: undefined,
-        fuelCode: undefined,
-        offTaker: undefined,
-        sdgbenefit: undefined,
-        reservationActive: undefined,
-      };
-  
-      await expect(service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto)).rejects.toThrow(
-        ConflictException,
-      );
-    });
-
-    it('should filter device groups by country', async () => {
-      const filterDto = { country: 'US' };
-      const deviceGroups = [
-        {
-          id: 1,
-          name: 'Test Group',
-          countryCode: ['US'],
-          deviceIdsInt: [1, 2],
-          organizationId: 1,
-          createdAt: new Date(),
-        },
-      ];
-  
-      jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
-        return {
-          innerJoin: jest.fn().mockReturnThis(),
-          addSelect: jest.fn().mockReturnThis(),
-          orderBy: jest.fn().mockReturnThis(),
-          groupBy: jest.fn().mockReturnThis(),
-          andWhere: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
-        } as any;
-      });
-  
-      const result = await service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto);
-      expect(result).toEqual({
-        groupedData: deviceGroups,
-        currentPage: undefined,
-        totalPages: NaN,
-        totalCount: 1,
-      });
-    }); */
   });
 
   describe('findById', () => {
@@ -608,7 +525,7 @@ describe('DeviceGroupService', () => {
     it('should throw ConflictException when end date is before start date', async () => {
       const buyerId = 1;
 
-      // Add all required properties to groupfilterDto
+      // Add all required properties to groupFilterDTO
       const groupFilterDTO = {
         name: null, // Adjust based on the actual type, use '' or null if appropriate
         country: null, // Same here, adjust accordingly

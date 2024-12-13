@@ -229,11 +229,11 @@ describe('Device tests', () => {
 
   const requestUngrouppedDevice = async (
     status: HttpStatus,
-    orderFilterDto: Partial<DeviceGroupByDTO>,
+    orderFilterDTO: Partial<DeviceGroupByDTO>,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .get(`/device/ungrouped`)
-      .query(orderFilterDto)
+      .query(orderFilterDTO)
       .set('Authorization', `Bearer ${currentAccessToken}`)
       .expect(status);
 

@@ -108,10 +108,10 @@ export class CertificateLogController {
       'Returns Certificate logs For individual devices based on groupId',
   })
   async getByGroupId(
-    @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
+    @Query(ValidationPipe) filterDTO: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    return this.certificateLogService.findByGroupId(filterDto.groupId);
+    return this.certificateLogService.findByGroupId(filterDTO.groupId);
   }
 
   /**
@@ -303,7 +303,7 @@ export class CertificateLogController {
   })
   async getCertificatesForDeveloper(
     @UserDecorator() user: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pageNumber') pageNumber: number,
     @Query(
       'organizationId',
@@ -349,7 +349,7 @@ export class CertificateLogController {
 
     return this.certificateLogService.getCertifiedLogOfDevices(
       user,
-      filterDto,
+      filterDTO,
       pageNumber,
     );
   }

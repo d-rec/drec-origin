@@ -26,7 +26,7 @@ describe('CertificateLogService', () => {
   let certificateReadModelEntity: Repository<CertificateReadModelEntity<any>>;
   let mockResponse: Partial<Response>;
   let deviceService: DeviceService;
-  let devicegroupService: DeviceGroupService;
+  let deviceGroupService: DeviceGroupService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -87,7 +87,7 @@ describe('CertificateLogService', () => {
     >(getRepositoryToken(CertificateReadModelEntity));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deviceService = module.get<DeviceService>(DeviceService);
-    devicegroupService = module.get<DeviceGroupService>(DeviceGroupService);
+    deviceGroupService = module.get<DeviceGroupService>(DeviceGroupService);
 
     mockResponse = {
       setHeader: jest.fn(),
@@ -293,7 +293,7 @@ describe('CertificateLogService', () => {
         api_user_id: 'apiuserId',
       };
 
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         fromAmountread: 20,
@@ -334,12 +334,12 @@ describe('CertificateLogService', () => {
       const reservationInfo = { deviceGroups: [] };
 
       const developerReservationSpy = jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(reservationInfo);
 
       const developerOldReservationSpy = jest
         .spyOn(
-          devicegroupService,
+          deviceGroupService,
           'getFilteredDeviceGroupReservationHistoryByUserRole',
         )
         .mockResolvedValueOnce(oldReservationInfo);
@@ -394,14 +394,14 @@ describe('CertificateLogService', () => {
 
       const result = await service.getCertifiedLogOfDevices(
         user,
-        filterDto,
+        filterDTO,
         pageNumber,
       );
 
       expect(developerReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
-        filterDto,
+        filterDTO,
         pageNumber,
         user.api_user_id,
       );
@@ -409,7 +409,7 @@ describe('CertificateLogService', () => {
       expect(developerOldReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
-        filterDto,
+        filterDTO,
         pageNumber,
         user.api_user_id,
       );
@@ -478,11 +478,11 @@ describe('CertificateLogService', () => {
       };
 
       jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(reservationInfo);
       jest
         .spyOn(
-          devicegroupService,
+          deviceGroupService,
           'getFilteredDeviceGroupReservationHistoryByUserRole',
         )
         .mockResolvedValueOnce(oldReservationInfo);
@@ -568,7 +568,7 @@ describe('CertificateLogService', () => {
         api_user_id: 'apiuserId',
       };
 
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: FuelCode.ES100,
         deviceTypeCode: DevicetypeCode.TC110,
         fromAmountread: 20,
@@ -585,11 +585,11 @@ describe('CertificateLogService', () => {
       const getReservationInfo = { deviceGroups: [] };
 
       jest
-        .spyOn(devicegroupService, 'getReservationInforDeveloperBsise')
+        .spyOn(deviceGroupService, 'getReservationInforDeveloperBsise')
         .mockResolvedValueOnce(getReservationInfo);
       jest
         .spyOn(
-          devicegroupService,
+          deviceGroupService,
           'getFilteredDeviceGroupReservationHistoryByUserRole',
         )
         .mockResolvedValueOnce(getReservationInfo);
@@ -604,7 +604,7 @@ describe('CertificateLogService', () => {
 
       const result = await service.getCertifiedLogOfDevices(
         user,
-        filterDto,
+        filterDTO,
         pageNumber,
       );
 

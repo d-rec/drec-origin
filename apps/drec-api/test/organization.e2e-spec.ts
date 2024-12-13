@@ -113,13 +113,13 @@ describe('Organization tests', () => {
     const partialOrg = {
       name: 'Device Owner - Update',
     };
-    const filterDto: OrganizationFilterDTO = {
+    const filterDTO: OrganizationFilterDTO = {
       organizationName: undefined,
       organizationType: undefined,
     };
     const pageNumber = 1;
     const limit = 5;
-    const orgs = await organizationService.getAll(filterDto, pageNumber, limit);
+    const orgs = await organizationService.getAll(filterDTO, pageNumber, limit);
     await loginUser(loggedUser);
     const { body: updatedOrg } = await updateAdminOrganization(
       orgs[0]?.id.toString(),

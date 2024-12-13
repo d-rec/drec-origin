@@ -22,8 +22,8 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
-import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
@@ -200,17 +200,17 @@ describe('DrecModule', () => {
     expect(deltaFirstReadRepository).toBeDefined();
   });
 
-  it('should provide IrecDevicesInformationEntity repository', () => {
+  it('should provide IRECDevicesInformationEntity repository', () => {
     const irecDevicesInformationRepository = module.get<
-      Repository<IrecDevicesInformationEntity>
-    >(getRepositoryToken(IrecDevicesInformationEntity));
+      Repository<IRECDevicesInformationEntity>
+    >(getRepositoryToken(IRECDevicesInformationEntity));
     expect(irecDevicesInformationRepository).toBeDefined();
   });
 
-  it('should provide IrecErrorLogInformationEntity repository', () => {
+  it('should provide IRECErrorLogInformationEntity repository', () => {
     const irecErrorLogInformationRepository = module.get<
-      Repository<IrecErrorLogInformationEntity>
-    >(getRepositoryToken(IrecErrorLogInformationEntity));
+      Repository<IRECErrorLogInformationEntity>
+    >(getRepositoryToken(IRECErrorLogInformationEntity));
     expect(irecErrorLogInformationRepository).toBeDefined();
   });
 
@@ -317,8 +317,8 @@ describe('DrecModule', () => {
   });
 
   it('should import CountrycodeModule', () => {
-    const countrycodeModule = module.get(CountryCodeModule);
-    expect(countrycodeModule).toBeDefined();
+    const countryCodeModule = module.get(CountryCodeModule);
+    expect(countryCodeModule).toBeDefined();
   });
 
   it('should import SdgbenefitModule', () => {

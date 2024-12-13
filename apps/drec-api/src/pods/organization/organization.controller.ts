@@ -110,7 +110,7 @@ export class OrganizationController {
   })
   async getAllOrganizations(
     @UserDecorator() loggedUser: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -122,7 +122,7 @@ export class OrganizationController {
   }> {
     this.logger.verbose(`With in getAllOrganizations`);
     return await this.organizationService.getAll(
-      filterDto,
+      filterDTO,
       pageNumber,
       limit,
       loggedUser,
@@ -180,8 +180,8 @@ export class OrganizationController {
 
   /**
    * It is GET api to fetch an organization renord.
-   * @param {orhanizationId} is type of number which is the identifier of an organization
-   * @return { OrganizationDTO | undefined } OrganizationDto is for success response
+   * @param {organizationId} is type of number which is the identifier of an organization
+   * @return { OrganizationDTO | undefined } OrganizationDTO is for success response
    * and undefined when there is no particular record not available.
    */
   @Get('/:id')

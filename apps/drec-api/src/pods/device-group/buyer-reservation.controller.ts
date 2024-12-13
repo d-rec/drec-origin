@@ -130,7 +130,7 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -195,14 +195,14 @@ export class BuyerReservationController {
       apiUserId,
       pageNumber,
       limit,
-      filterDto,
+      filterDTO,
     );
   }
 
   /**
    * It is GET api to list all device groups of loggedIn user
    * @param param0 is getting userId, organizationId and user role from user at request
-   * @param filterDto is filteration fields to retrieve records
+   * @param filterDTO is filteration fields to retrieve records
    * @param pageNumber is for pagination
    * @returns {Array<DeviceGroupDTO>}
    */
@@ -223,7 +223,7 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
 
     @Query('pagenumber') pageNumber: number | null,
   ): Promise<
@@ -246,13 +246,13 @@ export class BuyerReservationController {
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
           pageNumber,
-          filterDto,
+          filterDTO,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
           pageNumber,
-          filterDto,
+          filterDTO,
         );
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
@@ -266,7 +266,7 @@ export class BuyerReservationController {
   /**
    * It is GET api to fetch device group by id
    * @param id is unique identifier of device groupId
-   * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
+   * @returns {DeviceGroupDTO | null} DeviceGroupDTO is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)

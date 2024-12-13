@@ -19,7 +19,7 @@ export class SDGBenefitDTO implements Omit<ISdgBenefit, 'id'> {
   @IsNumber()
   sdgbenefitBitposition: number;
 }
-export class SDGBCodeNameDTO {
+export class SDGBenefitCodeNameDTO {
   @ApiProperty({ type: String })
   @IsString()
   @Expose()

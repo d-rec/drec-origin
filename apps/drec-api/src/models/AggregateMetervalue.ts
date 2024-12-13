@@ -31,7 +31,7 @@ export interface IAggregateintermediate {
   updatedAt: Date;
   externalId?: string;
 }
-export interface Iintermediate {
+export interface IIntermediate {
   id: number;
   type: string;
   unit: Unit;

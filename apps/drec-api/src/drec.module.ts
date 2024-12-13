@@ -55,8 +55,8 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
@@ -108,8 +108,8 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SDGBenefit,
   DeltaFirstRead,
-  IrecDevicesInformationEntity,
-  IrecErrorLogInformationEntity,
+  IRECDevicesInformationEntity,
+  IRECErrorLogInformationEntity,
   UserLoginSessionEntity,
   DeviceLateOngoingIssueCertificateEntity,
   CertificateSettingEntity,
