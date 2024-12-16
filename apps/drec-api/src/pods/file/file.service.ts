@@ -228,12 +228,12 @@ export class FileService {
 
   getS3(): any {
     return new S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
-    endpoint: process.env.AWS_ENDPOINT, // Add this line to point to LocalStack
-    s3ForcePathStyle: true, // Required for LocalStack
-  });
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+      endpoint: process.env.AWS_ENDPOINT, // Add this line to point to LocalStack
+      s3ForcePathStyle: true, // Required for LocalStack
+    });
   }
 
   public async GetuploadS3(key: string): Promise<any> {

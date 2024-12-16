@@ -120,6 +120,18 @@ export class ReadsController extends BaseReadsController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: multer.memoryStorage(),
+      fileFilter: (req, file, callback) => {
+        const isCSV = file.originalname.endsWith('.csv');
+        if (!isCSV) {
+          return callback(
+            new BadRequestException(
+              'Invalid file type. Only .csv files are allowed.',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
+      },
     }),
   )
   async uploadMeterReadFile(

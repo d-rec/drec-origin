@@ -59,7 +59,6 @@ import {
 import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { MeterReadingCSV } from './parser/meter-reading-csv.parser';
 import {
   FileProcessingEntity,
   FileProcessingStatus,
@@ -182,54 +181,55 @@ export class ReadsService {
     user: ILoggedInUser,
   ): Promise<{ message: string; jobId: string }> {
     try {
-        const fileExists = await this.fileService.get(fileId, user);
-        if (!fileExists) {
-          throw new NotFoundException('File not found');
-        }
-        
-        const multerFile: Express.Multer.File = {
-          fieldname: 'file',
-          originalname: fileExists.filename,
-          encoding: '7bit',
-          mimetype: fileExists.contentType,
-          buffer: fileExists.data,
-          size: fileExists.data.length,
-          stream: null,
-          destination: '',
-          filename: fileExists.filename,
-          path: '',
-        };
+      const fileExists = await this.fileService.get(fileId, user);
+      if (!fileExists) {
+        throw new NotFoundException('File not found');
+      }
 
-        await this.fileProcessingRepository.save({
-          fileId: fileExists.id,
-          userId: user.id,
-          organizationId: user.organizationId,
-          status: FileProcessingStatus.InProgress,
-          type: FileProcessingType.AddMeterRead,
-          apiUserId: user.api_user_id,
-        });
-  
-        const s3Upload = await this.fileService.upload(multerFile);
+      const multerFile: Express.Multer.File = {
+        fieldname: 'file',
+        originalname: fileExists.filename,
+        encoding: '7bit',
+        mimetype: fileExists.contentType,
+        buffer: fileExists.data,
+        size: fileExists.data.length,
+        stream: null,
+        destination: '',
+        filename: fileExists.filename,
+        path: '',
+      };
 
-        const job = await this.readsQueue.add('meter-reads-csv', {
-          s3Id: s3Upload.Key,
-          fileId: fileExists.id,
-          userId: user.id,
-          organizationId: user.organizationId,
-        });
+      await this.fileProcessingRepository.save({
+        fileId: fileExists.id,
+        userId: user.id,
+        organizationId: user.organizationId,
+        status: FileProcessingStatus.InProgress,
+        type: FileProcessingType.AddMeterRead,
+        apiUserId: user.api_user_id,
+      });
 
-        this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
-        return {
-          message: 'Meter reads processing has been scheduled',
-          jobId: job.id.toString(),
-        };
+      const s3Upload = await this.fileService.upload(multerFile);
 
+      const job = await this.readsQueue.add('meter-reads-csv', {
+        s3Id: s3Upload.Key,
+        fileId: fileExists.id,
+        userId: user.id,
+        organizationId: user.organizationId,
+      });
+
+      this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
+      return {
+        message: 'Meter reads processing has been scheduled',
+        jobId: job.id.toString(),
+      };
     } catch (error) {
-        this.logger.error('File upload failed:', error);
-        await this.fileProcessingRepository.update({ fileId: fileId },{ status: FileProcessingStatus.Failed});
-        throw error;
+      this.logger.error('File upload failed:', error);
+      await this.fileProcessingRepository.update(
+        { fileId: fileId },
+        { status: FileProcessingStatus.Failed },
+      );
+      throw error;
     }
-    
   }
 
   private async storeGenerationReading(

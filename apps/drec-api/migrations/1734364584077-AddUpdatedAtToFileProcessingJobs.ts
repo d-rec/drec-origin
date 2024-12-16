@@ -1,8 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddUpdatedAtToFileProcessingJobs1734364584077 implements MigrationInterface {
-
-     public async up(queryRunner: QueryRunner): Promise<void> {
+export class AddUpdatedAtToFileProcessingJobs1734364584077
+  implements MigrationInterface
+{
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "file_processing_jobs"
       ADD COLUMN "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -15,5 +16,4 @@ export class AddUpdatedAtToFileProcessingJobs1734364584077 implements MigrationI
       DROP COLUMN "updatedAt"
     `);
   }
-
 }
