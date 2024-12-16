@@ -20,9 +20,9 @@ export class ReadsProcessor {
   async handleMeterReadsProcessing(
     job: Job<{ fileId: string; userId: string, s3Id : string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
+    const { fileId, s3Id } = job.data;
     try{
         this.logger.debug(`Starting job processing for fileId: ${job.data.fileId}`);
-        const { fileId, userId, s3Id } = job.data;
   
         const fileContent = await this.fileService.GetuploadS3(s3Id);
         const buffer = Buffer.from(fileContent.data.Body);
@@ -61,6 +61,7 @@ export class ReadsProcessor {
         return results;
     }catch (error) {
     this.logger.error(`Job ${job.id} failed: ${error.message}`);
+    await this.readsService.fileProcessingRepository.update({ fileId: fileId },{ status: FileProcessingStatus.Failed});
     throw error;
     }
   }
