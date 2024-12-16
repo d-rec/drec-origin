@@ -50,6 +50,7 @@ export class NewDeviceDTO
   projectName: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString({
     message: 'Address must be added',
   })
@@ -82,12 +83,14 @@ export class NewDeviceDTO
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })
+  @IsNotEmpty()
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
   fuelCode: FuelCode;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsEnum(DeviceTypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',

@@ -515,32 +515,11 @@ export class DeviceController {
           deviceToUpdate.externalId,
           user.organizationId,
         );
-      if (
-        checkExternalId != undefined &&
-        checkExternalId.developerExternalId === externalId.trim()
-      ) {
+      if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
           success: false,
           message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
-        });
-      }
-    }
-
-    if (deviceToUpdate.countryCode) {
-      const countries = countryCodesList;
-      if (
-        countries.find(
-          (ele) => ele.countryCode === deviceToUpdate.countryCode,
-        ) === undefined
-      ) {
-        this.logger.error(
-          `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
         });
       }
     }

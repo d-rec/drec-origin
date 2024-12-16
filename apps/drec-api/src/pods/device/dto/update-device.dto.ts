@@ -33,8 +33,8 @@ export class UpdateDeviceDTO
     >
 {
   @ApiProperty()
+  @IsOptional()
   @Trim()
-  @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
@@ -194,5 +194,6 @@ export class UpdateDeviceDTO
   @IsOptional()
   IREC_ID?: string;
 
+  @IsOptional()
   organizationId?: number;
 }
