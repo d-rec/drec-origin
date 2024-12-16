@@ -5,7 +5,7 @@ import { IsEnum, IsString, IsNumber, IsOptional } from 'class-validator';
 
 export enum FileProcessingStatus {
   Added = 'Added',
-  Running = 'Running',
+  InProgress = 'InProgress',
   Completed = 'Completed',
   Failed = 'Failed',
 }

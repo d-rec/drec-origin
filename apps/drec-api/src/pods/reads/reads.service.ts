@@ -218,7 +218,7 @@ export class ReadsService {
       fileId: fileExists.id,
       userId: user.id,
       organizationId: user.organizationId,
-      status: FileProcessingStatus.Running,
+      status: FileProcessingStatus.InProgress,
       type: FileProcessingType.AddMeterRead,
       apiUserId: user.api_user_id,
     });

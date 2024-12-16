@@ -28,7 +28,7 @@ export class fileProcessingType1733820066628 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: ['Pending', 'InProgress', 'Completed', 'Failed'],
+            enum: ['Added', 'InProgress', 'Completed', 'Failed'],
           },
           {
             name: 'type',
