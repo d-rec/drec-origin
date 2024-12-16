@@ -212,16 +212,17 @@ export class PermissionService {
         }
       });
     }
-    //const userPermission = await this.findOne({ id });
+    const userPermission = await this.findOne({ id });
 
     const permissionValue =
       await this.permissionValue.computePermissions(addedPermissionList);
-    // const checkData = {
-    //   aclmodulesId: userPermission.aclmodulesId,
-    //   permissions: data.permissions,
-    // };
+
+    const checkData = {
+      aclmodulesId: userPermission.aclmodulesId,
+      permissions: data.permissions,
+    };
     const hasPermission = await this.checkForExistingModulePermission(
-      PermissionDTO,
+      checkData,
       permissionValue,
     );
     if (hasPermission) {
