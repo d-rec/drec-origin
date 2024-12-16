@@ -13,7 +13,7 @@ import {
   ISuccessResponse,
   LoggedInUser,
   OrganizationRole,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { UserService } from '../user/user.service';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
@@ -29,7 +29,7 @@ import { UserStatus } from '@energyweb/origin-backend-core';
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-  inviteuseradd = false;
+  inviteUserAdd = false;
   randPassword: string;
   constructor(
     @InjectRepository(Invitation)
@@ -158,7 +158,7 @@ export class InvitationService {
     inviteUser.api_user_id = organization.api_user_id;
     await this.userService.newCreateUser(inviteUser, UserStatus.Pending, true);
     if (sender.role !== Role.ApiUser) {
-      console.log('inviteuser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
+      console.log('inviteUser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
       await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
   }
@@ -208,7 +208,7 @@ export class InvitationService {
 
     await this.invitationRepository.save(invitation);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   public async getUsersInvitation(
@@ -330,7 +330,7 @@ export class InvitationService {
       await this.invitationRepository.delete(orgInvite.id);
     }
   }
-  async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
+  async getInviteInfoByEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
     return await this.invitationRepository.findOne({
       where: {

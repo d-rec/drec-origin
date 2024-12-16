@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -82,7 +83,7 @@ export class DeviceController {
   ) {}
 
   /**
-   * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto
+   * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDTO
    */
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
@@ -93,12 +94,12 @@ export class DeviceController {
   @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pagenumber') pageNumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
-    return this.deviceService.find(filterDto, pageNumber, OrgId);
+    return this.deviceService.find(filterDTO, pageNumber, OrgId);
   }
 
   /**
@@ -116,14 +117,14 @@ export class DeviceController {
   @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pagenumber') pageNumber: number | null,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    if (filterDto.organizationId) {
+    if (filterDTO.organizationId) {
       const organization = await this.organizationService.findOne(
-        filterDto.organizationId,
+        filterDTO.organizationId,
       );
       const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (role === Role.ApiUser) {
@@ -166,8 +167,8 @@ export class DeviceController {
       api_user_id = null;
     }
 
-    return this.deviceService.finddeviceForBuyer(
-      filterDto,
+    return this.deviceService.findDeviceForBuyer(
+      filterDTO,
       pageNumber,
       api_user_id,
     );
@@ -188,10 +189,10 @@ export class DeviceController {
   })
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query(ValidationPipe) orderFilterDto: DeviceGroupByDTO,
+    @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
   ): Promise<GroupedDevicesDTO[]> {
     this.logger.verbose(`With in getAllUngrouped`);
-    return this.deviceService.findUngrouped(organizationId, orderFilterDto);
+    return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
   }
 
   /**
@@ -248,22 +249,22 @@ export class DeviceController {
     description: 'Returns my Devices',
   })
   async getMyDevices(
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
     @Query('pagenumber') pageNumber: number | null,
   ): Promise<any> {
     this.logger.verbose(`With in getMyDevices`);
-    if (filterDto.country) {
-      filterDto.country = filterDto.country.toUpperCase();
+    if (filterDTO.country) {
+      filterDTO.country = filterDTO.country.toUpperCase();
 
       if (
-        filterDto.country &&
-        typeof filterDto.country === 'string' &&
-        filterDto.country.length === 3
+        filterDTO.country &&
+        typeof filterDTO.country === 'string' &&
+        filterDTO.country.length === 3
       ) {
         if (
           countryCodesList.find(
-            (ele) => ele.countryCode === filterDto.country,
+            (ele) => ele.countryCode === filterDTO.country,
           ) === undefined
         ) {
           this.logger.error(
@@ -286,10 +287,10 @@ export class DeviceController {
         });
       }
     }
-    if (filterDto.organizationId) {
+    if (filterDTO.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
-          filterDto.organizationId,
+          filterDTO.organizationId,
         );
         const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
@@ -312,7 +313,7 @@ export class DeviceController {
           }
         }
       } else {
-        if (filterDto.organizationId != organizationId) {
+        if (filterDTO.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
           );
@@ -323,7 +324,7 @@ export class DeviceController {
         }
       }
 
-      organizationId = filterDto.organizationId;
+      organizationId = filterDTO.organizationId;
     }
 
     this.logger.log('In devices before calling service');
@@ -331,7 +332,7 @@ export class DeviceController {
       organizationId,
       api_user_id,
       role,
-      filterDto,
+      filterDTO,
       pageNumber,
     );
   }
@@ -339,7 +340,7 @@ export class DeviceController {
   /**
    * It is GET api to fetch an device by the deviceId in param
    * @param id is deviceId in type number
-   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('/:id')
   @UseGuards(
@@ -377,7 +378,7 @@ export class DeviceController {
    * It is GET api to fetch an device by externalId in param
    * @param id  is externalId in device
    * @param param1
-   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('externalId/:id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -706,11 +707,11 @@ export class DeviceController {
           user.organizationId,
         );
       const noOfHistRead: number =
-        await this.deviceService.getNumberOfHistReads(
+        await this.deviceService.getNumberOfHistoryReads(
           checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
-        await this.deviceService.getNumberOfOngReads(
+        await this.deviceService.getNumberOfOngoingReads(
           checkExternalId.externalId,
           checkExternalId.createdAt,
         );
@@ -876,7 +877,7 @@ export class DeviceController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
   ): Promise<any> {
@@ -902,24 +903,13 @@ export class DeviceController {
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
-  async certifiedlogdaterang(
+  async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,
-    @Query('groupUid') groupId: string,
+    @Query('groupUid', ParseUUIDPipe) groupId: string,
     @Query('pagenumber') pageNumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
-    this.logger.verbose(`With in certifiedlogdaterang`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupId === null || !regexExp.test(groupId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       devicegroup_uid: groupId,
@@ -947,12 +937,12 @@ export class DeviceController {
           message: 'device not found, invalid value was sent',
         });
       }
-      return await this.deviceService.getcertifieddevicedaterange(
+      return await this.deviceService.getCertifiedDeviceDateRange(
         group.id,
         device,
       );
     } else {
-      return await this.deviceService.getcertifieddevicedaterangeBygroupid(
+      return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
         group.id,
         pageNumber,
       );

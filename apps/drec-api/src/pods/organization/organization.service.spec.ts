@@ -268,7 +268,7 @@ describe('OrganizationService', () => {
 
       const getFilteredQuerySpy = jest
         .spyOn(service, 'getFilteredQuery')
-        .mockImplementation(async (filterDto) => {
+        .mockImplementation(async (filterDTO) => {
           return queryMock as any;
         });
 

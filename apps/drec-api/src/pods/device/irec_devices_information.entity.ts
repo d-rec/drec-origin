@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsString } from 'class-validator';
 
 @Entity('irec_devices_information')
-export class IrecDevicesInformationEntity extends ExtendedBaseEntity {
+export class IRECDevicesInformationEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -35,8 +35,8 @@ import { InvitationDTO } from './dto/invitation.dto';
 import {
   ensureOrganizationRole,
   ILoggedInUser,
-  ResponseFailure,
-  ResponseSuccess,
+  responseFailure,
+  responseSuccess,
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums';
@@ -105,7 +105,7 @@ export class InvitationController {
   /**
    *
    * @param invitationId
-   * @param useracceptinvitation
+   * @param updateInviteStatusDTO
    * @returns
    */
   @Put(':id')
@@ -125,12 +125,12 @@ export class InvitationController {
   async updateInvitation(
     @Param('id') invitationId: number,
     //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation: UpdateInviteStatusDTO,
+    @Body() updateInviteStatusDTO: UpdateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);
     return this.organizationInvitationService.update(
-      useracceptinvitation,
+      updateInviteStatusDTO,
       invitationId,
       // status,
     );
@@ -180,7 +180,7 @@ export class InvitationController {
     if (!loggedUser.hasOrganization) {
       this.logger.error(`User doesn't belong to any organization.`);
       throw new BadRequestException(
-        ResponseFailure(`User doesn't belong to any organization.`),
+        responseFailure(`User doesn't belong to any organization.`),
       );
     }
 
@@ -189,7 +189,7 @@ export class InvitationController {
     } catch (e) {
       this.logger.error(`Unknown role was requested for the invitee`);
       throw new ForbiddenException(
-        ResponseFailure('Unknown role was requested for the invitee'),
+        responseFailure('Unknown role was requested for the invitee'),
       );
     }
 
@@ -197,7 +197,7 @@ export class InvitationController {
       if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
-            ResponseFailure(
+            responseFailure(
               `Organization id is required,please add your Organization id`,
             ),
           );
@@ -235,7 +235,7 @@ export class InvitationController {
       //  return error
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   /**
@@ -252,12 +252,13 @@ export class InvitationController {
     type: [InvitationDTO],
     description: 'Gets all invitations for a user',
   })
-  async getInvitationsByemail(
+  async getInvitationsByEmail(
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);
-    return await this.organizationInvitationService.getinvite_info_byEmail(
-      loggedUser,
-    );
+    const invitations =
+      await this.organizationInvitationService.getInviteInfoByEmail(loggedUser);
+
+    return invitations;
   }
 }

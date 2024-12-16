@@ -39,7 +39,7 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { IUser, LoggedInUser, ResponseSuccess } from '../../models';
+import { IUser, LoggedInUser, responseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
@@ -77,7 +77,7 @@ export class AdminController {
     description: 'Gets all users',
   })
   public async getUsers(
-    @Query(ValidationPipe) filterDto: UserFilterDTO,
+    @Query(ValidationPipe) filterDTO: UserFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -87,7 +87,7 @@ export class AdminController {
     totalPages: number;
     totalCount: number;
   }> {
-    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
+    return this.userService.getUsersByFilter(filterDTO, pageNumber, limit);
   }
 
   @Get('/organizations')
@@ -102,7 +102,7 @@ export class AdminController {
     description: 'Returns all Organizations',
   })
   async getAllOrganizations(
-    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -114,7 +114,7 @@ export class AdminController {
     totalCount: number;
   }> {
     return await this.organizationService.getAll(
-      filterDto,
+      filterDTO,
       pageNumber,
       limit,
       user,
@@ -299,7 +299,7 @@ export class AdminController {
 
     await this.organizationService.remove(organizationId);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   @Delete('/user/:id')
@@ -357,7 +357,7 @@ export class AdminController {
       await this.userService.remove(user.id);
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
@@ -371,11 +371,11 @@ export class AdminController {
     // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
-  public async IrecdeviceRegister(
+  public async irecDeviceRegister(
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
-    return await this.deviceService.I_recPostData(id);
+    return await this.deviceService.irecPostData(id);
   }
 
   @Get('/devices/autocomplete')
@@ -389,7 +389,7 @@ export class AdminController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     // @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,

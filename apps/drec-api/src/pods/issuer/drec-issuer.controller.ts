@@ -9,12 +9,12 @@ import {
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 
-@ApiTags('Drec Issuer')
+@ApiTags('DREC Issuer')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('drec-issuer')
-export class DrecIssuerController {
-  private readonly logger = new Logger(DrecIssuerController.name);
+export class DRECIssuerController {
+  private readonly logger = new Logger(DRECIssuerController.name);
 
   constructor(private readonly issuerService: IssuerService) {}
   /**
@@ -106,21 +106,21 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForlateOngoing(): Promise<any> {
+  async simpleGetCallForLateOngoing(): Promise<any> {
     this.logger.verbose(
-      `With in simpleGetCallForlateOngoing`,
+      `With in simpleGetCallForLateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
 
     return new Promise((resolve) => {
-      this.invokeIssuerCronlateOngoing();
+      this.invokeIssuerCronLateOngoing();
       this.logger.log(`successfully Hitddd the late ongoing API`);
       resolve('successfully Hitddd the late ongoing API');
     });
   }
 
-  async invokeIssuerCronlateOngoing(): Promise<void> {
-    this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
+  async invokeIssuerCronLateOngoing(): Promise<void> {
+    this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
       await this.issuerService.handleCronForOngoingLateIssuance();
     } catch (e) {
@@ -136,21 +136,21 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple add For missing lateongoing',
   })
-  async simpleGetCallForMissinglateOngoing(): Promise<any> {
+  async simpleGetCallForMissingLateOngoing(): Promise<any> {
     this.logger.verbose(
-      `With in simpleGetCallForlateOngoing`,
+      `With in simpleGetCallForLateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
 
     return new Promise((resolve) => {
-      this.invokeIssuerCronmissinglateOngoing();
+      this.invokeIssuerCronMissingLateOngoing();
       this.logger.log(`successfully Hitddd the late ongoing API`);
       resolve('successfully Hitddd  and added the missed late ongoing cycle');
     });
   }
 
-  async invokeIssuerCronmissinglateOngoing(): Promise<void> {
-    this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
+  async invokeIssuerCronMissingLateOngoing(): Promise<void> {
+    this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
       await this.issuerService.getMissingCycleBeforeLateOngoing();
     } catch (e) {

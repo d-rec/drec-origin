@@ -4,16 +4,16 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ReadType } from '../../utils/enums';
-import { Iintermediate } from '../../models';
+import { IIntermediate } from '../../models';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'history_intermediate_meteread' })
-export class HistoryIntermediate_MeterRead
+export class HistoryIntermediateMeterRead
   extends ExtendedBaseEntity
-  implements Iintermediate
+  implements IIntermediate
 {
-  constructor(intermideatevalue?: Partial<Iintermediate>) {
+  constructor(intermediateValue?: Partial<IIntermediate>) {
     super();
-    Object.assign(this, intermideatevalue);
+    Object.assign(this, intermediateValue);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn('uuid')

@@ -12,7 +12,7 @@ import {
   ApiTags,
   ApiSecurity,
 } from '@nestjs/swagger';
-import { SDGBenefitDTO, SDGBCodeNameDTO } from './dto/add_sdgbenefit.dto';
+import { SDGBenefitDTO, SDGBenefitCodeNameDTO } from './dto/add_sdgbenefit.dto';
 import { SDGBenefitService } from './sdgbenefit.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { plainToClass } from 'class-transformer';
 import { SDGBenefit } from './sdgbenefit.entity';
@@ -23,17 +23,17 @@ import { SDGBenefit } from './sdgbenefit.entity';
 export class SDGBenefitController {
   private readonly logger = new Logger(SDGBenefitController.name);
 
-  constructor(private readonly SdgbenefitService: SDGBenefitService) {}
+  constructor(private readonly sdgBenefitService: SDGBenefitService) {}
 
   /**
    * this Api rout use for add sdg Benifites name and code
-   * @param createsdgbenefitDto
+   * @param createSDGBenefitDTO
    * @returns
    */
   @Post()
-  create(@Body() createsdgbenefitDto: SDGBenefitDTO): Promise<SDGBenefit> {
+  create(@Body() createSDGBenefitDTO: SDGBenefitDTO): Promise<SDGBenefit> {
     this.logger.verbose(`With in create`);
-    return this.SdgbenefitService.create(createsdgbenefitDto);
+    return this.sdgBenefitService.create(createSDGBenefitDTO);
   }
 
   /**
@@ -43,27 +43,29 @@ export class SDGBenefitController {
   @Get()
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [SDGBCodeNameDTO],
+    type: [SDGBenefitCodeNameDTO],
     description: 'Returns all SDGBenefites',
   })
   findAll(): Promise<SDGBenefit[]> {
     this.logger.verbose(`With in findAll`);
-    return this.SdgbenefitService.findAll();
+    return this.sdgBenefitService.findAll();
   }
 
   /**
    * this api rout use for get all sdg benefit from class not any tbale
-   * @returns {SDGBCodeNameDTO}
+   * @returns {SDGBenefitCodeNameDTO}
    */
   @Get('/code')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [SDGBCodeNameDTO],
+    type: [SDGBenefitCodeNameDTO],
     description: 'Returns all SDGBenefites',
   })
-  getFuelTypes(): SDGBCodeNameDTO[] {
+  getFuelTypes(): SDGBenefitCodeNameDTO[] {
     this.logger.verbose(`With in getFuelTypes`);
-    const sdgBenefitCode = this.SdgbenefitService.getSDGBCode();
-    return sdgBenefitCode.map((sdgb) => plainToClass(SDGBCodeNameDTO, sdgb));
+    const sdgBenefitCode = this.sdgBenefitService.getSDGBenefitCode();
+    return sdgBenefitCode.map((sdgBenefit) =>
+      plainToClass(SDGBenefitCodeNameDTO, sdgBenefit),
+    );
   }
 }

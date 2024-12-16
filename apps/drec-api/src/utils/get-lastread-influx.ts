@@ -3,11 +3,11 @@ import { ReadDTO } from '@energyweb/energy-api-influxdb';
 import { InfluxDB, FluxTableMetaData } from '@influxdata/influxdb-client';
 import { Logger } from '@nestjs/common';
 
-export const NewfindLatestRead = async (
+export const newFindLatestRead = async (
   meterId: string,
-  deviceregisterdate: Date,
+  deviceRegistrationDate: Date,
 ): Promise<ReadDTO | void> => {
-  const logger = new Logger('NewfindLatestRead');
+  const logger = new Logger('newFindLatestRead');
 
   const url = process.env.INFLUXDB_URL;
   const token = process.env.INFLUXDB_TOKEN;
@@ -23,7 +23,7 @@ export const NewfindLatestRead = async (
   let result: any;
 
   const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-    |> range(start: ${deviceregisterdate}, stop: now())
+    |> range(start: ${deviceRegistrationDate}, stop: now())
     |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
     |> last()`;
 

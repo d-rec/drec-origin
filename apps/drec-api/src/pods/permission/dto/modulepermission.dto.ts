@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IModulePermissionsConfig,
-  IaddModulePermission,
+  IAddModulePermission,
 } from '../../../models';
 import { EntityType, UserPermissionStatus } from '../../../utils/enums';
 import { IsEnum, IsArray, IsOptional } from 'class-validator';
@@ -63,7 +63,7 @@ export class NewPermissionDTO {
   @Column({ default: 1 })
   status: number;
 }
-export class UpdatePermissionDTO implements Omit<IaddModulePermission, 'id'> {
+export class UpdatePermissionDTO implements Omit<IAddModulePermission, 'id'> {
   // @ApiProperty({ type: Number })
   @Column()
   aclmodulesId: number;

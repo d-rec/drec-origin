@@ -5,9 +5,9 @@ import { ISdgBenefit } from '../../models';
 
 @Entity('sdgbenefit')
 export class SDGBenefit extends ExtendedBaseEntity implements ISdgBenefit {
-  constructor(sdgbenefit: Partial<SDGBenefit>) {
+  constructor(sdgBenefit: Partial<SDGBenefit>) {
     super();
-    Object.assign(this, sdgbenefit);
+    Object.assign(this, sdgBenefit);
   }
   @PrimaryGeneratedColumn()
   id: number;

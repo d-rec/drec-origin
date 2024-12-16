@@ -229,10 +229,10 @@ describe('AuthService', () => {
         role: Role.ApiUser,
       };
 
-      const tokeninvalidate = true;
+      const tokenInvalidate = true;
       jest
         .spyOn(userService, 'hasValidUserSession')
-        .mockResolvedValue(tokeninvalidate);
+        .mockResolvedValue(tokenInvalidate);
 
       await service.isTokenBlacklisted(token, payload);
 
