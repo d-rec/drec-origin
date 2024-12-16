@@ -40,16 +40,18 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request = context.switchToHttp().getRequest();
-    const user: IUser = request.user;
-    if (!user) {
-      return false;
-    }
+    
     if (
       request.url.split('/')[3] === 'register' &&
       request.body.organizationType === Role.ApiUser
     ) {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       return true;
+    }
+
+    const user: IUser = request.user;
+    if (!user) {
+      return false;
     }
 
     if (user.role === 'Admin') {
