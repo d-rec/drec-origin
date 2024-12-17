@@ -73,4 +73,6 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          kubectl set image deployment/${{ secrets.DEPLOYMENT_NAME }} ${secrets.CONTAINER_NAME}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl -n dev set image deployment/${{ secrets.DEPLOYMENT_NAME }} \
+            ${{ secrets.CONTAINER_NAME }}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
