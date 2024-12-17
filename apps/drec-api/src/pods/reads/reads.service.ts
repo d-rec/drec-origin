@@ -32,7 +32,6 @@ import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { flattenDeep, groupBy, mean, sum, values } from 'lodash';
 import { DateTime } from 'luxon';
-import { convertToWh } from 'src/utils/convert-to-power-units';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { IAggregateIntermediate } from '../../models';
@@ -56,6 +55,7 @@ import {
 } from './dto/filter-no-off-limit.dto';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
+import { convertToWh } from '../../utils/convert-to-power-units';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 

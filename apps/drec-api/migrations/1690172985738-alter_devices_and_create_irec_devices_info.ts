@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn } from 'typeorm';
 
-export class alterDevicesAndCreateIRECDevicesInfo1690172985738
+export class alterDevicesAndCreateIrecDevicesInfo1690172985738
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
