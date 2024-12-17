@@ -1,10 +1,13 @@
-import { Unit } from '@energyweb/utils-general';
+import { Unit } from '@energyweb/energy-api-influxdb';
 import { CsvParser } from '../../../utils/csv-parser';
+import {NewReadDTO} from '../../../models'
+import { ReadType } from '../../../utils/enums';
 export interface MeterReadingCSV {
   deviceId: string;
-  value: number;
-  timestamp: Date;
   unit: Unit;
+  type: ReadType,
+  timezone: string
+  reads: NewReadDTO[]
 }
 
 export const parseMeterReadingCsv = async (
@@ -14,7 +17,7 @@ export const parseMeterReadingCsv = async (
     const records: any[] = [];
 
     const parser = CsvParser.createParser({
-      columns: ['id', 'value', 'timestamp', 'unit'],
+      columns: ['id', 'starttimestamp','endtimestamp', 'value', 'unit', 'timezone', 'type'],
     });
 
     parser.on('readable', () => {
@@ -22,9 +25,10 @@ export const parseMeterReadingCsv = async (
       while ((record = parser.read()) !== null) {
         records.push({
           deviceId: record.id,
-          value: Number(record.value),
-          timestamp: record.timestamp,
+          reads:[{starttimestamp: record.starttimestamp,endtimestamp: record.endtimestamp,value: record.value}],
           unit: record.unit,
+          type: record.type,
+          timezone: record.timezone
         });
       }
     });

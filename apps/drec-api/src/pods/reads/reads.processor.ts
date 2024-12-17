@@ -2,10 +2,10 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
-import { parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
-import { MeasurementDTO, Unit } from '@energyweb/energy-api-influxdb';
+import { MeterReadingCSV, parseMeterReadingCsv } from './parser/meter-reading-csv.parser';
 import { ReadsService } from './reads.service';
 import { FileProcessingStatus } from '../file/file-processing.entity';
+import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -35,28 +35,35 @@ export class ReadsProcessor {
         failed: [],
       };
 
-      for (const read of meterReads) {
-        try {
-          const measurement: MeasurementDTO = {
+      for (const record of meterReads) {
+        let readsCount = 0;
+        console.log("records", record)
+        try { 
+          const measurement: MeterReadingCSV= {
+            type: record.type,
             reads: [
               {
-                timestamp: new Date(read.timestamp),
-                value: read.value,
+                starttimestamp: record.reads[readsCount].starttimestamp,
+                endtimestamp: record.reads[readsCount].endtimestamp,
+                value: record.reads[readsCount].value,
               },
             ],
-            unit: Unit[read.unit as unknown as keyof typeof Unit],
+            unit: record.unit ,
+            timezone: record.timezone,
+            deviceId: record.deviceId,
           };
-          await this.readsService.storeRead(
-            read.deviceId.toString(),
+          await this.readsService.newstoreRead(
+            record.deviceId,
             measurement,
           );
+          readsCount++
           results.success++;
         } catch (error) {
           this.logger.error(`Error processing read: ${error.message}`);
-          results.failed.push({
-            read,
-            error: error.message,
-          });
+        // results.failed.push({
+        //       read,
+        //       error: error.message,
+        //     });
         }
       }
       await this.readsService.fileProcessingRepository.update(
