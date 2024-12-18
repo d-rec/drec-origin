@@ -18,6 +18,7 @@ export const parseMeterReadingCsv = async (
 
     const parser = CsvParser.createParser({
       columns: ['id', 'starttimestamp','endtimestamp', 'value', 'unit', 'timezone', 'type'],
+      fromLine: 2,
     });
 
     parser.on('readable', () => {

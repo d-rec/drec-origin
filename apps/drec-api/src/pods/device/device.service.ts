@@ -449,8 +449,9 @@ export class DeviceService {
   async findReads(meterId: string): Promise<Device | null> {
     this.logger.verbose(`With in findReads`);
     const result = await this.repository.findOne({
-      where: { externalId: meterId },
+      where: { projectName: meterId },
     });
+    console.log("Found device", result)
     result.timezone = await getLocalTimeZoneFromDevice(
       result.createdAt,
       result,

@@ -406,7 +406,6 @@ export class ReadsService {
         measurements.timezone,
       );
     }
-
     const roundedMeasurements = this.NewroundMeasurementsToUnit(measurements);
 
     const filteredMeasurements = await this.NewfilterMeasurements(
@@ -433,7 +432,6 @@ export class ReadsService {
           return 10 ** 9;
       }
     };
-
     const multiplier = getMultiplier(measurement.unit);
 
     return {
@@ -455,8 +453,8 @@ export class ReadsService {
     const final = await this.NewfindLatestRead(deviceId, device.createdAt);
     this.logger.verbose(`final: ${final}`);
     const reads: any = [];
-
     if (measurement.type === 'History') {
+      console.log("Measurement filtered", measurement)
       await new Promise((resolve, reject) => {
         measurement.reads.forEach(async (element, measurmentreadindex) => {
           const requeststartdate = DateTime.fromISO(

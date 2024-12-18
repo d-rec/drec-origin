@@ -37,7 +37,6 @@ export class ReadsProcessor {
 
       for (const record of meterReads) {
         let readsCount = 0;
-        console.log("records", record)
         try { 
           const measurement: MeterReadingCSV= {
             type: record.type,
