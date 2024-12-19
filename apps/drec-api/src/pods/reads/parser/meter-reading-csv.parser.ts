@@ -1,13 +1,13 @@
 import { Unit } from '@energyweb/energy-api-influxdb';
 import { CsvParser } from '../../../utils/csv-parser';
-import {NewReadDTO} from '../../../models'
+import { NewReadDTO } from '../../../models';
 import { ReadType } from '../../../utils/enums';
 export interface MeterReadingCSV {
   deviceId: string;
   unit: Unit;
-  type: ReadType,
-  timezone: string
-  reads: NewReadDTO[]
+  type: ReadType;
+  timezone: string;
+  reads: NewReadDTO[];
 }
 
 export const parseMeterReadingCsv = async (
@@ -17,7 +17,15 @@ export const parseMeterReadingCsv = async (
     const records: any[] = [];
 
     const parser = CsvParser.createParser({
-      columns: ['id', 'starttimestamp','endtimestamp', 'value', 'unit', 'timezone', 'type'],
+      columns: [
+        'id',
+        'timezone',
+        'type',
+        'unit',
+        'value',
+        'startDate',
+        'endDate',
+      ],
       fromLine: 2,
     });
 
@@ -26,10 +34,16 @@ export const parseMeterReadingCsv = async (
       while ((record = parser.read()) !== null) {
         records.push({
           deviceId: record.id,
-          reads:[{starttimestamp: record.starttimestamp,endtimestamp: record.endtimestamp,value: record.value}],
+          reads: [
+            {
+              starttimestamp: record.startDate,
+              endtimestamp: record.endDate,
+              value: record.value,
+            },
+          ],
           unit: record.unit,
           type: record.type,
-          timezone: record.timezone
+          timezone: record.timezone,
         });
       }
     });

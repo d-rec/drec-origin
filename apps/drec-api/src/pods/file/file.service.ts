@@ -198,7 +198,7 @@ export class FileService {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
-    const bucketS3 = process.env.AWS_S3_BUCKET;
+    const bucketS3 = process.env.S3_BUCKET;
     const result = await this.uploadS3(file.buffer, bucketS3, originalname);
     return result;
   }
@@ -245,7 +245,7 @@ export class FileService {
       this.logger.debug(key);
       return new Promise((resolve, reject) => {
         s3.getObject(
-          { Bucket: process.env.AWS_S3_BUCKET, Key: key },
+          { Bucket: process.env.S3_BUCKET, Key: key },
           (err, data) => {
             if (err) {
               this.logger.error(err);

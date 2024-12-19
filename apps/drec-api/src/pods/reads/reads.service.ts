@@ -454,7 +454,6 @@ export class ReadsService {
     this.logger.verbose(`final: ${final}`);
     const reads: any = [];
     if (measurement.type === 'History') {
-      console.log("Measurement filtered", measurement)
       await new Promise((resolve, reject) => {
         measurement.reads.forEach(async (element, measurmentreadindex) => {
           const requeststartdate = DateTime.fromISO(
