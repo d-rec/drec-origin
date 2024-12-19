@@ -39,7 +39,7 @@ import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { IAggregateintermediate, ILoggedInUser } from '../../models';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { DateTime } from 'luxon';
-import { convertToWh } from 'src/utils/convert-to-power-units';
+import { convertToWh } from '../../utils/convert-to-power-units';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { HistoryNextInssuanceStatus } from '../../utils/enums/history_next_issuance.enum';

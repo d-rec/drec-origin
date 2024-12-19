@@ -451,7 +451,6 @@ export class DeviceService {
     const result = await this.repository.findOne({
       where: { externalId: meterId },
     });
-    console.log('Found device', result);
     result.timezone = await getLocalTimeZoneFromDevice(
       result.createdAt,
       result,
