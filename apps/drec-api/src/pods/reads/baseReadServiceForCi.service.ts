@@ -36,15 +36,13 @@ export class BaseReadServiceForCi implements PublicPart<ReadsService> {
   }
 
   public async findLatestRead(): Promise<ReadDTO> {
-    const readDTO: ReadDTO = {
+    return {
       timestamp: new Date(),
       value: 0,
     };
-    return readDTO;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public findLatestReadByMeterQuery(_meterId: string): string {
+  public findLatestReadByMeterQuery(): string {
     return '';
   }
 

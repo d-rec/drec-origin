@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DrecModule } from './drec.module';
+import { DRECModule } from './drec.module';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -12,23 +12,23 @@ import { Invitation } from './pods/invitation/invitation.entity';
 import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.entity';
 import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
-import { ACLModulePermissions } from './pods/permission/permission.entity';
+import { ACLModulePermission } from './pods/permission/permission.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
 import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { SdgBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
+import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
-import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
-import { SdgbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
-import { CountrycodeModule } from './pods/countrycode/countrycode.module';
+import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { PermissionModule } from './pods/permission/permission.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
@@ -49,7 +49,7 @@ import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { getConnection } from 'typeorm';
 
-describe('DrecModule', () => {
+describe('DRECModule', () => {
   let module: TestingModule;
 
   afterEach(async () => {
@@ -61,7 +61,7 @@ describe('DrecModule', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [DrecModule],
+      imports: [DRECModule],
     }).compile();
   });
 
@@ -130,10 +130,10 @@ describe('DrecModule', () => {
     expect(aclModulesRepository).toBeDefined();
   });
 
-  it('should provide ACLModulePermissions repository', () => {
+  it('should provide ACLModulePermission repository', () => {
     const aclModulePermissionsRepository = module.get<
-      Repository<ACLModulePermissions>
-    >(getRepositoryToken(ACLModulePermissions));
+      Repository<ACLModulePermission>
+    >(getRepositoryToken(ACLModulePermission));
     expect(aclModulePermissionsRepository).toBeDefined();
   });
 
@@ -165,10 +165,10 @@ describe('DrecModule', () => {
     expect(aggregateMeterReadRepository).toBeDefined();
   });
 
-  it('should provide HistoryIntermediate_MeterRead repository', () => {
+  it('should provide HistoryIntermediateMeterRead repository', () => {
     const historyIntermediateMeterReadRepository = module.get<
-      Repository<HistoryIntermediate_MeterRead>
-    >(getRepositoryToken(HistoryIntermediate_MeterRead));
+      Repository<HistoryIntermediateMeterRead>
+    >(getRepositoryToken(HistoryIntermediateMeterRead));
     expect(historyIntermediateMeterReadRepository).toBeDefined();
   });
 
@@ -187,8 +187,8 @@ describe('DrecModule', () => {
   });
 
   it('should provide SdgBenefit repository', () => {
-    const sdgBenefitRepository = module.get<Repository<SdgBenefit>>(
-      getRepositoryToken(SdgBenefit),
+    const sdgBenefitRepository = module.get<Repository<SDGBenefit>>(
+      getRepositoryToken(SDGBenefit),
     );
     expect(sdgBenefitRepository).toBeDefined();
   });
@@ -200,17 +200,17 @@ describe('DrecModule', () => {
     expect(deltaFirstReadRepository).toBeDefined();
   });
 
-  it('should provide IrecDevicesInformationEntity repository', () => {
+  it('should provide IRECDevicesInformationEntity repository', () => {
     const irecDevicesInformationRepository = module.get<
-      Repository<IrecDevicesInformationEntity>
-    >(getRepositoryToken(IrecDevicesInformationEntity));
+      Repository<IRECDevicesInformationEntity>
+    >(getRepositoryToken(IRECDevicesInformationEntity));
     expect(irecDevicesInformationRepository).toBeDefined();
   });
 
-  it('should provide IrecErrorLogInformationEntity repository', () => {
+  it('should provide IRECErrorLogInformationEntity repository', () => {
     const irecErrorLogInformationRepository = module.get<
-      Repository<IrecErrorLogInformationEntity>
-    >(getRepositoryToken(IrecErrorLogInformationEntity));
+      Repository<IRECErrorLogInformationEntity>
+    >(getRepositoryToken(IRECErrorLogInformationEntity));
     expect(irecErrorLogInformationRepository).toBeDefined();
   });
 
@@ -223,8 +223,8 @@ describe('DrecModule', () => {
 
   it('should provide DeviceLateongoingIssueCertificateEntity repository', () => {
     const deviceLateongoingIssueCertificateRepository = module.get<
-      Repository<DeviceLateongoingIssueCertificateEntity>
-    >(getRepositoryToken(DeviceLateongoingIssueCertificateEntity));
+      Repository<DeviceLateOngoingIssueCertificateEntity>
+    >(getRepositoryToken(DeviceLateOngoingIssueCertificateEntity));
     expect(deviceLateongoingIssueCertificateRepository).toBeDefined();
   });
 
@@ -317,12 +317,12 @@ describe('DrecModule', () => {
   });
 
   it('should import CountrycodeModule', () => {
-    const countrycodeModule = module.get(CountrycodeModule);
-    expect(countrycodeModule).toBeDefined();
+    const countryCodeModule = module.get(CountryCodeModule);
+    expect(countryCodeModule).toBeDefined();
   });
 
   it('should import SdgbenefitModule', () => {
-    const sdgbenefitModule = module.get(SdgbenefitModule);
+    const sdgbenefitModule = module.get(SDGBenefitModule);
     expect(sdgbenefitModule).toBeDefined();
   });
 

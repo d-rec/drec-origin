@@ -1,26 +1,26 @@
 import {
-  Injectable,
-  NotFoundException,
-  NotAcceptableException,
-  Logger,
   ConflictException,
   HttpException,
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  FindOneOptions,
-  Repository,
-  In,
-  FindOperator,
-  Raw,
+  Between,
   Brackets,
-  SelectQueryBuilder,
   FindConditions,
   FindManyOptions,
-  Between,
+  FindOneOptions,
+  FindOperator,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Raw,
+  Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
 import { Device } from './device.entity';
 import { NewDeviceDTO } from './dto/new-device.dto';
@@ -34,9 +34,9 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
+  IRECDeviceStatus,
   ReadType,
   Role,
-  IRECDeviceStatus,
 } from '../../utils/enums';
 import cleanDeep from 'clean-deep';
 import {
@@ -58,50 +58,51 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate
 import { InfluxDB } from '@influxdata/influxdb-client';
 import { SDGBenefits } from '../../models/Sdgbenefit';
 import { v4 as uuid } from 'uuid';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Observable } from 'rxjs';
-import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
+
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(HistoryIntermediate_MeterRead)
-    private readonly historyrepository: Repository<HistoryIntermediate_MeterRead>,
+    @InjectRepository(HistoryIntermediateMeterRead)
+    private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
-    private readonly checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
+    private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     private httpService: HttpService,
-    @InjectRepository(IrecDevicesInformationEntity)
-    private readonly irecinforepository: Repository<IrecDevicesInformationEntity>,
-    @InjectRepository(IrecErrorLogInformationEntity)
-    private readonly irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>,
+    @InjectRepository(IRECDevicesInformationEntity)
+    private readonly irecInfoRepository: Repository<IRECDevicesInformationEntity>,
+    @InjectRepository(IRECErrorLogInformationEntity)
+    private readonly irecErrorLogRepository: Repository<IRECErrorLogInformationEntity>,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-    @InjectRepository(DeviceLateongoingIssueCertificateEntity)
-    private readonly latedevciecertificaterepository: Repository<DeviceLateongoingIssueCertificateEntity>,
+    @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
+    private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
   ) {}
 
   public async find(
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
     OrgId?: number,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in find`);
     const limit = 20;
     let query = await this.getFilteredQuery(filterDto, OrgId);
-    if (pagenumber) {
+    if (pageNumber) {
       query = {
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
       };
     }
@@ -111,7 +112,7 @@ export class DeviceService {
       ...query,
     });
     const totalPages = Math.ceil(totalCount / 20);
-    const currentPage = pagenumber;
+    const currentPage = pageNumber;
     const newDevices = [];
 
     await devices.map((device: Device) => {
@@ -133,12 +134,12 @@ export class DeviceService {
     api_user_id: string,
     role: Role,
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
   ): Promise<any> {
     this.logger.verbose(`With in getOrganizationDevices`);
     if (
       Object.keys(filterDto).length != 0 &&
-      (pagenumber != null || pagenumber != undefined)
+      (pageNumber != null || pageNumber != undefined)
     ) {
       const limit = 20;
       const query = await this.getFilteredQuery(filterDto);
@@ -156,7 +157,7 @@ export class DeviceService {
       query.where = where;
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
         order: {
           createdAt: 'DESC',
@@ -164,7 +165,7 @@ export class DeviceService {
       });
 
       const totalPages = Math.ceil(totalCount / limit);
-      const currentPage = pagenumber;
+      const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
         device['internalexternalId'] = device.externalId;
@@ -216,7 +217,7 @@ export class DeviceService {
   }
 
   //@Cron('*/30 * * * * *')
-  async I_recPostData(deviceId: number): Promise<any> {
+  async irecPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'NotRegistered' },
@@ -257,13 +258,13 @@ export class DeviceService {
         device.IREC_ID = data.code;
         device.IREC_Status = IRECDeviceStatus.DeviceNameCreated;
         await this.repository.save(device);
-        const irecdeviceaddDto = new IrecDevicesInformationEntity();
-        (irecdeviceaddDto.IREC_id = data.code),
-          (irecdeviceaddDto.event = 'register'),
-          (irecdeviceaddDto.request = requestBody),
-          (irecdeviceaddDto.responses = data);
-        await this.irecinforepository.save({
-          ...irecdeviceaddDto,
+        const irecDeviceAddDTO = new IRECDevicesInformationEntity();
+        (irecDeviceAddDTO.IREC_id = data.code),
+          (irecDeviceAddDTO.event = 'register'),
+          (irecDeviceAddDTO.request = requestBody),
+          (irecDeviceAddDTO.responses = data);
+        await this.irecInfoRepository.save({
+          ...irecDeviceAddDTO,
         });
         this.logger.log(`Device Added Successfully in I-REC`);
         return {
@@ -272,13 +273,13 @@ export class DeviceService {
           IREC_ID: data.code,
         };
       } catch (error) {
-        const irecdeviceerrorlogDto = new IrecErrorLogInformationEntity();
+        const irecDeviceErrorLogDTO = new IRECErrorLogInformationEntity();
 
-        (irecdeviceerrorlogDto.event = 'register'),
-          (irecdeviceerrorlogDto.request = requestBody),
-          (irecdeviceerrorlogDto.error_log_responses = error);
-        await this.irecerrorlogrepository.save({
-          ...irecdeviceerrorlogDto,
+        (irecDeviceErrorLogDTO.event = 'register'),
+          (irecDeviceErrorLogDTO.request = requestBody),
+          (irecDeviceErrorLogDTO.error_log_responses = error);
+        await this.irecErrorLogRepository.save({
+          ...irecDeviceErrorLogDTO,
         });
         this.logger.error(`Device Added Failure in I-REC ${error}`);
         return {
@@ -289,7 +290,7 @@ export class DeviceService {
     }
   }
 
-  async I_RECDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
+  async irecDeviceDetailsPostData(deviceId: number): Promise<Observable<any>> {
     this.logger.verbose(`With in I_RECDeviceDetailsPostData`);
     const device = await this.repository.findOne({
       where: { id: deviceId, IREC_Status: 'DeviceNameCreated' },
@@ -304,7 +305,7 @@ export class DeviceService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${jwtToken}`,
       };
-      const irec_capacity = device.capacity / 1000;
+      const irecCapacity = device.capacity / 1000;
       const requestBody = {
         deviceType: '/device_types/' + device.deviceTypeCode,
         fuel: '/fuels/',
@@ -312,7 +313,7 @@ export class DeviceService {
         registrant: '/registrants/',
         issuer: '/issuers/',
         name: device.externalId,
-        capacity: irec_capacity,
+        capacity: irecCapacity,
         supported: true,
         latitude: device.latitude,
         longitude: device.longitude,
@@ -330,7 +331,7 @@ export class DeviceService {
       const url = `${process.env.IREC_EVIDENT_API_URL}/devices`;
 
       let data: any;
-      const response = this.httpService // eslint-disable-line @typescript-eslint/no-unused-vars
+      this.httpService // eslint-disable-line @typescript-eslint/no-unused-vars
         .post(url, requestBody, config)
         .subscribe(
           (response) => {
@@ -371,23 +372,23 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
-  public async NewfindForGroup(
+  public async newFindForGroup(
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
     this.logger.verbose(`With in NewfindForGroup`);
-    let groupdevice: Array<any> = await this.repository.find({
+    let groupDevice: Array<any> = await this.repository.find({
       where: { groupId },
       order: {
         createdAt: 'DESC',
       },
     });
-    groupdevice = groupdevice.filter(
+    groupDevice = groupDevice.filter(
       (ele) =>
         ele.meterReadtype == ReadType.Delta ||
         ele.meterReadtype == ReadType.ReadMeter,
     );
 
-    const deviceGroupedByCountry = this.groupBy(groupdevice, 'countryCode');
+    const deviceGroupedByCountry = this.groupBy(groupDevice, 'countryCode');
     return deviceGroupedByCountry ?? null;
   }
 
@@ -539,16 +540,15 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
-    const code = newDevice.countryCode.toUpperCase();
-    newDevice.countryCode = code;
-    const sdgbbenifitslist = SDGBenefits;
-    const checkexternalid = await this.repository.findOne({
+    newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    const sdgBenefitList = SDGBenefits;
+    const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
         organizationId: orgCode,
       },
     });
-    if (checkexternalid != undefined) {
+    if (checkExternalId != undefined) {
       this.logger.debug('Line No: 236');
       this.logger.error(
         `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
@@ -568,9 +568,10 @@ export class DeviceService {
     ) {
       newDevice.SDGBenefits = [];
     } else if (Array.isArray(newDevice.SDGBenefits)) {
-      newDevice.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        const foundEle = sdgbbenifitslist.find(
-          (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
+      newDevice.SDGBenefits.forEach((sdbBenefitName: string, index: number) => {
+        const foundEle = sdgBenefitList.find(
+          (ele) =>
+            ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
         if (foundEle) {
           newDevice.SDGBenefits[index] = foundEle.value;
@@ -590,9 +591,9 @@ export class DeviceService {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);
 
-      const orguser = await this.userService.findByEmail(org.orgEmail);
+      const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-      if (orguser.role != Role.OrganizationAdmin) {
+      if (orgUser.role != Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,
@@ -642,7 +643,7 @@ export class DeviceService {
     }
     updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
     updateDeviceDTO.externalId = currentDevice.externalId;
-    const sdgbbenifitslist = SDGBenefits;
+    const sdgBenefitList = SDGBenefits;
 
     if (
       updateDeviceDTO.SDGBenefits.includes('0') ||
@@ -650,16 +651,20 @@ export class DeviceService {
     ) {
       updateDeviceDTO.SDGBenefits = [];
     } else if (Array.isArray(updateDeviceDTO.SDGBenefits)) {
-      updateDeviceDTO.SDGBenefits.forEach((sdgbname: string, index: number) => {
-        const foundEle = sdgbbenifitslist.find(
-          (ele) => ele.name.toLowerCase() === sdgbname.toString().toLowerCase(),
-        );
-        if (foundEle) {
-          updateDeviceDTO.SDGBenefits[index] = foundEle.value;
-        } else {
-          updateDeviceDTO.SDGBenefits[index] = 'invalid';
-        }
-      });
+      updateDeviceDTO.SDGBenefits.forEach(
+        (sdbBenefitName: string, index: number) => {
+          const foundEle = sdgBenefitList.find(
+            (ele) =>
+              ele.name.toLowerCase() ===
+              sdbBenefitName.toString().toLowerCase(),
+          );
+          if (foundEle) {
+            updateDeviceDTO.SDGBenefits[index] = foundEle.value;
+          } else {
+            updateDeviceDTO.SDGBenefits[index] = 'invalid';
+          }
+        },
+      );
       updateDeviceDTO.SDGBenefits = updateDeviceDTO.SDGBenefits.filter(
         (ele) => ele !== 'invalid',
       );
@@ -740,29 +745,23 @@ export class DeviceService {
         ];
       },
     );
-    const groupedDevices: GroupedDevicesDTO[] = groupedDevicesByProps.map(
-      (devices: DeviceDTO[]) => {
-        return {
-          name: this.getDeviceGroupNameFromGroupedDevices(
-            devices,
-            orderByRules,
-          ),
-          devices: devices.map(
-            (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
-              return {
-                ...device,
-                commissioningDateRange: getDateRangeFromYear(
-                  device.commissioningDate,
-                ),
-                capacityRange: getCapacityRange(device.capacity),
-                selected: true,
-              };
-            },
-          ),
-        };
-      },
-    );
-    return groupedDevices;
+    return groupedDevicesByProps.map((devices: DeviceDTO[]) => {
+      return {
+        name: this.getDeviceGroupNameFromGroupedDevices(devices, orderByRules),
+        devices: devices.map(
+          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
+            return {
+              ...device,
+              commissioningDateRange: getDateRangeFromYear(
+                device.commissioningDate,
+              ),
+              capacityRange: getCapacityRange(device.capacity),
+              selected: true,
+            };
+          },
+        ),
+      };
+    });
   }
 
   private getDeviceGroupNameFromGroupedDevices(
@@ -770,7 +769,7 @@ export class DeviceService {
     orderByRules: DeviceOrderBy[],
   ): string {
     this.logger.verbose(`With in getDeviceGroupNameFromGroupedDevices`);
-    const name = `${orderByRules.map((orderRule: DeviceOrderBy) => {
+    return `${orderByRules.map((orderRule: DeviceOrderBy) => {
       const deviceKey: DeviceKey = DeviceSortPropertyMapper[
         orderRule
       ] as DeviceKey;
@@ -782,7 +781,6 @@ export class DeviceService {
       }
       return devices[0][deviceKey];
     })}`;
-    return name;
   }
 
   public getFilteredQuery(
@@ -825,28 +823,27 @@ export class DeviceService {
       );
     }
     if (filter.deviceTypeCode) {
-      const newdtype = filter.deviceTypeCode.toString();
-      const newdtypeArray = newdtype.split(',');
+      const newDeviceType = filter.deviceTypeCode.toString();
+      const newDTypeArray = newDeviceType.split(',');
       where.deviceTypeCode = Raw(
         (alias) =>
-          `${alias} ILIKE ANY(ARRAY[${newdtypeArray.map((term) => `'%${term}%'`)}])`,
+          `${alias} ILIKE ANY(ARRAY[${newDTypeArray.map((term) => `'%${term}%'`)}])`,
       );
     }
     if (filter.offTaker) {
-      const newoffTaker = filter.offTaker.toString();
-      const newoffTakerArray = newoffTaker.split(',');
+      const newOffTaker = filter.offTaker.toString();
+      const newOffTakerArray = newOffTaker.split(',');
       where.offTaker = Raw(
         (alias) =>
-          `${alias} ILIKE ANY(ARRAY[${newoffTakerArray.map((term) => `'%${term}%'`)}])`,
+          `${alias} ILIKE ANY(ARRAY[${newOffTakerArray.map((term) => `'%${term}%'`)}])`,
       );
     }
-    const query: FindManyOptions<Device> = {
+    return {
       where,
       order: {
         organizationId: 'DESC',
       },
     };
-    return query;
   }
   private getRawFilter(filter: string): FindOperator<any> {
     this.logger.verbose(`With in getRawFilter`);
@@ -932,46 +929,46 @@ export class DeviceService {
       },
     });
   }
-  public async updatereadtype(
+  public async updateReadType(
     deviceId: string,
-    meterReadtype: string,
+    meterReadType: string,
   ): Promise<Device> {
     this.logger.verbose(`With in updatereadtype`);
-    const devicereadtype = await this.repository.findOne({
+    const deviceReadType = await this.repository.findOne({
       where: {
         externalId: deviceId,
       },
     });
-    if (!devicereadtype) {
+    if (!deviceReadType) {
       this.logger.error(`No device found with id ${deviceId}`);
       throw new NotFoundException(`No device found with id ${deviceId}`);
     }
-    devicereadtype.meterReadtype = meterReadtype;
+    deviceReadType.meterReadtype = meterReadType;
 
-    return await this.repository.save(devicereadtype);
+    return await this.repository.save(deviceReadType);
   }
-  public async updatetimezone(
+  public async updateTimezone(
     deviceId: string,
     timeZone: string,
   ): Promise<Device> {
     this.logger.verbose(`With in updatetimezone`);
-    const devicereadtype = await this.repository.findOne({
+    const deviceReadType = await this.repository.findOne({
       where: {
         externalId: deviceId,
       },
     });
-    if (!devicereadtype) {
+    if (!deviceReadType) {
       this.logger.error(`No device found with id ${deviceId}`);
       throw new NotFoundException(`No device found with id ${deviceId}`);
     }
-    devicereadtype.timezone = timeZone;
+    deviceReadType.timezone = timeZone;
 
-    return await this.repository.save(devicereadtype);
+    return await this.repository.save(deviceReadType);
   }
 
   private getBuyerFilteredQuery(
     filter: FilterDTO,
-    pagenumber,
+    pageNumber,
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
@@ -986,27 +983,26 @@ export class DeviceService {
         filter.end_date &&
         Between(filter.start_date, filter.end_date),
     });
-    const query: FindManyOptions<Device> = {
+    return {
       where,
       order: {
         organizationId: 'ASC',
       },
-      skip: (pagenumber - 1) * limit,
+      skip: (pageNumber - 1) * limit,
       take: limit,
     };
-    return query;
   }
-  public async finddeviceForBuyer(
+  public async findDeviceForBuyer(
     filterDto: FilterDTO,
-    pagenumber: number,
+    pageNumber: number,
     api_user_id: string,
   ): Promise<any> {
     const limit = 20;
     let query = this.getFilteredQuery(filterDto);
-    if (pagenumber) {
+    if (pageNumber) {
       query = {
         ...query,
-        skip: (pagenumber - 1) * limit,
+        skip: (pageNumber - 1) * limit,
         take: limit,
       };
     }
@@ -1019,7 +1015,7 @@ export class DeviceService {
     const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
-    const currentPage = pagenumber;
+    const currentPage = pageNumber;
 
     const newUnreservedDevices = devices.map((device: Device) => {
       delete device['organization'];
@@ -1033,28 +1029,28 @@ export class DeviceService {
     };
   }
 
-  public async AddCertificateIssueDateLogForDevice(
+  public async addCertificateIssueDateLogForDevice(
     params: CheckCertificateIssueDateLogForDeviceEntity,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity> {
     this.logger.verbose(`With in AddCertificateIssueDateLogForDevice`);
-    return await this.checkdevcielogcertificaterepository.save({
+    return await this.checkDeviceLogCertificateRepository.save({
       ...params,
     });
   }
   //add new fuction for add window cycle date for late certificate
   public async addLateCertificateIssueDateLogForDevice(
-    params: DeviceLateongoingIssueCertificateEntity,
-  ): Promise<DeviceLateongoingIssueCertificateEntity> {
+    params: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
     this.logger.verbose(`With in AddLateCertificateIssueDateForDevice`);
-    return await this.latedevciecertificaterepository.save({
+    return await this.lateDeviceCertificateRepository.save({
       ...params,
     });
   }
   public async findAllLateCycle(): Promise<
-    DeviceLateongoingIssueCertificateEntity[]
+    DeviceLateOngoingIssueCertificateEntity[]
   > {
     this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
-    return await this.latedevciecertificaterepository.find({
+    return await this.lateDeviceCertificateRepository.find({
       where: {
         certificate_issued: false,
       },
@@ -1063,13 +1059,13 @@ export class DeviceService {
       },
     });
   }
-  public async finddeviceLateCycleOfdaterange(
+  public async findDeviceLateCycleOfDateRange(
     groupid: number,
     externalid: string,
     latestartDate: DateTime,
     lateendDate: DateTime,
   ): Promise<boolean> {
-    const isalreadyadded = await this.latedevciecertificaterepository.findOne({
+    const isAlreadyAdded = await this.lateDeviceCertificateRepository.findOne({
       where: {
         groupId: groupid,
         device_externalid: externalid,
@@ -1078,18 +1074,18 @@ export class DeviceService {
       },
     });
 
-    if (isalreadyadded) {
+    if (isAlreadyAdded) {
       return true;
     }
   }
-  public async findoneLateCycle(
-    groupid: number,
-    externalid: string,
-  ): Promise<DeviceLateongoingIssueCertificateEntity[]> {
-    return await this.latedevciecertificaterepository.find({
+  public async findOneLateCycle(
+    groupId: number,
+    externalId: string,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {
+    return await this.lateDeviceCertificateRepository.find({
       where: {
-        groupId: groupid,
-        device_externalid: externalid,
+        groupId: groupId,
+        device_externalid: externalId,
         //createdAt:LessThanOrEqual(reservation_end_UtcDate)
       },
       order: {
@@ -1104,10 +1100,10 @@ export class DeviceService {
     endDate: Date,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getCheckCertificateIssueDateLogForDevice`);
-    const query = this.getdevcielogFilteredQuery(deviceid, startDate, endDate);
+    const query = this.getDeviceLogFilteredQuery(deviceid, startDate, endDate);
     try {
       const device = await query.getRawMany();
-      const devices = device.map((s: any) => {
+      return device.map((s: any) => {
         const item: any = {
           certificate_issuance_startdate:
             s.device_certificate_issuance_startdate,
@@ -1118,21 +1114,19 @@ export class DeviceService {
         };
         return item;
       });
-
-      return devices;
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
     }
   }
 
-  private getdevcielogFilteredQuery(
+  private getDeviceLogFilteredQuery(
     deviceid: string,
     startDate: Date,
     endDate: Date,
   ): SelectQueryBuilder<CheckCertificateIssueDateLogForDeviceEntity> {
-    this.logger.verbose(`With in getdevcielogFilteredQuery`);
+    this.logger.verbose(`With in getDeviceLogFilteredQuery`);
     //  const { organizationName, status } = filterDto;
-    const query = this.checkdevcielogcertificaterepository
+    return this.checkDeviceLogCertificateRepository
       .createQueryBuilder('device')
       .where('device.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
@@ -1160,10 +1154,9 @@ export class DeviceService {
             );
         }),
       );
-    return query;
   }
 
-  async getallread(
+  async getAllRead(
     meterId: string,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     this.logger.verbose(`With in getallread`);
@@ -1193,31 +1186,31 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { organizationId },
     });
-    const totalamountofreads = [];
+    const totalAmountOfReads = [];
     await Promise.all(
       devices.map(async (device: Device) => {
-        const certifiedamountofread =
-          await this.checkdevcielogcertificaterepository.find({
+        const certifiedAmountOfRead =
+          await this.checkDeviceLogCertificateRepository.find({
             where: { externalId: device.externalId },
           });
-        const totalcertifiedReadValue = certifiedamountofread.reduce(
+        const totalCertifiedReadValue = certifiedAmountOfRead.reduce(
           (accumulator, currentValue) =>
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        const totalamount = await this.getallread(device.externalId);
-        const totalReadValue = totalamount.reduce(
+        const totalAmount = await this.getAllRead(device.externalId);
+        const totalReadValue = totalAmount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
         );
-        totalamountofreads.push({
+        totalAmountOfReads.push({
           externalId: device.developerExternalId,
-          totalcertifiedReadValue: totalcertifiedReadValue,
+          totalcertifiedReadValue: totalCertifiedReadValue,
           totalReadValue: totalReadValue,
         });
       }),
     );
-    return totalamountofreads;
+    return totalAmountOfReads;
   }
 
   public async changeDeviceCreatedAt(
@@ -1226,15 +1219,15 @@ export class DeviceService {
     givenDate: string,
   ): Promise<string> {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
-    const numberOfHistReads: number =
-      await this.getNumberOfHistReads(externalId);
-    const numberOfOngReads: number = await this.getNumberOfOngReads(
+    const numberOfHistoryReads: number =
+      await this.getNumberOfHistoryReads(externalId);
+    const numberOfOngReads: number = await this.getNumberOfOngoingReads(
       externalId,
       onboardedDate,
     );
 
-    if (numberOfHistReads <= 0 && numberOfOngReads <= 0) {
-      return this.changecreatedAtDate(onboardedDate, givenDate, externalId);
+    if (numberOfHistoryReads <= 0 && numberOfOngReads <= 0) {
+      return this.changeCreatedAtDate(onboardedDate, givenDate, externalId);
     } else {
       this.logger.error(
         `The given device already had some meter reads;Thus you cannot change the createdAt`,
@@ -1246,29 +1239,25 @@ export class DeviceService {
     }
   }
 
-  async getNumberOfHistReads(deviceId: string): Promise<number> {
+  async getNumberOfHistoryReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
-    const query = this.historyrepository
+    const query = this.historyRepository
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId });
-    const count = await query.getCount();
-    return count;
+    return await query.getCount();
   }
 
-  async getNumberOfOngReads(
+  async getNumberOfOngoingReads(
     externalId: string,
     onboardedDate: Date,
   ): Promise<number> {
     this.logger.verbose(`With in getNumberOfOngReads`);
-    let fluxQuery = ``;
-    const end = new Date(); // eslint-disable-line @typescript-eslint/no-unused-vars
-    fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+    new Date();
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
       |> range(start: ${onboardedDate})
       |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
       |> count()`;
-    const noOfReads = await this.ongExecute(fluxQuery);
-
-    return noOfReads;
+    return await this.ongExecute(fluxQuery);
   }
 
   async ongExecute(query: string | any): Promise<number> {
@@ -1281,7 +1270,7 @@ export class DeviceService {
     return Number(data[0]._value);
   }
 
-  async changecreatedAtDate(
+  async changeCreatedAtDate(
     onboardedDate: Date,
     givenDate: string,
     externalId: string,
@@ -1342,12 +1331,12 @@ export class DeviceService {
     });
     return newDevices;
   }
-  async getLastCertifiedDevicelogBYgroupId(
+  async getLastCertifiedDevicelogByGroupId(
     groupId: number,
     deviceId: string,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getLastCertifiedDevicelogBYgroupId`);
-    return await this.checkdevcielogcertificaterepository.find({
+    return await this.checkDeviceLogCertificateRepository.find({
       where: {
         groupId: groupId,
         externalId: deviceId,
@@ -1357,13 +1346,13 @@ export class DeviceService {
       },
     });
   }
-  async getcertifieddevicedaterange(
+  async getCertifiedDeviceDateRange(
     groupId: number,
     device?: DeviceDTO,
   ): Promise<any> {
     this.logger.verbose(`With in getcertifieddevicedaterange`);
 
-    const queryBuilder = this.checkdevcielogcertificaterepository
+    const queryBuilder = this.checkDeviceLogCertificateRepository
       .createQueryBuilder('deviceData')
       .select(
         'MIN(deviceData.certificate_issuance_startdate)',
@@ -1379,11 +1368,9 @@ export class DeviceService {
       })
       .andWhere('deviceData.groupId= :groupId', { groupId });
     const result = await queryBuilder.getRawOne();
-    const finalresult = { ...result, extenalId: device.developerExternalId };
-
-    return finalresult;
+    return { ...result, extenalId: device.developerExternalId };
   }
-  async getcertifieddevicedaterangeBygroupid(
+  async getCertifiedDeviceDateRangeByGroupId(
     groupId: number,
     pageNumber?: number,
   ): Promise<any> {
@@ -1394,7 +1381,7 @@ export class DeviceService {
     const pageSize = 10;
     const skip: number = (pageNumber - 1) * pageSize;
 
-    const queryBuilder = await this.checkdevcielogcertificaterepository
+    const queryBuilder = await this.checkDeviceLogCertificateRepository
       .createQueryBuilder('deviceData')
       .leftJoin('device', 'd', 'deviceData.externalId = d.externalId')
       .select([
@@ -1420,28 +1407,28 @@ export class DeviceService {
 
   async remove(
     id: number,
-    filterop: { groupId: number; organizationId?: number },
+    filterOptions: { groupId: number; organizationId?: number },
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkdeviceunreserve = await this.findOne(
+    const checkDeviceUnreserve = await this.findOne(
       id,
-      filterop as FindOneOptions<Device>,
+      filterOptions as FindOneOptions<Device>,
     );
-    if (!checkdeviceunreserve) {
-      const message = `Device id: ${checkdeviceunreserve.developerExternalId} already part of the reservation , you cannot delete it`;
+    if (!checkDeviceUnreserve) {
+      const message = `Device id: ${checkDeviceUnreserve.developerExternalId} already part of the reservation , you cannot delete it`;
       this.logger.error(message);
       return {
         success: false,
         message,
       };
     }
-    const certifiedamountofread =
-      await this.checkdevcielogcertificaterepository.findOne({
-        where: { externalId: checkdeviceunreserve.externalId },
+    const certifiedAmountOfRead =
+      await this.checkDeviceLogCertificateRepository.findOne({
+        where: { externalId: checkDeviceUnreserve.externalId },
       });
 
-    if (certifiedamountofread) {
-      const message = `Device id: ${checkdeviceunreserve.developerExternalId} already certified in reservation , you cannot delete it`;
+    if (certifiedAmountOfRead) {
+      const message = `Device id: ${checkDeviceUnreserve.developerExternalId} already certified in reservation , you cannot delete it`;
       this.logger.error(message);
       return {
         success: false,
@@ -1455,19 +1442,19 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
-  async updatelateongoing(
+  async updateLateOngoing(
     externalId: string,
     id: number,
     lateend_date?: string,
   ): Promise<any> {
     this.logger.verbose(`With in updatelateongoing`);
     this.logger.verbose(`With in updatelateongoing`, id);
-    return await this.latedevciecertificaterepository.update(
+    return await this.lateDeviceCertificateRepository.update(
       { id: id, device_externalid: externalId },
       { late_end_date: lateend_date, certificate_issued: true },
     );
   }
-  async updatelateongoingIfReservationInactive(
+  async updateLateOngoingIfReservationInactive(
     externalId: string,
   ): Promise<any> {
     this.logger.verbose(`With in updatelateongoingIfReservationInactive`);
@@ -1475,7 +1462,7 @@ export class DeviceService {
       `With in updatelateongoingIfReservationInactive`,
       externalId,
     );
-    return await this.latedevciecertificaterepository.update(
+    return await this.lateDeviceCertificateRepository.update(
       { device_externalid: externalId },
       { certificate_issued: true },
     );

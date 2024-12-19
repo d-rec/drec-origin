@@ -14,8 +14,9 @@ import {
 } from './dto/aclmodule.dto';
 import { IACLModuleConfig } from '../../models';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-export type TmoduleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
 import { DecimalPermissionValue } from './common/permissionBitposition';
+
+export type TModuleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;
 
 @Injectable()
 export class AccessControlLayerModuleServiceService {
@@ -25,7 +26,7 @@ export class AccessControlLayerModuleServiceService {
   constructor(
     @InjectRepository(AClModules)
     private readonly repository: Repository<AClModules>,
-    private readonly Permissionvalue: DecimalPermissionValue,
+    private readonly permissionValue: DecimalPermissionValue,
   ) {}
 
   public async create(data: NewACLModuleDTO): Promise<ACLModuleDTO> {
@@ -45,20 +46,18 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      await this.Permissionvalue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
 
-    await this.checkForExistingmodule(data.name);
-    const moduledata = new AClModules({
+    await this.checkForExistingModule(data.name);
+    const moduleData = new AClModules({
       ...data,
       permissionsValue: permissionValue,
     });
 
-    const module = await this.repository.save(moduledata);
-
-    return module;
+    return await this.repository.save(moduleData);
   }
-  private async checkForExistingmodule(name: string): Promise<void> {
-    this.logger.verbose(`With in checkForExistingmodule`);
+  private async checkForExistingModule(name: string): Promise<void> {
+    this.logger.verbose(`With in checkForExistingModule`);
     const isExistingUser = await this.hasModule({ name });
     if (isExistingUser) {
       const message = `This Module Permission name ${name} already exists`;
@@ -86,12 +85,11 @@ export class AccessControlLayerModuleServiceService {
   }
   async findOne(
     conditions: FindConditions<AClModules>,
-  ): Promise<TmoduleBaseEntity> {
+  ): Promise<TModuleBaseEntity> {
     this.logger.verbose(`With in findOne`);
-    const module = await (this.repository.findOne(
+    return await (this.repository.findOne(
       conditions,
-    ) as Promise<IACLModuleConfig> as Promise<TmoduleBaseEntity>);
-    return module;
+    ) as Promise<IACLModuleConfig> as Promise<TModuleBaseEntity>);
   }
 
   async getAll(): Promise<AClModules[]> {
@@ -119,7 +117,7 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      await this.Permissionvalue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
     await this.repository.update(id, {
       permissions: data.permissions,
       permissionsValue: permissionValue,

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IACLModuleConfig } from '../../../models';
 import { RoleStatus } from '../../../utils/enums';
-import { IsEnum, IsString, IsArray, IsOptional } from 'class-validator';
+import { IsEnum, IsString, IsArray, IsOptional, IsNotEmpty, ArrayNotEmpty } from 'class-validator';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export class ACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
@@ -33,6 +33,7 @@ export class ACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
 export class NewACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
   @ApiProperty({ type: String })
   @Column()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
@@ -42,6 +43,7 @@ export class NewACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
 
   @ApiProperty({ type: String })
   @Column()
+  @IsNotEmpty()
   description: string;
 
   @ApiProperty({
@@ -50,6 +52,7 @@ export class NewACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
   })
   @Column('simple-array')
   @IsArray()
+  @ArrayNotEmpty()
   permissions: string[];
 
   @Column()

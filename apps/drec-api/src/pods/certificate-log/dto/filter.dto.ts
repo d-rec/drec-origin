@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   OffTaker,
   SDGBenefitsList,
@@ -18,11 +18,11 @@ export class FilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({
-    type: DevicetypeCode,
+    type: DeviceTypeCode,
     description: 'Device Type Code',
-    enum: DevicetypeCode,
+    enum: DeviceTypeCode,
   })
-  deviceTypeCode: DevicetypeCode;
+  deviceTypeCode: DeviceTypeCode;
 
   @IsOptional()
   @ApiPropertyOptional({

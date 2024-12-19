@@ -3,7 +3,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   OffTaker,
   FuelCode,
-  DevicetypeCode,
+  DeviceTypeCode,
   SDGBenefitsList,
 } from '../../../utils/enums';
 
@@ -18,12 +18,12 @@ export class FilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({
-    type: DevicetypeCode,
+    type: DeviceTypeCode,
     description: 'Device Type Code',
-    enum: DevicetypeCode,
+    enum: DeviceTypeCode,
     isArray: true,
   })
-  deviceTypeCode: DevicetypeCode;
+  deviceTypeCode: DeviceTypeCode;
 
   // @IsOptional()
   // @ApiPropertyOptional({
@@ -114,11 +114,11 @@ export class BuyerDeviceFilterDTO {
 
   @IsOptional()
   @ApiPropertyOptional({
-    type: DevicetypeCode,
+    type: DeviceTypeCode,
     description: 'Device Type Code',
-    enum: DevicetypeCode,
+    enum: DeviceTypeCode,
   })
-  deviceTypeCode: DevicetypeCode;
+  deviceTypeCode: DeviceTypeCode;
 
   @IsOptional()
   @ApiPropertyOptional({

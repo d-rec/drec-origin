@@ -8,7 +8,6 @@ import {
 } from './parser/meter-reading-csv.parser';
 import { ReadsService } from './reads.service';
 import { FileProcessingStatus } from '../file/file-processing.entity';
-import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -29,7 +28,7 @@ export class ReadsProcessor {
         `Starting job processing for fileId: ${job.data.fileId}`,
       );
 
-      const fileContent = await this.fileService.GetuploadS3(s3Id);
+      const fileContent = await this.fileService.getUploadS3(s3Id);
       const buffer = Buffer.from(fileContent.data.Body);
       const meterReads = await parseMeterReadingCsv(buffer);
 
@@ -49,7 +48,7 @@ export class ReadsProcessor {
             timezone: record.timezone,
             deviceId: record.deviceId,
           };
-          await this.readsService.newstoreRead(record.deviceId, measurement);
+          await this.readsService.newStoreRead(record.deviceId, measurement);
           readsCount++;
         } catch (error) {
           this.logger.error(`Error processing read: ${error.message}`);

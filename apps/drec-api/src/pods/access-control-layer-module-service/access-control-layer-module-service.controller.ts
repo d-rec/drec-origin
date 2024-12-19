@@ -46,8 +46,8 @@ export class AccessControlLayerModuleServiceController {
 
   /*
    * This is Get Api to list all the Acl modules.
-   * @return {Array<ACLModuleDto> | null}.
-   * It returns array of ACLModuleDto when there is the list of all ACLModules
+   * @return {Array<ACLModuleDTO> | null}.
+   * It returns array of ACLModuleDTO when there is the list of all ACLModules
    * in response of query and returns null when there is no list of ACLModules or empty.
    * */
   @Get()
@@ -66,7 +66,7 @@ export class AccessControlLayerModuleServiceController {
 
   /*
    * It is POST api to create an ACL Module.
-   * @return {ACLModuleDto} when create api is successfull.
+   * @return {ACLModuleDTO} when create api is successfull.
    */
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -85,7 +85,7 @@ export class AccessControlLayerModuleServiceController {
 
   /*
    * This is PUT api to update a module permissions or status
-   * @return {ACLModuleDto} when the update is successfull.
+   * @return {ACLModuleDTO} when the update is successfull.
    * @param {id} is the type of number and identifier of ACl Modules.
    */
   @Put('/update/:id')

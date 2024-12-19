@@ -10,9 +10,9 @@ export interface IModulePermissionsConfig {
   permissionValue: number;
   status: number;
 }
-export interface IACLmodulsPermissions extends IaddModulePermission {
+export interface IACLModulePermission extends IAddModulePermission {
   aclmodules: IACLModuleConfig;
 }
-export interface IaddModulePermission extends IModulePermissionsConfig {
+export interface IAddModulePermission extends IModulePermissionsConfig {
   aclmodulesId: number;
 }
