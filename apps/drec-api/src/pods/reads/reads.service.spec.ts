@@ -13,6 +13,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
+import { FileProcessingEntity } from '../file/file-processing.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -43,6 +44,10 @@ describe('ReadsService', () => {
         {
           provide: getRepositoryToken(AggregateMeterRead),
           useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(FileProcessingEntity),
+          useValue: {},
         },
         {
           provide: getRepositoryToken(HistoryIntermediateMeterRead),
