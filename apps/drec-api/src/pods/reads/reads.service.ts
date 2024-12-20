@@ -622,7 +622,7 @@ export class ReadsService {
                 reject(
                   new ConflictException({
                     success: false,
-                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
+                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent meter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
                   }),
                 );
               }
