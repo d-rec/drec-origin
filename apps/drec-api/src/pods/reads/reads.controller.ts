@@ -162,46 +162,44 @@ export class ReadsController extends BaseReadsController {
         filter.organizationId,
       );
       orgUser = await this.userService.findByEmail(organization.orgEmail);
-      if (user.role === Role.ApiUser) {
-        if (user.api_user_id != organization.api_user_id) {
-          this.logger.error(
-            `An apiuser cannot view the reads of other apiuser's`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `An apiuser cannot view the reads of other apiuser's`,
-          });
-        } else {
-          user.organizationId = filter.organizationId;
-        }
-      } else {
-        if (
-          user.role === Role.OrganizationAdmin &&
-          user.organizationId != filter.organizationId
-        ) {
-          this.logger.error(
-            `An developer can't view the reads of other organization`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `An developer can't view the reads of other organization`,
-          });
-        }
-
-        if (
-          user.role != Role.Admin &&
-          user.api_user_id != organization.api_user_id
-        ) {
-          this.logger.error(
-            `An developer cannot view the reads of other ApiUsers's`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `An developer cannot view the reads of other ApiUsers's`,
-          });
-        }
-        user.organizationId = filter.organizationId;
+      if (
+        user.role === Role.ApiUser &&
+        user.api_user_id != organization.api_user_id
+      ) {
+        this.logger.error(
+          `An apiuser cannot view the reads of other apiuser's`,
+        );
+        throw new BadRequestException({
+          success: false,
+          message: `An apiuser cannot view the reads of other apiuser's`,
+        });
       }
+      if (
+        user.role === Role.OrganizationAdmin &&
+        user.organizationId != filter.organizationId
+      ) {
+        this.logger.error(
+          `An developer can't view the reads of other organization`,
+        );
+        throw new BadRequestException({
+          success: false,
+          message: `An developer can't view the reads of other organization`,
+        });
+      }
+
+      if (
+        user.role != Role.Admin &&
+        user.api_user_id != organization.api_user_id
+      ) {
+        this.logger.error(
+          `An developer cannot view the reads of other ApiUsers's`,
+        );
+        throw new BadRequestException({
+          success: false,
+          message: `An developer cannot view the reads of other ApiUsers's`,
+        });
+      }
+      user.organizationId = filter.organizationId;
     }
 
     filter.offset = 0;

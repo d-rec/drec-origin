@@ -1259,7 +1259,7 @@ export class ReadsService {
         400,
       );
     }
-    const historyRead = [];
+    const historyReads = [];
     let ongoing = [];
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
@@ -1295,7 +1295,7 @@ export class ReadsService {
     numberOfReads = numberOfHistoryReads + numberOfOngReads;
     if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: 0,
@@ -1308,7 +1308,7 @@ export class ReadsService {
       pageNumber > numberOfPages
     ) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1330,13 +1330,13 @@ export class ReadsService {
       );
       this.logger.verbose('historyexistdevicequery');
       try {
-        const historyRead = await query
+        const rawHistoryReads = await query
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
 
-        await historyRead.forEach((element) => {
-          historyRead.push({
+        await rawHistoryReads.forEach((element) => {
+          historyReads.push({
             startdate: element.devicehistory_readsStartDate,
             enddate: element.devicehistory_readsEndDate,
             value: element.devicehistory_readsvalue,
@@ -1457,7 +1457,7 @@ export class ReadsService {
     );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1465,7 +1465,7 @@ export class ReadsService {
       };
     } else {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
