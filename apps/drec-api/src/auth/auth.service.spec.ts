@@ -11,6 +11,11 @@ import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
 import { IUser } from 'src/models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 
+jest.mock('@nestjs/passport', () => ({
+  JwtStrategy: jest.fn(() => ({
+    validate: jest.fn(),
+  })),
+}));
 describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
