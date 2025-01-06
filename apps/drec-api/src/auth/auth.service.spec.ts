@@ -325,7 +325,7 @@ describe('AuthService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
         privateKey: fileData,
-        secret: 'my-secret',
+        secret: process.env.JWT_SECRET,
       });
     });
 
