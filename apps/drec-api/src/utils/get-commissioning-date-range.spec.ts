@@ -2,7 +2,18 @@ import { CommissioningDateRange } from './enums';
 import { getDateRangeFromYear } from './get-commissioning-date-range';
 
 describe('getDateRangeFromYear function', () => {
+  const mockCurrentDate = (mockDate: string) => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(mockDate));
+  };
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('should return correct date range for commissioning date', () => {
+    mockCurrentDate('2024-12-31');
+
     expect(getDateRangeFromYear('2024-01-01')).toEqual(
       CommissioningDateRange.Year_1_Q1,
     );

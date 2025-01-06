@@ -3,16 +3,28 @@ import { CommissioningDateRange } from './enums';
 export const getDateRangeFromYear = (
   commissioningDate: string,
 ): CommissioningDateRange => {
-  const year = new Date(commissioningDate).getFullYear();
+  const commissioningYear = new Date(commissioningDate).getFullYear();
   const currentYear = new Date().getFullYear();
-  const range = currentYear - year;
+  const month = new Date(commissioningDate).getMonth();
+
+  const range = currentYear - commissioningYear;
+
   if (range === 0) {
-    const month = new Date(commissioningDate).getMonth();
-    if (month < 4) {
+    if (month < 3) {
       return CommissioningDateRange.Year_1_Q1;
-    } else if (month >= 4 && month < 7) {
+    } else if (month >= 3 && month < 6) {
       return CommissioningDateRange.Year_1_Q2;
-    } else if (month >= 7 && month < 10) {
+    } else if (month >= 6 && month < 9) {
+      return CommissioningDateRange.Year_1_Q3;
+    } else {
+      return CommissioningDateRange.Year_1_Q4;
+    }
+  } else if (range === 1 && new Date().getMonth() < month) {
+    if (month < 3) {
+      return CommissioningDateRange.Year_1_Q1;
+    } else if (month >= 3 && month < 6) {
+      return CommissioningDateRange.Year_1_Q2;
+    } else if (month >= 6 && month < 9) {
       return CommissioningDateRange.Year_1_Q3;
     } else {
       return CommissioningDateRange.Year_1_Q4;
