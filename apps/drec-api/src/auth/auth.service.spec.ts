@@ -18,6 +18,7 @@ describe('AuthService', () => {
   let oauthClientService: OauthClientCredentialsService;
 
   beforeEach(async () => {
+    process.env.JWT_SECRET = 'yoursecret';
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
