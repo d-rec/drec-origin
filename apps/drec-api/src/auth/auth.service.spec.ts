@@ -11,11 +11,6 @@ import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
 import { IUser } from 'src/models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 
-jest.mock('@nestjs/passport', () => ({
-  JwtStrategy: jest.fn(() => ({
-    validate: jest.fn(),
-  })),
-}));
 describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
@@ -23,7 +18,6 @@ describe('AuthService', () => {
   let oauthClientService: OauthClientCredentialsService;
 
   beforeEach(async () => {
-    process.env.JWT_SECRET = 'yoursecret';
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -331,7 +325,7 @@ describe('AuthService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
         privateKey: fileData,
-        secret: process.env.JWT_SECRET,
+        secret: 'my-secret',
       });
     });
 
