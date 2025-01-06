@@ -84,7 +84,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
-      secret: 'my-secret',
+      secret: process.env.JWT_SECRET,
     });
     return {
       accessToken: token,
