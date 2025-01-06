@@ -482,10 +482,12 @@ export class ReadsService {
               element.endtimestamp,
               measurement.unit,
             );
-            throw new ConflictException({
-              success: false,
-              message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
-            });
+            reject(
+              new ConflictException({
+                success: false,
+                message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
+              }),
+            );
           }
 
           if (
@@ -623,10 +625,12 @@ export class ReadsService {
                     element.endtimestamp,
                     measurement.unit,
                   );
-                  throw new ConflictException({
-                    success: false,
-                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
-                  });
+                  reject(
+                    new ConflictException({
+                      success: false,
+                      message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
+                    }),
+                  );
                 }
               }
 
@@ -683,10 +687,12 @@ export class ReadsService {
                   element.endtimestamp,
                   measurement.unit,
                 );
-                throw new ConflictException({
-                  success: false,
-                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
-                });
+                reject(
+                  new ConflictException({
+                    success: false,
+                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent meter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
+                  }),
+                );
               }
 
               const read: ReadDTO = {
@@ -767,10 +773,12 @@ export class ReadsService {
                   new Date(lastValue[0].datetime).getTime() ||
                 element.value <= lastValue[0].value
               ) {
-                throw new ConflictException({
-                  success: false,
-                  message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
-                });
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
+                  }),
+                );
               }
 
               const read: ReadDTO = {
@@ -1327,7 +1335,7 @@ export class ReadsService {
         400,
       );
     }
-    const historyRead = [];
+    const historyReads = [];
     let ongoing = [];
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
@@ -1363,7 +1371,7 @@ export class ReadsService {
     numberOfReads = numberOfHistoryReads + numberOfOngReads;
     if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: 0,
@@ -1376,7 +1384,7 @@ export class ReadsService {
       pageNumber > numberOfPages
     ) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1398,13 +1406,13 @@ export class ReadsService {
       );
       this.logger.verbose('historyexistdevicequery');
       try {
-        const historyRead = await query
+        const rawHistoryReads = await query
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
 
-        await historyRead.forEach((element) => {
-          historyRead.push({
+        await rawHistoryReads.forEach((element) => {
+          historyReads.push({
             startdate: element.devicehistory_readsStartDate,
             enddate: element.devicehistory_readsEndDate,
             value: element.devicehistory_readsvalue,
@@ -1525,7 +1533,7 @@ export class ReadsService {
     );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1533,7 +1541,7 @@ export class ReadsService {
       };
     } else {
       return {
-        historyRead,
+        historyread: historyReads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
