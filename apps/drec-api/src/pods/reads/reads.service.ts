@@ -482,7 +482,7 @@ export class ReadsService {
               element.endtimestamp,
               measurement.unit,
             );
-            reject(
+            return reject(
               new ConflictException({
                 success: false,
                 message: `There are already one or more historical entries for this device which are conflicting current reading start date and/or end date `,
