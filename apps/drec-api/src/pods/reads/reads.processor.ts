@@ -58,6 +58,7 @@ export class ReadsProcessor {
             record.reads[readsCount].endtimestamp,
             record.unit,
           );
+          throw error.message;
         }
       }
       await this.readsService.fileProcessingRepository.update(

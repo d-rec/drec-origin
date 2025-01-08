@@ -147,7 +147,6 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
-    console.log('backend', file);
     const [fileId] = await this.fileService.store(user, [file]);
     return await this.internalReadsService.scheduleMeterReadsProcessing(
       fileId,

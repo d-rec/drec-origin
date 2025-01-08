@@ -244,7 +244,7 @@ export class ReadsService {
       };
 
       await this.fileProcessingRepository.save({
-        fileId: fileExists.id,
+        fileId: fileExists.filename,
         userId: user.id,
         organizationId: user.organizationId,
         status: FileProcessingStatus.InProgress,
@@ -256,7 +256,7 @@ export class ReadsService {
 
       const job = await this.readsQueue.add('meter-reads-csv', {
         s3Id: s3Upload.Key,
-        fileId: fileExists.id,
+        fileId: fileExists.filename,
         userId: user.id,
         organizationId: user.organizationId,
       });
