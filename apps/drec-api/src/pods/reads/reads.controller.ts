@@ -20,6 +20,9 @@ import {
   Logger,
   UseInterceptors,
   UploadedFile,
+  UnauthorizedException,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -59,6 +62,7 @@ import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
+import { FileProcessingEntity } from '../file/file-processing.entity';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -143,11 +147,114 @@ export class ReadsController extends BaseReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
+    console.log('backend', file);
     const [fileId] = await this.fileService.store(user, [file]);
     return await this.internalReadsService.scheduleMeterReadsProcessing(
       fileId,
       user,
     );
+  }
+
+  @Get('/get-csv-jobs')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({
+    name: 'orgId',
+    type: Number,
+    required: false,
+    description: 'This query parameter is used for Apiuser',
+  })
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [FileProcessingEntity],
+    description: 'Returns created jobs of an organization',
+  })
+  public async getAllCsvJobsBelongingToOrganization(
+    @UserDecorator() user: ILoggedInUser,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+  ): Promise<
+    | {
+        csvJobs: Array<FileProcessingEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
+    this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
+    if (user.organizationId === null || user.organizationId === undefined) {
+      this.logger.error(`User needs to have organization added`);
+      throw new ConflictException({
+        success: false,
+        message: 'User needs to have organization added',
+      });
+    }
+
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
+
+      if (user.role === Role.ApiUser) {
+        if (organization.api_user_id != user.api_user_id) {
+          this.logger.error(
+            `The requested organization is belongs to other apiuser`,
+          );
+          throw new BadRequestException({
+            success: false,
+            message: 'The requested organization is belongs to other apiuser',
+          });
+        }
+
+        if (orgUser.role != Role.OrganizationAdmin) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        }
+      } else {
+        if (user.role != Role.Admin) {
+          if (orgId != organizationId) {
+            this.logger.error(
+              `The orgId at query param is not same as user's organization`,
+            );
+            throw new BadRequestException({
+              success: false,
+              message: `The orgId at query param is not same as user's organization`,
+            });
+          }
+        }
+      }
+    }
+
+    // if (user.role === 'Admin') {
+    //   return this.deviceGroupService.getAllCSVJobsForAdmin(
+    //     orgId,
+    //     pageNumber,
+    //     limit,
+    //   );
+    // } else if (user.role === Role.ApiUser) {
+    //   return this.deviceGroupService.getAllCSVJobsForApiUser(
+    //     user.api_user_id,
+    //     orgId,
+    //     pageNumber,
+    //     limit,
+    //   );
+    // } else {
+    return this.internalReadsService.getAllCSVJobsForOrganization(
+      organizationId,
+      pageNumber,
+      limit,
+    );
+    //}
   }
 
   /**

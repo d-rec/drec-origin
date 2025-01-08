@@ -137,6 +137,52 @@ export class ReadsService {
     );
   }
 
+  async getAllCSVJobsForOrganization(
+    organizationId: number,
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<
+    | {
+        csvJobs: Array<FileProcessingEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
+    this.logger.verbose(`With in getAllCSVJobsForOrganization`);
+    const [csvJobs, totalCount] =
+      await this.fileProcessingRepository.findAndCount({
+        where: { organizationId },
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const csvJobsWithOrganization = await Promise.all(
+      csvJobs.map(async (csvJob: FileProcessingEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvJob.organizationId,
+        );
+        csvJob.organization = {
+          name: organization.name,
+        };
+        return csvJob;
+      }),
+    );
+
+    return {
+      csvJobs: csvJobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount,
+    };
+  }
+
   async storeFailedReads(
     meterId: string,
     read: number,
