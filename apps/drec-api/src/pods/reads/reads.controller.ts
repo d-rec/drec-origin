@@ -63,6 +63,7 @@ import {
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
 import { FileProcessingEntity } from '../file/file-processing.entity';
+import { JobFailedRowsDTO } from '../device-group/dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -254,6 +255,78 @@ export class ReadsController extends BaseReadsController {
       limit,
     );
     //}
+  }
+
+  @Get('/bulk-upload-status/:id')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard) //, PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiQuery({
+    name: 'orgId',
+    type: Number,
+    required: false,
+    description: 'This query parameter is used for Apiuser',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: JobFailedRowsDTO,
+    description: 'Returns status of job id for bulk upload',
+  })
+  public async getBulkUploadJobStatus(
+    @Param('id') jobId: number,
+    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
+    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+  ): Promise<JobFailedRowsDTO | undefined> {
+    this.logger.verbose(`With in getBulkUploadJobStatus`);
+
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
+
+      if (role === Role.ApiUser) {
+        if (organization.api_user_id != api_user_id) {
+          this.logger.error(
+            `The requested organization is belongs to other apiuser`,
+          );
+          throw new BadRequestException({
+            success: false,
+            message: 'The requested organization is belongs to other apiuser',
+          });
+        }
+
+        if (orgUser.role != Role.OrganizationAdmin) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        }
+      } else {
+        if (orgId != organizationId && role != Role.Admin) {
+          this.logger.error(
+            `The organizationId in query params should be same as user's organizationId`,
+          );
+          throw new BadRequestException({
+            success: false,
+            message: `The organizationId in query params should be same as user's organizationId`,
+          });
+        } else if (role === Role.Admin) {
+          orgId = null;
+        }
+      }
+    } else {
+      if (role === Role.ApiUser) {
+        this.logger.error(`Add the orgId at query param`);
+        throw new BadRequestException({
+          success: false,
+          message: `Add the orgId at query param`,
+        });
+      }
+    }
+    return await this.internalReadsService.getFailedReadsLogsCSVJob(
+      jobId,
+      orgId,
+    );
   }
 
   /**

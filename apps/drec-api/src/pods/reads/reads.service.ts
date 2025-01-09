@@ -6,6 +6,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   Brackets,
@@ -65,6 +66,7 @@ import {
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
+import { JobFailedRowsDTO } from '../device-group/dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -195,6 +197,37 @@ export class ReadsService {
       jobId,
       errorDetails: {
         log: { errorDetails },
+      },
+    });
+  }
+
+  async getFailedReadsLogsCSVJob(
+    jobId: number,
+    organizationId?: number,
+  ): Promise<JobFailedRowsDTO | undefined> {
+    this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
+    if (organizationId) {
+      const csvJob = await this.fileProcessingFailedReadsLogsRepository.findOne(
+        {
+          where: {
+            jobId: jobId,
+            organizationId: organizationId,
+          },
+        },
+      );
+
+      if (!csvJob) {
+        this.logger.error(`The job requested is belongs to other organization`);
+        throw new UnauthorizedException({
+          success: false,
+          message: `The job requested is belongs to other organization`,
+        });
+      }
+    }
+
+    return await this.fileProcessingFailedReadsLogsRepository.findOne({
+      where: {
+        jobId: jobId,
       },
     });
   }
