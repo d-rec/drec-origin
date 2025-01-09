@@ -510,6 +510,7 @@ export class ReadsController extends BaseReadsController {
         user,
         organizationId: measurements.organizationId,
       });
+      user.organizationId = measurements.organizationId;
     }
 
     if (id.trim() === '' && id.trim() === undefined) {
