@@ -25,6 +25,10 @@ export class FileProcessingEntity extends ExtendedBaseEntity {
   fileId: string;
 
   @Column()
+  @IsString()
+  jobId: string;
+
+  @Column()
   @IsNumber()
   userId: number;
 

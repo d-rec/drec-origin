@@ -292,15 +292,6 @@ export class ReadsService {
         path: '',
       };
 
-      await this.fileProcessingRepository.save({
-        fileId: fileExists.filename,
-        userId: user.id,
-        organizationId: user.organizationId,
-        status: FileProcessingStatus.InProgress,
-        type: FileProcessingType.AddMeterRead,
-        apiUserId: user.api_user_id,
-      });
-
       const s3Upload = await this.fileService.upload(multerFile);
 
       const job = await this.readsQueue.add('meter-reads-csv', {
@@ -308,6 +299,16 @@ export class ReadsService {
         fileId: fileExists.filename,
         userId: user.id,
         organizationId: user.organizationId,
+      });
+
+      await this.fileProcessingRepository.save({
+        fileId: fileExists.filename,
+        jobId: job.id.toString(),
+        userId: user.id,
+        organizationId: user.organizationId,
+        status: FileProcessingStatus.InProgress,
+        type: FileProcessingType.AddMeterRead,
+        apiUserId: user.api_user_id,
       });
 
       this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);

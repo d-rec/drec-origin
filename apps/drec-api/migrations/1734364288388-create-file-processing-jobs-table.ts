@@ -11,6 +11,7 @@ export class CreateFileProcessingJobsTable1734364288388
       CREATE TABLE "file_processing_jobs" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "fileId" varchar NOT NULL,
+        "jobId" varchar NOT NULL,
         "userId" integer NOT NULL,
         "organizationId" integer NOT NULL,
         "status" file_processing_status NOT NULL,
