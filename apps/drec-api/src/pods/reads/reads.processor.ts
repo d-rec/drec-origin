@@ -72,6 +72,7 @@ export class ReadsProcessor {
         { fileId: fileId },
         { status: FileProcessingStatus.Failed },
       );
+      await this.readsService.storeFailedReadsLogsCSVJob(Number(job.id), error);
       throw error;
     }
   }

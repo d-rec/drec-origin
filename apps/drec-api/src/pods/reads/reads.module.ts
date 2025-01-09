@@ -19,6 +19,7 @@ import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
 import { ReadsProcessor } from './reads.processor';
 import { FileProcessingEntity } from '../file/file-processing.entity';
+import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -38,6 +39,7 @@ const baseReadServiceProvider = {
       HistoryIntermediateMeterRead,
       DeltaFirstRead,
       FileProcessingEntity,
+      FileProcessingFailedReadsLogsEntity,
     ]),
     BullModule.registerQueue({
       name: 'reads-queue',

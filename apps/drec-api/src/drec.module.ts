@@ -67,6 +67,7 @@ import { FileProcessingEntity } from './pods/file/file-processing.entity';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryFilter } from './filters/sentry.filter';
+import { FileProcessingFailedReadsLogsEntity } from './pods/file/file-processing-failed-reads-logs.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -118,6 +119,7 @@ export const entities = [
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities,
   FileProcessingEntity,
+  FileProcessingFailedReadsLogsEntity,
 ];
 
 const originAppTypeOrmModule = () => {

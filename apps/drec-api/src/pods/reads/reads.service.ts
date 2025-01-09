@@ -64,6 +64,7 @@ import {
 } from '../file/file-processing.entity';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
+import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -80,6 +81,8 @@ export class ReadsService {
     private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(DeltaFirstRead)
     private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
+    @InjectRepository(FileProcessingFailedReadsLogsEntity)
+    private readonly fileProcessingFailedReadsLogsRepository: Repository<FileProcessingFailedReadsLogsEntity>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
@@ -181,6 +184,19 @@ export class ReadsService {
       totalPages,
       totalCount,
     };
+  }
+
+  async storeFailedReadsLogsCSVJob(
+    jobId: number,
+    errorDetails: string,
+  ): Promise<FileProcessingFailedReadsLogsEntity> {
+    this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
+    return await this.fileProcessingFailedReadsLogsRepository.save({
+      jobId,
+      errorDetails: {
+        log: { errorDetails },
+      },
+    });
   }
 
   async storeFailedReads(
