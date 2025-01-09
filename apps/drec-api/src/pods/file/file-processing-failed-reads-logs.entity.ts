@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsNumber } from 'class-validator';
 
 @Entity('file_processing_failed_reads_logs')
-export class DeviceCsvProcessingFailedRowsEntity extends ExtendedBaseEntity {
+export class FileProcessingFailedReadsLogsEntity extends ExtendedBaseEntity {
   constructor() {
     super();
   }
