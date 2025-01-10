@@ -14,6 +14,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
 import { FileProcessingEntity } from '../file/file-processing.entity';
+import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -43,6 +44,10 @@ describe('ReadsService', () => {
         ReadsService,
         {
           provide: getRepositoryToken(AggregateMeterRead),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(FileProcessingFailedReadsLogsEntity),
           useClass: Repository,
         },
         {

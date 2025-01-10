@@ -157,7 +157,6 @@ export class ReadsController extends BaseReadsController {
 
   @Get('/get-csv-jobs')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiQuery({
@@ -234,33 +233,17 @@ export class ReadsController extends BaseReadsController {
         }
       }
     }
-
-    // if (user.role === 'Admin') {
-    //   return this.deviceGroupService.getAllCSVJobsForAdmin(
-    //     orgId,
-    //     pageNumber,
-    //     limit,
-    //   );
-    // } else if (user.role === Role.ApiUser) {
-    //   return this.deviceGroupService.getAllCSVJobsForApiUser(
-    //     user.api_user_id,
-    //     orgId,
-    //     pageNumber,
-    //     limit,
-    //   );
-    // } else {
     return this.internalReadsService.getAllCSVJobsForOrganization(
       organizationId,
       pageNumber,
       limit,
     );
-    //}
   }
 
   @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard) //, PermissionGuard)
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ACLModules('READS_BULK_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -301,27 +284,26 @@ export class ReadsController extends BaseReadsController {
             message: 'Unauthorized',
           });
         }
-      } else {
-        if (orgId != organizationId && role != Role.Admin) {
-          this.logger.error(
-            `The organizationId in query params should be same as user's organizationId`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `The organizationId in query params should be same as user's organizationId`,
-          });
-        } else if (role === Role.Admin) {
-          orgId = null;
-        }
       }
-    } else {
-      if (role === Role.ApiUser) {
-        this.logger.error(`Add the orgId at query param`);
+      if (orgId != organizationId && role != Role.Admin) {
+        this.logger.error(
+          `The organizationId in query params should be same as user's organizationId`,
+        );
         throw new BadRequestException({
           success: false,
-          message: `Add the orgId at query param`,
+          message: `The organizationId in query params should be same as user's organizationId`,
         });
       }
+      if (role === Role.Admin) {
+        orgId = null;
+      }
+    }
+    if (role === Role.ApiUser) {
+      this.logger.error(`Add the orgId at query param`);
+      throw new BadRequestException({
+        success: false,
+        message: `Add the orgId at query param`,
+      });
     }
     return await this.internalReadsService.getFailedReadsLogsCSVJob(
       jobId,

@@ -19,16 +19,6 @@ export const getDateRangeFromYear = (
     } else {
       return CommissioningDateRange.Year_1_Q4;
     }
-  } else if (range === 1 && new Date().getMonth() < month) {
-    if (month < 3) {
-      return CommissioningDateRange.Year_1_Q1;
-    } else if (month >= 3 && month < 6) {
-      return CommissioningDateRange.Year_1_Q2;
-    } else if (month >= 6 && month < 9) {
-      return CommissioningDateRange.Year_1_Q3;
-    } else {
-      return CommissioningDateRange.Year_1_Q4;
-    }
   } else if (range === 1) {
     return CommissioningDateRange.Year_2;
   } else if (range === 2) {
