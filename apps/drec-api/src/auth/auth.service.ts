@@ -87,7 +87,7 @@ export class AuthService {
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
       secret:
-        this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
+        this.configService.get<string>('JWT_API_USER_SECRET') || 'my-secret',
     });
     return {
       accessToken: token,
