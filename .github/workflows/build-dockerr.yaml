@@ -25,7 +25,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t drec-origin -f apps/drec-api/Dockerfile
+        run: docker build -t drec-origin -f apps/drec-api/Dockerfile .
 
       - name: List all Docker images
         run: docker images
