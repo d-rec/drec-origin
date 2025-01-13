@@ -75,4 +75,3 @@ jobs:
         run: |
           kubectl -n dev set image deployment/${{ secrets.DEPLOYMENT_NAME }} \
             ${{ secrets.CONTAINER_NAME }}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
