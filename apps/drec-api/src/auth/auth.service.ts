@@ -10,6 +10,7 @@ import { Role } from '../utils/enums/role.enum';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { DeleteResult } from 'typeorm';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
+import { ConfigService } from '@nestjs/config';
 
 export interface IJWTPayload {
   id: number;
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly oauthClientService: OauthClientCredentialsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(
@@ -84,7 +86,8 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
-      secret: 'my-secret',
+      secret:
+        this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
     });
     return {
       accessToken: token,
