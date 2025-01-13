@@ -1,4 +1,4 @@
-name: Docker Build, Push to ECR, and Deploy to Kubernetes
+name: Docker Build
 
 on:
   push:
