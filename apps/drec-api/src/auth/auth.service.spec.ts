@@ -45,7 +45,7 @@ describe('AuthService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('my-secret'),
+            get: jest.fn().mockReturnValue('mock-secret'),
           } as any,
         },
       ],
@@ -332,7 +332,7 @@ describe('AuthService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
         privateKey: fileData,
-        secret: 'my-secret',
+        secret: 'mock-secret',
       });
     });
 
