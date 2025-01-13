@@ -47,7 +47,7 @@ describe('AuthService', () => {
           useValue: {
             get: jest.fn().mockReturnValue('my-secret'),
           } as any,
-        }
+        },
       ],
     }).compile();
 
