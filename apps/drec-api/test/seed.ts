@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { UserService } from '../src/pods/user/user.service';
-import { CreateUserORGDTO } from '../src/pods/user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { Role } from '../src/utils/enums/role.enum';
 import { DeviceDTO, NewDeviceDTO } from '../src/pods/device/dto';
 import {
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   Installation,
   OffTaker,
@@ -64,7 +64,7 @@ export const testOrgs: OrganizationDTO[] = [
   },
 ];
 
-export const testUsers: Omit<CreateUserORGDTO, 'organizationId'>[] = [
+export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
   {
     firstName: 'Jane',
     lastName: 'Williams',
@@ -104,7 +104,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1500,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -127,7 +127,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1600,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -150,7 +150,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -173,7 +173,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -199,7 +199,7 @@ export const batchDevices: NewDeviceDTO[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1500,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -220,7 +220,7 @@ export const batchDevices: NewDeviceDTO[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1600,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -241,7 +241,7 @@ export const batchDevices: NewDeviceDTO[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,
@@ -262,7 +262,7 @@ export const batchDevices: NewDeviceDTO[] = [
     longitude: '135.717309',
     countryCode: 'DE',
     fuelCode: FuelCode.ES100,
-    deviceTypeCode: DevicetypeCode.TC110,
+    deviceTypeCode: DeviceTypeCode.TC110,
     capacity: 1750,
     commissioningDate: '2012-07-01',
     gridInterconnection: true,

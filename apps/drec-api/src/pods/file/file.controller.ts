@@ -26,8 +26,8 @@ import {
 import { Request, Response } from 'express';
 import multer from 'multer';
 
-import { FileDto } from './file.dto';
-import { FileUploadDto } from './file-upload.dto';
+import { FileDTO } from './file.dto';
+import { FileUploadDTO } from './file-upload.dto';
 import { FileService } from './file.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -62,7 +62,7 @@ export class FileController {
    */
   @Post()
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: FileUploadDto })
+  @ApiBody({ type: FileUploadDTO })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'files', maxCount: maxFilesLimit }], {
       storage: multer.memoryStorage(),
@@ -115,7 +115,7 @@ export class FileController {
   @ACLModules('FILE_MANAGEMENT_CRUDL')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: FileDto,
+    type: FileDTO,
     description: 'Download a file',
   })
   @ApiNotFoundResponse({ description: `The file doesn't exist` })

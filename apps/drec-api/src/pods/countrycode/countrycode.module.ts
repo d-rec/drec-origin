@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CountrycodeController } from './countrycode.controller';
-import { CountrycodeService } from './countrycode.service';
+import { CountryCodeController } from './countrycode.controller';
+import { CountryCodeService } from './countrycode.service';
 @Module({
-  providers: [CountrycodeService],
-  exports: [CountrycodeService],
-  controllers: [CountrycodeController],
+  providers: [CountryCodeService],
+  exports: [CountryCodeService],
+  controllers: [CountryCodeController],
 })
-export class CountrycodeModule {}
+export class CountryCodeModule {}

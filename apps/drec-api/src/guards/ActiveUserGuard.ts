@@ -19,9 +19,9 @@ export class ActiveUserGuard implements CanActivate {
     this.logger.verbose(`With in canActivate`);
     const request = context.switchToHttp().getRequest();
     const user = request.user as IUser;
-    const _user = user as IUser;
+    const userEntity = user as IUser;
 
-    if (_user.status === UserStatus.Deleted) {
+    if (userEntity.status === UserStatus.Deleted) {
       this.logger.error(
         `Only not deleted users can perform this action. Your status is ${user.status}`,
       );
@@ -31,12 +31,12 @@ export class ActiveUserGuard implements CanActivate {
       );
     }
 
-    if (_user.status !== UserStatus.Active) {
+    if (userEntity.status !== UserStatus.Active) {
       this.logger.error(
-        `Only active users can perform this action. Your status is ${_user.status}`,
+        `Only active users can perform this action. Your status is ${userEntity.status}`,
       );
       throw new HttpException(
-        `Only active users can perform this action. Your status is ${_user.status}`,
+        `Only active users can perform this action. Your status is ${userEntity.status}`,
         HttpStatus.PRECONDITION_FAILED,
       );
     }

@@ -6,7 +6,7 @@ import {
   Unit,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
-import { BASE_READ_SERVICE } from '../reads/const';
+import { BASE_READ_SERVICE } from '../reads/constants';
 import { DeviceService } from '../device/device.service';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -30,7 +30,7 @@ export class IntegratorsService {
     private readonly eventBus: EventBus,
   ) {}
 
-  private loginBBOX(server: string, loginForm: FormData): Promise<string> {
+  public loginBBOX(server: string, loginForm: FormData): Promise<string> {
     this.logger.verbose(`With in loginBBOX`);
     return this.httpService
       .post(`${server}/v1/auth/login`, loginForm, {
@@ -46,14 +46,14 @@ export class IntegratorsService {
       .toPromise();
   }
 
-  private getBBOXproductReadData(
+  public getBBOXProductReadData(
     server: string,
     token: string,
     productId: string,
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    this.logger.verbose(`With in getBBOXproductReadData`);
+    this.logger.verbose(`With in getBBOXProductReadData`);
     const requestConfig = {
       headers: { Authorization: `Token token=${token}` },
       params: {
@@ -74,7 +74,7 @@ export class IntegratorsService {
       .toPromise();
   }
 
-  private async storeBBOXenergyReads(
+  public async storeBBOXEnergyReads(
     server: string,
     authToken: string,
     externalId: string,
@@ -82,8 +82,8 @@ export class IntegratorsService {
     endDate: string,
     organizationId: number,
   ): Promise<void> {
-    this.logger.verbose(`With in storeBBOXenergyReads`);
-    const energyData = await this.getBBOXproductReadData(
+    this.logger.verbose(`With in storeBBOXEnergyReads`);
+    const energyData = await this.getBBOXProductReadData(
       server,
       authToken,
       externalId,
@@ -109,7 +109,7 @@ export class IntegratorsService {
     await this.storeEnergy(externalId, reads, unit, organizationId);
   }
 
-  private async storeEnergy(
+  public async storeEnergy(
     externalId: string,
     reads: ReadDTO[],
     unit: Unit,

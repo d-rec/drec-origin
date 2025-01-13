@@ -1,26 +1,26 @@
 import {
+  Body,
+  ConflictException,
   Controller,
   Get,
-  Post,
-  Patch,
   HttpStatus,
   Param,
-  Body,
-  UseGuards,
   ParseIntPipe,
-  ConflictException,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiResponse,
+  ApiBody,
   ApiOkResponse,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { YieldConfigService } from './yieldconfig.service';
-import { YieldConfigDTO, NewYieldConfigDTO, UpdateYieldValueDTO } from './dto';
+import { NewYieldConfigDTO, UpdateYieldValueDTO, YieldConfigDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
@@ -36,7 +36,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 @ApiSecurity('drec')
 @Controller('yield/config')
 export class YieldConfigController {
-  constructor(private readonly yieldconfigService: YieldConfigService) {}
+  constructor(private readonly yieldConfigService: YieldConfigService) {}
 
   /**
    * This api route use for get all yield value of country
@@ -52,7 +52,7 @@ export class YieldConfigController {
     description: 'Returns all country yield value',
   })
   async getAll(): Promise<YieldConfigDTO[]> {
-    return this.yieldconfigService.getAll();
+    return this.yieldConfigService.getAll();
   }
 
   /**
@@ -67,7 +67,7 @@ export class YieldConfigController {
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
-    return this.yieldconfigService.findById(id);
+    return this.yieldConfigService.findById(id);
   }
   /**
    * This api route use to add yield value for country
@@ -95,35 +95,26 @@ export class YieldConfigController {
       typeof yieldToRegister.countryCode === 'string' &&
       yieldToRegister.countryCode.length === 3
     ) {
-      const countries = countryCodesList;
       if (
-        countries.find(
+        countryCodesList.find(
           (ele) => ele.countryCode === yieldToRegister.countryCode,
         ) === undefined
       ) {
-        return new Promise((resolve, reject) => {
-          reject(
-            new ConflictException({
-              success: false,
-              message:
-                ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-            }),
-          );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
         });
       }
     } else {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message:
-              ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message:
+          ' Invalid countryCode and countryName, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
       });
     }
 
-    return await this.yieldconfigService.create(yieldToRegister, loggedUser);
+    return await this.yieldConfigService.create(yieldToRegister, loggedUser);
   }
 
   /**
@@ -144,11 +135,11 @@ export class YieldConfigController {
     type: YieldConfigDTO,
     description: 'Updates a yield value or status by admin',
   })
-  public async updateyield(
+  public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: UpdateYieldValueDTO,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<YieldConfigDTO> {
-    return this.yieldconfigService.update(id, body, loggedUser);
+    return this.yieldConfigService.update(id, body, loggedUser);
   }
 }

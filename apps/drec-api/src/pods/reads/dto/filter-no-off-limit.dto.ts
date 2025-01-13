@@ -3,19 +3,19 @@ import { IsOptional } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
 
-export enum accumulationType {
+export enum AccumulationType {
   monthly = 'Monthly',
   yearly = 'Yearly',
 }
 
-export enum readType {
+export enum ReadType {
   accumulated = 'accumulated',
   meterReads = 'meterReads',
 }
 
-export class filterNoOffLimit {
-  @ApiProperty({ enum: readType, description: 'Specify the type of reads' })
-  readType: readType;
+export class FilterNoOffLimit {
+  @ApiProperty({ enum: ReadType, description: 'Specify the type of reads' })
+  readType: ReadType;
 
   @IsOptional()
   @ApiProperty({
@@ -31,11 +31,11 @@ export class filterNoOffLimit {
   end: Date;
 
   @ApiProperty({
-    enum: accumulationType,
+    enum: AccumulationType,
     enumName: 'accumulationType',
     required: false,
   })
-  accumulationType: accumulationType;
+  accumulationType: AccumulationType;
 
   limit: number;
 

@@ -16,7 +16,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { OrganizationService } from '../organization/organization.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
 import {
   OrganizationStatus,
@@ -32,12 +32,12 @@ import { IUser } from '../../models';
 describe('UserService', () => {
   let service: UserService;
   let repository: Repository<User>;
-  let rolerepository: Repository<UserRole>;
+  let roleRepository: Repository<UserRole>;
   let emailConfirmationService: EmailConfirmationService;
   let oauthClientCredentialsService: OauthClientCredentialsService;
   let organizationService: OrganizationService;
   let apiUserEntityRepository: Repository<ApiUserEntity>;
-  let userloginSessionRepository: Repository<UserLoginSessionEntity>;
+  let userLoginSessionRepository: Repository<UserLoginSessionEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -69,7 +69,7 @@ describe('UserService', () => {
           provide: OrganizationService,
           useValue: {
             isNameAlreadyTaken: jest.fn(),
-            newcreate: jest.fn(),
+            newCreateUser: jest.fn(),
           } as any,
         },
         {
@@ -85,7 +85,7 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
     repository = module.get<Repository<User>>(getRepositoryToken(User));
-    rolerepository = module.get<Repository<UserRole>>(
+    roleRepository = module.get<Repository<UserRole>>(
       getRepositoryToken(UserRole),
     );
     oauthClientCredentialsService = module.get<OauthClientCredentialsService>(
@@ -98,7 +98,7 @@ describe('UserService', () => {
     apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
       getRepositoryToken(ApiUserEntity),
     );
-    userloginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
+    userLoginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
       getRepositoryToken(UserLoginSessionEntity),
     );
   });
@@ -107,9 +107,9 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('newcreate', () => {
+  describe('newCreateUser', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya3@gmail.com',
@@ -119,7 +119,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const orgData: Organization = {
         id: 1,
@@ -155,14 +155,16 @@ describe('UserService', () => {
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newcreate').mockResolvedValue(orgData);
+      jest
+        .spyOn(organizationService, 'newCreateUser')
+        .mockResolvedValue(orgData);
       jest
         .spyOn(repository, 'save')
         .mockImplementation((user) =>
           Promise.resolve(user as DeepPartial<User> & User),
         );
 
-      const result = await service.newcreate(userData);
+      const result = await service.newCreateUser(userData);
 
       expect(result).toBeDefined();
       expect(service.checkForExistingUser).toHaveBeenCalledWith(
@@ -174,7 +176,7 @@ describe('UserService', () => {
       expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(
         userData.orgName,
       );
-      expect(organizationService.newcreate).toHaveBeenCalledWith(
+      expect(organizationService.newCreateUser).toHaveBeenCalledWith(
         expect.objectContaining({
           name: userData.orgName,
           organizationType: userData.organizationType,
@@ -205,7 +207,7 @@ describe('UserService', () => {
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
@@ -215,7 +217,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
@@ -232,10 +234,10 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
-      const mockuserEntity = {
+      const mockUserEntity = {
         id: 1,
         firstName: 'Dev',
         lastName: 'lastName',
@@ -245,121 +247,43 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;
 
-      const mockemailConfirmationEntity = {
+      const mockEmailConfirmationEntity = {
         id: 1,
         confirmed: true,
         token:
           'ab3bb2e439028fa3387c8959a7199f1d5646ee9805f44c5b24b0a4ae4ade3c9e4903ef646d15db71f9bac2d5fbbd38fa2d265fabfee32fddc8b8c02dc38ec63a',
         expiryTimestamp: 1708269930,
-        user: mockuserEntity,
+        user: mockUserEntity,
       } as EmailConfirmation;
 
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockuserEntity);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUserEntity);
       jest
         .spyOn(emailConfirmationService, 'get')
-        .mockResolvedValue(mockemailConfirmationEntity);
+        .mockResolvedValue(mockEmailConfirmationEntity);
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.newcreate(userData)).rejects.toThrowError(
+      await expect(service.newCreateUser(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
   });
 
-  describe('adminnewcreate', () => {
-    it('should create a new user with valid input data', async () => {
-      const userData: CreateUserORGDTO = {
-        firstName: 'test',
-        lastName: 'ApiUser',
-        email: 'testsweya2@gmail.com',
-        organizationType: 'Developer',
-        password: 'Drec@1234',
-        confirmPassword: 'Drec@1234',
-        orgName: 'DIRECT_DEVELOPER1',
-        orgAddress: 'Chennai',
-        api_user_id: 'b44f8e86-3a9b-427b-8376-fdda83a1a8f4',
-      } as CreateUserORGDTO;
-
-      const orgData: Organization = {
-        id: 1,
-        api_user_id: userData.api_user_id,
-        name: userData.orgName,
-        organizationType: userData.organizationType,
-        orgEmail: userData.email,
-        address: userData.orgAddress,
-        zipCode: null,
-        city: null,
-        country: null,
-        blockchainAccountAddress: null,
-        blockchainAccountSignedMessage: null,
-        status: OrganizationStatus.Active,
-        users: [],
-        invitations: [],
-        documentIds: [],
-      } as Organization;
-
-      const mockApiUserEntity: ApiUserEntity = {
-        api_user_id: userData.api_user_id,
-        permission_status: UserPermissionStatus.Request,
-        permissionIds: [],
-      };
-
-      jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
-      jest
-        .spyOn(organizationService, 'isNameAlreadyTaken')
-        .mockResolvedValue(false);
-      jest.spyOn(organizationService, 'newcreate').mockResolvedValue(orgData);
-      jest
-        .spyOn(repository, 'save')
-        .mockImplementation((user) =>
-          Promise.resolve(user as DeepPartial<User> & User),
-        );
-
-      const resultPromise = service.adminnewcreate(userData);
-
-      await expect(resultPromise).resolves.toBeDefined();
-      await expect(service.checkForExistingUser).toHaveBeenCalledWith(
-        userData.email.toLowerCase(),
-      );
-      await expect(organizationService.isNameAlreadyTaken).toHaveBeenCalledWith(
-        userData.orgName,
-      );
-      await expect(organizationService.newcreate).toHaveBeenCalledWith({
-        name: userData.orgName,
-        organizationType: userData.organizationType,
-        orgEmail: userData.email,
-        address: userData.orgAddress,
-      });
-      await expect(repository.save).toHaveBeenCalledWith(
-        expect.objectContaining({
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email.toLowerCase(),
-          password: expect.any(String),
-          notifications: true,
-          status: UserStatus.Active,
-          role: Role.OrganizationAdmin,
-          roleId: 2,
-          organization: { id: 1 },
-        }),
-      );
-    });
-
+  describe('createUserByAdmin', () => {
     it('should throw a ConflictException if organization name already exists', async () => {
       const isNameAlreadyTakenSpy = jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
       // Test data
-      const userData: CreateUserORGDTO = {
+      const userData: CreateUserOrgDTO = {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
@@ -369,7 +293,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
-      } as CreateUserORGDTO;
+      } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
@@ -386,10 +310,10 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
-      const mockuserEntity = {
+      const mockUserEntity = {
         id: 1,
         firstName: 'Dev',
         lastName: 'lastName',
@@ -399,31 +323,31 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;
 
-      const mockemailConfirmationEntity = {
+      const mockEmailConfirmationEntity = {
         id: 1,
         confirmed: true,
         token:
           'ab3bb2e439028fa3387c8959a7199f1d5646ee9805f44c5b24b0a4ae4ade3c9e4903ef646d15db71f9bac2d5fbbd38fa2d265fabfee32fddc8b8c02dc38ec63a',
         expiryTimestamp: 1708269930,
-        user: mockuserEntity,
+        user: mockUserEntity,
       } as EmailConfirmation;
 
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockuserEntity);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUserEntity);
       jest
         .spyOn(emailConfirmationService, 'get')
-        .mockResolvedValue(mockemailConfirmationEntity);
+        .mockResolvedValue(mockEmailConfirmationEntity);
 
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
 
-      await expect(service.adminnewcreate(userData)).rejects.toThrowError(
+      await expect(service.createUserByAdmin(userData)).rejects.toThrowError(
         ConflictException,
       );
     });
@@ -445,7 +369,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const mockOrganizationEntity2 = {
@@ -463,7 +387,7 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
     const userss: IUser[] = [
@@ -607,10 +531,10 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
-    const mockuserEntity = {
+    const mockUserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -620,14 +544,14 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
     } as User;
 
     const mockApiUserEntity: ApiUserEntity = {
-      api_user_id: mockuserEntity.api_user_id,
+      api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
     };
@@ -637,7 +561,7 @@ describe('UserService', () => {
 
       const findOneSpy = jest
         .spyOn(service, 'findOne')
-        .mockResolvedValue(mockuserEntity);
+        .mockResolvedValue(mockUserEntity);
       jest
         .spyOn(apiUserEntityRepository, 'findOne')
         .mockResolvedValue(mockApiUserEntity);
@@ -645,7 +569,7 @@ describe('UserService', () => {
       const user = await service.findById(userId);
 
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
-      expect(user).toEqual(mockuserEntity);
+      expect(user).toEqual(mockUserEntity);
     });
 
     it('should throw NotFoundException when no user with the provided ID is found', async () => {
@@ -665,12 +589,12 @@ describe('UserService', () => {
 
     it('should include permission_status when the found user has a role of Role.ApiUser', async () => {
       const userId = 1;
-      mockuserEntity.permission_status = UserPermissionStatus.Active;
+      mockUserEntity.permission_status = UserPermissionStatus.Active;
       const findOneSpy = jest
         .spyOn(service, 'findOne')
-        .mockResolvedValue(mockuserEntity);
-      const permission_statusSpy = jest
-        .spyOn(service, 'get_apiuser_permission_status')
+        .mockResolvedValue(mockUserEntity);
+      const permissionStatusSpy = jest
+        .spyOn(service, 'getApiUserPermissionStatus')
         .mockResolvedValue(mockApiUserEntity);
       jest
         .spyOn(apiUserEntityRepository, 'findOne')
@@ -679,15 +603,15 @@ describe('UserService', () => {
       const user = await service.findById(userId);
 
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
-      expect(permission_statusSpy).toHaveBeenCalledWith(
-        mockuserEntity.api_user_id,
+      expect(permissionStatusSpy).toHaveBeenCalledWith(
+        mockUserEntity.api_user_id,
       );
       expect(user.permission_status).toBe(UserPermissionStatus.Request);
     });
 
     it('should not include permission_status when the found user has a role other than Role.ApiUser', async () => {
       const userId = 1;
-      const OrganizationEntity = {
+      const organizationEntity = {
         id: 1,
         name: 'DIRECT_ORG_DEVELOPER1',
         address: 'Bangalore',
@@ -702,7 +626,7 @@ describe('UserService', () => {
         users: [],
         invitations: [],
         documentIds: [],
-        api_user_id: 'apiuserId',
+        api_user_id: 'apiUserId',
       } as Organization;
 
       const userEntity = {
@@ -715,8 +639,8 @@ describe('UserService', () => {
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
         roleId: 2,
-        api_user_id: 'apiuserId',
-        organization: OrganizationEntity,
+        api_user_id: 'apiUserId',
+        organization: organizationEntity,
         moduleName: null,
         updatedAt: new Date(),
       } as User;
@@ -756,10 +680,10 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
-    const mockuserEntity = {
+    const mockUserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -769,14 +693,14 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
     } as User;
 
     const mockApiUserEntity: ApiUserEntity = {
-      api_user_id: mockuserEntity.api_user_id,
+      api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
     };
@@ -786,11 +710,11 @@ describe('UserService', () => {
 
       const findOneSpy = jest
         .spyOn(service, 'findOne')
-        .mockResolvedValue(mockuserEntity);
+        .mockResolvedValue(mockUserEntity);
 
       const result = await service.findByEmail(email);
 
-      expect(result).toEqual(mockuserEntity);
+      expect(result).toEqual(mockUserEntity);
       expect(findOneSpy).toHaveBeenCalledWith({ email: email.toLowerCase() });
     });
 
@@ -824,10 +748,10 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
-    const mockuserEntity = {
+    const mockUserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -837,14 +761,14 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
     } as User;
 
     const mockApiUserEntity: ApiUserEntity = {
-      api_user_id: mockuserEntity.api_user_id,
+      api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
     };
@@ -855,11 +779,11 @@ describe('UserService', () => {
 
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
-        .mockResolvedValue(mockuserEntity);
+        .mockResolvedValue(mockUserEntity);
 
       const result = await service.getUserAndPasswordByEmail(email);
 
-      expect(result).toEqual(mockuserEntity);
+      expect(result).toEqual(mockUserEntity);
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
           email,
@@ -903,10 +827,10 @@ describe('UserService', () => {
       users: [],
       invitations: [],
       documentIds: [],
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
     } as Organization;
 
-    const mockuserEntity = {
+    const mockUserEntity = {
       id: 1,
       firstName: 'Dev',
       lastName: 'lastName',
@@ -916,25 +840,25 @@ describe('UserService', () => {
       status: UserStatus.Active,
       role: Role.ApiUser,
       roleId: 2,
-      api_user_id: 'apiuserId',
+      api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
       moduleName: null,
       updatedAt: new Date(),
     } as User;
 
     const mockApiUserEntity: ApiUserEntity = {
-      api_user_id: mockuserEntity.api_user_id,
+      api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
     };
 
-    const mockemailConfirmationEntity = {
+    const mockEmailConfirmationEntity = {
       id: 1,
       confirmed: true,
       token:
         'ab3bb2e439028fa3387c8959a7199f1d5646ee9805f44c5b24b0a4ae4ade3c9e4903ef646d15db71f9bac2d5fbbd38fa2d265fabfee32fddc8b8c02dc38ec63a',
       expiryTimestamp: 1708269930,
-      user: mockuserEntity,
+      user: mockUserEntity,
     } as EmailConfirmation;
 
     it('should return null if no user is found based on the provided conditions', async () => {
@@ -942,11 +866,11 @@ describe('UserService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValue(null);
 
-      const result = await service.findOne({ email: mockuserEntity.email });
+      const result = await service.findOne({ email: mockUserEntity.email });
 
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith(
-        { email: mockuserEntity.email } as FindConditions<User>,
+        { email: mockUserEntity.email } as FindConditions<User>,
         { relations: ['organization'] },
       );
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
@@ -955,15 +879,15 @@ describe('UserService', () => {
     it('should return the user with emailConfirmed set to true if email confirmation exists', async () => {
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
-        .mockResolvedValue(mockuserEntity);
+        .mockResolvedValue(mockUserEntity);
 
       const emailConfirmationSpy = jest
         .spyOn(emailConfirmationService, 'get')
-        .mockResolvedValue(mockemailConfirmationEntity);
+        .mockResolvedValue(mockEmailConfirmationEntity);
 
       const result = await service.findOne({ email: 'test@example.com' });
 
-      expect(result).toEqual(expect.objectContaining(mockuserEntity));
+      expect(result).toEqual(expect.objectContaining(mockUserEntity));
       expect(result.emailConfirmed).toBe(true);
       expect(findOneSpy).toHaveBeenCalledWith(
         { email: 'test@example.com' } as FindConditions<User>,
@@ -973,13 +897,13 @@ describe('UserService', () => {
     });
 
     it('should return the user with emailConfirmed set to false if no email confirmation exists', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockuserEntity);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUserEntity);
 
       jest.spyOn(emailConfirmationService, 'get').mockResolvedValue(null);
 
       const result = await service.findOne({ email: 'test@example.com' });
 
-      expect(result).toEqual(expect.objectContaining(mockuserEntity));
+      expect(result).toEqual(expect.objectContaining(mockUserEntity));
       expect(result.emailConfirmed).toBe(false);
       expect(repository.findOne).toHaveBeenCalledWith(
         { email: 'test@example.com' } as FindConditions<User>,

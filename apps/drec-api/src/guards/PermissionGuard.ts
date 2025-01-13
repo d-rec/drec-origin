@@ -40,15 +40,18 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
     const request = context.switchToHttp().getRequest();
-    let user: IUser;
-    user = request.user;
-    if (request.url.split('/')[3] === 'register') {
+
+    if (
+      request.url.split('/')[3] === 'register' &&
+      request.body.organizationType === Role.ApiUser
+    ) {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
-      if (request.body.organizationType === Role.ApiUser) {
-        return true;
-      }
-    } else {
-      user = request.user;
+      return true;
+    }
+
+    const user: IUser = request.user;
+    if (!user) {
+      return false;
     }
 
     if (user.role === 'Admin') {
@@ -63,20 +66,20 @@ export class PermissionGuard implements CanActivate {
     }
     const per: any = [];
 
-    const userpermission1 = await this.userPermission.findById(
+    const userPermissionOne = await this.userPermission.findById(
       user.roleId,
       user.id,
       module,
     );
 
-    userpermission1.forEach((e) => {
+    userPermissionOne.forEach((e) => {
       e.permissions.forEach((element) => {
         if (!per.includes(element)) {
           per.push(element);
         }
       });
     });
-    if (!userpermission1) {
+    if (!userPermissionOne) {
       return false;
     }
     user.permissions = per;

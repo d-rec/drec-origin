@@ -1,31 +1,32 @@
 import {
   ConflictException,
-  Injectable,
-  Inject,
-  Logger,
-  UnprocessableEntityException,
-  UnauthorizedException,
-  NotFoundException,
-  InternalServerErrorException,
   forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import {
   FindConditions,
-  Repository,
   FindManyOptions,
-  SelectQueryBuilder,
   Not,
+  Repository,
+  SelectQueryBuilder,
 } from 'typeorm';
 import {
   ILoggedInUser,
+  ISuccessResponse,
   IUser,
-  UserPasswordUpdate,
   UserChangePasswordUpdate,
+  UserPasswordUpdate,
 } from '../../models';
-import { Role, UserStatus, UserPermissionStatus } from '../../utils/enums';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
 import { UserRole } from './user_role.entity';
@@ -36,18 +37,20 @@ import { EmailConfirmationService } from '../email-confirmation/email-confirmati
 import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
-import { ISuccessResponse } from '../../models';
 import { OauthClientCredentialsService } from './oauth_client.service';
-export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
+
+export type TUserBaseEntity = ExtendedBaseEntity & IUser;
+
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserRole) private rolerepository: Repository<UserRole>,
+    @InjectRepository(UserRole)
+    private userRoleRepository: Repository<UserRole>,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
@@ -55,11 +58,11 @@ export class UserService {
     @InjectRepository(ApiUserEntity)
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
-    private readonly userloginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
   ) {}
 
   public async seed(
-    data: CreateUserORGDTO,
+    data: CreateUserOrgDTO,
 
     organizationId: number | null,
     role?: Role,
@@ -80,42 +83,44 @@ export class UserService {
     });
   }
 
-  public async newcreate(
-    data: CreateUserORGDTO,
+  public async newCreateUser(
+    data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
-    const api_user =
-      await this.oauthClientCredentialsService.findOneByApiUserId(
-        data.api_user_id,
-      );
+    const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
+      data.api_user_id,
+    );
 
-    let org_id;
-    if (!inviteuser) {
-      const orgdata = {
+    let orgId;
+    if (!inviteUser) {
+      const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         orgEmail: data.email,
         address: data.orgAddress,
       };
 
-      orgdata['api_user_id'] = api_user.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      organizationData['api_user_id'] = apiUser.api_user_id;
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newcreate(orgdata);
-        org_id = org.id;
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
+        orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
       }
     }
     if (data.orgid) {
-      org_id = data.orgid;
+      orgId = data.orgid;
     }
     let role;
     let roleId;
@@ -148,10 +153,10 @@ export class UserService {
       status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
-      organization: org_id ? { id: org_id } : {},
-      api_user_id: api_user ? api_user.api_user_id : null,
+      organization: orgId ? { id: orgId } : {},
+      api_user_id: apiUser ? apiUser.api_user_id : null,
     });
-    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
@@ -160,33 +165,36 @@ export class UserService {
     return user;
   }
 
-  public async adminnewcreate(
-    data: CreateUserORGDTO,
+  public async createUserByAdmin(
+    data: CreateUserOrgDTO,
     status?: UserStatus,
-    inviteuser?: boolean,
+    inviteUser?: boolean,
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
       data.api_user_id,
     );
-    let org_id;
-    if (!inviteuser) {
-      const orgdata = {
+    let orgId;
+    if (!inviteUser) {
+      const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
         organizationType: data.organizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress,
       };
-      orgdata['api_user_id'] = admin.api_user_id;
-      if (await this.organizationService.isNameAlreadyTaken(orgdata.name)) {
+      organizationData['api_user_id'] = admin.api_user_id;
+      if (
+        await this.organizationService.isNameAlreadyTaken(organizationData.name)
+      ) {
         throw new ConflictException({
           success: false,
           message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
         });
       } else {
-        const org = await this.organizationService.newcreate(orgdata);
-        org_id = org.id;
+        const org =
+          await this.organizationService.newCreateUser(organizationData);
+        orgId = org.id;
         this.logger.debug(
           `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
         );
@@ -214,14 +222,14 @@ export class UserService {
       status: status || UserStatus.Active,
       role: role,
       roleId: roleId,
-      organization: org_id ? { id: org_id } : {},
+      organization: orgId ? { id: orgId } : {},
       api_user_id: admin ? admin.api_user_id : null,
     });
-    const { password, ...userData } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { ...userData } = user;
     this.logger.debug(
       `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
     );
-    await this.emailConfirmationService.admincreate(user, data.password);
+    await this.emailConfirmationService.adminCreate(user, data.password);
 
     return new User(user);
   }
@@ -251,10 +259,8 @@ export class UserService {
     }
 
     if (user.role === Role.ApiUser) {
-      const api_user = await this.get_apiuser_permission_status(
-        user.api_user_id,
-      );
-      user['permission_status'] = api_user.permission_status;
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
@@ -325,7 +331,7 @@ export class UserService {
     });
   }
 
-  public getatleastoneotheruserinOrg(
+  public getAnotherUserInOrganization(
     organizationId: number,
     userId: number,
   ): Promise<User[]> {
@@ -372,8 +378,8 @@ export class UserService {
         errors: validationErrors,
       });
     }
-    const updateuser = await this.findById(id);
-    if (!(updateuser.email === email.toLowerCase())) {
+    const updateUser = await this.findById(id);
+    if (!(updateUser.email === email.toLowerCase())) {
       await this.checkForExistingUser(email.toLowerCase());
     }
     await this.repository.update(id, updateEntity);
@@ -385,9 +391,12 @@ export class UserService {
     email: string,
     user: UserPasswordUpdate,
   ): Promise<ExtendedBaseEntity & IUser> {
-    const _user = await this.getUserAndPasswordByEmail(email);
+    const userEntity = await this.getUserAndPasswordByEmail(email);
 
-    if (_user && bcrypt.compareSync(user.oldPassword, _user.password)) {
+    if (
+      userEntity &&
+      bcrypt.compareSync(user.oldPassword, userEntity.password)
+    ) {
       const updateEntity = new User({
         password: this.hashPassword(user.newPassword),
       });
@@ -403,8 +412,8 @@ export class UserService {
         });
       }
 
-      await this.repository.update(_user.id, updateEntity);
-      return this.findOne({ id: _user.id });
+      await this.repository.update(userEntity.id, updateEntity);
+      return this.findOne({ id: userEntity.id });
     }
 
     throw new ConflictException({
@@ -413,7 +422,7 @@ export class UserService {
     });
   }
 
-  async updatechangePassword(
+  async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
@@ -448,12 +457,12 @@ export class UserService {
     role: Role,
   ): Promise<ExtendedBaseEntity & IUser> {
     this.logger.log(`Changing user role for userId=${userId} to ${role}`);
-    const getrole = await this.rolerepository.findOne({
+    const userRole = await this.userRoleRepository.findOne({
       where: {
         name: role,
       },
     });
-    await this.repository.update(userId, { role, roleId: getrole.id });
+    await this.repository.update(userId, { role, roleId: userRole.id });
     return this.findOne({ id: userId });
   }
 
@@ -462,7 +471,7 @@ export class UserService {
   }
 
   public async getUsersByFilter(
-    filterDto: UserFilterDTO,
+    filterDTO: UserFilterDTO,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -471,7 +480,7 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    const query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
         .andWhere(`role != :role`, { role: Role.ApiUser })
@@ -492,8 +501,8 @@ export class UserService {
     }
   }
 
-  private getFilteredQuery(filterDto: UserFilterDTO): SelectQueryBuilder<User> {
-    const { organizationName, status } = filterDto;
+  private getFilteredQuery(filterDTO: UserFilterDTO): SelectQueryBuilder<User> {
+    const { organizationName, status } = filterDTO;
     const query = this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
@@ -528,8 +537,8 @@ export class UserService {
       });
     }
 
-    const updateuser = await this.findById(id);
-    if (!(updateuser.email === data.email)) {
+    const updateUser = await this.findById(id);
+    if (!(updateUser.email === data.email)) {
       await this.checkForExistingUser(data.email);
     }
 
@@ -564,39 +573,37 @@ export class UserService {
       });
     }
     if (user.role === Role.ApiUser) {
-      const api_user = await this.get_apiuser_permission_status(
-        user.api_user_id,
-      );
-      user['permission_status'] = api_user.permission_status;
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
-  public async geytokenforResetPassword(
+
+  public async getTokenForResetPassword(
     email: string,
   ): Promise<ISuccessResponse> {
-    return await this.emailConfirmationService.ConfirmationEmailForResetPassword(
+    return await this.emailConfirmationService.confirmationEmailForResetPassword(
       email,
     );
   }
 
-  public async sentinvitiontoUser(
-    inviteuser: CreateUserORGDTO,
+  public async sendUserInvitation(
+    inviteUser: CreateUserOrgDTO,
     email: string,
   ): Promise<{
     message: string;
     success: boolean;
   }> {
-    const getcurrenttoken =
-      await this.emailConfirmationService.getByEmail(email);
-    if (!getcurrenttoken) {
+    const currentToken = await this.emailConfirmationService.getByEmail(email);
+    if (!currentToken) {
       return {
         message: 'Token not found',
         success: false,
       };
     }
-    const { id, confirmed } = getcurrenttoken; // eslint-disable-line @typescript-eslint/no-unused-vars
-    await this.emailConfirmationService.generatetoken(getcurrenttoken, id);
-    await this.emailConfirmationService.sendInvitation(inviteuser, email);
+    const { id } = currentToken;
+    await this.emailConfirmationService.generateToken(currentToken, id);
+    await this.emailConfirmationService.sendInvitation(inviteUser, email);
   }
 
   public async findUserByOrganization(
@@ -631,7 +638,7 @@ export class UserService {
   }
   /** ApiUser Fuction*/
 
-  async getApiuser(api_id: string): Promise<ApiUserEntity | undefined> {
+  async getApiUser(api_id: string): Promise<ApiUserEntity | undefined> {
     return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: api_id,
@@ -643,7 +650,7 @@ export class UserService {
    * @param api_id
    * @param permissionIds
    */
-  async apiuser_permission_request(
+  async apiUserPermissionRequest(
     api_id: string,
     permissionIds: number[] | any,
   ): Promise<void> {
@@ -652,7 +659,7 @@ export class UserService {
       permission_status: UserPermissionStatus.Request,
     });
   }
-  async apiuser_permission_accepted_byadmin(
+  async apiUserPermissionAcceptedByAdmin(
     api_id: string,
     status: UserPermissionStatus,
   ): Promise<any> {
@@ -670,15 +677,12 @@ export class UserService {
    * @param api_id
    * @returns
    */
-  async get_apiuser_permission_status(api_id: string): Promise<any> {
-    const status_apiuser_permissiom =
-      await this.apiUserEntityRepository.findOne({
-        where: {
-          api_user_id: api_id,
-        },
-      });
-
-    return status_apiuser_permissiom;
+  async getApiUserPermissionStatus(api_id: string): Promise<any> {
+    return await this.apiUserEntityRepository.findOne({
+      where: {
+        api_user_id: api_id,
+      },
+    });
   }
 
   /**
@@ -698,11 +702,11 @@ export class UserService {
     totalPages: number;
     totalCount: number;
   }> {
-    const filterDto = new UserFilterDTO();
-    filterDto.organizationName = organizationName;
-    const query = await this.getFilteredQuery(filterDto);
+    const filterDTO = new UserFilterDTO();
+    filterDTO.organizationName = organizationName;
+    const query = await this.getFilteredQuery(filterDTO);
     try {
-      const [apiusers, totalCount] = await query
+      const [apiUsers, totalCount] = await query
         .andWhere(`user.role = :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -710,14 +714,14 @@ export class UserService {
 
       const totalPages = Math.ceil(totalCount / limit);
       return {
-        users: apiusers,
+        users: apiUsers,
         currentPage: pageNumber,
         totalPages,
         totalCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to retrieve apiusers`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve apiusers');
+      this.logger.error(`Failed to retrieve apiUsers`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve apiUsers');
     }
   }
 
@@ -732,7 +736,7 @@ export class UserService {
     user: Omit<IUser, 'password'>,
     token: string,
   ): Promise<void> {
-    await this.userloginSessionRepository.save({
+    await this.userLoginSessionRepository.save({
       userId: user.id,
       accesstoken_hash: token,
     });
@@ -743,16 +747,16 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async removeUsersession(userId: number, token: string): Promise<any> {
-    return await this.userloginSessionRepository.delete({
+  async removeUserSession(userId: number, token: string): Promise<any> {
+    return await this.userLoginSessionRepository.delete({
       userId: userId,
       accesstoken_hash: token.trim(),
     });
   }
 
-  async hasgetUserTokenvalid(
+  async hasValidUserSession(
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
-    return Boolean(await this.userloginSessionRepository.findOne(conditions));
+    return Boolean(await this.userLoginSessionRepository.findOne(conditions));
   }
 }

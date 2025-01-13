@@ -10,7 +10,7 @@ import { OrganizationService } from '../src/pods/organization/organization.servi
 import { seed } from './seed';
 import { expect } from 'chai';
 import { DeviceService } from '../src/pods/device/device.service';
-import { CreateUserORGDTO } from '../src/pods/user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
 import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
@@ -87,7 +87,7 @@ describe('Users tests', () => {
       password: 'Password123',
     };
     await loginUser(loggedUser);
-    const partialUser: CreateUserORGDTO = {
+    const partialUser: CreateUserOrgDTO = {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
@@ -98,7 +98,7 @@ describe('Users tests', () => {
   });
 
   it('should register a new user', async () => {
-    const partialUser: CreateUserORGDTO = {
+    const partialUser: CreateUserOrgDTO = {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
@@ -145,7 +145,7 @@ describe('Users tests', () => {
   const postAdminUser = async (
     url: string,
     status: HttpStatus,
-    body: CreateUserORGDTO,
+    body: CreateUserOrgDTO,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .post(`/admin/users/${url}`)
@@ -158,7 +158,7 @@ describe('Users tests', () => {
   const postUser = async (
     url: string,
     status: HttpStatus,
-    body: CreateUserORGDTO,
+    body: CreateUserOrgDTO,
   ): Promise<any> =>
     await request(app.getHttpServer())
       .post(`/user/${url}`)

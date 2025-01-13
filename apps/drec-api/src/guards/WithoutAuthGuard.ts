@@ -66,9 +66,9 @@ export class WithoutAuthGuard implements CanActivate {
           });
         }
       } else if (request.body.organizationType === Role.ApiUser) {
-        const api_user =
+        const apiUser =
           await this.oauthClientCredentialsService.createAPIUser();
-        request.body.api_user_id = api_user.api_user_id;
+        request.body.api_user_id = apiUser.api_user_id;
       }
     } else if (request.url.split('/')[3] === 'export-accesskey') {
       user = await this.userService.findOne({

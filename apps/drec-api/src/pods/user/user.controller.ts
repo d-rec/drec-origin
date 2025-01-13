@@ -27,7 +27,7 @@ import {
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { CreateUserORGDTO } from './dto/create-user.dto';
+import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
 import {
   ActiveUserGuard,
@@ -52,6 +52,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
+import { IsEmail } from 'class-validator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -113,7 +114,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Post('register')
-  @ApiBody({ type: CreateUserORGDTO })
+  @ApiBody({ type: CreateUserOrgDTO })
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
@@ -123,55 +124,14 @@ export class UserController {
     description: 'Register a new user ',
   })
   public async register(
-    @Body() userRegistrationData: CreateUserORGDTO,
+    @Body() userRegistrationData: CreateUserOrgDTO,
     @Req() request: Request,
   ): Promise<UserDTO> {
     const user = request.user;
-    if (
-      userRegistrationData.organizationType === '' ||
-      userRegistrationData.organizationType === null ||
-      userRegistrationData.organizationType === undefined
-    ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType should not be empty`,
-          }),
-        );
-      });
-    }
-    if (
-      userRegistrationData.organizationType.toLowerCase() !=
-        'Buyer'.toLowerCase() &&
-      userRegistrationData.organizationType.toLowerCase() !=
-        'Developer'.toLowerCase() &&
-      userRegistrationData.organizationType.toLowerCase() !=
-        'ApiUser'.toLowerCase()
-    ) {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `organizationType value should be Developer/Buyer/ApiUser`,
-          }),
-        );
-      });
-    }
-    if (userRegistrationData.orgName.trim() === '') {
-      return new Promise((resolve, reject) => {
-        reject(
-          new ConflictException({
-            success: false,
-            message: `orgName should not be empty`,
-          }),
-        );
-      });
-    }
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
-    return this.userService.newcreate(userRegistrationData);
+    return this.userService.newCreateUser(userRegistrationData);
   }
   /**
    * this api route using for update Profile.
@@ -241,18 +201,17 @@ export class UserController {
     description: `Update your own password`,
   })
   @ApiParam({ name: 'token', type: String })
-  public async updatechangePassword(
+  public async changePassword(
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    const emailregex =
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
-    let emailConfirmation: any;
-    if (emailregex.test(token)) {
-      emailConfirmation = await this.userService.findOne({ email: token });
-      return this.userService.updatechangePassword(emailConfirmation, body);
+    if (IsEmail(token)) {
+      const emailConfirmation = await this.userService.findOne({
+        email: token,
+      });
+      return this.userService.changePassword(emailConfirmation, body);
     } else {
-      emailConfirmation = await this.emailConfirmationService.findOne({
+      const emailConfirmation = await this.emailConfirmationService.findOne({
         token,
       });
       if (!emailConfirmation) {
@@ -261,10 +220,7 @@ export class UserController {
           errors: `User Not exist .`,
         });
       }
-      return this.userService.updatechangePassword(
-        emailConfirmation.user,
-        body,
-      );
+      return this.userService.changePassword(emailConfirmation.user, body);
     }
   }
   /**
@@ -325,17 +281,17 @@ export class UserController {
     type: SuccessResponseDTO,
     description: `send a email`,
   })
-  public async Forgetpassword(
+  public async forgetPassword(
     @Req() req: Request,
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
-    return this.userService.geytokenforResetPassword(body.email);
+    return this.userService.getTokenForResetPassword(body.email);
   }
 
   @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
   @Roles(Role.ApiUser)
-  public async AccessKeyFile(
+  public async accessKeyFile(
     @Param('api_user_id') api_user_id: string,
     @Res() res: Response,
   ): Promise<any> {

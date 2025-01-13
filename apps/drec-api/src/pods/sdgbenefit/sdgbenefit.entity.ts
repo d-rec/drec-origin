@@ -4,10 +4,10 @@ import { IsString, IsNumber } from 'class-validator';
 import { ISdgBenefit } from '../../models';
 
 @Entity('sdgbenefit')
-export class SdgBenefit extends ExtendedBaseEntity implements ISdgBenefit {
-  constructor(sdgbenefit: Partial<SdgBenefit>) {
+export class SDGBenefit extends ExtendedBaseEntity implements ISdgBenefit {
+  constructor(sdgBenefit: Partial<SDGBenefit>) {
     super();
-    Object.assign(this, sdgbenefit);
+    Object.assign(this, sdgBenefit);
   }
   @PrimaryGeneratedColumn()
   id: number;

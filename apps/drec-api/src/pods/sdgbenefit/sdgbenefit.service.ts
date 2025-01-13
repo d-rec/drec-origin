@@ -2,32 +2,32 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { SdgBenefitDTO, SDGBCodeNameDTO } from './dto/add_sdgbenefit.dto';
-import { SdgBenefit } from './sdgbenefit.entity';
+import { SDGBenefitDTO, SDGBenefitCodeNameDTO } from './dto/add_sdgbenefit.dto';
+import { SDGBenefit } from './sdgbenefit.entity';
 import { SDGBenefits } from '../../models/Sdgbenefit';
 @Injectable()
-export class SdgbenefitService {
-  private readonly logger = new Logger(SdgbenefitService.name);
+export class SDGBenefitService {
+  private readonly logger = new Logger(SDGBenefitService.name);
 
   constructor(
-    @InjectRepository(SdgBenefit)
-    private readonly repository: Repository<SdgBenefit>,
+    @InjectRepository(SDGBenefit)
+    private readonly repository: Repository<SDGBenefit>,
   ) {}
 
-  public async create(createTestapiDto: SdgBenefitDTO): Promise<SdgBenefit> {
+  public async create(createTestApiDTO: SDGBenefitDTO): Promise<SDGBenefit> {
     this.logger.verbose(`With in create`);
     return await this.repository.save({
-      ...createTestapiDto,
+      ...createTestApiDTO,
     });
   }
 
-  public async findAll(): Promise<SdgBenefit[]> {
+  public async findAll(): Promise<SDGBenefit[]> {
     this.logger.verbose(`With in findAll`);
     return this.repository.find();
   }
 
-  getSDGBCode(): SDGBCodeNameDTO[] {
-    this.logger.verbose(`With in getSDGBCode`);
+  getSDGBenefitCode(): SDGBenefitCodeNameDTO[] {
+    this.logger.verbose(`With in getSDGBenefitCode`);
     return SDGBenefits;
   }
 }

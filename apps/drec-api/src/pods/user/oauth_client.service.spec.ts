@@ -65,10 +65,10 @@ describe('OauthClientCredentialsService', () => {
   });
 
   describe('get', () => {
-    const api_user_id = uuid();
+    const apiUserId = uuid();
     const mockClientCredentialEntity: DeepPartial<OauthClientCredentials> = {
       id: 1,
-      api_user_id: api_user_id,
+      api_user_id: apiUserId,
       client_id: 'Some Client Credential Entity',
       user: {
         id: 1,
@@ -87,10 +87,10 @@ describe('OauthClientCredentialsService', () => {
           organizationType: Role.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
-          api_user_id: api_user_id,
+          api_user_id: apiUserId,
         },
         moduleName: null,
-        api_user_id: api_user_id,
+        api_user_id: apiUserId,
         updatedAt: new Date(),
       },
     };
@@ -128,10 +128,10 @@ describe('OauthClientCredentialsService', () => {
   });
 
   describe('store', () => {
-    const api_user_id = uuid();
+    const apiUserId = uuid();
     const mockClientCredentialEntity: DeepPartial<OauthClientCredentials> = {
       id: 1,
-      api_user_id: api_user_id,
+      api_user_id: apiUserId,
       client_id: 'Some Client Credential Entity',
       user: {
         id: 1,
@@ -150,10 +150,10 @@ describe('OauthClientCredentialsService', () => {
           organizationType: Role.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
-          api_user_id: api_user_id,
+          api_user_id: apiUserId,
         },
         moduleName: null,
-        api_user_id: api_user_id,
+        api_user_id: apiUserId,
         updatedAt: new Date(),
       },
     };

@@ -2,18 +2,18 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   ForbiddenException,
   Get,
   HttpStatus,
   Logger,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -25,9 +25,9 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiQuery,
   ApiResponse,
   ApiTags,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { InvitationService } from './invitation.service';
 import { AlreadyPartOfOrganizationError } from './errors/already-part-of-organization.error';
@@ -35,8 +35,8 @@ import { InvitationDTO } from './dto/invitation.dto';
 import {
   ensureOrganizationRole,
   ILoggedInUser,
-  ResponseFailure,
-  ResponseSuccess,
+  responseFailure,
+  responseSuccess,
 } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums';
@@ -44,7 +44,7 @@ import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { InviteDTO, updateInviteStatusDTO } from './dto/invite.dto';
+import { InviteDTO, UpdateInviteStatusDTO } from './dto/invite.dto';
 import { Invitation } from './invitation.entity';
 
 @ApiTags('invitation')
@@ -94,21 +94,18 @@ export class InvitationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getInvitations`);
-    const invitations =
-      await this.organizationInvitationService.getUsersInvitation(
-        loggedUser,
-        organizationId,
-        pageNumber,
-        limit,
-      );
-
-    return invitations;
+    return await this.organizationInvitationService.getUsersInvitation(
+      loggedUser,
+      organizationId,
+      pageNumber,
+      limit,
+    );
   }
 
   /**
    *
    * @param invitationId
-   * @param useracceptinvitation
+   * @param updateInviteStatusDTO
    * @returns
    */
   @Put(':id')
@@ -128,12 +125,12 @@ export class InvitationController {
   async updateInvitation(
     @Param('id') invitationId: number,
     //  @Param('status') status: IOrganizationInvitation['status'],
-    @Body() useracceptinvitation: updateInviteStatusDTO,
+    @Body() updateInviteStatusDTO: UpdateInviteStatusDTO,
     // @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
     this.logger.verbose(`With in updateInvitation`);
     return this.organizationInvitationService.update(
-      useracceptinvitation,
+      updateInviteStatusDTO,
       invitationId,
       // status,
     );
@@ -183,7 +180,7 @@ export class InvitationController {
     if (!loggedUser.hasOrganization) {
       this.logger.error(`User doesn't belong to any organization.`);
       throw new BadRequestException(
-        ResponseFailure(`User doesn't belong to any organization.`),
+        responseFailure(`User doesn't belong to any organization.`),
       );
     }
 
@@ -192,7 +189,7 @@ export class InvitationController {
     } catch (e) {
       this.logger.error(`Unknown role was requested for the invitee`);
       throw new ForbiddenException(
-        ResponseFailure('Unknown role was requested for the invitee'),
+        responseFailure('Unknown role was requested for the invitee'),
       );
     }
 
@@ -200,7 +197,7 @@ export class InvitationController {
       if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
-            ResponseFailure(
+            responseFailure(
               `Organization id is required,please add your Organization id`,
             ),
           );
@@ -238,7 +235,7 @@ export class InvitationController {
       //  return error
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   /**
@@ -255,14 +252,12 @@ export class InvitationController {
     type: [InvitationDTO],
     description: 'Gets all invitations for a user',
   })
-  async getInvitationsByemail(
+  async getInvitationsByEmail(
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getInvitations`);
     const invitations =
-      await this.organizationInvitationService.getinvite_info_byEmail(
-        loggedUser,
-      );
+      await this.organizationInvitationService.getInviteInfoByEmail(loggedUser);
 
     return invitations;
   }

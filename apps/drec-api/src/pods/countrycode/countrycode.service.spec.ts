@@ -1,18 +1,48 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CountrycodeService } from './countrycode.service';
+import { CountryCodeService } from './countrycode.service';
+import { FilterKeyDTO } from './dto';
+import { countryCodesList } from '../../models/country-code';
 
 describe('CountrycodeService', () => {
-  let service: CountrycodeService;
+  let service: CountryCodeService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CountrycodeService],
+      providers: [CountryCodeService],
     }).compile();
 
-    service = module.get<CountrycodeService>(CountrycodeService);
+    service = module.get<CountryCodeService>(CountryCodeService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('getCountryCode', () => {
+    it('should return all countries when no search keyword is provided', async () => {
+      const filterDTO: FilterKeyDTO = { searchKeyWord: '' };
+      const result = await service.getCountryCode(filterDTO);
+      expect(result).toEqual(countryCodesList);
+    });
+
+    it('should filter countries based on a search keyword matching the country name', async () => {
+      const filterDTO: FilterKeyDTO = { searchKeyWord: 'India' };
+      const result = await service.getCountryCode(filterDTO);
+      expect(result).toEqual(
+        countryCodesList.filter((ele) => ele.country.match(/India/i)),
+      );
+    });
+
+    it('should return an empty array if no matches are found for the search keyword', async () => {
+      const filterDTO: FilterKeyDTO = { searchKeyWord: 'NonExistingCountry' };
+      const result = await service.getCountryCode(filterDTO);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle empty string as a search keyword and return all countries', async () => {
+      const filterDTO: FilterKeyDTO = { searchKeyWord: '' };
+      const result = await service.getCountryCode(filterDTO);
+      expect(result).toEqual(countryCodesList);
+    });
   });
 });

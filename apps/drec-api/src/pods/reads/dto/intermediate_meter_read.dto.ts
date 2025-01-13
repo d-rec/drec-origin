@@ -9,12 +9,14 @@ import {
 import { Unit } from '@energyweb/energy-api-influxdb';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
-import { Iintermediate, NewReadDTO } from '../../../models';
+import { IIntermediate, NewReadDTO } from '../../../models';
 import { PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IsValidTimezone } from '../../../validations/timezone';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { transformTimezone } from '../../../transformers/timezone';
-export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
+import { Trim } from '../../../transformers/string';
+
+export class IntermediateMeterReadDTO implements Omit<IIntermediate, 'id'> {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -39,13 +41,14 @@ export class IntmediateMeterReadDTO implements Omit<Iintermediate, 'id'> {
   externalId: string;
 }
 
-export class NewIntmediateMeterReadDTO
+export class NewIntermediateMeterReadDTO
   implements
-    Omit<Iintermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
+    Omit<IIntermediate, 'id' | 'value' | 'startdate' | 'enddate' | 'createdAt'>
 {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Trim()
   @IsValidTimezone()
   @Transform(transformTimezone)
   timezone?: string;
@@ -61,6 +64,7 @@ export class NewIntmediateMeterReadDTO
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
   @ValidateNested()
+  @Type(() => NewReadDTO)
   reads: NewReadDTO[];
 
   @ApiProperty({ type: () => Number })

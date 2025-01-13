@@ -4,7 +4,7 @@ import { IsString, IsDate } from 'class-validator';
 import { IDeviceLateOngoingIssueCertificate } from '../../models';
 
 @Entity('device_lateongoing_certificate_cycle')
-export class DeviceLateongoingIssueCertificateEntity
+export class DeviceLateOngoingIssueCertificateEntity
   extends ExtendedBaseEntity
   implements IDeviceLateOngoingIssueCertificate
 {
