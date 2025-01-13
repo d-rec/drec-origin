@@ -12,7 +12,6 @@ import {
   IsIn,
   IsDate,
   MaxDate,
-  IsISO8601,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
@@ -107,9 +106,6 @@ export class NewDeviceDTO
   capacity: number;
 
   @ApiProperty()
-  @IsISO8601({
-    message: `Invalid commissioning date, valid format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-  })
   @Transform((value, obj) => new Date(obj.commissioningDate))
   @IsDate()
   @MaxDate(new Date(), {
