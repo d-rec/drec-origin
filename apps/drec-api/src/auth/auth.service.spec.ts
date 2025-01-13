@@ -45,7 +45,7 @@ describe('AuthService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('mock-secret'),
+            get: jest.fn().mockReturnValue('my-secret'),
           } as any,
         }
       ],
