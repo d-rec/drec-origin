@@ -20,7 +20,7 @@ export class ClientJwtStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.API_USER_JWT_SECRET,
       passReqToCallback: true,
     });
   }
@@ -33,7 +33,7 @@ export class ClientJwtStrategy extends PassportStrategy(
     const publicKey = this.oauthClientService.get(user.api_user_id);
     await this.jwtService.verify(token, {
       publicKey: (await publicKey).client_id,
-      secret: process.env.JWT_SECRET,
+      secret: process.env.API_USER_JWT_SECRET,
     });
     return user;
   }
