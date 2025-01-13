@@ -158,12 +158,12 @@ export class ReadsController extends BaseReadsController {
   @Get('/get-csv-jobs')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for ApiUser',
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
@@ -204,11 +204,11 @@ export class ReadsController extends BaseReadsController {
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(
-            `The requested organization is belongs to other apiuser`,
+            `The requested organization is belongs to other apiUser`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'The requested organization is belongs to other apiuser',
+            message: 'The requested organization is belongs to other apiUser',
           });
         }
 
@@ -243,12 +243,12 @@ export class ReadsController extends BaseReadsController {
   @Get('/bulk-upload-status/:id')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
-  @ACLModules('READS_BULK_MANAGEMENT_CRUDL')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for ApiUser',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -269,11 +269,11 @@ export class ReadsController extends BaseReadsController {
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
-            `The requested organization is belongs to other apiuser`,
+            `The requested organization is belongs to other apiUser`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'The requested organization is belongs to other apiuser',
+            message: 'The requested organization is belongs to other apiUser',
           });
         }
 
@@ -284,31 +284,29 @@ export class ReadsController extends BaseReadsController {
             message: 'Unauthorized',
           });
         }
+      } else {
+        if (orgId != organizationId && role != Role.Admin) {
+          this.logger.error(
+            `The organizationId in query params should be same as user's organizationId`,
+          );
+          throw new BadRequestException({
+            success: false,
+            message: `The organizationId in query params should be same as user's organizationId`,
+          });
+        } else if (role === Role.Admin) {
+          orgId = null;
+        }
       }
-      if (orgId != organizationId && role != Role.Admin) {
-        this.logger.error(
-          `The organizationId in query params should be same as user's organizationId`,
-        );
+    } else {
+      if (role === Role.ApiUser) {
+        this.logger.error(`Add the orgId at query param`);
         throw new BadRequestException({
           success: false,
-          message: `The organizationId in query params should be same as user's organizationId`,
+          message: `Add the orgId at query param`,
         });
       }
-      if (role === Role.Admin) {
-        orgId = null;
-      }
     }
-    if (role === Role.ApiUser) {
-      this.logger.error(`Add the orgId at query param`);
-      throw new BadRequestException({
-        success: false,
-        message: `Add the orgId at query param`,
-      });
-    }
-    return await this.internalReadsService.getFailedReadsLogsCSVJob(
-      jobId,
-      orgId,
-    );
+    return await this.internalReadsService.getFailedReadsLogsCSVJob(jobId);
   }
 
   /**

@@ -203,28 +203,8 @@ export class ReadsService {
 
   async getFailedReadsLogsCSVJob(
     jobId: number,
-    organizationId?: number,
   ): Promise<JobFailedRowsDTO | undefined> {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
-    if (organizationId) {
-      const csvJob = await this.fileProcessingFailedReadsLogsRepository.findOne(
-        {
-          where: {
-            jobId: jobId,
-            organizationId: organizationId,
-          },
-        },
-      );
-
-      if (!csvJob) {
-        this.logger.error(`The job requested is belongs to other organization`);
-        throw new UnauthorizedException({
-          success: false,
-          message: `The job requested is belongs to other organization`,
-        });
-      }
-    }
-
     return await this.fileProcessingFailedReadsLogsRepository.findOne({
       where: {
         jobId: jobId,
