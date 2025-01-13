@@ -10,7 +10,7 @@ import { Role } from '../utils/enums/role.enum';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { DeleteResult } from 'typeorm';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
-import {ConfigService} from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 export interface IJWTPayload {
   id: number;
@@ -86,7 +86,8 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
-      secret: this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
+      secret:
+        this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
     });
     return {
       accessToken: token,

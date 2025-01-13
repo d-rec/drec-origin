@@ -6,7 +6,7 @@ import { OauthClientCredentialsService } from '../pods/user/oauth_client.service
 import { IJWTPayload } from './auth.service';
 import { UserService } from '../pods/user/user.service';
 import { IUser } from 'src/models';
-import {ConfigService} from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ClientJwtStrategy extends PassportStrategy(
@@ -22,7 +22,8 @@ export class ClientJwtStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
+      secretOrKey:
+        configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
       passReqToCallback: true,
     });
   }
@@ -35,7 +36,8 @@ export class ClientJwtStrategy extends PassportStrategy(
     const publicKey = this.oauthClientService.get(user.api_user_id);
     await this.jwtService.verify(token, {
       publicKey: (await publicKey).client_id,
-      secret: this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
+      secret:
+        this.configService.get<string>('API_USER_JWT_SECRET') || 'my-secret',
     });
     return user;
   }
