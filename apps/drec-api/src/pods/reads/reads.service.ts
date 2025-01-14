@@ -32,7 +32,7 @@ import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { flattenDeep, groupBy, mean, sum, values } from 'lodash';
 import { DateTime } from 'luxon';
-import { convertToWh } from 'src/utils/convert-to-power-units';
+import { convertToWh } from '../../utils/convert-to-power-units';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { IAggregateintermediate } from '../../models';
