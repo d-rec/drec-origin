@@ -41,7 +41,6 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-`  `;
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
