@@ -13,8 +13,8 @@ import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
-import { FileProcessingEntity } from '../file/file-processing.entity';
-import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
+import { BulkUploadEntity } from '../file/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../file/bulk-uploads-failed-logs.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -47,11 +47,11 @@ describe('ReadsService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(FileProcessingFailedReadsLogsEntity),
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(FileProcessingEntity),
+          provide: getRepositoryToken(BulkUploadEntity),
           useValue: {},
         },
         {

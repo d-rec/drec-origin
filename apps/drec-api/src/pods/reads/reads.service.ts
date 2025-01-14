@@ -58,14 +58,14 @@ import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import {
-  FileProcessingEntity,
-  FileProcessingStatus,
-  FileProcessingType,
-} from '../file/file-processing.entity';
+  BulkUploadEntity,
+  BulkUploadStatus,
+  BulkUploadType,
+} from '../file/bulk-uploads.entity';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { FileProcessingFailedReadsLogsEntity } from '../file/file-processing-failed-reads-logs.entity';
-import { JobFailedRowsDTO } from '../device-group/dto';
+import { BulkUploadFailedLogEntity } from '../file/bulk-uploads-failed-logs.entity';
+import { BulkUploadDTO } from '../file/bulk-upload.dto';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -82,8 +82,8 @@ export class ReadsService {
     private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(DeltaFirstRead)
     private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
-    @InjectRepository(FileProcessingFailedReadsLogsEntity)
-    private readonly fileProcessingFailedReadsLogsRepository: Repository<FileProcessingFailedReadsLogsEntity>,
+    @InjectRepository(BulkUploadFailedLogEntity)
+    private readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
@@ -91,8 +91,8 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
     private readonly fileService: FileService,
-    @InjectRepository(FileProcessingEntity)
-    public readonly fileProcessingRepository: Repository<FileProcessingEntity>,
+    @InjectRepository(BulkUploadEntity)
+    public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
@@ -147,7 +147,7 @@ export class ReadsService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<FileProcessingEntity>;
+        csvJobs: Array<BulkUploadEntity>;
         currentPage: number;
         totalPages: number;
         totalCount: number;
@@ -155,20 +155,19 @@ export class ReadsService {
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [csvJobs, totalCount] =
-      await this.fileProcessingRepository.findAndCount({
-        where: { organizationId },
-        order: {
-          createdAt: 'DESC',
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
-      });
+    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+      where: { organizationId },
+      order: {
+        createdAt: 'DESC',
+      },
+      skip: (pageNumber - 1) * limit,
+      take: limit,
+    });
 
     const totalPages = Math.ceil(totalCount / limit);
 
     const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: FileProcessingEntity) => {
+      csvJobs.map(async (csvJob: BulkUploadEntity) => {
         const organization = await this.organizationService.findOne(
           csvJob.organizationId,
         );
@@ -190,9 +189,9 @@ export class ReadsService {
   async storeFailedReadsLogsCSVJob(
     jobId: number,
     errorDetails: string,
-  ): Promise<FileProcessingFailedReadsLogsEntity> {
+  ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
-    return await this.fileProcessingFailedReadsLogsRepository.save({
+    return await this.bulkUploadFailedLogRepository.save({
       jobId,
       errorDetails: {
         log: { errorDetails },
@@ -201,12 +200,12 @@ export class ReadsService {
   }
 
   async getFailedReadsLogsCSVJob(
-    jobId: number,
-  ): Promise<JobFailedRowsDTO | undefined> {
+    bulkUploadId: string,
+  ): Promise<BulkUploadDTO | undefined> {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
-    return await this.fileProcessingFailedReadsLogsRepository.findOne({
+    return await this.bulkUploadFailedLogRepository.findOne({
       where: {
-        jobId: jobId,
+        bulkUploadId: bulkUploadId,
       },
     });
   }
@@ -280,13 +279,13 @@ export class ReadsService {
         organizationId: user.organizationId,
       });
 
-      await this.fileProcessingRepository.save({
+      await this.bulkUploadRepository.save({
         fileId: fileExists.filename,
         jobId: job.id.toString(),
         userId: user.id,
         organizationId: user.organizationId,
-        status: FileProcessingStatus.InProgress,
-        type: FileProcessingType.AddMeterRead,
+        status: BulkUploadStatus.InProgress,
+        type: BulkUploadType.AddMeterRead,
         apiUserId: user.api_user_id,
       });
 
@@ -297,9 +296,9 @@ export class ReadsService {
       };
     } catch (error) {
       this.logger.error('File upload failed:', error);
-      await this.fileProcessingRepository.update(
+      await this.bulkUploadRepository.update(
         { fileId: fileId },
-        { status: FileProcessingStatus.Failed },
+        { status: BulkUploadStatus.Failed },
       );
       throw error;
     }

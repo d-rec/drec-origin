@@ -62,8 +62,9 @@ import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
-import { FileProcessingEntity } from '../file/file-processing.entity';
 import { JobFailedRowsDTO } from '../device-group/dto';
+import { BulkUploadEntity } from '../file/bulk-uploads.entity';
+import { BulkUploadDTO } from '../file/bulk-upload.dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -169,7 +170,7 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [FileProcessingEntity],
+    type: [BulkUploadEntity],
     description: 'Returns created jobs of an organization',
   })
   public async getAllCsvJobsBelongingToOrganization(
@@ -181,7 +182,7 @@ export class ReadsController extends BaseReadsController {
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
     | {
-        csvJobs: Array<FileProcessingEntity>;
+        csvJobs: Array<BulkUploadEntity>;
         currentPage: number;
         totalPages: number;
         totalCount: number;
@@ -256,10 +257,10 @@ export class ReadsController extends BaseReadsController {
     description: 'Returns status of job id for bulk upload',
   })
   public async getBulkUploadJobStatus(
-    @Param('id') jobId: number,
+    @Param('id') bulkUploadId: string,
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-  ): Promise<JobFailedRowsDTO | undefined> {
+  ): Promise<BulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 
     if (orgId) {
@@ -306,7 +307,9 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    return await this.internalReadsService.getFailedReadsLogsCSVJob(jobId);
+    return await this.internalReadsService.getFailedReadsLogsCSVJob(
+      bulkUploadId,
+    );
   }
 
   /**

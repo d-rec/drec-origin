@@ -63,11 +63,11 @@ import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
-import { FileProcessingEntity } from './pods/file/file-processing.entity';
+import { BulkUploadEntity } from './pods/file/bulk-uploads.entity';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryFilter } from './filters/sentry.filter';
-import { FileProcessingFailedReadsLogsEntity } from './pods/file/file-processing-failed-reads-logs.entity';
+import { BulkUploadFailedLogEntity } from './pods/file/bulk-uploads-failed-logs.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -118,8 +118,8 @@ export const entities = [
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities,
-  FileProcessingEntity,
-  FileProcessingFailedReadsLogsEntity,
+  BulkUploadEntity,
+  BulkUploadFailedLogEntity,
 ];
 
 const originAppTypeOrmModule = () => {

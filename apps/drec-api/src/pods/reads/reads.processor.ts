@@ -7,7 +7,7 @@ import {
   parseMeterReadingCsv,
 } from './parser/meter-reading-csv.parser';
 import { ReadsService } from './reads.service';
-import { FileProcessingStatus } from '../file/file-processing.entity';
+import { BulkUploadStatus } from '../file/bulk-uploads.entity';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -61,16 +61,16 @@ export class ReadsProcessor {
           throw error.message;
         }
       }
-      await this.readsService.fileProcessingRepository.update(
+      await this.readsService.bulkUploadRepository.update(
         { fileId: fileId },
-        { status: FileProcessingStatus.Completed },
+        { status: BulkUploadStatus.Completed },
       );
       return;
     } catch (error) {
       this.logger.error(`Job ${job.id} failed: ${error.message}`);
-      await this.readsService.fileProcessingRepository.update(
+      await this.readsService.bulkUploadRepository.update(
         { fileId: fileId },
-        { status: FileProcessingStatus.Failed },
+        { status: BulkUploadStatus.Failed },
       );
       await this.readsService.storeFailedReadsLogsCSVJob(Number(job.id), error);
       throw error;
