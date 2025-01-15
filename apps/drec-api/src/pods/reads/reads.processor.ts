@@ -23,6 +23,10 @@ export class ReadsProcessor {
     job: Job<{ fileId: string; s3Id: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, s3Id } = job.data;
+    await this.readsService.bulkUploadRepository.update(
+      { fileId: fileId },
+      { jobId: job.id.toString() },
+    );
     const bulkUpload = await this.readsService.bulkUploadRepository.findOne({
       where: { fileId: fileId },
     });

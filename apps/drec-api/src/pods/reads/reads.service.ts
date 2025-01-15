@@ -285,11 +285,6 @@ export class ReadsService {
         organizationId: user.organizationId,
       });
 
-      await this.bulkUploadRepository.update(
-        { fileId: fileId },
-        { jobId: job.id.toString() },
-      );
-
       this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
       return {
         message: 'Meter reads processing has been scheduled',
