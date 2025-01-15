@@ -53,11 +53,11 @@ jobs:
         run: |
           # Tag image for ECR
           docker tag drec-origin $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker tag drec-origin $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # docker tag drec-origin $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
           # Push both tags
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       - name: Log out from Amazon ECR
         if: always()
