@@ -47,3 +47,7 @@ There will be multiple users under all the above mentioned categories for an ins
 - Buyers will have a different interface when interacting with the D-REC system. The primary objective will be to set and review “reservations.” These are ways for the buyer to identify specific devices from which they would like to secure RECs - this process “reserves” the device, therefore preventing additional buyers from also securing RECs (note: partial certification is something that will be addressed in a future release).
 
 - The buyer first specifies certain parameters for the reservation, including the total volume of RECs they are seeking to purchase, the start and end period for which the data should be certified, and the issuance frequency (how frequent does the buyer want the issuance requests to occur). The buyer then selects specific devices to be associated with that reservation, which as noted earlier will remove that device from the list of available devices.
+
+## Feature readiness overview
+- [Download the Document](https://github.com/d-rec/drec-origin/blob/develop/docs/introduction/D-REC%20Platform%20-%20Features%20MVP%20Stage%20-%20Features.pdf)
+
