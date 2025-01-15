@@ -23,6 +23,9 @@ export class ReadsProcessor {
     job: Job<{ fileId: string; s3Id: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, s3Id } = job.data;
+    const bulkUpload = await this.readsService.bulkUploadRepository.findOne({
+      where: { fileId: fileId },
+    });
     try {
       this.logger.debug(
         `Starting job processing for fileId: ${job.data.fileId}`,
@@ -67,12 +70,14 @@ export class ReadsProcessor {
       );
       return;
     } catch (error) {
-      this.logger.error(`Job ${job.id} failed: ${error.message}`);
+      this.logger.error(`Job ${job.id} failed: ${error}`);
       await this.readsService.bulkUploadRepository.update(
         { fileId: fileId },
         { status: BulkUploadStatus.Failed },
       );
-      await this.readsService.storeFailedReadsLogsCSVJob(Number(job.id), error);
+      if (bulkUpload) {
+        await this.readsService.storeFailedLogsBulkUpload(bulkUpload.id, error);
+      }
       throw error;
     }
   }

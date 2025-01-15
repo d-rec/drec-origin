@@ -19,7 +19,7 @@ export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('uuid')
   bulkUploadId: string;
 
   @Column('json')

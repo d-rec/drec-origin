@@ -141,7 +141,7 @@ export class ReadsService {
     );
   }
 
-  async getAllCSVJobsForOrganization(
+  async getAllBulkUploads(
     organizationId: number,
     pageNumber?: number,
     limit?: number,
@@ -186,20 +186,18 @@ export class ReadsService {
     };
   }
 
-  async storeFailedReadsLogsCSVJob(
-    jobId: number,
+  async storeFailedLogsBulkUpload(
+    bulkUploadId: string,
     errorDetails: string,
   ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
     return await this.bulkUploadFailedLogRepository.save({
-      jobId,
-      errorDetails: {
-        log: { errorDetails },
-      },
+      bulkUploadId: bulkUploadId,
+      errorDetails: errorDetails,
     });
   }
 
-  async getFailedReadsLogsCSVJob(
+  async getBulkUploadFailedLog(
     bulkUploadId: string,
   ): Promise<BulkUploadDTO | undefined> {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
@@ -272,6 +270,14 @@ export class ReadsService {
 
       const s3Upload = await this.fileService.upload(multerFile);
 
+      await this.bulkUploadRepository.save({
+        fileId: fileExists.filename,
+        jobId: 'not id',
+        organizationId: user.organizationId,
+        status: BulkUploadStatus.InProgress,
+        type: BulkUploadType.AddMeterRead,
+      });
+
       const job = await this.readsQueue.add('meter-reads-csv', {
         s3Id: s3Upload.Key,
         fileId: fileExists.filename,
@@ -279,15 +285,10 @@ export class ReadsService {
         organizationId: user.organizationId,
       });
 
-      await this.bulkUploadRepository.save({
-        fileId: fileExists.filename,
-        jobId: job.id.toString(),
-        userId: user.id,
-        organizationId: user.organizationId,
-        status: BulkUploadStatus.InProgress,
-        type: BulkUploadType.AddMeterRead,
-        apiUserId: user.api_user_id,
-      });
+      await this.bulkUploadRepository.update(
+        { fileId: fileId },
+        { jobId: job.id.toString() },
+      );
 
       this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
       return {

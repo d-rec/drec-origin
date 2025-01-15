@@ -234,7 +234,7 @@ export class ReadsController extends BaseReadsController {
         }
       }
     }
-    return this.internalReadsService.getAllCSVJobsForOrganization(
+    return this.internalReadsService.getAllBulkUploads(
       organizationId,
       pageNumber,
       limit,
@@ -307,9 +307,7 @@ export class ReadsController extends BaseReadsController {
         });
       }
     }
-    return await this.internalReadsService.getFailedReadsLogsCSVJob(
-      bulkUploadId,
-    );
+    return await this.internalReadsService.getBulkUploadFailedLog(bulkUploadId);
   }
 
   /**

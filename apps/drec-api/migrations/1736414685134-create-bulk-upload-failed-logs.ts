@@ -7,10 +7,12 @@ export class createBulkUploadFailedLogs1736414685134
     await queryRunner.query(`
       CREATE TABLE "bulk_upload_failed_logs" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-        "bulkUploadId" varchar NOT NULL,
+        "bulkUploadId" uuid NOT NULL,
         "errorDetails" json NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-        "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulkUploadId")
+        REFERENCES "bulk_uploads"("id") ON DELETE CASCADE
       )
     `);
   }

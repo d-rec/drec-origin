@@ -197,7 +197,7 @@ export class FileService {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
-    const bucketS3 = process.env.bucketname;
+    const bucketS3 = process.env.S3_BUCKET;
     return await this.uploadS3(file.buffer, bucketS3, originalname);
   }
 
@@ -226,8 +226,11 @@ export class FileService {
 
   getS3(): any {
     return new S3({
-      accessKeyId: process.env.accessKeyId,
-      secretAccessKey: process.env.secretAccessKey,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+      endpoint: process.env.AWS_ENDPOINT,
+      s3ForcePathStyle: true,
     });
   }
 
@@ -240,7 +243,7 @@ export class FileService {
       this.logger.debug(key);
       return new Promise((resolve, reject) => {
         s3.getObject(
-          { Bucket: process.env.bucketname, Key: key },
+          { Bucket: process.env.S3_BUCKET, Key: key },
           (err, data) => {
             if (err) {
               this.logger.error(err);
@@ -263,7 +266,7 @@ export class FileService {
   // if (key) {
 
   //     return s3.getSignedUrlPromise('getObject', {
-  //       Bucket: process.env.bucketname,
+  //       Bucket: process.env.S3_BUCKET,
   //       Key: key
   //     })
   //   }
