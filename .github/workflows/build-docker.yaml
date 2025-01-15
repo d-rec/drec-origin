@@ -77,12 +77,12 @@ jobs:
 
       - name: Set up kubectl
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.CLUSTER_NAME }}
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name drec
 
       - name: Deploy to Kubernetes
         env:
           ECR_REGISTRY: ${{ steps.build.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          ECR_REPOSITORY: drec-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
           kubectl -n dev set image deployment/${{ secrets.DEPLOYMENT_NAME }} \
