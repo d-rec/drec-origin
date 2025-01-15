@@ -77,7 +77,7 @@ jobs:
 
       - name: Set up kubectl
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name drec
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name "drec"
 
       - name: Deploy to Kubernetes
         env:
