@@ -186,6 +186,112 @@ export class ReadsService {
     };
   }
 
+  async getAllCSVJobsForAdmin(
+    orgId?: number,
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<
+    | {
+        csvJobs: Array<BulkUploadEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
+    this.logger.verbose(`With in getAllCSVJobsForAdmin`);
+    const whereConditions: any = {};
+
+    if (orgId) {
+      whereConditions.organizationId = orgId;
+    }
+
+    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+      where: whereConditions,
+      order: {
+        createdAt: 'DESC',
+      },
+      skip: (pageNumber - 1) * limit,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const csvJobsWithOrganization = await Promise.all(
+      csvJobs.map(async (csvJob: BulkUploadEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvJob.organizationId,
+        );
+        csvJob.organization = {
+          name: organization.name,
+        };
+        return csvJob;
+      }),
+    );
+
+    return {
+      csvJobs: csvJobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount,
+    };
+  }
+
+  async getAllCSVJobsForApiUser(
+    apiUserId: string,
+    organizationId?: number,
+    pageNumber?: number,
+    limit?: number,
+  ): Promise<
+    | {
+        csvJobs: Array<BulkUploadEntity>;
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+      }
+    | any
+  > {
+    this.logger.verbose(`With in getAllCSVJobsForApiUser`);
+    const query: SelectQueryBuilder<BulkUploadEntity> =
+      await this.bulkUploadRepository
+        .createQueryBuilder('csvjobs')
+        .orderBy('csvjobs.createdAt', 'DESC');
+
+    if (apiUserId) {
+      query.andWhere(`csvjobs.api_user_id = '${apiUserId}'`);
+    }
+
+    if (organizationId) {
+      query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
+    }
+
+    const [csvjobs, totalCount] = await query
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const csvJobsWithOrganization = await Promise.all(
+      csvjobs.map(async (csvjob: BulkUploadEntity) => {
+        const organization = await this.organizationService.findOne(
+          csvjob.organizationId,
+        );
+        csvjob.organization = {
+          name: organization.name,
+        };
+        return csvjob;
+      }),
+    );
+
+    return {
+      csvJobs: csvJobsWithOrganization,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount,
+    };
+  }
+
   async storeFailedLogsBulkUpload(
     bulkUploadId: string,
     errorDetails: string,

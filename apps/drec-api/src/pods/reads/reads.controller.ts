@@ -234,11 +234,27 @@ export class ReadsController extends BaseReadsController {
         }
       }
     }
-    return this.internalReadsService.getAllBulkUploads(
-      organizationId,
-      pageNumber,
-      limit,
-    );
+
+    if (user.role === 'Admin') {
+      return this.internalReadsService.getAllCSVJobsForAdmin(
+        orgId,
+        pageNumber,
+        limit,
+      );
+    } else if (user.role === Role.ApiUser) {
+      return this.internalReadsService.getAllCSVJobsForApiUser(
+        user.api_user_id,
+        orgId,
+        pageNumber,
+        limit,
+      );
+    } else {
+      return this.internalReadsService.getAllBulkUploads(
+        organizationId,
+        pageNumber,
+        limit,
+      );
+    }
   }
 
   @Get('/bulk-upload-status/:id')
