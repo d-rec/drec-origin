@@ -10,6 +10,7 @@ import { UserDTO } from '../pods/user/dto/user.dto';
 import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
 import { IUser } from 'src/models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -40,6 +41,12 @@ describe('AuthService', () => {
         {
           provide: OauthClientCredentialsService,
           useValue: {} as any,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('mock-secret'),
+          } as any,
         },
       ],
     }).compile();
@@ -325,7 +332,7 @@ describe('AuthService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
         privateKey: fileData,
-        secret: 'my-secret',
+        secret: 'mock-secret',
       });
     });
 
