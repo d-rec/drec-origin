@@ -51,4 +51,3 @@ There will be multiple users under all the above mentioned categories for an ins
 ## Feature readiness overview
 
 - [View or Download](./D-REC%20Platform%20-%20Features%20MVP%20Stage%20-%20Features.pdf)
-
