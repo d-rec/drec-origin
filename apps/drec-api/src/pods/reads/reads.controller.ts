@@ -112,7 +112,7 @@ export class ReadsController extends BaseReadsController {
     }
   }
 
-  @Post('csv-upload')
+  @Post('bulk-upload/:organizationId')
   @UseGuards(AuthGuard())
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
@@ -147,12 +147,14 @@ export class ReadsController extends BaseReadsController {
   async uploadMeterReadFile(
     @UploadedFile() file: MeterReadFileDto,
     @UserDecorator() user: ILoggedInUser,
+    @Param('organizationId') organizationId: number | null,
   ): Promise<{ message: string; jobId: string }> {
     this.logger.verbose('Handling meter read file upload');
     const [fileId] = await this.fileService.store(user, [file]);
     return await this.internalReadsService.scheduleMeterReadsProcessing(
       fileId,
       user,
+      organizationId,
     );
   }
 

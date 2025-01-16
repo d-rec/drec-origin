@@ -354,6 +354,7 @@ export class ReadsService {
   async scheduleMeterReadsProcessing(
     fileId: string,
     user: ILoggedInUser,
+    organizationId: number,
   ): Promise<{ message: string; jobId: string }> {
     try {
       const fileExists = await this.fileService.get(fileId, user);
@@ -379,7 +380,7 @@ export class ReadsService {
       await this.bulkUploadRepository.save({
         fileId: fileExists.filename,
         jobId: 'not id',
-        organizationId: user.organizationId,
+        organizationId: organizationId,
         status: BulkUploadStatus.InProgress,
         type: BulkUploadType.AddMeterRead,
       });
@@ -388,7 +389,7 @@ export class ReadsService {
         s3Id: s3Upload.Key,
         fileId: fileExists.filename,
         userId: user.id,
-        organizationId: user.organizationId,
+        organizationId: organizationId,
       });
 
       this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
