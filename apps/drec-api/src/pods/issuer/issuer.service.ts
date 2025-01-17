@@ -1078,8 +1078,19 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 0 */2 * * *')
+  @Cron('0 0 */8 * * *')
   async handleCronForOngoingLateIssuance(): Promise<void> {
+    try {
+      this.triggerOngoingLateIssuance();
+    } catch (error) {
+      this.logger.error(
+        `Error in influxdb query: ${error.message}`, //Please include the whole stack
+        error.stack,
+      );
+    }
+  }
+
+  private async triggerOngoingLateIssuance(): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 2hr to check for issuance of certificates');
     const lateOngoing = await this.deviceService.findAllLateCycle();
@@ -1129,7 +1140,7 @@ export class IssuerService {
           device.externalId,
           device.createdAt,
         );
-        if (lastRead.length === 0) {
+        if (lastRead?.length === 0) {
           this.logger.error('No last read found');
           continue; // Skip to the next element if no last read is found
         }
