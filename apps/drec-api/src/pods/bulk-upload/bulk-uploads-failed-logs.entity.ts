@@ -23,7 +23,7 @@ export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
   bulkUploadId: string;
 
   @Column('json')
-  errorDetails: any;
+  details: any;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -31,7 +31,7 @@ export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToOne(() => BulkUploadEntity, (bulkUpload) => bulkUpload.failedLog, {
+  @OneToOne(() => BulkUploadEntity, (bulkUpload) => bulkUpload.failedLogs, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'bulkUploadId', referencedColumnName: 'id' })

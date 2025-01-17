@@ -57,15 +57,10 @@ import {
 import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import {
-  BulkUploadEntity,
-  BulkUploadStatus,
-  BulkUploadType,
-} from '../file/bulk-uploads.entity';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { BulkUploadFailedLogEntity } from '../file/bulk-uploads-failed-logs.entity';
-import { BulkUploadDTO } from '../file/bulk-upload.dto';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadType } from '../bulk-upload';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -91,8 +86,6 @@ export class ReadsService {
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
     private readonly fileService: FileService,
-    @InjectRepository(BulkUploadEntity)
-    public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
@@ -141,178 +134,178 @@ export class ReadsService {
     );
   }
 
-  async getAllBulkUploads(
-    organizationId: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: { organizationId },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit,
-    });
+  // async getAllBulkUploads(
+  //   organizationId: number,
+  //   pageNumber?: number,
+  //   limit?: number,
+  // ): Promise<
+  //   | {
+  //       csvJobs: Array<BulkUploadEntity>;
+  //       currentPage: number;
+  //       totalPages: number;
+  //       totalCount: number;
+  //     }
+  //   | any
+  // > {
+  //   this.logger.verbose(`With in getAllCSVJobsForOrganization`);
+  //   const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+  //     where: { organizationId },
+  //     order: {
+  //       createdAt: 'DESC',
+  //     },
+  //     skip: (pageNumber - 1) * limit,
+  //     take: limit,
+  //   });
 
-    const totalPages = Math.ceil(totalCount / limit);
+  //   const totalPages = Math.ceil(totalCount / limit);
 
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
-        );
-        csvJob.organization = {
-          name: organization.name,
-        };
-        return csvJob;
-      }),
-    );
+  //   const csvJobsWithOrganization = await Promise.all(
+  //     csvJobs.map(async (csvJob: BulkUploadEntity) => {
+  //       const organization = await this.organizationService.findOne(
+  //         csvJob.organizationId,
+  //       );
+  //       csvJob.organization = {
+  //         name: organization.name,
+  //       };
+  //       return csvJob;
+  //     }),
+  //   );
 
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
+  //   return {
+  //     csvJobs: csvJobsWithOrganization,
+  //     currentPage: pageNumber,
+  //     totalPages,
+  //     totalCount,
+  //   };
+  // }
 
-  async getAllCSVJobsForAdmin(
-    orgId?: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForAdmin`);
-    const whereConditions: any = {};
+  // async getAllCSVJobsForAdmin(
+  //   orgId?: number,
+  //   pageNumber?: number,
+  //   limit?: number,
+  // ): Promise<
+  //   | {
+  //       csvJobs: Array<BulkUploadEntity>;
+  //       currentPage: number;
+  //       totalPages: number;
+  //       totalCount: number;
+  //     }
+  //   | any
+  // > {
+  //   this.logger.verbose(`With in getAllCSVJobsForAdmin`);
+  //   const whereConditions: any = {};
 
-    if (orgId) {
-      whereConditions.organizationId = orgId;
-    }
+  //   if (orgId) {
+  //     whereConditions.organizationId = orgId;
+  //   }
 
-    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: whereConditions,
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit,
-    });
+  //   const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+  //     where: whereConditions,
+  //     order: {
+  //       createdAt: 'DESC',
+  //     },
+  //     skip: (pageNumber - 1) * limit,
+  //     take: limit,
+  //   });
 
-    const totalPages = Math.ceil(totalCount / limit);
+  //   const totalPages = Math.ceil(totalCount / limit);
 
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
-        );
-        csvJob.organization = {
-          name: organization.name,
-        };
-        return csvJob;
-      }),
-    );
+  //   const csvJobsWithOrganization = await Promise.all(
+  //     csvJobs.map(async (csvJob: BulkUploadEntity) => {
+  //       const organization = await this.organizationService.findOne(
+  //         csvJob.organizationId,
+  //       );
+  //       csvJob.organization = {
+  //         name: organization.name,
+  //       };
+  //       return csvJob;
+  //     }),
+  //   );
 
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
+  //   return {
+  //     csvJobs: csvJobsWithOrganization,
+  //     currentPage: pageNumber,
+  //     totalPages,
+  //     totalCount,
+  //   };
+  // }
 
-  async getAllCSVJobsForApiUser(
-    apiUserId: string,
-    organizationId?: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForApiUser`);
-    const query: SelectQueryBuilder<BulkUploadEntity> =
-      await this.bulkUploadRepository
-        .createQueryBuilder('csvjobs')
-        .orderBy('csvjobs.createdAt', 'DESC');
+  // async getAllCSVJobsForApiUser(
+  //   apiUserId: string,
+  //   organizationId?: number,
+  //   pageNumber?: number,
+  //   limit?: number,
+  // ): Promise<
+  //   | {
+  //       csvJobs: Array<BulkUploadEntity>;
+  //       currentPage: number;
+  //       totalPages: number;
+  //       totalCount: number;
+  //     }
+  //   | any
+  // > {
+  //   this.logger.verbose(`With in getAllCSVJobsForApiUser`);
+  //   const query: SelectQueryBuilder<BulkUploadEntity> =
+  //     await this.bulkUploadRepository
+  //       .createQueryBuilder('csvjobs')
+  //       .orderBy('csvjobs.createdAt', 'DESC');
 
-    if (apiUserId) {
-      query.andWhere(`csvjobs.api_user_id = '${apiUserId}'`);
-    }
+  //   if (apiUserId) {
+  //     query.andWhere(`csvjobs.api_user_id = '${apiUserId}'`);
+  //   }
 
-    if (organizationId) {
-      query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
-    }
+  //   if (organizationId) {
+  //     query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
+  //   }
 
-    const [csvjobs, totalCount] = await query
-      .skip((pageNumber - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+  //   const [csvjobs, totalCount] = await query
+  //     .skip((pageNumber - 1) * limit)
+  //     .take(limit)
+  //     .getManyAndCount();
 
-    const totalPages = Math.ceil(totalCount / limit);
+  //   const totalPages = Math.ceil(totalCount / limit);
 
-    const csvJobsWithOrganization = await Promise.all(
-      csvjobs.map(async (csvjob: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvjob.organizationId,
-        );
-        csvjob.organization = {
-          name: organization.name,
-        };
-        return csvjob;
-      }),
-    );
+  //   const csvJobsWithOrganization = await Promise.all(
+  //     csvjobs.map(async (csvjob: BulkUploadEntity) => {
+  //       const organization = await this.organizationService.findOne(
+  //         csvjob.organizationId,
+  //       );
+  //       csvjob.organization = {
+  //         name: organization.name,
+  //       };
+  //       return csvjob;
+  //     }),
+  //   );
 
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
+  //   return {
+  //     csvJobs: csvJobsWithOrganization,
+  //     currentPage: pageNumber,
+  //     totalPages,
+  //     totalCount,
+  //   };
+  // }
 
-  async storeFailedLogsBulkUpload(
-    bulkUploadId: string,
-    errorDetails: string,
-  ): Promise<BulkUploadFailedLogEntity> {
-    this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
-    return await this.bulkUploadFailedLogRepository.save({
-      bulkUploadId: bulkUploadId,
-      errorDetails: errorDetails,
-    });
-  }
+  // async storeFailedLogsBulkUpload(
+  //   bulkUploadId: string,
+  //   errorDetails: string,
+  // ): Promise<BulkUploadFailedLogEntity> {
+  //   this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
+  //   return await this.bulkUploadFailedLogRepository.save({
+  //     bulkUploadId: bulkUploadId,
+  //     errorDetails: errorDetails,
+  //   });
+  // }
 
-  async getBulkUploadFailedLog(
-    bulkUploadId: string,
-  ): Promise<BulkUploadDTO | undefined> {
-    this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
-    return await this.bulkUploadFailedLogRepository.findOne({
-      where: {
-        bulkUploadId: bulkUploadId,
-      },
-    });
-  }
+  // async getBulkUploadFailedLog(
+  //   bulkUploadId: string,
+  // ): Promise<BulkUploadDTO | undefined> {
+  //   this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
+  //   return await this.bulkUploadFailedLogRepository.findOne({
+  //     where: {
+  //       bulkUploadId: bulkUploadId,
+  //     },
+  //   });
+  // }
 
   async storeFailedReads(
     meterId: string,
@@ -351,58 +344,21 @@ export class ReadsService {
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
-  async scheduleMeterReadsProcessing(
+  async bulkUploadJobProcessing(
+    s3Key: string,
     fileId: string,
-    user: ILoggedInUser,
-    organizationId: number,
-  ): Promise<{ message: string; jobId: string }> {
+    bulkUploadType: BulkUploadType,
+  ): Promise<any> {
     try {
-      const fileExists = await this.fileService.get(fileId, user);
-      if (!fileExists) {
-        throw new NotFoundException('File not found');
+      if (bulkUploadType === 'Reads') {
+        return await this.readsQueue.add('meter-reads-bulk-upload', {
+          s3Key: s3Key,
+          fileId: fileId,
+          bulkUploadType: bulkUploadType,
+        });
       }
-
-      const multerFile: Express.Multer.File = {
-        fieldname: 'file',
-        originalname: fileExists.filename,
-        encoding: '7bit',
-        mimetype: fileExists.contentType,
-        buffer: fileExists.data,
-        size: fileExists.data.length,
-        stream: null,
-        destination: '',
-        filename: fileExists.filename,
-        path: '',
-      };
-
-      const s3Upload = await this.fileService.upload(multerFile);
-
-      await this.bulkUploadRepository.save({
-        fileId: fileExists.filename,
-        jobId: 'not id',
-        organizationId: organizationId,
-        status: BulkUploadStatus.InProgress,
-        type: BulkUploadType.AddMeterRead,
-      });
-
-      const job = await this.readsQueue.add('meter-reads-csv', {
-        s3Id: s3Upload.Key,
-        fileId: fileExists.filename,
-        userId: user.id,
-        organizationId: organizationId,
-      });
-
-      this.logger.log(`Scheduled job ${job.id} for file ${fileId}`);
-      return {
-        message: 'Meter reads processing has been scheduled',
-        jobId: job.id.toString(),
-      };
     } catch (error) {
-      this.logger.error('File upload failed:', error);
-      await this.bulkUploadRepository.update(
-        { fileId: fileId },
-        { status: BulkUploadStatus.Failed },
-      );
+      this.logger.error('Job processing failed:', error);
       throw error;
     }
   }

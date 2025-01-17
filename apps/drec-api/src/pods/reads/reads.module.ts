@@ -18,8 +18,7 @@ import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
 import { ReadsProcessor } from './reads.processor';
-import { BulkUploadEntity } from '../file/bulk-uploads.entity';
-import { BulkUploadFailedLogEntity } from '../file/bulk-uploads-failed-logs.entity';
+import { BulkUploadModule, BulkUploadService } from '../bulk-upload';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -38,8 +37,6 @@ const baseReadServiceProvider = {
       AggregateMeterRead,
       HistoryIntermediateMeterRead,
       DeltaFirstRead,
-      BulkUploadEntity,
-      BulkUploadFailedLogEntity,
     ]),
     BullModule.registerQueue({
       name: 'reads-queue',
@@ -51,9 +48,15 @@ const baseReadServiceProvider = {
     DeviceGroupModule,
     UserModule,
     OrganizationModule,
+    BulkUploadModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, ReadsProcessor],
+  providers: [
+    baseReadServiceProvider,
+    ReadsService,
+    ReadsProcessor,
+    BulkUploadService,
+  ],
   exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}

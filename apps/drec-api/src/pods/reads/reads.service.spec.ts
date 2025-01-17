@@ -14,7 +14,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
 import { BulkUploadEntity } from '../file/bulk-uploads.entity';
-import { BulkUploadFailedLogEntity } from '../file/bulk-uploads-failed-logs.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {

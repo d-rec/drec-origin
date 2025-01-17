@@ -7,7 +7,7 @@ import {
   parseMeterReadingCsv,
 } from './parser/meter-reading-csv.parser';
 import { ReadsService } from './reads.service';
-import { BulkUploadStatus } from '../file/bulk-uploads.entity';
+import { BulkUploadService, BulkUploadStatus } from '../bulk-upload';
 
 @Processor('reads-queue')
 export class ReadsProcessor {
@@ -16,20 +16,22 @@ export class ReadsProcessor {
   constructor(
     private readonly readsService: ReadsService,
     private readonly fileService: FileService,
+    private readonly bulkUploadService: BulkUploadService,
   ) {}
 
-  @Process('meter-reads-csv')
+  @Process('meter-reads-bulk-upload')
   async handleMeterReadsProcessing(
     job: Job<{ fileId: string; s3Id: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, s3Id } = job.data;
-    await this.readsService.bulkUploadRepository.update(
+    await this.bulkUploadService.bulkUploadRepository.update(
       { fileId: fileId },
       { jobId: job.id.toString() },
     );
-    const bulkUpload = await this.readsService.bulkUploadRepository.findOne({
-      where: { fileId: fileId },
-    });
+    const bulkUpload =
+      await this.bulkUploadService.bulkUploadRepository.findOne({
+        where: { fileId: fileId },
+      });
     try {
       this.logger.debug(
         `Starting job processing for fileId: ${job.data.fileId}`,
@@ -68,19 +70,22 @@ export class ReadsProcessor {
           throw error.message;
         }
       }
-      await this.readsService.bulkUploadRepository.update(
+      await this.bulkUploadService.bulkUploadRepository.update(
         { fileId: fileId },
         { status: BulkUploadStatus.Completed },
       );
       return;
     } catch (error) {
       this.logger.error(`Job ${job.id} failed: ${error}`);
-      await this.readsService.bulkUploadRepository.update(
+      await this.bulkUploadService.bulkUploadRepository.update(
         { fileId: fileId },
         { status: BulkUploadStatus.Failed },
       );
       if (bulkUpload) {
-        await this.readsService.storeFailedLogsBulkUpload(bulkUpload.id, error);
+        await this.bulkUploadService.storeFailedLogsBulkUpload(
+          bulkUpload.id,
+          error,
+        );
       }
       throw error;
     }

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IsEnum, IsString, IsNumber } from 'class-validator';
-import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 export enum BulkUploadStatus {
   Added = 'Added',
@@ -61,5 +61,5 @@ export class BulkUploadEntity extends ExtendedBaseEntity {
     () => BulkUploadFailedLogEntity,
     (failedLog) => failedLog.bulkUploads,
   )
-  failedLog: BulkUploadFailedLogEntity[];
+  failedLogs: BulkUploadFailedLogEntity[];
 }

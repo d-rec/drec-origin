@@ -8,7 +8,7 @@ export class createBulkUploadFailedLogs1736414685134
       CREATE TABLE "bulk_upload_failed_logs" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "bulkUploadId" uuid NOT NULL,
-        "errorDetails" json NOT NULL,
+        "details" json NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulkUploadId")

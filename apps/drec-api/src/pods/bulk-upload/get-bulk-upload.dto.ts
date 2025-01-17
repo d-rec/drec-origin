@@ -1,7 +1,7 @@
 import { IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class BulkUploadDTO {
+export class GetBulkUploadDTO {
   @ApiProperty()
   @IsNumber()
   id: string;
@@ -11,5 +11,5 @@ export class BulkUploadDTO {
   bulkUploadId: string;
 
   @ApiProperty()
-  errorDetails: any;
+  details: any;
 }

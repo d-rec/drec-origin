@@ -63,11 +63,14 @@ import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
-import { BulkUploadEntity } from './pods/file/bulk-uploads.entity';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryFilter } from './filters/sentry.filter';
-import { BulkUploadFailedLogEntity } from './pods/file/bulk-uploads-failed-logs.entity';
+import {
+  BulkUploadEntity,
+  BulkUploadFailedLogEntity,
+  BulkUploadModule,
+} from './pods/bulk-upload';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -189,6 +192,7 @@ const queueModule = () => {
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,
+    BulkUploadModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
