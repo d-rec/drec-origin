@@ -58,7 +58,7 @@ import { NewIntmediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateintermediate;
-
+const INFLUX_DB_TIMEOUT = 60000;
 @Injectable()
 export class ReadsService {
   private readonly logger = new Logger(ReadsService.name);
@@ -82,7 +82,7 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
-    this.influxDB = new InfluxDB({ url, token });
+    this.influxDB = new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT });
     this.queryApi = this.influxDB.getQueryApi(org);
   }
 
@@ -789,7 +789,9 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
-    return new InfluxDB({ url, token }).getQueryApi(org);
+    return new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT }).getQueryApi(
+      org,
+    );
   }
 
   private async checkhistoryreadexist(
@@ -1533,14 +1535,20 @@ export class ReadsService {
   }
 
   async latestread(meterId: string, deviceOnboarded: Date): Promise<any> {
-    const query = `
-from(bucket: "${process.env.INFLUXDB_BUCKET}")
-|> range(start: ${deviceOnboarded}, stop: now())
-|> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-|> last()
-`;
-
-    return await this.execute(query);
+    try {
+      const query = `
+        from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        |> range(start: ${deviceOnboarded}, stop: now())
+        |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+        |> last()
+        `;
+      return await this.execute(query);
+    } catch (error) {
+      this.logger.error(
+        `Error in influxdb query: ${error.message}`, //Please include the whole stack
+        error.stack,
+      );
+    }
   }
   /* */
 
