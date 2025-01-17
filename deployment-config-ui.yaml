@@ -32,18 +32,18 @@ spec:
         app.kubernetes.io/name: drec-ui
     spec:
       containers:
-      - envFrom:
-        - secretRef:
-            name: drec-dev-env
-        image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-ui:dev-0.0.110
-        imagePullPolicy: Always
-        name: drec-ui
-        ports:
-        - containerPort: 80
-          protocol: TCP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
+        - envFrom:
+            - secretRef:
+                name: drec-dev-env
+          image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-ui:dev-0.0.110
+          imagePullPolicy: Always
+          name: drec-ui
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -52,18 +52,18 @@ spec:
 status:
   availableReplicas: 1
   conditions:
-  - lastTransitionTime: "2024-07-16T11:04:03Z"
-    lastUpdateTime: "2024-07-16T11:04:03Z"
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
-    type: Available
-  - lastTransitionTime: "2023-07-28T06:32:40Z"
-    lastUpdateTime: "2024-10-28T15:07:54Z"
-    message: ReplicaSet "drec-ui-748794f46d" has successfully progressed.
-    reason: NewReplicaSetAvailable
-    status: "True"
-    type: Progressing
+    - lastTransitionTime: "2024-07-16T11:04:03Z"
+      lastUpdateTime: "2024-07-16T11:04:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-07-28T06:32:40Z"
+      lastUpdateTime: "2024-10-28T15:07:54Z"
+      message: ReplicaSet "drec-ui-748794f46d" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
   observedGeneration: 188
   readyReplicas: 1
   replicas: 1

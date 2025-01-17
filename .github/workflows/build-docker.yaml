@@ -3,13 +3,14 @@ name: Docker Build, Push to ECR, and Deploy to Kubernetes
 on:
   push:
     branches:
+      - develop
       - ft/move-deployment-to-gh-actions
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -39,14 +40,14 @@ jobs:
         run: |
           # Build the Docker image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f apps/drec-api/Dockerfile apps/drec-api
-          
+
           # Push the image to ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
+
     steps:
       - name: Configure AWS credentials for Kubernetes
         uses: aws-actions/configure-aws-credentials@v1

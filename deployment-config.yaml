@@ -32,18 +32,18 @@ spec:
         app.kubernetes.io/name: drec-api
     spec:
       containers:
-      - envFrom:
-        - secretRef:
-            name: drec-dev-env
-        image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-api:dev-0.0.147
-        imagePullPolicy: Always
-        name: drec-api
-        ports:
-        - containerPort: 3040
-          protocol: TCP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
+        - envFrom:
+            - secretRef:
+                name: drec-dev-env
+          image: 895706603967.dkr.ecr.eu-west-1.amazonaws.com/drec-api:dev-0.0.147
+          imagePullPolicy: Always
+          name: drec-api
+          ports:
+            - containerPort: 3040
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -52,18 +52,18 @@ spec:
 status:
   availableReplicas: 1
   conditions:
-  - lastTransitionTime: "2024-07-16T11:05:43Z"
-    lastUpdateTime: "2024-07-16T11:05:43Z"
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
-    type: Available
-  - lastTransitionTime: "2024-09-24T09:07:01Z"
-    lastUpdateTime: "2024-12-12T10:28:07Z"
-    message: ReplicaSet "drec-api-689b6c6795" has successfully progressed.
-    reason: NewReplicaSetAvailable
-    status: "True"
-    type: Progressing
+    - lastTransitionTime: "2024-07-16T11:05:43Z"
+      lastUpdateTime: "2024-07-16T11:05:43Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-09-24T09:07:01Z"
+      lastUpdateTime: "2024-12-12T10:28:07Z"
+      message: ReplicaSet "drec-api-689b6c6795" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
   observedGeneration: 357
   readyReplicas: 1
   replicas: 1
