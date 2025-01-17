@@ -1,40 +1,26 @@
-# Build stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS build
 
-# Set the working directory
-WORKDIR /usr/src/app
+RUN apk --no-cache add bash
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
+WORKDIR /dist/src/app
+RUN npm cache clean --force
 COPY . .
 
-# Build the application
+RUN npm i -g @microsoft/rush
+RUN npm i -g pnpm@9
+
+WORKDIR /dist/src/app/apps/drec-api
+
+RUN npm install --legacy-peer-deps
 RUN npm run build
+RUN rm -rf ./deployment
+RUN mkdir ./deployment
+RUN rush deploy -p @energyweb/origin-drec-api -t ./deployment --overwrite
+RUN npm i swagger-ui-express
 
-# Remove development dependencies
-RUN npm prune --production
+# RUN mkdir /var/deployment
+# COPY ./ /var/deployment
 
-# Production stage
-FROM node:20-alpine AS runner
+# WORKDIR /var/deployment/apps/drec-api
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Copy built assets from builder stage
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/package*.json ./
-
-# Set port number
-ENV PORT=3040
-
-# Expose port
-EXPOSE 3040
-
-# Command to run the application
-CMD ["npm", "run", "start:prod"]
+CMD ["/bin/bash","-c", "/dist/src/app/apps/drec-api/deployment/apps/drec-api/bin/drec-api"]
