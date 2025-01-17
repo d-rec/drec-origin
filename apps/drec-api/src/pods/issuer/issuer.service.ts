@@ -1097,6 +1097,7 @@ export class IssuerService {
     if (lateOngoing) {
       for (const element of lateOngoing) {
         const group = await this.groupService.findOne({ id: element.groupId });
+        this.logger.debug('Processing late ongoing issuance for', element.id);
         if (!group) {
           this.logger.error('LateOngoing group is missing');
           continue; // Skip to the next element if the group is missing
