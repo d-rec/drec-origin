@@ -51,8 +51,7 @@ export class BulkUploadService {
         path: '',
       };
       const s3Upload = await this.fileService.upload(multerFile);
-
-      await this.readsService.bulkUploadJobProcessing(
+      const jobId = await this.readsService.bulkUploadJobProcessing(
         s3Upload.key,
         fileExists.filename,
         bulkUploadType,
@@ -60,7 +59,7 @@ export class BulkUploadService {
 
       return await this.bulkUploadRepository.save({
         fileId: fileExists.filename,
-        jobId: 'not id',
+        jobId: jobId,
         organizationId: organizationId,
         status: BulkUploadStatus.Added,
         type: bulkUploadType,

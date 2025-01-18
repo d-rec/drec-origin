@@ -52,12 +52,22 @@ export class BulkUploadController {
     private readonly fileService: FileService,
     private readonly userService: UserService,
   ) {}
-  @Post('/:organizationId')
+  @Post()
   @UseGuards(AuthGuard())
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
+  @ApiQuery({
+    name: 'organizationId',
+    required: true,
+    type: 'number',
+  })
+  @ApiQuery({
+    name: 'bulkUploadType',
+    required: true,
+    enum: BulkUploadType,
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -89,11 +99,12 @@ export class BulkUploadController {
   async bulkUpload(
     @UploadedFile() file: MeterReadFileDto,
     @UserDecorator() user: ILoggedInUser,
-    @Param('organizationId') organizationId: number | null,
-    @Param('bulkUploadType') bulkUploadType: BulkUploadType,
+    @Query('organizationId') organizationId: number | null,
+    @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling meter read file upload');
     const [fileId] = await this.fileService.store(user, [file]);
+
     return await this.bulkUploadService.storeBulkUploadJob(
       fileId,
       user,

@@ -343,14 +343,15 @@ export class ReadsService {
     s3Key: string,
     fileId: string,
     bulkUploadType: BulkUploadType,
-  ): Promise<any> {
+  ): Promise<string> {
     try {
       if (bulkUploadType === 'Reads') {
-        return await this.readsQueue.add('meter-reads-bulk-upload', {
+        const job = await this.readsQueue.add('meter-reads-bulk-upload', {
           s3Key: s3Key,
           fileId: fileId,
           bulkUploadType: bulkUploadType,
         });
+        return job.id.toString();
       }
     } catch (error) {
       this.logger.error('Job processing failed:', error);

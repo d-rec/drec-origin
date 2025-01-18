@@ -22,9 +22,10 @@ export class ReadsProcessor {
 
   @Process('meter-reads-bulk-upload')
   async handleMeterReadsProcessing(
-    job: Job<{ fileId: string; s3Id: string }>,
+    job: Job<{ fileId: string; s3Key: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
-    const { fileId, s3Id } = job.data;
+    const { fileId, s3Key } = job.data;
+    this.logger.debug(`Processing file with s3Key: ${s3Key}`);
     await this.bulkUploadService.bulkUploadRepository.update(
       { fileId: fileId },
       { jobId: job.id.toString() },
@@ -38,7 +39,7 @@ export class ReadsProcessor {
         `Starting job processing for fileId: ${job.data.fileId}`,
       );
 
-      const fileContent = await this.fileService.getUploadS3(s3Id);
+      const fileContent = await this.fileService.getUploadS3(s3Key);
       const buffer = Buffer.from(fileContent.data.Body);
       const meterReads = await parseMeterReadingCsv(buffer);
 
@@ -77,7 +78,7 @@ export class ReadsProcessor {
       );
       return;
     } catch (error) {
-      this.logger.error(`Job ${job.id} failed: ${error}`);
+      this.logger.error(`Failed to process file: ${error}`);
       await this.bulkUploadService.bulkUploadRepository.update(
         { fileId: fileId },
         { status: BulkUploadStatus.Failed },
