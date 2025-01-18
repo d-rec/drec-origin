@@ -38,7 +38,7 @@ import { DeltaFirstRead } from './delta_firstread.entity';
 import { DateTime } from 'luxon';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
-import { IAggregateIntermediate, ILoggedInUser } from '../../models';
+import { IAggregateIntermediate } from '../../models';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { convertToWh } from '../../utils/convert-to-power-units';
 import {
@@ -345,14 +345,12 @@ export class ReadsService {
     bulkUploadType: BulkUploadType,
   ): Promise<string> {
     try {
-      if (bulkUploadType === 'Reads') {
-        const job = await this.readsQueue.add('meter-reads-bulk-upload', {
-          s3Key: s3Key,
-          fileId: fileId,
-          bulkUploadType: bulkUploadType,
-        });
-        return job.id.toString();
-      }
+      const job = await this.readsQueue.add('meter-reads-bulk-upload', {
+        s3Key: s3Key,
+        fileId: fileId,
+        bulkUploadType: bulkUploadType,
+      });
+      return job.id.toString();
     } catch (error) {
       this.logger.error('Job processing failed:', error);
       throw error;

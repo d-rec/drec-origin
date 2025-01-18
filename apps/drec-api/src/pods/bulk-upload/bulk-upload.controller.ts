@@ -54,8 +54,9 @@ export class BulkUploadController {
   ) {}
   @Post()
   @UseGuards(AuthGuard())
-  @Permission('Read')
+  @Permission('Read', 'Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({

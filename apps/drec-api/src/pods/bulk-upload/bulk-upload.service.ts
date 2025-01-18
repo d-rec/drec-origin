@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
@@ -33,6 +38,7 @@ export class BulkUploadService {
     bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     try {
+      let jobId: string;
       const fileExists = await this.fileService.get(fileId, user);
       if (!fileExists) {
         throw new NotFoundException('File not found');
@@ -51,11 +57,18 @@ export class BulkUploadService {
         path: '',
       };
       const s3Upload = await this.fileService.upload(multerFile);
-      const jobId = await this.readsService.bulkUploadJobProcessing(
-        s3Upload.key,
-        fileExists.filename,
-        bulkUploadType,
-      );
+
+      if (bulkUploadType === 'Reads') {
+        jobId = await this.readsService.bulkUploadJobProcessing(
+          s3Upload.key,
+          fileExists.filename,
+          bulkUploadType,
+        );
+      } else {
+        throw new BadRequestException(
+          `Unsupported bulk upload type: ${bulkUploadType}`,
+        );
+      }
 
       return await this.bulkUploadRepository.save({
         fileId: fileExists.filename,

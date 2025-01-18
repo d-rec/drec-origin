@@ -18,21 +18,8 @@ import {
   HttpException,
   BadRequestException,
   Logger,
-  UseInterceptors,
-  UploadedFile,
-  UnauthorizedException,
-  DefaultValuePipe,
-  ParseIntPipe,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiResponse,
-  ApiTags,
-  ApiQuery,
-  ApiConsumes,
-  ApiBody,
-  ApiSecurity,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { BASE_READ_SERVICE } from './constants';
 import { ReadsService } from './reads.service';
 import { AuthGuard } from '@nestjs/passport';
