@@ -9,8 +9,9 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { OrganizationService } from '../organization/organization.service';
 import { ILoggedInUser } from 'src/models';
 import { FileService } from '../file';
-import { BulkUploadFailedLogEntity, GetBulkUploadDTO } from '.';
 import { ReadsService } from '../reads/reads.service';
+import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
+import { GetBulkUploadDTO } from './get-bulk-upload.dto';
 
 @Injectable()
 export class BulkUploadService {

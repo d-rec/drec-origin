@@ -13,8 +13,8 @@ import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
-import { BulkUploadEntity } from '../file/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {

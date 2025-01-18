@@ -29,17 +29,17 @@ import {
 } from '@nestjs/swagger';
 import multer from 'multer';
 import { BulkUploadService } from './bulk-upload.service';
-import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { BulkUploadEntity, BulkUploadType } from './bulk-uploads.entity';
 import { Role } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { GetBulkUploadDTO } from './get-bulk-upload.dto';
-import { PermissionGuard } from 'src/guards';
 import { OrganizationService } from '../organization/organization.service';
 import { FileService } from '../file';
 import { UserService } from '../user/user.service';
 import { MeterReadFileDto } from '../reads/dto/meter-read-file.dto';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { PermissionGuard } from '../../guards/PermissionGuard';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')

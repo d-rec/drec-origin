@@ -54,13 +54,11 @@ import {
   AccumulationType,
   FilterNoOffLimit,
 } from './dto/filter-no-off-limit.dto';
-import { FileService } from '../file';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
-import { BulkUploadType } from '../bulk-upload';
+import { BulkUploadType } from '../bulk-upload/bulk-uploads.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -77,15 +75,12 @@ export class ReadsService {
     private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(DeltaFirstRead)
     private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
-    @InjectRepository(BulkUploadFailedLogEntity)
-    private readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
-    private readonly fileService: FileService,
     @InjectQueue('reads-queue') private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';

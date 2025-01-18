@@ -7,7 +7,8 @@ import {
   parseMeterReadingCsv,
 } from './parser/meter-reading-csv.parser';
 import { ReadsService } from './reads.service';
-import { BulkUploadService, BulkUploadStatus } from '../bulk-upload';
+import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
+import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 
 @Processor('reads-queue')
 export class ReadsProcessor {

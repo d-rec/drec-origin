@@ -66,11 +66,9 @@ import { HttpModule } from '@nestjs/axios';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryFilter } from './filters/sentry.filter';
-import {
-  BulkUploadEntity,
-  BulkUploadFailedLogEntity,
-  BulkUploadModule,
-} from './pods/bulk-upload';
+import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
