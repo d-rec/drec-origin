@@ -31,8 +31,8 @@ import multer from 'multer';
 import { BulkUploadService } from './bulk-upload.service';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { BulkUploadEntity, BulkUploadType } from './bulk-uploads.entity';
-import { Role } from 'src/utils/enums';
-import { ILoggedInUser } from 'src/models';
+import { Role } from '../../utils/enums';
+import { ILoggedInUser } from '../../models';
 import { GetBulkUploadDTO } from './get-bulk-upload.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { FileService } from '../file';
@@ -40,6 +40,7 @@ import { UserService } from '../user/user.service';
 import { MeterReadFileDto } from '../reads/dto/meter-read-file.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { PermissionGuard } from '../../guards/PermissionGuard';
+import { canManageOrganization } from '../../lib/organization';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -131,24 +132,22 @@ export class BulkUploadController {
     type: [BulkUploadEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getAllCsvJobsBelongingToOrganization(
+  public async getAllBulkUploadJobsForOrganization(
     @UserDecorator() user: ILoggedInUser,
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
-    if (user.organizationId === null || user.organizationId === undefined) {
+  ): Promise<{
+    csvJobs: Array<BulkUploadEntity>;
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    this.logger.verbose(`Within getAllCsvJobsBelongingToOrganization`);
+
+    if (!user.organizationId) {
       this.logger.error(`User needs to have organization added`);
       throw new ConflictException({
         success: false,
@@ -158,64 +157,50 @@ export class BulkUploadController {
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
+      const organizationAdmin = await this.userService.findByEmail(
+        organization.orgEmail,
+      );
 
-      if (user.role === Role.ApiUser) {
-        if (organization.api_user_id != user.api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiUser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiUser',
-          });
-        }
+      const canManage = canManageOrganization({
+        user,
+        organization,
+        organizationAdmin,
+      });
 
-        if (orgUser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (user.role != Role.Admin) {
-          if (orgId != organizationId) {
-            this.logger.error(
-              `The orgId at query param is not same as user's organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message: `The orgId at query param is not same as user's organization`,
-            });
-          }
-        }
+      if (!canManage) {
+        this.logger.error(`Unauthorized access to organization`);
+        throw new UnauthorizedException({
+          success: false,
+          message: 'Unauthorized access to organization',
+        });
       }
     }
 
-    if (user.role === 'Admin') {
+    if (user.role === Role.Admin) {
       return this.bulkUploadService.getAllCSVJobsForAdmin(
         orgId,
         pageNumber,
         limit,
       );
-    } else if (user.role === Role.ApiUser) {
+    }
+
+    if (user.role === Role.ApiUser) {
       return this.bulkUploadService.getAllCSVJobsForApiUser(
         user.api_user_id,
         orgId,
         pageNumber,
         limit,
       );
-    } else {
-      return this.bulkUploadService.getAllBulkUploads(
-        organizationId,
-        pageNumber,
-        limit,
-      );
     }
+
+    return this.bulkUploadService.getAllBulkUploads(
+      organizationId,
+      pageNumber,
+      limit,
+    );
   }
 
-  @Get('/bulk-upload-status/:id')
+  @Get('/bulk-upload-log/:id')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')

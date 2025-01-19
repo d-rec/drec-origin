@@ -89,7 +89,7 @@ export class BulkUploadService {
     limit?: number,
   ): Promise<
     | {
-        csvJobs: Array<BulkUploadEntity>;
+        bulkUploadJobs: Array<BulkUploadEntity>;
         currentPage: number;
         totalPages: number;
         totalCount: number;
@@ -97,31 +97,32 @@ export class BulkUploadService {
     | any
   > {
     this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: { organizationId },
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit,
-    });
+    const [bulkUploadJobs, totalCount] =
+      await this.bulkUploadRepository.findAndCount({
+        where: { organizationId },
+        order: {
+          createdAt: 'DESC',
+        },
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      });
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: BulkUploadEntity) => {
+    const getBulkUploadJobsWithOrganization = await Promise.all(
+      bulkUploadJobs.map(async (job: BulkUploadEntity) => {
         const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
+          job.organizationId,
         );
-        csvJob.organization = {
+        job.organization = {
           name: organization.name,
         };
-        return csvJob;
+        return job;
       }),
     );
 
     return {
-      csvJobs: csvJobsWithOrganization,
+      bulkUploadJobs: getBulkUploadJobsWithOrganization,
       currentPage: pageNumber,
       totalPages,
       totalCount,
