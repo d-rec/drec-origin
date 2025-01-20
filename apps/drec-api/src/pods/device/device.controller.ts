@@ -63,6 +63,7 @@ import { Device } from './device.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { FindOneOptions } from 'typeorm';
+import { canManageOrganization } from '../../lib/organization';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -480,28 +481,24 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
-    const org = await this.organizationService.findOne(
+    const organization = await this.organizationService.findOne(
       deviceToUpdate.organizationId,
     );
-    if (user.role === Role.ApiUser) {
-      if (
-        user.api_user_id != org.api_user_id ||
-        org.organizationType != 'Developer'
-      ) {
-        this.logger.error(`Unauthorized`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized',
-        });
-      }
-      user.organizationId = deviceToUpdate.organizationId;
-    }
+    const organizationAdmin = await this.userService.findByEmail(
+      organization.orgEmail,
+    );
 
-    if (user.role != Role.Admin && user.organizationId != org.id) {
-      this.logger.error(`Unauthorized`);
+    const canManage = canManageOrganization({
+      user,
+      organization,
+      organizationAdmin,
+    });
+
+    if (!canManage) {
+      this.logger.error(`Unauthorized access to organization.`);
       throw new UnauthorizedException({
         success: false,
-        message: 'Unauthorized',
+        message: 'Unauthorized access to organization.',
       });
     }
 

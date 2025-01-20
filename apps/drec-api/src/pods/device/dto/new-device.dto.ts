@@ -18,7 +18,7 @@ import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
-import { ToUpperCase } from '../../../transformers/uppercase';
+import { UpperCase } from '../../../transformers/uppercase';
 import { countryCodesList } from '../../../models/country-code';
 
 export class NewDeviceDTO
@@ -74,7 +74,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @ToUpperCase()
+  @UpperCase()
   @IsIn(countryCodesList.map((value) => value.countryCode), {
     message:
       'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',

@@ -17,7 +17,7 @@ import { IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
 import { Trim } from '../../../transformers/string';
 import { countryCodesList } from '../../../models/country-code';
-import { ToUpperCase } from '../../../transformers/uppercase';
+import { UpperCase } from '../../../transformers/uppercase';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -78,7 +78,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
-  @ToUpperCase()
+  @UpperCase()
   @IsIn(countryCodesList.map((value) => value.countryCode), {
     message:
       'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
