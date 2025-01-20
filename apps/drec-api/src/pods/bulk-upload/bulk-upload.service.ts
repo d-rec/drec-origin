@@ -83,7 +83,7 @@ export class BulkUploadService {
     }
   }
 
-  async getAllBulkUploads(
+  async getAllBulkUploadsJobs(
     organizationId: number,
     pageNumber?: number,
     limit?: number,
@@ -129,29 +129,7 @@ export class BulkUploadService {
     };
   }
 
-  async storeFailedLogsBulkUpload(
-    bulkUploadId: string,
-    errorDetails: string,
-  ): Promise<BulkUploadFailedLogEntity> {
-    this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
-    return await this.bulkUploadFailedLogRepository.save({
-      bulkUploadId: bulkUploadId,
-      details: errorDetails,
-    });
-  }
-
-  async getBulkUploadFailedLog(
-    bulkUploadId: string,
-  ): Promise<GetBulkUploadDTO | undefined> {
-    this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
-    return await this.bulkUploadFailedLogRepository.findOne({
-      where: {
-        bulkUploadId: bulkUploadId,
-      },
-    });
-  }
-
-  async getAllCSVJobsForAdmin(
+  async getAllBulkUploadJobsForAdmin(
     orgId?: number,
     pageNumber?: number,
     limit?: number,
@@ -202,7 +180,7 @@ export class BulkUploadService {
     };
   }
 
-  async getAllCSVJobsForApiUser(
+  async getAllBulkUploadJobsForApiUser(
     apiUserId: string,
     organizationId?: number,
     pageNumber?: number,
@@ -255,5 +233,27 @@ export class BulkUploadService {
       totalPages,
       totalCount,
     };
+  }
+
+  async storeFailedLogsBulkUpload(
+    bulkUploadId: string,
+    errorDetails: string,
+  ): Promise<BulkUploadFailedLogEntity> {
+    this.logger.verbose(`With in storeFailedBulkUploadJob`);
+    return await this.bulkUploadFailedLogRepository.save({
+      bulkUploadId: bulkUploadId,
+      details: errorDetails,
+    });
+  }
+
+  async getBulkUploadFailedLog(
+    bulkUploadId: string,
+  ): Promise<GetBulkUploadDTO | undefined> {
+    this.logger.verbose(`With in getFailedBulkUploadJob`);
+    return await this.bulkUploadFailedLogRepository.findOne({
+      where: {
+        bulkUploadId: bulkUploadId,
+      },
+    });
   }
 }

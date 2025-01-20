@@ -145,7 +145,7 @@ export class BulkUploadController {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`Within getAllCsvJobsBelongingToOrganization`);
+    this.logger.verbose(`Within getAllBulkUploadJobsBelongingToOrganization`);
 
     if (!user.organizationId) {
       this.logger.error(`User needs to have organization added`);
@@ -177,7 +177,7 @@ export class BulkUploadController {
     }
 
     if (user.role === Role.Admin) {
-      return this.bulkUploadService.getAllCSVJobsForAdmin(
+      return this.bulkUploadService.getAllBulkUploadJobsForAdmin(
         orgId,
         pageNumber,
         limit,
@@ -185,7 +185,7 @@ export class BulkUploadController {
     }
 
     if (user.role === Role.ApiUser) {
-      return this.bulkUploadService.getAllCSVJobsForApiUser(
+      return this.bulkUploadService.getAllBulkUploadJobsForApiUser(
         user.api_user_id,
         orgId,
         pageNumber,
@@ -193,14 +193,14 @@ export class BulkUploadController {
       );
     }
 
-    return this.bulkUploadService.getAllBulkUploads(
+    return this.bulkUploadService.getAllBulkUploadsJobs(
       organizationId,
       pageNumber,
       limit,
     );
   }
 
-  @Get('/bulk-upload-log/:id')
+  @Get('/bulk-upload-log/:bulkUploadId')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
@@ -215,57 +215,46 @@ export class BulkUploadController {
     type: GetBulkUploadDTO,
     description: 'Returns status of job id for bulk upload',
   })
-  public async getBulkUploadJobStatus(
-    @Param('id') bulkUploadId: string,
-    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
+  public async getBulkUploadLog(
+    @Param('bulkUploadId') bulkUploadId: string,
+    @UserDecorator() loggedInUser: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 
+    const { role } = loggedInUser;
+
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
+      const organizationAdmin = await this.userService.findByEmail(
+        organization.orgEmail,
+      );
 
-      if (role === Role.ApiUser) {
-        if (organization.api_user_id != api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiUser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiUser',
-          });
-        }
-
-        if (orgUser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (orgId != organizationId && role != Role.Admin) {
-          this.logger.error(
-            `The organizationId in query params should be same as user's organizationId`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `The organizationId in query params should be same as user's organizationId`,
-          });
-        } else if (role === Role.Admin) {
-          orgId = null;
-        }
-      }
-    } else {
-      if (role === Role.ApiUser) {
-        this.logger.error(`Add the orgId at query param`);
-        throw new BadRequestException({
+      if (
+        !canManageOrganization({
+          user: loggedInUser,
+          organization,
+          organizationAdmin,
+        })
+      ) {
+        this.logger.error(`Unauthorized access to the organization.`);
+        throw new UnauthorizedException({
           success: false,
-          message: `Add the orgId at query param`,
+          message: 'Unauthorized access to the organization',
         });
       }
+
+      if (role === Role.Admin) {
+        orgId = null;
+      }
+    } else if (role === Role.ApiUser) {
+      this.logger.error(`Add the orgId at query param`);
+      throw new BadRequestException({
+        success: false,
+        message: `Add the orgId at query param`,
+      });
     }
+
     return await this.bulkUploadService.getBulkUploadFailedLog(bulkUploadId);
   }
 }
