@@ -1,5 +1,6 @@
 import {
   BaseReadsController,
+  FilterDTO,
   ReadDTO,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
@@ -40,7 +41,6 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { FileService } from '../file';
 import {
   toTimezoneDate,
   toTimezoneDateFormat,
@@ -59,7 +59,6 @@ export class ReadsController extends BaseReadsController {
     baseReadsService: BaseReadsService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-    private readonly fileService: FileService,
   ) {
     super(baseReadsService);
   }
@@ -90,6 +89,39 @@ export class ReadsController extends BaseReadsController {
     } else {
       return momentTimeZone.tz.names();
     }
+  }
+
+  /**
+   * This api route use for to get all read of device
+   * @param meterId :string
+   * @param filter:{FilterDTO}
+   * @returns {ReadDTO[]}
+   */
+  @Get('/:externalId')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [ReadDTO],
+    description: 'Returns  time-series of meter reads',
+  })
+  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  public async getReads(
+    @Param('externalId') meterId: string,
+    @Query() filter: FilterDTO,
+  ): Promise<ReadDTO[]> {
+    this.logger.verbose(`With in getReads`);
+    const device: DeviceDTO | null =
+      await this.deviceService.findReads(meterId);
+
+    if (device === null) {
+      this.logger.error(`Invalid device id`);
+      throw new ConflictException({
+        success: false,
+        message: `Invalid device id`,
+      });
+    }
+    return super.getReads(device.externalId, filter);
   }
 
   /**

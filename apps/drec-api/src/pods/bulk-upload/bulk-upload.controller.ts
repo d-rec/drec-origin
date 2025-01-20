@@ -32,7 +32,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { BulkUploadEntity, BulkUploadType } from './bulk-uploads.entity';
 import { Role } from '../../utils/enums';
 import { ILoggedInUser } from '../../models';
-import { GetBulkUploadDTO } from './get-bulk-upload.dto';
+import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { FileService } from '../file';
 import { UserService } from '../user/user.service';

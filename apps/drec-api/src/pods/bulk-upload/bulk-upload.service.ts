@@ -16,7 +16,7 @@ import { ILoggedInUser } from 'src/models';
 import { FileService } from '../file';
 import { ReadsService } from '../reads/reads.service';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
-import { GetBulkUploadDTO } from './get-bulk-upload.dto';
+import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { Role } from '../../utils/enums';
 
 @Injectable()
@@ -220,7 +220,7 @@ export class BulkUploadService {
     }
   }
 
-  private async mapJobsWithOrganization(
+  async mapJobsWithOrganization(
     jobs: BulkUploadEntity[],
   ): Promise<BulkUploadEntity[]> {
     return Promise.all(
@@ -236,7 +236,7 @@ export class BulkUploadService {
     );
   }
 
-  private paginate(
+  paginate(
     pageNumber: number,
     limit: number,
     totalCount: number,
