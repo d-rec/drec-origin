@@ -240,10 +240,6 @@ export class BulkUploadController {
           message: 'Unauthorized access to the organization',
         });
       }
-
-      if (role === Role.Admin) {
-        orgId = null;
-      }
     } else if (role === Role.ApiUser) {
       this.logger.error(`Add the orgId at query param`);
       throw new BadRequestException({
