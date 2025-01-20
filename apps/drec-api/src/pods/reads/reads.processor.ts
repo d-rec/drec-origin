@@ -84,7 +84,7 @@ export class ReadsProcessor {
         { status: BulkUploadStatus.Failed },
       );
       if (bulkUpload) {
-        await this.bulkUploadService.storeFailedLogsBulkUpload(
+        await this.bulkUploadService.storeFailedLogBulkUpload(
           bulkUpload.id,
           error,
         );

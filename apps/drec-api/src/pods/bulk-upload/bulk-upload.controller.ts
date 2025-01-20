@@ -1,4 +1,3 @@
-import { UserDecorator } from '@energyweb/origin-backend-utils';
 import {
   BadRequestException,
   ConflictException,
@@ -41,6 +40,7 @@ import { MeterReadFileDto } from '../reads/dto/meter-read-file.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { canManageOrganization } from '../../lib/organization';
+import { UserDecorator } from '../user/decorators/user.decorator';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -55,7 +55,7 @@ export class BulkUploadController {
   ) {}
   @Post()
   @UseGuards(AuthGuard())
-  @Permission('Read', 'Write')
+  @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiSecurity('bearer')
@@ -105,6 +105,12 @@ export class BulkUploadController {
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling meter read file upload');
+    const organization = await this.organizationService.findOne(organizationId);
+    if (organization.organizationType != 'Developer') {
+      throw new UnauthorizedException(
+        'Only Developer organizations can upload bulk files',
+      );
+    }
     const [fileId] = await this.fileService.store(user, [file]);
 
     return await this.bulkUploadService.storeBulkUploadJob(
@@ -134,33 +140,40 @@ export class BulkUploadController {
   })
   public async getAllBulkUploadJobsForOrganization(
     @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
-    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ): Promise<{
-    csvJobs: Array<BulkUploadEntity>;
+    bulkUploadJobs: Array<BulkUploadEntity>;
     currentPage: number;
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`Within getAllBulkUploadJobsBelongingToOrganization`);
+    this.logger.verbose(
+      `Fetching bulk upload jobs for user with role: ${user.role}`,
+    );
 
     if (!user.organizationId) {
-      this.logger.error(`User needs to have organization added`);
+      this.logger.error(`User does not belong to any organization.`);
       throw new ConflictException({
         success: false,
-        message: 'User needs to have organization added',
+        message: 'User does not belong to any organization.',
       });
     }
 
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
+      if (!organization) {
+        throw new BadRequestException({
+          success: false,
+          message: `Organization with ID ${orgId} not found.`,
+        });
+      }
+
       const organizationAdmin = await this.userService.findByEmail(
         organization.orgEmail,
       );
-
       const canManage = canManageOrganization({
         user,
         organization,
@@ -168,33 +181,17 @@ export class BulkUploadController {
       });
 
       if (!canManage) {
-        this.logger.error(`Unauthorized access to organization`);
+        this.logger.error(`Unauthorized access to organization.`);
         throw new UnauthorizedException({
           success: false,
-          message: 'Unauthorized access to organization',
+          message: 'Unauthorized access to organization.',
         });
       }
     }
 
-    if (user.role === Role.Admin) {
-      return this.bulkUploadService.getAllBulkUploadJobsForAdmin(
-        orgId,
-        pageNumber,
-        limit,
-      );
-    }
-
-    if (user.role === Role.ApiUser) {
-      return this.bulkUploadService.getAllBulkUploadJobsForApiUser(
-        user.api_user_id,
-        orgId,
-        pageNumber,
-        limit,
-      );
-    }
-
-    return this.bulkUploadService.getAllBulkUploadsJobs(
-      organizationId,
+    return this.bulkUploadService.getBulkUploadJobsByRole(
+      user,
+      orgId,
       pageNumber,
       limit,
     );

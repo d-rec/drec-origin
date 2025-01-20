@@ -10,13 +10,14 @@ import {
   BulkUploadType,
 } from './bulk-uploads.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { OrganizationService } from '../organization/organization.service';
 import { ILoggedInUser } from 'src/models';
 import { FileService } from '../file';
 import { ReadsService } from '../reads/reads.service';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { GetBulkUploadDTO } from './get-bulk-upload.dto';
+import { Role } from '../../utils/enums';
 
 @Injectable()
 export class BulkUploadService {
@@ -85,32 +86,145 @@ export class BulkUploadService {
 
   async getAllBulkUploadsJobs(
     organizationId: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        bulkUploadJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [bulkUploadJobs, totalCount] =
-      await this.bulkUploadRepository.findAndCount({
-        where: { organizationId },
-        order: {
-          createdAt: 'DESC',
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
-      });
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    bulkUploadJobs: BulkUploadEntity[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    this.logger.verbose(`Fetching jobs for organization ${organizationId}`);
+    const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+      where: { organizationId },
+      order: { createdAt: 'DESC' },
+      skip: (pageNumber - 1) * limit,
+      take: limit,
+    });
 
-    const totalPages = Math.ceil(totalCount / limit);
+    const mappedJobs = await this.mapJobsWithOrganization(jobs);
+    const { currentPage, totalPages } = this.paginate(
+      pageNumber,
+      limit,
+      totalCount,
+    );
 
-    const getBulkUploadJobsWithOrganization = await Promise.all(
-      bulkUploadJobs.map(async (job: BulkUploadEntity) => {
+    return {
+      bulkUploadJobs: mappedJobs,
+      currentPage,
+      totalPages,
+      totalCount,
+    };
+  }
+
+  async getAllBulkUploadJobsForAdmin(
+    orgId: number | null,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    bulkUploadJobs: BulkUploadEntity[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    this.logger.verbose(`Fetching jobs for admin`);
+    const whereConditions: any = orgId ? { organizationId: orgId } : {};
+
+    const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
+      where: whereConditions,
+      order: { createdAt: 'DESC' },
+      skip: (pageNumber - 1) * limit,
+      take: limit,
+    });
+
+    const mappedJobs = await this.mapJobsWithOrganization(jobs);
+    const { currentPage, totalPages } = this.paginate(
+      pageNumber,
+      limit,
+      totalCount,
+    );
+
+    return {
+      bulkUploadJobs: mappedJobs,
+      currentPage,
+      totalPages,
+      totalCount,
+    };
+  }
+
+  async getAllBulkUploadJobsForApiUser(
+    apiUserId: string,
+    orgId: number | null,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    bulkUploadJobs: BulkUploadEntity[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    this.logger.verbose(`Fetching jobs for API user ${apiUserId}`);
+    const query = this.bulkUploadRepository
+      .createQueryBuilder('jobs')
+      .where('jobs.api_user_id = :apiUserId', { apiUserId });
+
+    if (orgId) {
+      query.andWhere('jobs.organizationId = :orgId', { orgId });
+    }
+
+    const [jobs, totalCount] = await query
+      .orderBy('jobs.createdAt', 'DESC')
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const mappedJobs = await this.mapJobsWithOrganization(jobs);
+    const { currentPage, totalPages } = this.paginate(
+      pageNumber,
+      limit,
+      totalCount,
+    );
+
+    return {
+      bulkUploadJobs: mappedJobs,
+      currentPage,
+      totalPages,
+      totalCount,
+    };
+  }
+
+  public async getBulkUploadJobsByRole(
+    user: ILoggedInUser,
+    orgId: number | null,
+    pageNumber: number,
+    limit: number,
+  ): Promise<{
+    bulkUploadJobs: BulkUploadEntity[];
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    const { role, api_user_id, organizationId } = user;
+
+    if (role === Role.Admin) {
+      return this.getAllBulkUploadJobsForAdmin(orgId, pageNumber, limit);
+    } else if (role === Role.ApiUser) {
+      return this.getAllBulkUploadJobsForApiUser(
+        api_user_id,
+        orgId,
+        pageNumber,
+        limit,
+      );
+    } else {
+      return this.getAllBulkUploadsJobs(organizationId, pageNumber, limit);
+    }
+  }
+
+  private async mapJobsWithOrganization(
+    jobs: BulkUploadEntity[],
+  ): Promise<BulkUploadEntity[]> {
+    return Promise.all(
+      jobs.map(async (job: BulkUploadEntity) => {
         const organization = await this.organizationService.findOne(
           job.organizationId,
         );
@@ -120,122 +234,18 @@ export class BulkUploadService {
         return job;
       }),
     );
-
-    return {
-      bulkUploadJobs: getBulkUploadJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
   }
 
-  async getAllBulkUploadJobsForAdmin(
-    orgId?: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForAdmin`);
-    const whereConditions: any = {};
-
-    if (orgId) {
-      whereConditions.organizationId = orgId;
-    }
-
-    const [csvJobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: whereConditions,
-      order: {
-        createdAt: 'DESC',
-      },
-      skip: (pageNumber - 1) * limit,
-      take: limit,
-    });
-
+  private paginate(
+    pageNumber: number,
+    limit: number,
+    totalCount: number,
+  ): { currentPage: number; totalPages: number } {
     const totalPages = Math.ceil(totalCount / limit);
-
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
-        );
-        csvJob.organization = {
-          name: organization.name,
-        };
-        return csvJob;
-      }),
-    );
-
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
+    return { currentPage: pageNumber, totalPages };
   }
 
-  async getAllBulkUploadJobsForApiUser(
-    apiUserId: string,
-    organizationId?: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<BulkUploadEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForApiUser`);
-    const query: SelectQueryBuilder<BulkUploadEntity> =
-      await this.bulkUploadRepository
-        .createQueryBuilder('csvjobs')
-        .orderBy('csvjobs.createdAt', 'DESC');
-
-    if (apiUserId) {
-      query.andWhere(`csvjobs.api_user_id = '${apiUserId}'`);
-    }
-
-    if (organizationId) {
-      query.andWhere(`csvjobs.organizationId = '${organizationId}'`);
-    }
-
-    const [csvjobs, totalCount] = await query
-      .skip((pageNumber - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    const csvJobsWithOrganization = await Promise.all(
-      csvjobs.map(async (csvjob: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvjob.organizationId,
-        );
-        csvjob.organization = {
-          name: organization.name,
-        };
-        return csvjob;
-      }),
-    );
-
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
-
-  async storeFailedLogsBulkUpload(
+  async storeFailedLogBulkUpload(
     bulkUploadId: string,
     errorDetails: string,
   ): Promise<BulkUploadFailedLogEntity> {

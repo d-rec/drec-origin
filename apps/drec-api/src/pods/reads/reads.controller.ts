@@ -1,6 +1,5 @@
 import {
   BaseReadsController,
-  FilterDTO,
   ReadDTO,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
@@ -46,7 +45,6 @@ import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
-import { JobFailedRowsDTO } from '../device-group/dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -92,55 +90,6 @@ export class ReadsController extends BaseReadsController {
     } else {
       return momentTimeZone.tz.names();
     }
-  }
-
-  @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('READS_MANAGEMENT_CRUDL')
-  @ApiQuery({
-    name: 'orgId',
-    type: Number,
-    required: false,
-    description: 'This query parameter is used for ApiUser',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: JobFailedRowsDTO,
-    description: 'Returns status of job id for bulk upload',
-  })
-
-  /**
-   * This api route use for to get all read of device
-   * @param meterId :string
-   * @param filter:{FilterDTO}
-   * @returns {ReadDTO[]}
-   */
-  @Get('/:externalId')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [ReadDTO],
-    description: 'Returns  time-series of meter reads',
-  })
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async getReads(
-    @Param('externalId') meterId: string,
-    @Query() filter: FilterDTO,
-  ): Promise<ReadDTO[]> {
-    this.logger.verbose(`With in getReads`);
-    const device: DeviceDTO | null =
-      await this.deviceService.findReads(meterId);
-
-    if (device === null) {
-      this.logger.error(`Invalid device id`);
-      throw new ConflictException({
-        success: false,
-        message: `Invalid device id`,
-      });
-    }
-    return super.getReads(device.externalId, filter);
   }
 
   /**
