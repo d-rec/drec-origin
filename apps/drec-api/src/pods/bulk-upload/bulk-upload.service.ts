@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -39,40 +40,29 @@ export class BulkUploadService {
     bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     try {
-      let jobId: string;
-      const fileExists = await this.fileService.get(fileId, user);
-      if (!fileExists) {
+      const file = await this.fileService.get(fileId, user);
+      if (!file) {
         throw new NotFoundException('File not found');
       }
 
       const multerFile: Express.Multer.File = {
         fieldname: 'file',
-        originalname: fileExists.filename,
+        originalname: file.filename,
         encoding: '7bit',
-        mimetype: fileExists.contentType,
-        buffer: fileExists.data,
-        size: fileExists.data.length,
+        mimetype: file.contentType,
+        buffer: file.data,
+        size: file.data.length,
         stream: null,
         destination: '',
-        filename: fileExists.filename,
+        filename: file.filename,
         path: '',
       };
       const s3Upload = await this.fileService.upload(multerFile);
 
-      if (bulkUploadType === 'Reads') {
-        jobId = await this.readsService.bulkUploadJobProcessing(
-          s3Upload.key,
-          fileExists.filename,
-          bulkUploadType,
-        );
-      } else {
-        throw new BadRequestException(
-          `Unsupported bulk upload type: ${bulkUploadType}`,
-        );
-      }
+      const jobId = await this.createJob(bulkUploadType, file, s3Upload);
 
       return await this.bulkUploadRepository.save({
-        fileId: fileExists.filename,
+        fileId: file.filename,
         jobId: jobId,
         organizationId: organizationId,
         status: BulkUploadStatus.Added,
@@ -84,7 +74,26 @@ export class BulkUploadService {
     }
   }
 
-  async getAllBulkUploadsJobs(
+  private async createJob(
+    bulkUploadType: BulkUploadType,
+    file: any,
+    s3Upload: any,
+  ) {
+    switch (bulkUploadType) {
+      case BulkUploadType.Reads:
+        return this.readsService.bulkUploadJobProcessing(
+          s3Upload.key,
+          file.filename,
+          bulkUploadType,
+        );
+      default:
+        throw new BadRequestException(
+          `Unsupported bulk upload type: ${bulkUploadType}`,
+        );
+    }
+  }
+
+  async getAllBulkUploadsJobsByOrganization(
     organizationId: number,
     pageNumber: number,
     limit: number,
@@ -117,7 +126,7 @@ export class BulkUploadService {
     };
   }
 
-  async getAllBulkUploadJobsForAdmin(
+  async getAllBulkUploadJobs(
     orgId: number | null,
     pageNumber: number,
     limit: number,
@@ -207,33 +216,43 @@ export class BulkUploadService {
     const { role, api_user_id, organizationId } = user;
 
     if (role === Role.Admin) {
-      return this.getAllBulkUploadJobsForAdmin(orgId, pageNumber, limit);
-    } else if (role === Role.ApiUser) {
+      return this.getAllBulkUploadJobs(orgId, pageNumber, limit);
+    }
+
+    if (role === Role.ApiUser) {
       return this.getAllBulkUploadJobsForApiUser(
         api_user_id,
         orgId,
         pageNumber,
         limit,
       );
-    } else {
-      return this.getAllBulkUploadsJobs(organizationId, pageNumber, limit);
     }
+
+    return this.getAllBulkUploadsJobsByOrganization(
+      organizationId,
+      pageNumber,
+      limit,
+    );
   }
 
   async mapJobsWithOrganization(
     jobs: BulkUploadEntity[],
   ): Promise<BulkUploadEntity[]> {
-    return Promise.all(
-      jobs.map(async (job: BulkUploadEntity) => {
-        const organization = await this.organizationService.findOne(
-          job.organizationId,
-        );
-        job.organization = {
-          name: organization.name,
-        };
-        return job;
-      }),
+    const organizationIds = new Set(jobs.map((job) => job.organizationId));
+
+    const organizations = await this.organizationService.findByIds(
+      Array.from(organizationIds.values()),
     );
+
+    return jobs.map((job: BulkUploadEntity) => {
+      const organization = organizations.find(
+        (org) => org.id === job.organizationId,
+      );
+      job.organization = {
+        name: organization.name,
+      };
+      return job;
+    });
   }
 
   paginate(
@@ -265,5 +284,38 @@ export class BulkUploadService {
         bulkUploadId: bulkUploadId,
       },
     });
+  }
+
+  async canViewBulkUploadJobs({
+    user,
+    organizationId,
+  }: {
+    user: ILoggedInUser;
+    organizationId?: number | string;
+  }): Promise<boolean> {
+    if (!user.organizationId) {
+      this.logger.error(`User does not belong to any organization.`);
+      throw new ConflictException({
+        success: false,
+        message: 'User does not belong to any organization.',
+      });
+    }
+
+    if (!organizationId && user.role === Role.ApiUser) {
+      this.logger.error(`Add the organizationId at query param`);
+      throw new BadRequestException({
+        success: false,
+        message: `Add the orgId at query param`,
+      });
+    }
+
+    if (organizationId) {
+      await this.organizationService.checkIfCanManage({
+        user,
+        organizationId: organizationId,
+      });
+    }
+
+    return true;
   }
 }

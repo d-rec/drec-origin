@@ -18,8 +18,8 @@ export enum BulkUploadStatus {
 }
 
 export enum BulkUploadType {
-  AddMeterRead = 'Reads',
-  DeviceCreation = 'Devices',
+  Reads = 'Reads',
+  Devices = 'Devices',
 }
 
 @Entity('bulk_uploads')

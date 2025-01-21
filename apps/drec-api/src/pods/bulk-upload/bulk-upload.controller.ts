@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Controller,
   DefaultValuePipe,
   Get,
@@ -30,7 +29,6 @@ import multer from 'multer';
 import { BulkUploadService } from './bulk-upload.service';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { BulkUploadEntity, BulkUploadType } from './bulk-uploads.entity';
-import { Role } from '../../utils/enums';
 import { ILoggedInUser } from '../../models';
 import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { OrganizationService } from '../organization/organization.service';
@@ -39,7 +37,6 @@ import { UserService } from '../user/user.service';
 import { MeterReadFileDto } from '../reads/dto/meter-read-file.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { PermissionGuard } from '../../guards/PermissionGuard';
-import { canManageOrganization } from '../../lib/organization';
 import { UserDecorator } from '../user/decorators/user.decorator';
 
 @Controller('bulk-upload')
@@ -53,6 +50,7 @@ export class BulkUploadController {
     private readonly fileService: FileService,
     private readonly userService: UserService,
   ) {}
+
   @Post()
   @UseGuards(AuthGuard())
   @Permission('Write')
@@ -98,13 +96,13 @@ export class BulkUploadController {
       },
     }),
   )
-  async bulkUpload(
+  async upload(
     @UploadedFile() file: MeterReadFileDto,
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId') organizationId: number | null,
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
-    this.logger.verbose('Handling meter read file upload');
+    this.logger.verbose('Handling bulk upload');
     const organization = await this.organizationService.findOne(organizationId);
     if (organization.organizationType != 'Developer') {
       throw new UnauthorizedException(
@@ -138,7 +136,7 @@ export class BulkUploadController {
     type: [BulkUploadEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getAllBulkUploadJobsForOrganization(
+  public async getByOrganization(
     @UserDecorator() user: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
@@ -154,39 +152,13 @@ export class BulkUploadController {
       `Fetching bulk upload jobs for user with role: ${user.role}`,
     );
 
-    if (!user.organizationId) {
-      this.logger.error(`User does not belong to any organization.`);
-      throw new ConflictException({
-        success: false,
-        message: 'User does not belong to any organization.',
-      });
-    }
+    await this.bulkUploadService.canViewBulkUploadJobs({
+      user,
+      organizationId: orgId,
+    });
 
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      if (!organization) {
-        throw new BadRequestException({
-          success: false,
-          message: `Organization with ID ${orgId} not found.`,
-        });
-      }
-
-      const organizationAdmin = await this.userService.findByEmail(
-        organization.orgEmail,
-      );
-      const canManage = canManageOrganization({
-        user,
-        organization,
-        organizationAdmin,
-      });
-
-      if (!canManage) {
-        this.logger.error(`Unauthorized access to organization.`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized access to organization.',
-        });
-      }
+    if(orgId){
+      user.organizationId = orgId;
     }
 
     return this.bulkUploadService.getBulkUploadJobsByRole(
@@ -212,42 +184,17 @@ export class BulkUploadController {
     type: GetBulkUploadDTO,
     description: 'Returns status of job id for bulk upload',
   })
-  public async getBulkUploadLog(
+  public async getJob(
     @Param('bulkUploadId') bulkUploadId: string,
-    @UserDecorator() loggedInUser: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 
-    const { role } = loggedInUser;
-
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const organizationAdmin = await this.userService.findByEmail(
-        organization.orgEmail,
-      );
-
-      if (
-        !canManageOrganization({
-          user: loggedInUser,
-          organization,
-          organizationAdmin,
-        })
-      ) {
-        this.logger.error(`Unauthorized access to the organization.`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized access to the organization',
-        });
-      }
-    } else if (role === Role.ApiUser) {
-      this.logger.error(`Add the orgId at query param`);
-      throw new BadRequestException({
-        success: false,
-        message: `Add the orgId at query param`,
-      });
-    }
-
+    await this.bulkUploadService.canViewBulkUploadJobs({
+      user: user,
+      organizationId: orgId,
+    });
     return await this.bulkUploadService.getBulkUploadFailedLog(bulkUploadId);
   }
 }

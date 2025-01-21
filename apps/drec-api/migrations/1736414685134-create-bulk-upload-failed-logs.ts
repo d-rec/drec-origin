@@ -7,10 +7,10 @@ export class createBulkUploadFailedLogs1736414685134
     await queryRunner.query(`
       CREATE TABLE "bulk_upload_failed_logs" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-        "bulkUploadId" uuid NOT NULL,
+        "bulk_upload_id" uuid NOT NULL,
         "details" json NOT NULL,
-        "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-        "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulkUploadId")
         REFERENCES "bulk_uploads"("id") ON DELETE CASCADE
       )

@@ -86,7 +86,7 @@ export class OrganizationService {
     });
   }
 
-  public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
+  public async findByIds(ids: string[]|number[]): Promise<IFullOrganization[]> {
     this.logger.verbose(`With in findByIds`);
     return this.repository.findByIds(ids);
   }
@@ -541,7 +541,7 @@ export class OrganizationService {
     organizationId,
   }: {
     user: ILoggedInUser;
-    organizationId: number;
+    organizationId: number | string;
   }): Promise<boolean> {
     const organization = await this.findOne(organizationId);
     const organizationAdmin = await this.userService.findByEmail(

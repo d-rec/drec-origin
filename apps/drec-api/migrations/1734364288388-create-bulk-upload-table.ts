@@ -8,13 +8,13 @@ export class CreateBulkUploadTable1734364288388 implements MigrationInterface {
       
       CREATE TABLE "bulk_uploads" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-        "fileId" varchar NOT NULL,
-        "jobId" varchar NOT NULL,
-        "organizationId" integer NOT NULL,
+        "file_id" varchar NOT NULL,
+        "job_id" varchar NOT NULL,
+        "organization_id" integer NOT NULL,
         "status" bulk_upload_status NOT NULL,
         "type" bulk_upload_type NOT NULL,
-        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
   }
