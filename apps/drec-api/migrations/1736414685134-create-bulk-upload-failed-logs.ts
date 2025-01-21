@@ -11,7 +11,7 @@ export class createBulkUploadFailedLogs1736414685134
         "details" json NOT NULL,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
-        CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulkUploadId")
+        CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulk_upload_id")
         REFERENCES "bulk_uploads"("id") ON DELETE CASCADE
       )
     `);

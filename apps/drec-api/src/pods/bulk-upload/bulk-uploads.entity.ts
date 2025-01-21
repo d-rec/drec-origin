@@ -27,15 +27,15 @@ export class BulkUploadEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'file_id' })
   @IsString()
   fileId: string;
 
-  @Column()
+  @Column({ name: 'job_id' })
   @IsString()
   jobId: string;
 
-  @Column()
+  @Column({ name: 'organization_id' })
   @IsNumber()
   organizationId: number;
 
@@ -43,11 +43,11 @@ export class BulkUploadEntity extends ExtendedBaseEntity {
     name: string;
   };
 
-  @Column()
+  @Column({ name: 'status' })
   @IsEnum(BulkUploadStatus)
   status: BulkUploadStatus;
 
-  @Column()
+  @Column({ name: 'type' })
   @IsEnum(BulkUploadType)
   type: BulkUploadType;
 

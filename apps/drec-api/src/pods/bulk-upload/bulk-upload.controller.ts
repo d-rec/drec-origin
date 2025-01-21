@@ -33,11 +33,11 @@ import { ILoggedInUser } from '../../models';
 import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { FileService } from '../file';
-import { UserService } from '../user/user.service';
 import { MeterReadFileDto } from '../reads/dto/meter-read-file.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
+import { Role } from '../../utils/enums/role.enum';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -48,7 +48,6 @@ export class BulkUploadController {
     private readonly bulkUploadService: BulkUploadService,
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
-    private readonly userService: UserService,
   ) {}
 
   @Post()
@@ -103,12 +102,21 @@ export class BulkUploadController {
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling bulk upload');
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
     const organization = await this.organizationService.findOne(organizationId);
-    if (organization.organizationType != 'Developer') {
+    if (organization.organizationType != Role.Developer) {
       throw new UnauthorizedException(
         'Only Developer organizations can upload bulk files',
       );
     }
+
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId,
+    });
+
     const [fileId] = await this.fileService.store(user, [file]);
 
     return await this.bulkUploadService.storeBulkUploadJob(
@@ -157,7 +165,7 @@ export class BulkUploadController {
       organizationId: orgId,
     });
 
-    if(orgId){
+    if (orgId) {
       user.organizationId = orgId;
     }
 

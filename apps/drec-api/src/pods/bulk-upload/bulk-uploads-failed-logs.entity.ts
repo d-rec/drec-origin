@@ -19,7 +19,7 @@ export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid')
+  @Column('uuid', { name: 'bulk_upload_id' })
   bulkUploadId: string;
 
   @Column('json')
@@ -34,6 +34,6 @@ export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
   @OneToOne(() => BulkUploadEntity, (bulkUpload) => bulkUpload.failedLogs, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'bulkUploadId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'bulk_upload_id', referencedColumnName: 'id' })
   bulkUploads: BulkUploadEntity;
 }

@@ -312,7 +312,7 @@ export class BulkUploadService {
     if (organizationId) {
       await this.organizationService.checkIfCanManage({
         user,
-        organizationId: organizationId,
+        organizationId: Number(organizationId),
       });
     }
 
