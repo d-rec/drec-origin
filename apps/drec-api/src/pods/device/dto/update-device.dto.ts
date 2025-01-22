@@ -6,11 +6,18 @@ import {
   IsNumber,
   IsOptional,
   Matches,
+  Min,
+  IsIn,
+  IsDate,
+  MaxDate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { Trim } from '../../../transformers/string';
+import { countryCodesList } from '../../../models/country-code';
+import { UpperCase } from '../../../transformers/uppercase';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -25,12 +32,13 @@ export class UpdateDeviceDTO
 {
   @ApiProperty()
   @IsOptional()
+  @Trim()
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
       'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
   })
-  externalId?: string;
+  externalId: string;
 
   @IsOptional()
   @IsString()
@@ -70,12 +78,13 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
+  @UpperCase()
+  @IsIn(countryCodesList.map((value) => value.countryCode), {
+    message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  })
   countryCode: string;
 
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsNumber()
-  // zipCode: string;
   @ApiProperty({ default: 'ES100' })
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
@@ -91,19 +100,22 @@ export class UpdateDeviceDTO
   @IsOptional()
   deviceTypeCode: DeviceTypeCode;
 
-  // @ApiProperty()
-  // @IsEnum(Installation)
-  // @IsOptional()
-  // installationConfiguration: Installation;
-
   @ApiProperty()
   @IsNumber()
   @IsOptional()
+  @Min(0.001, {
+    message: 'Invalid Capacity, it should be greater than 0',
+  })
+  @Transform((value) => parseFloat(value))
   capacity: number;
 
   @ApiProperty()
-  @IsString()
   @IsOptional()
+  @Transform((value) => new Date(value))
+  @IsDate()
+  @MaxDate(new Date(), {
+    message: `Commissioning date cannot be in the future`,
+  })
   commissioningDate: string;
 
   @ApiProperty()
