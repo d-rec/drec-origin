@@ -294,7 +294,6 @@ export class CertificateLogService {
     startDate: Date,
     endDate: Date,
     certificateTransactionUID?: string,
-    
   ) {
     const logs = await Promise.all(
       deviceIds.map(async (deviceId: number | string) => {

@@ -312,7 +312,7 @@ export class CertificateLogController {
     organizationId: number,
   ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
-    
+
     if (user.role === Role.ApiUser) {
       // If the user is an ApiUser, organizationId is optional
 
@@ -322,7 +322,7 @@ export class CertificateLogController {
         const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
-        
+
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
           throw new BadRequestException({
@@ -346,32 +346,33 @@ export class CertificateLogController {
         });
       }
     }
-    
-    let result=  await this.certificateLogService.getCertifiedLogOfDevices(
+
+    const result = await this.certificateLogService.getCertifiedLogOfDevices(
       user,
       filterDTO,
       pageNumber,
     );
-    if(filterDTO.deviceId){
-      let names = [];
- result.certificatelog.forEach(log => {
-        log.perDeviceCertificateLog.forEach(deviceLog => {
-          names.push(deviceLog.externalId); 
-        });})
-        
-        if (names.includes(filterDTO.deviceId)) {
+    if (filterDTO.deviceId) {
+      const names = [];
+      result.certificatelog.forEach((log) => {
+        log.perDeviceCertificateLog.forEach((deviceLog) => {
+          names.push(deviceLog.externalId);
+        });
+      });
 
-            result.certificatelog = (result.certificatelog as CertificateNewWithPerDeviceLog[]).filter(log =>
-              log.perDeviceCertificateLog.some(deviceLog => deviceLog.externalId === filterDTO.deviceId)
-            );
-            
-          
+      if (names.includes(filterDTO.deviceId)) {
+        result.certificatelog = (
+          result.certificatelog as CertificateNewWithPerDeviceLog[]
+        ).filter((log) =>
+          log.perDeviceCertificateLog.some(
+            (deviceLog) => deviceLog.externalId === filterDTO.deviceId,
+          ),
+        );
+      }
     }
-    
-    
+
+    return result;
   }
-    
-  return result;}
 
   /**
    *
