@@ -102,11 +102,11 @@ export class NewDeviceDTO
     message:
       'Invalid Capacity, it should be greater than 0',
   })
-  @Transform((value, obj) => parseFloat(obj.capacity))
+  @Transform((value) => parseFloat(value))
   capacity: number;
 
   @ApiProperty()
-  @Transform((value, obj) => new Date(obj.commissioningDate))
+  @Transform((value) => new Date(value))
   @IsDate()
   @MaxDate(new Date(), {
     message: `Commissioning date cannot be in the future`,
@@ -185,8 +185,11 @@ export class NewDeviceDTO
     message:
       'Invalid Energy Storage Capacity, it should be equal or greater than 0',
   })
-  @Transform((value, obj) => parseFloat(obj.energyStorageCapacity))
-  energyStorageCapacity: number;
+  @Transform((value) => {
+    if(!value) return value;
+    return parseFloat(value);
+  })
+  energyStorageCapacity: number | null;
 
   @ApiProperty()
   @IsString()
