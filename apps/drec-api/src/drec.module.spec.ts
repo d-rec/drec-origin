@@ -48,6 +48,7 @@ import { AuthModule } from './auth/auth.module';
 import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { getConnection } from 'typeorm';
+import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 
 describe('DRECModule', () => {
   let module: TestingModule;
@@ -272,6 +273,11 @@ describe('DRECModule', () => {
   it('should import ReadsModule', () => {
     const readsModule = module.get(ReadsModule);
     expect(readsModule).toBeDefined();
+  });
+
+  it('should import BulkUploadModule', () => {
+    const bulkUploadModule = module.get(BulkUploadModule);
+    expect(bulkUploadModule).toBeDefined();
   });
 
   it('should import IssuerModule', () => {

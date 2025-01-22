@@ -13,6 +13,10 @@ export const canManageOrganization = ({
 }): boolean => {
   if (!organization) return false;
 
+  if (user.role === Role.Admin) {
+    return true;
+  }
+
   if (user.role !== Role.ApiUser) {
     return user.organizationId === organization.id;
   }

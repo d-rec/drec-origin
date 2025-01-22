@@ -3,7 +3,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, InjectConnection } from '@nestjs/typeorm';
 import * as path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -13,7 +13,6 @@ import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 import { File } from './file.entity';
-import { Buffer } from 'buffer';
 
 export type FileUpload = {
   originalname: string;
@@ -28,6 +27,7 @@ export class FileService {
     @InjectRepository(File) private readonly repository: Repository<File>,
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
+    @InjectConnection()
     private readonly connection: Connection,
   ) {}
 

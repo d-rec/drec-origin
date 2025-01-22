@@ -15,6 +15,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
+import { BullModule } from '@nestjs/bull';
+import { FileModule } from '../file';
+import { ReadsProcessor } from './reads.processor';
+import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -34,15 +38,20 @@ const baseReadServiceProvider = {
       HistoryIntermediateMeterRead,
       DeltaFirstRead,
     ]),
+    BullModule.registerQueue({
+      name: 'reads-queue',
+    }),
+    FileModule,
     ConfigModule,
     CqrsModule,
     DeviceModule,
     DeviceGroupModule,
     UserModule,
     OrganizationModule,
+    BulkUploadModule,
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService],
-  exports: [baseReadServiceProvider, ReadsService],
+  providers: [baseReadServiceProvider, ReadsService, ReadsProcessor],
+  exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}
