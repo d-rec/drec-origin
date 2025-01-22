@@ -310,7 +310,6 @@ export class CertificateLogController {
       new ValidationPipe({ skipMissingProperties: true }),
     )
     organizationId: number,
-    @Query('deviceId', new ValidationPipe({ skipMissingProperties: true })) deviceId: string,
   ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
     
@@ -353,34 +352,24 @@ export class CertificateLogController {
       filterDTO,
       pageNumber,
     );
-    if(deviceId){
-      this.logger.debug(`deviceIdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd+++++++++++ ${deviceId}`);
+    if(filterDTO.deviceId){
       let names = [];
  result.certificatelog.forEach(log => {
         log.perDeviceCertificateLog.forEach(deviceLog => {
           names.push(deviceLog.externalId); 
         });})
-        console.log("namessssssssssssssssssssssssssssssssssssssssssss",names);
         
         if (names.includes(filterDTO.deviceId)) {
-          this.logger.debug(`qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdeviceIdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd+++++++++++ ${deviceId}`);
-          result.certificatelog.forEach(log => {
-            log.perDeviceCertificateLog.forEach(deviceLog => {
-              console.log(`Comparing deviceIdddddddddddddddddddddddddddddddddddddddd11111111111111111111111111111111111111111111111111111111111111111111: ${deviceId} with externalId: ${deviceLog.externalId}`);
-            });
+
             result.certificatelog = (result.certificatelog as CertificateNewWithPerDeviceLog[]).filter(log =>
-              log.perDeviceCertificateLog.some(deviceLog => deviceLog.externalId === deviceId)
+              log.perDeviceCertificateLog.some(deviceLog => deviceLog.externalId === filterDTO.deviceId)
             );
             
-          });
           
-          console.log(" innnn reterrrrrrrrrrrrrrrr",result);
     }
     
     
-// return result;
   }
-  console.log("reterrrrrrrrrrrrrrrr",result,filterDTO);
     
   return result;}
 
