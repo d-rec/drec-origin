@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/build.yaml
+    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@ft/move-deployment-to-gh-actions
     with:
       environment: dev
     secrets:
@@ -20,7 +20,7 @@ jobs:
 
   deploy:
     needs: build
-    uses: ./.github/workflows/deploy.yaml
+    uses: d-rec/drec-origin/.github/workflows/deploy-ecr-k8s.yaml@ft/move-deployment-to-gh-actions
     with:
       environment: dev
     secrets:
