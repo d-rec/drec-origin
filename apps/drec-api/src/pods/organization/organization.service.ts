@@ -86,7 +86,9 @@ export class OrganizationService {
     });
   }
 
-  public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
+  public async findByIds(
+    ids: string[] | number[],
+  ): Promise<IFullOrganization[]> {
     this.logger.verbose(`With in findByIds`);
     return this.repository.findByIds(ids);
   }
