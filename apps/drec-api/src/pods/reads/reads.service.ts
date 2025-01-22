@@ -59,6 +59,14 @@ import { Queue } from 'bull';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { BulkUploadType } from '../bulk-upload/bulk-uploads.entity';
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { ReadType } from '../../utils/enums';
+import * as momentTimeZone from 'moment-timezone';
+import {
+  toTimezoneDate,
+  toTimezoneDateFormat,
+} from '../../transformers/timezone';
+
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -1836,5 +1844,343 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     this.logger.verbose(result);
     this.logger.verbose('\ncollect-rows query SUCCESS');
     return result;
+  }
+
+  async validateAndStoreReads(
+    {
+      deviceExternalId,
+      measurements,
+      organizationId
+    }:
+    {
+      deviceExternalId: string,
+      measurements: NewIntermediateMeterReadDTO,
+      organizationId: number
+    }
+  ): Promise<void>  {
+    
+    if (deviceExternalId.trim() === '' && deviceExternalId.trim() === undefined) {
+      this.logger.error(`id should not be empty`);
+      throw new ConflictException({
+        success: false,
+        message: `id should not be empty`,
+      });
+    }
+
+    const device: DeviceDTO | null =
+      await this.deviceService.findDeviceByDeveloperExternalId(
+        deviceExternalId,
+        organizationId,
+      );
+    if (device === null) {
+      this.logger.error(`Invalid device id`);
+      throw new ConflictException({
+        success: false,
+        message: `Invalid device id`,
+      });
+    }
+
+    if (measurements.timezone) {
+      measurements.reads = measurements.reads.map((read) => ({
+        ...read,
+        starttimestamp: toTimezoneDate(
+          read.starttimestamp,
+          measurements.timezone,
+        ),
+        endtimestamp: toTimezoneDate(read.endtimestamp, measurements.timezone),
+      }));
+      device.createdAt = toTimezoneDate(
+        device.createdAt,
+        measurements.timezone,
+      );
+      device.commissioningDate = toTimezoneDateFormat(
+        device?.commissioningDate || new Date(),
+        measurements.timezone,
+      );
+    }
+
+    //check for according to read type if start time stamp and end time stamps are sent
+    if (measurements.type === ReadType.History) {
+      let datesContainingNullOrEmptyValues = false;
+      let dateValid = true;
+      let allDatesAreBeforeCreatedAt = true;
+      let allStartDatesAreBeforeEndDate = true;
+      let readValue = true;
+      let historyAllStartDatesAreAfterCommissioningDate = true;
+      let historyAllEndDatesAreAfterCommissioningDate = true;
+      measurements.reads.forEach((ele) => {
+        if (!ele.starttimestamp || !ele.endtimestamp) {
+          datesContainingNullOrEmptyValues = true;
+        }
+        const startDateFormatted = isValidUTCDateFormat(
+          new Date(ele.starttimestamp).toISOString(),
+        );
+        //dateFormattedToCheck.test(ele.starttimestamp);
+        const endDateFormatted = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
+
+        if (!startDateFormatted || !endDateFormatted) {
+          dateValid = false;
+        }
+        if (device && device.createdAt) {
+          if (
+            new Date(ele.endtimestamp).getTime() >
+            new Date(device.createdAt).getTime()
+          ) {
+            allDatesAreBeforeCreatedAt = false;
+          }
+          if (
+            new Date(ele.starttimestamp).getTime() >
+            new Date(device.createdAt).getTime()
+          ) {
+            allDatesAreBeforeCreatedAt = false;
+          }
+          if (
+            new Date(ele.starttimestamp).getTime() >
+            new Date(ele.endtimestamp).getTime()
+          ) {
+            allStartDatesAreBeforeEndDate = false;
+          }
+        }
+
+        if (ele.value < 0) {
+          readValue = false;
+        }
+        if (device && device.commissioningDate) {
+          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
+
+          if (
+            new Date(ele.starttimestamp).getTime() <=
+            new Date(device.commissioningDate).getTime()
+          ) {
+            historyAllStartDatesAreAfterCommissioningDate = false;
+          }
+          if (
+            new Date(ele.endtimestamp).getTime() <=
+            new Date(device.commissioningDate).getTime()
+          ) {
+            historyAllEndDatesAreAfterCommissioningDate = false;
+          }
+        }
+      });
+
+      if (datesContainingNullOrEmptyValues) {
+        this.logger.error(
+          `One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            'One ore more Start Date and End Date values are not sent for History, start and end date is required for History meter ready type',
+        });
+      }
+      if (!dateValid) {
+        this.logger.error(
+          `Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid Start Date and/or End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
+      }
+      if (!allStartDatesAreBeforeEndDate) {
+        this.logger.error(
+          `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `starttimestamp should be prior to endtimestamp. One or more measurements starttimestamp is greater than endtimestamp `,
+        });
+      }
+      if (!allDatesAreBeforeCreatedAt) {
+        this.logger.error(
+          `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `For History reading start timestamp and end timestamp should be prior to device onboarding date. One or more measurements endtimestamp and or start timestamp is greater than device OnBoarding Date ${device?.createdAt}`,
+        });
+      }
+
+      if (!readValue) {
+        this.logger.error(`meter read value should be greater then 0`);
+        throw new ConflictException({
+          success: false,
+          message: `meter read value should be greater then 0 `,
+        });
+      }
+      if (!historyAllStartDatesAreAfterCommissioningDate) {
+        this.logger.error(
+          `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One or more measurements starttimestamp should be greater than to device Commissioning Date ${device?.commissioningDate}`,
+        });
+      }
+      if (!historyAllEndDatesAreAfterCommissioningDate) {
+        this.logger.error(
+          `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One or more measurements endtimestamp should be greater than to device commissioningDate date ${device?.commissioningDate}`,
+        });
+      }
+    }
+    if (
+      measurements.type === ReadType.Delta ||
+      measurements.type === ReadType.ReadMeter
+    ) {
+      this.logger.log('Line No: 505');
+      let datesContainingNullOrEmptyValues = false;
+      let dateValid1 = true;
+      let allDatesAreAfterCreatedAt = true;
+      let allDatesAreAfterCommissioningDate = true;
+      let allEndDatesAreBeforeSystemDate = true;
+      let endDate: any;
+      let currentDate: Date = new Date();
+      measurements.reads.forEach((ele) => {
+        this.logger.log('Line No: 512');
+        if (
+          ele.endtimestamp instanceof Date &&
+          (ele.endtimestamp === null ||
+            ele.endtimestamp === undefined ||
+            isNaN(ele.endtimestamp.getTime()))
+        ) {
+          datesContainingNullOrEmptyValues = true;
+        }
+        const endDateFormatted = isValidUTCDateFormat(
+          new Date(ele.endtimestamp).toISOString(),
+        );
+
+        if (!endDateFormatted) {
+          dateValid1 = false;
+        }
+        //check validation with onboarding date
+        if (device && device.createdAt) {
+          if (
+            new Date(ele.endtimestamp).getTime() <=
+            new Date(device.createdAt).getTime()
+          ) {
+            allDatesAreAfterCreatedAt = false;
+            endDate = ele.endtimestamp;
+          }
+        }
+        //check validation with commissioning Date
+        if (device && device.commissioningDate) {
+          if (
+            new Date(ele.endtimestamp).getTime() <=
+            new Date(device.commissioningDate).getTime()
+          ) {
+            allDatesAreAfterCommissioningDate = false;
+            endDate = ele.endtimestamp;
+          }
+        }
+
+        //check validation with System Date
+        if (new Date(ele.endtimestamp).getTime() > new Date().getTime()) {
+          allEndDatesAreBeforeSystemDate = false;
+          endDate = ele.endtimestamp;
+        }
+      });
+      if (datesContainingNullOrEmptyValues) {
+        this.logger.error(
+          `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One ore more End Date values are not sent for ${measurements.type},  end date is required`,
+        });
+      }
+      if (!dateValid1) {
+        this.logger.error(
+          `Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid  End Date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
+      }
+      if (
+        measurements.timezone !== null &&
+        measurements.timezone !== undefined &&
+        measurements.timezone.toString().trim() !== ''
+      ) {
+        endDate = momentTimeZone.tz(endDate, measurements.timezone);
+        currentDate = momentTimeZone
+          .tz(currentDate, measurements.timezone)
+          .toDate();
+      }
+      if (!allDatesAreAfterCreatedAt) {
+        this.logger.error(
+          `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One or more measurements endtimestamp ${endDate} is less than or equal to device onboarding date ${device?.createdAt}`,
+        });
+      }
+      if (!allDatesAreAfterCommissioningDate) {
+        this.logger.error(
+          `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One or more measurements endtimestamp ${endDate} should be greater than to device commissioningDate date${device?.commissioningDate}`,
+        });
+      }
+      if (!allEndDatesAreBeforeSystemDate) {
+        this.logger.error(
+          `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `One or more measurements endtimestamp ${endDate} is greater than current date ${currentDate}`,
+        });
+      }
+    }
+
+    // negative value validation
+    if (
+      measurements.type === ReadType.History ||
+      measurements.type === ReadType.Delta
+    ) {
+      let readValue = true;
+      measurements.reads.forEach((ele) => {
+        if (ele.value <= 0) {
+          readValue = false;
+        }
+      });
+      if (!readValue) {
+        this.logger.error(`meter read value should be greater then 0`);
+        throw new ConflictException({
+          success: false,
+          message: `meter read value should be greater then 0 `,
+        });
+      }
+    }
+    // device organization and user organization validation
+    if (device && device.organizationId !== organizationId) {
+      this.logger.error(
+        `Device doesnt belongs to the requested users organization`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: `Device doesnt belongs to the requested users organization`,
+      });
+    }
+
+    if (measurements.reads.length > 1) {
+      this.logger.error(`can not allow multiple reads simultaneously`);
+      throw new ConflictException({
+        success: false,
+        message: `can not allow multiple reads simultaneously `,
+      });
+    }
+    return await this.newStoreRead(device.externalId, measurements);
   }
 }

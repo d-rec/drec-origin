@@ -132,7 +132,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiQuery({
-    name: 'orgId',
+    name: 'organizationId',
     type: Number,
     required: false,
     description: 'This query parameter is used for ApiUser',
@@ -146,7 +146,7 @@ export class BulkUploadController {
   })
   public async getByOrganization(
     @UserDecorator() user: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+    @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -162,16 +162,16 @@ export class BulkUploadController {
 
     await this.bulkUploadService.canViewBulkUploadJobs({
       user,
-      organizationId: orgId,
+      organizationId: organizationId,
     });
 
-    if (orgId) {
-      user.organizationId = orgId;
+    if (organizationId) {
+      user.organizationId = organizationId;
     }
 
     return this.bulkUploadService.getBulkUploadJobsByRole(
       user,
-      orgId,
+      organizationId,
       pageNumber,
       limit,
     );
@@ -182,7 +182,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiQuery({
-    name: 'orgId',
+    name: 'organizationId',
     type: Number,
     required: false,
     description: 'This query parameter is used for ApiUser',
@@ -195,13 +195,13 @@ export class BulkUploadController {
   public async getJob(
     @Param('bulkUploadId') bulkUploadId: string,
     @UserDecorator() user: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
+    @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 
     await this.bulkUploadService.canViewBulkUploadJobs({
       user: user,
-      organizationId: orgId,
+      organizationId: organizationId,
     });
     return await this.bulkUploadService.getBulkUploadFailedLog(bulkUploadId);
   }

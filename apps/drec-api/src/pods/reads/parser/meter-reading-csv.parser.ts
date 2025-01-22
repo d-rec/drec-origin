@@ -3,11 +3,13 @@ import { CsvParser } from '../../../utils/csv-parser';
 import { NewReadDTO } from '../../../models';
 import { ReadType } from '../../../utils/enums';
 export interface MeterReadingCSV {
-  deviceId: string;
-  unit: Unit;
-  type: ReadType;
-  timezone: string;
-  reads: NewReadDTO[];
+  deviceExternalId: string;
+  measurements: {
+    reads: NewReadDTO[];
+    unit: Unit;
+    type: ReadType;
+    timezone: string;
+  };
 }
 
 export const parseMeterReadingCsv = async (
@@ -18,7 +20,7 @@ export const parseMeterReadingCsv = async (
 
     const parser = CsvParser.createParser({
       columns: [
-        'id',
+        'deviceExternalId',
         'timezone',
         'type',
         'unit',
@@ -33,17 +35,19 @@ export const parseMeterReadingCsv = async (
       let record;
       while ((record = parser.read()) !== null) {
         records.push({
-          deviceId: record.id,
-          reads: [
-            {
-              starttimestamp: record.startDate,
-              endtimestamp: record.endDate,
-              value: record.value,
-            },
-          ],
-          unit: record.unit,
-          type: record.type,
-          timezone: record.timezone,
+          deviceExternalId: record.deviceExternalId,
+          measurements: {
+            reads: [
+              {
+                starttimestamp: record.startDate,
+                endtimestamp: record.endDate,
+                value: record.value,
+              },
+            ],
+            unit: record.unit,
+            type: record.type,
+            timezone: record.timezone,
+          },
         });
       }
     });
