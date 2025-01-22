@@ -29,10 +29,6 @@ export class ReadsProcessor {
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, s3Key } = job.data;
     this.logger.debug(`Processing file with s3Key: ${s3Key}`);
-    await this.bulkUploadService.bulkUploadRepository.update(
-      { fileId: fileId },
-      { jobId: job.id.toString() },
-    );
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
         where: { jobId: job.id },
