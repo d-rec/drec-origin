@@ -66,6 +66,7 @@ import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
+import { validateTimezone } from '../../validations/timezone';
 
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
@@ -1858,7 +1859,7 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
       organizationId: number
     }
   ): Promise<void>  {
-    
+
     if (deviceExternalId.trim() === '' && deviceExternalId.trim() === undefined) {
       this.logger.error(`id should not be empty`);
       throw new ConflictException({
@@ -1881,6 +1882,9 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }
 
     if (measurements.timezone) {
+      
+      measurements.timezone = validateTimezone(measurements.timezone);
+
       measurements.reads = measurements.reads.map((read) => ({
         ...read,
         starttimestamp: toTimezoneDate(
@@ -1948,7 +1952,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
           readValue = false;
         }
         if (device && device.commissioningDate) {
-          //const cur = new Date().toLocaleString('en-US', { timeZone: measurements.timezone })
 
           if (
             new Date(ele.starttimestamp).getTime() <=
