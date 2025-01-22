@@ -480,12 +480,10 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
-    await this.organizationService.checkIfCanManage(
-      {
-        user,
-        organizationId: deviceToUpdate.organizationId,
-      }
-    );
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
     user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {

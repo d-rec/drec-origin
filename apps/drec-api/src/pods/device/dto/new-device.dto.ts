@@ -99,8 +99,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsNumber()
   @Min(0.001, {
-    message:
-      'Invalid Capacity, it should be greater than 0',
+    message: 'Invalid Capacity, it should be greater than 0',
   })
   @Transform((value) => parseFloat(value))
   capacity: number;
@@ -186,7 +185,7 @@ export class NewDeviceDTO
       'Invalid Energy Storage Capacity, it should be equal or greater than 0',
   })
   @Transform((value) => {
-    if(!value) return value;
+    if (!value) return value;
     return parseFloat(value);
   })
   energyStorageCapacity: number | null;
