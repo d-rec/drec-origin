@@ -68,7 +68,6 @@ import {
 } from '../../transformers/timezone';
 import { validateTimezone } from '../../validations/timezone';
 
-
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
 @Injectable()
@@ -1847,20 +1846,19 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     return result;
   }
 
-  async validateAndStoreReads(
-    {
-      deviceExternalId,
-      measurements,
-      organizationId
-    }:
-    {
-      deviceExternalId: string,
-      measurements: NewIntermediateMeterReadDTO,
-      organizationId: number
-    }
-  ): Promise<void>  {
-
-    if (deviceExternalId.trim() === '' && deviceExternalId.trim() === undefined) {
+  async validateAndStoreReads({
+    deviceExternalId,
+    measurements,
+    organizationId,
+  }: {
+    deviceExternalId: string;
+    measurements: NewIntermediateMeterReadDTO;
+    organizationId: number;
+  }): Promise<void> {
+    if (
+      deviceExternalId.trim() === '' &&
+      deviceExternalId.trim() === undefined
+    ) {
       this.logger.error(`id should not be empty`);
       throw new ConflictException({
         success: false,
@@ -1882,7 +1880,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
     }
 
     if (measurements.timezone) {
-      
       measurements.timezone = validateTimezone(measurements.timezone);
 
       measurements.reads = measurements.reads.map((read) => ({
@@ -1952,7 +1949,6 @@ from(bucket: "${process.env.INFLUXDB_BUCKET}")
           readValue = false;
         }
         if (device && device.commissioningDate) {
-
           if (
             new Date(ele.starttimestamp).getTime() <=
             new Date(device.commissioningDate).getTime()

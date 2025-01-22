@@ -11,7 +11,7 @@ import {
 import { BulkUploadEntity } from './bulk-uploads.entity';
 
 @Entity('bulk_upload_failed_logs')
-export class BulkUploadFailedLogEntity extends BaseEntity  {
+export class BulkUploadFailedLogEntity extends BaseEntity {
   constructor() {
     super();
   }

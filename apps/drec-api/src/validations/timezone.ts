@@ -32,17 +32,17 @@ export function IsValidTimezone(validationOptions?: ValidationOptions) {
 
 const isTimezoneValid = (timezone: string): boolean => {
   const allTimezoneNames = momentTimezone.tz
-      .names()
-      .map((tz) => tz.toLowerCase());
-    return (
-      typeof timezone === 'string' &&
-      allTimezoneNames.includes(timezone.toLowerCase())
-    );
+    .names()
+    .map((tz) => tz.toLowerCase());
+  return (
+    typeof timezone === 'string' &&
+    allTimezoneNames.includes(timezone.toLowerCase())
+  );
 };
 
 export const validateTimezone = (timezone: string): string | never => {
-  if(isTimezoneValid(timezone)) {
+  if (isTimezoneValid(timezone)) {
     return transformTimezone(timezone);
   }
   throw new Error(errorMessage);
-}
+};

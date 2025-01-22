@@ -24,7 +24,7 @@ export const canManageOrganization = ({
   if (organizationAdmin.api_user_id !== user.api_user_id) {
     return false;
   }
-  
+
   if (organizationAdmin.role !== Role.OrganizationAdmin) {
     return false;
   }

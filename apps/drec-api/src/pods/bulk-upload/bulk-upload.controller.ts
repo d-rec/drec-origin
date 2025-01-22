@@ -146,7 +146,8 @@ export class BulkUploadController {
   })
   public async getByOrganization(
     @UserDecorator() user: ILoggedInUser,
-    @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
+    @Query('organizationId', new DefaultValuePipe(null))
+    organizationId: number | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -195,7 +196,8 @@ export class BulkUploadController {
   public async getJob(
     @Param('bulkUploadId') bulkUploadId: string,
     @UserDecorator() user: ILoggedInUser,
-    @Query('organizationId', new DefaultValuePipe(null)) organizationId: number | null,
+    @Query('organizationId', new DefaultValuePipe(null))
+    organizationId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 

@@ -341,13 +341,11 @@ export class ReadsController extends BaseReadsController {
       });
       user.organizationId = measurements.organizationId;
     }
-    return this.internalReadsService.validateAndStoreReads(
-      {
-        deviceExternalId: id.trim(),
-        measurements,
-        organizationId: user.organizationId,
-      }
-    );
+    return this.internalReadsService.validateAndStoreReads({
+      deviceExternalId: id.trim(),
+      measurements,
+      organizationId: user.organizationId,
+    });
   }
 
   /**
@@ -391,13 +389,11 @@ export class ReadsController extends BaseReadsController {
     ) {
       organizationId = user.organizationId;
     }
-    return this.internalReadsService.validateAndStoreReads(
-      {
-        deviceExternalId: id.trim(),
-        measurements,
-        organizationId,
-      }
-    ); 
+    return this.internalReadsService.validateAndStoreReads({
+      deviceExternalId: id.trim(),
+      measurements,
+      organizationId,
+    });
   }
 
   /**
