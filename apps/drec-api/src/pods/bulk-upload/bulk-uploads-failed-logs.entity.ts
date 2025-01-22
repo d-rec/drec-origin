@@ -1,17 +1,17 @@
 import {
+  BaseEntity,
   Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
   CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { BulkUploadEntity } from './bulk-uploads.entity';
 
 @Entity('bulk_upload_failed_logs')
-export class BulkUploadFailedLogEntity extends ExtendedBaseEntity {
+export class BulkUploadFailedLogEntity extends BaseEntity  {
   constructor() {
     super();
   }

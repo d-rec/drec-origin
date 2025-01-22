@@ -1,13 +1,13 @@
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import {
+  BaseEntity,
   Column,
-  Entity,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { IsEnum, IsString, IsNumber } from 'class-validator';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 export enum BulkUploadStatus {
@@ -23,7 +23,7 @@ export enum BulkUploadType {
 }
 
 @Entity('bulk_uploads')
-export class BulkUploadEntity extends ExtendedBaseEntity {
+export class BulkUploadEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
