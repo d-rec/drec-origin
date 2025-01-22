@@ -310,9 +310,10 @@ export class CertificateLogController {
       new ValidationPipe({ skipMissingProperties: true }),
     )
     organizationId: number,
+    @Query('deviceId', new ValidationPipe({ skipMissingProperties: true })) deviceId: string,
   ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
-
+    
     if (user.role === Role.ApiUser) {
       // If the user is an ApiUser, organizationId is optional
 
@@ -322,7 +323,7 @@ export class CertificateLogController {
         const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
-
+        
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
           throw new BadRequestException({
@@ -346,13 +347,42 @@ export class CertificateLogController {
         });
       }
     }
-
-    return this.certificateLogService.getCertifiedLogOfDevices(
+    
+    let result=  await this.certificateLogService.getCertifiedLogOfDevices(
       user,
       filterDTO,
       pageNumber,
     );
+    if(deviceId){
+      this.logger.debug(`deviceIdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd+++++++++++ ${deviceId}`);
+      let names = [];
+ result.certificatelog.forEach(log => {
+        log.perDeviceCertificateLog.forEach(deviceLog => {
+          names.push(deviceLog.externalId); 
+        });})
+        console.log("namessssssssssssssssssssssssssssssssssssssssssss",names);
+        
+        if (names.includes(filterDTO.deviceId)) {
+          this.logger.debug(`qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdeviceIdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd+++++++++++ ${deviceId}`);
+          result.certificatelog.forEach(log => {
+            log.perDeviceCertificateLog.forEach(deviceLog => {
+              console.log(`Comparing deviceIdddddddddddddddddddddddddddddddddddddddd11111111111111111111111111111111111111111111111111111111111111111111: ${deviceId} with externalId: ${deviceLog.externalId}`);
+            });
+            result.certificatelog = (result.certificatelog as CertificateNewWithPerDeviceLog[]).filter(log =>
+              log.perDeviceCertificateLog.some(deviceLog => deviceLog.externalId === deviceId)
+            );
+            
+          });
+          
+          console.log(" innnn reterrrrrrrrrrrrrrrr",result);
+    }
+    
+    
+// return result;
   }
+  console.log("reterrrrrrrrrrrrrrrr",result,filterDTO);
+    
+  return result;}
 
   /**
    *
