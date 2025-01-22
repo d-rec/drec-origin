@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/common/build.yaml
+    uses: ./.github/workflows/build.yaml
     with:
       environment: dev
     secrets:
@@ -20,7 +20,7 @@ jobs:
 
   deploy:
     needs: build
-    uses: ./.github/workflows/common/deploy.yaml
+    uses: ./.github/workflows/deploy.yaml
     with:
       environment: dev
     secrets:
