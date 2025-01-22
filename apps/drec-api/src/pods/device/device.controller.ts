@@ -19,6 +19,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -29,9 +30,29 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
+import { FindOneOptions } from 'typeorm';
+import { ActiveUserGuard } from '../../guards';
+import { PermissionGuard } from '../../guards/PermissionGuard';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { ILoggedInUser } from '../../models';
+import { countryCodesList } from '../../models/country-code';
+import { Role } from '../../utils/enums';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import {
+  DeviceCsvFileProcessingJobsEntity,
+  StatusCSV,
+} from '../device-group/device_csv_processing_jobs.entity';
+import { CSVBulkUploadDTO } from '../device-group/dto';
+import { OrganizationService } from '../organization/organization.service';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { Roles } from '../user/decorators/roles.decorator';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { UserService } from '../user/user.service';
+import { Device } from './device.entity';
 import { DeviceService } from './device.service';
 import {
   DeviceDTO,
@@ -41,29 +62,7 @@ import {
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
-import { CSVBulkUploadDTO } from '../device-group/dto';
-import { Role } from '../../utils/enums';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { PermissionGuard } from '../../guards/PermissionGuard';
-import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name.dto';
-import { ActiveUserGuard } from '../../guards';
-import { Roles } from '../user/decorators/roles.decorator';
-import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { countryCodesList } from '../../models/country-code';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { Device } from './device.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { FindOneOptions } from 'typeorm';
-import { canManageOrganization } from '../../lib/organization';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -481,30 +480,13 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
-    const organization = await this.organizationService.findOne(
-      deviceToUpdate.organizationId,
+    await this.organizationService.checkIfCanManage(
+      {
+        user,
+        organizationId: deviceToUpdate.organizationId,
+      }
     );
-    const organizationAdmin = await this.userService.findByEmail(
-      organization.orgEmail,
-    );
-
-    const canManage = canManageOrganization({
-      user,
-      organization,
-      organizationAdmin,
-    });
-
-    if (!canManage) {
-      this.logger.error(`Unauthorized access to organization.`);
-      throw new UnauthorizedException({
-        success: false,
-        message: 'Unauthorized access to organization.',
-      });
-    }
-
-    if (user.role === Role.Admin) {
-      user.organizationId = deviceToUpdate.organizationId;
-    }
+    user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
       const checkExternalId =
