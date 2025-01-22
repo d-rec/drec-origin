@@ -104,8 +104,7 @@ export class UpdateDeviceDTO
   @IsNumber()
   @IsOptional()
   @Min(0.001, {
-    message:
-      'Invalid Capacity, it should be greater than 0',
+    message: 'Invalid Capacity, it should be greater than 0',
   })
   @Transform((value) => parseFloat(value))
   capacity: number;
