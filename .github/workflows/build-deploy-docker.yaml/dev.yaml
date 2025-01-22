@@ -1,0 +1,30 @@
+name: Development Deployment
+
+on:
+  push:
+    branches:
+      - develop
+      - ft/move-deployment-to-gh-actions
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/common/build.yml
+    with:
+      environment: dev
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      ecr-registry: ${{ secrets.ECR_REGISTRY }}
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/common/deploy.yml
+    with:
+      environment: dev
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      ecr-registry: ${{ secrets.ECR_REGISTRY }}
