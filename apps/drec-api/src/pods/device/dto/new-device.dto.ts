@@ -100,7 +100,7 @@ export class NewDeviceDTO
   @IsNumber()
   @Min(0.001, {
     message:
-      'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
+      'Invalid Capacity, it should be greater than 0',
   })
   @Transform((value, obj) => parseFloat(obj.capacity))
   capacity: number;
@@ -179,8 +179,13 @@ export class NewDeviceDTO
   energyStorage: boolean;
 
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
+  @Min(0, {
+    message:
+      'Invalid Energy Storage Capacity, it should be equal or greater than 0',
+  })
+  @Transform((value, obj) => parseFloat(obj.energyStorageCapacity))
   energyStorageCapacity: number;
 
   @ApiProperty()

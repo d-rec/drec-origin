@@ -105,7 +105,7 @@ export class UpdateDeviceDTO
   @IsOptional()
   @Min(0.001, {
     message:
-      'Invalid Capacity or energy Storage Capacity, it should be greater than 0',
+      'Invalid Capacity, it should be greater than 0',
   })
   @Transform((value, obj) => parseFloat(obj.capacity))
   capacity: number;
