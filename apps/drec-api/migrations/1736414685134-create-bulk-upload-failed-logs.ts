@@ -1,0 +1,25 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class createBulkUploadFailedLogs1736414685134
+  implements MigrationInterface
+{
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE TABLE "bulk_upload_failed_logs" (
+        "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        "bulk_upload_id" uuid NOT NULL,
+        "details" json NOT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "FK_bulkUpload" FOREIGN KEY ("bulk_upload_id")
+        REFERENCES "bulk_uploads"("id") ON DELETE CASCADE
+      )
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      DROP TABLE "bulk_upload_failed_logs"
+    `);
+  }
+}
