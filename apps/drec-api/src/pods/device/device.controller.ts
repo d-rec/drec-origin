@@ -19,6 +19,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -29,9 +30,29 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
+import { FindOneOptions } from 'typeorm';
+import { ActiveUserGuard } from '../../guards';
+import { PermissionGuard } from '../../guards/PermissionGuard';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { ILoggedInUser } from '../../models';
+import { countryCodesList } from '../../models/country-code';
+import { Role } from '../../utils/enums';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import {
+  DeviceCsvFileProcessingJobsEntity,
+  StatusCSV,
+} from '../device-group/device_csv_processing_jobs.entity';
+import { CSVBulkUploadDTO } from '../device-group/dto';
+import { OrganizationService } from '../organization/organization.service';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { Roles } from '../user/decorators/roles.decorator';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { UserService } from '../user/user.service';
+import { Device } from './device.entity';
 import { DeviceService } from './device.service';
 import {
   DeviceDTO,
@@ -41,29 +62,7 @@ import {
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
-import { CSVBulkUploadDTO } from '../device-group/dto';
-import { Role } from '../../utils/enums';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { PermissionGuard } from '../../guards/PermissionGuard';
-import { ILoggedInUser } from '../../models';
 import { CodeNameDTO } from './dto/code-name.dto';
-import { ActiveUserGuard } from '../../guards';
-import { Roles } from '../user/decorators/roles.decorator';
-import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { countryCodesList } from '../../models/country-code';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { Device } from './device.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { FindOneOptions } from 'typeorm';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -436,97 +435,6 @@ export class DeviceController {
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    deviceToRegister.externalId = deviceToRegister.externalId.trim();
-    if (deviceToRegister.externalId.trim() === '') {
-      this.logger.error(`externalId should not be empty`);
-      throw new ConflictException({
-        success: false,
-        message: `externalId should not be empty`,
-      });
-    }
-
-    if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
-      this.logger.error(
-        `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-      });
-    }
-    if (
-      new Date(deviceToRegister.commissioningDate).getTime() >
-      new Date().getTime()
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, commissioning is greater than current date`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ` Invalid commissioning date, commissioning is greater than current date`,
-      });
-    }
-    if (deviceToRegister['groupId'] === 0 || deviceToRegister['groupId']) {
-      deviceToRegister['groupId'] = null;
-    }
-    deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
-    if (
-      deviceToRegister.countryCode &&
-      typeof deviceToRegister.countryCode === 'string' &&
-      deviceToRegister.countryCode.length === 3
-    ) {
-      if (
-        countryCodesList.find(
-          (ele) => ele.countryCode === deviceToRegister.countryCode,
-        ) === undefined
-      ) {
-        this.logger.error(
-          `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-        });
-      }
-    } else {
-      this.logger.error(
-        `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-      });
-    }
-    if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
-      this.logger.error(`Invalid Capacity or energy Storage Capacity`);
-      throw new ConflictException({
-        success: false,
-        message: ' Invalid Capacity or energy Storage Capacity',
-      });
-    }
-    if (
-      deviceToRegister.capacity <= 0 ||
-      deviceToRegister.energyStorageCapacity < 0
-    ) {
-      this.logger.error(
-        `Invalid Capacity or energy Storage Capacity, it should be greater than 0`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid Capacity or energy Storage Capacity, it should be greater than 0',
-      });
-    }
-    if (
-      deviceToRegister.version === null ||
-      deviceToRegister.version === undefined ||
-      deviceToRegister.version === '0'
-    ) {
-      deviceToRegister.version = '1.0';
-    }
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -572,132 +480,25 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
-
-    if (
-      deviceToUpdate.organizationId != null &&
-      deviceToUpdate.organizationId != undefined &&
-      deviceToUpdate.organizationId
-    ) {
-      const org = await this.organizationService.findOne(
-        deviceToUpdate.organizationId,
-      );
-      if (user.role === Role.ApiUser) {
-        if (
-          user.api_user_id != org.api_user_id ||
-          org.organizationType != 'Developer'
-        ) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        } else {
-          user.organizationId = deviceToUpdate.organizationId;
-        }
-      } else {
-        if (user.role != Role.Admin && user.organizationId != org.id) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        } else if (user.role === Role.Admin) {
-          user.organizationId = deviceToUpdate.organizationId;
-        }
-      }
-    }
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
-      deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
-      if (deviceToUpdate.externalId === '') {
-        this.logger.error(`externalId should not be empty`);
-        throw new ConflictException({
-          success: false,
-          message: `externalId should not be empty`,
-        });
-      }
-
       const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           deviceToUpdate.externalId,
           user.organizationId,
         );
-      if (
-        checkExternalId != undefined &&
-        checkExternalId.developerExternalId === externalId.trim()
-      ) {
+      if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
           success: false,
           message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
         });
       }
-    }
-
-    if (deviceToUpdate.countryCode != undefined) {
-      deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
-      if (
-        deviceToUpdate.countryCode &&
-        typeof deviceToUpdate.countryCode === 'string' &&
-        deviceToUpdate.countryCode.length === 3
-      ) {
-        if (
-          countryCodesList.find(
-            (ele) => ele.countryCode === deviceToUpdate.countryCode,
-          ) === undefined
-        ) {
-          this.logger.error(
-            `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-          );
-          throw new ConflictException({
-            success: false,
-            message:
-              ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          });
-        }
-      } else {
-        this.logger.error(
-          `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-        });
-      }
-    }
-
-    if (deviceToUpdate.capacity <= 0) {
-      this.logger.error(`Invalid Capacity, it should be greater than 0`);
-      throw new ConflictException({
-        success: false,
-        message: ' Invalid Capacity, it should be greater than 0',
-      });
-    }
-    if (
-      !isValidUTCDateFormat(deviceToUpdate.commissioningDate) &&
-      deviceToUpdate.commissioningDate !== undefined
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-      });
-    }
-    if (
-      new Date(deviceToUpdate.commissioningDate).getTime() >
-      new Date().getTime()
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, commissioning is greater than current date`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ` Invalid commissioning date, commissioning is greater than current date`,
-      });
     }
 
     if (deviceToUpdate.commissioningDate) {
@@ -726,19 +527,6 @@ export class DeviceController {
           throw new ConflictException({
             success: false,
             message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
-          });
-        }
-
-        if (
-          new Date(deviceToUpdate.commissioningDate).getTime() >
-          new Date(checkExternalId.createdAt).getTime()
-        ) {
-          this.logger.error(
-            `Invalid commissioning date, commissioning is greater than device onboarding date`,
-          );
-          throw new ConflictException({
-            success: false,
-            message: `Invalid commissioning date, commissioning is greater than device onboarding date`,
           });
         }
       }

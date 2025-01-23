@@ -41,7 +41,7 @@ import { OrganizationStatus, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
-import { FileService } from '../file';
+import { FileService } from '../file/file.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
 
@@ -86,7 +86,9 @@ export class OrganizationService {
     });
   }
 
-  public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
+  public async findByIds(
+    ids: string[] | number[],
+  ): Promise<IFullOrganization[]> {
     this.logger.verbose(`With in findByIds`);
     return this.repository.findByIds(ids);
   }

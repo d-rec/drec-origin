@@ -31,7 +31,7 @@ import { FileUploadDTO } from './file-upload.dto';
 import { FileService } from './file.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
-import { PermissionGuard } from '../../guards';
+import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 

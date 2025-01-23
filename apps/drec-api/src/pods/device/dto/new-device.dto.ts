@@ -7,11 +7,19 @@ import {
   IsOptional,
   IsNotEmpty,
   Matches,
+  Min,
+  ValidateIf,
+  IsIn,
+  IsDate,
+  MaxDate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
+import { UpperCase } from '../../../transformers/uppercase';
+import { countryCodesList } from '../../../models/country-code';
 
 export class NewDeviceDTO
   implements
@@ -21,7 +29,8 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
-  @IsNotEmpty()
+  @Trim()
+  @IsNotEmpty({ message: 'externalId should not be empty' })
   @IsString()
   @Matches(/^[a-zA-Z\d\-_\s]+$/, {
     message:
@@ -40,7 +49,7 @@ export class NewDeviceDTO
   projectName: string;
 
   @ApiProperty()
-  // @IsOptional()
+  @IsNotEmpty()
   @IsString({
     message: 'Address must be added',
   })
@@ -48,7 +57,6 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  // @IsOptional()
   @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
     message:
       'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
@@ -61,45 +69,46 @@ export class NewDeviceDTO
     message:
       'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
   })
-  // @IsOptional()
   longitude: string;
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
+  @UpperCase()
+  @IsIn(countryCodesList.map((value) => value.countryCode), {
+    message:
+      'Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
+  })
   countryCode: string;
 
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsString()
-  // zipCode: string;
-
   @ApiProperty({ default: 'ES100' })
+  @IsNotEmpty()
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
-  // @IsOptional()
   fuelCode: FuelCode;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsEnum(DeviceTypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
   })
-  // @IsOptional()
   deviceTypeCode: DeviceTypeCode;
-
-  // @ApiProperty()
-  // @IsEnum(Installation)
-  // installationConfiguration: Installation;
 
   @ApiProperty()
   @IsNumber()
+  @Min(0.001, {
+    message: 'Invalid Capacity, it should be greater than 0',
+  })
+  @Transform((value) => parseFloat(value))
   capacity: number;
 
   @ApiProperty()
-  @IsString({
-    message:
-      'Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
+  @Transform((value) => new Date(value))
+  @IsDate()
+  @MaxDate(new Date(), {
+    message: `Commissioning date cannot be in the future`,
   })
   commissioningDate: string;
 
@@ -169,9 +178,17 @@ export class NewDeviceDTO
   energyStorage: boolean;
 
   @ApiProperty()
-  @IsNumber()
   @IsOptional()
-  energyStorageCapacity: number;
+  @IsNumber()
+  @Min(0, {
+    message:
+      'Invalid Energy Storage Capacity, it should be equal or greater than 0',
+  })
+  @Transform((value) => {
+    if (!value) return value;
+    return parseFloat(value);
+  })
+  energyStorageCapacity: number | null;
 
   @ApiProperty()
   @IsString()
@@ -189,6 +206,10 @@ export class NewDeviceDTO
   @ApiProperty({ default: '1.0' })
   @IsString()
   @IsOptional()
+  @ConvertToNullIfEmpty()
+  @ValidateIf(
+    (o) => o.version === null || o.version === undefined || o.version === '0',
+  )
   version = '1.0';
 
   @ApiProperty()
