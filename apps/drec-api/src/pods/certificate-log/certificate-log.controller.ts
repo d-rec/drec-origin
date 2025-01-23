@@ -353,22 +353,13 @@ export class CertificateLogController {
       pageNumber,
     );
     if (filterDTO.deviceId) {
-      const names = [];
-      result.certificatelog.forEach((log) => {
-        log.perDeviceCertificateLog.forEach((deviceLog) => {
-          names.push(deviceLog.externalId);
-        });
-      });
-
-      if (names.includes(filterDTO.deviceId)) {
-        result.certificatelog = (
-          result.certificatelog as CertificateNewWithPerDeviceLog[]
-        ).filter((log) =>
-          log.perDeviceCertificateLog.some(
-            (deviceLog) => deviceLog.externalId === filterDTO.deviceId,
-          ),
-        );
-      }
+      result.certificatelog = (
+        result.certificatelog as CertificateNewWithPerDeviceLog[]
+      ).filter((log) =>
+        log.perDeviceCertificateLog.some(
+          (deviceLog) => deviceLog.externalId === filterDTO.deviceId,
+        ),
+      );
     }
 
     return result;
