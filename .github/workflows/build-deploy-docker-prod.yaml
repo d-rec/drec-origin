@@ -1,16 +1,16 @@
-name: Development Deployment
+name: Production Deployment
 
 on:
   push:
     branches:
-      - develop
+      - prod
   workflow_dispatch:
 
 jobs:
   build:
-    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@develop
+    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@prod
     with:
-      environment: dev
+      environment: prod
     secrets:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -19,9 +19,9 @@ jobs:
 
   deploy:
     needs: build
-    uses: d-rec/drec-origin/.github/workflows/deploy-ecr-k8s.yaml@develop
+    uses: d-rec/drec-origin/.github/workflows/deploy-ecr-k8s.yaml@prod
     with:
-      environment: dev
+      environment: prod
     secrets:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
