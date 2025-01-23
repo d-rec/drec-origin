@@ -347,14 +347,15 @@ export class CertificateLogController {
       }
     }
 
-    const certificateLogs = await this.certificateLogService.getCertifiedLogOfDevices(
-      user,
-      filterDTO,
-      pageNumber,
-    );
+    const certificateLogs =
+      await this.certificateLogService.getCertifiedLogOfDevices(
+        user,
+        filterDTO,
+        pageNumber,
+      );
     if (filterDTO.deviceId) {
       certificateLogs.certificatelog = (
-       certificateLogs.certificatelog as CertificateNewWithPerDeviceLog[]
+        certificateLogs.certificatelog as CertificateNewWithPerDeviceLog[]
       ).filter((log) =>
         log.perDeviceCertificateLog.some(
           (deviceLog) => deviceLog.externalId === filterDTO.deviceId,
