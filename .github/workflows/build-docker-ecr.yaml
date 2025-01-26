@@ -1,0 +1,55 @@
+name: Build and Push to ECR
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      ecr-registry:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
+          registry-type: private
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ secrets.ecr-registry }}
+          ECR_REPOSITORY: drec-api
+          IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
+        run: |
+          docker build \
+            --build-arg NODE_ENV=${{ inputs.environment }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f apps/drec-api/Dockerfile apps/drec-api
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          if [[ "${{ inputs.environment }}" == "prod" ]]; then
+            docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          fi
