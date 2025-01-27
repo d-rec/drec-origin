@@ -1,0 +1,29 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@prod
+    with:
+      environment: prod
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      ecr-registry: ${{ secrets.ECR_REGISTRY }}
+
+  deploy:
+    needs: build
+    uses: d-rec/drec-origin/.github/workflows/deploy-ecr-k8s.yaml@prod
+    with:
+      environment: prod
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      ecr-registry: ${{ secrets.ECR_REGISTRY }}
