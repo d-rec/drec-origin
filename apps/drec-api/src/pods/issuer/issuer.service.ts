@@ -1079,9 +1079,9 @@ export class IssuerService {
   }
 
   @Cron('0 0 */8 * * *')
-  async handleCronForOngoingLateIssuance(): Promise<void> {
+  async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
     try {
-      this.triggerOngoingLateIssuance();
+      this.triggerOngoingLateIssuance(groupId);
     } catch (error) {
       this.logger.error(
         `Error in influxdb query: ${error.message}`, //Please include the whole stack
@@ -1090,15 +1090,16 @@ export class IssuerService {
     }
   }
 
-  private async triggerOngoingLateIssuance(): Promise<void> {
+  private async triggerOngoingLateIssuance(groupId?: number): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 8hr to check for issuance of certificates');
-    const lateOngoing = await this.deviceService.findAllLateCycle();
+    const lateOngoing = await this.deviceService.findAllLateCycle(groupId);
     if (lateOngoing) {
       for (const element of lateOngoing) {
         const group = await this.groupService.findOne({ id: element.groupId });
         this.logger.debug(
-          'Processing late ongoing issuance for::', element.device_externalid,
+          'Processing late ongoing issuance for::',
+          element.device_externalid,
         );
         if (!group) {
           this.logger.error('LateOngoing group is missing');
@@ -1194,7 +1195,10 @@ export class IssuerService {
                 new Date(element.late_end_date).toISOString(),
               );
             }
-            this.logger.debug('Late ongoing Issue Certificate For::', element.device_externalid);
+            this.logger.debug(
+              'Late ongoing Issue Certificate For::',
+              element.device_externalid,
+            );
             await this.lateOngoingIssueCertificateForGroup(
               newGroupWithSingleDevice,
               startDate,

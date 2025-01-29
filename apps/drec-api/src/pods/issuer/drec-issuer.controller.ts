@@ -1,10 +1,19 @@
-import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Logger,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
@@ -106,23 +115,29 @@ export class DrecIssuerController {
   @ApiOkResponse({
     description: 'Simple Get For Issuer API',
   })
-  async simpleGetCallForlateOngoing(): Promise<any> {
+  @ApiQuery({ name: 'groupId', type: Number, required: false })
+  async simpleGetCallForlateOngoing(
+    @Query('groupId', new ParseIntPipe()) groupId?: number,
+  ): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForlateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
+    this.logger.debug(`Received group id`, groupId);
+    this.invokeIssuerCronlateOngoing(groupId);
+    this.logger.log(
+      `successfully Hit the late ongoing API`,
+      'with group id',
+      groupId,
+    );
 
-    return new Promise((resolve) => {
-      this.invokeIssuerCronlateOngoing();
-      this.logger.log(`successfully Hitddd the late ongoing API`);
-      resolve('successfully Hitddd the late ongoing API');
-    });
+    return 'successfully Hit the late ongoing API';
   }
 
-  async invokeIssuerCronlateOngoing(): Promise<void> {
+  async invokeIssuerCronlateOngoing(groupId?: number): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronlateOngoing`);
     try {
-      await this.issuerService.handleCronForOngoingLateIssuance();
+      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
