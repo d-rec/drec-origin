@@ -1,14 +1,16 @@
 ---
-# order: 1
+order: 1
 ---
+
 # Getting Started
+
 User Guide (For Normal/Non-Technical Users/Non Api Users)
 
 **Signing Up**
 
-***A buyer can be created in two ways:***
+**_A buyer can be created in two ways:_**
 
-***1.* Via signup page**
+**_1._ Via signup page**
 
 Here, the buyer is prompted to provide:
 
