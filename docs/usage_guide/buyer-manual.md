@@ -44,4 +44,4 @@ From the account setting navigation link user can reset their password by adding
 - Upper and/or lower case
 - One number
 ![reset passoword.png](./part-2-images/reset%20passoword.png)
-  <!-- ![reset passoword.png](attachment:1803f925-8abd-4d3e-83f7-bb1488b43dd6:reset_passoword.png) -->
+

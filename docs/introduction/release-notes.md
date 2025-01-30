@@ -32,8 +32,6 @@ The below collection covers the functionalities of
 
 [D-Rec STAGE.postman_collection.json](../D-Rec%20STAGE.postman_collection.json)
 
-[STAGE API Guide](../usage_guide/stage-api-guide.md)
-
 [D-Rec PROD.postman_collection.json](../D-Rec%20PROD.postman_collection.json)
 
 ## Prod release notes 14-jul-23
