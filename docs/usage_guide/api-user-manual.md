@@ -4,7 +4,7 @@ order: 4
 
 # **Troubleshooting & FAQ**
 
-### _Troubleshooting_
+## _Troubleshooting_
 
 - **I can’t log in to my account.**
 
@@ -20,7 +20,7 @@ order: 4
   - Ensure all required fields are filled.
   - Log out and log back in to refresh your session.
 
-### **_Frequently Asked Questions (FAQ)_**
+## **_Frequently Asked Questions (FAQ)_**
 
 1. **How do I reset my password?**
    - Go to the login page and click "Forgot Password." Follow the instructions to reset it.

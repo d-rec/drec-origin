@@ -26,7 +26,7 @@ After completing the signup process, the buyer will automatically log into the p
 
 After a buyer being created in this way, the buyer will receive an email with a password that he/she can use to log in to the platform and a button that will redirect him/her to the platform's login page. From there, they can use their email and password to log in.
 
-### Logging in
+## Logging in
 
 once a buyer already has an account they log in by providing the email and password on the landing page below If they have an issues with their password lets say they forgot it the can go reset their password through the forgot password link
 
