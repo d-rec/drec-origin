@@ -2,7 +2,8 @@
 order: 3
 ---
 
-# Project Developer Manual
+# **User Tips & Best Practices**
 
-> [!WARNING]
-> This section is work-in-progress.
+- submit button gets active only when all fields are valid
+- Log out of your account when using shared or public devices.
+- Check our **Troubleshooting & FAQ** section for quick solutions.
