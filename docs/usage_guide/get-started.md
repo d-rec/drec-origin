@@ -6,7 +6,7 @@ order: 1
 
 User Guide (For Normal/Non-Technical Users/Non Api Users)
 
-**Signing Up**
+## Signing Up
 
 **_A buyer can be created in two ways:_**
 
@@ -22,7 +22,7 @@ After completing the signup process, the buyer will automatically log into the p
 
 ![sign up page](./part-2-images/7d2c13a3-b6b0-49ce-85a1-35a2a3a5386b.png)
 
-**2. Admin can create a buyer via the Add Organization Page**
+## 2. Admin can create a buyer via the Add Organization Page
 
 After a buyer being created in this way, the buyer will receive an email with a password that he/she can use to log in to the platform and a button that will redirect him/her to the platform's login page. From there, they can use their email and password to log in.
 

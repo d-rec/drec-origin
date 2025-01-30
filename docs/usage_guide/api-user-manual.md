@@ -27,4 +27,4 @@ order: 4
 2. **Can I change my email address?**
    - Yes, go to Account **Settings > Profile User Details** and update your email.
 3. **How do I contact customer support?**
-   - You can reach out via **Email Support:** issue@drec.energy
+   - You can reach out via [Email Support](mailto:issue@drec.energy)
