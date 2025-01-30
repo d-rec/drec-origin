@@ -2,4 +2,4 @@
 order: 1
 ---
 
-# Introduction
+# Platform overview

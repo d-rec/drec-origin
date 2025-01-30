@@ -2,7 +2,7 @@
 order: 1
 ---
 
-# Technology Overview
+# What is D-REC
 
 The D-REC Initiative is a not-for-profit, multi-stakeholder, industry-led initiative. Our membership includes climate and impact oriented philanthropic organisations, climate investors, leading global corporations, international standards organisations, technology providers, international development organisations, environmental market agents, sustainability advisors, renewable energy industry associations and project developers in emerging markets.
 
