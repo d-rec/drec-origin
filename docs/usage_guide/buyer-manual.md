@@ -43,5 +43,4 @@ From the account setting navigation link user can reset their password by adding
 - Maximum 6 characters
 - Upper and/or lower case
 - One number
-![reset passoword.png](./part-2-images/reset%20passoword.png)
-
+  ![reset passoword.png](./part-2-images/reset%20passoword.png)
