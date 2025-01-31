@@ -1,4 +1,4 @@
----
+<!-- ---
 order: 3
 ---
 
@@ -264,7 +264,7 @@ only devices that are not part of the reservation or the devices that have never
 
 9. Implemented apiuser in Get reservation by id api.
 
-10. In Get api Admin can read anyone’s reservation by id.
+10. In Get api Admin can read anyone’s reservation by id.r
 
 11. Direct developer or developer in apiuser can view only the reservations of his organization’s device.
 
@@ -372,4 +372,4 @@ only devices that are not part of the reservation or the devices that have never
 
 - When a user is not logged in DREC, going to an unauthorized URL will redirect to login page.
 
-- the UI will auto-populate default time frame for selecting meter reads, default time will be from whenever the meter reads start first in the calendar and will be for 1 month.
+- the UI will auto-populate default time frame for selecting meter reads, default time will be from whenever the meter reads start first in the calendar and will be for 1 month. -->

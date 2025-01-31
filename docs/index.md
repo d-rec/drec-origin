@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Documentation
-      link: /introduction/technology-overview
+      link: /platform-overview/what-is-drec
     - theme: alt
       text: Get Started
       link: /usage_guide/get-started

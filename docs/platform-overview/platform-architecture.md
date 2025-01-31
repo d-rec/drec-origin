@@ -2,7 +2,7 @@
 order: 3
 ---
 
-# Key Features
+# Platform Architecture
 
 ## High-Level Understanding
 
@@ -322,7 +322,10 @@ Including Meter Reads API in AWS Lambda: This is proposed architectural change w
 User fills the below details to perform login action
 
 - Username
-  eloper-onboardingr, Buyer
+
+- Password
+
+- Login Type (radio button) - Developer, Buyer
 
 ### User Login Expected Page
 
@@ -348,8 +351,6 @@ Buyer will login to D-Rec and send request for purchasing D-Recs. This request f
 As per request, buyer dashboard will reflect project high level details like countrywide and sector based projects whichever meeting requested energy units.
 
 #### Add Device and Group Device
-
-eloper-onboarding
 
 - first creates the json file of the device from this product json.
   `integrator-script=>index.js=>device-generator.js`
@@ -390,7 +391,7 @@ Create Group based on the criteria
 `using-API /meter-reads/id`
 `drec-api=>src=>pods=>reads`
 
-![ER Diagram](img/dmrv-technology-overview/86790720-fb7c-4228-969c-cc2740854428.png)
+![ER Diagram](img/platform-architecture/86790720-fb7c-4228-969c-cc2740854428.png)
 
 #### Working Of all api of group Devices
 

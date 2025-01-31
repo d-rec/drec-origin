@@ -39,7 +39,7 @@ export default withMermaid(
       logo: '/D-REC-banner.png',
       nav: [
         { text: 'Home', link: '/' },
-        { text: 'Documentation', link: '/introduction/technology-overview' },
+        { text: 'Documentation', link: '/platform-overview/what-is-drec' },
       ],
       footer: {
         message: 'Built with VitePress ❤️.',
