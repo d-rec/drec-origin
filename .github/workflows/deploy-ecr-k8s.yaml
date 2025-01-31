@@ -40,5 +40,3 @@ jobs:
         run: |
           kubectl -n ${{ inputs.environment }} set image deployment/drec-api \
             drec-api=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-          kubectl -n ${{ inputs.environment }} rollout status deployment/drec-api --timeout=300s
