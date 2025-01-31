@@ -2,13 +2,15 @@
 order: 1
 ---
 
-# What is D-REC
+# What is D-REC?
 
-The D-REC Initiative is a not-for-profit, multi-stakeholder, industry-led initiative. Our membership includes climate and impact oriented philanthropic organisations, climate investors, leading global corporations, international standards organisations, technology providers, international development organisations, environmental market agents, sustainability advisors, renewable energy industry associations and project developers in emerging markets.
+The D-REC Initiative is a not-for-profit, multi-stakeholder, industry-led initiative. Our membership includes climate-focused philanthropic organizations, impact investors, leading global corporations, international standards organizations, technology providers, development organizations, environmental market agents, sustainability advisors, renewable energy associations, and project developers in emerging markets.
 
-A D-REC is a third party-certified, verifiable, trade able market instrument that can mobilize new sources of capital to support the deployment of newly distributed renewable energy.
+D-REC is a third-party-certified, verifiable, and tradeable market instrument that mobilizes new sources of capital to support the deployment of distributed renewable energy.
 
-The D-REC Platform was designed to facilitate the issuance of International RECs (I-RECs) from D-REC certificates through an automated approach. Current environmental markets require a largely manual exchange of data, such as generation reports, in order to receive renewable energy certificates. D-RECs utilize technology to overcome the challenges prohibiting small devices from accessing environmental markets. The primary value propositions for a technical solution include:
+The D-REC Platform facilitates the issuance of International RECs (I-RECs) from D-REC certificates through an automated process, eliminating the need for manual data exchange commonly required in traditional environmental markets. By leveraging technology, D-RECs enable small-scale energy producers to access environmental markets efficiently.
+
+The primary value propositions for a technical solution include:
 
 - Improved discoverability: Technology can make it easier for buyers and other stakeholders to discover projects that are closely aligned with their purchase criteria
   through a standardized data model that describes a variety of DRE assets.
@@ -22,28 +24,24 @@ The D-REC Platform was designed to facilitate the issuance of International RECs
 The D-REC Platform supports account and device registration, data verification, token
 minting, and I-REC issuances. The platform has two primary user categories: developers, and buyers.
 
-## Purpose
+## Type of Users
 
-D-REC is a not-for-profit platform to facilitate the secure and authentic transactions of RECs.
-
-RECs can be reserved and monitored via this platform and Buyers can get the I-REC standard certified RECs.
-
-### Expected Users
-
-The expected users of this platform are REC developers, REC Buyers and Intermediary organisations.
-
-There will be multiple users under all the above mentioned categories for an instance, there will be multiple Device managers, site managers and administrators.
+The D-REC Platform users are REC developers, REC Buyers, and Intermediary organizations
 
 ## DREC Project Developers
 
-- Developers will use the D-REC platform to register devices and submit meter reads for verification. Simply doing so will not automatically lead to certification under I-REC; there
+- Developers use the D-REC Platform to register devices and submit meter reads for verification. Certification under I-REC requires an active buyer reservation, which links the developer’s certified meter reads to a formal issuance request.
 
-- must be a buyer that is present that has set a “reservation” (which is an issuance request done by “reserving” devices and seeking the certification of their meter reads over a certain period) in order for the data to then be tokenized and submitted to the I-REC Evident registry.
-
-- Developers first create an account on the D-REC Platform - login credentials are through a username and a password. Once they are logged in, they can submit device registrations, which subsequently will allow them to submit meter reads for certification and enable prospective buyers to discover those projects.
+- Developers create an account on the D-REC Platform using a username and password. Once logged in, they can register devices, submit meter reads for certification, and connect with potential REC buyers.
 
 ## REC Buyers
 
-- Buyers will have a different interface when interacting with the D-REC system. The primary objective will be to set and review “reservations.” These are ways for the buyer to identify specific devices from which they would like to secure RECs - this process “reserves” the device, therefore preventing additional buyers from also securing RECs (note: partial certification is something that will be addressed in a future release).
+- Buyers interact with a dedicated interface designed for managing and reviewing reservations. Reservations allow buyers to secure RECs from specific devices, ensuring exclusivity in REC purchases.
 
-- The buyer first specifies certain parameters for the reservation, including the total volume of RECs they are seeking to purchase, the start and end period for which the data should be certified, and the issuance frequency (how frequent does the buyer want the issuance requests to occur). The buyer then selects specific devices to be associated with that reservation, which as noted earlier will remove that device from the list of available devices.
+Buyers define key parameters for each reservation, including:
+
+- Total Volume of RECs to be purchased
+- Certification Period (start and end dates)
+- Issuance Frequency (how often issuance requests occur)
+
+Once a reservation is created, the selected devices become exclusive to that buyer, preventing other buyers from securing RECs from the same sources.
