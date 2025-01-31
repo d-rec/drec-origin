@@ -6,15 +6,15 @@ order: 3
 
 ## High-Level Understanding
 
-Developers and buyers will register with D-Rec platform by using register functionality. Upon the successful registration, account will get developer account (Organisation Admin account) privileges.
+Developers and buyers register on the D-REC platform using the built-in registration functionality. Upon successful registration, a developer receives Organization Admin privileges.
 
-Each developer will have multiple projects in same or different locations.
+Each developer manages multiple projects across various locations. A project consists of multiple sites, where each site is defined by its geographic location. For example, if a project has two sites with the same infrastructure but different locations, it is recognized as having two distinct sites. Projects always maintain a current status within the platform.
 
-Each project will consist of multiple sites. Site is completely dependent on location. E.g. if a project is consisting of two sites with same infrastructure and different locale based, then that project is known to have two sites. Projects will be with CURRENT statuses only.
+Each site may include a combination of different OEMs across multiple devices. For instance, one site may contain 100 solar panels from Schindler OEM, while another site has 100 solar panels from GE OEM.
 
-Each site may have combination of different OEMs in multiple devices. E.g. one site may have 100 solar panels from Schindler OEM and another 100 solar panels from GE OEM.
+Once onboarded, developers log in to the D-REC platform to begin adding projects. After successfully creating a project, developers assign sites to it. Within each site, developers define OEM selections, the number and type of devices, total energy generation capacity, and other key attributes.
 
-Once the Developer got on-boarded in D-Rec platform, Developer will login to D-Rec platform and starts adding the projects. Then, Developer will add site to his project on the completion of successfully adding project. In each site, Developer will select OEM of devices, add number of devices, type of devices, total capacity of energy generation of the site and so on. High level illustration of Developer, Project and Site is as follows.
+The following diagram illustrates the relationship between Developers, Projects, and Sites in the D-REC platform.
 
 ### Illustration of Developer, Project and Site
 
@@ -168,7 +168,7 @@ On the successful registration, this user account will be the admin account of o
 
 ### Organisation Details Page
 
-Organisation admin user will successfully login to D-Rec platform and see “No organisations registered” message and button to register organisation.
+The Organization Admin user successfully logs into the D-REC platform and sees a "No organizations registered" message along with a button to register an organization.
 
 > [!NOTE]
 > This message is subjective to change as per future requirements.
@@ -222,7 +222,7 @@ On the successful registration of the organisation, organisation admin user will
 
 ## Project Registration
 
-This is new API development from D-Rec platform. User will enter the following details while registeringz projvect.
+This is new API development from D-Rec platform. User enters the following details while registering project.
 
 > [!NOTE]
 > Client will confirm us on considering I-REC standards to be used while creating D-Rec certificate
@@ -299,9 +299,9 @@ This registration page will consist of Submit (creating new entry), Reset (for r
 
 ### Device Onboarding Expected Page
 
-User will be redirected to Project Details page on the successful submission of the site details form.
+User is redirected to Project Details page on the successful submission of the site details form.
 
-User will see tabular data of available sites against to the project upon the successful registering the site. Filter field will appear on top of tabular data.
+User sees tabular data of available sites against to the project upon the successful registering the site. Filter field will appear on top of tabular data.
 
 Below tabular data, “Add Site” button also will be available to add new site in the same project.
 
