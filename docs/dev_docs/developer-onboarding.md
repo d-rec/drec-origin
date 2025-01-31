@@ -393,7 +393,7 @@ Create Group based on the criteria
 `using-API /meter-reads/id`
 `drec-api=>src=>pods=>reads`
 
-<!-- ![ER Diagram](img/developer-onboarding/86790720-fb7c-4228-969c-cc2740854428.png) -->
+![ER Diagram](img/developer-onboarding/86790720-fb7c-4228-969c-cc2740854428.png)
 
 #### Working Of all api of group Devices
 
