@@ -8,7 +8,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "prettier:fix": "prettier --write './{dev_docs,usage_guide,introduction}/**/*.md'"
+    "prettier:fix": "prettier --write './{dev_docs,usage-guide,introduction}/**/*.md'"
   },
   "author": "",
   "license": "ISC",
