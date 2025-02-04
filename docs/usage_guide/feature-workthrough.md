@@ -142,7 +142,7 @@ Buyers can invite users as either SubBuyers or regular users.
 ![invitation.png](./dashboard-user-guide-images/buyer-invitation.png)
 
 After successfully inviting a user, the buyer will be redirected to the invitations page, where they can monitor the invitation's status (e.g., whether the user has accepted it).
-The invited user will receive an email with a confirmation link to accept the invitation and another one containing the login credantials to the platform.
+The invited user will receive an email with a confirmation link to accept the invitation and another one containing the login credentials to the platform.
 
 ### Feature 2: Update User Profile
 
