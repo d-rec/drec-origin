@@ -8,7 +8,7 @@ order: 2
 
 ### Feature 1: Developer can view their organization
 
-- From the first navlink called organization
+- From the first navigation link called organization
 
 ### Feature 2: Developers Can Manage Users
 
@@ -61,7 +61,7 @@ From the device page, developers can manage devices using the "Actions" column (
 ### Feature 5:MeterRead registration
 
 - Meter reads are associated with a specific organization on the platform.
-- For a successfull addition of a meter read you need to add: device’s External ID, type of reading, unit of the meter, read values.(Depending on the type of meter read, the end datetime must be specified, except for History readings, where the
+- For a successful addition of a meter read you need to add: device’s External ID, type of reading, unit of the meter, read values.(Depending on the type of meter read, the end datetime must be specified, except for History readings, where the
   start datetime and end datetime are required.)
 
   ![add meter read](./dashboard-user-guide-images/meter-read-upload.png)
@@ -89,7 +89,7 @@ Developers can download a CSV template, fill in the devices information, and upl
 
 ### Feature 8:view certified MeterRead
 
-Developers can filter and view only certified meter reads, especially if there are a large number of reads.(from the certified meterReads navlink)
+Developers can filter and view only certified meter reads, especially if there are a large number of reads.(from the certified meterReads navigation link)
 ![certified meter reads](./dashboard-user-guide-images/certified-meter-reads.png)
 
 ## Buyer features
