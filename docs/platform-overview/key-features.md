@@ -549,7 +549,7 @@ Validation:
 
 ## Inviting Users
 
-### For developer’s dash board.
+### For developer’s dash board
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
@@ -617,7 +617,7 @@ DREC initiative
 
 After the invited user logins with the password and email address, the status of the invitation should be changed to “accepted” in the invitation table.
 
-### For buyer’s dashboard.
+### For buyer’s dashboard
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
