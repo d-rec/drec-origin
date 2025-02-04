@@ -6,11 +6,11 @@ order: 2
 
 ## Developer features
 
-**Feature 1: Developer can view their organization**
+### Feature 1: Developer can view their organization
 
 - From the first navlink called organization
 
-  **Feature 2: Developers Can Manage Users**
+### Feature 2: Developers Can Manage Users
 
 Developers can view users within their organization and perform the following actions:
 
@@ -19,7 +19,7 @@ Developers can view users within their organization and perform the following ac
 
 ![all users page](./part-2-images/developeAllUsers.png)
 
-**Feature 3:Device Registration**
+### Feature 3:Device Registration
 
 - Devices can be registered in two ways:
 
@@ -31,8 +31,9 @@ Developers can view users within their organization and perform the following ac
   - Name, Type, Country, Address, Location (GPS coordinates), Commission Date, Role, Fuel Code, and SDG Benefits.
   - Historical records are required for devices with a past commission date.
 
-  **Feature 4:Device viewing**
-  ![view device page](./part-2-images/deviceRegistration.png)
+### Feature 4:Device viewing
+
+![view device page](./part-2-images/deviceRegistration.png)
 
 From the device page, developers can manage devices using the "Actions" column (which holds three dots sign). It contains following actions:
 
@@ -45,26 +46,27 @@ From the device page, developers can manage devices using the "Actions" column (
 - Delete Device (Confirmation popup appears before deletion)
   ![delete device](./part-2-images/deviceDeletion.png)
 
-  **Feature 5:MeterRead registration**
+### Feature 5:MeterRead registration
 
 - Meter reads are associated with a specific organization on the platform.
 - For a successfull addition of a meter read you need to add: device’s External ID, type of reading, unit of the meter, read values.(Depending on the type of meter read, the end datetime must be specified, except for History readings, where the
   start datetime and end datetime are required.)
 
-  **Feature 6:View MeterRead list**
+### Feature 6:View MeterRead list
 
 Developers can view meter reads and filter them, which is especially useful when dealing with a large number of reads.
 
-**Feature 7:MeterRead Bulk Upload**
+### Feature 7:MeterRead Bulk Upload
 
 Developers can download a CSV template, fill in the devices information, and upload it to the platform.Once they want to upload many reads at time.
 
-**Feature 8:view certified MeterRead**
+### Feature 8:view certified MeterRead
+
 Developers can filter and view only certified meter reads, especially if there are a large number of reads.
 
 ## Buyer features
 
-**Feature 1: Add a Reservation**
+### Feature 1: Add a Reservation
 
 - Buyers can add a reservation by providing:
   - Reservation Name, Target Capacity, Start Date, and End Date.
@@ -80,19 +82,19 @@ Before submitting the reservation, the buyer will be prompted with two questions
 - Continue reservation if the target capacity is less than the estimated reachable capacity of devices within the selected period
 - They will choose either yes or no for each of the questions.
 
-  **Feature 2: View Reservation**
+### Feature 2: View Reservation
 
 After submitting the reservation, the buyer will be redirected to the reservation page, where they can view its status.
 ![new reservation.png](./part-2-images/new%20reservation.png)
 
-**Feature 3: View Certificate**
+### Feature 3: View Certificate
 
 Once the reservation is submitted, certificates are generated for the devices whose reservations were accepted. The buyer can view their certificate from the certificate page.
 ![certificates.png](./part-2-images/certificates.png)
 
 ## Shared Features for Developers and Buyers
 
-**Feature 1:Invite Users to the Platform**
+### Feature 1:Invite Users to the Platform
 
 _DEVELOPER_
 
@@ -112,11 +114,11 @@ Buyers can invite users as either SubBuyers or regular users.
 After successfully inviting a user, the buyer will be redirected to the invitations page, where they can monitor the invitation's status (e.g., whether the user has accepted it).
 The invited user will receive an email with a confirmation link to accept the invitation and another one containing the login credantials to the platform.
 
-**Feature 2: Update User Profile**
+### Feature 2: Update User Profile
 
 - They can update their names and email
 
-**Feature 3: Reset Password**
+### Feature 3: Reset Password
 
 From the account setting navigation link user can reset their password by adding a new password fulfilling these requirements
 
