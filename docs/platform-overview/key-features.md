@@ -298,7 +298,7 @@ Business Logic:
     D1 --> E1{Add/remove device from the bucket}
     E1 --> |Add| E2[User can go the reservation page to add devices to their bucket]
     E1 --> |Delete| E3[User can select the devices which needs to be removed]
-    E3 --> T8[Once the deletion process is completed, the device will again be availble in reservation device listing]
+    E3 --> T8[Once the deletion process is completed, the device will again be available in reservation device listing]
     E2 --> F1{User will filter the devices on the basis of provided params}
     F1 --> |No| F3[If filter is not applied then whole bulk of devices will be shown on the basis of target volume]
     F1 --> |Yes| F4[The filtered devices will be listed to the user for making reservation]
@@ -311,7 +311,7 @@ Business Logic:
     T1 --> |Yes| T2[The reservation will stay intact in place and if any device is creating more energy than the target value then the exceeded amount of energy in Mwh will be included in purchased volume amount]
     T2 --> T3[Standardised certificate generation will be iniated]
     T3 --> T4[Generated certificate will be mapped against the monitored wallet address of the Buyer for whole volume of generated energy]
-    T1 --> |No| T5[The reservation will stay itact in place and if any device is creating more energy than the target value then the exceeded amount of energy in Mwh will be discarded]
+    T1 --> |No| T5[The reservation will stay intact in place and if any device is creating more energy than the target value then the exceeded amount of energy in Mwh will be discarded]
     T5 --> T6[Standardised certificate generation will be initiated]
     T6 --> T7[Generated certificate will be mapped against the mentioned wallet address of the Buyer for whole volume of purchased energy]
     F1 --> X1{Target date should be valid and not past dated for more than 365 days}
@@ -505,7 +505,7 @@ Requirements:
 
 - A site manager/ organisation admin should be able to register devices by hitting device registration end point.
 
-- Developers who use the programmatic interface can use the ID as External ID that they use for their systems, they don’t need to persist the ID that the drec platform assigns. However, that means that even though an externalID is unique to a particular developer, it does not have to be unique across developers.
+- Developers who use the programmatic interface can use the ID as External ID that they use for their systems, they don’t need to persist the ID that the DREC platform assigns. However, that means that even though an externalID is unique to a particular developer, it does not have to be unique across developers.
 
 - Platform will accept CSV file type, stores the file in S3 and shares the job id in email notification to the user. As it’s synchronous way of processing the data, platform will process the data at designated batch process or immediately (NOTE - this has to go as per design)
 

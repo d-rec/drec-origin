@@ -34,7 +34,7 @@ graph TD
     SiteB[Site B]
 ```
 
-### Drec-PT-Arch
+### DREC-PT-Arch
 
 ```mermaid
 graph TD
@@ -192,7 +192,7 @@ sequenceDiagram
     DREC UI->>User: Redirect to My Organization Page
 ```
 
-#### Mandatory fields -
+#### Mandatory fields
 
 - Name
 - Address
@@ -241,7 +241,7 @@ This is new API development from D-Rec platform. User enters the following detai
 
 Form with above fields and Submit, Reset and Back buttons should appear at the bottom of the page.
 
-### Project Registrtaion Expected Page
+### Project Registration Expected Page
 
 Upon successful registration of project, project details should appear in tabular format along with search (filter) field on project details page. This filter should appear on tabular data.
 
@@ -373,7 +373,7 @@ As per request, buyer dashboard will reflect project high level details like cou
 
 This means that both the device and the group add are associated with the same org.
 
-Also used device group added on comparing the (countryCode,fuelcode, standard compliance )
+Also used device group added on comparing the (countryCode,fuelCode, standard compliance )
 
 Create Group based on the criteria
 
@@ -391,16 +391,16 @@ Create Group based on the criteria
 `using-API /meter-reads/id`
 `drec-api=>src=>pods=>reads`
 
-![ER Diagram](img/platform-architecture/86790720-fb7c-4228-969c-cc2740854428.png)
+![ER Diagram](img/platform-architecture/platform-architecture.png)
 
 #### Working Of all api of group Devices
 
 - Post-/device-group
-  Add group device only these role- deviceowner or admin
+  Add group device only these role- deviceOwner or admin
 - Get-/device-group/my
-  Get all the data for these roles- deviceowner Or OrganizationAdmin Or Buyer
+  Get all the data for these roles- deviceOwner Or OrganizationAdmin Or Buyer
 - Post-/device-group/reserve
-  This api used for role Buyer, login user is buyer and reserved group so it used id, bolckchainaccountaddres, and group id then it update buyer_id and buyer_address in group device table
+  This api used for role Buyer, login user is buyer and reserved group so it used id, blockchainAccountAddress, and group id then it update buyer_id and buyer_address in group device table
 - Post-/device-group/unreserve
   This api used for role Buyer, login user is buyer and reserved group so it used login id, and group id then it update buyer_id and buyer_address is null in group device table.
 - Get-/device-group/reserve Or /device-group/unreserve
