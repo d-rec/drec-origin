@@ -37,6 +37,12 @@ export class FilterDTO {
     description: 'Amount Read to ',
   })
   toAmountread: number;
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description: 'External device ID for filtering certificates',
+  })
+  deviceId?: string;
 
   @IsOptional()
   @ApiPropertyOptional({
