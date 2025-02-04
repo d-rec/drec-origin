@@ -24,7 +24,12 @@ Developers can view users within their organization and perform the following ac
 - Devices can be registered in two ways:
 
   1. One device at a time
-  2. Bulk upload (via CSV format)
+     ![single device](./part-2-images/singleDevice.png)
+
+  2. More tha one device but not too many(from the add more device black button om the device registration page)
+     ![more device](./part-2-images/moreDevice.png)
+
+  3. Bulk upload (via CSV format)
 
 - A developer can register devices with the following details:
 
@@ -51,6 +56,7 @@ From the device page, developers can manage devices using the "Actions" column (
 - Meter reads are associated with a specific organization on the platform.
 - For a successfull addition of a meter read you need to add: device’s External ID, type of reading, unit of the meter, read values.(Depending on the type of meter read, the end datetime must be specified, except for History readings, where the
   start datetime and end datetime are required.)
+  ![ add meter read](./part-2-images/meterReadUpload.png)
 
 ### Feature 6:View MeterRead list
 
