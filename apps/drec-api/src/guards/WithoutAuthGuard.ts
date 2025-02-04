@@ -31,13 +31,11 @@ export class WithoutAuthGuard implements CanActivate {
     let user: IUser;
 
     if (request.url.split('/')[3] === 'forget-password') {
-      //console.log('request', request);
       user = await this.userService.findByEmail(request.body.email);
     } else if (
       request.url.split('/')[3] === 'confirm-email' ||
       request.url.split('/')[3] === 'reset'
     ) {
-      //console.log('request', request);
       user = (
         await this.emailConfirmationService.findOne({
           token: request.params.token,
