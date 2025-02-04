@@ -549,7 +549,7 @@ Validation:
 
 ## Inviting Users
 
-for developer’s dash board.
+### For developer’s dash board.
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
@@ -591,7 +591,7 @@ user role description:
 
 3. users- he can just view the organization info, users, and devices and meter reads.
 
-organization admin and device owner roles will have same permissions that we currently have for developers, but the organization admin will have one more permission - to delete the device owners and users, which the device owner will not have.
+Organization admin and device owner roles will have same permissions that we currently have for developers, but the organization admin will have one more permission to delete the device owners and users, which the device owner will not have.
 
 An email should be sent to the entered email address from DREC with random generated password which the invited user can use to login to the platform.
 
@@ -615,9 +615,9 @@ Best Regards
 DREC initiative
 ```
 
-after the invited user logins with the password and email address, the status of the invitation should be changed to “accepted” in the invitation table.
+After the invited user logins with the password and email address, the status of the invitation should be changed to “accepted” in the invitation table.
 
-for buyer’s dashboard.
+### For buyer’s dashboard.
 
 There should be a menu item “invitation” under “organization” in the side menu of the DREC platform. When the user clicks on “invitation”, they should be redirected to the “invitation page” where there should be two menu items to select page
 
@@ -649,17 +649,17 @@ under this menu we will show the invitation details that have been sent in a tab
 
 - Action: “delete user” icon, can only be done by organization admin.
 
-the first user will have the role of organization admin who registers the organization in the platform, and he should be able to invite other users to the platform through invitation process.
+The first user will have the role of organization admin who registers the organization in the platform, and he should be able to invite other users to the platform through invitation process.
 
-user role description:
+User role description:
 
-1. organization admin- can invite users to the organization, delete users, create reservation, view reservations, view certificates.
+1. Organization admin- can invite users to the organization, delete users, create reservation, view reservations, view certificates.
 
-2. sub buyer- can invite users to the organization, create reservation, view reservations, view certificates.
+2. Sub buyer- can invite users to the organization, create reservation, view reservations, view certificates.
 
 3. users- will have all the view permissions, cannot create reservation.
 
-organization admin and sub-buyers roles will have same permissions that we currently have for buyers, but the organization admin will have one more permission - to delete the sub buyers and users, which the sub buyer will not have.
+Organization admin and sub-buyers roles will have same permissions that we currently have for buyers, but the organization admin will have one more permission - to delete the sub buyers and users, which the sub buyer will not have.
 
 an email should be sent to the entered email address from DREC with random generated password which the invited user can use to login to the platform.
 
