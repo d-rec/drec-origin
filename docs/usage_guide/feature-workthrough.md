@@ -96,7 +96,7 @@ Once the reservation is submitted, certificates are generated for the devices wh
 
 ### Feature 1:Invite Users to the Platform
 
-_DEVELOPER_
+#### DEVELOPER
 
 Developers specify the role of the user they are inviting, which defines the user's permissions within the organization.
 ![developer invitate page](./part-2-images/developerInvitation.png)
@@ -106,7 +106,7 @@ After submitting the invitation, developers are redirected to the Invitation Pag
 
 The invited user receives two emails: one for confirmation and another with login credentials.
 
-_BUYER_
+#### BUYER
 
 Buyers can invite users as either SubBuyers or regular users.
 ![invitation.png](./part-2-images/buyerInvitation.png)

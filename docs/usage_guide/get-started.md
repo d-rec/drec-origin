@@ -8,7 +8,7 @@ Dashboard User Guide
 
 ## Signing Up
 
-**Buyers and Developers Can Sign Up Through the Signup Page**
+### Buyers and Developers Can Sign Up Through the Signup Page
 
 On the signup page, users can register as either a Buyer or a Developer.
 
