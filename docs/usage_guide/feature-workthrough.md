@@ -27,9 +27,16 @@ Developers can view users within their organization and perform the following ac
      ![single device](./part-2-images/singleDevice.png)
 
   2. More tha one device but not too many(from the add more device black button om the device registration page)
-     ![more device](./part-2-images/moreDevice.png)
+     ![more devices](./part-2-images/moreDevice.png)
 
   3. Bulk upload (via CSV format)
+     A developer uploads a CSV file containing devices.
+
+  On successful registration of the devices in the CSV, the page appears as shown below.
+  ![bulk devices](./part-2-images/bulkDevices.png)
+
+  When checking the logs, users will see details about what happened, including whether errors occurred or not.
+  ![device logs](./part-2-images/deviceLogs.png)
 
 - A developer can register devices with the following details:
 
