@@ -17,26 +17,26 @@ Developers can view users within their organization and perform the following ac
 - Edit Users
 - Delete Users
 
-![all users page](./part-2-images/developeAllUsers.png)
+![all users page](./dashboard-user-guide-images/developer-all-users.png)
 
 ### Feature 3:Device Registration
 
 - Devices can be registered in two ways:
 
   1. One device at a time
-     ![single device](./part-2-images/singleDevice.png)
+     ![single device](./dashboard-user-guide-images/single-device.png)
 
-  2. More tha one device but not too many(from the add more device black button om the device registration page)
-     ![more devices](./part-2-images/moreDevice.png)
+  2. Adding multiple devices (but not too many) using the "Add More Device" black button on the device registration page
+     ![more devices](./dashboard-user-guide-images/more-device.png)
 
   3. Bulk upload (via CSV format)
      A developer uploads a CSV file containing devices.
 
   On successful registration of the devices in the CSV, the page appears as shown below.
-  ![bulk devices](./part-2-images/bulkDevices.png)
+  ![bulk devices](./dashboard-user-guide-images/bulk-devices.png)
 
   When checking the logs, users will see details about what happened, including whether errors occurred or not.
-  ![device logs](./part-2-images/deviceLogs.png)
+  ![device logs](./dashboard-user-guide-images/device-logs.png)
 
 - A developer can register devices with the following details:
 
@@ -45,50 +45,52 @@ Developers can view users within their organization and perform the following ac
 
 ### Feature 4:Device viewing
 
-![view device page](./part-2-images/deviceRegistration.png)
+![view device page](./dashboard-user-guide-images/view-device.png)
 
 From the device page, developers can manage devices using the "Actions" column (which holds three dots sign). It contains following actions:
 
 - View Device Details
-  ![device details](./part-2-images/deviceDetails.png)
+  ![device details](./dashboard-user-guide-images/device-details.png)
 
 - Edit Device
-  ![view device page](./part-2-images/updateDevice.png)
+  ![update device page](./dashboard-user-guide-images/update-device.png)
 
 - Delete Device (Confirmation popup appears before deletion)
-  ![delete device](./part-2-images/deviceDeletion.png)
+  ![delete device](./dashboard-user-guide-images/delete-device.png)
 
 ### Feature 5:MeterRead registration
 
 - Meter reads are associated with a specific organization on the platform.
 - For a successfull addition of a meter read you need to add: device’s External ID, type of reading, unit of the meter, read values.(Depending on the type of meter read, the end datetime must be specified, except for History readings, where the
   start datetime and end datetime are required.)
-  ![ add meter read](./part-2-images/meterReadUpload.png)
+
+  ![add meter read](./dashboard-user-guide-images/meter-read-upload.png)
 
 ### Feature 6:View MeterRead list
 
 Developers can view meter reads(by providing the external ID) and filter them, which is especially useful when dealing with a large number of reads.
 
-![all reads](./part-2-images/allreads.png)
+![all reads](./dashboard-user-guide-images/all-reads.png)
 
 ### Feature 7:MeterRead Bulk Upload
 
 Developers can download a CSV template, fill in the devices information, and upload it to the platform.Once they want to upload many reads at time.
 
 - When the file is successfully added, it is displayed on the page with a "Completed" status.
-  ![bulk reads upload](./part-2-images/bulkUploadSuccess.png)
+  ![bulk reads upload](./dashboard-user-guide-images/bulk-upload-success.png)
 
 - If the status is failed, they can check the issue through the logs action, which redirects them to a page displaying the errors that occurred.
 
-  ![reads log](./part-2-images/readsLog.png)
+  ![reads log](./dashboard-user-guide-images/reads-log.png)
 
 - To check their uploaded reads from the bulk upload, they can navigate to the "All Reads" link in the nav and provide the external IDs as usual.
 
-  ![reads](./part-2-images/reads.png)
+  ![reads](./dashboard-user-guide-images/reads.png)
 
 ### Feature 8:view certified MeterRead
 
-Developers can filter and view only certified meter reads, especially if there are a large number of reads.
+Developers can filter and view only certified meter reads, especially if there are a large number of reads.(from the certified meterReads navlink)
+![certified meter reads](./dashboard-user-guide-images/certified-meter-reads.png)
 
 ## Buyer features
 
@@ -100,7 +102,7 @@ Developers can filter and view only certified meter reads, especially if there a
 - Buyers can filter devices by country, type, capacity, SDG benefits, or commission date.
 - Buyers can reserve the required energy, by selecting one or more devices to meet the desired capacity.
 
-![reservation page](./part-2-images/reservation%20ui.png)
+![reservation page](./dashboard-user-guide-images/reservation-page.png)
 
 Before submitting the reservation, the buyer will be prompted with two questions in a popup:
 
@@ -111,12 +113,13 @@ Before submitting the reservation, the buyer will be prompted with two questions
 ### Feature 2: View Reservation
 
 After submitting the reservation, the buyer will be redirected to the reservation page, where they can view its status.
-![new reservation.png](./part-2-images/new%20reservation.png)
+![new reservation.png](./dashboard-user-guide-images/new-reservation.png)
 
 ### Feature 3: View Certificate
 
 Once the reservation is submitted, certificates are generated for the devices whose reservations were accepted. The buyer can view their certificate from the certificate page.
-![certificates.png](./part-2-images/certificates.png)
+
+![certificates.png](./dashboard-user-guide-images/certificates.png)
 
 ## Shared Features for Developers and Buyers
 
@@ -125,17 +128,18 @@ Once the reservation is submitted, certificates are generated for the devices wh
 #### DEVELOPER
 
 Developers specify the role of the user they are inviting, which defines the user's permissions within the organization.
-![developer invitate page](./part-2-images/developerInvitation.png)
+![developer invitation page](./dashboard-user-guide-images/developer-invitation.png)
 
 After submitting the invitation, developers are redirected to the Invitation Page, where they can view all sent invitations and their statuses (Accepted or Pending).
-![invitations page](./part-2-images/invitationSent.png)
+
+![invitations page](./dashboard-user-guide-images/invitation-sent.png)
 
 The invited user receives two emails: one for confirmation and another with login credentials.
 
 #### BUYER
 
 Buyers can invite users as either SubBuyers or regular users.
-![invitation.png](./part-2-images/buyerInvitation.png)
+![invitation.png](./dashboard-user-guide-images/buyer-invitation.png)
 
 After successfully inviting a user, the buyer will be redirected to the invitations page, where they can monitor the invitation's status (e.g., whether the user has accepted it).
 The invited user will receive an email with a confirmation link to accept the invitation and another one containing the login credantials to the platform.
@@ -151,4 +155,4 @@ From the account setting navigation link user can reset their password by adding
 - Maximum 6 characters
 - Upper and/or lower case
 - One number
-  ![reset passoword.png](./part-2-images/reset%20passoword.png)
+  ![reset passoword.png](./dashboard-user-guide-images/reset-passoword.png)

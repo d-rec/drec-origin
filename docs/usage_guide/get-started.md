@@ -18,7 +18,7 @@ During the signup process, they are required to provide:
 - Organization Details (including a selection to specify whether they are signing up as a Buyer or a Developer, as shown in the image below)
 - Security Information (such as creating a password)
 
-![sign up page](./part-2-images/buyer-developer-sign-up.png)
+![sign up page](./dashboard-user-guide-images/buyer-developer-sign-up.png)
 
 After completing the signup process, the following occurs:
 
@@ -31,12 +31,12 @@ After completing the signup process, the following occurs:
 
 - If they have any issues with their password, such as forgetting it, they can reset it using the "Forgot Password" link.
 
-![Login page](./part-2-images/login%20page.png)
+![Login page](./dashboard-user-guide-images/login-page.png)
 
 When a **Developer** logs in, they are directed to the following UI, which displays the features and actions available to them.
 
-![developer landing page](./part-2-images/developerLogin.png)
+![developer landing page](./dashboard-user-guide-images/developer-login.png)
 
 When a **Buyer** logs in, they are directed to the following UI, which displays the features and actions available to them.
 
-![buyer landing page](./part-2-images/buyer-landing-page.png)
+![buyer landing page](./dashboard-user-guide-images/buyer-landing-page.png)
