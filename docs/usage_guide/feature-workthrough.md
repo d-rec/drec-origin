@@ -54,11 +54,24 @@ From the device page, developers can manage devices using the "Actions" column (
 
 ### Feature 6:View MeterRead list
 
-Developers can view meter reads and filter them, which is especially useful when dealing with a large number of reads.
+Developers can view meter reads(by providing the external ID) and filter them, which is especially useful when dealing with a large number of reads.
+
+![all reads](./part-2-images/allreads.png)
 
 ### Feature 7:MeterRead Bulk Upload
 
 Developers can download a CSV template, fill in the devices information, and upload it to the platform.Once they want to upload many reads at time.
+
+- When the file is successfully added, it is displayed on the page with a "Completed" status.
+  ![bulk reads upload](./part-2-images/bulkUploadSuccess.png)
+
+- If the status is failed, they can check the issue through the logs action, which redirects them to a page displaying the errors that occurred.
+
+  ![reads log](./part-2-images/readsLog.png)
+
+- To check their uploaded reads from the bulk upload, they can navigate to the "All Reads" link in the nav and provide the external IDs as usual.
+
+  ![reads](./part-2-images/reads.png)
 
 ### Feature 8:view certified MeterRead
 
