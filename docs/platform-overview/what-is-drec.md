@@ -4,44 +4,51 @@ order: 1
 
 # What is D-REC?
 
-The D-REC Initiative is a not-for-profit, multi-stakeholder, industry-led initiative. Our membership includes climate-focused philanthropic organizations, impact investors, leading global corporations, international standards organizations, technology providers, development organizations, environmental market agents, sustainability advisors, renewable energy associations, and project developers in emerging markets.
+The **D-REC Initiative** is a **not-for-profit, multi-stakeholder, industry-led** initiative that brings together a diverse group of members, including climate-focused philanthropic organizations, impact investors, leading global corporations, international standards organizations, technology providers, development organizations, environmental market agents, sustainability advisors, renewable energy associations, and project developers in emerging markets.
 
-D-REC is a third-party-certified, verifiable, and tradeable market instrument that mobilizes new sources of capital to support the deployment of distributed renewable energy.
+## Understanding D-REC
 
-The D-REC Platform facilitates the issuance of International RECs (I-RECs) from D-REC certificates through an automated process, eliminating the need for manual data exchange commonly required in traditional environmental markets. By leveraging technology, D-RECs enable small-scale energy producers to access environmental markets efficiently.
+A **D-REC (Distributed Renewable Energy Certificate)** is a **third-party-certified, verifiable, and tradeable** market instrument that facilitates investment in distributed renewable energy. By leveraging **automation and blockchain-based verification**, D-RECs enable **small-scale energy producers** to efficiently access **environmental markets**.
 
-The primary value propositions for a technical solution include:
+The **D-REC Platform** automates the **issuance of International RECs (I-RECs)** through a streamlined, technology-driven process, eliminating manual data exchange. It enables developers and buyers to efficiently participate in environmental markets by supporting:
 
-- Improved discoverability: Technology can make it easier for buyers and other stakeholders to discover projects that are closely aligned with their purchase criteria
-  through a standardized data model that describes a variety of DRE assets.
+- **Account and device registration**
+- **Data verification**
+- **Token minting**
+- **I-REC issuance**
 
-- Lower transaction costs: Automating validation can shorten the time needed to issue certificates and thereby lower transaction costs.
+## Key Value Propositions
 
-- Scalability for smaller devices: Aggregation allows developers to achieve scale that is material to buyers, allows for quicker monetization cycles, and ensures issuance frequency through unreliable data connections.
+The D-REC Platform provides several advantages through its technology-driven approach:
 
-- Clear traceability and provenance: Buyers can streamline their procurement reporting by utilizing the public ledger to document data origination and verification; the public ledger also reduces the risk of double-counting as all tokens (which represent I-REC issuance requests) are publicly discoverable.
+### Improved Discoverability  
 
-The D-REC Platform supports account and device registration, data verification, token
-minting, and I-REC issuances. The platform has two primary user categories: developers, and buyers.
+Standardized data models help buyers and stakeholders easily find projects that align with their criteria.
 
-## Type of Users
+### Lower Transaction Costs  
 
-The D-REC Platform users are REC developers, REC Buyers, and Intermediary organizations
+Automated validation reduces the time needed to issue certificates, cutting transaction costs.
 
-## DREC Project Developers
+### Scalability for Smaller Devices  
 
-- Developers use the D-REC Platform to register devices and submit meter reads for verification. Certification under I-REC requires an active buyer reservation, which links the developer’s certified meter reads to a formal issuance request.
+Aggregation enables developers to achieve scale that is material to buyers, enables faster monetization cycles, and ensures consistent issuance even in areas with unreliable data connections.
 
-- Developers create an account on the D-REC Platform using a username and password. Once logged in, they can register devices, submit meter reads for certification, and connect with potential REC buyers.
+### Clear Traceability & Provenance  
 
-## REC Buyers
+The public ledger provides a transparent record of data origination and verification while reducing the risk of double-counting, as all tokens representing I-REC issuance requests are publicly discoverable.
 
-- Buyers interact with a dedicated interface designed for managing and reviewing reservations. Reservations allow buyers to secure RECs from specific devices, ensuring exclusivity in REC purchases.
+## Types of Users
 
-Buyers define key parameters for each reservation, including:
+The D-REC Platform serves three primary user categories:
 
-- Total Volume of RECs to be purchased
-- Certification Period (start and end dates)
-- Issuance Frequency (how often issuance requests occur)
+### REC Developers
 
-Once a reservation is created, the selected devices become exclusive to that buyer, preventing other buyers from securing RECs from the same sources.
+REC Developers are entities that **own or operate distributed renewable energy projects** and seek to monetize the environmental attributes of the energy they produce. These developers may include independent power producers, community energy projects, commercial & industrial facility owners, and mini-grid operators.
+
+### REC Buyers
+
+REC Buyers are organizations or entities that **purchase renewable energy certificates to meet sustainability targets, regulatory requirements, or corporate social responsibility goals**. They may include multinational corporations, utilities, government agencies, and impact-driven investors.
+
+### Intermediary Organizations
+
+Intermediary Organizations support the functioning of the D-REC ecosystem by **facilitating transactions, providing advisory services, or offering technical solutions**. These can include sustainability consultants, trading platforms, certification bodies, and environmental market agents.
