@@ -49,6 +49,8 @@ REC Developers are entities that **own or operate distributed renewable energy p
 
 REC Buyers are organizations or entities that **purchase renewable energy certificates to meet sustainability targets, regulatory requirements, or corporate social responsibility goals**. They may include multinational corporations, utilities, government agencies, and impact-driven investors.
 
-### Intermediary Organizations
+### Market Intermediaries
 
-Intermediary Organizations support the functioning of the D-REC ecosystem by **facilitating transactions, providing advisory services, or offering technical solutions**. These can include sustainability consultants, trading platforms, certification bodies, and environmental market agents.
+Market Intermediaries play a crucial role in the D-REC ecosystem by **bridging the gap between renewable energy producers and buyers**. They facilitate market access, streamline transactions, and enhance liquidity by providing essential services such as **advisory support, certification management, and technical integration**.  
+
+These organizations may include **sustainability consultants, trading platforms, certification bodies, and environmental market agents**, all working to ensure a seamless and efficient marketplace for distributed renewable energy certificates.
