@@ -11,6 +11,7 @@ import { UserService } from '../pods/user/user.service';
 import { Role } from '../utils/enums';
 import { EmailConfirmationService } from '../pods/email-confirmation/email-confirmation.service';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
+import { isEmail } from 'class-validator';
 @Injectable()
 export class WithoutAuthGuard implements CanActivate {
   private readonly logger = new Logger(WithoutAuthGuard.name);
@@ -31,14 +32,21 @@ export class WithoutAuthGuard implements CanActivate {
     let user: IUser;
 
     if (request.url.split('/')[3] === 'forget-password') {
-      user = await this.userService.findByEmail(request.params.email);
+      user = await this.userService.findByEmail(request.body.email);
     } else if (
       request.url.split('/')[3] === 'confirm-email' ||
       request.url.split('/')[3] === 'reset'
     ) {
-      user = (
-        await this.emailConfirmationService.getByEmail(request.params.token)
-      ).user;
+      if (isEmail(request.params.token)) {
+        console.log('Token Emails', request.params.token);
+        user = await this.userService.findByEmail(request.params.token);
+      } else {
+        user = (
+          await this.emailConfirmationService.findOne({
+            token: request.params.token,
+          })
+        ).user;
+      }
     } else if (request.url.split('/')[3] === 'register') {
       const userData = await this.userService.findOne({ role: Role.Admin });
       if (
@@ -91,7 +99,6 @@ export class WithoutAuthGuard implements CanActivate {
       });
       //return false;
     }
-
     request.user = user;
     return true;
   }

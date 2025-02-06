@@ -52,7 +52,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
-import { IsEmail } from 'class-validator';
+import { isEmail } from 'class-validator';
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -205,23 +205,24 @@ export class UserController {
     @Param('token') token: IEmailConfirmationToken['token'],
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
-    if (IsEmail(token)) {
+    if (isEmail(token)) {
+      console.log('Token Email', token);
       const emailConfirmation = await this.userService.findOne({
         email: token,
       });
       return this.userService.changePassword(emailConfirmation, body);
-    } else {
-      const emailConfirmation = await this.emailConfirmationService.findOne({
-        token,
-      });
-      if (!emailConfirmation) {
-        throw new ConflictException({
-          success: false,
-          errors: `User Not exist .`,
-        });
-      }
-      return this.userService.changePassword(emailConfirmation.user, body);
     }
+    console.log('Token Not Email', token);
+    const emailConfirmation = await this.emailConfirmationService.findOne({
+      token,
+    });
+    if (!emailConfirmation) {
+      throw new ConflictException({
+        success: false,
+        errors: `User Not exist .`,
+      });
+    }
+    return this.userService.changePassword(emailConfirmation.user, body);
   }
   /**
    * this api route use for confirm user email from email click in register time
