@@ -6,7 +6,6 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
 import { Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import RoleJSON from './user_role.json';
 import { PermissionString } from 'src/utils/enums';
 import { IRoleConfig } from 'src/models';
@@ -14,7 +13,6 @@ import { IRoleConfig } from 'src/models';
 export class SeedDeveloperBuyerUsers1738853479063 implements MigrationInterface {
   private readonly logger = new Logger(SeedDeveloperBuyerUsers1738853479063.name);
 
-  // Define the users array with the data provided
   private users = [
     {
       id: 31,
@@ -71,8 +69,7 @@ export class SeedDeveloperBuyerUsers1738853479063 implements MigrationInterface 
           );
         }),
       );
-    // Loop through the users and seed them into the database
-    for (const [index, user] of this.users.entries()) {
+    for (const user of this.users) {
       const existingUser = await queryRunner.query(
         `SELECT id FROM public.user WHERE "email" = '${user.email.toLowerCase()}'`,
       );
@@ -107,8 +104,11 @@ export class SeedDeveloperBuyerUsers1738853479063 implements MigrationInterface 
         
         const organizationId = organization[0].id;
         const hashedPassword = bcrypt.hashSync(user.password, 8);
-
-        // Insert user data into the user table
+        const roleRecord = RoleJSON.find(r => r.name === user.organizationType);
+        if (!roleRecord) {
+            this.logger.error(`Role not found for organizationType: ${user.organizationType}`);
+            continue; 
+          }
         await queryRunner.query(`INSERT INTO public.user (
           "id",
           "firstName",
@@ -127,9 +127,9 @@ export class SeedDeveloperBuyerUsers1738853479063 implements MigrationInterface 
           '${user.email.toLowerCase()}',
           '${hashedPassword}',
           '${user.status}',
-          '${RoleJSON[index % RoleJSON.length].name}',
+          '${roleRecord.name}', 
           '${organizationId}',
-          '${RoleJSON[index % RoleJSON.length].id}', 
+          '${roleRecord.id}',
           '${apiUserId}'
         )`);
       }
@@ -185,6 +185,6 @@ export class SeedDeveloperBuyerUsers1738853479063 implements MigrationInterface 
   }
 
   private async seedACLModules(queryRunner: QueryRunner) {
-    // Insert ACL Modules logic here if necessary
+
   }
 }
