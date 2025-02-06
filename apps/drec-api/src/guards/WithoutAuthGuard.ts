@@ -28,8 +28,6 @@ export class WithoutAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    this.logger.verbose(`Within canActivate`);
-
     const request = context.switchToHttp().getRequest();
     const pathSegment = request.url.split('/')[3];
     let user: IUser;
@@ -55,25 +53,25 @@ export class WithoutAuthGuard implements CanActivate {
 
       case UrlPath.Register: {
         const userData = await this.userService.findOne({ role: Role.Admin });
-        const userRoles = [Role.Developer, Role.ApiUser];
+        const userRoles = [Role.Developer, Role.ApiUser, Role.Buyer];
 
-        if (!request.body.api_user_id) {
-          if (userRoles.includes(request.body.organizationType)) {
-            user = userData;
-          }
-        } else if (request.body.api_user_id !== userData.api_user_id) {
-          if (userRoles.includes(request.body.organizationType)) {
-            user = await this.userService.findOne({
-              role: Role.ApiUser,
-              api_user_id: request.body.api_user_id,
+        if (userRoles.includes(request.body.organizationType)) {
+          user = userData;
+        } else if (
+          request.body.api_user_id !== userData.api_user_id &&
+          (request.body.organizationType === Role.Developer ||
+            request.body.organizationType === Role.Buyer)
+        ) {
+          user = await this.userService.findOne({
+            role: Role.ApiUser,
+            api_user_id: request.body.api_user_id,
+          });
+
+          if (!user) {
+            throw new UnauthorizedException({
+              statusCode: 401,
+              message: 'Requested api user is not available',
             });
-
-            if (!user) {
-              throw new UnauthorizedException({
-                statusCode: 401,
-                message: 'Requested api user is not available',
-              });
-            }
           }
         } else if (request.body.organizationType === Role.ApiUser) {
           const apiUser =
@@ -83,7 +81,7 @@ export class WithoutAuthGuard implements CanActivate {
         break;
       }
 
-      case UrlPath.ExportAccesskey:
+      case UrlPath.ExportAccessKey:
         user = await this.userService.findOne({
           role: Role.ApiUser,
           api_user_id: request.params.api_user_id,
@@ -98,13 +96,20 @@ export class WithoutAuthGuard implements CanActivate {
         break;
     }
 
-    if (!user) {
+    const getAdminApiUserId = (
+      (await this.userService.findOne({ role: Role.Admin })) as IUser
+    ).api_user_id;
+
+    if (
+      user.role != Role.Admin &&
+      user.role != Role.ApiUser &&
+      user.api_user_id != getAdminApiUserId
+    ) {
       throw new UnauthorizedException({
         statusCode: 401,
         message: 'Unauthorized',
       });
     }
-
     request.user = user;
     return true;
   }

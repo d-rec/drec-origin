@@ -4,5 +4,5 @@ export enum UrlPath {
   ForgetPassword = 'forget-password',
   Register = 'register',
   Login = 'login',
-  ExportAccesskey = 'export-accesskey',
+  ExportAccessKey = 'export-accesskey',
 }
