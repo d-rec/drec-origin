@@ -42,14 +42,7 @@ jobs:
           ECR_REPOSITORY: drec-api
           IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
         run: |
-          docker build \
-            --build-arg NODE_ENV=${{ inputs.environment }} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f apps/drec-api/Dockerfile apps/drec-api
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-          if [[ "${{ inputs.environment }}" == "prod" ]]; then
-            docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          fi

@@ -31,7 +31,7 @@ export class ReadsProcessor {
     this.logger.debug(`Processing file with s3Key: ${s3Key}`);
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
-        where: { jobId: job.id },
+        where: { jobId: job.id.toString() },
       });
 
     if (!bulkUpload) {
@@ -56,7 +56,7 @@ export class ReadsProcessor {
       await this.processReads(meterReads, bulkUpload);
 
       await this.bulkUploadService.bulkUploadRepository.update(
-        { fileId: fileId },
+        { jobId: job.id.toString() },
         { status: BulkUploadStatus.Completed },
       );
     } catch (error) {
