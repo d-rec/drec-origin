@@ -206,13 +206,11 @@ export class UserController {
     @Body() body: UpdateChangePasswordDTO,
   ): Promise<UserDTO> {
     if (isEmail(token)) {
-      console.log('Token Email', token);
       const emailConfirmation = await this.userService.findOne({
         email: token,
       });
       return this.userService.changePassword(emailConfirmation, body);
     }
-    console.log('Token Not Email', token);
     const emailConfirmation = await this.emailConfirmationService.findOne({
       token,
     });
