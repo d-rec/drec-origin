@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: Documentation
-      link: /platform-overview/introduction
+      link: /platform-overview/what-is-d-rec.md
     - theme: alt
       text: Get Started
-      link: /usage_guide/get-started
+      link: /usage-guide/get-started
     - theme: alt
       text: API Documentation
       link: https://dev-api.drecs.org/swagger/
