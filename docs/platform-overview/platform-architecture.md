@@ -391,7 +391,7 @@ Create Group based on the criteria
 `using-API /meter-reads/id`
 `drec-api=>src=>pods=>reads`
 
-![ER Diagram](img/platform-architecture/platform-architecture.png)
+![ER Diagram](img/er-diagram.png)
 
 #### Working Of all api of group Devices
 
