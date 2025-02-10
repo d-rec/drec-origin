@@ -2,9 +2,9 @@
 order: 1
 ---
 
-# Dashboard Getting Started Guide
+# Get Started
 
-Welcome to your Dashboard! This guide will help you sign up, log in, and navigate the platform with ease. Whether you are a **Buyer** or a **DRE Developer**, you’ll find clear instructions, useful tips, and troubleshooting advice to ensure a smooth experience.
+This guide will help you sign up, log in, and navigate the platform with ease. Whether you are a **Buyer** or a **DRE Developer**, you’ll find clear instructions, useful tips, and troubleshooting advice to ensure a smooth experience.
 
 ## Introduction
 
@@ -130,15 +130,3 @@ Once logged in, you will see a dashboard customized to your role. Below are the 
 - **Strong Passwords:** Use unique, complex passwords for your account.
 - **Keep Software Updated:** Ensure your browser and operating system are up to date to prevent security vulnerabilities.
 - **Logout on Shared Devices:** Always log out from your account when using public or shared devices.
-
-## Support and Contact Information
-
-If you encounter any issues or have questions not covered in this guide, our support team is here to help:
-
-- **Email Support:** [support@example.com](mailto:support@example.com)
-- **Live Chat:** Available on the platform during business hours.
-- **Help Center:** Visit our [Help Center](#) for additional tutorials and troubleshooting tips.
-
-By following this guide, you’ll be well on your way to maximizing your Dashboard experience. Enjoy exploring the features and enhancing your workflow—whether you’re managing energy devices or handling reservations and certificates!
-
-Happy navigating!
