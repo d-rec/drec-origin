@@ -1587,7 +1587,7 @@ export class DeviceGroupService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_5_SECONDS)
   //@Cron('*/3 * * * *')
   async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
