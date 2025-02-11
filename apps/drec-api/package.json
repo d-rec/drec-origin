@@ -40,7 +40,8 @@
     "test:e2e": "pnpm typeorm:drop && pnpm migrate && pnpm test:e2e:jest",
     "test:e2e:single": "sh ./scripts/test-e2e-single.sh",
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
-    "coverage:jest": "jest --coverage"
+    "coverage:jest": "jest --coverage",
+    "permissions":"npm run typeorm migration:run"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
