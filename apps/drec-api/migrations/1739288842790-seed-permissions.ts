@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class SeedPermissions1739288842790 implements MigrationInterface {
+export class seedPermissions1739288842790 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             INSERT INTO public.aclmodulepermissions (
