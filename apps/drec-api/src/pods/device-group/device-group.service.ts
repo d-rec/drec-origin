@@ -86,6 +86,8 @@ import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
 import { FilterDTO } from '../certificate-log/dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class DeviceGroupService {
@@ -116,6 +118,7 @@ export class DeviceGroupService {
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
+    @InjectQueue('device-queue') private deviceQueue: Queue,
   ) {}
 
   async getAll(
@@ -1587,9 +1590,27 @@ export class DeviceGroupService {
     });
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  async bulkUploadJobProcessing(
+    s3Key: string,
+    fileId: string,
+  ): Promise<string> {
+    try {
+      const job = await this.deviceQueue.add('device-bulk-upload', {
+        s3Key: s3Key,
+        fileId: fileId,
+      });
+      return job.id.toString();
+    } catch (error) {
+      this.logger.error('Job processing failed:', error);
+      throw error;
+    }
+  }
+
+  //@Cron(CronExpression.EVERY_5_SECONDS)
   //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
+  async getAddedCSVProcessingJobsAndStartProcessing(
+    bulkUpload,
+  ): Promise<void | any> {
     this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
     const filesAddedForProcessing =
       await this.hasSingleAddedJobForCSVProcessing();

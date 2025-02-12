@@ -19,6 +19,7 @@ import { ReadsService } from '../reads/reads.service';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { Role } from '../../utils/enums';
+import { DeviceGroupService } from '../device-group/device-group.service';
 
 @Injectable()
 export class BulkUploadService {
@@ -31,6 +32,7 @@ export class BulkUploadService {
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
     private readonly readsService: ReadsService,
+    private readonly deviceGroupService: DeviceGroupService,
   ) {}
 
   async storeBulkUploadJob(
@@ -85,6 +87,11 @@ export class BulkUploadService {
           s3Upload.key,
           file.filename,
           bulkUploadType,
+        );
+      case BulkUploadType.Devices:
+        return this.deviceGroupService.bulkUploadJobProcessing(
+          s3Upload.key,
+          file.filename,
         );
       default:
         throw new BadRequestException(
