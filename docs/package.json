@@ -8,7 +8,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "prettier:fix": "prettier --write './{dev_docs,usage_guide,introduction}/**/*.md'"
+    "prettier:fix": "prettier --write './**/*.md'"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "mermaid": "^11.4.1",
     "vitepress": "^1.6.3",
     "vitepress-plugin-mermaid": "^2.0.17",
-    "vitepress-sidebar": "^1.30.2"
+    "vitepress-sidebar": "^1.30.2",
+    "prettier": "~3.2.5"
   }
 }

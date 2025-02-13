@@ -9,6 +9,7 @@ order: 4
 ### Account Access Issues
 
 - **I can't log in to my account**
+
   - Ensure your email and password are correct
   - Check if your Caps Lock is on
   - Verify you're using the email address used during registration
@@ -24,7 +25,7 @@ order: 4
 ### Profile Management
 
 - **I can't update my profile details**
-  - Ensure all required fields (*) are filled
+  - Ensure all required fields (\*) are filled
   - Log out and log back in to refresh your session
   - Check that your password meets the requirements:
     - Maximum 6 characters
@@ -60,12 +61,14 @@ order: 4
 ### Account Management
 
 1. **How do I reset my password?**
+
    - Navigate to Account Setting > Profile
    - Go to the Security Setting tab
    - Enter and confirm your new password
    - Click "Reset Password"
 
 2. **Can I change my email address?**
+
    - Yes, go to Account Setting > Profile > User Details
    - Update your email
    - Save changes
@@ -80,6 +83,7 @@ order: 4
 ### Device Management
 
 4. **How do I register multiple devices?**
+
    - Use "Add More Device" button for a few devices
    - Use Bulk Upload for many devices
    - Download and follow the template for bulk uploads
@@ -93,6 +97,7 @@ order: 4
 ### Reservations
 
 6. **How do I track my reservations?**
+
    - Go to Reservations > All Reservations
    - Use filters to find specific reservations
    - Check status and details in the list view

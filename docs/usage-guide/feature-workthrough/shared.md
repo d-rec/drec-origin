@@ -9,6 +9,7 @@ This section covers the features and functionalities shared across different use
 ## Organization Management
 
 ### Viewing Organization
+
 1. Access the Organization menu from the left sidebar
 2. View organization details and structure
 3. Access organization-specific features based on your role
@@ -18,6 +19,7 @@ This section covers the features and functionalities shared across different use
 Organization administrators have access to comprehensive user management capabilities:
 
 1. **View All Users**
+
    - Navigate to Organization > All Users
    - See all users within your organization
    - View details including Name, Email, Role, and Status
@@ -37,25 +39,28 @@ Organization administrators have access to comprehensive user management capabil
 2. Fill in required information:
    - First Name
    - Last Name
-   - Email*
-   - Role*
+   - Email\*
+   - Role\*
 
 > **Note:** Available roles differ based on your user type
 
 #### Role Assignment Options:
+
 - **For Developers:**
+
   - DeviceOwner
   - User
-  ![developer invitation page](../dashboard-user-guide-images/developer-invitation.png)
+    ![developer invitation page](../dashboard-user-guide-images/developer-invitation.png)
 
 - **For Buyers:**
   - SubBuyer
   - User
-  ![invitation.png](../dashboard-user-guide-images/buyer-invitation.png)
+    ![invitation.png](../dashboard-user-guide-images/buyer-invitation.png)
 
 ### Managing Invitations
 
 After sending an invitation:
+
 1. System redirects to the Invitation tracking page
 2. View all sent invitations
 3. Monitor invitation status (Pending/Accepted)
@@ -70,6 +75,7 @@ After sending an invitation:
 ### Profile Settings
 
 Access your profile settings through Account Setting > Profile to:
+
 1. Update personal information
 2. Manage account preferences
 3. View account status
@@ -91,6 +97,7 @@ Reset your password through Account Setting > Profile:
 ## Device Search Features
 
 All users have access to the device search functionality with these filters:
+
 - Select Country
 - Device Type Code
 - Off Taker
@@ -99,6 +106,7 @@ All users have access to the device search functionality with these filters:
 - Commissioning Date range
 
 Common search features include:
+
 1. Filter button to apply selected criteria
 2. Reset button to clear all filters
 3. Search bar for quick lookups
@@ -107,11 +115,13 @@ Common search features include:
 ## Best Practices
 
 1. **User Management:**
+
    - Regularly review user access and permissions
    - Update or remove inactive users promptly
    - Verify email addresses before sending invitations
 
 2. **Account Security:**
+
    - Change passwords periodically
    - Use strong passwords meeting all requirements
    - Keep profile information up to date

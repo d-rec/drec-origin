@@ -49,7 +49,6 @@ These reading types ensure that energy data is collected accurately and consiste
 
 The reservations feature is designed for corporate buyers to link their energy consumption commitments with specific devices. Buyers can reserve devices by specifying key attributes such as target power output, operational start and end dates, and update frequencies. Once reserved, devices are locked to that reservation, ensuring that energy certificates are issued only for devices that meet the buyer’s energy production targets. This structured approach helps buyers manage their energy portfolios effectively.
 
-
 ## D-RECs Token
 
 This feature converts reserved energy into digital tokens that act as certificates of energy production. Tokens are generated based on the energy outputs of reserved devices and include key production details such as issuance dates and volume. The system continuously monitors the energy production to ensure tokens are issued until the set energy targets are met, providing a transparent and verifiable record of certified energy output.

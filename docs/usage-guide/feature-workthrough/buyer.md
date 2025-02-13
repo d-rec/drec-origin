@@ -12,12 +12,12 @@ This guide covers all features available to Buyers in the D-REC platform, includ
 
 1. Navigate to Reservations > Add Reservation in the left sidebar
 2. Fill in the required reservation details:
-   - Name*
-   - Target Capacity (MWh)*
-   - Start Date*
-   - End Date*
+   - Name\*
+   - Target Capacity (MWh)\*
+   - Start Date\*
+   - End Date\*
    - Expiry Date
-   - Frequency*
+   - Frequency\*
    - Authority to Exceed (Yes/No)
 
 ![Make A Reservation](../dashboard-user-guide-images/reservation-page.png)
@@ -45,6 +45,7 @@ This guide covers all features available to Buyers in the D-REC platform, includ
 > **Note:** Only available devices not currently reserved will be displayed.
 
 Before finalizing the reservation, you'll be prompted to confirm:
+
 - Whether to continue if some devices become unavailable
 - Whether to proceed if the target capacity is less than the estimated reachable capacity
 
@@ -92,14 +93,18 @@ Before finalizing the reservation, you'll be prompted to confirm:
 ![All Certificate](../dashboard-user-guide-images/certificates.png)
 
 ### Certificate Details
+
 Each certificate shows:
+
 - Generation period (Start and End dates)
 - Total owned volume
 - Device contributions
 - Certificate number (displayed as an icon)
 
 ### Filter Certificates
+
 Use the "Select Fields To Filter Certificates" section to:
+
 - Search by country
 - Filter by Off Taker
 - Filter by SDG Benefits
@@ -108,6 +113,7 @@ Use the "Select Fields To Filter Certificates" section to:
 ## Redemption Reports
 
 Access Redemption Report from the left sidebar to:
+
 - View redemption history
 - Track certificate usage
 - Generate reports for redeemed certificates
@@ -115,16 +121,19 @@ Access Redemption Report from the left sidebar to:
 ## Tips for Buyers
 
 1. **Reservation Planning:**
+
    - Check device availability before making reservations
    - Consider device capacities when setting target volumes
    - Plan reservation periods based on certificate needs
 
 2. **Certificate Management:**
+
    - Regularly review certificate generation status
    - Monitor owned volumes against reservation targets
    - Track certificate expiry dates
 
 3. **Device Selection:**
+
    - Use filters to find devices matching your requirements
    - Consider SDG Benefits for sustainability reporting
    - Check device locations and capacities

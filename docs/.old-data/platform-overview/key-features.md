@@ -23,16 +23,17 @@ Once devices are registered, the platform offers comprehensive viewing and filte
 Accurate recording of energy production is critical, and the platform supports multiple types of meter reads to suit different data collection needs. Developers can add meter reads for their devices by supplying the external device ID, selecting the type of reading (History, Delta, or Aggregate), specifying the unit of measurement (Wh, kWh, MWh, or GWh), and providing the actual meter reading values.
 
 - **Historical Reads:** For historical readings, the platform requires both a start and an end datetime. Historical data is validated to ensure:
+
   - The data does not predate the device’s commissioning date.
   - The power readings do not exceed the device’s capacity.
   - Only data within a three-year window is accepted for certification.
   - Meter read values must be non-negative.
 
-- **Aggregate Reads:** Aggregate readings represent the current cumulative energy values from a device. These readings are processed in the backend to derive Delta readings used for certificate generation. Developers can submit aggregate readings on a daily, weekly, or monthly basis.  
+- **Aggregate Reads:** Aggregate readings represent the current cumulative energy values from a device. These readings are processed in the backend to derive Delta readings used for certificate generation. Developers can submit aggregate readings on a daily, weekly, or monthly basis.
+
   > **Note:** The initial reading type (aggregate) is fixed and cannot be switched to another type.
 
 - **Delta Reads:** Delta readings are pre-calculated values provided by the developer for certification purposes. The system validates these readings against device capacity and ensures that the end timestamp is appropriate. Once a reading is entered as Delta, it remains fixed as that type.
-
 
 ## Reservations
 
@@ -45,5 +46,3 @@ Once a device is reserved, it is locked to that reservation and remains unavaila
 The token management features of the platform allow corporate buyers to convert their reserved energy into tokens, which serve as digital certificates of energy production. Tokens are generated based on the buyer reservations and include key details such as issuance dates and the volume of energy produced. The system continuously monitors the power output of reserved devices, issuing tokens at regular intervals until the energy production target is met.
 
 Users can view the tokens, which appear as certificates containing all relevant production details. Although advanced filtering for tokens is under development, the current token view offers a comprehensive snapshot of the certified energy production, ensuring transparency and traceability in the certification process.
-
-

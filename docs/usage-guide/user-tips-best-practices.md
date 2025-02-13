@@ -6,7 +6,7 @@ order: 3
 
 ## Form Submissions
 
-- Submit buttons remain inactive until all required fields (marked with *) are properly filled
+- Submit buttons remain inactive until all required fields (marked with \*) are properly filled
 - Check for validation messages that appear in red when fields are incorrectly filled
 - Required fields must be filled before proceeding:
   - Text fields should not be empty
