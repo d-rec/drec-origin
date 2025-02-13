@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
-export class SeedDevices1739436404184 implements MigrationInterface {
+export class SeedDevices1739456260875 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const orgIdResult = await queryRunner.query(`
             SELECT id FROM public.organization WHERE "orgEmail" = '${process.env.DEVELOPER_EMAIL.toLowerCase()}'

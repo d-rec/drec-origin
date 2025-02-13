@@ -1,9 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import bcrypt from 'bcryptjs';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config({ path: '../../../.env' });
 
-export class SeedUsers1739362729331 implements MigrationInterface {
+export class SeedUsers1739456260874 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const buyerEmail = process.env.BUYER_EMAIL;
     const developerEmail = process.env.DEVELOPER_EMAIL;
@@ -12,30 +10,6 @@ export class SeedUsers1739362729331 implements MigrationInterface {
       process.env.DEVELOPER_PASSWORD,
       8,
     );
-
-    await queryRunner.query(`
-            INSERT INTO public.organization (
-                "name", 
-                "orgEmail", 
-                "organizationType", 
-                "api_user_id",
-                "status"
-            )VALUES
-                (
-                    'John Doe', 
-                    '${buyerEmail.toLowerCase()}', 
-                    'Buyer', 
-                    'e0ab91a4-03bc-4447-9d00-c51260fd6ff8', 
-                    'Active'
-                ),
-                (
-                    'Jane Smith', 
-                    '${developerEmail.toLowerCase()}', 
-                    'Developer', 
-                    'e0ab91a4-03bc-4447-9d00-c51260fd6ff8', 
-                    'Active'
-                );
-        `);
 
     const buyerOrgId = await queryRunner.query(`
             SELECT id FROM public.organization WHERE "orgEmail" = '${buyerEmail}'
@@ -82,10 +56,6 @@ export class SeedUsers1739362729331 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     const buyerEmail = process.env.BUYER_EMAIL;
     const developerEmail = process.env.DEVELOPER_EMAIL;
-    await queryRunner.query(`
-            DELETE FROM "organization" WHERE "orgEmail" IN  ('${buyerEmail}', '${developerEmail}');
-        `);
-
     await queryRunner.query(`
             DELETE FROM "user" WHERE "email" IN ('${buyerEmail}', '${developerEmail}');
         `);
