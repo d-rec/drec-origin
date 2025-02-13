@@ -1,8 +1,6 @@
 import { ReadsService as BaseReadService } from '@energyweb/energy-api-influxdb';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CqrsModule } from '@nestjs/cqrs';
-import { DeviceModule } from '../device/device.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
 import { BASE_READ_SERVICE } from './constants';
@@ -19,6 +17,8 @@ import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
 import { ReadsProcessor } from './reads.processor';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
+import { CqrsModule } from '@nestjs/cqrs';
+import { DeviceModule } from '../device/device.module';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -31,6 +31,14 @@ const baseReadServiceProvider = {
   inject: [ConfigService],
 };
 
+console.log({
+  DeviceModule,
+  DeviceGroupModule,
+  UserModule,
+  OrganizationModule,
+  BulkUploadModule,
+});
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -41,14 +49,14 @@ const baseReadServiceProvider = {
     BullModule.registerQueue({
       name: 'reads-queue',
     }),
-    FileModule,
+    forwardRef(() => FileModule),
     ConfigModule,
     CqrsModule,
-    DeviceModule,
-    DeviceGroupModule,
+    forwardRef(() => DeviceModule),
+    forwardRef(() => DeviceGroupModule),
     UserModule,
     OrganizationModule,
-    BulkUploadModule,
+    forwardRef(() => BulkUploadModule),
   ],
   controllers: [ReadsController],
   providers: [baseReadServiceProvider, ReadsService, ReadsProcessor],

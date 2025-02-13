@@ -17,6 +17,11 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { Certificate } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { DeviceProcessor } from './device.processor';
+import { BullModule } from '@nestjs/bull';
+import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -30,16 +35,21 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
       CheckCertificateIssueDateLogForDeviceEntity,
       Certificate,
       CertificateSettingEntity,
+      BulkUploadEntity,
+      BulkUploadFailedLogEntity,
     ]),
     forwardRef(() => DeviceModule),
-
+    BullModule.registerQueue({
+      name: 'device-queue',
+    }),
     OrganizationModule,
     YieldConfigModule,
     FileModule,
     UserModule,
+    forwardRef(() => BulkUploadModule),
   ],
-  providers: [DeviceGroupService],
-  exports: [DeviceGroupService],
+  providers: [DeviceGroupService, DeviceProcessor],
+  exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })
 export class DeviceGroupModule {}

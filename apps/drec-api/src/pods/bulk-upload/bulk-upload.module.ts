@@ -9,6 +9,7 @@ import { BulkUploadController } from './bulk-upload.controller';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { ReadsModule } from '../reads/reads.module';
 import { UserModule } from '../user/user.module';
+import { DeviceGroupModule } from '../device-group/device-group.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from '../user/user.module';
     FileModule,
     forwardRef(() => ReadsModule),
     UserModule,
+    forwardRef(() => DeviceGroupModule),
   ],
   controllers: [BulkUploadController],
   providers: [BulkUploadService],
