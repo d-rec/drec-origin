@@ -4,48 +4,42 @@ order: 1
 
 # What is D-REC?
 
-The **D-REC Initiative** is a **not-for-profit, multi-stakeholder, industry-led** initiative that brings together a diverse group of members, including climate-focused philanthropic organizations, impact investors, leading global corporations, international standards organizations, technology providers, development organizations, environmental market agents, sustainability advisors, renewable energy associations, and project developers in emerging markets.
+Distributed Renewable Energy Certificates (D-RECs) are a specialized market instrument, acting as a high- impact verification label for Energy Attribute Certificates (EACs) issued as I-RECs, for electricity generated from Distributed Renewable Energy (DRE) projects in the Global South.
+
+D-RECs attest to the socio-economic and environmental benefits of the clean energy produced, enhancing the value and credibility of the underlying DRE projects. Managed by the D-REC Organization, D-RECs facilitate the mobilization of climate finance towards DRE projects, supporting their contribution to sustainable development and energy access.
 
 ## Understanding D-REC
 
-A **D-REC (Distributed Renewable Energy Certificate)** is a **third-party-certified, verifiable, and tradeable** market instrument that facilitates investment in distributed renewable energy. By leveraging **automation and blockchain-based verification**, D-RECs enable **small-scale energy producers** to efficiently access **environmental markets**.
+The **D-REC Platform** bridges the gap between small-scale **Distributed Renewable Energy (DRE)** projects and **Environmental Attribute Certificate (EAC)** markets. It addresses challenges such as **limited visibility, remote monitoring issues, and institutional barriers** that DRE developers face. By leveraging technology, **D-REC enhances accessibility, scalability, and transparency** in the renewable energy market.  
 
-The **D-REC Platform** automates the **issuance of International RECs (I-RECs)** through a streamlined, technology-driven process, eliminating manual data exchange. It enables developers and buyers to efficiently participate in environmental markets by supporting:
+### Key Value Proposition  
 
-- **Account and device registration**
-- **Data verification**
-- **Token minting**
-- **I-REC issuance**
+The **D-REC Platform** provides solutions that accelerate DRE adoption by addressing key market inefficiencies:  
 
-## Key Value Propositions
+- **Improved Discoverability** – A standardized data model makes it easier for buyers to find projects that align with their purchase criteria.  
+- **Lower Transaction Costs** – Automated validation reduces the time required for certification, lowering overall costs.  
+- **Scalability for Small Devices** – Device aggregation helps developers reach a scale that is meaningful to buyers, ensuring consistent issuance even with unreliable data connections.  
+- **Clear Traceability and Provenance** – A **public ledger** records and verifies all transactions, reducing the risk of double-counting and enhancing transparency.  
 
-The D-REC Platform provides several advantages through its technology-driven approach:
+### Core Features  
 
-### Improved Discoverability  
+The **D-REC Platform** incorporates the following core functionalities to support developers and buyers:  
 
-Standardized data models help buyers and stakeholders easily find projects that align with their criteria.
+- **Device Aggregation** – Groups individual devices based on characteristics such as developer, device type, and country to facilitate efficient REC issuance.  
+- **Buyer Reservation** – Enables REC buyers to select and reserve projects of interest, automating the issuance process based on their specifications.  
+- **Automated Validation** – Uses heuristic methods to validate meter data from devices before incorporating it into issuance requests.  
 
-### Lower Transaction Costs  
-
-Automated validation reduces the time needed to issue certificates, cutting transaction costs.
-
-### Scalability for Smaller Devices  
-
-Aggregation enables developers to achieve scale that is material to buyers, enables faster monetization cycles, and ensures consistent issuance even in areas with unreliable data connections.
-
-### Clear Traceability & Provenance  
-
-The public ledger provides a transparent record of data origination and verification while reducing the risk of double-counting, as all tokens representing I-REC issuance requests are publicly discoverable.
+Through these features, the **D-REC Platform** enables **DRE developers** to access **global climate finance** while providing buyers with direct access to **high-impact DRE projects**.  
 
 ## Types of Users
 
 The D-REC Platform serves three primary user categories:
 
-### REC Developers
+### I-REC (E) Developers
 
-REC Developers are entities that **own or operate distributed renewable energy projects** and seek to monetize the environmental attributes of the energy they produce. These developers may include independent power producers, community energy projects, commercial & industrial facility owners, and mini-grid operators.
+DRE Project Developers are entities that **own or operate distributed renewable energy projects** and seek to monetize the environmental attributes of the energy they produce. These developers may include independent power producers, community energy projects, commercial & industrial facility owners, and mini-grid operators.
 
-### REC Buyers
+### I-REC (E) Buyers
 
 REC Buyers are organizations or entities that **purchase renewable energy certificates to meet sustainability targets, regulatory requirements, or corporate social responsibility goals**. They may include multinational corporations, utilities, government agencies, and impact-driven investors.
 
