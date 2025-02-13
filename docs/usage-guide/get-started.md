@@ -54,8 +54,8 @@ All new users follow the same registration process. The only difference occurs d
    Once registered, navigate to the landing page and enter your email and password to log in.
 
 2. **Forgot Password?**  
-   If you forget your password, click the **"Forgot Password"** link and follow the instructions to reset it via the email you receive.
-  ![Login Page](./dashboard-user-guide-images/login-page.png)
+    If you forget your password, click the **"Forgot Password"** link and follow the instructions to reset it via the email you receive.
+   ![Login Page](./dashboard-user-guide-images/login-page.png)
 
 3. **Role-Based Dashboard Redirection:**
 
