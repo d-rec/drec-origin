@@ -59,6 +59,7 @@ All new users follow the same registration process. The only difference occurs d
 ![Login Page](./dashboard-user-guide-images/login-page.png)
 
 3. **Role-Based Dashboard Redirection:**
+
    - **DRE Developers:** Upon logging in, DRE Developers are directed to a dashboard that highlights tools for managing devices and meter reads.
 
      ![DRE Developer Dashboard](./dashboard-user-guide-images/developer-login.png)
